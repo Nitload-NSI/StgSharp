@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "kvfMWwWBZa8ZFINA4TiAIk8Mt085m4zG5H1IsoWLTS0V2MbJByExbUuzWiErSpLuQwS4GRMy1TOBsIzk97duPQ==",
+  "success": true,
+  "projectFilePath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharpDebug\\StgSharpDebug.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Nitlo\\.nuget\\packages\\glfwdotnet\\20.9.0\\glfwdotnet.20.9.0.nupkg.sha512",
+    "C:\\Users\\Nitlo\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\Nitlo\\.nuget\\packages\\steamworks.net\\20.1.0\\steamworks.net.20.1.0.nupkg.sha512",
+    "C:\\Users\\Nitlo\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.12\\microsoft.netcore.app.host.win-x64.6.0.12.nupkg.sha512",
+    "C:\\Users\\Nitlo\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.12\\microsoft.aspnetcore.app.ref.6.0.12.nupkg.sha512",
+    "C:\\Users\\Nitlo\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.12\\microsoft.windowsdesktop.app.ref.6.0.12.nupkg.sha512",
+    "C:\\Users\\Nitlo\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.12\\microsoft.netcore.app.ref.6.0.12.nupkg.sha512"
+  ],
+  "logs": []
+}
