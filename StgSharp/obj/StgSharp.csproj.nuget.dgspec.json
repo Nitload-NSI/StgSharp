@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\StgSharp.csproj": {}
+    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj": {}
   },
   "projects": {
-    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\StgSharp.csproj": {
+    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\StgSharp.csproj",
+        "projectUniqueName": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj",
         "projectName": "StgSharp",
-        "projectPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\StgSharp.csproj",
+        "projectPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj",
         "packagesPath": "C:\\Users\\Nitlo\\.nuget\\packages\\",
-        "outputPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\obj\\",
+        "outputPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -74,7 +74,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.104\\RuntimeIdentifierGraph.json"
         }
       }
     }
