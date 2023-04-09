@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "5G3NWQf7wV5PLr5m1b580Wd0sIPC7CL1BaPzPPQflu8N6pnZ3hZTMxEXjj+C3TF5fOTJ1U9gMowOkb8ftV/V0g==",
+  "dgSpecHash": "Vt1FNSUbcI0o/QZJ6qGwxC7SI9VNTZQWIK5DY5wFauXnl7nTQ4DK24S8NPO0ldYWM2qzoq/G94PEUgg4LlVI4Q==",
   "success": true,
-  "projectFilePath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\StgSharp.csproj",
+  "projectFilePath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Nitlo\\.nuget\\packages\\glfwdotnet\\20.9.0\\glfwdotnet.20.9.0.nupkg.sha512",
     "C:\\Users\\Nitlo\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",

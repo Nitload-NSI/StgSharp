@@ -24,12 +24,12 @@
             Y position of an enemy entity
             </summary>
         </member>
-        <member name="F:StgSharp.RenderMode.BasePoint">
+        <member name="F:StgSharp.Geometries.RenderMode.BasePoint">
             <summary>
             坐标点将基于参考原点构建
             </summary>
         </member>
-        <member name="F:StgSharp.RenderMode.RefPoint">
+        <member name="F:StgSharp.Geometries.RenderMode.RefPoint">
             <summary>
             坐标点将基于参考起点构建
             </summary>

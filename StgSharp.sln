@@ -7,11 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp", "StgSharp\StgSha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharpDebug", "StgSharpDebug\StgSharpDebug.csproj", "{467F2A1A-D7E2-4904-AAAD-A5998EE45C71}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependency", "Dependency", "{063F21D6-CDE3-4DE1-9008-2A211F59AB38}"
-	ProjectSection(SolutionItems) = preProject
-		Dependency\glfw3.dll = Dependency\glfw3.dll
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
