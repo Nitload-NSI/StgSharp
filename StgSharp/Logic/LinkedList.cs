@@ -6,12 +6,11 @@ using System.Text;
 
 namespace StgSharp
 {
-    public class LinkedList<T>:IEnumerable,INode<LinkedList<T>> where T: INode<T>
+    public class LinkedList<T>:INode<LinkedList<T>>,IEnumerable where T: INode<T>
     {
         internal readonly ContainerNode<T> _heading;
         internal ContainerNode<T> _first;
         internal ContainerNode<T> _tail;
-        private ContainerNode<LinkedList<T>> _id;
         private ContainerNode<T> _cache;
 
         public LinkedList()
@@ -35,8 +34,6 @@ namespace StgSharp
             set { _tail = new ContainerNode<T>(value); }
         }
 
-        ContainerNode<LinkedList<T>> INode<LinkedList<T>>.ID => _id;
-
         public void Add(T t)
         {
             if (_first != default(ContainerNode<T>))
@@ -49,6 +46,18 @@ namespace StgSharp
                 _tail._next = _cache;
                 _cache._previous = _tail;
                 _tail = _cache;
+            }
+        }
+
+        public void Remove(T node)
+        {
+            foreach (INode<T> item in this)
+            {
+                if (item == node)
+                {
+                    node.SelfDestrcut();
+                    break;
+                }
             }
         }
 
@@ -69,18 +78,6 @@ namespace StgSharp
         IEnumerator IEnumerable.GetEnumerator()
         {
             return new LinkedListEnumrator<T>(this);
-        }
-
-        void INode<LinkedList<T>>.setID(ContainerNode<LinkedList<T>> id)
-        {
-            if (_id == null)
-            {
-                throw new ArgumentException("Cannot set ID twice");
-            }
-            else
-            {
-                _id = id;
-            }
         }
     }
 }

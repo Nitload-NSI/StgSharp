@@ -6,7 +6,7 @@ using System.Text;
 
 namespace StgSharp
 {
-    public class Player : Entity
+    public abstract class Player : IEntity
     {
         internal float _velocity;
 

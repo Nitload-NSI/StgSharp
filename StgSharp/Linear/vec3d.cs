@@ -112,6 +112,15 @@ namespace StgSharp.Math
                 );
         }
 
+        public static vec3d operator *( float x, vec3d vec)
+        {
+            return new vec3d(
+                vec.X * x,
+                vec.Y * x,
+                vec.Z * x
+                );
+        }
+
         public static vec3d operator /(vec3d vec, float x)
         {
             return new vec3d(

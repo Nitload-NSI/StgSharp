@@ -9,11 +9,7 @@ namespace StgSharp.Control
     {
         public static void Point(Point p)
         {
-            StgSharp.ContainerNode<Point> _cache = p._id;
-            _cache.Previous.Next = _cache.Next;
-            _cache.Next.Previous = _cache.Previous;
-            _cache.Next = default;
-            _cache.Previous = default;
+            GameTimeLine._currentPool.pointContainer.Remove(p);
         }
 
         

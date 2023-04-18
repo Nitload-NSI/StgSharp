@@ -5,8 +5,11 @@ using System.Text;
 
 namespace StgSharp
 {
-    public class Partical : Entity
+    public class Partical : IEntity
     {
-
+        internal override void OnRenderFrame()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

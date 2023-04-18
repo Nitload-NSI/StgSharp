@@ -2,25 +2,6 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "GLFWDotNet/20.9.0": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.1/GLFWDotNet.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.1/GLFWDotNet.dll": {}
-        },
-        "runtimeTargets": {
-          "runtimes/win-x64/native/glfw3.dll": {
-            "assetType": "native",
-            "rid": "win-x64"
-          },
-          "runtimes/win-x86/native/glfw3.dll": {
-            "assetType": "native",
-            "rid": "win-x86"
-          }
-        }
-      },
       "Microsoft.CSharp/4.7.0": {
         "type": "package",
         "compile": {
@@ -69,7 +50,6 @@
         "type": "project",
         "framework": ".NETStandard,Version=v2.1",
         "dependencies": {
-          "GLFWDotNet": "20.9.0",
           "Microsoft.CSharp": "4.7.0",
           "Steamworks.NET": "20.1.0"
         },
@@ -83,22 +63,6 @@
     }
   },
   "libraries": {
-    "GLFWDotNet/20.9.0": {
-      "sha512": "fWonCs+BBqeK5R8t0g293RPoqerH27FHNcPyL/Hbxe0Ap4QCNKhQYf2tXJU1XTMf1ZbuLmM1MY5lonV35eGw6Q==",
-      "type": "package",
-      "path": "glfwdotnet/20.9.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "License.txt",
-        "glfwdotnet.20.9.0.nupkg.sha512",
-        "glfwdotnet.nuspec",
-        "lib/netstandard2.1/GLFW.license",
-        "lib/netstandard2.1/GLFWDotNet.dll",
-        "runtimes/win-x64/native/glfw3.dll",
-        "runtimes/win-x86/native/glfw3.dll"
-      ]
-    },
     "Microsoft.CSharp/4.7.0": {
       "sha512": "pTj+D3uJWyN3My70i2Hqo+OXixq3Os2D1nJ2x92FFo6sk8fYS1m1WLNTs0Dc1uPaViH0YvEEwvzddQ7y4rhXmA==",
       "type": "package",
