@@ -4,6 +4,7 @@ using System.Text;
 
 namespace StgSharp.Math
 {
+
     internal class Cordination
     {
     }

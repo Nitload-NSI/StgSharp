@@ -14,11 +14,14 @@ namespace StgSharp.Math
             uint* a = (uint*)&x;
             *a &= 0b_0111_1111_1111_1111_1111_1111_1111_1111;
             return *(float*)a;
-
-            
-
         }
 
+        public static unsafe int Abs(int x)
+        {
+            uint* a = (uint*)&x;
+            *a &= 0b_0111_1111_1111_1111_1111_1111_1111_1111;
+            return *(int*)a;
+        }
 
 
     }

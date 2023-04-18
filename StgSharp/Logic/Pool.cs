@@ -1,7 +1,6 @@
 ﻿using Steamworks;
-using StgSharp;
+using StgSharp.Math;
 using StgSharp.Entities;
-using StgSharp.Geometries;
 using StgSharp.Geometries;
 using System;
 using System.Collections.Generic;
@@ -13,10 +12,10 @@ namespace StgSharp
     public class Pool:INode<Pool>
     {
         internal LinkedList<Point> pointContainer;
-        internal LinkedList<IGeometry> geometryContainer;
-        internal LinkedList<Entity> _bulletContainer;
-        internal LinkedList<Entity> _awardContainer;
-        internal LinkedList<Entity> _enemyContainer;
+        internal LinkedList<IPlainGeometry> geometryContainer;
+        internal LinkedList<IEntity> _bulletContainer;
+        internal LinkedList<IEntity> _awardContainer;
+        internal LinkedList<IEntity> _enemyContainer;
 
         internal Line leftBoader;
         internal Line rightBoader;
@@ -30,8 +29,6 @@ namespace StgSharp
 
         internal Sensor<EntityPartical> Sensor;
 
-        private ContainerNode<Pool> _id;
-
 
 
         public Pool(Line left, Line right, Line top, Line bottom)
@@ -43,11 +40,46 @@ namespace StgSharp
         }
         public Pool( Geometries.Rectangle area)
         {
-            
+            vec3d vec = area.vertex01._position - area.vertex02._position;
+            if ((vec.X==0||vec.Y==0)&&vec.Z==0)
+            {
+                Line[] barders = area.GetAllSides();
+                if (area.vertex01.X>0)
+                {
+                    if (area.vertex01.Y>0)
+                    {
+                        topBoader = barders[3];
+                        rightBoader = barders[0];
+                        bottomBoader = barders[1];
+                        leftBoader = barders[2];
+                    }
+                    else
+                    {
+                        topBoader = barders[2];
+                        rightBoader = barders[3];
+                        bottomBoader = barders[0];
+                        leftBoader = barders[1];
+                    }
+                }
+                else
+                {
+                    if (area.vertex01.Y > 0)
+                    {
+                        topBoader = barders[3];
+                        rightBoader = barders[0];
+                        bottomBoader = barders[1];
+                        leftBoader = barders[2];
+                    }
+                    else
+                    {
+                        topBoader = barders[2];
+                        rightBoader = barders[3];
+                        bottomBoader = barders[0];
+                        leftBoader = barders[1];
+                    }
+                }
+            }
         }
-
-
-        ContainerNode<Pool> INode<Pool>.ID => _id;
 
         public void OnRender()
         {
@@ -57,17 +89,7 @@ namespace StgSharp
             }
         }
 
-        void INode<Pool>.setID(ContainerNode<Pool> id)
-        {
-            if (_id == default)
-            {
-                _id = id;
-            }
-            else
-            {
-                throw new ArgumentException("Cannot set ID twicee!");
-            }
-        }
+        
     }
 
 }

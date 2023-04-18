@@ -4,35 +4,65 @@
         <name>StgSharp</name>
     </assembly>
     <members>
-        <member name="P:StgSharp.Entity.CollisionSensor">
+        <member name="P:StgSharp.IEntity.CollisionSensor">
             <summary>
             A sensor used for cheking out if a bullet hit a player or something else
             </summary>
         </member>
-        <member name="P:StgSharp.Entity.Location">
+        <member name="P:StgSharp.IEntity.Location">
             <summary>
             A 2D vector presenting the position of an enemy entity, position can also be visited by X, Y
             </summary>
         </member>
-        <member name="P:StgSharp.Entity.X">
+        <member name="P:StgSharp.IEntity.X">
             <summary>
             X position of an enenmy entity
             </summary>
         </member>
-        <member name="P:StgSharp.Entity.Y">
+        <member name="P:StgSharp.IEntity.Y">
             <summary>
             Y position of an enemy entity
             </summary>
         </member>
-        <member name="F:StgSharp.Geometries.RenderMode.BasePoint">
+        <member name="T:StgSharp.Geometries.UnusedVertexException">
             <summary>
-            坐标点将基于参考原点构建
+            当几何体调用了过多的CalcVec方法时，产生UnusedVertexException异常
             </summary>
         </member>
-        <member name="F:StgSharp.Geometries.RenderMode.RefPoint">
+        <member name="T:StgSharp.Geometries.GetLocationHandler">
             <summary>
-            坐标点将基于参考起点构建
+            计算位移失量，需要手动输入游戏刻以提供时间数据
             </summary>
+            <param name="tickCounter"></param>
+            <returns>表示位移量的三维矢量</returns>
+        </member>
+        <member name="T:StgSharp.Geometries.IPlainGeometry">
+            <summary>
+            平面几何体。包含三角形，对称四边形，自由多边形等。最多可由16个点参数定义。
+            </summary>
+        </member>
+        <member name="M:StgSharp.Geometries.Parallelogram.MovVertex03(System.UInt32)">
+            <summary>
+            移动平行四边形的第三个顶点，是一个多余的方法，调用会引发多余变量异常
+            </summary>
+            <param name="tick">当前游戏刻</param>
+            <returns></returns>
+            <exception cref="T:StgSharp.Geometries.UnusedVertexException">几何体过定义</exception>
+        </member>
+        <member name="M:StgSharp.Geometries.Point.Update(System.UInt32)">
+            <summary>
+            刷新点的位置，即移动点。当该点是某个几何体的从动点时
+            （即点坐标由几何体其他点约束或点参数已经在创建几何体时定义）
+            请不要再次进行定义，程序将自行忽略此处的代码。
+            </summary>
+            <param name="tick">当前游戏刻</param>
+        </member>
+        <member name="M:StgSharp.Geometries.Rectangle.MovCenter(System.UInt32)">
+            <summary>
+            计算中心点相对于参考原点的位移
+            </summary>
+            <param name="tick">当前游戏刻</param>
+            <returns></returns>
         </member>
         <member name="M:StgSharp.Math.VectorCalc.multiple(StgSharp.Math.colum2,StgSharp.Math.vec2d)">
             <summary>

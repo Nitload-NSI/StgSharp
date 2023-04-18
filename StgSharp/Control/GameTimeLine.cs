@@ -9,9 +9,8 @@ namespace StgSharp.Control
     {
         internal static Pool _currentPool;
         internal static LinkedList<Pool> allPool;
-        public static Counter<uint> tickCounter 
-            = new Counter<uint>(0,1,1);
-        internal static BlockOperation currentOperation;
+        public static Counter<uint> tickCounter = new Counter<uint>(0,1,1);
+        internal static TimelineBlock currentOperation;
         private static bool isPaused;
 
         internal static void OnRender()

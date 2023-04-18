@@ -5,11 +5,30 @@ using System.Text;
 
 namespace StgSharp
 {
-    public interface INode<T> where T : INode<T>
+    public abstract class INode<T> where T : INode<T>
     {
+        protected ContainerNode<T> _id;
         internal ContainerNode<T> ID { get; }
 
-        internal void setID(ContainerNode<T> id);
+        internal void setID(ContainerNode<T> id)
+        {
+            if (_id!=null)
+            {
+                throw new ArgumentException("Cannot set ID twice");
+            }
+            else
+            {
+                _id = id;
+            }
+        }
+
+        internal void SelfDestrcut()
+        {
+            _id._previous._next = _id._next;
+            _id._next._previous = _id._previous;
+            this._id = default;
+        }
+
     }
 
 

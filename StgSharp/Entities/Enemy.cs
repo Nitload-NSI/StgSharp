@@ -4,25 +4,28 @@ using System.Text;
 
 namespace StgSharp.Entities
 {
-    public class Enemy : Entity
+    public class Enemy : IEntity
     {
         public bool _selectalbe;
 
-        public Launcher<EntityPartical> _awardLauncher;
-        public Launcher<EntityPartical> _commonBulletLauncher;
-        public Launcher<EntityPartical> _dieBulletLauncher;
+        internal Launcher<EntityPartical> _awardLauncher;
+        internal Launcher<EntityPartical> _commonBulletLauncher;
+        internal Launcher<EntityPartical> _dieBulletLauncher;
 
-        
-
+        public Launcher<EntityPartical> AwardLauncher { get; set; }
+        public Launcher<EntityPartical> CommonBulletLauncher { get; set; }
+        public Launcher<EntityPartical> DieBulletLauncher { get; set; }
 
         internal void InternalDieOperation(Pool home)
         {
-            _dieBulletLauncher.Launch(Control.GameTimeLine.tickCounter, home._bulletContainer);
-            _awardLauncher.Launch(Control.GameTimeLine.tickCounter, home._awardContainer);
+            _dieBulletLauncher.Launch();
+            _awardLauncher.Launch();
             this._id.Remove();
         }
 
-        
-
+        internal override void OnRenderFrame()
+        {
+            CommonBulletLauncher.Launch();
+        }
     }
 }

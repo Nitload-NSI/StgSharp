@@ -1,94 +1,46 @@
-﻿using Steamworks;
-using StgSharp.Math;
+﻿using StgSharp.Math;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace StgSharp.Geometries
 {
-    public class Arc : IGeometry
+    public class Arc : IPlainGeometry
     {
-        internal Point _basePoint;
-        internal Point _center;
-        internal Point _radius;
-        internal Point _angle;
-        internal RenderMode _renderMode;
-        internal readonly uint bornTick;
+        internal Point center;
+        internal Point beginPoint;
+        internal Point endPoint;
+        internal GetLocationHandler movCenterOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
+        internal GetLocationHandler movBeginOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
+        internal GetLocationHandler movEndOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
-        public Arc(uint bornTime) : base(bornTime)
-        {
-            bornTick = bornTime;
-        }
+        public override Point RefPoint01 => center;
 
-        public Arc(Counter<uint> tickCounter) : base(tickCounter)
-        {
-            bornTick = tickCounter._value;
-        }
+        public override Point RefPoint02 => beginPoint;
 
-        public override Point BasePoint => _basePoint;
+        public override Point RefPoint03 => endPoint;
 
-        public override Point RefPoint => _center;
+        public virtual vec3d MoveCenter(uint tick) => movCenterOperation.Invoke(tick);
 
-        public override Point RefVec01 => _radius;
+        public virtual vec3d MovBegin(uint tick) => movBeginOperation.Invoke(tick);
 
-        public override Point RefVec02 => _angle;
-
-        public override RenderMode renderMode => _renderMode;
-
-        
-
-        internal sealed override void CalcVec01(uint tick)
-        {
-            _center._position = _basePoint._position + MoveCenter(tick);
-        }
-
-        internal sealed override void CalcVec02(vec2d vec, uint tick)
-        {
-            _radius._position = vec + UpdateRadius(tick);
-
-        }
-        internal sealed override void CalcVec03(StgSharp.Math.vec2d vec, uint tick)
-        {
-            _angle._position = vec + UpdateAngle(tick);
-        }
-
-        public virtual vec2d MoveCenter(uint tick) => default;
-
-        public virtual vec2d UpdateRadius(uint tick) => default;
-
-        public virtual vec2d UpdateAngle(uint tick) => default;
+        public virtual vec3d MovEnd(uint tick) => movEndOperation.Invoke(tick);
 
         internal override void OnRender(uint tick)
         {
-            tick-=bornTick;
-            CalcVec01(tick);
-            switch (_renderMode)
-            {
-                case RenderMode.BasePoint:
-                    CalcVec02(_basePoint._position,tick);
-                    CalcVec03(_basePoint._position,tick);
-                    break;
-                case RenderMode.RefPoint:
-                    CalcVec02(_center._position,tick);
-                    CalcVec03(_center._position, tick);
-                    break;
-                default:
-                    break;
-            }
+            tick-= bornTick;
+            center._position = refOrigin._position + MoveCenter(tick);
+            beginPoint._position = refOrigin._position + MovBegin(tick);
+            endPoint._position = refOrigin._position + MovEnd(tick);
         }
 
-        public override float SetArrayX()
+        public override Line[] GetAllSides() => throw new NotImplementedException();
+
+        public override Plain GetPlain()
         {
-            throw new NotImplementedException();
+            return new Plain(this.center,this.beginPoint,this.endPoint);
         }
-        
-        public override float SetArrayY()
-        {
-            throw new NotImplementedException();
-        }
-
-
-
     }
 }

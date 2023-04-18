@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "Vt1FNSUbcI0o/QZJ6qGwxC7SI9VNTZQWIK5DY5wFauXnl7nTQ4DK24S8NPO0ldYWM2qzoq/G94PEUgg4LlVI4Q==",
+  "dgSpecHash": "0ohwIag8Iw6F4MvoeKvFsz7YFiV0l0hEu5W4aJhk0L6vlBc4L2rNUzs4d7N62/Rtzzzfy0+mrylnfmXd/nlpHw==",
   "success": true,
   "projectFilePath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Nitlo\\.nuget\\packages\\glfwdotnet\\20.9.0\\glfwdotnet.20.9.0.nupkg.sha512",
     "C:\\Users\\Nitlo\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\Nitlo\\.nuget\\packages\\steamworks.net\\20.1.0\\steamworks.net.20.1.0.nupkg.sha512"
   ],

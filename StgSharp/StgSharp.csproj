@@ -12,9 +12,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GLFWDotNet" Version="20.9.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Steamworks.NET" Version="20.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Graphic\" />
   </ItemGroup>
 
 </Project>

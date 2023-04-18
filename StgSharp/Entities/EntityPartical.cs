@@ -4,8 +4,8 @@ using System.Text;
 
 namespace StgSharp.Entities
 {
-    public class EntityPartical : Entity
+    public abstract class EntityPartical : IEntity
     {
-
+        
     }
 }

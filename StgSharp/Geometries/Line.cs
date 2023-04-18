@@ -1,5 +1,6 @@
 ﻿using Steamworks;
 using StgSharp;
+using StgSharp.Control;
 using StgSharp.Math;
 using System;
 using System.Collections.Generic;
@@ -7,78 +8,49 @@ using System.Text;
 
 namespace StgSharp.Geometries
 {
-    public class Line:IGeometry
+    public class Line:IPlainGeometry
     {
-        internal Point _basePoint;
-        internal Point _beginPoint;
-        internal Point _endPoint;
-        internal GetLocationHandler _beginPointMov;
-        internal GetLocationHandler _endPointMov;
-        internal RenderMode _renderMode;
-        internal readonly uint bornTick;
+        internal Point basePoint = default ;
+        internal Point beginPoint = default ;
+        internal Point endPoint = default;
+        internal GetLocationHandler movBegin;
+        internal GetLocationHandler movEnd;
 
-        public override Point BasePoint => _basePoint;
+        public override Point RefPoint01 => beginPoint;
+        public override Point RefPoint02 => endPoint;
+        public override Point RefPoint03 => default;
 
-        public override Point RefPoint => _beginPoint;
-
-        public override Point RefVec01 => _endPoint;
-        public override Point RefVec02 => default;
-        public override RenderMode renderMode => _renderMode;
-
-        public Line(uint bornTime) : base(bornTime)
+        public Line(Point begin, Point end)
         {
-            bornTick = bornTime;
+            this.beginPoint = begin;
+            this.endPoint = end;
         }
 
-        public Line(Counter<uint> tickCounter) : base(tickCounter)
-        {
-            bornTick = tickCounter._value;
-        }
+        public Line() { }
 
-        public override float SetArrayX()
-        {
-            throw new NotImplementedException();
-        }
+        //计算线起点的方法，通过对线的派生的重写实现功能
+        public virtual vec3d MoveBeginPoint(uint tick) 
+            => movBegin.Invoke(tick);
 
-        public override float SetArrayY()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal sealed override void CalcVec01(uint tick)
-        {
-            _beginPoint._position = _basePoint._position + MoveBeginPoint(tick);
-        }
-
-        internal sealed override void CalcVec02(vec2d vec, uint tick)
-        {
-            _endPoint._position = vec + MoveEndPoint(tick);
-        }
-
-        internal sealed override void CalcVec03(vec2d vec, uint tick)
-        {
-            throw new ArgumentException("Lines do not need the third parameter to define!");
-        }
-
-        public virtual vec2d MoveBeginPoint(uint tick) => default;
-
-        public virtual vec2d MoveEndPoint(uint tick) => default;
+        //计算线重点的方法，通过对线的派生的重写实现功能
+        public virtual vec3d MoveEndPoint(uint tick) 
+            => movEnd.Invoke(tick);
 
         internal override void OnRender(uint tick)
         {
             tick -= bornTick;
-            CalcVec01(tick);
-            switch (_renderMode)
-            {
-                case RenderMode.BasePoint:
-                    CalcVec02(_basePoint._position, tick);
-                    break;
-                case RenderMode.RefPoint:
-                    CalcVec02(_beginPoint._position, tick);
-                    break;
-                default:
-                    break;
-            }
+            beginPoint._position = refOrigin._position + MoveBeginPoint(tick);
+            endPoint._position = refOrigin._position + MoveEndPoint(tick);
+        }
+
+        public override Line[] GetAllSides()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Plain GetPlain()
+        {
+            throw new ToUpperDimensionException();
         }
     }
 }

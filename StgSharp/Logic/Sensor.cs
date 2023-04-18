@@ -8,21 +8,21 @@ using System.Text;
 namespace StgSharp
 {
 
-    public delegate bool SensorRuleHandler(IGeometry target, IGeometry boarder);
+    public delegate bool SensorRuleHandler(IPlainGeometry target, IPlainGeometry boarder);
 
     public class Sensor<T> 
     {
-        internal IGeometry _boarder;
-        internal IGeometry _target;
+        internal IPlainGeometry _boarder;
+        internal IPlainGeometry _target;
         internal SensorRuleHandler _rule;
         
 
-        public IGeometry boarder
+        public IPlainGeometry boarder
         {
             get { return _boarder; }
         }
 
-        public IGeometry target
+        public IPlainGeometry target
         {
             get { return _target; }
             set { _target = value; }

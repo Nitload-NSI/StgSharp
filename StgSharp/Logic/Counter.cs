@@ -5,7 +5,7 @@ using System.Text;
 
 namespace StgSharp
 {
-    public class Counter<T>where T:struct, IConvertible, IFormattable, IComparable
+    public class Counter<T> where T:struct, IConvertible, IFormattable, IComparable
     {
         internal readonly dynamic _defualtValue;
         internal readonly dynamic _defualtAddValue;

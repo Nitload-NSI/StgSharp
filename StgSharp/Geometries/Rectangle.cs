@@ -1,92 +1,45 @@
-﻿using StgSharp.Math;
+﻿using StgSharp.Control;
+using StgSharp.Math;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace StgSharp.Geometries
 {
-    public class Rectangle : IGeometry
+    public class Rectangle : Polygon4
     {
-        internal Point _basePoint;
-        internal Point _center;
-        internal Point _centerToCorner1;
-        internal Point _centerToCorner2;
-        internal RenderMode _renderMode;
-        internal readonly uint bornTick;
+        internal Point center;
 
-        public override sealed Point BasePoint => _basePoint;
-        public override sealed Point RefPoint=>_center;
+        public override sealed Point RefPoint01=>center;
 
-        public override sealed Point RefVec01 => _centerToCorner1;
+        public override sealed Point RefPoint02 => vertex01;
 
-        public override sealed Point RefVec02 => _centerToCorner2;
+        public override sealed Point RefPoint03 => vertex02;
 
-        public override RenderMode renderMode => _renderMode;
+        
 
-        public Rectangle(uint bornTime) : base(bornTime)
+        /// <summary>
+        /// 计算中心点相对于参考原点的位移
+        /// </summary>
+        /// <param name="tick">当前游戏刻</param>
+        /// <returns></returns>
+        public virtual vec3d MovCenter(uint tick) => default(vec3d);
+
+        public sealed override vec3d MovVertex03(uint tick)
         {
-            bornTick = bornTime;
+            return this.center._position * 2 - this.vertex01._position;
         }
 
-        public Rectangle(Counter<uint> tickCounter) : base(tickCounter)
+        public sealed override vec3d MovVertex04(uint tick)
         {
-            bornTick = tickCounter._value;
+            return this.center._position * 2 - this.vertex02._position;
         }
 
         internal override sealed void OnRender(uint tick)
         {
             tick-=bornTick;
-            CalcVec01(tick);
-            switch (renderMode)
-            {
-                case RenderMode.BasePoint:
-                    CalcVec02(_basePoint._position,tick);
-                    CalcVec03(_basePoint._position,tick);
-                    break;
-                case RenderMode.RefPoint:
-                    CalcVec02(_center._position, tick);
-                    CalcVec03(_center._position, tick);
-                    break;
-                default:
-                    break;
-            }
+              this.MovCenter(tick);
         }
 
-        public override sealed float SetArrayX()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override sealed float SetArrayY()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override void CalcVec01(uint tick)
-        {
-            _center._position = _basePoint._position + MovCenter(tick);
-        }
-
-        internal override void CalcVec02(vec2d vec, uint tick)
-        {
-            _centerToCorner1._position = vec + UpdateCTC1(tick);
-        }
-
-        internal override void CalcVec03(vec2d vec, uint tick)
-        {
-            _centerToCorner2._position = vec + UpdateCTC2(tick);
-            if (_centerToCorner1._position.GetLength() 
-                == _centerToCorner2._position.GetLength())
-            {
-                throw new ArgumentException("Cannot form a triangle, " +
-                    "two crossing lines are not equal!");
-            }
-        }
-
-        public virtual vec2d MovCenter(uint tick)=>default(vec2d);
-
-        public virtual vec2d UpdateCTC1(uint tick) => default(vec2d);
-
-        public virtual vec2d UpdateCTC2(uint tick) => default(vec2d);
     }
 }

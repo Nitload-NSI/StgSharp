@@ -14,26 +14,6 @@
           "StgSharpDebug.dll": {}
         }
       },
-      "GLFWDotNet/20.9.0": {
-        "runtime": {
-          "lib/netstandard2.1/GLFWDotNet.dll": {
-            "assemblyVersion": "20.9.0.0",
-            "fileVersion": "20.9.0.0"
-          }
-        },
-        "runtimeTargets": {
-          "runtimes/win-x64/native/glfw3.dll": {
-            "rid": "win-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/win-x86/native/glfw3.dll": {
-            "rid": "win-x86",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
       "Microsoft.CSharp/4.7.0": {},
       "Steamworks.NET/20.1.0": {
         "runtime": {
@@ -83,7 +63,6 @@
       },
       "StgSharp/1.0.0": {
         "dependencies": {
-          "GLFWDotNet": "20.9.0",
           "Microsoft.CSharp": "4.7.0",
           "Steamworks.NET": "20.1.0"
         },
@@ -98,13 +77,6 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
-    },
-    "GLFWDotNet/20.9.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-fWonCs+BBqeK5R8t0g293RPoqerH27FHNcPyL/Hbxe0Ap4QCNKhQYf2tXJU1XTMf1ZbuLmM1MY5lonV35eGw6Q==",
-      "path": "glfwdotnet/20.9.0",
-      "hashPath": "glfwdotnet.20.9.0.nupkg.sha512"
     },
     "Microsoft.CSharp/4.7.0": {
       "type": "package",

@@ -7,82 +7,57 @@ using System.Text;
 
 namespace StgSharp.Geometries
 {
-    public class Triangle :IGeometry
+    public class Triangle :IPlainGeometry
     {
-        internal Point _basePoint;
-        internal Point _beginPoint;
-        internal Point _line1;
-        internal Point _line2;
-        internal RenderMode _renderMode;
-        internal readonly uint bornTick;
+        internal Point vertex1;
+        internal Point vertex2;
+        internal Point vertex3;
+        internal GetLocationHandler movVertex01Opearion = new GetLocationHandler(GeometryOperation.DefualtMotion);
+        internal GetLocationHandler movVertex02Opearion = new GetLocationHandler(GeometryOperation.DefualtMotion);
+        internal GetLocationHandler movVertex03Opearion = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
-        public override sealed Point BasePoint => _basePoint;
 
-        public override sealed Point RefPoint=>_beginPoint;
+        public override sealed Point RefPoint01=> vertex1;
 
-        public override sealed Point RefVec01 => _line1;
+        public override sealed Point RefPoint02 => vertex2;
 
-        public override sealed Point RefVec02 => _line2;
+        public override sealed Point RefPoint03 => vertex3;
 
-        public override RenderMode renderMode => _renderMode;
+        public GetLocationHandler MovVertex01Operation => this.movVertex01Opearion;
+        public GetLocationHandler MovVertex02Operation => this.movVertex02Opearion;
+        public GetLocationHandler MovVertex03Operation => this.movVertex03Opearion;
 
-        public Triangle(uint bornTime) : base(bornTime)
-        {
-            bornTick = bornTime;
-        }
+        public virtual vec3d MovVertex01(uint tick) => movVertex01Opearion.Invoke(tick);
 
-        public Triangle(Counter<uint> tickCounter) : base(tickCounter)
-        {
-            bornTick = tickCounter._value;
-        }
+        public virtual vec3d MovVertex02(uint tick) => movVertex02Opearion.Invoke(tick);
 
-        internal override void CalcVec01(uint tick)
-        {
-            _beginPoint._position = _basePoint._position+ MovBegin(tick);
-        }
-
-        internal override void CalcVec02(vec2d vec, uint tick)
-        {
-            _line1._position = vec + CalcSide1(tick);
-        }
-
-        internal override void CalcVec03(vec2d vec, uint tick)
-        {
-            _line2._position = vec + CalcSide2(tick);
-        }
-
-        public virtual vec2d MovBegin(uint tick) => default(vec2d);
-
-        public virtual vec2d CalcSide1(uint tick)=> default(vec2d);
-
-        public virtual vec2d CalcSide2(uint tick) => default(vec2d);
+        public virtual vec3d MovVertex03(uint tick) => movVertex03Opearion.Invoke(tick);
 
         internal override sealed void OnRender(uint tick)
         {
-            CalcVec01(tick);
-            switch (_renderMode)
-            {
-                case RenderMode.BasePoint:
-                    CalcVec02(BasePoint._position,tick);
-                    CalcVec03(BasePoint._position,tick);
-                    break;
-                case RenderMode.RefPoint:
-                    CalcVec02(_beginPoint._position,tick);
-                    CalcVec03(_beginPoint._position,tick);
-                    break;
-                default:
-                    break;
-            }
+            tick -= this.bornTick;
+            vertex1._position = RefOrigin._position + MovVertex01(tick);
+            vertex2._position = RefOrigin._position + MovVertex02(tick);
+            vertex3._position = RefOrigin._position + MovVertex03(tick);
+
         }
 
-        public override float SetArrayX()
+        public override Line[] GetAllSides()
         {
-            throw new NotImplementedException();
+            Line[] sides = new Line[3]
+                {
+                    new Line(vertex1,vertex2),
+                    new Line(vertex2,vertex3),
+                    new Line(vertex3,vertex1)
+                };
+
+            return sides;
         }
 
-        public override float SetArrayY()
+        public override Plain GetPlain()
         {
-            throw new NotImplementedException();
+            return new Plain(this.vertex1,this.vertex2,this.vertex3);
         }
+
     }
 }
