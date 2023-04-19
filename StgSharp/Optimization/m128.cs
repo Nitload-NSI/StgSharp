@@ -6,7 +6,7 @@ using System.Text;
 
 namespace StgSharp.Optimization
 {
-    [StructLayout(LayoutKind.Explicit,Size =16)]
+    [StructLayout(LayoutKind.Explicit,Size =16,Pack =16)]
     public struct m128
     {
         [FieldOffset(0)] public float float0;
