@@ -1,5 +1,9 @@
 # Stg# #
 
+![Stg#Logo][Stg#LOGO]
+
+[Stg#LOGO]:
+
 ## General Introduction ##
 
 Stg# is the new generation STG game engine. STG# is written in C# and runs on .NET platform.
