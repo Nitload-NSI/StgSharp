@@ -1,8 +1,7 @@
 # Stg# #
 
-![Stg#Logo][Stg#LOGO]
+![Stg#Logo](https://github.com/Nitload-NSI/STG_Sharp/blob/main/STG%23LOGO.png "Stg#LOGO")
 
-[Stg#LOGO]:
 
 ## General Introduction ##
 
