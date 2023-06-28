@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using StgSharp.Control;
+using System;
 
 namespace StgSharp.Entities
 {
-    public class EliteEnemy:IEntity
+    public class EliteEnemy : IEntity
     {
         public bool _selectalbe;
 
@@ -20,7 +19,7 @@ namespace StgSharp.Entities
         {
             _dieBulletLauncher.Launch();
             _awardLauncher.Launch();
-            this._id.Remove();
+            TimeLine._currentPool._enemyContainer.Remove(this);
         }
 
         internal override void OnRenderFrame()

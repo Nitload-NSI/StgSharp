@@ -1,10 +1,4 @@
-﻿using StgSharp.Math;
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace StgSharp
+﻿namespace StgSharp
 {
     public abstract class Player : IEntity
     {

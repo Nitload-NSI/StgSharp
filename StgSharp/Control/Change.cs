@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace StgSharp.Control
+﻿namespace StgSharp
 {
 
-    public static class Change
+    public static partial class Instruction
     {
-        
+        //method used for chaging the value of paameters will be listed here
+
+
     }
 }

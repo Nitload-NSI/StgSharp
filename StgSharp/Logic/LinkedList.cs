@@ -1,83 +1,147 @@
-﻿using StgSharp.Logic;
-using System;
+﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 
 namespace StgSharp
 {
-    public class LinkedList<T>:INode<LinkedList<T>>,IEnumerable where T: INode<T>
+    public class LinkedList<T> : IEnumerable
     {
-        internal readonly ContainerNode<T> _heading;
-        internal ContainerNode<T> _first;
-        internal ContainerNode<T> _tail;
-        private ContainerNode<T> _cache;
+        internal readonly LinkedListNode<T> _heading;
+        private LinkedListNode<T> _cache;
+        private bool isEmpty;
+        public Counter<uint> count = new Counter<uint>(0, 1, 1);
 
         public LinkedList()
         {
-            _heading = new ContainerNode<T>(default(T));
+            _heading = new LinkedListNode<T>();
+            isEmpty = true;
         }
 
         public T First
         {
-            get { return _first._value; }
-            set 
-            {
-                _first = new ContainerNode<T>(value);
-                _heading._next = _first;
-            }
+            get { return _heading._next._value; }
+            /*
+             * This setter is ued to reset the First node,
+             * be careful when use this setter to avoid 
+             * unexpected risk of this List lose all nodes.
+            */
+            private set { _heading._next = default; }
         }
 
         public T Tail
         {
-            get { return _tail._value; }
-            set { _tail = new ContainerNode<T>(value); }
+            get { return _heading._previous._value; }
+            /*
+             * This setter is ued to reset the Last node,
+             * be careful when use this setter to avoid 
+             * unexpected risk of this List lose all nodes.
+            */
+            private set { _heading._previous = default; }
         }
 
+        /// <summary>
+        /// Add an item to the tail of linked list.
+        /// </summary>
+        /// <param name="t">The item ready to add to the list</param>
         public void Add(T t)
         {
-            if (_first != default(ContainerNode<T>))
+            //checkout if the linkedlist is null
+            if (isEmpty)
             {
-                First = t;
+                LinkedListNode<T> node = new LinkedListNode<T>(t);
+                _heading._next = node;
+                _heading._previous = node;
+                node.Next = _heading;
+                node.Previous = _heading;
+                isEmpty = false;
             }
             else
             {
-                _cache = new ContainerNode<T>(t);
-                _tail._next = _cache;
-                _cache._previous = _tail;
-                _tail = _cache;
+                LinkedListNode<T> node = new LinkedListNode<T>(t);
+                node.Next = _heading;
+                node.Previous = _heading.Previous;
+                _heading._previous._next = node;
+                _heading._previous = node;
+
             }
+            count++;
         }
 
-        public void Remove(T node)
+        public void Remove(T value)
         {
-            foreach (INode<T> item in this)
-            {
-                if (item == node)
-                {
-                    node.SelfDestrcut();
-                    break;
-                }
-            }
+            LinkedListNode<T> node = Find(value);
+            node._next._previous = node._previous;
+            node._previous._next = node._next;
+            node._previous = null;
+            node._next = null;
+            count--;
         }
 
         public void RemoveTail()
         {
-            if (_tail==default(ContainerNode<T>))
+            //check out if the list has only one member
+            if (count._value == 1)
             {
-
+                First = default;
+                isEmpty = true;
             }
             else
             {
-                _cache = _tail;
-                _tail = _cache._previous;
-                _cache._previous = default(ContainerNode<T>);
+                _heading.Previous.Next = _heading;
             }
+            count--;
+        }
+
+        internal LinkedListNode<T> Find(T value)
+        {
+            foreach (LinkedListNode<T> node in this)
+            {
+                if (node._value.Equals(value))
+                {
+                    return node;
+                }
+            }
+            throw new Exception("Value not found in this LinkedList");
+        }
+
+        public void Clear()
+        {
+            _heading._previous = null;
+            _heading._next = null;
+            count.Reset();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return new LinkedListEnumrator<T>(this);
         }
+
+        internal struct LinkedListEnumrator<T> : IEnumerator
+        {
+            private LinkedList<T> _target;
+            LinkedListNode<T> enumrator;
+
+            public LinkedListEnumrator(LinkedList<T> target)
+            {
+                _target = target;
+                enumrator = target._heading;
+            }
+
+            object IEnumerator.Current
+            {
+                get { return enumrator._value; }
+            }
+
+            bool IEnumerator.MoveNext()
+            {
+                enumrator = enumrator._next;
+                return enumrator == default(LinkedListNode<T>);
+            }
+
+            void IEnumerator.Reset()
+            {
+                enumrator = _target._heading;
+            }
+        }
+
     }
 }

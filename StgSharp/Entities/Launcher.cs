@@ -1,12 +1,9 @@
 ﻿using StgSharp.Entities;
 using StgSharp.Math;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace StgSharp
 {
-    public class Launcher<T>:INode<Launcher<T>> where T : IEntity
+    public class Launcher<T> where T : IEntity
     {
         /*
          *用于发射其他的实体，主要是子弹 和 掉落物
@@ -23,12 +20,12 @@ namespace StgSharp
             set { _bulletSample = value; }
         }
 
-        internal virtual void Launch( )
+        internal virtual void Launch()
         {
-            
+
         }
 
 
-        
+
     }
 }

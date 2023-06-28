@@ -1,21 +1,16 @@
 ﻿using StgSharp.Geometries;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Text;
 
 namespace StgSharp
 {
 
     public delegate bool SensorRuleHandler(IPlainGeometry target, IPlainGeometry boarder);
 
-    public class Sensor<T> 
+    public class Sensor<T>
     {
         internal IPlainGeometry _boarder;
         internal IPlainGeometry _target;
         internal SensorRuleHandler _rule;
-        
+
 
         public IPlainGeometry boarder
         {
