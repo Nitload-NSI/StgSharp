@@ -1,11 +1,8 @@
-﻿using Microsoft.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 
 namespace StgSharp
 {
-    public class Counter<T> where T:struct, IConvertible, IFormattable, IComparable
+    public class Counter<T> where T : struct, IConvertible, IFormattable, IComparable
     {
         internal readonly dynamic _defualtValue;
         internal readonly dynamic _defualtAddValue;
@@ -19,7 +16,7 @@ namespace StgSharp
             set { _value = value; }
         }
 
-        public Counter(T defualtValue,T defualtAddValue,T defualtSubValue)
+        public Counter(T defualtValue, T defualtAddValue, T defualtSubValue)
         {
             var type = Type.GetTypeCode(defualtValue.GetType());
             switch (type)
@@ -53,7 +50,7 @@ namespace StgSharp
             _defualtSubValue = defualtSubValue;
         }
 
-        
+
         public void Add(T value)
         {
             _value += value;
@@ -77,6 +74,18 @@ namespace StgSharp
         public void Reset()
         {
             _value = _defualtValue;
+        }
+
+        public static Counter<T> operator ++(Counter<T> counter)
+        {
+            counter.QuickAdd();
+            return counter;
+        }
+
+        public static Counter<T> operator --(Counter<T> counter)
+        {
+            counter.QuickSub();
+            return counter;
         }
     }
 }

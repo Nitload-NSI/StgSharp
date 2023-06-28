@@ -1,15 +1,137 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
+     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Platforms>AnyCPU;x64</Platforms>
+    <StartupObject>StgSharp.Program</StartupObject>
+    <UseWPF>False</UseWPF>
+    <RootNamespace>StgSharp</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Optimize>True</Optimize>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StgSharp\StgSharp.csproj" />
+    <Compile Include="..\StgSharp\Control\Add.cs" Link="Control\Add.cs" />
+    <Compile Include="..\StgSharp\Control\Change.cs" Link="Control\Change.cs" />
+    <Compile Include="..\StgSharp\Control\Geoemtry.cs" Link="Control\Geoemtry.cs" />
+    <Compile Include="..\StgSharp\Control\IO\GeometryIO.cs" Link="Control\GeometryIO.cs" />
+    <Compile Include="..\StgSharp\Control\IO\GraphicIO.cs" Link="Control\GraphicIO.cs" />
+    <Compile Include="..\StgSharp\Control\IO\GraphicIOpack.cs" Link="Control\GraphicIOpack.cs" />
+    <Compile Include="..\StgSharp\Control\Remove.cs" Link="Control\Remove.cs" />
+    <Compile Include="..\StgSharp\Control\TimeLine.cs" Link="Control\TimeLine.cs" />
+    <Compile Include="..\StgSharp\Control\TimelineBlock.cs" Link="Control\TimelineBlock.cs" />
+    <Compile Include="..\StgSharp\Entities\BehaviorArgs.cs" Link="Entities\BehaviorArgs.cs" />
+    <Compile Include="..\StgSharp\Entities\EliteEnemy.cs" Link="Entities\EliteEnemy.cs" />
+    <Compile Include="..\StgSharp\Entities\Enemy.cs" Link="Entities\Enemy.cs" />
+    <Compile Include="..\StgSharp\Entities\EntityPartical.cs" Link="Entities\EntityPartical.cs" />
+    <Compile Include="..\StgSharp\Entities\IEntity.cs" Link="Entities\IEntity.cs" />
+    <Compile Include="..\StgSharp\Entities\Launcher.cs" Link="Entities\Launcher.cs" />
+    <Compile Include="..\StgSharp\Entities\Partical.cs" Link="Entities\Partical.cs" />
+    <Compile Include="..\StgSharp\Entities\Player.cs" Link="Entities\Player.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Arc.cs" Link="Geometries\Arc.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Circle.cs" Link="Geometries\Circle.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\ExpressionHandler.cs" Link="Geometries\ExpressionHandler.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\GemoryException.cs" Link="Geometries\GemoryException.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\GeometryOperation.cs" Link="Geometries\GeometryOperation.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\IPlainGeometry.cs" Link="Geometries\IPlainGeometry.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Line.cs" Link="Geometries\Line.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Parallelogram.cs" Link="Geometries\Parallelogram.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Plain.cs" Link="Geometries\Plain.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Point.cs" Link="Geometries\Point.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Polygon4.cs" Link="Geometries\Polygon4.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Polygon5.cs" Link="Geometries\Polygon5.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Polygon6.cs" Link="Geometries\Polygon6.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Rectangle.cs" Link="Geometries\Rectangle.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Square.cs" Link="Geometries\Square.cs" />
+    <Compile Include="..\StgSharp\Geometries\PlainGeometry\Triangle.cs" Link="Geometries\Triangle.cs" />
+    <Compile Include="..\StgSharp\Graphics\Form.cs" Link="Graphics\Form.cs" />
+    <Compile Include="..\StgSharp\Graphics\GLdele.cs" Link="Graphics\GLdele.cs" />
+    <Compile Include="..\StgSharp\Graphics\GLFunc.cs" Link="Graphics\GLFunc.cs" />
+    <Compile Include="..\StgSharp\Graphics\GL\GLconst.cs" Link="Graphics\GLconst.cs" />
+    <Compile Include="..\StgSharp\Graphics\GL\GLenums.cs" Link="Graphics\GLenums.cs" />
+    <Compile Include="..\StgSharp\Graphics\GL\GLstruts.cs" Link="Graphics\GLstruts.cs" />
+    <Compile Include="..\StgSharp\Graphics\Graphic.cs" Link="Graphics\Graphic.cs" />
+    <Compile Include="..\StgSharp\Graphics\SSG\SSGStruct.cs" Link="Graphics\SSGStruct.cs" />
+    <Compile Include="..\StgSharp\Logic\Counter.cs" Link="Logic\Counter.cs" />
+    <Compile Include="..\StgSharp\Logic\LinkedList.cs" Link="Logic\LinkedList.cs" />
+    <Compile Include="..\StgSharp\Logic\LinkedListNode.cs" Link="Logic\LinkedListNode.cs" />
+    <Compile Include="..\StgSharp\Logic\Pool.cs" Link="Logic\Pool.cs" />
+    <Compile Include="..\StgSharp\Logic\QuickClearNode.cs" Link="Logic\QuickClearNode.cs" />
+    <Compile Include="..\StgSharp\Logic\Sensor.cs" Link="Logic\Sensor.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\colum2.cs" Link="Math\colum2.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\colum3.cs" Link="Math\colum3.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\colum4.cs" Link="Math\colum4.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\Cordination.cs" Link="Math\Cordination.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\matrix2x2.cs" Link="Math\matrix2x2.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\matrix2x3.cs" Link="Math\matrix2x3.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\matrix2x4.cs" Link="Math\matrix2x4.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\matrix3x2.cs" Link="Math\matrix3x2.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\matrix3x3.cs" Link="Math\matrix3x3.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\matrix3x4.cs" Link="Math\matrix3x4.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\matrix4x2.cs" Link="Math\matrix4x2.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\matrix4x3.cs" Link="Math\matrix4x3.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\matrix4x4.cs" Link="Math\matrix4x4.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\vec2d.cs" Link="Math\vec2d.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\vec3d.cs" Link="Math\vec3d.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\vec4d.cs" Link="Math\vec4d.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\Vector.Det.cs" Link="Math\Vector.Det.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\Vector.GetAngle.cs" Link="Math\Vector.GetAngle.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\Vector.GetLength.cs" Link="Math\Vector.GetLength.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\Vector.GetVector.cs" Link="Math\Vector.GetVector.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\Vector.Multiple.cs" Link="Math\Vector.Multiple.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\Vector.VectorTransform.cs" Link="Math\Vector.VectorTransform.cs" />
+    <Compile Include="..\StgSharp\Math\Linear\Verctor.Cross.cs" Link="Math\Verctor.Cross.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\ACos.cs" Link="Math\ACos.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\ASin.cs" Link="Math\ASin.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\ATan.cs" Link="Math\ATan.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\BasicOps.cs" Link="Math\BasicOps.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\Cos.cs" Link="Math\Cos.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\Ctor.cs" Link="Math\Ctor.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\Exp.cs" Link="Math\Exp.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\Function.cs" Link="Math\Function.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\Log.cs" Link="Math\Log.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\Pow.cs" Link="Math\Pow.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\Sin.cs" Link="Math\Sin.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\Sqrt.cs" Link="Math\Sqrt.cs" />
+    <Compile Include="..\StgSharp\Math\Scalar\Tan.cs" Link="Math\Tan.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Control\" />
+    <Folder Include="Entities\" />
+    <Folder Include="Geometries\" />
+    <Folder Include="Graphics\" />
+    <Folder Include="Logic\" />
+    <Folder Include="Math\" />
+  </ItemGroup>
+
+
+
+
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy $(solutiondir)StgSharpGraphic.dll $(targetdir)" />
+  </Target>
 
 </Project>

@@ -1,12 +1,9 @@
-﻿using StgSharp.Math;
-using StgSharp.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using StgSharp.Geometries;
+using StgSharp.Math;
 
 namespace StgSharp
 {
-    public abstract class IEntity:INode<IEntity>
+    public abstract class IEntity
     {
         internal Point _pos;
         internal LinkedList<IPlainGeometry> _collisionBox;
@@ -17,7 +14,7 @@ namespace StgSharp
         internal GetLocationHandler _movHandler;
         protected uint _bornTick;
 
-        public LinkedList<IPlainGeometry> CollisionBox 
+        public LinkedList<IPlainGeometry> CollisionBox
         {
             get { return _collisionBox; }
             set { _collisionBox = value; }
@@ -26,10 +23,10 @@ namespace StgSharp
         /// <summary>
         /// A sensor used for cheking out if a bullet hit a player or something else
         /// </summary>
-        public Sensor<IPlainGeometry> CollisionSensor 
+        public Sensor<IPlainGeometry> CollisionSensor
         {
             get { return _collisionSensor; }
-            set { _collisionSensor = value; } 
+            set { _collisionSensor = value; }
         }
 
         public string Texture { get; set; }

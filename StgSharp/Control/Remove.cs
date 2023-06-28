@@ -1,7 +1,4 @@
 ﻿using StgSharp.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace StgSharp.Control
 {
@@ -9,10 +6,10 @@ namespace StgSharp.Control
     {
         public static void Point(Point p)
         {
-            GameTimeLine._currentPool.pointContainer.Remove(p);
+            TimeLine._currentPool._pointContainer.Remove(p);
         }
 
-        
+
 
     }
 }

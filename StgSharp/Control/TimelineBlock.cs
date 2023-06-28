@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace StgSharp.Control
+﻿namespace StgSharp.Control
 {
-    public abstract class TimelineBlock : INode<TimelineBlock>
+    public abstract class TimelineBlock
     {
 
         public abstract void OnUpdating();

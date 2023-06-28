@@ -1,0 +1,708 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="StgSharp.Properties.Resources" Collapsed="true">
+    <Position X="44.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.internalIO" Collapsed="true">
+    <Position X="48.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAABAAEACAAAAAACAAAAAA=</HashCode>
+      <FileName>Control\IO\GeometryIO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Instruction" Collapsed="true">
+    <Position X="46.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Control\Add.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometry" Collapsed="true">
+    <Position X="51.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Control\Geoemtry.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.IEntity" Collapsed="true">
+    <Position X="14" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACABAAAIQAAAAQAACIAAQAAAAAAACCgAAIAgAAAYQA=</HashCode>
+      <FileName>Entities\IEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Launcher&lt;T&gt;" Collapsed="true">
+    <Position X="20.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAQAAAAAAAAAAAQAAAAAAAAAAAAAQAAAEQAAA=</HashCode>
+      <FileName>Entities\Launcher.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Partical" Collapsed="true">
+    <Position X="16.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Partical.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Player" Collapsed="true">
+    <Position X="18.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAA=</HashCode>
+      <FileName>Entities\Player.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Graphic" Collapsed="true">
+    <Position X="44.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Graphics\Graphic.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.INode&lt;T&gt;" Collapsed="true">
+    <Position X="19.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAogAAAABAAAAAAACAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Logic\LinkedListNode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.LinkedListNode&lt;T&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="44.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BhAAAAAAAAAAAgAAAAAABAAAAAAAAAAoAAAgAAAAAAA=</HashCode>
+      <FileName>Logic\LinkedListNode.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="StgSharp.Counter&lt;T&gt;" Collapsed="true">
+    <Position X="48.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABIAAAAAAAAABAQAAAAAAAAAAAAAAAEAAgEgAAAAAAY=</HashCode>
+      <FileName>Logic\Counter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.LinkedList&lt;T&gt;" Collapsed="true">
+    <Position X="5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIIAAAAAIAAAQAAAAAABAAAAAgAAAAEAAACAAAAQAA=</HashCode>
+      <FileName>Logic\LinkedList.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="StgSharp.Pool" Collapsed="true">
+    <Position X="7.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAABBAwAYAAAAAQAAAAAAAAABAgAAAAAQIIAAEAA=</HashCode>
+      <FileName>Logic\Pool.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Sensor&lt;T&gt;" Collapsed="true">
+    <Position X="46.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAACAYCEAAAAAQAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>Logic\Sensor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Control.ProgramTimeLine" Collapsed="true">
+    <Position X="41.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAAQAAAAAAAAAAAAEAAAAABAIAAAIAA=</HashCode>
+      <FileName>Control\ProgramTimeLine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Control.Remove" Collapsed="true">
+    <Position X="43" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Control\Remove.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Control.TimelineBlock" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Control\TimelineBlock.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Entities.BehaviorArgs" Collapsed="true">
+    <Position X="41.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\BehaviorArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Entities.EliteEnemy" Collapsed="true">
+    <Position X="9.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAICAAAAAAAAAEAAAAFAAAAEAAACAAAAAIIAEAAAA=</HashCode>
+      <FileName>Entities\EliteEnemy.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Entities.Enemy" Collapsed="true">
+    <Position X="11.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAICAAAAAAAAAEAAAAFAAAAEAAACAAAAAIAAAAAAA=</HashCode>
+      <FileName>Entities\Enemy.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Entities.EntityPartical" Collapsed="true">
+    <Position X="14" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\EntityPartical.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Arc" Collapsed="true">
+    <Position X="37.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAACoAAAAEAAAAAGAAAAABAAAAAAAAAAEC4CIAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Arc.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Circle" Collapsed="true">
+    <Position X="23" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAACgCAAAEAAAAACAAAAABAAAAAAAAAAAC4CIiAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Circle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.ToUpperDimensionException" Collapsed="true">
+    <Position X="48.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\GemoryException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.UnusedVertexException" Collapsed="true">
+    <Position X="50" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\GemoryException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.GeometryOperation" Collapsed="true">
+    <Position X="41.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\GeometryOperation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.IPlainGeometry" Collapsed="true">
+    <Position X="31" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgIAAQAAAAAAAAAAAAAAAAAAAgAAAAA5CIAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\IPlainGeometry.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Line" Collapsed="true">
+    <Position X="36.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAgAAAAAAAAAAEAAAAAAAAAACQAAAAUA4CIACAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Line.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Parallelogram" Collapsed="true">
+    <Position X="26" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIgCAAAAAAAAAAAAAAABAIABgAAAAAAAAAAC4AIAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Parallelogram.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Plain" Collapsed="true">
+    <Position X="51.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAMAAAAAAAAAAAAIAAAAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Plain.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Point" Collapsed="true">
+    <Position X="2.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAIAAAAAAAAgAMAAAAAAAAAAAQAAAAEAAAIAYAE=</HashCode>
+      <FileName>Geometries\PlainGeometry\Point.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="StgSharp.Geometries.Polygon4" Collapsed="true">
+    <Position X="26.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAACoAAAAAABAIAACBAAAAgIGEAgQAAEAA4CIBAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Polygon4.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Polygon5" Collapsed="true">
+    <Position X="29.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQSAFwn4AAAAAAAAAAAAAAAAAAAAAIAAgAAA4CIAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Polygon5.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Polygon6" Collapsed="true">
+    <Position X="32" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQSgFwn8AAAAAAAAAAAAAAAAAAAAAIAAAAAA4CIAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Polygon6.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Rectangle" Collapsed="true">
+    <Position X="24" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgCAAAAAAAAAAAAAAABAAAAgAAAAAAAAAAA4AIAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Rectangle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Geometries.Triangle" Collapsed="true">
+    <Position X="34.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAjgAAAAAAAAAAAAAIQBgIAAIgAAQEAA4CIAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Triangle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Graphics.GLFW" Collapsed="true">
+    <Position X="43" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>kv4/2/e/nff/9Wv3j///7f/8/3/v/v//P///16vsf3o=</HashCode>
+      <FileName>Graphics\GL\GLconst.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Logic.LinkedListEnumrator&lt;T&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="50" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAQEAAAAAAgAAAAIAAAAA=</HashCode>
+      <FileName>Logic\LinkedListEnumrator.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="StgSharp.Math.Cordination" Collapsed="true">
+    <Position X="46.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Math\Linear\Cordination.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Math.Vector" Collapsed="true">
+    <Position X="51.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>wAAAAAAAAAAAAACABAAAAAAAAAAAAAAAAACAAAAAAAA=</HashCode>
+      <FileName>Math\Linear\Vector.Det.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Math.VectorCalc" Collapsed="true">
+    <Position X="41.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Math\Linear\Vector.Multiple.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Math.Calc" Collapsed="true">
+    <Position X="43" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAASAQAIEEAkAAAQwAAFAAAAAA2AAAAgAAAGAgIQAgA=</HashCode>
+      <FileName>Math\Scalar\ACos.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Math.Function" Collapsed="true">
+    <Position X="50" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Math\Scalar\Function.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StgSharp.Square">
+    <Position X="28" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\Square.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="StgSharp.Control.GraphicIOPack" Collapsed="true">
+    <Position X="48.25" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAA=</HashCode>
+      <FileName>Control\IO\IOpackage.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Geometries.Polygon4VertexArray" Collapsed="true">
+    <Position X="41.25" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAADwIAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometries\GL\Polygon4VertexArray.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Geometries.Polygon5VertexArray" Collapsed="true">
+    <Position X="43" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAD4IAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>Geometries\GL\Polygon5VertexArray.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Geometries.triangleVertexArray" Collapsed="true">
+    <Position X="44.75" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAQA=</HashCode>
+      <FileName>Geometries\GL\TiangleArray.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Geometries.triangleVertexOrder" Collapsed="true">
+    <Position X="46.5" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometries\GL\TiangleArray.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWcontext" Collapsed="true">
+    <Position X="50" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EQAAIgAAAAAAAAIAAAaABEAAACAAEABAAAAABAEkIIA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWvidmode" Collapsed="true">
+    <Position X="44.75" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAQCAIAAAAAAAAAAAAAMAAAAAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWgammaramp" Collapsed="true">
+    <Position X="48.25" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAIIAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWimage" Collapsed="true">
+    <Position X="50" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAUAQAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWgamepadstate" Collapsed="true">
+    <Position X="46.5" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWallocator" Collapsed="true">
+    <Position X="48.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAEAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWmonitor" Collapsed="true">
+    <Position X="41.25" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IQAAAAAAAAAAAAEAAQAAAAAAQIAEACAIAAAAAAAAAAE=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics._GLFWwindow" Collapsed="true">
+    <Position X="41.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABCAAAEMAAIAAEAGGAAAEABhAEAAAABAKEQICIAEBA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWcursor" Collapsed="true">
+    <Position X="41.25" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWerror" Collapsed="true">
+    <Position X="43" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAIAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWinitconfig" Collapsed="true">
+    <Position X="51.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAgAAAAQAAAI=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWwndconfig" Collapsed="true">
+    <Position X="46.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAACGQAEAAAQgQEAAAAAABAEAAACBiCAACAICAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWctxconfig" Collapsed="true">
+    <Position X="51.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAIgAAAAAACAIAAACAAAAAACAAEAAAAAAABAAAMAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWfbconfig" Collapsed="true">
+    <Position X="44.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAACAAAAIABAAAAAAiAAAAAwADAAAAADAMACAQAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics._GLFWlibrary" Collapsed="true">
+    <Position X="44.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QJBAAAAIAFEABAAAAAQAAAAAgAAAAAQAIAAAAAgRCAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics._GLFWmapelement" Collapsed="true">
+    <Position X="46.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAABAEAAAQAAAAABAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics._GLFWmapping" Collapsed="true">
+    <Position X="48.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAEAAAAEAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics._GLFWjoystick" Collapsed="true">
+    <Position X="43" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAABAAAAAAAEAIQEEAAAEAAAEAAAAAEAAACAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics._GLFWtls" Collapsed="true">
+    <Position X="51.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.GLFWplatform" Collapsed="true">
+    <Position X="43" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>VECARASAUAACmgkQQMACSQAUAQAGUBoMBkWVmggNTFg=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics._GLFWmutex" Collapsed="true">
+    <Position X="50" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.VkExtensionProperties" Collapsed="true">
+    <Position X="43" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics._GLFWerror" Collapsed="true">
+    <Position X="41.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAIAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.uintptr_t" Collapsed="true">
+    <Position X="48.25" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLstruts.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Graphics.Window" Collapsed="true">
+    <Position X="44.75" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAUAQAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Graphics\window.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="StgSharp.Math.colum2" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="43" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAE4AUAAAAAAAAAAIAAAAAAAAAAYAA=</HashCode>
+      <FileName>Math\Linear\colum2.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.colum3" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="44.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAAAE4AUAAAAAAAAAAIAAAAAAAAAAYiE=</HashCode>
+      <FileName>Math\Linear\colum3.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.colum4" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="46.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEgAAAAAAAAAAAAIAAAAAAAAAIYAE=</HashCode>
+      <FileName>Math\Linear\colum4.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.matrix2x2" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="50" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAEAAAAEwAEAAAAAAAAAAIAAAAAAQAAAAAA=</HashCode>
+      <FileName>Math\Linear\matrix2x2.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.matrix2x3" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="51.75" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAEAAAAE4AUAAIAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Math\Linear\matrix2x3.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.matrix2x4" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="41.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAEAAAAE4AUAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Math\Linear\matrix2x4.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.matrix3x2" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="43" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAwAEAAAAEwAEAAAAAAAAAAIAAAAAAQAAAAAA=</HashCode>
+      <FileName>Math\Linear\matrix3x2.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.matrix3x3" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="44.75" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAwAEAAAAE4AUAAIAAAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Math\Linear\matrix3x3.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.matrix3x4" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="46.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAwAEAAAAEgAAAAAAAAAAAAIAAAAAAAAAQAAA=</HashCode>
+      <FileName>Math\Linear\matrix3x4.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.matrix4x2" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="48.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAA4AEAAAAEgAAAAAAAAAAAAIAAAAAAQAAAAAA=</HashCode>
+      <FileName>Math\Linear\matrix4x2.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.matrix4x3" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="50" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAA4AEAAAAEgAAAAIAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Math\Linear\matrix4x3.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.matrix4x4" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="51.75" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAA4AEAAAAE4AEAAAAAAAAAAIAAAAAAAAAQAAA=</HashCode>
+      <FileName>Math\Linear\matrix4x4.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.vec2d" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="50" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAE4AUAAAAAAAAAAIAAAAAAAAAAYiI=</HashCode>
+      <FileName>Math\Linear\vec2d.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.vec3d" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="51.75" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAE4CUAAAAAAgAAAIAAAAAAAAAAYiM=</HashCode>
+      <FileName>Math\Linear\vec3d.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="StgSharp.Math.vec4d" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="41.25" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAE4AUAAgAAAAAAAIAAAAAAAAAIYiM=</HashCode>
+      <FileName>Math\Linear\vec4d.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Enum Name="StgSharp.Graphics.VkStructureType" Collapsed="true">
+    <Position X="44.75" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAQQAAAAAAAAEAAAgQABAAAAAAAAAAAAA=</HashCode>
+      <FileName>Graphics\GL\GLenums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="StgSharp.Graphics.VkResult" Collapsed="true">
+    <Position X="43" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAACAAgACAAUAiAAAAUAFwAAAFAAAAQAFABCCAAFA=</HashCode>
+      <FileName>Graphics\GL\GLenums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="StgSharp.Math.CordinatePlain" Collapsed="true">
+    <Position X="41.25" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAMAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Math\Linear\Cordination.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Delegate Name="StgSharp.SensorRuleHandler" Collapsed="true">
+    <Position X="48.25" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Logic\Sensor.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="StgSharp.Control.InitWindow" Collapsed="true">
+    <Position X="44.75" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAACAAAAAAAAAA=</HashCode>
+      <FileName>Control\IO\IOpackage.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="StgSharp.Geometries.ExpressionHandler" Collapsed="true">
+    <Position X="41.25" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\ExpressionHandler.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="StgSharp.Geometries.GetLocationHandler" Collapsed="true">
+    <Position X="43" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometries\PlainGeometry\GeometryOperation.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="StgSharp.Math.ScalarCalcHandler" Collapsed="true">
+    <Position X="46.5" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Math\Scalar\Ctor.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>

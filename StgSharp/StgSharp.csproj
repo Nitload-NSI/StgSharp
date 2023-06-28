@@ -3,21 +3,67 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	<LangVersion>preview</LangVersion>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Platforms>AnyCPU;x64</Platforms>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression> MIT</PackageLicenseExpression>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AnalysisLevel>preview-all</AnalysisLevel>
+    <OutputType>Library</OutputType>
+    <StartupObject></StartupObject>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;NoOps</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>True</Optimize>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Optimize>True</Optimize>
+    <DebugType>none</DebugType>
+    <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+    <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebugType>none</DebugType>
+    <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+  </PropertyGroup>
+
+
   <ItemGroup>
+    <PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Steamworks.NET" Version="20.1.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Graphic\" />
+    <Folder Include="Geometries\SpaceGeometry\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="..\StgSharpGraphic.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy $(solutiondir)StgSharpGraphic.dll $(targetdir)" />
+  </Target>
 
 </Project>
