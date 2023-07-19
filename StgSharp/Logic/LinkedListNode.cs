@@ -20,8 +20,6 @@ namespace StgSharp
         public LinkedListNode(T t)
         {
             _value = t;
-            _previous = new LinkedListNode<T>();
-            _next = new LinkedListNode<T>();
         }
 
         public virtual LinkedListNode<T> Previous

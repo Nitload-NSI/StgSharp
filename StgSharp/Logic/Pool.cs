@@ -21,7 +21,7 @@ namespace StgSharp
         public Line TopBoarder => topBoader;
         public Line BottomBoarder => bottomBoader;
 
-        internal Pool()
+        public Pool()
         {
             initContainers();
         }
@@ -43,6 +43,8 @@ namespace StgSharp
             }
         }
 
+
+        
 
     }
 

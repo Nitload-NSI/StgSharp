@@ -4,16 +4,31 @@ namespace StgSharp
 {
     public class Counter<T> where T : struct, IConvertible, IFormattable, IComparable
     {
-        internal readonly dynamic _defualtValue;
-        internal readonly dynamic _defualtAddValue;
-        internal readonly dynamic _defualtSubValue;
+        internal readonly T _defualtValue;
+        internal readonly T _defualtAddValue;
+        internal readonly T _defualtSubValue;
 
         internal dynamic _value;
 
-        public dynamic Value
+        public T Value
         {
             get { return _value; }
             set { _value = value; }
+        }
+
+        public T Span
+        {
+            get { return _value - _defualtValue; }
+        }
+
+        public T Increament
+        {
+            get { return _defualtAddValue; }
+        }
+
+        public T Decreament
+        {
+            get { return _defualtSubValue; }
         }
 
         public Counter(T defualtValue, T defualtAddValue, T defualtSubValue)
@@ -45,6 +60,7 @@ namespace StgSharp
                     throw new ArgumentException("Input is not number value type");
                     break;
             }
+            _value = defualtValue;
             _defualtValue = defualtValue;
             _defualtAddValue = defualtAddValue;
             _defualtSubValue = defualtSubValue;
