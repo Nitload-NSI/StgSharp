@@ -29,8 +29,13 @@
             }
             if (x == 1 && y == 0)
             {
-                return 1.0f / 0;
+                return float.PositiveInfinity;
             }
+            if (x==0&&y!=0)
+            {
+                return 0;
+            }
+
             z = Calc.Log(x) * y;
 
             bool sign = false;

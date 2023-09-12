@@ -19,14 +19,14 @@ namespace StgSharp.Geometries
         /// </summary>
         /// <param name="tick">当前游戏刻</param>
         /// <returns></returns>
-        public virtual vec3d MovCenter(uint tick) => default(vec3d);
+        public virtual Vec3d MovCenter(uint tick) => default(Vec3d);
 
-        public sealed override vec3d MovVertex03(uint tick)
+        public sealed override Vec3d MovVertex03(uint tick)
         {
             return this.center.Position * 2 - this.vertex01.Position;
         }
 
-        public sealed override vec3d MovVertex04(uint tick)
+        public sealed override Vec3d MovVertex04(uint tick)
         {
             return this.center.Position * 2 - this.vertex02.Position;
         }

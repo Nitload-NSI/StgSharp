@@ -1,4 +1,4 @@
-﻿using StgSharp.Control;
+﻿using StgSharp.Controlling;
 using System;
 
 namespace StgSharp.Entities
@@ -22,7 +22,7 @@ namespace StgSharp.Entities
             TimeLine._currentPool._enemyContainer.Remove(this);
         }
 
-        internal override void OnRenderFrame()
+        public override void OnRenderFrame()
         {
             this.OnUpdate();
             foreach (Launcher<EntityPartical> launcher in CommonBulletLauncher)

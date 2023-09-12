@@ -1,0 +1,20 @@
+﻿namespace StgSharp.Math
+{
+    public static unsafe partial class Vector
+    {
+
+        public static float Cross(Vec2d vec1, Vec2d vec2)
+        {
+            return vec1.X * vec2.Y - vec1.Y * vec2.X;
+        }
+
+        public static Vec3d Cross(Vec3d vec1, Vec3d vec2)
+        {
+            return new Vec3d(
+                vec1.Y * vec2.Z - vec1.Z * vec2.Y,
+                vec1.X * vec2.Z - vec1.Z * vec2.X,
+                vec1.X * vec2.Y - vec1.Y * vec2.X
+                );
+        }
+    }
+}

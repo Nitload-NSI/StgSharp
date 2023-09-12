@@ -1,12 +1,13 @@
 ﻿using StgSharp.Entities;
 using StgSharp.Geometries;
+using StgSharp.Math;
 
 namespace StgSharp
 {
     public class Pool
     {
-        internal LinkedList<Point> _pointContainer;
-        internal LinkedList<IPlainGeometry> geometryContainer;
+        internal LinkedList<Vector4Map> _Vector4mapContainer;
+        internal LinkedList<IPlainGeometry> _geometryContainer;
         internal LinkedList<IEntity> _bulletContainer;
         internal LinkedList<IEntity> _awardContainer;
         internal LinkedList<IEntity> _enemyContainer;
@@ -28,19 +29,15 @@ namespace StgSharp
 
         private void initContainers()
         {
-            _pointContainer = new LinkedList<Point>();
+            _Vector4mapContainer = new LinkedList<Vector4Map>();
             _bulletContainer = new LinkedList<IEntity>();
             _awardContainer = new LinkedList<IEntity>();
             _enemyContainer = new LinkedList<IEntity>();
-            geometryContainer = new LinkedList<IPlainGeometry>();
+            _geometryContainer = new LinkedList<IPlainGeometry>();
         }
 
         public void OnRender()
         {
-            foreach (Enemy e in _enemyContainer)
-            {
-
-            }
         }
 
 

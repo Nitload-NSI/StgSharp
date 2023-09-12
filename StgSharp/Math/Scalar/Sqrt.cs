@@ -1,11 +1,18 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace StgSharp.Math
 {
     public static partial class Calc
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Sqrt(float x)
+        {
+            return MathF.Sqrt(x);
+            /**/
+        }
 
-        public static unsafe float Sqrt(float x)
+        public static unsafe float SeedSqrt(float x)
         {
             /*
              * 本方法采用分别对指数和小数处理的方法计算平方根
@@ -34,7 +41,7 @@ namespace StgSharp.Math
             {
                 throw new ArgumentOutOfRangeException();
             }
-            if (x == 0)
+            if (x <= 1e-12)
             {
                 return 0;
             }

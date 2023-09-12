@@ -19,11 +19,11 @@ namespace StgSharp.Geometries
 
         public override Point RefPoint03 => pointOnPlain;
 
-        public virtual vec3d MoveCenter(uint tick) => movCenterOperation.Invoke(tick);
+        public virtual Vec3d MoveCenter(uint tick) => movCenterOperation.Invoke(tick);
 
-        public virtual vec3d UpdateRadius(uint tick) => movBeginOperation.Invoke(tick);
+        public virtual Vec3d UpdateRadius(uint tick) => movBeginOperation.Invoke(tick);
 
-        public virtual vec3d UpdatePlain(uint tick) => movEndOperation.Invoke(tick);
+        public virtual Vec3d UpdatePlain(uint tick) => movEndOperation.Invoke(tick);
 
         public override Plain GetPlain()
         {

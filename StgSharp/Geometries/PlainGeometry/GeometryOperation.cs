@@ -7,13 +7,13 @@ namespace StgSharp.Geometries
     /// </summary>
     /// <param name="tick"></param>
     /// <returns>表示位移量的三维矢量</returns>
-    public delegate vec3d GetLocationHandler(uint tick);
+    public delegate Vec3d GetLocationHandler(uint tick);
 
     public static unsafe class GeometryOperation
     {
-        public static vec3d DefualtMotion(uint tick)
+        public static Vec3d DefualtMotion(uint tick)
         {
-            return default(vec3d);
+            return default(Vec3d);
         }
     }
 

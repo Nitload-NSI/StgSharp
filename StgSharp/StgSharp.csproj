@@ -13,7 +13,6 @@
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>preview-all</AnalysisLevel>
     <OutputType>Library</OutputType>
-    <StartupObject></StartupObject>
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;NoOps</Configurations>
   </PropertyGroup>
@@ -24,12 +23,12 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>True</Optimize>
-    <DebugType>none</DebugType>
+    <DebugType>embedded</DebugType>
     <NoWarn>1701;1702;0649;1591;0169</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>none</DebugType>
+    <DebugType>embedded</DebugType>
     <Optimize>True</Optimize>
     <NoWarn>1701;1702;0649;1591;0169</NoWarn>
   </PropertyGroup>
@@ -44,26 +43,23 @@
     <NoWarn>1701;1702;0649;1591;0169</NoWarn>
   </PropertyGroup>
 
-
-  <ItemGroup>
-    <PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
+   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+      <DefineConstants>_WINDOWS</DefineConstants>
+   </PropertyGroup>
+   
+   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Geometries\SpaceGeometry\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="..\StgSharpGraphic.dll">
+    <None Update="..\StgSharpGraphic">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(solutiondir)StgSharpGraphic.dll $(targetdir)" />
+    
   </Target>
 
 </Project>

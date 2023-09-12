@@ -1,4 +1,4 @@
-﻿using StgSharp.Control;
+﻿using StgSharp.Controlling;
 using StgSharp.Math;
 
 namespace StgSharp.Geometries
@@ -35,32 +35,32 @@ namespace StgSharp.Geometries
         public GetLocationHandler MovP05Operation { get => movP05Operation; }
         public GetLocationHandler MovP06Operation { get => movP06Operation; }
 
-        public virtual vec3d movPoint01(uint tick)
+        public virtual Vec3d movPoint01(uint tick)
         {
             return movP01Operation.Invoke(TimeLine.tickCounter._value);
         }
 
-        public virtual vec3d movPoint02(uint tick)
+        public virtual Vec3d movPoint02(uint tick)
         {
             return movP02Operation.Invoke(TimeLine.tickCounter._value);
         }
 
-        public virtual vec3d movPoint03(uint tick)
+        public virtual Vec3d movPoint03(uint tick)
         {
             return movP03Operation.Invoke(TimeLine.tickCounter._value);
         }
 
-        public virtual vec3d movPoint04(uint tick)
+        public virtual Vec3d movPoint04(uint tick)
         {
             return movP04Operation.Invoke(TimeLine.tickCounter._value);
         }
 
-        public virtual vec3d movPoint05(uint tick)
+        public virtual Vec3d movPoint05(uint tick)
         {
             return movP05Operation.Invoke(TimeLine.tickCounter._value);
         }
 
-        public virtual vec3d movPoint06(uint tick)
+        public virtual Vec3d movPoint06(uint tick)
         {
             return movP06Operation.Invoke(TimeLine.tickCounter._value);
         }

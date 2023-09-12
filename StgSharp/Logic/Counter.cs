@@ -103,5 +103,16 @@ namespace StgSharp
             counter.QuickSub();
             return counter;
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+
+        public static implicit operator T(Counter<T> counter)
+        {
+            return counter.Value;
+        }
+
     }
 }

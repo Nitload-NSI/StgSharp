@@ -18,11 +18,11 @@ namespace StgSharp.Geometries
 
         public override Point RefPoint03 => endPoint;
 
-        public virtual vec3d MoveCenter(uint tick) => movCenterOperation.Invoke(tick);
+        public virtual Vec3d MoveCenter(uint tick) => movCenterOperation.Invoke(tick);
 
-        public virtual vec3d MovBegin(uint tick) => movBeginOperation.Invoke(tick);
+        public virtual Vec3d MovBegin(uint tick) => movBeginOperation.Invoke(tick);
 
-        public virtual vec3d MovEnd(uint tick) => movEndOperation.Invoke(tick);
+        public virtual Vec3d MovEnd(uint tick) => movEndOperation.Invoke(tick);
 
         internal override void OnRender(uint tick)
         {

@@ -1,4 +1,4 @@
-﻿using StgSharp.Control;
+﻿using StgSharp.Controlling;
 using StgSharp.Math;
 
 namespace StgSharp.Geometries
@@ -17,23 +17,29 @@ namespace StgSharp.Geometries
         public GetLocationHandler MovVertex01Operation { get { return movVertex01Operation; } }
         public GetLocationHandler MovVertex02Operation { get { return movVertex02Operation; } }
 
-        public virtual vec3d MovCenter(uint tick)
+        public virtual Vec3d MovCenter(uint tick)
         {
             return movCenterOperation.Invoke(tick);
         }
 
         /// <summary>
-        /// 移动平行四边形的第三个顶点，是一个多余的方法，调用会引发多余变量异常
+        /// Move the third vertix. this is a useless method for Parallelograms.
         /// </summary>
-        /// <param name="tick">当前游戏刻</param>
+        /// <param name="tick">Current time tick</param>
         /// <returns></returns>
-        /// <exception cref="UnusedVertexException">几何体过定义</exception>
-        public sealed override vec3d MovVertex03(uint tick)
+        /// <exception cref="UnusedVertexException">Geometry overdefined</exception>
+        public sealed override Vec3d MovVertex03(uint tick)
         {
             throw new UnusedVertexException();
         }
 
-        public sealed override vec3d MovVertex04(uint tick)
+        /// <summary>
+        /// Move the third vertix. This method is useless for Parallelograms.
+        /// </summary>
+        /// <param name="tick">Current time tick</param>
+        /// <returns></returns>
+        /// <exception cref="UnusedVertexException">Geometry overdefined</exception>
+        public sealed override Vec3d MovVertex04(uint tick)
         {
             throw new UnusedVertexException();
         }
@@ -43,8 +49,8 @@ namespace StgSharp.Geometries
             uint nowTick = TimeLine.tickCounter._value;
             this.vertex01.Position = RefOrigin.Position + movVertex01Operation(nowTick);
             this.vertex02.Position = RefOrigin.Position + movVertex02Operation(nowTick);
-            this.vertex03.Position = 2 * center.Position - vertex01.Position;
-            this.vertex04.Position = 2 * center.Position - vertex02.Position;
+            this.vertex03.Position = center.Position * 2 - vertex01.Position;
+            this.vertex04.Position = center.Position * 2 - vertex02.Position;
         }
 
     }

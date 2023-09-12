@@ -354,7 +354,7 @@ namespace StgSharp.Graphics
         internal const uint _GLFW_POLL_BUTTONS = 2;
         internal const uint _GLFW_POLL_ALL = (_GLFW_POLL_AXES | _GLFW_POLL_BUTTONS);
         internal const uint _GLFW_MESSAGE_SIZE = 1024;
-        internal const uint GL_VERSION = 0x1f02;
+        internal const int GL_VERSION = 0x1f02;
         internal const uint GL_NONE = 0;
         internal const uint GL_COLOR_BUFFER_BIT = 0x00004000;
         internal const uint GL_UNSIGNED_BYTE = 0x1401;

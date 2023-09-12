@@ -1,5 +1,6 @@
 ﻿using StgSharp.Math;
 using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace StgSharp.Graphics
@@ -9,20 +10,21 @@ namespace StgSharp.Graphics
     {
         public int width;
         public int height;
-        public vec4d color;
+        public Vector4 color;
         public byte[] name;
     }
 
     public unsafe class Form
     {
-        internal IntPtr windowPtr;
-        internal formInfo info;
+        
+        internal IntPtr windowID;    //pointer to the form
+        internal formInfo info = new formInfo() ;
         internal IntPtr shader;
-        internal LinkedList<Pool> allControl = new LinkedList<Pool>();
+        internal LinkedList<Pool> allControl;
 
-        public vec2d Size
+        public Vec2d Size
         {
-            get { return new vec2d(info.width, info.height); }
+            get { return new Vec2d(info.width, info.height); }
             set
             {
                 info.width = (int)value.X;
@@ -42,11 +44,13 @@ namespace StgSharp.Graphics
             set => info.height = value;
         }
 
-        public vec4d Color
+        /*
+        public Vector4 Color
         {
             get => info.color;
             set => info.color = value;
         }
+        /**/
 
         /// <summary>
         /// Constructor of a Form, creats an instance of a form and 

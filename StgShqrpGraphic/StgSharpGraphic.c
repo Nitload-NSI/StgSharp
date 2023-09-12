@@ -5,35 +5,15 @@
 #include "GLenv/include/glad/glad.h"
 #include "GLenv/include/GLFW/glfw3.h"
 #include "framework.h"
+#include <stdio.h>
 #include "StgSharpGraphic.h"
-#include "SSGinternal.h"
-
-glIOpackage pack;
-
-STGSHARPGRAPHIC_API glIOpackage loadGLApi(void)
-{
-
-    pack.createWindow = glfwCreateWindow;
-    pack.makeContextCurrent = glfwMakeContextCurrent;
-    pack.swapInterval = glfwSwapInterval;
-    pack.clearColor = glClearColor;
-    pack.windowShouldClose = glfwWindowShouldClose;
-    pack.swapBuffer = glfwSwapBuffers;
-
-    //these are for callback
-    pack.SetFramebufferSizeCallback = glfwSetFramebufferSizeCallback;
-
-    glfwCreateWindow(800,600,"Stg#!", NULL,NULL);
 
 
-    return pack;
-}
-
-STGSHARPGRAPHIC_API void initGL(void)
+SSGC_API void initGL(int majorVersion, int minorVersion)
 {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef  __APPLE__
@@ -42,22 +22,7 @@ STGSHARPGRAPHIC_API void initGL(void)
 }
 
 
-STGSHARPGRAPHIC_API int initGLAD(void)
+SSGC_API int initGLAD(void)
 {
     return gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-}
-
-GLFWwindow* (*createWindow)(
-    int width,
-    int height,
-    const char* title,
-    GLFWmonitor* monitor,
-    GLFWwindow* share);
-
-
-STGSHARPGRAPHIC_API void* getPtr(void)
-{
-    createWindow = glfwCreateWindow;
-    return createWindow;
 }
