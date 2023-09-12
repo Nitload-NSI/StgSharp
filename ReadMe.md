@@ -34,5 +34,12 @@ Stg# on windows has two files, C# code are compiled in file "StgSharp.dll", whil
 ### Linux and other OS ###
 
 
+# Version History
+
+| Version | Description                                       | Windows    | Linux      | Mac OS     |
+|---------|---------------------------------------------------|------------|------------|------------|
+| 0.3.0   | The first usable version with all usable function | No Release | No Release | No Release |
+
+
 
 
