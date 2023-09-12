@@ -1,80 +1,217 @@
 ﻿using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+
+using static StgSharp.Graphics.GLFWwndconfig;
 
 namespace StgSharp.Math
 {
-    [StructLayout(LayoutKind.Explicit)]
-    public struct matrix4x2 : IEquatable<matrix4x2>
+    
+
+    [StructLayout(LayoutKind.Explicit,Size = (16 + 8) * sizeof(float) + sizeof(bool), Pack = 16)]
+    public struct Matrix4x2
     {
-        [FieldOffset(0)]
-        public vec2d row1;
-        [FieldOffset(8)]
-        public vec2d row2;
-        [FieldOffset(16)]
-        public vec2d row3;
-        [FieldOffset(24)]
-        public vec2d row4;
+        [FieldOffset(0)] internal Mat2 mat;
+        [FieldOffset(8 * sizeof(float))] internal Mat4 transpose;
+        [FieldOffset((16 + 8) * sizeof(float))] internal bool isTransposed;
 
-        public matrix4x2(vec2d r1, vec2d r2, vec2d r3, vec2d r4)
-        {
-            row1 = r1;
-            row2 = r2;
-            row3 = r3;
-            row4 = r4;
-        }
 
-        public matrix4x2(
-            float a11, float a12,
-            float a21, float a22,
-            float a31, float a32,
-            float a41, float a42
+        public Matrix4x2(
+            float a00,float a01,
+            float a10,float a11,
+            float a20,float a21,
+            float a30,float a31
             )
         {
-            row1 = new vec2d(a11, a12);
-            row2 = new vec2d(a21, a22);
-            row3 = new vec2d(a31, a32);
-            row4 = new vec2d(a41, a42);
+            mat.colum0 = new Vector4(a00, a10, a20, a30);
+            mat.colum1 = new Vector4(a01, a11, a21, a31);
+        }
+        
+        internal Matrix4x2(
+            Vector4 c0,
+            Vector4 c1
+            ) 
+        {
+            mat.colum0 = c0;
+            mat.colum1 = c1;
+        }
+        
+        internal Matrix4x2(Mat2 mat)
+        {
+            this.mat = mat;
+        }
+        
+        
+        
+        public unsafe float this[int rowNum, int columNum]
+        {
+            get
+            {
+                if (rowNum > 3 || rowNum < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columNum));
+                }
+                if (columNum > 1 || columNum < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columNum));
+                }
+                InternalTranspose();
+                fixed (float* p = &this.transpose.m00)
+                {
+                    ulong pbit = (ulong)p
+                        + (ulong)sizeof(Vector4) * (ulong)rowNum
+                        + (ulong)sizeof(float) * (ulong)columNum;
+                    return *(float*)pbit;
+                }
+            }
+            set
+            {
+                if (rowNum > 3 || rowNum < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columNum));
+                }
+                if (columNum > 1 || columNum < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columNum));
+                }
+                InternalTranspose();
+                fixed (float* p = &this.transpose.m00)
+                {
+                    ulong pbit = (ulong)p
+                        + (ulong)sizeof(Vector4) * (ulong)rowNum
+                        + (ulong)sizeof(float) * (ulong)columNum;
+                    *(float*)pbit = value;
+                }
+                isTransposed = false;
+            }
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe Matrix4x2 operator +(Matrix4x2 left, Matrix4x2 right)
+        {
+            return new Matrix4x2(
+                left.mat.colum0 + right.mat.colum0,
+                left.mat.colum0 + right.mat.colum0
+                );
         }
 
-        public override bool Equals(object obj)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix4x2 operator *(Matrix4x2 mat, float value)
         {
-            if (obj == null)
+            return new Matrix4x2(
+                mat.mat.colum0 * value,
+                mat.mat.colum1 * value
+                );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix4x2 operator /(Matrix4x2 mat, float value)
+        {
+            return new Matrix4x2(
+                mat.mat.colum0 / value,
+                mat.mat.colum1 / value
+                );
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe Matrix4x2 operator -(Matrix4x2 left, Matrix4x2 right)
+        {
+            return new Matrix4x2(
+                left.mat.colum0 - right.mat.colum0,
+                left.mat.colum0 - right.mat.colum0
+                );
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix4x2 operator *(Matrix4x2 left, Matrix2x2 right)
+        {
+            left.InternalTranspose();
+            return new Matrix4x2(
+                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
+
+                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
+
+                Vector4.Dot(left.transpose.colum2, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum1),
+
+                Vector4.Dot(left.transpose.colum3, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum3, right.mat.colum1)
+                );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix4x3 operator *(Matrix4x2 left, Matrix2x3 right)
+        {
+            left.InternalTranspose();
+            return new Matrix4x3(
+                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
+
+                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum2),
+
+                Vector4.Dot(left.transpose.colum2, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum2),
+                
+                Vector4.Dot(left.transpose.colum3, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum3, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum3, right.mat.colum2)
+                );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix4x4 operator *(Matrix4x2 left, Matrix2x4 right)
+        {
+            left.InternalTranspose();
+            return new Matrix4x4(
+                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
+
+                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum2),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum2),
+
+                Vector4.Dot(left.transpose.colum2, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum2),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum2),
+
+                Vector4.Dot(left.transpose.colum3, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum3, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum3, right.mat.colum2),
+                Vector4.Dot(left.transpose.colum3, right.mat.colum2)
+                );
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal unsafe void InternalTranspose()
+        {
+            if (!isTransposed)
             {
-                return false;
-            }
-            else if (obj.GetType() == typeof(matrix4x2))
-            {
-                return false;
-            }
-            else
-            {
-                return this.Equals((matrix4x2)obj);
+                fixed (Mat2* source = &this.mat)
+                fixed (Mat4* target = &this.transpose)
+                {
+                    internalIO.Transpose2to4_internal(source, target);
+                }
+                isTransposed = true;
             }
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(row1, row2, row3, row4);
-        }
-
-        public override string ToString()
-        {
-            return $"{row1}\n{row2}\n{row3}\n{row4}";
-        }
-
-        bool IEquatable<matrix4x2>.Equals(matrix4x2 other)
-        {
-            if (this.GetHashCode() != other.GetHashCode())
-            {
-                return false;
-            }
-            else
-            {
-                return this.row1 == other.row1
-                    && this.row2 == other.row2
-                    && this.row3 == other.row3
-                    && this.row4 == other.row4;
-            }
+            return HashCode.Combine(
+                mat.colum0.GetHashCode(),
+                mat.colum1.GetHashCode()
+                );
         }
 
 

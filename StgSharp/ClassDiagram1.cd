@@ -13,7 +13,7 @@
       <FileName>Control\IO\GeometryIO.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="StgSharp.Instruction" Collapsed="true">
+  <Class Name="StgSharp.Controlling" Collapsed="true">
     <Position X="46.5" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
@@ -106,21 +106,21 @@
       <FileName>Logic\Sensor.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="StgSharp.Control.ProgramTimeLine" Collapsed="true">
+  <Class Name="StgSharp.Controlling.ProgramTimeLine" Collapsed="true">
     <Position X="41.25" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAACAAAAAAAQAAAAAAAAAAAAEAAAAABAIAAAIAA=</HashCode>
       <FileName>Control\ProgramTimeLine.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="StgSharp.Control.Remove" Collapsed="true">
+  <Class Name="StgSharp.Controlling.Remove" Collapsed="true">
     <Position X="43" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Control\Remove.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="StgSharp.Control.TimelineBlock" Collapsed="true">
+  <Class Name="StgSharp.Controlling.TimelineBlock" Collapsed="true">
     <Position X="0.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAA=</HashCode>
@@ -318,7 +318,7 @@
       <FileName>Geometries\PlainGeometry\Square.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Struct Name="StgSharp.Control.GraphicIOPack" Collapsed="true">
+  <Struct Name="StgSharp.Controlling.GraphicIOPack" Collapsed="true">
     <Position X="48.25" Y="7.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAA=</HashCode>
@@ -676,7 +676,7 @@
       <FileName>Logic\Sensor.cs</FileName>
     </TypeIdentifier>
   </Delegate>
-  <Delegate Name="StgSharp.Control.InitWindow" Collapsed="true">
+  <Delegate Name="StgSharp.Controlling.InitWindow" Collapsed="true">
     <Position X="44.75" Y="13" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAACAAAAAAAAAA=</HashCode>

@@ -34,15 +34,15 @@ namespace StgSharp.Math
             }
             uint input = *(uint*)&x;
 
-            uint f = input;
+            int f = (int)input;
             f >>= 23;
             f -= 127;
             input <<= 9;
             input >>= 9;
             input += 0b_0011_1111_1000_0000_0000_0000_0000_0000;
             float result = *(float*)&input;
-            int order = (int)(result * 100) - 100;
-
+            uint order = (uint)(result * 100) - 100;
+            
             float cache = (result) / (1f + 0.01f * order) - 1;
             result = cache * -0.25f + 0.3333333333333f;
             result = result * cache - 0.5f;

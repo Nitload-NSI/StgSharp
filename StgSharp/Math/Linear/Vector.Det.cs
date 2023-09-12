@@ -2,12 +2,14 @@
 {
     public static unsafe partial class Vector
     {
-
-        public static float Det(matrix2x2 array)
+        /*
+        public static float Det(Matrix2x2 array)
         {
             return Cross(array.row1, array.row2);
         }
+        /**/
 
+        /*
         public static unsafe float Det(matrix3x3 array)
         {
             float* p = &array.row1.X;
@@ -31,5 +33,7 @@
                 + *(p + 2) * Det(matrix3)
                 ;
         }
+
+        */
     }
 }

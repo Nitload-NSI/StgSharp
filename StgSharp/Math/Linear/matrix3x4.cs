@@ -1,77 +1,205 @@
 ﻿using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace StgSharp.Math
 {
-    [StructLayout(LayoutKind.Explicit)]
-    public struct matrix3x4 : IEquatable<matrix3x4>
+
+    [StructLayout(LayoutKind.Explicit, Size = 7*4*sizeof(float)+ sizeof(bool),Pack = 16)]
+    public struct Matrix3x4
     {
-        [FieldOffset(0)]
-        public vec4d row1;
-        [FieldOffset(16)]
-        public vec4d row2;
-        [FieldOffset(32)]
-        public vec4d row3;
+        [FieldOffset(0)] internal Mat4 mat;
+        [FieldOffset(4*4*sizeof(float))] internal Mat3 transpose;
+        [FieldOffset(7 * 4 * sizeof(float))] internal bool isTransposed;
 
-        public matrix3x4(
-           vec4d r1, vec4d r2, vec4d r3
+        public Matrix3x4(
+            float a00, float a01, float a02, float a03,
+            float a10, float a11, float a12, float a13,
+            float a20, float a21, float a22, float a23
             )
         {
-            this.row1 = r1;
-            this.row2 = r2;
-            this.row3 = r3;
+            mat.colum0 = new Vector4(a00, a10, a20, 0);
+            mat.colum0 = new Vector4(a01, a11, a21, 0);
+            mat.colum0 = new Vector4(a02, a12, a22, 0);
+            mat.colum0 = new Vector4(a03, a13, a23, 0);
         }
 
-        public matrix3x4(
-            float a11, float a12, float a13, float a14,
-            float a21, float a22, float a23, float a24,
-            float a31, float a32, float a33, float a34
+        internal Matrix3x4(
+            Vector4 c0,
+            Vector4 c1,
+            Vector4 c2,
+            Vector4 c3
             )
         {
-            row1 = new vec4d(a11, a12, a13, a14);
-            row2 = new vec4d(a21, a22, a23, a24);
-            row3 = new vec4d(a31, a32, a33, a34);
+            mat.colum0 = c0;
+            mat.colum1 = c1;
+            mat.colum2 = c2;
+            mat.colum3 = c3;
         }
 
-        public override bool Equals(object obj)
+        internal Matrix3x4(Mat4 mat)
         {
-            if (obj == null)
+            this.mat = mat;
+        }
+
+        public unsafe float this[int rowNum, int columNum]
+        {
+            get
             {
-                return false;
+                if (rowNum > 2 || rowNum < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columNum));
+                }
+                if (columNum > 3 || columNum < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columNum));
+                }
+                InternalTranspose();
+                fixed (float* p = &this.transpose.m00)
+                {
+                    ulong pbit = (ulong)p
+                        + (ulong)sizeof(Vector4) * (ulong)rowNum
+                        + (ulong)sizeof(float) * (ulong)columNum;
+                    return *(float*)pbit;
+                }
             }
-            else if (obj.GetType() != typeof(matrix3x4))
+            set
             {
-                return false;
-            }
-            else
-            {
-                return this.Equals((matrix3x4)obj);
+                if (rowNum > 2 || rowNum < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columNum));
+                }
+                if (columNum > 3 || columNum < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columNum));
+                }
+                InternalTranspose();
+                fixed (float* p = &this.transpose.m00)
+                {
+                    ulong pbit = (ulong)p
+                        + (ulong)sizeof(Vector4) * (ulong)rowNum
+                        + (ulong)sizeof(float) * (ulong)columNum;
+                    *(float*)pbit = value;
+                }
+                isTransposed = false;
             }
         }
 
-        bool IEquatable<matrix3x4>.Equals(matrix3x4 other)
+        internal unsafe void InternalTranspose()
         {
-            if (this.GetHashCode() != other.GetHashCode())
+            if (!isTransposed)
             {
-                return false;
-            }
-            else
-            {
-                return this.row1 == other.row1
-                    && this.row2 == other.row2
-                    && this.row3 == other.row3;
+                fixed(Mat4* source = &this.mat)
+                fixed(Mat3* target = &this.transpose)
+                {
+                    internalIO.Transpose4to3_internal(source, target);
+                }
+                isTransposed = true;
             }
         }
 
-        public override int GetHashCode()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix3x4 operator +(Matrix3x4 left, Matrix3x4 right)
         {
-            return HashCode.Combine(this.row1, this.row2, this.row3);
+            return new Matrix3x4(
+                left.mat.colum0 + right.mat.colum0,
+                left.mat.colum1 + right.mat.colum1,
+                left.mat.colum2 + right.mat.colum2,
+                left.mat.colum3 + right.mat.colum3
+                );
         }
 
-        public override string ToString()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix3x4 operator -(Matrix3x4 left, Matrix3x4 right)
         {
-            return $"{this.row1}\n{this.row2}\n{this.row3}";
+            return new Matrix3x4(
+                left.mat.colum0 - right.mat.colum0,
+                left.mat.colum1 - right.mat.colum1,
+                left.mat.colum2 - right.mat.colum2,
+                left.mat.colum3 - right.mat.colum3
+                );
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix3x4 operator *(Matrix3x4 mat, float value)
+        {
+            return new Matrix3x4(
+                mat.mat.colum0 * value,
+                mat.mat.colum1 * value,
+                mat.mat.colum2 * value,
+                mat.mat.colum3 * value
+                );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix3x4 operator /(Matrix3x4 mat, float value)
+        {
+            return new Matrix3x4(
+                mat.mat.colum0 / value,
+                mat.mat.colum1 / value,
+                mat.mat.colum2 / value,
+                mat.mat.colum3 / value
+                );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix3x2 operator *(Matrix3x4 left, Matrix4x2 right)
+        {
+            left.InternalTranspose();
+            return new Matrix3x2(
+                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
+                
+                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
+                
+                Vector4.Dot(left.transpose.colum2, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum1)
+                );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix3x3 operator *(Matrix3x4 left, Matrix4x3 right)
+        {
+            left.InternalTranspose();
+            return new Matrix3x3(
+                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
+                
+                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum2),
+                
+                Vector4.Dot(left.transpose.colum2, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum2)
+                );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix3x4 operator *(Matrix3x4 left, Matrix4x4 right)
+        {
+            left.InternalTranspose();
+            return new Matrix3x4(
+                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum3),
+                
+                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum2),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum3),
+                
+                Vector4.Dot(left.transpose.colum2, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum2),
+                Vector4.Dot(left.transpose.colum2, right.mat.colum3)
+                );
+        }
+
 
 
 

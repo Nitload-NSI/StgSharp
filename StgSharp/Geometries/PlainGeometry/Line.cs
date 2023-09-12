@@ -24,11 +24,11 @@ namespace StgSharp.Geometries
         public Line() { }
 
         //计算线起点的方法，通过对线的派生的重写实现功能
-        public virtual vec3d MoveBeginPoint(uint tick)
+        public virtual Vec3d MoveBeginPoint(uint tick)
             => movBegin.Invoke(tick);
 
         //计算线重点的方法，通过对线的派生的重写实现功能
-        public virtual vec3d MoveEndPoint(uint tick)
+        public virtual Vec3d MoveEndPoint(uint tick)
             => movEnd.Invoke(tick);
 
         internal override void OnRender(uint tick)

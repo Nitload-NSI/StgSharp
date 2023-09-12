@@ -1,4 +1,4 @@
-﻿using StgSharp.Control;
+﻿using StgSharp.Controlling;
 using StgSharp.Math;
 
 namespace StgSharp.Geometries
@@ -50,13 +50,13 @@ namespace StgSharp.Geometries
         }
 
 
-        public virtual vec3d MovVertex01(uint tick) => movVertex01Operation.Invoke(tick);
+        public virtual Vec3d MovVertex01(uint tick) => movVertex01Operation.Invoke(tick);
 
-        public virtual vec3d MovVertex02(uint tick) => movVertex01Operation.Invoke(tick);
+        public virtual Vec3d MovVertex02(uint tick) => movVertex01Operation.Invoke(tick);
 
-        public virtual vec3d MovVertex03(uint tick) => movVertex01Operation.Invoke(tick);
+        public virtual Vec3d MovVertex03(uint tick) => movVertex01Operation.Invoke(tick);
 
-        public virtual vec3d MovVertex04(uint tick) => movVertex01Operation.Invoke(tick);
+        public virtual Vec3d MovVertex04(uint tick) => movVertex01Operation.Invoke(tick);
 
 
         internal override void OnRender(uint tick)

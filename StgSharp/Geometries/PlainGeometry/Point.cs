@@ -1,54 +1,47 @@
 ﻿using StgSharp.Math;
 using System;
 using System.Runtime.InteropServices;
-
+using System.Threading;
 
 namespace StgSharp.Geometries
 {
     public unsafe class Point
     {
-        internal vec3d* positionPtr;
+        internal Vec3d position;
         internal readonly bool isVertex;
 
-        internal Point(vec3d* ptr)
+        internal Point(Vec3d p)
         {
-            positionPtr = ptr;
+            position = p;
         }
 
         public Point()
         {
-            IntPtr ptr = Marshal.AllocHGlobal(sizeof(vec3d));
-            positionPtr = (vec3d*)ptr.ToPointer();
+
         }
 
-        public vec3d Position
+        public Vec3d Position
         {
-            get { return *positionPtr; }
-            set { *positionPtr = value; }
-        }
-
-        public vec3d* PositionPtr
-        {
-            get { return positionPtr; }
-            set { positionPtr = value; }
+            get { return position; }
+            set { position = value; }
         }
 
         public float X
         {
-            get { return (*this.positionPtr).X; }
-            set { (*this.positionPtr).X = value; }
+            get { return position.X; }
+            set { position.X = value; }
         }
 
         public float Y
         {
-            get { return (*this.positionPtr).Y; }
-            set { (*this.positionPtr).Y = value; }
+            get { return position.Y; }
+            set { position.Y = value; }
         }
 
         public float Z
         {
-            get { return (*this.positionPtr).Z; }
-            set { (*this.positionPtr).Z = value; }
+            get { return position.Z; }
+            set { position.Z = value; }
         }
 
 
@@ -70,7 +63,7 @@ namespace StgSharp.Geometries
 
         public bool IsOnPlain(IPlainGeometry geo)
         {
-            return (*this.positionPtr) * geo.GetPlain().plainParameter == 1;
+            return position * geo.GetPlain().plainParameter == 1;
         }
 
 

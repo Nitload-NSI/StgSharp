@@ -4,7 +4,7 @@ namespace StgSharp
 {
     public class Partical : IEntity
     {
-        internal override void OnRenderFrame()
+        public override void OnRenderFrame()
         {
             throw new NotImplementedException();
         }

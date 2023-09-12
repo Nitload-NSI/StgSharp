@@ -34,7 +34,7 @@ namespace StgSharp
         /// <summary>
         /// A 2D vector presenting the position of an enemy entity, position can also be visited by X, Y
         /// </summary>
-        public vec2d Location { get; }
+        public Vec2d Location { get; }
 
         /// <summary>
         /// X position of an enenmy entity
@@ -51,7 +51,7 @@ namespace StgSharp
             _pos = p;
         }
 
-        internal abstract void OnRenderFrame();
+        public abstract void OnRenderFrame();
 
     }
 }

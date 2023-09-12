@@ -39,6 +39,10 @@
             }
             else
             {
+                /*
+                 * define z =  n * 2 ^ m
+                 * n is between 0 and 0.5
+                 */
                 uint zBit = *(uint*)&z;
                 uint zBitAbs = zBit & 0b_0111_1111_1111_1111_1111_1111_1111_1111;
                 uint uintm = (zBitAbs >> 23);

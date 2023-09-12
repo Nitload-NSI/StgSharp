@@ -3,13 +3,14 @@ using StgSharp.Graphics;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace StgSharp.Control
+namespace StgSharp.Controlling
 {
-    public static class TimeLine
+    public static partial class TimeLine
     {
-        [AllowNull]
+        public const long version = 10;
+
         internal static Pool _currentPool = default;
-        internal static LinkedList<Pool> allPool;
+        internal static LinkedList<Pool> allPool = new LinkedList<Pool>();
         internal static LinkedList<Form> allForm;
 
         /// <summary>
@@ -17,33 +18,37 @@ namespace StgSharp.Control
         /// </summary>
         public static readonly Counter<uint> tickCounter = new Counter<uint>(0, 1, 1);
 
-        [AllowNull]
         internal static TimelineBlock currentOperation;
         private static bool isPaused = false;
 
-        static TimeLine()
+        static unsafe TimeLine()
         {
             allForm = new LinkedList<Form>();
             allPool = new LinkedList<Pool>();
-#if DEBUG
-            Console.WriteLine("Timeline init OK!");
-#endif
-            internalIO.InternalInitGL();
         }
 
-        internal static void OnRender()
+        public static TimelineBlock CurrentOperation
+        {
+            get { return currentOperation; }
+            set 
+            {
+                if (currentOperation==default||
+                    currentOperation.isComplete)
+                {
+                    currentOperation = value;
+                }
+            }
+        }
+
+        public static void OnRender()
         {
             tickCounter.QuickAdd();
             foreach (Pool p in allPool)
             {
                 _currentPool = p;
-                if (!isPaused)
+                if (!currentOperation.isComplete)
                 {
                     currentOperation.OnUpdating();
-                }
-                foreach (EntityPartical b in _currentPool._bulletContainer)
-                {
-
                 }
             }
         }
@@ -56,6 +61,17 @@ namespace StgSharp.Control
 
         public static unsafe void StartProgram()
         {
+        }
+
+        public static void LoadPool(Pool pool)
+        {
+            allPool.Add(pool);
+            Console.WriteLine(allPool.count.Value);
+        }
+
+        public static Pool GetCurrentPool()
+        {
+            return _currentPool;
         }
 
     }

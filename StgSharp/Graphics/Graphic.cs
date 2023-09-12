@@ -1,41 +1,37 @@
-﻿using StgSharp.Control;
+﻿using StgSharp.Controlling;
 using StgSharp.Graphics;
 using System;
+using System.Runtime.InteropServices;
 
 namespace StgSharp
 {
     public static unsafe partial class Graphic
     {
-        internal static GraphicIOPack glIO;
         private static bool isGLSet = false;
+        private static bool isGLADset = false;
+        private static bool isGLready = false;
+
+
 
         /// <summary>
         /// Init an instance of OpenGL program,
         /// This method should be called before other 
         /// graphic methods, after LoadGL method.
         /// </summary>
-        public static void InitGL()
-        {
-            internalIO.InternalInitGL();
-        }
-
-        /// <summary>
-        /// Load OpenGL API to StgSharp core programm,
-        /// please call this method before call any other
-        /// graphic APIs in StgSharp.
-        /// </summary>
-        /// <exception cref="Exception">If run this method twice, will throw exception</exception>
-        public static unsafe void LoadGL()
+        public static void InitGL(int majorVersion, int minorVersion)
         {
             if (!isGLSet)
             {
-                glIO = internalIO.InternalInitGraphicApi();
+                internalIO.InternalInitGL(majorVersion, minorVersion);
+                isGLready = isGLSet && isGLADset;
             }
             else
             {
-                throw new Exception("Do not load GL api twice.");
+                throw new Exception("Do not init GL twice");
             }
         }
+
+
 
         /// <summary>
         /// Attach GLFW API to GLAD, 
@@ -43,33 +39,31 @@ namespace StgSharp
         /// and before other graphic method.
         /// </summary>
         /// <exception cref="Exception">The accident that program cannot attach GLFW to GLAD</exception>
-        public static unsafe void InitGLAD()
+        public static unsafe void InitGLAD(glLoader loader)
         {
-            int a = internalIO.InternalInitGLAD();
-            if (a!=0)
+
+            if (!isGLADset)
             {
-                throw new Exception("Cannot attach GLFW to GLAD!");
+                int a = internalIO.InternalInitGLAD();
+                if (a == 0)
+                {
+                    throw new Exception("Cannot attach GLFW to GLAD!");
+                }
+                else
+                {
+                    isGLready = isGLSet && isGLADset;
+
+                    LoadGLLoader(loader);
+
+                    return;
+                }
             }
             else
             {
-                return;
+                throw new Exception("Do not init GLAD twice.");
             }
         }
 
-
-        internal static byte[] loadShaderCodeStr(string str)
-        {
-            byte[] cahrStr; 
-            try
-            {
-                cahrStr = System.Text.Encoding.ASCII.GetBytes(str);
-                return cahrStr;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
 
 
 
@@ -102,7 +96,7 @@ namespace StgSharp
         */
 
 
-        
+
 
     }
 }

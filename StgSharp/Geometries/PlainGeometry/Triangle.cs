@@ -1,4 +1,4 @@
-﻿using StgSharp.Control;
+﻿using StgSharp.Controlling;
 using StgSharp.Math;
 
 namespace StgSharp.Geometries
@@ -23,11 +23,11 @@ namespace StgSharp.Geometries
         public GetLocationHandler MovVertex02Operation => this.movVertex02Opearion;
         public GetLocationHandler MovVertex03Operation => this.movVertex03Opearion;
 
-        public virtual vec3d MovVertex01(uint tick) => movVertex01Opearion.Invoke(tick);
+        public virtual Vec3d MovVertex01(uint tick) => movVertex01Opearion.Invoke(tick);
 
-        public virtual vec3d MovVertex02(uint tick) => movVertex02Opearion.Invoke(tick);
+        public virtual Vec3d MovVertex02(uint tick) => movVertex02Opearion.Invoke(tick);
 
-        public virtual vec3d MovVertex03(uint tick) => movVertex03Opearion.Invoke(tick);
+        public virtual Vec3d MovVertex03(uint tick) => movVertex03Opearion.Invoke(tick);
 
         public Triangle()
         {
@@ -36,7 +36,7 @@ namespace StgSharp.Geometries
             this.vertex2 = new Point();
             this.vertex3 = new Point();
 
-            /**/
+            /*
             TimeLine._currentPool._pointContainer.Add(vertex1);
             TimeLine._currentPool._pointContainer.Add(vertex2);
             TimeLine._currentPool._pointContainer.Add(vertex3);
@@ -46,9 +46,9 @@ namespace StgSharp.Geometries
         }
 
         public Triangle(
-            vec3d vertex01,
-            vec3d vertex02,
-            vec3d vertex03
+            Vec3d vertex01,
+            Vec3d vertex02,
+            Vec3d vertex03
             )
         {
             vertex1.Position = vertex01;

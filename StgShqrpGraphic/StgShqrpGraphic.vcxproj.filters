@@ -21,7 +21,10 @@
     <ClInclude Include="StgSharpGraphic.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SSGinternal.h">
+    <ClInclude Include="GLenv\include\GLFW\glfw3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GLenv\include\glad\glad.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,6 +38,24 @@
     <ClCompile Include="..\..\..\..\..\..\..\Programmer\GLenv\glad.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="linear.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mat4.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mat2.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mat3.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="debuger.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="GLenv\glfw3.lib">

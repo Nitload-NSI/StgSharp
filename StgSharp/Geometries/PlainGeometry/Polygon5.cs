@@ -1,4 +1,4 @@
-﻿using StgSharp.Control;
+﻿using StgSharp.Controlling;
 using StgSharp.Math;
 
 namespace StgSharp.Geometries
@@ -36,15 +36,15 @@ namespace StgSharp.Geometries
         {
         }
 
-        public virtual vec3d movPoint01(uint tick) => movP01Operation.Invoke(TimeLine.tickCounter._value);
+        public virtual Vec3d movPoint01(uint tick) => movP01Operation.Invoke(TimeLine.tickCounter._value);
 
-        public virtual vec3d movPoint02(uint tick) => movP02Operation.Invoke(TimeLine.tickCounter._value);
+        public virtual Vec3d movPoint02(uint tick) => movP02Operation.Invoke(TimeLine.tickCounter._value);
 
-        public virtual vec3d movPoint03(uint tick) => movP03Operation.Invoke(TimeLine.tickCounter._value);
+        public virtual Vec3d movPoint03(uint tick) => movP03Operation.Invoke(TimeLine.tickCounter._value);
 
-        public virtual vec3d movPoint04(uint tick) => movP04Operation.Invoke(TimeLine.tickCounter._value);
+        public virtual Vec3d movPoint04(uint tick) => movP04Operation.Invoke(TimeLine.tickCounter._value);
 
-        public virtual vec3d movPoint05(uint tick) => movP05Operation.Invoke(TimeLine.tickCounter._value);
+        public virtual Vec3d movPoint05(uint tick) => movP05Operation.Invoke(TimeLine.tickCounter._value);
 
 
         internal override void OnRender(uint tick)

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "mSLoRNQ0yeIniCC4zvuWpWU3c2rJ5RSpLdehE+xdO3ppSvxDvP2tjAS+XR6odW39rsLtnKfFFlu1y4xsfIwnrQ==",
+  "success": true,
+  "projectFilePath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Nitlo\\.nuget\\packages\\microsoft.bcl.hashcode\\1.1.1\\microsoft.bcl.hashcode.1.1.1.nupkg.sha512",
+    "C:\\Users\\Nitlo\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -8,6 +8,7 @@ namespace StgSharp.Graphics
     using GLFWbool = Boolean;
 
     //strucs defined in glfw3.h
+    #region glfw3 struct
 
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct GLFWcontext
@@ -31,8 +32,8 @@ namespace StgSharp.Graphics
         void (* makeCurrent) (_GLFWwindow*);
         void (* swapBuffers) (_GLFWwindow*);
         void (* swapInterval) (int);
-        int (* extensionSupported) (const char*);
-        GLFWglproc(*getProcAddress)(const char*);
+        int (* extensionSupported) (const byte*);
+        GLFWglproc(*getProcAddress)(const byte*);
         void (* destroy) (_GLFWwindow*);
         */
 
@@ -159,7 +160,7 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWmonitor
     {
 
-        char[] name = new char[128];
+        byte[] name = new byte[128];
         void* userPointer;
 
         // Physical dimensions in millimeters.
@@ -210,8 +211,10 @@ namespace StgSharp.Graphics
         public bool stickyMouseButtons = false;
         public bool lockKeyMods = false;
         public int cursorMode = 0;
-        public char[] mouseButtons = new char[8];
-        public char[] keys = new char[349];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
+        public byte[] mouseButtons = new byte[8];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 349)]
+        public byte[] keys = new byte[349];
         // Virtual cursor position when cursor is disabled
         public double virtualCursorPosX = 0, virtualCursorPosY = 0;
         public bool rawMouseMotion = false;
@@ -242,7 +245,8 @@ namespace StgSharp.Graphics
         //_GLFWerror* next;
         IntPtr next;
         int code;
-        char[] description = new char[GLFW._GLFW_MESSAGE_SIZE];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)GLFW._GLFW_MESSAGE_SIZE)]
+        byte[] description = new byte[GLFW._GLFW_MESSAGE_SIZE];
 
         public GLFWerror()
         {
@@ -281,7 +285,7 @@ namespace StgSharp.Graphics
         int ypos;
         int width;
         int height;
-        char* title;
+        byte* title;
         GLFWbool resizable;
         GLFWbool visible;
         GLFWbool decorated;
@@ -296,7 +300,8 @@ namespace StgSharp.Graphics
         internal struct Ns
         {
             GLFWbool retina = false;
-            char[] frameName = new char[256];
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+            byte[] frameName = new byte[256];
 
             public Ns()
             {
@@ -306,8 +311,10 @@ namespace StgSharp.Graphics
 
         internal struct X11
         {
-            char[] className = new char[256];
-            char[] instanceName = new char[256];
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+            byte[] className = new byte[256];
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+            byte[] instanceName = new byte[256];
 
             public X11()
             {
@@ -323,7 +330,8 @@ namespace StgSharp.Graphics
 
         internal struct Wl
         {
-            char[] appId = new char[256];
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+            byte[] appId = new byte[256];
 
             public Wl()
             {
@@ -416,6 +424,7 @@ namespace StgSharp.Graphics
 
 
         GLFWbool joysticksInitialized;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = GLFW.GLFW_JOYSTICK_LAST + 1)]
         _GLFWjoystick[] joysticks = new _GLFWjoystick[GLFW.GLFW_JOYSTICK_LAST + 1];
         //_GLFWmapping* mappings;
         IntPtr mappings;
@@ -501,7 +510,8 @@ namespace StgSharp.Graphics
         {
             GLFWbool available;
             void* handle;
-            char*[] extensions = new char*[2];
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
+            byte*[] extensions = new byte*[2];
             IntPtr GetInstanceProcAddr;
             GLFWbool KHR_surface;
             GLFWbool KHR_win32_surface;
@@ -543,9 +553,13 @@ namespace StgSharp.Graphics
     public unsafe struct _GLFWmapping
     {
 
-        char[] name = new char[128];
-        char[] guid = new char[33];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+        byte[] name = new byte[128];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 33)]
+        byte[] guid = new byte[33];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 15)]
         _GLFWmapelement[] buttons = new _GLFWmapelement[15];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
         _GLFWmapelement[] axes = new _GLFWmapelement[6];
 
         public _GLFWmapping() { }
@@ -563,9 +577,11 @@ namespace StgSharp.Graphics
         int buttonCount;
         byte* hats;
         int hatCount;
-        char[] name = new char[128];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+        byte[] name = new byte[128];
         void* userPointer;
-        char[] guid = new char[33];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 33)]
+        byte[] guid = new byte[33];
         //_GLFWmapping* mapping;
         IntPtr mapping;
 
@@ -605,15 +621,15 @@ namespace StgSharp.Graphics
     GLFWbool(*createStandardCursor)(_GLFWcursor*, int);
     void (* destroyCursor) (_GLFWcursor*);
     void (* setCursor) (_GLFWwindow*, _GLFWcursor*);
-    const char* (*getScancodeName)(int);
+    const byte* (*getScancodeName)(int);
     int (* getKeyScancode) (int);
-    void (* setClipboardString) (const char*);
-        const char* (*getClipboardString)(void);
+    void (* setClipboardString) (const byte*);
+        const byte* (*getClipboardString)(void);
     GLFWbool(*initJoysticks)(void);
     void (* terminateJoysticks) (void);
     GLFWbool(*pollJoystick)(_GLFWjoystick*, int);
-    const char* (*getMappingName)(void);
-    void (* updateGamepadGUID) (char*);
+    const byte* (*getMappingName)(void);
+    void (* updateGamepadGUID) (byte*);
     // monitor
     void (* freeMonitor) (_GLFWmonitor*);
     void (* getMonitorPos) (_GLFWmonitor*, int*, int*);
@@ -626,7 +642,7 @@ namespace StgSharp.Graphics
         // window
         GLFWbool(*createWindow)(_GLFWwindow*,const _GLFWwndconfig*,const _GLFWctxconfig*,const _GLFWfbconfig*);
         void (* destroyWindow) (_GLFWwindow*);
-    void (* setWindowTitle) (_GLFWwindow*,const char*);
+    void (* setWindowTitle) (_GLFWwindow*,const byte*);
         void (* setWindowIcon) (_GLFWwindow*, int,const GLFWimage*);
         void (* getWindowPos) (_GLFWwindow*, int*, int*);
     void (* setWindowPos) (_GLFWwindow*, int, int);
@@ -739,7 +755,7 @@ namespace StgSharp.Graphics
 
 
         // vulkan
-        //void (* getRequiredInstanceExtensions) (char**);
+        //void (* getRequiredInstanceExtensions) (byte**);
         //GLFWbool(*getPhysicalDevicePresentationSupport)(VkInstance, VkPhysicalDevice, uint32_t);
         //VkResult(*createWindowSurface)(VkInstance, _GLFWwindow*,const VkAllocationCallbacks*, VkSurfaceKHR*);
         internal IntPtr getRequiredInstanceExtensions;
@@ -760,7 +776,8 @@ namespace StgSharp.Graphics
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct VkExtensionProperties
     {
-        char[] extensionName = new char[256];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        byte[] extensionName = new byte[256];
         uint specVersion;
 
         public VkExtensionProperties()
@@ -773,7 +790,8 @@ namespace StgSharp.Graphics
     {
         IntPtr next;
         int code;
-        char[] description = new char[1024];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024)]
+        byte[] description = new byte[1024];
 
         public _GLFWerror()
         {
@@ -789,8 +807,17 @@ namespace StgSharp.Graphics
         [FieldOffset(8)]
         long part2;
     }
+    #endregion
+
+    #region glad struct
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct GLsync
+    {
+
+    }
 
 
-
+    #endregion
 
 }

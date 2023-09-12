@@ -1,7 +1,11 @@
-﻿namespace StgSharp.Math
+﻿using System.Net.NetworkInformation;
+
+namespace StgSharp.Math
 {
     public static partial class Calc
     {
+        public const float Pi = 3.1415926f;
+
         private static readonly float[] sinData =
             {
             0f, 0.15643446239373f,  0.309016989278255f, 0.453990492577218f, 0.587785243621462f,
