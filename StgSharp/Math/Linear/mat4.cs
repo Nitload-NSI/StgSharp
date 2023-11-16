@@ -7,20 +7,20 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp
 {
-    internal static unsafe partial class internalIO
+    internal static unsafe partial class InternalIO
     {
 
         #region transpose
 
-        [DllImport(SSGC_libname, EntryPoint = "transpose4to4",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "transpose4to4",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose4to4_internal(Mat4* source, Mat4* target);
 
-        [DllImport(SSGC_libname, EntryPoint = "transpose4to3",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "transpose4to3",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose4to3_internal(Mat4* source, Mat3* target);
 
-        [DllImport(SSGC_libname, EntryPoint = "transpose4to2",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "transpose4to2",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose4to2_internal(Mat4* source, Mat2* target);
 
@@ -29,7 +29,7 @@ namespace StgSharp
 
         #region det
 
-        [DllImport(SSGC_libname, EntryPoint = "det_mat4",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "det_mat4",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe extern float det_mat4(Mat4* matPtr, Mat4* transpose);
@@ -39,7 +39,7 @@ namespace StgSharp
         #region deinit_mat4
 
 
-        [DllImport(SSGC_libname, EntryPoint = "deinit_mat4",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "deinit_mat4",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern void deinit_mat4(Mat4* mat);
@@ -55,7 +55,7 @@ namespace StgSharp.Math
 
 
     [StructLayout(LayoutKind.Explicit, Size = 16 * sizeof(float))]
-    internal struct Mat4 : IEquatable<Mat4>
+    public struct Mat4 : IEquatable<Mat4>, IMat
     {
         [FieldOffset(0)] internal Vector4 colum0;
         [FieldOffset(16)] internal Vector4 colum1;

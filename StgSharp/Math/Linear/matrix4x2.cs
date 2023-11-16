@@ -3,13 +3,12 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-using static StgSharp.Graphics.GLFWwndconfig;
 
 namespace StgSharp.Math
 {
-    
 
-    [StructLayout(LayoutKind.Explicit,Size = (16 + 8) * sizeof(float) + sizeof(bool), Pack = 16)]
+
+    [StructLayout(LayoutKind.Explicit, Size = (16 + 8) * sizeof(float) + sizeof(bool), Pack = 16)]
     public struct Matrix4x2
     {
         [FieldOffset(0)] internal Mat2 mat;
@@ -18,32 +17,32 @@ namespace StgSharp.Math
 
 
         public Matrix4x2(
-            float a00,float a01,
-            float a10,float a11,
-            float a20,float a21,
-            float a30,float a31
+            float a00, float a01,
+            float a10, float a11,
+            float a20, float a21,
+            float a30, float a31
             )
         {
             mat.colum0 = new Vector4(a00, a10, a20, a30);
             mat.colum1 = new Vector4(a01, a11, a21, a31);
         }
-        
+
         internal Matrix4x2(
             Vector4 c0,
             Vector4 c1
-            ) 
+            )
         {
             mat.colum0 = c0;
             mat.colum1 = c1;
         }
-        
+
         internal Matrix4x2(Mat2 mat)
         {
             this.mat = mat;
         }
-        
-        
-        
+
+
+
         public unsafe float this[int rowNum, int columNum]
         {
             get
@@ -86,7 +85,7 @@ namespace StgSharp.Math
                 isTransposed = false;
             }
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix4x2 operator +(Matrix4x2 left, Matrix4x2 right)
         {
@@ -113,7 +112,7 @@ namespace StgSharp.Math
                 mat.mat.colum1 / value
                 );
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix4x2 operator -(Matrix4x2 left, Matrix4x2 right)
         {
@@ -122,7 +121,7 @@ namespace StgSharp.Math
                 left.mat.colum0 - right.mat.colum0
                 );
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4x2 operator *(Matrix4x2 left, Matrix2x2 right)
         {
@@ -158,7 +157,7 @@ namespace StgSharp.Math
                 Vector4.Dot(left.transpose.colum2, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum2, right.mat.colum1),
                 Vector4.Dot(left.transpose.colum2, right.mat.colum2),
-                
+
                 Vector4.Dot(left.transpose.colum3, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum3, right.mat.colum1),
                 Vector4.Dot(left.transpose.colum3, right.mat.colum2)
@@ -191,7 +190,7 @@ namespace StgSharp.Math
                 Vector4.Dot(left.transpose.colum3, right.mat.colum2)
                 );
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void InternalTranspose()
         {
@@ -200,7 +199,7 @@ namespace StgSharp.Math
                 fixed (Mat2* source = &this.mat)
                 fixed (Mat4* target = &this.transpose)
                 {
-                    internalIO.Transpose2to4_internal(source, target);
+                    InternalIO.Transpose2to4_internal(source, target);
                 }
                 isTransposed = true;
             }

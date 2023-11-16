@@ -1,13 +1,16 @@
-﻿namespace StgSharp.Math
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
+
+namespace StgSharp.Math
 {
-    public unsafe static partial class Vector
+    public unsafe static partial class VectorCalc
     {
-        public static Vec3d To3D(Vec2d vec)
+        public static vec3d To3D(Vec2d vec)
         {
-            return new Vec3d(vec.X, vec.Y, 0.0f);
+            return new vec3d(vec.X, vec.Y, 0.0f);
         }
 
-        public static Vec2d To2D(Vec3d vec, CordinatePlain plain)
+        public static Vec2d To2D(vec3d vec, CordinatePlain plain)
         {
             switch (plain)
             {
@@ -26,6 +29,11 @@
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static vec3d To3D(Vector4 vector)
+        {
+            return new vec3d(vector);
+        }
     }
 
 

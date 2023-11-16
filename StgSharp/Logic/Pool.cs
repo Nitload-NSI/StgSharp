@@ -7,7 +7,7 @@ namespace StgSharp
     public class Pool
     {
         internal LinkedList<Vector4Map> _Vector4mapContainer;
-        internal LinkedList<IPlainGeometry> _geometryContainer;
+        internal LinkedList<PlainGeometry> _geometryContainer;
         internal LinkedList<IEntity> _bulletContainer;
         internal LinkedList<IEntity> _awardContainer;
         internal LinkedList<IEntity> _enemyContainer;
@@ -33,7 +33,7 @@ namespace StgSharp
             _bulletContainer = new LinkedList<IEntity>();
             _awardContainer = new LinkedList<IEntity>();
             _enemyContainer = new LinkedList<IEntity>();
-            _geometryContainer = new LinkedList<IPlainGeometry>();
+            _geometryContainer = new LinkedList<PlainGeometry>();
         }
 
         public void OnRender()

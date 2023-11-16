@@ -56,7 +56,7 @@ namespace StgSharp
         /// <returns></returns>
         public static KeyStatus GetKeyStatus(Form form, Key key)
         {
-            return internalIO.glfwGetKey(form.windowID, (int)key);
+            return InternalIO.glfw.GetKey(form.windowID, (int)key);
         }
 
     }

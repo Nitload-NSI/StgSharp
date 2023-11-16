@@ -10,7 +10,7 @@
                 );
         }
 
-        public static float GetAngle(Vec3d vec1, Vec3d vec2)
+        public static float GetAngle(vec3d vec1, vec3d vec2)
         {
             return Calc.ACos(
                 vec1 * vec2

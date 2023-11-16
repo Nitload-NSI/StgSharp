@@ -12,7 +12,7 @@ namespace StgSharp.Math
         public static int Vector4Size = 16;
 
         internal static IntPtr defaultVector4Ptr = 
-            internalIO.set_Vector4ptr_default_internal();
+            InternalIO.set_Vector4ptr_default_internal();
 
 
         internal static IntPtr defaultM256Ptr;

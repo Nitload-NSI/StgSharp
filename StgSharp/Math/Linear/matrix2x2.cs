@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(LayoutKind.Explicit, Size = 2 * 2 * 4 * sizeof(float) + sizeof(bool), Pack = 16)]
-    public struct Matrix2x2
+    public struct Matrix2x2 : IMat
     {
         [FieldOffset(0)]
         internal Mat2 mat;
@@ -17,16 +17,16 @@ namespace StgSharp.Math
         public Matrix2x2(
             float a00, float a01,
             float a10, float a11
-            ) 
+            )
         {
-            mat.colum0 = new Vector4(a00,a10,0,0);
-            mat.colum1 = new Vector4(a01,a11,0,0);
+            mat.colum0 = new Vector4(a00, a10, 0, 0);
+            mat.colum1 = new Vector4(a01, a11, 0, 0);
         }
 
         internal Matrix2x2(
             Vector4 c0,
             Vector4 c1
-            ) 
+            )
         {
             mat.colum0 = c0;
             mat.colum1 = c1;
@@ -41,7 +41,7 @@ namespace StgSharp.Math
 
         public Matrix2x2 Transpose
         {
-            get 
+            get
             {
                 InternalTranspose();
                 return new Matrix2x2(this.transpose);
@@ -66,9 +66,9 @@ namespace StgSharp.Math
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix2x2 operator +(Matrix2x2 left, Matrix2x2 right)
         {
-            Mat2* refmat = internalIO.add_mat2(&left.mat, &right.mat);
+            Mat2* refmat = InternalIO.add_mat2(&left.mat, &right.mat);
             Matrix2x2 ret = new Matrix2x2(*refmat);
-            internalIO.deinit_mat2(refmat);
+            InternalIO.deinit_mat2(refmat);
             return ret;
         }
 
@@ -104,11 +104,11 @@ namespace StgSharp.Math
         {
             left.InternalTranspose();
             return new Matrix2x2(
-                Vector4.Dot( left.transpose.colum0, right.mat.colum0), 
-                Vector4.Dot( left.transpose.colum0, right.mat.colum1), 
+                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
 
-                Vector4.Dot( left.transpose.colum1, right.mat.colum0), 
-                Vector4.Dot( left.transpose.colum1, right.mat.colum1) 
+                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum1)
                 );
         }
 
@@ -117,13 +117,13 @@ namespace StgSharp.Math
         {
             left.InternalTranspose();
             return new Matrix2x3(
-                Vector4.Dot( left.transpose.colum0, right.mat.colum0), 
-                Vector4.Dot( left.transpose.colum0, right.mat.colum1), 
-                Vector4.Dot( left.transpose.colum0, right.mat.colum2), 
+                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
 
-                Vector4.Dot( left.transpose.colum1, right.mat.colum0), 
-                Vector4.Dot( left.transpose.colum1, right.mat.colum1), 
-                Vector4.Dot( left.transpose.colum1, right.mat.colum2) 
+                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum2)
                 );
         }
 
@@ -132,15 +132,15 @@ namespace StgSharp.Math
         {
             left.InternalTranspose();
             return new Matrix2x4(
-                Vector4.Dot( left.transpose.colum0, right.mat.colum0), 
-                Vector4.Dot( left.transpose.colum0, right.mat.colum1), 
-                Vector4.Dot( left.transpose.colum0, right.mat.colum2), 
-                Vector4.Dot( left.transpose.colum0, right.mat.colum3), 
+                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
+                Vector4.Dot(left.transpose.colum0, right.mat.colum3),
 
-                Vector4.Dot( left.transpose.colum1, right.mat.colum0), 
-                Vector4.Dot( left.transpose.colum1, right.mat.colum1), 
-                Vector4.Dot( left.transpose.colum1, right.mat.colum2), 
-                Vector4.Dot( left.transpose.colum1, right.mat.colum3) 
+                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum2),
+                Vector4.Dot(left.transpose.colum1, right.mat.colum3)
                 );
         }
 

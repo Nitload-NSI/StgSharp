@@ -215,7 +215,7 @@ namespace StgSharp.Math
             InternalTranspose();
             fixed (Mat4* _this = &mat, _trans = &transpose)
             {
-                return internalIO.det_mat4(_this,_trans);
+                return InternalIO.det_mat4(_this,_trans);
             }
         }
 
@@ -227,7 +227,7 @@ namespace StgSharp.Math
             {
                 fixed (Mat4* source = &this.mat, target = &this.transpose)
                 {
-                    internalIO.Transpose4to4_internal(source, target);
+                    InternalIO.Transpose4to4_internal(source, target);
                 }
 
                 isTransposed = true;

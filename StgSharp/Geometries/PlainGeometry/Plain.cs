@@ -1,17 +1,26 @@
 ﻿using StgSharp.Math;
+using System.Numerics;
 
 namespace StgSharp.Geometries
 {
     public unsafe class Plain
     {
-        internal Vec3d origin;
-        internal Vec3d vec1;
-        internal Vec3d vec2;
+        internal vec3d origin;
+        internal vec3d vec1;
+        internal vec3d vec2;
 
-        internal Vec3d plainParameter;
+        internal vec3d plainParameter;
         internal readonly float d = -1;
 
-        public Plain(Vec3d o, Vec3d v1, Vec3d v2)
+        internal Plain(Vector4 origin, Vector4 p1, Vector4 p2)
+        {
+            this.origin = new vec3d(origin);
+
+            vec1 = new vec3d(p1 - origin);
+            vec2 = new vec3d(p2 - origin);
+        }
+
+        public Plain(vec3d o, vec3d v1, vec3d v2)
         {
             this.origin = o;
             this.vec1 = v1 - v2 * (v1.Y / v2.Y);   //计算平面在xz平面上的方向投影
@@ -30,9 +39,9 @@ namespace StgSharp.Geometries
 
         public Plain(Point p1, Point p2, Point p3)
         {
-            Vec3d origin = p1.Position;
-            Vec3d v1 = p2.Position - origin;
-            Vec3d v2 = p3.Position - origin;
+            vec3d origin = p1.Position;
+            vec3d v1 = p2.Position - origin;
+            vec3d v2 = p3.Position - origin;
 
 
             vec1 = v1 - v2 * (v1.Y / v2.Y);   //计算平面在xz平面上的方向投影

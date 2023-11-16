@@ -1,76 +1,71 @@
 ﻿using StgSharp.Controlling;
 using StgSharp.Math;
+using System.Numerics;
 
 namespace StgSharp.Geometries
 {
 
 
-    public unsafe class Triangle : IPlainGeometry
+    public unsafe class Triangle : PlainGeometry
     {
 
-        internal Point vertex1 = new Point();
-        internal Point vertex2 = new Point();
-        internal Point vertex3 = new Point();
         internal GetLocationHandler movVertex01Opearion = new GetLocationHandler(GeometryOperation.DefualtMotion);
         internal GetLocationHandler movVertex02Opearion = new GetLocationHandler(GeometryOperation.DefualtMotion);
         internal GetLocationHandler movVertex03Opearion = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
-        public sealed override Point RefPoint01 => vertex1;
-        public sealed override Point RefPoint02 => vertex2;
-        public sealed override Point RefPoint03 => vertex3;
+        internal Matrix3x3 vertexMat;
+
+        public Triangle()
+        {
+            vertexMat = new Matrix3x3();
+        }
+
+        public Triangle(
+            vec3d vertex01,
+            vec3d vertex02,
+            vec3d vertex03
+            )
+        {
+            vertexMat.mat.colum0 = vertex01.vec;
+            vertexMat.mat.colum1 = vertex02.vec;
+            vertexMat.mat.colum2 = vertex03.vec;
+        }
+
+        public Triangle(
+            float v0x, float v0y, float v0z,
+            float v1x, float v1y, float v1z,
+            float v2x, float v2y, float v2z
+            )
+        {
+            vertexMat.mat.colum0 = new Vector4(v0x, v0y, v0z, 0);
+            vertexMat.mat.colum1 = new Vector4(v1x, v1y, v1z, 0);
+            vertexMat.mat.colum2 = new Vector4(v2x, v2y, v2z, 0);
+        }
 
         public GetLocationHandler MovVertex01Operation => this.movVertex01Opearion;
         public GetLocationHandler MovVertex02Operation => this.movVertex02Opearion;
         public GetLocationHandler MovVertex03Operation => this.movVertex03Opearion;
+        public sealed override Point RefPoint0 => new Point(vertexMat.mat.colum0);
+        public sealed override Point RefPoint1 => new Point(vertexMat.mat.colum1);
+        public sealed override Point RefPoint2 => new Point(vertexMat.mat.colum2);
 
-        public virtual Vec3d MovVertex01(uint tick) => movVertex01Opearion.Invoke(tick);
-
-        public virtual Vec3d MovVertex02(uint tick) => movVertex02Opearion.Invoke(tick);
-
-        public virtual Vec3d MovVertex03(uint tick) => movVertex03Opearion.Invoke(tick);
-
-        public Triangle()
+        public Mat3 VertexBuffer
         {
-
-            this.vertex1 = new Point();
-            this.vertex2 = new Point();
-            this.vertex3 = new Point();
-
-            /*
-            TimeLine._currentPool._pointContainer.Add(vertex1);
-            TimeLine._currentPool._pointContainer.Add(vertex2);
-            TimeLine._currentPool._pointContainer.Add(vertex3);
-            /**/
-
-
+            get { return vertexMat.mat; }
         }
 
-        public Triangle(
-            Vec3d vertex01,
-            Vec3d vertex02,
-            Vec3d vertex03
-            )
+        internal sealed override int[] Indices
         {
-            vertex1.Position = vertex01;
-            vertex2.Position = vertex02;
-            vertex3.Position = vertex03;
-        }
-
-        internal sealed override void OnRender(uint tick)
-        {
-            tick -= this.bornTick;
-            vertex1.Position = RefOrigin.Position + MovVertex01(tick);
-            vertex2.Position = RefOrigin.Position + MovVertex02(tick);
-            vertex3.Position = RefOrigin.Position + MovVertex03(tick);
+            get { return new int[3] { 0, 1, 2 }; }
         }
 
         public override Line[] GetAllSides()
         {
             Line[] sides = new Line[3]
                 {
-                    new Line(vertex1,vertex2),
-                    new Line(vertex2,vertex3),
-                    new Line(vertex3,vertex1)
+                    new Line(vertexMat.mat.colum0,vertexMat.mat.colum1),
+                    new Line(vertexMat.mat.colum1,vertexMat.mat.colum2),
+                    new Line(vertexMat.mat.colum2,vertexMat.mat.colum0)
                 };
 
             return sides;
@@ -78,8 +73,20 @@ namespace StgSharp.Geometries
 
         public override Plain GetPlain()
         {
-            return new Plain(this.vertex1, this.vertex2, this.vertex3);
+            return new Plain(this.vertexMat.mat.colum0, this.vertexMat.mat.colum1, this.vertexMat.mat.colum2);
         }
 
+        public virtual vec3d MovVertex01(uint tick) => movVertex01Opearion.Invoke(tick);
+
+        public virtual vec3d MovVertex02(uint tick) => movVertex02Opearion.Invoke(tick);
+
+        public virtual vec3d MovVertex03(uint tick) => movVertex03Opearion.Invoke(tick);
+        internal sealed override void OnRender(uint tick)
+        {
+            tick -= this.bornTick;
+            vertexMat.mat.colum0 = RefOrigin.Position.vec + MovVertex01(tick).vec;
+            vertexMat.mat.colum1 = RefOrigin.Position.vec + MovVertex02(tick).vec;
+            vertexMat.mat.colum2 = RefOrigin.Position.vec + MovVertex03(tick).vec;
+        }
     }
 }

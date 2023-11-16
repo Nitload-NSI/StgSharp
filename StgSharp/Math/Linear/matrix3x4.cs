@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -6,12 +7,17 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
 
-    [StructLayout(LayoutKind.Explicit, Size = 7*4*sizeof(float)+ sizeof(bool),Pack = 16)]
+    [StructLayout(LayoutKind.Explicit, Size = 7 * 4 * sizeof(float) + sizeof(bool), Pack = 16)]
     public struct Matrix3x4
     {
         [FieldOffset(0)] internal Mat4 mat;
-        [FieldOffset(4*4*sizeof(float))] internal Mat3 transpose;
+        [FieldOffset(4 * 4 * sizeof(float))] internal Mat3 transpose;
         [FieldOffset(7 * 4 * sizeof(float))] internal bool isTransposed;
+
+        [FieldOffset(0 * 4 * sizeof(float))] public vec3d Colum0;
+        [FieldOffset(1 * 4 * sizeof(float))] public vec3d Colum1;
+        [FieldOffset(2 * 4 * sizeof(float))] public vec3d Colum2;
+        [FieldOffset(3 * 4 * sizeof(float))] public vec3d Colum3;
 
         public Matrix3x4(
             float a00, float a01, float a02, float a03,
@@ -90,10 +96,10 @@ namespace StgSharp.Math
         {
             if (!isTransposed)
             {
-                fixed(Mat4* source = &this.mat)
-                fixed(Mat3* target = &this.transpose)
+                fixed (Mat4* source = &this.mat)
+                fixed (Mat3* target = &this.transpose)
                 {
-                    internalIO.Transpose4to3_internal(source, target);
+                    InternalIO.Transpose4to3_internal(source, target);
                 }
                 isTransposed = true;
             }
@@ -150,10 +156,10 @@ namespace StgSharp.Math
             return new Matrix3x2(
                 Vector4.Dot(left.transpose.colum0, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum0, right.mat.colum1),
-                
+
                 Vector4.Dot(left.transpose.colum1, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum1, right.mat.colum1),
-                
+
                 Vector4.Dot(left.transpose.colum2, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum2, right.mat.colum1)
                 );
@@ -167,11 +173,11 @@ namespace StgSharp.Math
                 Vector4.Dot(left.transpose.colum0, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum0, right.mat.colum1),
                 Vector4.Dot(left.transpose.colum0, right.mat.colum2),
-                
+
                 Vector4.Dot(left.transpose.colum1, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum1, right.mat.colum1),
                 Vector4.Dot(left.transpose.colum1, right.mat.colum2),
-                
+
                 Vector4.Dot(left.transpose.colum2, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum2, right.mat.colum1),
                 Vector4.Dot(left.transpose.colum2, right.mat.colum2)
@@ -187,12 +193,12 @@ namespace StgSharp.Math
                 Vector4.Dot(left.transpose.colum0, right.mat.colum1),
                 Vector4.Dot(left.transpose.colum0, right.mat.colum2),
                 Vector4.Dot(left.transpose.colum0, right.mat.colum3),
-                
+
                 Vector4.Dot(left.transpose.colum1, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum1, right.mat.colum1),
                 Vector4.Dot(left.transpose.colum1, right.mat.colum2),
                 Vector4.Dot(left.transpose.colum1, right.mat.colum3),
-                
+
                 Vector4.Dot(left.transpose.colum2, right.mat.colum0),
                 Vector4.Dot(left.transpose.colum2, right.mat.colum1),
                 Vector4.Dot(left.transpose.colum2, right.mat.colum2),
