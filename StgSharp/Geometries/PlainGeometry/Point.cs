@@ -1,5 +1,6 @@
 ﻿using StgSharp.Math;
 using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -7,20 +8,27 @@ namespace StgSharp.Geometries
 {
     public unsafe class Point
     {
-        internal Vec3d position;
+        internal vec3d position;
         internal readonly bool isVertex;
 
-        internal Point(Vec3d p)
+        public Point() { }
+
+        internal Point(vec3d p)
         {
             position = p;
         }
 
-        public Point()
+        internal Point(Vector4 vector)
         {
-
+            position = new vec3d(vector);
         }
 
-        public Vec3d Position
+        public Point(float x, float y, float z)
+        {
+            position = new vec3d(x, y, z);
+        }
+
+        public vec3d Position
         {
             get { return position; }
             set { position = value; }
@@ -56,12 +64,12 @@ namespace StgSharp.Geometries
         /// <param name="tick">Time passes since the program begin, counted by frames</param>
         public virtual void Update(uint tick) { }
 
-        public bool IsInGeometry(IPlainGeometry geo)
+        public bool IsInGeometry(PlainGeometry geo)
         {
             throw new NotImplementedException();
         }
 
-        public bool IsOnPlain(IPlainGeometry geo)
+        public bool IsOnPlain(PlainGeometry geo)
         {
             return position * geo.GetPlain().plainParameter == 1;
         }

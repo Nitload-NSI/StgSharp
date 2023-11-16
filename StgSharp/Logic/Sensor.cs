@@ -3,21 +3,21 @@
 namespace StgSharp
 {
 
-    public delegate bool SensorRuleHandler(IPlainGeometry target, IPlainGeometry boarder);
+    public delegate bool SensorRuleHandler(PlainGeometry target, PlainGeometry boarder);
 
     public class Sensor<T>
     {
-        internal IPlainGeometry _boarder;
-        internal IPlainGeometry _target;
+        internal PlainGeometry _boarder;
+        internal PlainGeometry _target;
         internal SensorRuleHandler _rule;
 
 
-        public IPlainGeometry boarder
+        public PlainGeometry boarder
         {
             get { return _boarder; }
         }
 
-        public IPlainGeometry target
+        public PlainGeometry target
         {
             get { return _target; }
             set { _target = value; }

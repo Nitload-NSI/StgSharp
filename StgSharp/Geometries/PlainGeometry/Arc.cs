@@ -3,7 +3,7 @@ using System;
 
 namespace StgSharp.Geometries
 {
-    public class Arc : IPlainGeometry
+    public class Arc : PlainGeometry
     {
         internal Point center;
         internal Point beginPoint;
@@ -12,17 +12,19 @@ namespace StgSharp.Geometries
         internal GetLocationHandler movBeginOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
         internal GetLocationHandler movEndOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
-        public override Point RefPoint01 => center;
+        public override Point RefPoint0 => center;
 
-        public override Point RefPoint02 => beginPoint;
+        public override Point RefPoint1 => beginPoint;
 
-        public override Point RefPoint03 => endPoint;
+        public override Point RefPoint2 => endPoint;
 
-        public virtual Vec3d MoveCenter(uint tick) => movCenterOperation.Invoke(tick);
+        internal override int[] Indices => throw new NotImplementedException();
 
-        public virtual Vec3d MovBegin(uint tick) => movBeginOperation.Invoke(tick);
+        public virtual vec3d MoveCenter(uint tick) => movCenterOperation.Invoke(tick);
 
-        public virtual Vec3d MovEnd(uint tick) => movEndOperation.Invoke(tick);
+        public virtual vec3d MovBegin(uint tick) => movBeginOperation.Invoke(tick);
+
+        public virtual vec3d MovEnd(uint tick) => movEndOperation.Invoke(tick);
 
         internal override void OnRender(uint tick)
         {

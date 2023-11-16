@@ -6,15 +6,15 @@ namespace StgSharp
     public abstract class IEntity
     {
         internal Point _pos;
-        internal LinkedList<IPlainGeometry> _collisionBox;
-        internal Sensor<IPlainGeometry> _collisionSensor;
+        internal LinkedList<PlainGeometry> _collisionBox;
+        internal Sensor<PlainGeometry> _collisionSensor;
         internal string _texture;
         internal Point _position;
         internal Point _basePoint;
         internal GetLocationHandler _movHandler;
         protected uint _bornTick;
 
-        public LinkedList<IPlainGeometry> CollisionBox
+        public LinkedList<PlainGeometry> CollisionBox
         {
             get { return _collisionBox; }
             set { _collisionBox = value; }
@@ -23,7 +23,7 @@ namespace StgSharp
         /// <summary>
         /// A sensor used for cheking out if a bullet hit a player or something else
         /// </summary>
-        public Sensor<IPlainGeometry> CollisionSensor
+        public Sensor<PlainGeometry> CollisionSensor
         {
             get { return _collisionSensor; }
             set { _collisionSensor = value; }

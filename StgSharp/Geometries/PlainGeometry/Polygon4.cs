@@ -1,44 +1,102 @@
 ﻿using StgSharp.Controlling;
 using StgSharp.Math;
+using System.Numerics;
 
 namespace StgSharp.Geometries
 {
-    public class Polygon4 : IPlainGeometry
+    public class Polygon4 : PlainGeometry
     {
+        internal readonly GetLocationHandler moveVertex0Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
+        internal readonly GetLocationHandler moveVertex1Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
+        internal readonly GetLocationHandler moveVertex2Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
+        internal readonly GetLocationHandler moveVertex3Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
-        internal readonly Point vertex01;
-        internal readonly Point vertex02;
-        internal readonly Point vertex03;
-        internal readonly Point vertex04;
+        internal Matrix3x4 vertexMat;
 
-        internal readonly GetLocationHandler movVertex01Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
-        internal readonly GetLocationHandler movVertex02Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
-        internal readonly GetLocationHandler movVertex03Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
-        internal readonly GetLocationHandler movVertex04Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
-
-        public override Point RefPoint01 => vertex01;
-
-        public override Point RefPoint02 => vertex02;
-
-        public override Point RefPoint03 => vertex03;
-
-        public GetLocationHandler MovVertex01Operaion { get { return movVertex01Operation; } }
-        public GetLocationHandler MovVertex02Operaion { get { return movVertex02Operation; } }
-        public GetLocationHandler MovVertex03Operaion { get { return movVertex03Operation; } }
-        public GetLocationHandler MovVertex04Operaion { get { return movVertex04Operation; } }
-
-        public unsafe Polygon4()
+        internal Polygon4()
         {
+        }
+
+        public Polygon4(
+            float v0x, float v0y, float v0z,
+            float v1x, float v1y, float v1z,
+            float v2x, float v2y, float v2z,
+            float v3x, float v3y, float v3z
+            )
+        {
+            vertexMat.mat.colum0 = new Vector4(v0x, v0y, v0z, 0);
+            vertexMat.mat.colum1 = new Vector4(v1x, v1y, v1z, 0);
+            vertexMat.mat.colum2 = new Vector4(v2x, v2y, v2z, 0);
+            vertexMat.mat.colum3 = new Vector4(v3x, v3y, v3z, 0);
+        }
+
+        public GetLocationHandler MovVertex0Operaion { get { return moveVertex0Operation; } }
+        public GetLocationHandler MovVertex1Operaion { get { return moveVertex1Operation; } }
+        public GetLocationHandler MovVertex2Operaion { get { return moveVertex2Operation; } }
+        public GetLocationHandler MovVertex3Operaion { get { return moveVertex3Operation; } }
+
+        public override Point RefPoint0
+        {
+            get { return new Point(vertexMat.mat.colum0); }
+        }
+
+        public override Point RefPoint1
+        {
+            get { return new Point(vertexMat.mat.colum1); }
+        }
+
+        public override Point RefPoint2
+        {
+            get { return new Point(vertexMat.mat.colum2); }
+        }
+
+        internal sealed override int[] Indices
+        {
+            get
+            {
+                return new int[6] {
+                    0,1,2,
+                    0,2,3};
+            }
+        }
+
+        public Mat4 VertexBuffer
+        {
+            get { return vertexMat.mat; }
+        }
+
+        public Point Vertex0
+        {
+            get => new Point(vertexMat.mat.colum0);
+            set { vertexMat.mat.colum0 = value.position.vec; }
+        }
+
+        public Point Vertex1
+        {
+            get => new Point(vertexMat.mat.colum1);
+            set { vertexMat.mat.colum1 = value.position.vec; }
+        }
+
+        public Point Vertex2
+        {
+            get => new Point(vertexMat.mat.colum2);
+            set { vertexMat.mat.colum1 = value.position.vec; }
+        }
+
+        internal Point Vertex3
+        {
+            get => new Point(vertexMat.mat.colum3);
+            set { vertexMat.mat.colum1 = value.position.vec; }
         }
 
         public override Line[] GetAllSides()
         {
             Line[] sides = new Line[4]
                 {
-                    new Line(vertex01,vertex02),
-                    new Line(vertex02, vertex03),
-                    new Line(vertex03, vertex04),
-                    new Line(vertex04, vertex01)
+                    new Line(Vertex0, Vertex1),
+                    new Line(Vertex1, Vertex2),
+                    new Line(Vertex2, Vertex3),
+                    new Line(Vertex3, Vertex0)
                 };
 
             return sides;
@@ -46,26 +104,33 @@ namespace StgSharp.Geometries
 
         public override Plain GetPlain()
         {
-            return new Plain(this.RefPoint01, this.RefPoint02, this.RefPoint03);
+            vertexMat.InternalTranspose();
+            return new Plain(
+                vertexMat.mat.colum0,
+                vertexMat.mat.colum1,
+                vertexMat.mat.colum2);
         }
 
+        public virtual vec3d MoveVertex0(uint tick)
+            => moveVertex0Operation.Invoke(tick);
 
-        public virtual Vec3d MovVertex01(uint tick) => movVertex01Operation.Invoke(tick);
+        public virtual vec3d MoveVertex1(uint tick)
+            => moveVertex1Operation.Invoke(tick);
 
-        public virtual Vec3d MovVertex02(uint tick) => movVertex01Operation.Invoke(tick);
+        public virtual vec3d MoveVertex2(uint tick)
+            => moveVertex2Operation.Invoke(tick);
 
-        public virtual Vec3d MovVertex03(uint tick) => movVertex01Operation.Invoke(tick);
-
-        public virtual Vec3d MovVertex04(uint tick) => movVertex01Operation.Invoke(tick);
+        public virtual vec3d MoveVertex3(uint tick)
+            => moveVertex3Operation.Invoke(tick);
 
 
         internal override void OnRender(uint tick)
         {
             uint nowTick = TimeLine.tickCounter._value;
-            this.vertex01.Position = RefOrigin.Position + movVertex01Operation(nowTick);
-            this.vertex02.Position = RefOrigin.Position + movVertex02Operation(nowTick);
-            this.vertex03.Position = RefOrigin.Position + movVertex03Operation(nowTick);
-            this.vertex04.Position = RefOrigin.Position + movVertex04Operation(nowTick);
+            this.vertexMat.Colum0 = RefOrigin.position + moveVertex1Operation(nowTick);
+            this.vertexMat.Colum1 = RefOrigin.position + moveVertex1Operation(nowTick);
+            this.vertexMat.Colum2 = RefOrigin.position + moveVertex2Operation(nowTick);
+            this.vertexMat.Colum3 = RefOrigin.position + moveVertex3Operation(nowTick);
         }
     }
 }

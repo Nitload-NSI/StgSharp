@@ -87,7 +87,7 @@ namespace StgSharp.Math
                 fixed (Mat4* source = &this.mat)
                 fixed (Mat2* target = &this.transpose)
                 {
-                    internalIO.Transpose4to2_internal(source, target);
+                    InternalIO.Transpose4to2_internal(source, target);
                 }
                 isTransposed = true;
             }

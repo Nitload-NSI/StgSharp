@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp
 {
-    internal static unsafe partial class internalIO
+    internal static unsafe partial class InternalIO
     {
         #region add
 
-        [DllImport(SSGC_libname, EntryPoint = "add_Mat2",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "add_Mat2",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern Mat2* add_mat2(Mat2* left, Mat2* right);
@@ -20,7 +20,7 @@ namespace StgSharp
 
         #region sub
 
-        [DllImport(SSGC_libname, EntryPoint = "sub_mat2",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "sub_mat2",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe Mat2* sub_mat2(Mat2* left, Mat2* right);
@@ -30,12 +30,12 @@ namespace StgSharp
         #region transpose
 
 
-        [DllImport(SSGC_libname, EntryPoint = "transmpose2to4",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "transmpose2to4",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe void Transpose2to4_internal(Mat2* source, Mat4* target);
 
-        [DllImport(SSGC_libname, EntryPoint = "transmpose2to3",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "transmpose2to3",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe void Transpose2to3_internal(Mat2* source, Mat3* target);
@@ -44,7 +44,7 @@ namespace StgSharp
 
         #region deinit mat2
 
-        [DllImport(SSGC_libname, EntryPoint = "deinit_mat2",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "deinit_mat2",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe void deinit_mat2(Mat2* mat);

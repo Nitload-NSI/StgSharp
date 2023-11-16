@@ -3,7 +3,7 @@ using System;
 
 namespace StgSharp.Geometries
 {
-    public class Circle : IPlainGeometry
+    public class Circle : PlainGeometry
     {
         internal Point center;
         internal Point pointOnCircle;
@@ -13,17 +13,19 @@ namespace StgSharp.Geometries
         internal GetLocationHandler movEndOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
 
-        public override Point RefPoint01 => center;
+        public override Point RefPoint0 => center;
 
-        public override Point RefPoint02 => pointOnCircle;
+        public override Point RefPoint1 => pointOnCircle;
 
-        public override Point RefPoint03 => pointOnPlain;
+        public override Point RefPoint2 => pointOnPlain;
 
-        public virtual Vec3d MoveCenter(uint tick) => movCenterOperation.Invoke(tick);
+        internal override int[] Indices => throw new NotImplementedException();
 
-        public virtual Vec3d UpdateRadius(uint tick) => movBeginOperation.Invoke(tick);
+        public virtual vec3d MoveCenter(uint tick) => movCenterOperation.Invoke(tick);
 
-        public virtual Vec3d UpdatePlain(uint tick) => movEndOperation.Invoke(tick);
+        public virtual vec3d UpdateRadius(uint tick) => movBeginOperation.Invoke(tick);
+
+        public virtual vec3d UpdatePlain(uint tick) => movEndOperation.Invoke(tick);
 
         public override Plain GetPlain()
         {

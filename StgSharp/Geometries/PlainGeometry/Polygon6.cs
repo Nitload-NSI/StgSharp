@@ -1,97 +1,139 @@
 ﻿using StgSharp.Controlling;
 using StgSharp.Math;
+using StgSharp.Math.Linear;
+using System.Numerics;
 
 namespace StgSharp.Geometries
 {
-    public class Polygon6 : IPlainGeometry
+    public class Polygon6 : PlainGeometry
     {
         internal Point _refOrigin;
-        internal Point vertex1;
-        internal Point vertex2;
-        internal Point vertex3;
-        internal Point vertex4;
-        internal Point vertex5;
-        internal Point vertex6;
-        internal readonly int _vertexCount;
-
-        public override Point RefPoint01 => vertex1;
-
-        public override Point RefPoint02 => vertex2;
-
-        public override Point RefPoint03 => vertex3;
+        internal GetLocationHandler movVertex0Operation;
+        internal GetLocationHandler movVertex1Operation;
+        internal GetLocationHandler movVertex2Operation;
+        internal GetLocationHandler movVertex3Operation;
+        internal GetLocationHandler movVertex4Operation;
+        internal GetLocationHandler movVertex5Operation;
+        internal mat6 vertexMat;
 
 
-        internal GetLocationHandler movP01Operation = default;
-        internal GetLocationHandler movP02Operation = default;
-        internal GetLocationHandler movP03Operation = default;
-        internal GetLocationHandler movP04Operation = default;
-        internal GetLocationHandler movP05Operation = default;
-        internal GetLocationHandler movP06Operation = default;
+        public GetLocationHandler MovVertex0Operation { get => movVertex0Operation; }
+        public GetLocationHandler MovVertex1Operation { get => movVertex1Operation; }
+        public GetLocationHandler MovVertex2Operation { get => movVertex2Operation; }
+        public GetLocationHandler MovVertex3Operation { get => movVertex3Operation; }
+        public GetLocationHandler MovVertex4Operation { get => movVertex4Operation; }
+        public GetLocationHandler MovVertex5Operation { get => movVertex5Operation; }
 
-        public GetLocationHandler MovP01Operation { get => movP01Operation; }
-        public GetLocationHandler MovP02Operation { get => movP02Operation; }
-        public GetLocationHandler MovP03Operation { get => movP03Operation; }
-        public GetLocationHandler MovP04Operation { get => movP04Operation; }
-        public GetLocationHandler MovP05Operation { get => movP05Operation; }
-        public GetLocationHandler MovP06Operation { get => movP06Operation; }
+        public override Point RefPoint0 => Vertex0;
+        public override Point RefPoint1 => Vertex1;
+        public override Point RefPoint2 => Vertex2;
 
-        public virtual Vec3d movPoint01(uint tick)
+        internal override int[] Indices
         {
-            return movP01Operation.Invoke(TimeLine.tickCounter._value);
+            get
+            {
+                return new int[12] {
+                    0,1,2,
+                    0,2,3,
+                    0,3,4,
+                    0,4,5};
+            }
         }
 
-        public virtual Vec3d movPoint02(uint tick)
+        public Point Vertex0
         {
-            return movP02Operation.Invoke(TimeLine.tickCounter._value);
+            get => new Point(vertexMat.vec0);
+            set { vertexMat.vec0 = value.position.vec; }
         }
 
-        public virtual Vec3d movPoint03(uint tick)
+        public Point Vertex1
         {
-            return movP03Operation.Invoke(TimeLine.tickCounter._value);
+            get => new Point(vertexMat.vec1);
+            set { vertexMat.vec1 = value.position.vec; }
         }
 
-        public virtual Vec3d movPoint04(uint tick)
+        public Point Vertex2
         {
-            return movP04Operation.Invoke(TimeLine.tickCounter._value);
+            get => new Point(vertexMat.vec2);
+            set { vertexMat.vec2 = value.position.vec; }
         }
 
-        public virtual Vec3d movPoint05(uint tick)
+        public Point Vertex3
         {
-            return movP05Operation.Invoke(TimeLine.tickCounter._value);
+            get => new Point(vertexMat.vec3);
+            set { vertexMat.vec3 = value.position.vec; }
         }
 
-        public virtual Vec3d movPoint06(uint tick)
+        public Point Vertex4
         {
-            return movP06Operation.Invoke(TimeLine.tickCounter._value);
+            get => new Point(vertexMat.vec4);
+            set { vertexMat.vec4 = value.position.vec; }
         }
 
-        internal override void OnRender(uint tick)
+        public Point Vertex5
         {
-            uint nowTick = tick - BornTime;
-            vertex1.Position = RefOrigin.Position + movPoint01(nowTick);
-            vertex2.Position = RefOrigin.Position + movPoint02(nowTick);
-            vertex3.Position = RefOrigin.Position + movPoint03(nowTick);
-            vertex4.Position = RefOrigin.Position + movPoint04(nowTick);
-            vertex5.Position = RefOrigin.Position + movPoint05(nowTick);
-            vertex6.Position = RefOrigin.Position + movPoint06(nowTick);
+            get => new Point(vertexMat.vec5);
+            set { vertexMat.vec5 = value.position.vec; }
         }
 
         public override Line[] GetAllSides()
         {
             return new Line[6]
                 {
-                    new Line(vertex1,vertex2),
-                    new Line(vertex2,vertex3),
-                    new Line(vertex3,vertex4),
-                    new Line(vertex4,vertex5),
-                    new Line(vertex5,vertex6),
-                    new Line(vertex6,vertex1)
+                    new Line(Vertex0,Vertex1),
+                    new Line(Vertex1,Vertex2),
+                    new Line(Vertex2,Vertex3),
+                    new Line(Vertex3,Vertex4),
+                    new Line(Vertex4,Vertex5),
+                    new Line(Vertex5,Vertex0)
                 };
         }
 
         public override Plain GetPlain()
         {
-            return new Plain(vertex1, vertex2, vertex3);
+            return new Plain(Vertex0, Vertex1, Vertex2);
+        }
+
+        public virtual vec3d movVertex0(uint tick)
+        {
+            return movVertex0Operation.Invoke(TimeLine.tickCounter._value);
+        }
+
+        public virtual vec3d movVertex1(uint tick)
+        {
+            return movVertex1Operation.Invoke(TimeLine.tickCounter._value);
+        }
+
+        public virtual vec3d movVertex2(uint tick)
+        {
+            return movVertex2Operation.Invoke(TimeLine.tickCounter._value);
+        }
+
+        public virtual vec3d movVertex3(uint tick)
+        {
+            return movVertex3Operation.Invoke(TimeLine.tickCounter._value);
+        }
+
+        public virtual vec3d movVertex4(uint tick)
+        {
+            return movVertex4Operation.Invoke(TimeLine.tickCounter._value);
+        }
+
+        public virtual vec3d movVertex5(uint tick)
+        {
+            return movVertex5Operation.Invoke(TimeLine.tickCounter._value);
+        }
+
+        internal override void OnRender(uint tick)
+        {
+            uint nowTick = tick - BornTime;
+            Vector4 origin = RefOrigin.Position.vec;
+            vertexMat.vec0 = origin + movVertex0(nowTick).vec;
+            vertexMat.vec1 = origin + movVertex1(nowTick).vec;
+            vertexMat.vec2 = origin + movVertex2(nowTick).vec;
+            vertexMat.vec3 = origin + movVertex3(nowTick).vec;
+            vertexMat.vec4 = origin + movVertex4(nowTick).vec;
+            vertexMat.vec5 = origin + movVertex5(nowTick).vec;
         }
     }
 }

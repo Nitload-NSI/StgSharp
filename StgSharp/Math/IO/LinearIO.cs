@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp
 {
-    internal static partial class internalIO
+    internal static partial class InternalIO
     {
-        [DllImport(SSGC_libname, EntryPoint = "set_Vector4ptr_default",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "set_Vector4ptr_default",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr set_Vector4ptr_default_internal();
 
@@ -47,21 +47,21 @@ namespace StgSharp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe void deinit_internal(Mat4* ptr);
 
-        [DllImport(SSGC_libname, EntryPoint = "deinitVector4",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "deinitVector4",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern void deinitVector4_internal(ref Vector4 vec);
 
-        [DllImport(SSGC_libname, EntryPoint = "deinitVector4",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "deinitVector4",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void deinitVector4_internal(Vector4* vec);
 
         #endregion
 
-        [DllImport(SSGC_libname, EntryPoint = "deinit_matmapPtr_sse",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "deinit_matmapPtr_sse",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern void deinitMatmapPtr_sse_internal(ref Vector4Map mapPtr);
 
-        [DllImport(SSGC_libname, EntryPoint = "deinit_matmap_sse",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "deinit_matmap_sse",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern void deinitMatmap_sse_internal(ref Vector4Map mapPtr);
 

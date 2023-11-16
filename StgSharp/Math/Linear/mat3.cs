@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp
 {
-    internal static unsafe partial class internalIO
+    internal static unsafe partial class InternalIO
     {
 
         #region det
 
-        [DllImport(SSGC_libname, EntryPoint = "det_mat3",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "det_mat3",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe float det_mat3(Mat3* mat);
@@ -20,7 +20,7 @@ namespace StgSharp
 
         #region transpose
 
-        [DllImport(SSGC_libname, EntryPoint = "transpose3to4",
+        [DllImport(InternalIO.SSC_libname, EntryPoint = "transpose3to4",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose3to4_internal(Mat3* source, Mat4* target);
 
@@ -42,7 +42,7 @@ namespace StgSharp
 namespace StgSharp.Math
 {
     [StructLayout(LayoutKind.Explicit, Size = 12 * sizeof(float), Pack = 16)]
-    internal struct Mat3 : IEquatable<Mat3>
+    public struct Mat3 : IEquatable<Mat3>, IMat
     {
 
         [FieldOffset(0)] internal Vector4 colum0;

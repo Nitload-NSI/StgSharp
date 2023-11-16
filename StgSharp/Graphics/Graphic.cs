@@ -1,17 +1,51 @@
 ﻿using StgSharp.Controlling;
-using StgSharp.Graphics;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace StgSharp
+namespace StgSharp.Graphics
 {
     public static unsafe partial class Graphic
     {
-        private static bool isGLSet = false;
-        private static bool isGLADset = false;
-        private static bool isGLready = false;
 
 
+
+        internal static TDele ConvertAPI<TDele>(IntPtr funcPtr)
+        {
+            if (funcPtr == IntPtr.Zero)
+            {
+                throw new Exception("Failed to convert api, the function pointer is zero.");
+            }
+            try
+            {
+                return Marshal.GetDelegateForFunctionPointer<TDele>(funcPtr);
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        internal static Delegate ConvertAPI(IntPtr funcPtr, Type T)
+        {
+
+            if (funcPtr == IntPtr.Zero)
+            {
+                throw new Exception("Failed to convert api, the function pointer is zero.");
+            }
+            try
+            {
+                return Marshal.GetDelegateForFunctionPointer(funcPtr, T);
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
 
         /// <summary>
         /// Init an instance of OpenGL program,
@@ -20,80 +54,59 @@ namespace StgSharp
         /// </summary>
         public static void InitGL(int majorVersion, int minorVersion)
         {
-            if (!isGLSet)
+            if (InternalIO.glfw == null)
             {
-                internalIO.InternalInitGL(majorVersion, minorVersion);
-                isGLready = isGLSet && isGLADset;
-            }
-            else
-            {
-                throw new Exception("Do not init GL twice");
-            }
-        }
-
-
-
-        /// <summary>
-        /// Attach GLFW API to GLAD, 
-        /// this method should be called after LoadGL 
-        /// and before other graphic method.
-        /// </summary>
-        /// <exception cref="Exception">The accident that program cannot attach GLFW to GLAD</exception>
-        public static unsafe void InitGLAD(glLoader loader)
-        {
-
-            if (!isGLADset)
-            {
-                int a = internalIO.InternalInitGLAD();
-                if (a == 0)
+                try
                 {
-                    throw new Exception("Cannot attach GLFW to GLAD!");
+                    InternalIO.glfw = new glFramework_PInvoke();
+                    InternalIO.glfw.Init();
+                    InternalIO.InternalWriteLog("Successfully load GLFW APIs. StgSharp is now working on p/invoke mode", LogType.Info);
                 }
-                else
+                catch (Exception sig)
                 {
-                    isGLready = isGLSet && isGLADset;
+                    string log = $"Failed to load GLFW APIs by P/Invoke," +
+                        $"StgSharp will switch to delegate mode. The detailed info is:\n" +
+                        $"{sig.Message}\n";
 
-                    LoadGLLoader(loader);
+                    if (InternalIO.SSClibPtr == default)
+                    {
+                        InternalIO.SSClibPtr =
+                            InternalIO.InternalLoadWINlib(InternalIO.SSC_libname + ".dll");
+                    }
 
-                    return;
+                    InternalIO.glfw = new glFramework_Delegate();
+                    InternalIO.SSClibPtr = InternalIO.InternalLoadWINlib(InternalIO.SSC_libname);
+                    FieldInfo[] glfwApis = typeof(glFramework_Delegate).GetFields();
+                    foreach (FieldInfo item in glfwApis)
+                    {
+                        if (item.FieldType.BaseType == typeof(Delegate))
+                        {
+                            try
+                            {
+                                IntPtr funcptr = InternalIO.InternalGetWINproc(
+                                    InternalIO.SSClibPtr, item.Name);
+                                item.SetValue(null, ConvertAPI(funcptr, item.FieldType));
+                                log += $"Successfully load GLFW API called {item.Name}";
+                            }
+                            catch (Exception ex)
+                            {
+                                log += $"Failed to load GLFW API called {item.Name}, the detailed info is\n" +
+                                    $"{ex.Message}";
+                                continue;
+                            }
+                        }
+                    }
+                    InternalIO.InternalWriteLog(log, LogType.Warning);
                 }
             }
             else
             {
-                throw new Exception("Do not init GLAD twice.");
+                InternalIO.InternalWriteLog("Attempt to load GLFW APIs twice", LogType.Warning);
             }
+            InternalIO.InternalInitGL(4, 6);
+
         }
 
-
-
-
-
-        /*
-        /// <summary>
-        /// Init a form, attach its data to GLFW program, 
-        /// and return the pointer of the GLFW package of the form.
-        /// </summary>
-        /// <param name="form">The C# instance of the form</param>
-        /// <returns>Pointer of the GLFW package of this form</returns>
-        /// <exception cref="Exception">The issue that form is not successfully initilized
-        /// or GLAD program fail to init</exception>
-        public static unsafe IntPtr InitWindow(Form form)
-        {
-            IntPtr a = internalIO.InternalInitWindow(form.info);
-            if ((long)a == -1)
-            {
-                throw new Exception("Failed to init form.");
-            }
-            else if ((long)a == -2)
-            {
-                throw new Exception("Failed to load GLAD program.");
-            }
-            else
-            {
-                return a;
-            }
-        }
-        */
 
 
 

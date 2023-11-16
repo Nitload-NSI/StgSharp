@@ -1,19 +1,25 @@
 ﻿using StgSharp.Math;
 using System;
+using System.Numerics;
 
 namespace StgSharp.Geometries
 {
-    public class Line : IPlainGeometry
+    public class Line : PlainGeometry
     {
-        internal Point basePoint = new Point();
-        internal Point beginPoint = new Point();
-        internal Point endPoint = new Point();
+        internal Point basePoint;
+        internal Point beginPoint;
+        internal Point endPoint;
         internal GetLocationHandler movBegin;
         internal GetLocationHandler movEnd;
 
-        public override Point RefPoint01 => beginPoint;
-        public override Point RefPoint02 => endPoint;
-        public override Point RefPoint03 => default;
+        public override Point RefPoint0 => beginPoint;
+        public override Point RefPoint1 => endPoint;
+        public override Point RefPoint2 => default;
+
+        internal override int[] Indices
+        {
+            get { throw new Exception(); }
+        }
 
         public Line(Point begin, Point end)
         {
@@ -21,14 +27,20 @@ namespace StgSharp.Geometries
             this.endPoint = end;
         }
 
+        internal Line(Vector4 begin, Vector4 end)
+        {
+            beginPoint = new Point(begin);
+            endPoint = new Point(end);
+        }
+
         public Line() { }
 
         //计算线起点的方法，通过对线的派生的重写实现功能
-        public virtual Vec3d MoveBeginPoint(uint tick)
+        public virtual vec3d MoveBeginPoint(uint tick)
             => movBegin.Invoke(tick);
 
         //计算线重点的方法，通过对线的派生的重写实现功能
-        public virtual Vec3d MoveEndPoint(uint tick)
+        public virtual vec3d MoveEndPoint(uint tick)
             => movEnd.Invoke(tick);
 
         internal override void OnRender(uint tick)
