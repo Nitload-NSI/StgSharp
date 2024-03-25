@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj": {}
+    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\StgSharp.csproj": {}
   },
   "projects": {
-    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj": {
+    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\StgSharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj",
+        "projectUniqueName": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\StgSharp.csproj",
         "projectName": "StgSharp",
-        "projectPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\StgSharp.csproj",
+        "projectPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\StgSharp.csproj",
         "packagesPath": "C:\\Users\\Nitlo\\.nuget\\packages\\",
-        "outputPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp\\obj\\",
+        "outputPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\ProjectFile\\源代码\\StgSharp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -39,19 +39,25 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
         "netstandard2.1": {
           "targetAlias": "netstandard2.1",
           "dependencies": {
-            "Microsoft.Bcl.HashCode": {
-              "target": "Package",
-              "version": "[1.1.1, )"
-            },
             "Microsoft.CSharp": {
               "target": "Package",
               "version": "[4.7.0, )"
+            },
+            "Microsoft.Windows.CsWin32": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.3.49-beta, )"
             }
           },
           "imports": [
@@ -70,7 +76,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200\\RuntimeIdentifierGraph.json"
         }
       }
     }

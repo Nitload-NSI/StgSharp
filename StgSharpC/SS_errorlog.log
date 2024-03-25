@@ -1,0 +1,172 @@
+
+
+
+
+Info	@	2024-02-28T02:20:13.4489276+08:00
+Program start
+Info	@	2024-02-28T02:20:13.4685956+08:00
+Successfully create a context binded to current form. Its ID is 2625888933568
+Info	@	2024-02-28T02:20:13.5600371+08:00
+Find core OpenGL version.
+Successfully load all OpenGL 1.0 APIs
+Successfully load all OpenGL 1.1 APIs
+Successfully load all OpenGL 1.2 APIs
+Successfully load all OpenGL 1.3 APIs
+Successfully load all OpenGL 1.4 APIs
+Successfully load all OpenGL 1.5 APIs
+Successfully load all OpenGL 2.0 APIs
+Successfully load all OpenGL 2.1 APIs
+Successfully load all OpenGL 3.0 APIs
+Successfully load all OpenGL 3.1 APIs
+Successfully load all OpenGL 3.2 APIs
+Successfully load all OpenGL 3.3 APIs
+Successfully load all OpenGL 4.0 APIs
+Successfully load all OpenGL 4.1 APIs
+Successfully load all OpenGL 4.2 APIs
+Successfully load all OpenGL 4.3 APIs
+Successfully load all OpenGL 4.4 APIs
+Successfully load all OpenGL 4.5 APIs
+Successfully load all OpenGL 4.6 APIs
+Info	@	2024-02-28T02:20:13.5697233+08:00
+No supported OpenGL extensions are found.
+Error	@	2024-02-28T02:20:13.5899504+08:00
+Could not find a part of the path 'D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\Shader\vertex.vert'.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.File.InternalReadAllText(String path, Encoding encoding)
+   at System.IO.File.ReadAllText(String path)
+   at StgSharp.StgSharpDemoForm.Init(Object[] args) in D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpDebug\Program.cs:line 74
+   at StgSharp.Program.Main(String[] args) in D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpDebug\Program.cs:line 195
+
+
+
+
+Info	@	2024-02-28T02:34:05.2611141+08:00
+Program start
+Info	@	2024-02-28T02:34:07.5537999+08:00
+Successfully create a context binded to current form. Its ID is 2125629822832
+Info	@	2024-02-28T02:34:07.8568692+08:00
+Find core OpenGL version.
+Successfully load all OpenGL 1.0 APIs
+Successfully load all OpenGL 1.1 APIs
+Successfully load all OpenGL 1.2 APIs
+Successfully load all OpenGL 1.3 APIs
+Successfully load all OpenGL 1.4 APIs
+Successfully load all OpenGL 1.5 APIs
+Successfully load all OpenGL 2.0 APIs
+Successfully load all OpenGL 2.1 APIs
+Successfully load all OpenGL 3.0 APIs
+Successfully load all OpenGL 3.1 APIs
+Successfully load all OpenGL 3.2 APIs
+Successfully load all OpenGL 3.3 APIs
+Successfully load all OpenGL 4.0 APIs
+Successfully load all OpenGL 4.1 APIs
+Successfully load all OpenGL 4.2 APIs
+Successfully load all OpenGL 4.3 APIs
+Successfully load all OpenGL 4.4 APIs
+Successfully load all OpenGL 4.5 APIs
+Successfully load all OpenGL 4.6 APIs
+Info	@	2024-02-28T02:34:07.8680130+08:00
+No supported OpenGL extensions are found.
+Error	@	2024-02-28T02:34:10.9188775+08:00
+Could not find a part of the path 'D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\Shader\vertex.vert'.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.File.InternalReadAllText(String path, Encoding encoding)
+   at System.IO.File.ReadAllText(String path)
+   at StgSharp.StgSharpDemoForm.Init(Object[] args) in D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpDebug\Program.cs:line 74
+   at StgSharp.Program.Main(String[] args) in D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpDebug\Program.cs:line 195
+
+
+
+
+Info	@	2024-02-29T08:57:53.0662711+08:00
+Program start
+Info	@	2024-02-29T08:57:53.5645131+08:00
+Successfully create a context binded to current form. Its ID is 2791335327184
+Info	@	2024-02-29T08:57:54.1988863+08:00
+Find core OpenGL version.
+Successfully load all OpenGL 1.0 APIs
+Successfully load all OpenGL 1.1 APIs
+Successfully load all OpenGL 1.2 APIs
+Successfully load all OpenGL 1.3 APIs
+Successfully load all OpenGL 1.4 APIs
+Successfully load all OpenGL 1.5 APIs
+Successfully load all OpenGL 2.0 APIs
+Successfully load all OpenGL 2.1 APIs
+Successfully load all OpenGL 3.0 APIs
+Successfully load all OpenGL 3.1 APIs
+Successfully load all OpenGL 3.2 APIs
+Successfully load all OpenGL 3.3 APIs
+Successfully load all OpenGL 4.0 APIs
+Successfully load all OpenGL 4.1 APIs
+Successfully load all OpenGL 4.2 APIs
+Successfully load all OpenGL 4.3 APIs
+Successfully load all OpenGL 4.4 APIs
+Successfully load all OpenGL 4.5 APIs
+Successfully load all OpenGL 4.6 APIs
+Info	@	2024-02-29T08:57:54.2300139+08:00
+No supported OpenGL extensions are found.
+Error	@	2024-02-29T08:57:54.3474832+08:00
+Could not find a part of the path 'D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\Shader\vertex.vert'.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.File.InternalReadAllText(String path, Encoding encoding)
+   at System.IO.File.ReadAllText(String path)
+   at StgSharp.StgSharpDemoForm.Init(Object[] args) in D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpDebug\Program.cs:line 74
+   at StgSharp.Program.Main(String[] args) in D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpDebug\Program.cs:line 195
+
+
+
+
+Info	@	2024-02-29T09:45:26.1651662+08:00
+Program start
+Info	@	2024-02-29T09:45:26.4662730+08:00
+Successfully create a context binded to current form. Its ID is 2327120380800
+Info	@	2024-02-29T09:45:27.1073683+08:00
+Find core OpenGL version.
+Successfully load all OpenGL 1.0 APIs
+Successfully load all OpenGL 1.1 APIs
+Successfully load all OpenGL 1.2 APIs
+Successfully load all OpenGL 1.3 APIs
+Successfully load all OpenGL 1.4 APIs
+Successfully load all OpenGL 1.5 APIs
+Successfully load all OpenGL 2.0 APIs
+Successfully load all OpenGL 2.1 APIs
+Successfully load all OpenGL 3.0 APIs
+Successfully load all OpenGL 3.1 APIs
+Successfully load all OpenGL 3.2 APIs
+Successfully load all OpenGL 3.3 APIs
+Successfully load all OpenGL 4.0 APIs
+Successfully load all OpenGL 4.1 APIs
+Successfully load all OpenGL 4.2 APIs
+Successfully load all OpenGL 4.3 APIs
+Successfully load all OpenGL 4.4 APIs
+Successfully load all OpenGL 4.5 APIs
+Successfully load all OpenGL 4.6 APIs
+Info	@	2024-02-29T09:45:27.1384410+08:00
+No supported OpenGL extensions are found.
+Error	@	2024-02-29T09:45:27.2872803+08:00
+Could not find a part of the path 'D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\Shader\vertex.vert'.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategy(FileStream fileStream, String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.File.InternalReadAllText(String path, Encoding encoding)
+   at System.IO.File.ReadAllText(String path)
+   at StgSharp.StgSharpDemoForm.Init(Object[] args) in D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpDebug\Program.cs:line 74
+   at StgSharp.Program.Main(String[] args) in D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpDebug\Program.cs:line 195

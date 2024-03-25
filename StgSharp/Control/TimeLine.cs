@@ -1,38 +1,58 @@
-﻿using StgSharp.Entities;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="TimeLine.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using StgSharp.Entities;
 using StgSharp.Graphics;
+
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 
 namespace StgSharp.Controlling
 {
-    public static partial class TimeLine
+    internal static partial class TimeLine
     {
-        public const long version = 10;
 
-        internal static Pool _currentPool = default;
-        internal static LinkedList<Pool> allPool = new LinkedList<Pool>();
-        internal static LinkedList<Form> allForm;
-
-        /// <summary>
-        /// Tick counter count the frames passed since the program start.
-        /// </summary>
-        public static readonly Counter<uint> tickCounter = new Counter<uint>(0, 1, 1);
+        private static bool isPaused = false;
+        private static bool renderChainStarted;
 
         internal static TimelineBlock currentOperation;
-        private static bool isPaused = false;
-
-        static unsafe TimeLine()
-        {
-            allForm = new LinkedList<Form>();
-            allPool = new LinkedList<Pool>();
-        }
+        internal static Queue<Form> formList = new Queue<Form>();
 
         public static TimelineBlock CurrentOperation
         {
-            get { return currentOperation; }
-            set 
+            get => currentOperation;
+            set
             {
-                if (currentOperation==default||
+                if ((currentOperation == default) ||
                     currentOperation.isComplete)
                 {
                     currentOperation = value;
@@ -40,39 +60,16 @@ namespace StgSharp.Controlling
             }
         }
 
-        public static void OnRender()
+
+        internal static bool RenderStarted => renderChainStarted;
+
+
+        internal static void RenderAll()
         {
-            tickCounter.QuickAdd();
-            foreach (Pool p in allPool)
-            {
-                _currentPool = p;
-                if (!currentOperation.isComplete)
-                {
-                    currentOperation.OnUpdating();
-                }
-            }
+            renderChainStarted = true;
         }
 
 
-        public static void InitProgram()
-        {
-
-        }
-
-        public static unsafe void StartProgram()
-        {
-        }
-
-        public static void LoadPool(Pool pool)
-        {
-            allPool.Add(pool);
-            Console.WriteLine(allPool.count.Value);
-        }
-
-        public static Pool GetCurrentPool()
-        {
-            return _currentPool;
-        }
 
     }
 }

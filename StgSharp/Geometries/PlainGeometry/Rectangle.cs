@@ -1,11 +1,41 @@
-﻿using StgSharp.Math;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="Rectangle.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using StgSharp.Math;
+
 using System.Numerics;
 
 namespace StgSharp.Geometries
 {
     public class Rectangle : Parallelogram
     {
-        internal Point center;
 
         public Rectangle(
             float v0x, float v0y, float v0z,
@@ -19,22 +49,23 @@ namespace StgSharp.Geometries
                 v3x, v2y, v3z
                 )
         {
-            vec3d side0 = vertexMat.Colum0 - vertexMat.Colum1;
-            vec3d side1 = vertexMat.Colum2 - vertexMat.Colum1;
-            if (side0.Cross(side1) == Vec3d.Zero)
+            Vec2d side0 = vertexMat.Colum0 - vertexMat.Colum1;
+            Vec2d side1 = vertexMat.Colum2 - vertexMat.Colum1;
+            if (side0.Cross(side1) == 0)
             {
 
             }
         }
-
-
 
         /// <summary>
         /// 计算中心点相对于参考原点的位移
         /// </summary>
         /// <param name="tick">当前游戏刻</param>
         /// <returns></returns>
-        public virtual vec3d MovCenter(uint tick) => default(vec3d);
+        public virtual vec3d MovCenter(uint tick)
+        {
+            return default(vec3d);
+        }
 
 
 

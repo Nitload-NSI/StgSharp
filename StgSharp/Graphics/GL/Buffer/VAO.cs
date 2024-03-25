@@ -1,50 +1,78 @@
-﻿using System;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="VAO.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace StgSharp.Graphics
 {
-    internal unsafe struct VertexArray : IDisposable
+    public unsafe class VertexArray : BufferObjectBase
     {
-        internal uint[] _bufferID;
 
-        public VertexArray(int n)
+        internal VertexArray(int n, Form binding)
         {
-            _bufferID = new uint[n];
-            fixed (uint* id = _bufferID)
-            {
-                GL.gl.GenVertexArrays(n, id);
-            }
+            this.binding = binding;
+            _bufferHandle = binding.GL.GenVertexArrays(n);
         }
 
-        public uint this[int n]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override sealed void Bind(int index)
         {
-            get
-            {
-                return _bufferID[n];
-            }
+            binding.GL.BindVertexArray(_bufferHandle[index]);
         }
 
-        public void Bind(int index)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void BindNull()
         {
-            GL.gl.BindVertexArray(_bufferID[index]);
+            binding.GL.BindVertexArray(glHandle.Zero);
         }
 
-        public void Dispose()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetVertexAttribute(uint index, int vertexLength, TypeCode dataType, bool isNomalized, uint stride, int pointer)
         {
-            fixed (uint* id = _bufferID)
-            {
-                GL.gl.DeleteVertexArrays(_bufferID.Length, id);
-            }
-        }
-
-
-        public void SetVertexAttribute(uint index, int vertexLength, Type dataType, bool isNomalized, int stride, int pointer)
-        {
-            GL.gl.VertexAttribPointer(
-                index, vertexLength, InternalIO.GLtype[dataType],
+            binding.GL.SetVertexAttribute(
+                index, vertexLength, dataType,
                 isNomalized,
-                stride, (void*)pointer);
+                stride, pointer);
         }
+
+        protected override sealed void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                binding.GL.DeleteVertexArrays(_bufferHandle);
+                _bufferHandle.Release();
+            }
+        }
+
     }
 }

@@ -1,9 +1,7 @@
-#include "./include/StgSharpC.h"
+#include "StgSharpC.h"
+#include "ssgc_internal.h"
 #include <stdio.h>
 #include <pmmintrin.h>
-
-
-
 
 SSCAPI __inline void __cdecl transpose4to2(matrix4map* source, matrix4map* target)
 {
@@ -25,7 +23,6 @@ SSCAPI __inline void __cdecl transpose4to4(matrix4map* source, matrix4map* targe
     target->colum[1] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(3, 1, 3, 1));
     target->colum[2] = _mm_shuffle_ps(t1, t3, _MM_SHUFFLE(2, 0, 2, 0));
     target->colum[3] = _mm_shuffle_ps(t1, t3, _MM_SHUFFLE(3, 1, 3, 1));
-
 }
 
 SSCAPI __inline void __cdecl transpose4to3(matrix4map* source, matrix3map* target)
@@ -38,10 +35,7 @@ SSCAPI __inline void __cdecl transpose4to3(matrix4map* source, matrix3map* targe
     target->colum[0] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(2, 0, 2, 0));
     target->colum[1] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(3, 1, 3, 1));
     target->colum[2] = _mm_shuffle_ps(t1, t3, _MM_SHUFFLE(2, 0, 2, 0));
-
 }
-
-
 
 SSCAPI __inline float __cdecl det_mat4(matrix4map* matPtr, matrix4map* transpose)
 {
@@ -60,7 +54,6 @@ SSCAPI __inline float __cdecl det_mat4(matrix4map* matPtr, matrix4map* transpose
     retvec = _mm_hsub_ps(retvec, retvec);
     retvec = _mm_hadd_ps(retvec, retvec);
     return -retvec.m128_f32[0];
-
 }
 
 SSCAPI __inline void __cdecl deinit_mat4(matrix4map* matPtr)

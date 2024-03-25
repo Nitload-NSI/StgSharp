@@ -1,0 +1,41 @@
+﻿  dllmain.c
+  mat2.c
+  mat3.c
+  mat4.c
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(8,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(8,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(9,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(9,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(17,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(17,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(18,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(18,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(19,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(19,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(20,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(20,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(30,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(30,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(31,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(31,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(32,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(32,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(33,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(33,57): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(42,18): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(43,18): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(44,18): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(45,18): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat4.c(53,32): warning C4133: “函数”: 从“__m128 *”到“const float *”的类型不兼容
+  stb_image.c
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\stb_image.c(832,17): warning C4047: “=”:“stbi_uc”与“char [33]”的间接级别不同
+  StgSharpC.c
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\StgSharpC.c(23,18): warning C4047: “=”:“char”与“char [27]”的间接级别不同
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\StgSharpC.c(67,5): warning C4047: “return”:“char *”与“char (*)[512]”的间接级别不同
+    正在创建库 D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC.lib 和对象 D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC.exp
+  正在生成代码
+  0 of 175 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  StgSharpC.vcxproj -> D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC.dll

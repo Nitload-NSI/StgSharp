@@ -1,5 +1,36 @@
-﻿using StgSharp.Controlling;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="Triangle.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using StgSharp.Controlling;
 using StgSharp.Math;
+
 using System.Numerics;
 
 namespace StgSharp.Geometries
@@ -45,19 +76,10 @@ namespace StgSharp.Geometries
         public GetLocationHandler MovVertex01Operation => this.movVertex01Opearion;
         public GetLocationHandler MovVertex02Operation => this.movVertex02Opearion;
         public GetLocationHandler MovVertex03Operation => this.movVertex03Opearion;
-        public sealed override Point RefPoint0 => new Point(vertexMat.mat.colum0);
-        public sealed override Point RefPoint1 => new Point(vertexMat.mat.colum1);
-        public sealed override Point RefPoint2 => new Point(vertexMat.mat.colum2);
 
-        public Mat3 VertexBuffer
-        {
-            get { return vertexMat.mat; }
-        }
+        public Mat3 VertexBuffer => vertexMat.mat;
 
-        internal sealed override int[] Indices
-        {
-            get { return new int[3] { 0, 1, 2 }; }
-        }
+        internal override sealed int[] Indices => new int[3] { 0, 1, 2 };
 
         public override Line[] GetAllSides()
         {
@@ -76,17 +98,28 @@ namespace StgSharp.Geometries
             return new Plain(this.vertexMat.mat.colum0, this.vertexMat.mat.colum1, this.vertexMat.mat.colum2);
         }
 
-        public virtual vec3d MovVertex01(uint tick) => movVertex01Opearion.Invoke(tick);
-
-        public virtual vec3d MovVertex02(uint tick) => movVertex02Opearion.Invoke(tick);
-
-        public virtual vec3d MovVertex03(uint tick) => movVertex03Opearion.Invoke(tick);
-        internal sealed override void OnRender(uint tick)
+        public virtual vec3d MovVertex01(int tick)
         {
-            tick -= this.bornTick;
-            vertexMat.mat.colum0 = RefOrigin.Position.vec + MovVertex01(tick).vec;
-            vertexMat.mat.colum1 = RefOrigin.Position.vec + MovVertex02(tick).vec;
-            vertexMat.mat.colum2 = RefOrigin.Position.vec + MovVertex03(tick).vec;
+            return movVertex01Opearion.Invoke(tick);
         }
+
+        public virtual vec3d MovVertex02(int tick)
+        {
+            return movVertex02Opearion.Invoke(tick);
+        }
+
+        public virtual vec3d MovVertex03(int tick)
+        {
+            return movVertex03Opearion.Invoke(tick);
+        }
+
+        internal override sealed void UpdateCoordinate(int tick)
+        {
+            tick = time;
+            vertexMat.mat.colum0 = coordinate.origin.vec + MovVertex01(time).vec;
+            vertexMat.mat.colum1 = coordinate.origin.vec + MovVertex02(time).vec;
+            vertexMat.mat.colum2 = coordinate.origin.vec + MovVertex03(time).vec;
+        }
+
     }
 }

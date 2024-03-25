@@ -1,12 +1,44 @@
-﻿using StgSharp.Controlling;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="Polygon5.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using StgSharp.Controlling;
 using StgSharp.Math;
 using StgSharp.Math.Linear;
+
 using System.Numerics;
 
 namespace StgSharp.Geometries
 {
     public unsafe class Polygon5 : PlainGeometry
     {
+
         internal Point _refOrigin;
         internal GetLocationHandler movP01Operation = default;
         internal GetLocationHandler movP02Operation = default;
@@ -35,61 +67,46 @@ namespace StgSharp.Geometries
         }
 
 
-        public GetLocationHandler MovP01Operation { get => movP01Operation; }
-        public GetLocationHandler MovP02Operation { get => movP02Operation; }
-        public GetLocationHandler MovP03Operation { get => movP03Operation; }
-        public GetLocationHandler MovP04Operation { get => movP04Operation; }
-        public GetLocationHandler MovP05Operation { get => movP05Operation; }
-
-        public override Point RefPoint0 => Vertex0;
-        public override Point RefPoint1 => Vertex1;
-        public override Point RefPoint2 => Vertex2;
-
-        public mat5 VertexBuffer
-        {
-            get { return vertexMat; }
-        }
+        public GetLocationHandler MovP01Operation => movP01Operation;
+        public GetLocationHandler MovP02Operation => movP02Operation;
+        public GetLocationHandler MovP03Operation => movP03Operation;
+        public GetLocationHandler MovP04Operation => movP04Operation;
+        public GetLocationHandler MovP05Operation => movP05Operation;
 
         public Point Vertex0
         {
             get => new Point(vertexMat.vec0);
-            set { vertexMat.vec0 = value.position.vec; }
+            set => vertexMat.vec0 = value.position.vec;
         }
 
         public Point Vertex1
         {
             get => new Point(vertexMat.vec1);
-            set { vertexMat.vec1 = value.position.vec; }
+            set => vertexMat.vec1 = value.position.vec;
         }
 
         public Point Vertex2
         {
             get => new Point(vertexMat.vec2);
-            set { vertexMat.vec2 = value.position.vec; }
+            set => vertexMat.vec2 = value.position.vec;
         }
 
         public Point Vertex3
         {
             get => new Point(vertexMat.vec3);
-            set { vertexMat.vec3 = value.position.vec; }
+            set => vertexMat.vec3 = value.position.vec;
         }
 
         public Point Vertex4
         {
             get => new Point(vertexMat.vec4);
-            set { vertexMat.vec4 = value.position.vec; }
+            set => vertexMat.vec4 = value.position.vec;
         }
 
-        internal override int[] Indices
-        {
-            get
-            {
-                return new int[9]{
-                    0,1,2,
-                    0,2,3,
-                    0,3,4};
-            }
-        }
+        public mat5 VertexBuffer => vertexMat;
+
+        internal override int[] Indices => new int[9] { 0, 1, 2, 0, 2, 3, 0, 3, 4 };
+
         public override Line[] GetAllSides()
         {
             return new Line[5]
@@ -107,25 +124,41 @@ namespace StgSharp.Geometries
             return new Plain(Vertex0, Vertex1, Vertex2);
         }
 
-        public virtual vec3d movVertex01(uint tick) => movP01Operation.Invoke(TimeLine.tickCounter._value);
-
-        public virtual vec3d movVertex02(uint tick) => movP02Operation.Invoke(TimeLine.tickCounter._value);
-
-        public virtual vec3d movVertex03(uint tick) => movP03Operation.Invoke(TimeLine.tickCounter._value);
-
-        public virtual vec3d movVertex04(uint tick) => movP04Operation.Invoke(TimeLine.tickCounter._value);
-
-        public virtual vec3d movVertex05(uint tick) => movP05Operation.Invoke(TimeLine.tickCounter._value);
-
-
-        internal override void OnRender(uint tick)
+        public virtual vec3d movVertex01(int tick)
         {
-            uint nowTick = tick - BornTime;
-            vertexMat.vec0 = (RefOrigin.Position + movVertex01(nowTick)).vec;
-            vertexMat.vec1 = (RefOrigin.Position + movVertex02(nowTick)).vec;
-            vertexMat.vec2 = (RefOrigin.Position + movVertex03(nowTick)).vec;
-            vertexMat.vec3 = (RefOrigin.Position + movVertex04(nowTick)).vec;
-            vertexMat.vec4 = (RefOrigin.Position + movVertex05(nowTick)).vec;
+            return movP01Operation.Invoke(time);
         }
+
+        public virtual vec3d movVertex02(int tick)
+        {
+            return movP02Operation.Invoke(time);
+        }
+
+        public virtual vec3d movVertex03(int tick)
+        {
+            return movP03Operation.Invoke(time);
+        }
+
+        public virtual vec3d movVertex04(int tick)
+        {
+            return movP04Operation.Invoke(time);
+        }
+
+        public virtual vec3d movVertex05(int tick)
+        {
+            return movP05Operation.Invoke(time);
+        }
+
+
+        internal override void UpdateCoordinate(int tick)
+        {
+            int nowTick = tick - BornTime;
+            vertexMat.vec0 = (coordinate.origin + movVertex01(nowTick)).vec;
+            vertexMat.vec1 = (coordinate.origin + movVertex02(nowTick)).vec;
+            vertexMat.vec2 = (coordinate.origin + movVertex03(nowTick)).vec;
+            vertexMat.vec3 = (coordinate.origin + movVertex04(nowTick)).vec;
+            vertexMat.vec4 = (coordinate.origin + movVertex05(nowTick)).vec;
+        }
+
     }
 }

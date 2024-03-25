@@ -1,20 +1,83 @@
-﻿using StgSharp.Controlling;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="Polygon4.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using StgSharp.Controlling;
 using StgSharp.Math;
+
 using System.Numerics;
 
 namespace StgSharp.Geometries
 {
     public class Polygon4 : PlainGeometry
     {
+
         internal readonly GetLocationHandler moveVertex0Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
         internal readonly GetLocationHandler moveVertex1Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
         internal readonly GetLocationHandler moveVertex2Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
         internal readonly GetLocationHandler moveVertex3Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
-        internal Matrix3x4 vertexMat;
+        internal Matrix2x4 vertexMat;
 
         internal Polygon4()
         {
+        }
+
+        public Polygon4(PartialPlainCoordinate coordinate,
+            Vec2d topLeft,
+            Vec2d topRight,
+            Vec2d bottomRight,
+            Vec2d bottomLeft,
+            bool Orth
+            )
+        {
+            this.coordinate = coordinate;
+            vertexMat.Colum0 = topLeft;
+            vertexMat.Colum1 = topRight;
+            vertexMat.Colum2 = bottomRight;
+            vertexMat.Colum3 = bottomLeft;
+
+            Vector4 maxCoord = vertexMat.mat.colum0;
+            Vector4 minCoord = vertexMat.mat.colum0;
+
+            maxCoord = Vector4.Max(maxCoord, vertexMat.mat.colum1);
+            maxCoord = Vector4.Max(maxCoord, vertexMat.mat.colum2);
+            maxCoord = Vector4.Max(maxCoord, vertexMat.mat.colum3);
+
+            minCoord = Vector4.Min(minCoord, vertexMat.mat.colum1);
+            minCoord = Vector4.Min(minCoord, vertexMat.mat.colum2);
+            minCoord = Vector4.Min(minCoord, vertexMat.mat.colum3);
+
+            textureFrame.mat.colum1 = maxCoord;
+            textureFrame.mat.colum3 = minCoord;
+            textureFrame.Colum0 = new Vec2d(minCoord.X, maxCoord.Y);
+            textureFrame.Colum2 = new Vec2d(maxCoord.X, minCoord.Y);
         }
 
         public Polygon4(
@@ -30,64 +93,41 @@ namespace StgSharp.Geometries
             vertexMat.mat.colum3 = new Vector4(v3x, v3y, v3z, 0);
         }
 
-        public GetLocationHandler MovVertex0Operaion { get { return moveVertex0Operation; } }
-        public GetLocationHandler MovVertex1Operaion { get { return moveVertex1Operation; } }
-        public GetLocationHandler MovVertex2Operaion { get { return moveVertex2Operation; } }
-        public GetLocationHandler MovVertex3Operaion { get { return moveVertex3Operation; } }
-
-        public override Point RefPoint0
-        {
-            get { return new Point(vertexMat.mat.colum0); }
-        }
-
-        public override Point RefPoint1
-        {
-            get { return new Point(vertexMat.mat.colum1); }
-        }
-
-        public override Point RefPoint2
-        {
-            get { return new Point(vertexMat.mat.colum2); }
-        }
-
-        internal sealed override int[] Indices
-        {
-            get
-            {
-                return new int[6] {
-                    0,1,2,
-                    0,2,3};
-            }
-        }
-
-        public Mat4 VertexBuffer
-        {
-            get { return vertexMat.mat; }
-        }
+        public GetLocationHandler MovVertex0Operaion => moveVertex0Operation;
+        public GetLocationHandler MovVertex1Operaion => moveVertex1Operation;
+        public GetLocationHandler MovVertex2Operaion => moveVertex2Operation;
+        public GetLocationHandler MovVertex3Operaion => moveVertex3Operation;
 
         public Point Vertex0
         {
             get => new Point(vertexMat.mat.colum0);
-            set { vertexMat.mat.colum0 = value.position.vec; }
+            set => vertexMat.mat.colum0 = value.position.vec;
         }
 
         public Point Vertex1
         {
             get => new Point(vertexMat.mat.colum1);
-            set { vertexMat.mat.colum1 = value.position.vec; }
+            set => vertexMat.mat.colum1 = value.position.vec;
         }
 
         public Point Vertex2
         {
             get => new Point(vertexMat.mat.colum2);
-            set { vertexMat.mat.colum1 = value.position.vec; }
+            set => vertexMat.mat.colum1 = value.position.vec;
         }
+
+        public Mat4 VertexBuffer => vertexMat.mat;
+
+
+
+        internal override sealed int[] Indices => new int[6] { 0, 1, 2, 0, 2, 3 };
 
         internal Point Vertex3
         {
             get => new Point(vertexMat.mat.colum3);
-            set { vertexMat.mat.colum1 = value.position.vec; }
+            set => vertexMat.mat.colum1 = value.position.vec;
         }
+
 
         public override Line[] GetAllSides()
         {
@@ -111,26 +151,31 @@ namespace StgSharp.Geometries
                 vertexMat.mat.colum2);
         }
 
-        public virtual vec3d MoveVertex0(uint tick)
-            => moveVertex0Operation.Invoke(tick);
-
-        public virtual vec3d MoveVertex1(uint tick)
-            => moveVertex1Operation.Invoke(tick);
-
-        public virtual vec3d MoveVertex2(uint tick)
-            => moveVertex2Operation.Invoke(tick);
-
-        public virtual vec3d MoveVertex3(uint tick)
-            => moveVertex3Operation.Invoke(tick);
-
-
-        internal override void OnRender(uint tick)
+        public virtual vec3d MoveVertex0(int tick)
         {
-            uint nowTick = TimeLine.tickCounter._value;
-            this.vertexMat.Colum0 = RefOrigin.position + moveVertex1Operation(nowTick);
-            this.vertexMat.Colum1 = RefOrigin.position + moveVertex1Operation(nowTick);
-            this.vertexMat.Colum2 = RefOrigin.position + moveVertex2Operation(nowTick);
-            this.vertexMat.Colum3 = RefOrigin.position + moveVertex3Operation(nowTick);
+            return moveVertex0Operation(tick);
         }
+
+        public virtual vec3d MoveVertex1(int tick)
+        {
+            return moveVertex1Operation(tick);
+        }
+
+        public virtual vec3d MoveVertex2(int tick)
+        {
+            return moveVertex2Operation(tick);
+        }
+
+        public virtual vec3d MoveVertex3(int tick)
+        {
+            return moveVertex3Operation(tick);
+        }
+
+
+
+        internal override void UpdateCoordinate(int tick)
+        {
+        }
+
     }
 }

@@ -1,14 +1,40 @@
-﻿using System.Numerics;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="Vector.VectorTransform.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace StgSharp.Math
 {
-    public unsafe static partial class VectorCalc
+    public static unsafe partial class VectorCalc
     {
-        public static vec3d To3D(Vec2d vec)
-        {
-            return new vec3d(vec.X, vec.Y, 0.0f);
-        }
 
         public static Vec2d To2D(vec3d vec, CordinatePlain plain)
         {
@@ -28,12 +54,17 @@ namespace StgSharp.Math
                     break;
             }
         }
+        public static vec3d To3D(Vec2d vec)
+        {
+            return new vec3d(vec.X, vec.Y, 0.0f);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static vec3d To3D(Vector4 vector)
         {
             return new vec3d(vector);
         }
+
     }
 
 

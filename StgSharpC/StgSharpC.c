@@ -1,81 +1,64 @@
-﻿// StgShqrpGraphic.cpp : 定义 DLL 的导出函数。
-//
-
-#include "./include/ssgc_framework.h"
-#include "./include/glad_gl.h"
-#include "./include/glfw3.h"
-#include "./include/StgSharpC.h"
-
+﻿#include "ssgc_framework.h"
+#include "gl.h"
+#include "glfw3.h"
+#include "StgSharpC.h"
 #include <stdio.h>
 
 GladGLContext* currentContext;
-extern char* infolog[512] = { 0 };
+extern char infolog[512] = { 0 };
 
-void printShaderCode(char* const* code)
+SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion)
 {
-    printf(*code);
-}
-
-
-
-
-
-SSCAPI void _cdecl initGL(int majorVersion, int minorVersion)
-{
-    glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef  __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif 
-
 }
 
-
-
-SSCAPI unsigned int loadShaderCode(char* const shaderCode, GLint shadertype)
+SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char* procName)
 {
-    if (currentContext != NULL)
+    void* ret = glfwGetProcAddress(procName);
+    printf("%llu\n", (uint64_t)ret);
+    if (ret = NULL)
     {
-        unsigned int shader = currentContext->CreateShader(shadertype);
-        currentContext->ShaderSource(shader, 1, &shaderCode, NULL);
-        currentContext->CompileShader(shader);
-        int success;
-        currentContext->GetShaderiv(shader, GL_COMPILE_STATUS, &success);
-        if (!success)
+        *infolog = "Failed to load OpenGL api:";
+        for (size_t i = 0; i < sizeof(procName); i++)
         {
-            currentContext->GetShaderInfoLog(shader, 512, NULL, infolog);
-            return 0;
+            infolog[30 + i] = procName[i];
         }
-        else
-        {
-            return shader;
-        }
+        printf("%s\n", infolog);
     }
-    else
-    {
-        return 0;
-    }
+    return (GLFWglproc)ret;
 }
 
-SSCAPI unsigned int linkShaderProgram(GLuint shaderProgram)
+SSCAPI unsigned int linkShaderProgram(GladGLContext* context, GLuint shaderProgram)
 {
-    currentContext->LinkProgram(shaderProgram);
+    context->LinkProgram(shaderProgram);
 
     int success;
-    currentContext->GetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    context->GetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success)
     {
-        currentContext->GetProgramInfoLog(shaderProgram, 512, NULL, infolog);
+        context->GetProgramInfoLog(shaderProgram, 512, NULL, infolog);
         return 0;
     }
     else
     {
         return shaderProgram;
     }
+}
 
+SSCAPI void SSCDECL loadImageData(char* location, Image* out, imageLoader loader)
+{
+    if (loader == NULL)
+    {
+        loader = stbi_load;
+    }
+    out->pixelPtr = loader(location, &(out->width), &(out->height), &(out->channel), 0);
+}
+
+SSCAPI void SSCDECL unloadImageData(Image* out)
+{
+    free(out->pixelPtr);
 }
 
 char* _cdecl readLog()
@@ -83,10 +66,3 @@ char* _cdecl readLog()
     infolog[511] = '\0';
     return &infolog;
 }
-
-SSCAPI void SSCDECL setCurrentGLContext(GLFWwindow* window, GladGLContext* contextPtr)
-{
-    glfwMakeContextCurrent(window);
-    currentContext = contextPtr;
-}
-

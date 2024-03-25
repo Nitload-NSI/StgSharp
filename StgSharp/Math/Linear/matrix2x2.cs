@@ -1,12 +1,43 @@
-﻿using System.Numerics;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="matrix2x2.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace StgSharp.Math
 {
-    [StructLayout(LayoutKind.Explicit, Size = 2 * 2 * 4 * sizeof(float) + sizeof(bool), Pack = 16)]
+    [StructLayout(LayoutKind.Explicit, Size = (2 * 2 * 4 * sizeof(float)) + sizeof(bool), Pack = 16)]
     public struct Matrix2x2 : IMat
     {
+
         [FieldOffset(0)]
         internal Mat2 mat;
         [FieldOffset(2 * 4 * sizeof(float))]
@@ -14,13 +45,11 @@ namespace StgSharp.Math
         [FieldOffset(2 * 2 * 4 * sizeof(float))]
         internal bool isTransposed;
 
-        public Matrix2x2(
-            float a00, float a01,
-            float a10, float a11
+        internal Matrix2x2(
+            Mat2 mat
             )
         {
-            mat.colum0 = new Vector4(a00, a10, 0, 0);
-            mat.colum1 = new Vector4(a01, a11, 0, 0);
+            this.mat = mat;
         }
 
         internal Matrix2x2(
@@ -32,11 +61,13 @@ namespace StgSharp.Math
             mat.colum1 = c1;
         }
 
-        internal Matrix2x2(
-            Mat2 mat
+        public Matrix2x2(
+            float a00, float a01,
+            float a10, float a11
             )
         {
-            this.mat = mat;
+            mat.colum0 = new Vector4(a00, a10, 0, 0);
+            mat.colum1 = new Vector4(a01, a11, 0, 0);
         }
 
         public Matrix2x2 Transpose
@@ -46,6 +77,12 @@ namespace StgSharp.Math
                 InternalTranspose();
                 return new Matrix2x2(this.transpose);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float Det()
+        {
+            return (mat.m00 * mat.m11) - (mat.m10 * mat.m01);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -60,16 +97,6 @@ namespace StgSharp.Math
 
                 isTransposed = true;
             }
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Matrix2x2 operator +(Matrix2x2 left, Matrix2x2 right)
-        {
-            Mat2* refmat = InternalIO.add_mat2(&left.mat, &right.mat);
-            Matrix2x2 ret = new Matrix2x2(*refmat);
-            InternalIO.deinit_mat2(refmat);
-            return ret;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -87,15 +114,6 @@ namespace StgSharp.Math
             return new Matrix2x2(
                 mat.mat.colum0 * value,
                 mat.mat.colum1 * value
-                );
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix2x2 operator /(Matrix2x2 mat, float value)
-        {
-            return new Matrix2x2(
-                mat.mat.colum0 / value,
-                mat.mat.colum1 / value
                 );
         }
 
@@ -145,9 +163,22 @@ namespace StgSharp.Math
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float Det()
+        public static Matrix2x2 operator /(Matrix2x2 mat, float value)
         {
-            return mat.m00 * mat.m11 - mat.m10 * mat.m01;
+            return new Matrix2x2(
+                mat.mat.colum0 / value,
+                mat.mat.colum1 / value
+                );
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe Matrix2x2 operator +(Matrix2x2 left, Matrix2x2 right)
+        {
+            Mat2* refmat = InternalIO.add_mat2(&left.mat, &right.mat);
+            Matrix2x2 ret = new Matrix2x2(*refmat);
+            InternalIO.deinit_mat2(refmat);
+            return ret;
         }
 
 
