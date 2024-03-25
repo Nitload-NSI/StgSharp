@@ -1,22 +1,45 @@
-﻿using StgSharp.Controlling;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="Parallelogram.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using StgSharp.Controlling;
 using StgSharp.Math;
 
 namespace StgSharp.Geometries
 {
     public class Parallelogram : Polygon4
     {
-        internal Point center;
 
-        public sealed override Point RefPoint0 => center;
-        public sealed override Point RefPoint1 => new Point(vertexMat.mat.colum0);
-        public sealed override Point RefPoint2 => new Point(vertexMat.mat.colum1);
+        internal Point center;
 
         internal readonly GetLocationHandler movCenterOperation =
             new GetLocationHandler(GeometryOperation.DefualtMotion);
-
-        public GetLocationHandler MovCenterOperation { get { return movCenterOperation; } }
-        public GetLocationHandler MovVertex01Operation { get { return moveVertex0Operation; } }
-        public GetLocationHandler MovVertex02Operation { get { return moveVertex1Operation; } }
 
         public Parallelogram(
             float v0x, float v0y, float v0z,
@@ -39,7 +62,11 @@ namespace StgSharp.Geometries
             }
         }
 
-        public virtual vec3d MovCenter(uint tick)
+        public GetLocationHandler MovCenterOperation => movCenterOperation;
+        public GetLocationHandler MovVertex01Operation => moveVertex0Operation;
+        public GetLocationHandler MovVertex02Operation => moveVertex1Operation;
+
+        public virtual vec3d MovCenter(int tick)
         {
             return movCenterOperation.Invoke(tick);
         }
@@ -50,7 +77,7 @@ namespace StgSharp.Geometries
         /// <param name="tick">Current time tick</param>
         /// <returns></returns>
         /// <exception cref="UnusedVertexException">Geometry overdefined</exception>
-        public sealed override vec3d MoveVertex2(uint tick)
+        public override sealed vec3d MoveVertex2(int tick)
         {
             throw new UnusedVertexException();
         }
@@ -61,18 +88,13 @@ namespace StgSharp.Geometries
         /// <param name="tick">Current time tick</param>
         /// <returns></returns>
         /// <exception cref="UnusedVertexException">Geometry overdefined</exception>
-        public sealed override vec3d MoveVertex3(uint tick)
+        public override sealed vec3d MoveVertex3(int tick)
         {
             throw new UnusedVertexException();
         }
 
-        internal sealed override void OnRender(uint tick)
+        internal override sealed void UpdateCoordinate(int tick)
         {
-            uint nowTick = TimeLine.tickCounter._value;
-            this.vertexMat.Colum0 = RefOrigin.Position + moveVertex0Operation(nowTick);
-            this.vertexMat.Colum1 = RefOrigin.Position + moveVertex1Operation(nowTick);
-            this.vertexMat.Colum2 = center.Position * 2 - vertexMat.Colum0;
-            this.vertexMat.Colum3 = center.Position * 2 - vertexMat.Colum1;
         }
 
     }

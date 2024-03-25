@@ -1,4 +1,34 @@
-﻿namespace StgSharp.Graphics
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="glEnum.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+namespace StgSharp.Graphics
 {
     internal enum VkStructureType : uint
     {
@@ -41,15 +71,26 @@
 
     public enum ShaderType : int
     {
-        FRAGMENT = 0x8B30,
-        VERTEX = 0x8B31
+        Fragment = 0x8B30,
+        Vertex = 0x8B31,
     }
 
-    public enum BufferType : int
+    public enum BufferType : uint
     {
         ARRAY_BUFFER = 0x8892,
         ELEMENT_ARRAY_BUFFER = 0x8893,
-        ARRAY_BUFFER_BINDING = 0x8894
+        ATOMIC_COUNTER_BUFFER = GLconst.ATOMIC_COUNTER_BUFFER,
+        COPY_READ_BUFFER = GLconst.COPY_READ_BUFFER,
+        COPY_WRITE_BUFFER = GLconst.COPY_WRITE_BUFFER,
+        DISPATCH_INDIRECT_BUFFER = GLconst.DISPATCH_INDIRECT_BUFFER,
+        DRAW_INDIRECT_BUFFER = GLconst.DRAW_INDIRECT_BUFFER,
+        PIXEL_PACK_BUFFER = GLconst.PIXEL_PACK_BUFFER,
+        PIXEL_UNPACK_BUFFER = GLconst.PIXEL_UNPACK_BUFFER,
+        QUERY_BUFFER = GLconst.QUERY_BUFFER,
+        SHADER_STORAGE_BUFFER = GLconst.SHADER_STORAGE_BUFFER,
+        TEXTURE_BUFFER = GLconst.TEXTURE_BUFFER,
+        TRANSFORM_FEEDBACK_BUFFER = GLconst.TRANSFORM_FEEDBACK_BUFFER,
+        UNIFORM_BUFFER = GLconst.UNIFORM_BUFFER,
     }
 
     public enum BufferUsage : int
@@ -65,7 +106,14 @@
         DYNAMIC_COPY = 0x88EA
     }
 
-    public enum GepmetryType : int
+    public enum MaskBufferBit
+    {
+        COLOR = GLconst.COLOR_BUFFER_BIT,
+        DEPTH = GLconst.DEPTH_BUFFER_BIT,
+        STENCIL = GLconst.STENCIL_BUFFER_BIT,
+    }
+
+    public enum GepmetryType : uint
     {
         POINTS = 0x0000,
         LINES = 0x0001,
@@ -76,5 +124,9 @@
         TRIANGLE_FAN = 0x0006
     }
 
-
+    public enum TextureFiltering
+    {
+        Nearest = 0x2600,
+        Linear = 0x2601
+    }
 }

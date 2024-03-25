@@ -1,65 +1,128 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-	<LangVersion>preview</LangVersion>
-    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Platforms>AnyCPU;x64</Platforms>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageLicenseExpression> MIT</PackageLicenseExpression>
-    <EnableNETAnalyzers>True</EnableNETAnalyzers>
-    <AnalysisLevel>preview-all</AnalysisLevel>
-    <OutputType>Library</OutputType>
-    <Nullable>enable</Nullable>
-    <Configurations>Debug;Release;NoOps</Configurations>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <LangVersion>preview</LangVersion>
+        <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <Platforms>AnyCPU;x64</Platforms>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression> MIT</PackageLicenseExpression>
+        <EnableNETAnalyzers>True</EnableNETAnalyzers>
+        <AnalysisLevel>preview-all</AnalysisLevel>
+        <OutputType>Library</OutputType>
+        <Nullable>enable</Nullable>
+        <Configurations>Debug;Release;NoOps;RealDebug;Benchmark;Toollist</Configurations>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Optimize>True</Optimize>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <Optimize>True</Optimize>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Optimize>True</Optimize>
-    <DebugType>embedded</DebugType>
-    <NoWarn>1701;1702;0649;1591;0169</NoWarn>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|x64'">
+        <Optimize>True</Optimize>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>embedded</DebugType>
-    <Optimize>True</Optimize>
-    <NoWarn>1701;1702;0649;1591;0169</NoWarn>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Toollist|x64'">
+        <Optimize>True</Optimize>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>none</DebugType>
-    <NoWarn>1701;1702;0649;1591;0169</NoWarn>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RealDebug|x64'">
+        <Optimize>True</Optimize>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DebugType>none</DebugType>
-    <NoWarn>1701;1702;0649;1591;0169</NoWarn>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <Optimize>True</Optimize>
+        <DebugType>embedded</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
 
-   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-      <DefineConstants>_WINDOWS</DefineConstants>
-   </PropertyGroup>
-   
-   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-  </ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|x64'">
+        <Optimize>True</Optimize>
+        <DebugType>embedded</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Update="..\StgSharpGraphic">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Toollist|x64'">
+        <Optimize>True</Optimize>
+        <DebugType>embedded</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    
-  </Target>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RealDebug|x64'">
+        <Optimize>True</Optimize>
+        <DebugType>embedded</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DebugType>embedded</DebugType>
+        <Optimize>True</Optimize>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|AnyCPU'">
+        <DebugType>embedded</DebugType>
+        <Optimize>True</Optimize>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Toollist|AnyCPU'">
+        <DebugType>embedded</DebugType>
+        <Optimize>True</Optimize>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RealDebug|AnyCPU'">
+        <DebugType>embedded</DebugType>
+        <Optimize>True</Optimize>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <DebugType>none</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
+        <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
+        <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(IsWindows)'=='true'">
+        <DefineConstants>Windows</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(IsOSX)'=='true'">
+        <DefineConstants>OSX</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(IsLinux)'=='true'">
+        <DefineConstants>Linux</DefineConstants>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="..\StgSharpGraphic">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+
+    </Target>
 
 </Project>

@@ -1,4 +1,34 @@
-﻿//
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="ASin.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//
 // 
 // some of the code is rewritten from the AMD code:
 // https://github.com/amd/aocl-libm-ose/blob/a43e092b03213eb0e129a1cc129900e6e4475778/src/ref/asinf.c
@@ -9,7 +39,7 @@ using System;
 
 namespace StgSharp.Math
 {
-    public static unsafe partial class Calc
+    public static unsafe partial class Scaler
     {
 
         private const float
@@ -26,7 +56,8 @@ namespace StgSharp.Math
         /// <exception cref="ArgumentException"></exception>
         public static float ASin(float x)
         {
-
+            return MathF.Asin(x);
+            /*
             int sign = 1;
             float y;
 
@@ -51,7 +82,7 @@ namespace StgSharp.Math
             if (transform)
             {
                 r = 0.5f * (1.0f - y);
-                s = Calc.Sqrt(r);
+                s = Scaler.Sqrt(r);
                 y = s;
             }
             else
@@ -64,7 +95,7 @@ namespace StgSharp.Math
                    0.00396137437848476485201154797087F * r) * r) * r) /
                   (1.10496961524520294485512696706F -
                    0.836411276854206731913362287293F * r);
-            /**/
+            /*
 
             if (transform)
             {
@@ -83,10 +114,11 @@ namespace StgSharp.Math
             else
             {
                 v = y + y * u;
-            }/**/
+            }/*
 
             return sign * v;
-
+            */
         }
+
     }
 }

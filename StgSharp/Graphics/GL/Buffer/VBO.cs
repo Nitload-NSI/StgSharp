@@ -1,69 +1,104 @@
-﻿using StgSharp.Math;
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="VBO.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using StgSharp.Math;
+
 using System;
 using System.Collections.Generic;
+using System.Net.Security;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace StgSharp.Graphics
 {
-    public unsafe struct VertexBuffer : IDisposable
+    public unsafe class VertexBuffer : BufferObjectBase
     {
-        internal uint[] _bufferID;
 
-
-        public VertexBuffer(int n)
+        internal VertexBuffer(int n, Form binding)
         {
-            _bufferID = new uint[n];
-            fixed (uint* ptr = _bufferID)
-            {
-                GL.gl.GenBuffers(n, ptr);
-            }
+            this.binding = binding;
+            _bufferHandle = binding.GL.GenBuffers(n);
         }
 
-        public uint this[int n]
+        public override sealed void Bind(int index)
         {
-            get { return _bufferID[n]; }
+            binding.GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
         }
 
         /// <summary>
-        /// 
+        /// Set data to current vertex buffer object
         /// </summary>
-        public static void Unbind()
+        /// <typeparam name="T">Type of bufferData</typeparam>
+        /// <param name="index">Index to find certain VBO in this instance</param>
+        /// <param name="bufferData">Data to write in</param>
+        /// <param name="usage">How OpenGL use these data, defined by <see cref="BufferUsage"/></param>
+        public void SetValue<T>(int index, T bufferData, BufferUsage usage) where T : struct, IMat
         {
-            GL.gl.BindBuffer(GLconst.ARRAY_BUFFER, 0);
-        }
-
-        public void Bind(int index)
-        {
-            GL.gl.BindBuffer(GLconst.ARRAY_BUFFER, _bufferID[index]);
-        }
-
-        public void Dispose()
-        {
-            fixed (uint* id = _bufferID)
-            {
-                GL.gl.DeleteBuffers(_bufferID.Length, id);
-            }
+            binding.GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
+            binding.GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferData, usage);
         }
 
         /// <summary>
-        /// 
+        /// Set data to current vertex buffer object
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="bufferData"></param>
-        /// <param name="readType"></param>
-        public void SetValue<T>(int index, T bufferData, BufferUsage usage) where T : IMat
-        {
-            GL.gl.BindBuffer((int)BufferType.ARRAY_BUFFER, _bufferID[index]);
-            GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferData, usage);
-
-        }
-
+        /// <typeparam name="T">Type of bufferData</typeparam>
+        /// <param name="index">Index to find certain VBO in this instance</param>
+        /// <param name="bufferArray">A array of data to write in</param>
+        /// <param name="usage">How OpenGL use these data, defined by <see cref="BufferUsage"/></param>
         public void SetValueArray<T>(int index, T[] bufferArray, BufferUsage usage) where T : struct, IConvertible
         {
-            GL.gl.BindBuffer(GLconst.ARRAY_BUFFER, _bufferID[index]);
-            GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferArray, usage);
+            binding.GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
+            binding.GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferArray, usage);
         }
+
+        /// <summary>
+        ///
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Unbind()
+        {
+            binding.GL.BindBuffer(BufferType.ARRAY_BUFFER, glHandle.Zero);
+        }
+
+
+
+        protected override sealed void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                binding.GL.DeleteBuffers(_bufferHandle);
+                _bufferHandle.Release();
+            }
+        }
+
     }
 }
