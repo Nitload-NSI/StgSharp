@@ -82,18 +82,18 @@ namespace StgSharp.Math
         [FieldOffset(8 * sizeof(float))] internal Vector4 colum2;
 
         [FieldOffset(0 * sizeof(float))] internal float m00;
-        [FieldOffset(1 * sizeof(float))] internal float m10;
-        [FieldOffset(2 * sizeof(float))] internal float m20;
-        [FieldOffset(3 * sizeof(float))] internal float m30;
 
         [FieldOffset(4 * sizeof(float))] internal float m01;
-        [FieldOffset(5 * sizeof(float))] internal float m11;
-        [FieldOffset(6 * sizeof(float))] internal float m21;
-        [FieldOffset(7 * sizeof(float))] internal float m31;
 
         [FieldOffset(8 * sizeof(float))] internal float m02;
+        [FieldOffset(1 * sizeof(float))] internal float m10;
+        [FieldOffset(5 * sizeof(float))] internal float m11;
         [FieldOffset(9 * sizeof(float))] internal float m12;
+        [FieldOffset(2 * sizeof(float))] internal float m20;
+        [FieldOffset(6 * sizeof(float))] internal float m21;
         [FieldOffset(10 * sizeof(float))] internal float m22;
+        [FieldOffset(3 * sizeof(float))] internal float m30;
+        [FieldOffset(7 * sizeof(float))] internal float m31;
         [FieldOffset(11 * sizeof(float))] internal float m32;
 
         public override bool Equals(object? obj)

@@ -41,7 +41,7 @@ namespace StgSharp
          *用于发射其他的实体，主要是子弹 和 掉落物
          */
 
-        internal Vec2d _center;     //发射器的参考位置，运动轨迹的方程应当基于这个参考点构建
+        internal vec2d _center;     //发射器的参考位置，运动轨迹的方程应当基于这个参考点构建
         internal Counter<int> _internalParameter;       //发射器的内部计时器
         internal uint[] launchtick;     //发射子弹的内部计时
 

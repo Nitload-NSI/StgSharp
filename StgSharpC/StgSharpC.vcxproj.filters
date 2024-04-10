@@ -44,6 +44,9 @@
     <ClCompile Include="StgSharpC.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="vector.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="glfw3.h">

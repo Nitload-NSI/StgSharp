@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Vec4d.cs"
+//     file="vec4d.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -34,30 +34,56 @@ using StgSharp.Math;
 using System;
 using System.Data.Common;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace StgSharp.Math
 {
-    [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public struct Vec4d
+    public static class Vec4d
     {
 
-        [FieldOffset(0)] internal Vector4 vec;
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
+    public struct vec4d
+    {
+
         [FieldOffset(0)] internal M128 reg;
+
+        [FieldOffset(0)] internal Vector4 vec;
+
+        [FieldOffset(0)] internal unsafe fixed float num[4];
 
         [FieldOffset(0)] public float X;
         [FieldOffset(4)] public float Y;
         [FieldOffset(8)] public float Z;
         [FieldOffset(12)] public float W;
 
-        public Vec4d(float x, float y, float z, float w)
+        public override string ToString()
+        {
+            return vec.ToString();
+        }
+
+        public vec4d(float x, float y, float z, float w)
         {
             vec = new Vector4(x, y, z, w);
         }
 
-        public static implicit operator M128(Vec4d vec)
+        public static implicit operator M128(vec4d vec)
         {
             return vec.reg;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static vec4d operator *(Matrix44 mat, vec4d vec) 
+        {
+            mat.InternalTranspose();
+            return new vec4d(
+                Vector4.Dot( mat.transpose.colum0,vec.vec),
+                Vector4.Dot( mat.transpose.colum1, vec.vec),
+                Vector4.Dot( mat.transpose.colum2, vec.vec),
+                Vector4.Dot( mat.transpose.colum3, vec.vec)
+                );
         }
 
     }

@@ -45,13 +45,13 @@ namespace StgSharp.Graphics
 
         internal VertexBuffer(int n, Form binding)
         {
-            this.binding = binding;
-            _bufferHandle = binding.GL.GenBuffers(n);
+            this.binding = binding.graphicContextID;
+            _bufferHandle = GL.GenBuffers(n);
         }
 
         public override sealed void Bind(int index)
         {
-            binding.GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
+            GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
         }
 
         /// <summary>
@@ -63,8 +63,8 @@ namespace StgSharp.Graphics
         /// <param name="usage">How OpenGL use these data, defined by <see cref="BufferUsage"/></param>
         public void SetValue<T>(int index, T bufferData, BufferUsage usage) where T : struct, IMat
         {
-            binding.GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
-            binding.GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferData, usage);
+            GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
+            GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferData, usage);
         }
 
         /// <summary>
@@ -76,8 +76,8 @@ namespace StgSharp.Graphics
         /// <param name="usage">How OpenGL use these data, defined by <see cref="BufferUsage"/></param>
         public void SetValueArray<T>(int index, T[] bufferArray, BufferUsage usage) where T : struct, IConvertible
         {
-            binding.GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
-            binding.GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferArray, usage);
+            GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
+            GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferArray, usage);
         }
 
         /// <summary>
@@ -86,16 +86,14 @@ namespace StgSharp.Graphics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Unbind()
         {
-            binding.GL.BindBuffer(BufferType.ARRAY_BUFFER, glHandle.Zero);
+            GL.BindBuffer(BufferType.ARRAY_BUFFER, glHandle.Zero);
         }
-
-
 
         protected override sealed void Dispose(bool disposing)
         {
             if (disposing)
             {
-                binding.GL.DeleteBuffers(_bufferHandle);
+                GL.DeleteBuffers(_bufferHandle);
                 _bufferHandle.Release();
             }
         }

@@ -1,4 +1,6 @@
 is_global = true
+build_property.CsWin32InputMetadataPaths = C:\Users\Nitlo\.nuget\packages\microsoft.windows.sdk.win32metadata\55.0.45-preview\Windows.Win32.winmd|C:\Users\Nitlo\.nuget\packages\microsoft.windows.wdk.win32metadata\0.9.9-experimental\Windows.Wdk.winmd
+build_property.CsWin32InputDocPaths = C:\Users\Nitlo\.nuget\packages\microsoft.windows.sdk.win32docs\0.1.42-alpha\apidocs.msgpack
 build_property.TargetFramework = netstandard2.1
 build_property.TargetPlatformMinVersion = 7.0
 build_property.UsingMicrosoftNETSdkWeb = 

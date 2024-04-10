@@ -65,7 +65,7 @@ namespace StgSharp
         /// <summary>
         /// A 2D vector presenting the position of an enemy entity, position can also be visited by X, Y
         /// </summary>
-        public Vec2d Location { get; }
+        public vec2d Location { get; }
 
         public string Texture { get; set; }
 

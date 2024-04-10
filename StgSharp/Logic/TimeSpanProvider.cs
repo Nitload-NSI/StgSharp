@@ -66,6 +66,7 @@ namespace StgSharp
             _maxSpanCount = int.MaxValue;
             provider.AddSubscriber(this);
             _subscribed = true;
+            _refeshCallback = () => { };
         }
 
         /// <summary>
@@ -81,6 +82,7 @@ namespace StgSharp
             _maxSpanCount = int.MaxValue;
             provider.AddSubscriber(this);
             _subscribed = true;
+            _refeshCallback = () => { };
         }
 
         /// <summary>
@@ -144,6 +146,7 @@ namespace StgSharp
                 timeSpanCount++;
                 try
                 {
+                    _refeshCallback();
                     _refreshSemaphore.Release();
                 }
                 catch (SemaphoreFullException ex)

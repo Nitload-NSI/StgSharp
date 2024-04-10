@@ -24,20 +24,9 @@
             
              </summary>
         </member>
-        <member name="P:StgSharp.Graphics.Form.GL">
-            <summary>
-            OpenGL package binded to current form context.
-            A OpenGL context is only binded to current form.
-            </summary>
-        </member>
         <member name="P:StgSharp.Graphics.Form.Height">
             <summary>
             Height of this form, represent in <see cref="T:System.Int32"/>
-            </summary>
-        </member>
-        <member name="P:StgSharp.Graphics.Form.IsDoubleRendering">
-            <summary>
-            Representing
             </summary>
         </member>
         <member name="P:StgSharp.Graphics.Form.Size">
@@ -50,17 +39,16 @@
             Width of this form, represent in <see cref="T:System.Int32"/>
             </summary>
         </member>
-        <member name="M:StgSharp.Graphics.Form.Init(System.Object[])">
+        <member name="M:StgSharp.Graphics.Form.Init">
             <summary>
-            Necessary operation to init this form.
+            Necessary operation to init graphic elements this form.
             </summary>
-            <param name="args"></param>
+            <param name="gl">OpenGL library binded to current form.</param>
         </member>
         <member name="M:StgSharp.Graphics.Form.Main">
             <summary>
             Behaviour of current form when in a frame cycle.
             </summary>
-            <param name="args"></param>
         </member>
         <member name="M:StgSharp.Graphics.Form.MakeAsCurrentContext">
             <summary>
@@ -76,12 +64,12 @@
             Set all necessary metadata to current form instance
             </summary>
         </member>
-        <member name="M:StgSharp.Graphics.Form.SetSize(StgSharp.Math.Vec2d)">
+        <member name="M:StgSharp.Graphics.Form.SetSize(StgSharp.Math.vec2d)">
             <summary>
             Resize the current form
             </summary>
             <param name="size">
-            A <see cref="T:StgSharp.Math.Vec2d"/> (width,height) representing the new size of current form
+            A <see cref="T:StgSharp.Math.vec2d"/> (width,height) representing the new size of current form
             </param>
         </member>
         <member name="M:StgSharp.Graphics.Form.SetSize(System.Int32,System.Int32)">
@@ -91,15 +79,15 @@
             <param name="width">New width of the window</param>
             <param name="height">New height of the window</param>
         </member>
-        <member name="M:StgSharp.Graphics.Form.SetSizeLimit(StgSharp.Math.Vec2d,StgSharp.Math.Vec2d)">
+        <member name="M:StgSharp.Graphics.Form.SetSizeLimit(StgSharp.Math.vec2d,StgSharp.Math.vec2d)">
             <summary>
             Set the size limit of current form
             </summary>
             <param name="minSize">
-            Minimun size of current form. In form of a <see cref="T:StgSharp.Math.Vec2d"/> of (width,height)
+            Minimun size of current form. In form of a <see cref="T:StgSharp.Math.vec2d"/> of (width,height)
             </param>
             <param name="maxSize">
-            Maximum size of current form. In form of a <see cref="T:StgSharp.Math.Vec2d"/> of (width,height)
+            Maximum size of current form. In form of a <see cref="T:StgSharp.Math.vec2d"/> of (width,height)
             </param>
         </member>
         <member name="M:StgSharp.Graphics.Form.SetSizeLimit(System.Int32,System.Int32,System.Int32,System.Int32)">
@@ -108,27 +96,13 @@
             </summary>
             <param name="minWidth">Minimum width of current form</param>
             <param name="minHeight">Minimum height of current form</param>
-            <param name="maxWidth">Maximum width of curent form</param>
+            <param name="maxWidth">Maximum width of current form</param>
             <param name="maxHeight">Maximum height of current form</param>
         </member>
         <member name="M:StgSharp.Graphics.Form.Show">
             <summary>
             Init this form and render it on screen, and respond with operation
             </summary>
-        </member>
-        <member name="M:StgSharp.Graphics.Form.GetGL">
-            <summary>
-            Get OpenGL library of this form's context.
-            </summary>
-            <returns>A <see cref="T:StgSharp.Graphics.IglFunc"/> package contains all opengl APIs</returns>
-        </member>
-        <member name="M:StgSharp.Graphics.Form.SetRenderThreads(System.Int32)">
-            <summary>
-            Define how current form render in one frame.
-            </summary>
-            <param name="leastThreds">
-            Please define this befor calling any OpenGL api and other graphic methods.
-            </param>
         </member>
         <member name="M:StgSharp.Graphics.Form.CreateElementBuffer(System.Int32)">
             <summary>
@@ -164,9 +138,65 @@
             </summary>
             <returns>New instance of <see cref="T:StgSharp.Graphics.Shader"/> instance. </returns>
         </member>
+        <member name="T:StgSharp.Graphics.RenderActivityAttribute">
+            <summary>
+            Mark that a method in a <see cref="T:StgSharp.Graphics.Form"/> 
+            should be called when rendering.
+            </summary>
+        </member>
+        <member name="T:StgSharp.Graphics.RenderPriority">
+            <summary>
+            Priority level of a render activity.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Graphics.RenderPriority.Pre_1">
+            <summary>
+            One level higher than <see  cref="F:StgSharp.Graphics.RenderPriority.Default"/>.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Graphics.RenderPriority.Pre_2">
+            <summary>
+            Two level higher than <see  cref="F:StgSharp.Graphics.RenderPriority.Default"/>.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Graphics.RenderPriority.Pre_3">
+            <summary>
+            Three level higher than <see  cref="F:StgSharp.Graphics.RenderPriority.Default"/>.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Graphics.RenderPriority.Aft_1">
+            <summary>
+            One level lower than <see  cref="F:StgSharp.Graphics.RenderPriority.Default"/>.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Graphics.RenderPriority.Aft_2">
+            <summary>
+            Two level lower than <see  cref="F:StgSharp.Graphics.RenderPriority.Default"/>.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Graphics.RenderPriority.Aft_3">
+            <summary>
+            Three level lower than <see  cref="F:StgSharp.Graphics.RenderPriority.Default"/>.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Graphics.RenderPriority.Highest">
+            <summary>
+            Highest priority, in <see cref="T:StgSharp.Graphics.RenderPriority"/>, it is <see cref="F:StgSharp.Graphics.RenderPriority.Pre_3"/>.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Graphics.RenderPriority.Default">
+            <summary>
+            Default priority, usually <see cref="M:StgSharp.Graphics.Form.Main"/> is in this priority.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Graphics.RenderPriority.Least">
+            <summary>
+            Lowest priority, in <see cref="T:StgSharp.Graphics.RenderPriority"/>, it is <see cref="F:StgSharp.Graphics.RenderPriority.Aft_3"/>.
+            </summary>
+        </member>
         <member name="T:StgSharp.Graphics.BufferObjectBase">
             <summary>
-            Interface of all kinds OpenGL buffer onjects
+            Interface of all kinds OpenGL buffer objects
             </summary>
         </member>
         <member name="P:StgSharp.Graphics.BufferObjectBase.Item(System.Int32)">
@@ -222,7 +252,7 @@
             
              </summary>
         </member>
-        <member name="M:StgSharp.Graphics.glManager.LoadGLapi(StgSharp.Graphics.Form,StgSharp.Graphics.GLfuncLoader)">
+        <member name="M:StgSharp.Graphics.glManager.LoadGLapi(StgSharp.Graphics.Form)">
             <summary>
             Load all aupportable OpenGL APIs and bind them to given <see cref="T:StgSharp.Graphics.Form"/> context.
             </summary>
@@ -248,29 +278,44 @@
             A handle to an OpenGL object.
             </summary>
         </member>
-        <member name="M:StgSharp.Graphics.glHandleSet.Free">
-            <summary>
-            temporarily release the handle of GLhandle sets.
-            Please call <see cref="M:StgSharp.Graphics.glHandleSet.Pin"/> method before indexing.
-            </summary>
-        </member>
         <member name="M:StgSharp.Graphics.glHandleSet.Release">
             <summary>
-            Realse all resource in this handle.
+            Release all resource in this handle.
             This will release all resource in this <see cref="T:StgSharp.Graphics.glHandle"/>.
             This <see langword="glHandle"/> will be not usable.
             </summary>
         </member>
-        <member name="M:StgSharp.Graphics.Shader.AttachTo(System.Int32,StgSharp.Graphics.ShaderProgram)">
-             <summary>
+        <member name="M:StgSharp.Graphics.ShaderEdit.IglConvertable.SetAllUniforms">
+            <summary>
             
-             </summary>
-             <param name="target"></param>
-             <param name="index"></param>
+            </summary>
+        </member>
+        <member name="M:StgSharp.Graphics.ShaderEdit.IglConvertable.GainAllUniforms(StgSharp.Graphics.ShaderProgram,System.String[])">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:StgSharp.Graphics.ShaderEdit.IglConvertable.DisplayGLtypeDefinition">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:StgSharp.Graphics.ShaderEdit.IglConvertable.GetConvertedGLtype">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:StgSharp.Graphics.Shader.AttachTo(System.Int32,StgSharp.Graphics.ShaderProgram)">
+            <summary>
+            Attach one shader code to a shader program.
+            </summary>
+            <param name="target">Shader program to attach</param>
+            <param name="index">Index of shader code in current shader code set.</param>
         </member>
         <member name="M:StgSharp.Graphics.ShaderProgram.#ctor(StgSharp.Graphics.Form)">
             <summary>
-            Inti a shader with no program attached.
+            Init a program with no shader attached.
             </summary>
         </member>
         <member name="M:StgSharp.Graphics.ShaderProgram.GetUniform``1(System.String)">
@@ -297,6 +342,14 @@
             <param name="name">Name of the Uniform in shader code</param>
             <returns></returns>
         </member>
+        <member name="M:StgSharp.Graphics.ShaderProgram.GetUniform``4(System.String)">
+            <summary>
+            Get a uniform form current shader,
+            the value type of the uniform should be provided.
+            </summary>
+            <param name="name">Name of the Uniform in shader code</param>
+            <returns></returns>
+        </member>
         <member name="M:StgSharp.Graphics.ShaderProgram.Link">
             <summary>
             Link the shader to current context.
@@ -306,274 +359,6 @@
             <summary>
             Let the current context use this shader.
             </summary>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.ActiveTexture(System.UInt32)">
-            <summary>
-            Same function as OpenGL api glActiveTexture
-            </summary>
-            <param name="type">type of texture to activate</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.AfterAlign(StgSharp.Graphics.Form,System.Action)">
-            <summary>
-            Operation after alignment by calling <see cref="M:StgSharp.Graphics.IglFunc.AlignFrame(StgSharp.Graphics.Form)"/>.
-            No calling of this method is acceptable, but it will bring the risk
-            of that relevant code will not run if it is interrupted by frame overtime.
-            Please call this method immediately after calling <see cref="M:StgSharp.Graphics.IglFunc.AlignFrame(StgSharp.Graphics.Form)"/>,
-            too early or sonner may cause <see cref="T:System.InvalidOperationException"/>.
-            </summary>
-            <param name="form">The form used as frame update benchmark.</param>
-            <param name="action">Operation after frame update alignment.</param>
-            <exception cref="T:System.InvalidOperationException">The action binded to a wrong alignment.</exception>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.AlignFrame(StgSharp.Graphics.Form)">
-            <summary>
-            Align a sets of code to frame update of a <see cref="T:StgSharp.Graphics.Form"/>.
-            Usually, a call of <see cref="M:StgSharp.Graphics.IglFunc.AfterAlign(StgSharp.Graphics.Form,System.Action)"/> is required.
-            This method is used as sigle thread method. If more than one
-            alignment is requested, a <see cref="T:System.InvalidOperationException"/> will throw.
-            </summary>
-            <param name="form">The form used as frame update benchmark.</param>
-            <exception cref="T:System.InvalidOperationException">More than one alingment attached to one form timer</exception>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.AttachShader(StgSharp.Graphics.glHandle,StgSharp.Graphics.glHandle)">
-            <summary>
-            Same fucntion as OpenGL api glAttachShader.
-            Only the first <see href="shader"/> in handle
-            will be attached to the first <see href="program"/> in handle.
-            The rest shader and program will be ignored.
-            </summary>
-            <param name="program">Shader program to be attachec</param>
-            <param name="shader">A shader part to attach</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.BindBuffer(StgSharp.Graphics.BufferType,StgSharp.Graphics.glHandle)">
-            <summary>
-            Bind the indexed buffer object to certain type of buffer
-            </summary>
-            <param name="bufferType"></param>
-            <param name="handle"></param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.BindTexture(System.UInt32,StgSharp.Graphics.glHandle)">
-            <summary>
-            Same function as OpenGL api, glBindTexture.
-            </summary>
-            <param name="type">Type of texture to bind</param>
-            <param name="texture">Sign of texture</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.BindVertexArray(StgSharp.Graphics.glHandle)">
-            <summary>
-            Same function as OpenGL api, glBindVertexArray
-            </summary>
-            <param name="index"></param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.Clear(StgSharp.Graphics.MaskBufferBit)">
-            <summary>
-            Clear buffers to preset values
-            </summary>
-            <param name="mask"></param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.ClearColor(System.Single,System.Single,System.Single,System.Single)">
-            <summary>
-            Call apiClearColor in OpenGL
-            specifies the red, green, blue, and alpha values used by apiClear to clear the color buffers.
-            Values specified by apiClearColor are clamped to the range [0,1]
-            </summary>
-            <param name="R">Specify the red values used when the color buffers are cleared.</param>
-            <param name="G">Specify the red values used when the color buffers are cleared.</param>
-            <param name="B">Specify the red values used when the color buffers are cleared.</param>
-            <param name="A">Specify the red values used when the color buffers are cleared.</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.CreateProgram">
-            <summary>
-            Same function as OpenGL api, glCreateProgram
-            </summary>
-            <returns>A handle representing a single shader program</returns>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.CreateProgram(System.Int32)">
-            <summary>
-            Same function as OpenGL api, glCreateProgram.
-            Used for creating multiple shader program.
-            </summary>
-            <returns>A handle representing all shader programs</returns>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.CreateWindowHandle(System.Int32,System.Int32,System.String,System.IntPtr,StgSharp.Graphics.Form)">
-            <summary>
-            Creates a form and its associated
-            </summary>
-            <param name="width">Required width</param>
-            <param name="height">Required width</param>
-            <param name="tittle">Tittle of the window </param>
-            <param name="monitor"></param>
-            <param name="share"></param>
-            <exception cref="T:System.Exception"></exception>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.DeleteBuffer(StgSharp.Graphics.glHandle)">
-            <summary>
-            Same function as OpenGL api, glDeleteBuffer. This method can delete one buffer in one call
-            </summary>
-            <param name="handle">a handle representing the buffer to be deleted</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.DeleteBuffers(StgSharp.Graphics.glHandleSet)">
-            <summary>
-            Same function as OpenGL api, glDeleteBuffer. This method can delete a sets of buffers in one call.
-            </summary>
-            <param name="handleSet">Array of buffers to be deleted</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.DeleteVertexArrays(StgSharp.Graphics.glHandleSet)">
-            <summary>
-            Same function as OpenGL api, glDeleteVertexArrays
-            </summary>
-            <param name="handleSet">Handle of vertex objects.</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.DrawElements(StgSharp.Graphics.GepmetryType,System.UInt32,System.TypeCode,System.IntPtr)">
-             <summary>
-            
-             </summary>
-             <param name="mode"></param>
-             <param name="count"></param>
-             <param name="type"></param>
-             <param name="ptr"></param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.GenBuffers(System.Int32)">
-            <summary>
-            Same fucntion as the OpenGL api glGenBuffers
-            </summary>
-            <param name="count"></param>
-            <returns></returns>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.GenTextures(System.Int32)">
-            <summary>
-            Same fucnction as OpenGL api glGenTextures.
-            </summary>
-            <param name="count">amount of textures to generate</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.GenVertexArrays(System.Int32)">
-            <summary>
-            Same fucntion as OpenGL api, glGenVertexArray
-            </summary>
-            <param name="count">Amount of vao to be generated</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.GetUniformLocation(StgSharp.Graphics.glHandle,System.String)">
-            <summary>
-            Same fucntion as OpenGL api, glGetUniformLocation
-            </summary>
-            <param name="program">Shader program to find the uniform</param>
-            <param name="name">Name of the uniform </param>
-            <returns></returns>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.MakeContexCurrent(StgSharp.Graphics.Form)">
-            <summary>
-            Make the OpenGL context of a certain <see cref="T:StgSharp.Graphics.Form"/> as the activated OpenGL context.
-            </summary>
-            <param name="form"></param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.SetValue(StgSharp.Graphics.Uniform{System.Single,System.Single,System.Single,System.Single},StgSharp.Math.Vec4d)">
-            <summary>
-            Set data value to a float <see cref="T:StgSharp.Graphics.Uniform`4"/>,
-            all types of parameters are float.
-            </summary>
-            <param name="uniform">The <see cref="T:StgSharp.Graphics.Uniform`4"/> target</param>
-            <param name="vec">A <see cref="T:StgSharp.Math.Vec4d"/> packing four parameters of the uniform </param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.SetValue(StgSharp.Graphics.Uniform{System.Single},System.Single)">
-            <summary>
-            Set data value to a float <see cref="T:StgSharp.Graphics.Uniform`1"/>,
-            all types of parameters are float.
-            </summary>
-            <param name="uniform">The <see cref="T:StgSharp.Graphics.Uniform`1"/> target</param>
-            <param name="v0">The value to be set</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.SetValue(StgSharp.Graphics.Uniform{System.Int32},System.Int32)">
-            <summary>
-            Set data value to a int <see cref="T:StgSharp.Graphics.Uniform`1"/>,
-            all types of parameters are int.
-            </summary>
-            <param name="uniform">The <see cref="T:StgSharp.Graphics.Uniform`1"/> target</param>
-            <param name="i0">The value to be set</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.SetValue(StgSharp.Graphics.Uniform{StgSharp.Math.Vec4d},StgSharp.Math.Vec4d)">
-            <summary>
-            Set data value to a float <see cref="T:StgSharp.Graphics.Uniform`1"/>,
-            all types of parameters are <see cref="T:StgSharp.Math.Vec4d"/>.
-            </summary>
-            <param name="uniform">The <see cref="T:StgSharp.Graphics.Uniform`1"/> target</param>
-            <param name="vec">A <see cref="T:StgSharp.Math.Vec4d"/> value of the uniform </param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.SetValue(StgSharp.Graphics.Uniform{System.Single,System.Single},System.Single,System.Single)">
-            <summary>
-            Set data value to a float <see cref="T:StgSharp.Graphics.Uniform`2"/>,
-            all types of parameters are float.
-            </summary>
-            <param name="uniform">The <see cref="T:StgSharp.Graphics.Uniform`2"/> target</param>
-            <param name="v0">The first value to be set</param>
-            <param name="v1">The second value to be set</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.SetValue(StgSharp.Graphics.Uniform{System.Single,System.Single,System.Single},System.Single,System.Single,System.Single)">
-            <summary>
-            Set data value to a float <see cref="T:StgSharp.Graphics.Uniform`3"/>,
-            all types of parameters are float.
-            </summary>
-            <param name="uniform">The <see cref="T:StgSharp.Graphics.Uniform`3"/> target</param>
-            <param name="v0">The first value to be set</param>
-            <param name="v1">The second value to be set</param>
-            <param name="v2">The third value to be set</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.SetValue(StgSharp.Graphics.Uniform{System.Single,System.Single,System.Single,System.Single},System.Single,System.Single,System.Single,System.Single)">
-            <summary>
-            Set data value to a float <see cref="T:StgSharp.Graphics.Uniform`4"/>,
-            all types of parameters are float.
-            </summary>
-            <param name="uniform">The <see cref="T:StgSharp.Graphics.Uniform`4"/> target</param>
-            <param name="v0">The first value to be set</param>
-            <param name="v1">The second value to be set</param>
-            <param name="v2">The third value to be set</param>
-            <param name="v3">The forth value to be set</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.SetVertexAttribute(System.UInt32,System.Int32,System.TypeCode,System.Boolean,System.UInt32,System.Int32)">
-            <summary>
-            Set how a shader parameter read data from a VBO.
-            </summary>
-            <param name="index">Serial number of the parameter</param>
-            <param name="size">Amount of data each elements contains</param>
-            <param name="t">Type of data read by shader</param>
-            <param name="normalized"></param>
-            <param name="stride">Pixels stride of each sets of data</param>
-            <param name="pointer"></param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.TextureImage2d``1(System.Int32,System.Int32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.UInt32,StgSharp.Graphics.glHandle)">
-            <summary>
-            Same function as OpenGL api glTexImage2d
-            </summary>
-            <param name="target">texture target to load image in</param>
-            <param name="level">level of mipmap, 0 if default</param>
-            <param name="internalformat">OpenGL's internal color channel format</param>
-            <param name="width">width of image</param>
-            <param name="height">height of image</param>
-            <param name="format">color channels of this image</param>
-            <param name="type">how this image express each pixel</param>
-            <param name="pixels">data array of pixels</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.TextureParameter(System.Int32,System.UInt32,System.Int32)">
-            <summary>
-            Same fucntion as OpenGL api glTexParameteri
-            </summary>
-            <param name="target">texture target to set parameters</param>
-            <param name="pname">name of parameter</param>
-            <param name="param">value of parameter</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.UseProgram(StgSharp.Graphics.glHandle)">
-            <summary>
-            Same fucntion as OpenGL api glUseShader.
-            </summary>
-            <param name="program">Sign of program to be used</param>
-        </member>
-        <member name="M:StgSharp.Graphics.IglFunc.Viewport(System.Int32,System.Int32,System.UInt32,System.UInt32)">
-            <summary>
-            Same function as the OpenGL api, glViewPort
-            </summary>
-            <param name="x"></param>
-            <param name="y"></param>
-            <param name="width"></param>
-            <param name="height"></param>
         </member>
         <member name="P:StgSharp.IEntity.CollisionSensor">
             <summary>
@@ -614,6 +399,74 @@
             </summary>
             <param name="message">A string contains information of how current evironment runs.</param>
             <param name="logType">The severity of current message.</param>
+        </member>
+        <member name="T:StgSharp.Math.GLclampf">
+            <summary>
+            OpenGL numeric type.
+            An IEEE-754 floating-point value, clamped to the range [0,1].
+            </summary>
+        </member>
+        <member name="T:StgSharp.Math.GLclampd">
+            <summary>
+            OpenGL numeric type.
+            An IEEE-754 double precision floating-point value, clamped to the range [0,1].
+            </summary>
+        </member>
+        <member name="T:StgSharp.Math.vec2d">
+            <summary>
+            A two dimension vector defined by two elements.
+            Vec2Ds in StgSharp are defaultly usaed as colum vector. 
+            </summary>
+        </member>
+        <member name="M:StgSharp.Math.Scaler.ASin(System.Single)">
+            <summary>
+            Reurns the value of ArcSin(x)
+            </summary>
+            <param name="x">The sine value of the angle</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:StgSharp.Math.Scaler.Exp(System.Single)">
+            <summary>
+            Get the value of E ^ x;
+            </summary>
+            <param name="x"></param>
+            <returns></returns>
+        </member>
+        <member name="M:StgSharp.Math.Scaler.Log(System.Single)">
+            <summary>
+            
+            </summary>
+            <param name="x"></param>
+            <returns>
+            Returns the value of ln(x).
+            </returns>
+        </member>
+        <member name="M:StgSharp.Math.Scaler.Pow(System.Single,System.Single)">
+            <summary>
+            calculate the value of x^y
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns>Returns the value of x^y</returns>
+        </member>
+        <member name="M:StgSharp.Math.Scaler.LowProceisionRandom">
+            <summary>
+            returns a random float number between 0 and 1.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:StgSharp.Math.Scaler.Random">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:StgSharp.Math.Scaler.RandomSeed">
+            <summary>
+            Generates a random seed in int value.
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:StgSharp.Geometries.Arc">
             <summary>
@@ -761,13 +614,6 @@
             A pair of <see cref="T:System.Boolean"/> value
             </summary>
         </member>
-        <member name="F:StgSharp.Logic.Bool2.Value">
-            <summary>
-            A <see cref="T:System.UInt16"/> value.
-            The lower byte is <see cref="F:StgSharp.Logic.Bool2.bool0"/>,
-            and higher byte is <see cref="F:StgSharp.Logic.Bool2.bool1"/>.
-            </summary>
-        </member>
         <member name="F:StgSharp.Logic.Bool2.bool0">
             <summary>
             The first <see cref="T:System.Boolean"/> value.
@@ -776,6 +622,13 @@
         <member name="F:StgSharp.Logic.Bool2.bool1">
             <summary>
             The second <see cref="T:System.Boolean"/> value.
+            </summary>
+        </member>
+        <member name="F:StgSharp.Logic.Bool2.Value">
+            <summary>
+            A <see cref="T:System.UInt16"/> value.
+            The lower byte is <see cref="F:StgSharp.Logic.Bool2.bool0"/>,
+            and higher byte is <see cref="F:StgSharp.Logic.Bool2.bool1"/>.
             </summary>
         </member>
         <member name="T:StgSharp.TimeSpanProvider">
@@ -815,73 +668,16 @@
             The method this <see cref="T:StgSharp.TimeSpanProvider"/> will call every time a new time span started.
             </summary>
         </member>
-        <member name="T:StgSharp.Math.GLclampf">
+        <member name="M:StgSharp.Graphic.Camera.GainAllUniforms(StgSharp.Graphics.ShaderProgram,System.String[])">
             <summary>
-            OpenGL numeric type.
-            An IEEE-754 floating-point value, clamped to the range [0,1].
+            Get all uniform related to this <see cref="T:StgSharp.Graphic.Camera"/>.
             </summary>
-        </member>
-        <member name="T:StgSharp.Math.GLclampd">
-            <summary>
-            OpenGL numeric type.
-            An IEEE-754 double precision floating-point value, clamped to the range [0,1].
-            </summary>
-        </member>
-        <member name="T:StgSharp.Math.Vec2d">
-            <summary>
-            A two dimension vector defined by two elements.
-            Vec2Ds in StgSharp are defaultly usaed as colum vector. 
-            </summary>
-        </member>
-        <member name="M:StgSharp.Math.Scaler.ASin(System.Single)">
-            <summary>
-            Reurns the value of ArcSin(x)
-            </summary>
-            <param name="x">The sine value of the angle</param>
-            <returns></returns>
+            <param name="source">Shader program requires this camera.</param>
+            <param name="uniformName">
+            Name of all related uniforms.
+            If you fallow form from <see cref="M:StgSharp.Graphics.ShaderEdit.IglConvertable.DisplayGLtypeDefinition"/>
+            </param>
             <exception cref="T:System.ArgumentException"></exception>
-        </member>
-        <member name="M:StgSharp.Math.Scaler.Exp(System.Single)">
-            <summary>
-            Get the value of E ^ x;
-            </summary>
-            <param name="x"></param>
-            <returns></returns>
-        </member>
-        <member name="M:StgSharp.Math.Scaler.Log(System.Single)">
-            <summary>
-            
-            </summary>
-            <param name="x"></param>
-            <returns>
-            Returns the value of ln(x).
-            </returns>
-        </member>
-        <member name="M:StgSharp.Math.Scaler.Pow(System.Single,System.Single)">
-            <summary>
-            calculate the value of x^y
-            </summary>
-            <param name="x"></param>
-            <param name="y"></param>
-            <returns>Returns the value of x^y</returns>
-        </member>
-        <member name="M:StgSharp.Math.Scaler.LowProceisionRandom">
-            <summary>
-            returns a random float number between 0 and 1.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:StgSharp.Math.Scaler.Random">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:StgSharp.Math.Scaler.RandomSeed">
-            <summary>
-            Generates a random seed in int value.
-            </summary>
-            <returns></returns>
         </member>
         <member name="T:Windows.Win32.Foundation.COLORREF">
             <summary>The COLORREF value is used to specify an RGB color.</summary>

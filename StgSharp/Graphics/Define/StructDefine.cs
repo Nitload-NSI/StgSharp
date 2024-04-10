@@ -48,21 +48,20 @@ namespace StgSharp.Graphics
     {
 
         private int client;
-        private int source;
-        private int major, minor, revision;
+        private IntPtr destroy;
+        private delegate*<byte*> extensionSupported;
         private GLFWbool forward, debug, noerror;
-        private int profile;
-        private int robustness;
-        private int release;
-
-        //PFNGLGETSTRINGIPROC GetStringi;
-        private IntPtr GetStringi;
 
         //PFNGLGETINTEGERVPROC GetIntegerv;
         private IntPtr GetIntegerv;
+        private delegate*<delegate*<void>, void> getProcAddress;
 
         //PFNGLGETSTRINGPROC GetString;
         private IntPtr GetString;
+
+        //PFNGLGETSTRINGIPROC GetStringi;
+        private IntPtr GetStringi;
+        private int major, minor, revision;
 
         /*
         void (* makeCurrent) (GLFWwindow*);
@@ -74,14 +73,17 @@ namespace StgSharp.Graphics
         */
 
         private delegate*<GLFWwindow*> makeCurrent;
+        private int profile;
+        private int release;
+        private int robustness;
+        private int source;
         private delegate*<GLFWwindow*> swapBuffer;
         private delegate*<int> swapInterval;
-        private delegate*<byte*> extensionSupported;
-        private delegate*<delegate*<void>, void> getProcAddress;
-        private IntPtr destroy;
 
         internal struct egl
         {
+
+            private void* client;
 
             /*
         EGLConfig config;
@@ -91,19 +93,19 @@ namespace StgSharp.Graphics
             private void* config;
             private void* handle;
             private void* surface;
-            private void* client;
 
         }
 
         internal struct osmesa
         {
 
+            private void* buffer;
+
             //OSMesaContext handle;
             private void* handle;
+            private int height;
 
             private int width;
-            private int height;
-            private void* buffer;
 
         }
 
@@ -115,24 +117,25 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWvidmode
     {
 
-        /*! The width, in screen coordinates, of the video mode.
+        /*! The refresh rate, in Hz, of the video mode.
          */
-        public int width;
+        private int refreshRate;
+        /*! The bit depth of the blue channel of the video mode.
+         */
+        public int blueBits;
+        /*! The bit depth of the green channel of the video mode.
+         */
+        public int greenBits;
         /*! The height, in screen coordinates, of the video mode.
          */
         public int height;
         /*! The bit depth of the red channel of the video mode.
          */
         public int redBits;
-        /*! The bit depth of the green channel of the video mode.
+
+        /*! The width, in screen coordinates, of the video mode.
          */
-        public int greenBits;
-        /*! The bit depth of the blue channel of the video mode.
-         */
-        public int blueBits;
-        /*! The refresh rate, in Hz, of the video mode.
-         */
-        private int refreshRate;
+        public int width;
 
     }
 
@@ -140,15 +143,16 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWgammaramp
     {
 
-        /*! An array of value describing the response of the red channel.
-         */
-        private ushort* red;
-        /*! An array of value describing the response of the green channel.
-         */
-        private ushort* green;
         /*! An array of value describing the response of the blue channel.
          */
         private ushort* blue;
+        /*! An array of value describing the response of the green channel.
+         */
+        private ushort* green;
+
+        /*! An array of value describing the response of the red channel.
+         */
+        private ushort* red;
         /*! The number of elements in each array.
          */
         private uint size;
@@ -159,9 +163,6 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWimage
     {
 
-        /*! The width, in pixels, of this image.
-         */
-        private int width;
         /*! The height, in pixels, of this image.
          */
         private int height;
@@ -169,20 +170,25 @@ namespace StgSharp.Graphics
          */
         private byte* pixels;
 
+        /*! The width, in pixels, of this image.
+         */
+        private int width;
+
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct GLFWgamepadstate
     {
 
-        /*! The states of each [gamepad button](@ref gamepad_buttons), `GLFW_PRESS`
-         *  or `GLFW_RELEASE`.
-         */
-        public fixed byte buttons[15];
         /*! The states of each [gamepad axis](@ref gamepad_axes), in the range -1.0
          *  to 1.0 inclusive.
          */
         public fixed float axes[6];
+
+        /*! The states of each [gamepad button](@ref gamepad_buttons), `GLFW_PRESS`
+         *  or `GLFW_RELEASE`.
+         */
+        public fixed byte buttons[15];
 
     }
 
@@ -193,11 +199,11 @@ namespace StgSharp.Graphics
         //GLFWallocatefun allocate;
         private IntPtr allocate;
 
-        //GLFWreallocatefun reallocate;
-        private IntPtr reallocate;
-
         //GLFWdeallocatefun deallocate;
         private IntPtr deallocate;
+
+        //GLFWreallocatefun reallocate;
+        private IntPtr reallocate;
 
         private void* user;
 
@@ -207,7 +213,17 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWmonitor
     {
 
+        private GLFWvidmode currentMode;
+        private GLFWgammaramp currentRamp;
+
+        private int modeCount;
+
+        //GLFWvidmode* modes;
+        private IntPtr modes;
+
         private byte[] name = new byte[128];
+
+        private GLFWgammaramp originalRamp;
         private void* userPointer;
 
         // Physical dimensions in millimeters.
@@ -216,15 +232,6 @@ namespace StgSharp.Graphics
         // The window whose video mode is current on this monitor
         //GLFWwindow* window;
         private IntPtr window;
-
-        //GLFWvidmode* modes;
-        private IntPtr modes;
-
-        private int modeCount;
-        private GLFWvidmode currentMode;
-
-        private GLFWgammaramp originalRamp;
-        private GLFWgammaramp currentRamp;
 
         // not transformed
         //GLFW_PLATFORM_MONITOR_STATE;
@@ -238,39 +245,40 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWwindow
     {
 
-        //struct GLFWwindow* next in GLFW
-        public GLFWwindow* next;
-
-        private int resizable;
-        private int decorated;
         private int autoIconify;
+
+        private fixed long callBacks[17];
+        private GLFWcursor* cursor = (GLFWcursor*)0;
+        private int cursorMode = 0;
+        private int decorated;
+        private bool doubleBuffer;
         private int floating;
         private int focusOnShow;
-        private int mousePassthrough;
-        internal int shouldClose;
-        private void* userPointer = (void*)0;
-        private bool doubleBuffer;
-        private GLFWvidmode videoMode = default;
-        private IntPtr monitor = IntPtr.Zero;   //public GLFWmonitor* monitor;
-        private GLFWcursor* cursor = (GLFWcursor*)0;
+        private fixed byte keys[349];
+        private int lockKeyMods;
+        private int maxWidth = 0, maxHeight = 0;
 
         private int minWidth = 0, minHeight = 0;
-        private int maxWidth = 0, maxHeight = 0;
+        private IntPtr monitor = IntPtr.Zero;   //public GLFWmonitor* monitor;
+        private fixed byte mouseButtons[8];
+        private int mousePassthrough;
         private int numer = 0, denom = 0;
+        private int rawMouseMotion;
+
+        private int resizable;
         private int stickyKeys;
         private int stickyMouseButtons;
-        private int lockKeyMods;
-        private int cursorMode = 0;
-        private fixed byte mouseButtons[8];
-        private fixed byte keys[349];
-
-        // Virtual cursor position when cursor is disabled
-        public double virtualCursorPosX = 0, virtualCursorPosY = 0;
-        private int rawMouseMotion;
+        private void* userPointer = (void*)0;
+        private GLFWvidmode videoMode = default;
+        internal int shouldClose;
 
         public GLFWcontext context = default;
 
-        private fixed long callBacks[17];
+        //struct GLFWwindow* next in GLFW
+        public GLFWwindow* next;
+
+        // Virtual cursor position when cursor is disabled
+        public double virtualCursorPosX = 0, virtualCursorPosY = 0;
 
         public GLFWwindow()
         {
@@ -369,8 +377,9 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWinitconfig
     {
 
-        private GLFWbool hatButtons;
         private int angleType;
+
+        private GLFWbool hatButtons;
         private int platformID;
 
         //PFN_vkGetInstanceProcAddr vulkanLoader;
@@ -382,30 +391,31 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWwndconfig
     {
 
+        private GLFWbool autoIconify;
+        private GLFWbool centerCursor;
+        private GLFWbool decorated;
+        private GLFWbool floating;
+        private GLFWbool focused;
+        private GLFWbool focusOnShow;
+        private int height;
+        private GLFWbool maximized;
+        private GLFWbool mousePassthrough;
+        private GLFWbool resizable;
+        private GLFWbool scaleToMonitor;
+        private byte* title;
+        private GLFWbool visible;
+        private int width;
+
         private int xpos;
         private int ypos;
-        private int width;
-        private int height;
-        private byte* title;
-        private GLFWbool resizable;
-        private GLFWbool visible;
-        private GLFWbool decorated;
-        private GLFWbool focused;
-        private GLFWbool autoIconify;
-        private GLFWbool floating;
-        private GLFWbool maximized;
-        private GLFWbool centerCursor;
-        private GLFWbool focusOnShow;
-        private GLFWbool mousePassthrough;
-        private GLFWbool scaleToMonitor;
 
         internal Ns ns = new Ns();
-
-        internal X11 x11 = new X11();
 
         internal Win32 win32 = new Win32();
 
         internal Wl wl = new Wl();
+
+        internal X11 x11 = new X11();
 
         public GLFWwndconfig()
         {
@@ -460,18 +470,18 @@ namespace StgSharp.Graphics
     {
 
         private int client;
-        private int source;
+        private GLFWbool debug;
+        private GLFWbool forward;
         private int major;
         private int minor;
-        private GLFWbool forward;
-        private GLFWbool debug;
         private GLFWbool noerror;
         private int profile;
-        private int robustness;
         private int release;
+        private int robustness;
 
         //GLFWwindow* share;
         private IntPtr share;
+        private int source;
 
         internal Nsgl nsgl = new Nsgl();
 
@@ -492,23 +502,24 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWfbconfig
     {
 
-        private int redBits;
-        private int greenBits;
-        private int blueBits;
-        private int alphaBits;
-        private int depthBits;
-        private int stencilBits;
-        private int accumRedBits;
-        private int accumGreenBits;
-        private int accumBlueBits;
         private int accumAlphaBits;
+        private int accumBlueBits;
+        private int accumGreenBits;
+        private int accumRedBits;
+        private int alphaBits;
         private int auxBuffers;
-        private GLFWbool stereo;
+        private int blueBits;
+        private int depthBits;
+        private GLFWbool doublebuffer;
+        private int greenBits;
+        private uintptr_t handle;
+
+        private int redBits;
         private int samples;
         private GLFWbool sRGB;
-        private GLFWbool doublebuffer;
+        private int stencilBits;
+        private GLFWbool stereo;
         private GLFWbool transparent;
-        private uintptr_t handle;
 
     }
 
@@ -516,46 +527,47 @@ namespace StgSharp.Graphics
     internal unsafe struct GLFWlibrary
     {
 
-        private GLFWbool initialized;
         private GLFWallocator allocator;
-
-        private GLFWplatform platform;
-
-        internal Hints hints = new Hints();
-
-        //GLFWerror* errorListHead;
-        private IntPtr errorListHead;
+        private GLFWls contextSlot;
 
         //GLFWcursor* cursorListHead;
         private IntPtr cursorListHead;
 
-        //GLFWwindow* windowListHead;
-        private IntPtr windowListHead;
+        //GLFWerror* errorListHead;
+        private IntPtr errorListHead;
+        private GLFWmutex errorLock;
 
-        //GLFWmonitor** monitors;
-        private IntPtr monitors;
+        private GLFWls errorSlot;
 
-        private int monitorCount;
-
-        private GLFWbool joysticksInitialized;
+        private GLFWbool initialized;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = GLconst.GLFW_JOYSTICK_LAST + 1)]
         private GLFWjoystick[] joysticks = new GLFWjoystick[GLconst.GLFW_JOYSTICK_LAST + 1];
 
-        //GLFWmapping* mappings;
-        private IntPtr mappings;
+        private GLFWbool joysticksInitialized;
 
         private int mappingCount;
 
-        private GLFWls errorSlot;
-        private GLFWls contextSlot;
-        private GLFWmutex errorLock;
+        //GLFWmapping* mappings;
+        private IntPtr mappings;
+
+        private int monitorCount;
+
+        //GLFWmonitor** monitors;
+        private IntPtr monitors;
+
+        private GLFWplatform platform;
+
+        //GLFWwindow* windowListHead;
+        private IntPtr windowListHead;
+
+        internal Callbacks callbacks = new Callbacks();
 
         internal Egl egl = new Egl();
 
-        internal Osmesa osmesa = new Osmesa();
+        internal Hints hints = new Hints();
 
-        internal Callbacks callbacks = new Callbacks();
+        internal Osmesa osmesa = new Osmesa();
 
         public GLFWlibrary()
         {
@@ -564,11 +576,12 @@ namespace StgSharp.Graphics
         internal unsafe struct Hints
         {
 
-            private GLFWinitconfig init;
-            private GLFWfbconfig framebuffer;
-            private GLFWwndconfig window;
             private GLFWctxconfig context;
+            private GLFWfbconfig framebuffer;
+
+            private GLFWinitconfig init;
             private int refreshRate;
+            private GLFWwndconfig window;
 
         }
 
@@ -585,63 +598,65 @@ namespace StgSharp.Graphics
         internal unsafe struct Egl
         {
 
-            internal int platform;
+            internal bool ANGLE_platform_angle;
+            internal bool ANGLE_platform_angle_d3d;
+            internal bool ANGLE_platform_angle_metal;
+            internal bool ANGLE_platform_angle_opengl;
+            internal bool ANGLE_platform_angle_vulkan;
+            internal IntPtr BindAPI;
+            internal IntPtr CreateContext;
+            internal IntPtr CreatePlatformWindowSurfaceEXT;
+            internal IntPtr CreateWindowSurface;
+            internal IntPtr DestroyContext;
+            internal IntPtr DestroySurface;
             internal void* display;
-            internal int major, minor;
-            internal bool prefix;
-
-            internal bool KHR_create_context;
-            internal bool KHR_create_context_no_error;
-            internal bool KHR_colorSpace;
-            internal bool KHR_get_all_proc_addresses;
-            internal bool KHR_context_flush_control;
             internal bool EXT_client_extensions;
             internal bool EXT_platform_base;
-            internal bool EXT_platform_x11;
             internal bool EXT_platform_wayland;
+            internal bool EXT_platform_x11;
             internal bool EXT_present_opaque;
-            internal bool ANGLE_platform_angle;
-            internal bool ANGLE_platform_angle_opengl;
-            internal bool ANGLE_platform_angle_d3d;
-            internal bool ANGLE_platform_angle_vulkan;
-            internal bool ANGLE_platform_angle_metal;
-
-            internal void* handle;
 
             internal IntPtr GetConfigAttrib;
             internal IntPtr GetConfigs;
             internal IntPtr GetDisplay;
             internal IntPtr GetError;
-            internal IntPtr Initialize;
-            internal IntPtr Terminate;
-            internal IntPtr BindAPI;
-            internal IntPtr CreateContext;
-            internal IntPtr DestroySurface;
-            internal IntPtr DestroyContext;
-            internal IntPtr CreateWindowSurface;
-            internal IntPtr MakeCurrent;
-            internal IntPtr SwapBuffers;
-            internal IntPtr SwapInterval;
-            internal IntPtr QueryString;
-            internal IntPtr GetProcAddress;
 
             internal IntPtr GetPlatformDisplayEXT;
-            internal IntPtr CreatePlatformWindowSurfaceEXT;
+            internal IntPtr GetProcAddress;
+
+            internal void* handle;
+            internal IntPtr Initialize;
+            internal bool KHR_colorSpace;
+            internal bool KHR_context_flush_control;
+
+            internal bool KHR_create_context;
+            internal bool KHR_create_context_no_error;
+            internal bool KHR_get_all_proc_addresses;
+            internal int major, minor;
+            internal IntPtr MakeCurrent;
+
+            internal int platform;
+            internal bool prefix;
+            internal IntPtr QueryString;
+            internal IntPtr SwapBuffers;
+            internal IntPtr SwapInterval;
+            internal IntPtr Terminate;
 
         }
 
         internal unsafe struct Osmesa
         {
 
-            private void* handle;
+            private IntPtr CreateContextAttribs;
 
             private IntPtr CreateContextExt;
-            private IntPtr CreateContextAttribs;
             private IntPtr DestroyContext;
-            private IntPtr MakeCurrent;
             private IntPtr GetColorBuffer;
             private IntPtr GetDepthBuffer;
             private IntPtr GetProcAddress;
+
+            private void* handle;
+            private IntPtr MakeCurrent;
 
         }
 
@@ -649,16 +664,16 @@ namespace StgSharp.Graphics
         {
 
             private GLFWbool available;
-            private void* handle;
+            private GLFWbool EXT_metal_surface;
             private fixed ulong extensions[2];
             private IntPtr GetInstanceProcAddr;
+            private void* handle;
             private GLFWbool KHR_surface;
-            private GLFWbool KHR_win32_surface;
-            private GLFWbool MVK_macos_surface;
-            private GLFWbool EXT_metal_surface;
-            private GLFWbool KHR_xlib_surface;
-            private GLFWbool KHR_xcb_surface;
             private GLFWbool KHR_wayland_surface;
+            private GLFWbool KHR_win32_surface;
+            private GLFWbool KHR_xcb_surface;
+            private GLFWbool KHR_xlib_surface;
+            private GLFWbool MVK_macos_surface;
 
             public vk()
             {
@@ -669,8 +684,9 @@ namespace StgSharp.Graphics
         internal unsafe struct Callbacks
         {
 
-            private IntPtr monitor;
             private IntPtr joystick;
+
+            private IntPtr monitor;
 
         }
 
@@ -680,10 +696,11 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWmapelement
     {
 
-        private byte type;
-        private byte index;
-        private sbyte axisScale;
         private sbyte axisOffset;
+        private sbyte axisScale;
+        private byte index;
+
+        private byte type;
 
     }
 
@@ -691,14 +708,14 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWmapping
     {
 
-        private fixed byte name[128];
-        private fixed byte guid[33];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
+        private GLFWmapelement[] axes = new GLFWmapelement[6];
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 15)]
         private GLFWmapelement[] buttons = new GLFWmapelement[15];
+        private fixed byte guid[33];
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
-        private GLFWmapelement[] axes = new GLFWmapelement[6];
+        private fixed byte name[128];
 
         public GLFWmapping()
         { }
@@ -710,19 +727,19 @@ namespace StgSharp.Graphics
     {
 
         private GLFWbool allocated;
-        private GLFWbool connected;
         private float* axes;
         private int axisCount;
-        private byte* buttons;
         private int buttonCount;
-        private byte* hats;
-        private int hatCount;
-        private fixed byte name[128];
-        private void* userPointer;
+        private byte* buttons;
+        private GLFWbool connected;
         private fixed byte guid[33];
+        private int hatCount;
+        private byte* hats;
 
         //GLFWmapping* mapping;
         private IntPtr mapping;
+        private fixed byte name[128];
+        private void* userPointer;
 
         // This is defined in platform.h
         // not completed in transforming
@@ -745,14 +762,73 @@ namespace StgSharp.Graphics
     public unsafe struct GLFWplatform
     {
 
-        private int platformID;
-
         // init
         //GLFWbool(*init)(void);
         private IntPtr init;
 
+        private int platformID;
+
         //void (* terminate) (void);
         private IntPtr terminate;
+        internal IntPtr createCursor;
+        internal IntPtr createStandardCursor;
+
+        // window
+        internal IntPtr createWindow;
+        internal IntPtr destroyCursor;
+
+        internal IntPtr destroyWindow;
+        internal IntPtr focusWindow;
+        internal IntPtr framebufferTransparent;
+
+        // monitor
+        internal IntPtr freeMonitor;
+        internal IntPtr getClipboardString;
+
+        internal IntPtr getEGLNativeDisplay;
+        internal IntPtr getEGLNativeWindow;
+
+        // EGL
+        //EGLenum(*getEGLPlatform)(EGLint**);
+        //EGLNativeDisplayType(*getEGLNativeDisplay)(void);
+        //EGLNativeWindowType(*getEGLNativeWindow)(GLFWwindow*);
+        internal IntPtr getEGLPlatform;
+        internal IntPtr getFramebufferSize;
+        internal IntPtr getGammaRamp;
+        internal IntPtr getKeyScancode;
+        internal IntPtr getMappingName;
+        internal IntPtr getMonitorContentScale;
+
+        internal IntPtr getMonitorPos;
+        internal IntPtr getMonitorWorkarea;
+
+        // vulkan
+        //void (* getRequiredInstanceExtensions) (byte**);
+        //GLFWbool(*getPhysicalDevicePresentationSupport)(VkInstance, VkPhysicalDevice, uint32_t);
+        //VkResult(*createWindowSurface)(VkInstance, GLFWwindow*,const VkAllocationCallbacks*, VkSurfaceKHR*);
+        internal IntPtr getRequiredInstanceExtensions;
+        internal IntPtr getScancodeName;
+        internal IntPtr getVideoMode;
+        internal IntPtr getVideoModes;
+        internal IntPtr getWindowContentScale;
+        internal IntPtr getWindowFrameSize;
+        internal IntPtr getWindowOpacity;
+        internal IntPtr getWindowPos;
+        internal IntPtr getWindowSize;
+        internal IntPtr GLFWwindow;
+        internal IntPtr hideWindow;
+        internal IntPtr iconifyWindow;
+        internal IntPtr initJoysticks;
+        internal IntPtr maximizeWindow;
+        internal IntPtr pollEvents;
+        internal IntPtr pollJoystick;
+        internal IntPtr postEmptyEvent;
+        internal IntPtr rawMouseMotionSupported;
+        internal IntPtr requestWindowAttention;
+        internal IntPtr restoreWindow;
+        internal IntPtr setClipboardString;
+        internal IntPtr setCursor;
+        internal IntPtr setCursorMode;
 
         #region input
         /* void (* getCursorPos) (GLFWwindow*, double*, double*);
@@ -824,91 +900,32 @@ namespace StgSharp.Graphics
         #endregion
 
         internal IntPtr setCursorPos;
-        internal IntPtr setCursorMode;
-        internal IntPtr setRawMouseMotion;
-        internal IntPtr rawMouseMotionSupported;
-        internal IntPtr createCursor;
-        internal IntPtr createStandardCursor;
-        internal IntPtr destroyCursor;
-        internal IntPtr setCursor;
-        internal IntPtr getScancodeName;
-        internal IntPtr getKeyScancode;
-        internal IntPtr setClipboardString;
-        internal IntPtr getClipboardString;
-        internal IntPtr initJoysticks;
-        internal IntPtr terminateJoysticks;
-        internal IntPtr pollJoystick;
-        internal IntPtr getMappingName;
-        internal IntPtr updateGamepadGUID;
-
-        // monitor
-        internal IntPtr freeMonitor;
-
-        internal IntPtr getMonitorPos;
-        internal IntPtr getMonitorContentScale;
-        internal IntPtr getMonitorWorkarea;
-        internal IntPtr getVideoModes;
-        internal IntPtr getVideoMode;
-        internal IntPtr getGammaRamp;
         internal IntPtr setGammaRamp;
-
-        // window
-        internal IntPtr createWindow;
-
-        internal IntPtr destroyWindow;
-        internal IntPtr setWindowTitle;
-        internal IntPtr setWindowIcon;
-        internal IntPtr getWindowPos;
-        internal IntPtr setWindowPos;
-        internal IntPtr getWindowSize;
-        internal IntPtr setWindowSize;
-        internal IntPtr setWindowSizeLimits;
+        internal IntPtr setRawMouseMotion;
         internal IntPtr setWindowAspectRatio;
-        internal IntPtr getFramebufferSize;
-        internal IntPtr getWindowFrameSize;
-        internal IntPtr getWindowContentScale;
-        internal IntPtr iconifyWindow;
-        internal IntPtr restoreWindow;
-        internal IntPtr maximizeWindow;
-        internal IntPtr showWindow;
-        internal IntPtr hideWindow;
-        internal IntPtr requestWindowAttention;
-        internal IntPtr focusWindow;
-        internal IntPtr setWindowMonitor;
-        internal IntPtr windowFocused;
-        internal IntPtr windowIconified;
-        internal IntPtr windowVisible;
-        internal IntPtr windowMaximized;
-        internal IntPtr windowHovered;
-        internal IntPtr framebufferTransparent;
-        internal IntPtr getWindowOpacity;
-        internal IntPtr setWindowResizable;
         internal IntPtr setWindowDecorated;
         internal IntPtr setWindowFloating;
-        internal IntPtr setWindowOpacity;
+        internal IntPtr setWindowIcon;
+        internal IntPtr setWindowMonitor;
         internal IntPtr setWindowMousePassthrough;
-        internal IntPtr pollEvents;
-        internal IntPtr waitEvents;
-        internal IntPtr waitEventsTimeout;
-        internal IntPtr postEmptyEvent;
-
-        // EGL
-        //EGLenum(*getEGLPlatform)(EGLint**);
-        //EGLNativeDisplayType(*getEGLNativeDisplay)(void);
-        //EGLNativeWindowType(*getEGLNativeWindow)(GLFWwindow*);
-        internal IntPtr getEGLPlatform;
-
-        internal IntPtr getEGLNativeDisplay;
-        internal IntPtr getEGLNativeWindow;
-
-        // vulkan
-        //void (* getRequiredInstanceExtensions) (byte**);
-        //GLFWbool(*getPhysicalDevicePresentationSupport)(VkInstance, VkPhysicalDevice, uint32_t);
-        //VkResult(*createWindowSurface)(VkInstance, GLFWwindow*,const VkAllocationCallbacks*, VkSurfaceKHR*);
-        internal IntPtr getRequiredInstanceExtensions;
+        internal IntPtr setWindowOpacity;
+        internal IntPtr setWindowPos;
+        internal IntPtr setWindowResizable;
+        internal IntPtr setWindowSize;
+        internal IntPtr setWindowSizeLimits;
+        internal IntPtr setWindowTitle;
+        internal IntPtr showWindow;
+        internal IntPtr terminateJoysticks;
+        internal IntPtr updateGamepadGUID;
 
         internal IntPtr VkPhysicalDevice;
-        internal IntPtr GLFWwindow;
+        internal IntPtr waitEvents;
+        internal IntPtr waitEventsTimeout;
+        internal IntPtr windowFocused;
+        internal IntPtr windowHovered;
+        internal IntPtr windowIconified;
+        internal IntPtr windowMaximized;
+        internal IntPtr windowVisible;
 
     }
 

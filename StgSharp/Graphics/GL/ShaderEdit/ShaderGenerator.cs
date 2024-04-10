@@ -29,6 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Graphics;
+using StgSharp.Math;
 
 using System;
 using System.Collections.Generic;
@@ -37,16 +38,19 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Graphics.GL.ShaderEdit
+namespace StgSharp.Graphics.ShaderEdit
 {
     public class ShaderGenerator
     {
-
+        private Dictionary<int,ShaderParameter> uniformDefine;
         private List<string> codeList;
         private List<ShaderFunction> usedShaderFunctions;
 
-        public Uniform<T> DefineUniform<T>() where T : struct
+        public Uniform<T> DefineUniform<T>(string name, int index) where T : struct
         {
+            ShaderParameter p = new ShaderParameter(name,ShaderParameter.TypeMarshal<T>());
+            uniformDefine.Add(index,p);
+            //return new Uniform<T>();
             throw new NotImplementedException();
         }
 
@@ -54,7 +58,6 @@ namespace StgSharp.Graphics.GL.ShaderEdit
 
     public class ShaderFunction
     {
-
         private List<string> codeList;
         private List<ShaderParameter> inputList;
         private string name;
@@ -100,7 +103,6 @@ namespace StgSharp.Graphics.GL.ShaderEdit
 
     public class ShaderParameter
     {
-
         public static readonly ShaderParameter Void = new ShaderParameter(string.Empty, InternalShaderType.Void);
         internal readonly bool isReadOnly;
         internal readonly string name;
@@ -122,6 +124,48 @@ namespace StgSharp.Graphics.GL.ShaderEdit
             else
             {
                 throw new Exception("Struct is currently not supported.");
+            }
+        }
+
+        public static InternalShaderType TypeMarshal<T>() where T : struct
+        {
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+                case TypeCode.Single:
+                    return InternalShaderType.Float;
+                case TypeCode.Double:
+                    return InternalShaderType.Double;
+                case TypeCode.Int32:
+                    return InternalShaderType.Int;
+                case TypeCode.UInt32:
+                    return InternalShaderType.UInt;
+                default:
+                    break;
+            }
+            switch (typeof(T).Name)
+            {
+                case "vec4d":
+                    return InternalShaderType.Vector4;
+                case "Matrix2x2":
+                    return InternalShaderType.Matrix2x2;
+                case "Matrix2x3":
+                    return InternalShaderType.Matrix2x3;
+                case "Matrix2x4":
+                    return InternalShaderType.Matrix2x4;
+                case "Matrix3x2":
+                    return InternalShaderType.Matrix3x2;
+                case "Matrix3x3":
+                    return InternalShaderType.Matrix3x3;
+                case "Matrix3x4":
+                    return InternalShaderType.Matrix3x4;
+                case "Matrix4x2":
+                    return InternalShaderType.Matrix4x2;
+                case "Matrix4x3":
+                    return InternalShaderType.Matrix4x3;
+                case "Matrix4x4":
+                    return InternalShaderType.Matrix4x4;
+                default:
+                    throw new ArgumentException("Not supported shader data type.");
             }
         }
 

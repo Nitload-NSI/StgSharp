@@ -49,8 +49,8 @@ namespace StgSharp.Geometries
                 v3x, v2y, v3z
                 )
         {
-            Vec2d side0 = vertexMat.Colum0 - vertexMat.Colum1;
-            Vec2d side1 = vertexMat.Colum2 - vertexMat.Colum1;
+            vec2d side0 = vertexMat.Colum0 - vertexMat.Colum1;
+            vec2d side1 = vertexMat.Colum2 - vertexMat.Colum1;
             if (side0.Cross(side1) == 0)
             {
 

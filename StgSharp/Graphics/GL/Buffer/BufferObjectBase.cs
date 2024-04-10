@@ -37,13 +37,12 @@ using System.Threading.Tasks;
 namespace StgSharp.Graphics
 {
     /// <summary>
-    /// Interface of all kinds OpenGL buffer onjects
+    /// Interface of all kinds OpenGL buffer objects
     /// </summary>
     public abstract class BufferObjectBase : IDisposable
     {
-
+        protected IntPtr binding;
         protected glHandleSet _bufferHandle;
-        protected Form binding;
 
         /// <summary>
         /// Get the only handle to one of the Object instance

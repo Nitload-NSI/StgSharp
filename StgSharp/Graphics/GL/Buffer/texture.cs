@@ -44,25 +44,25 @@ namespace StgSharp.Graphics
     {
 
         internal static bool[] unitActivated = new bool[16];
-        private Form binding;
+        private IntPtr binding;
         internal glHandleSet _textureHandle;
         internal Image[] sourceList;
 
         internal Texture(int n, Form binding)
         {
             sourceList = new Image[n];
-            this.binding = binding;
-            _textureHandle = binding.GL.GenTextures(n);
+            this.binding = binding.graphicContextID;
+            _textureHandle = GL.GenTextures(n);
         }
 
         public void Activate(TextureUnit unit)
         {
-            binding.GL.ActiveTexture((uint)unit);
+            GL.ActiveTexture((uint)unit);
         }
 
         public void Bind2D(int index)
         {
-            binding.GL.BindTexture(GLconst.TEXTURE_2D, _textureHandle[index]);
+            GL.BindTexture(GLconst.TEXTURE_2D, _textureHandle[index]);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace StgSharp.Graphics
         /// <param name="loader"> </param>
         public unsafe void LoadTexture(int index, string name, ImageLoader loader)
         {
-            Image.ImageInfo info = default;
+            ImageInfo info = default;
             InternalIO.InternalLoadImage(name, &info, loader);
             sourceList[index] = new Image(info);
             if (sourceList[index].info.pixelPtr != IntPtr.Zero)
@@ -92,7 +92,7 @@ namespace StgSharp.Graphics
                         channel = 0;
                         break;
                 }
-                binding.GL.TextureImage2d<byte>(
+                GL.TextureImage2d<byte>(
                     GLconst.TEXTURE_2D, 0, channel,
                     (uint)sourceList[index].Width, (uint)sourceList[index].Height,
                     channel, GLconst.UNSIGNED_BYTE,
@@ -111,15 +111,15 @@ namespace StgSharp.Graphics
         public void Set2dFilterProperty(
             Filter onMinify, Filter onMagnify)
         {
-            binding.GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_MIN_FILTER, (int)onMinify);
-            binding.GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_MAG_FILTER, (int)onMagnify);
+            GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_MIN_FILTER, (int)onMinify);
+            GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_MAG_FILTER, (int)onMagnify);
         }
 
         public void Set2dWrapProperty(
             Wrap onHorizontial, Wrap onVertical)
         {
-            binding.GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_WRAP_S, (int)onHorizontial);
-            binding.GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_WRAP_T, (int)onVertical);
+            GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_WRAP_S, (int)onHorizontial);
+            GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_WRAP_T, (int)onVertical);
         }
 
         #endregion texture setting

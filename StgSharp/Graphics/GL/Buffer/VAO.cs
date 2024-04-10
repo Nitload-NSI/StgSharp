@@ -40,26 +40,26 @@ namespace StgSharp.Graphics
 
         internal VertexArray(int n, Form binding)
         {
-            this.binding = binding;
-            _bufferHandle = binding.GL.GenVertexArrays(n);
+            this.binding = binding.graphicContextID;
+            _bufferHandle = GL.GenVertexArrays(n);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override sealed void Bind(int index)
         {
-            binding.GL.BindVertexArray(_bufferHandle[index]);
+            GL.BindVertexArray(_bufferHandle[index]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void BindNull()
         {
-            binding.GL.BindVertexArray(glHandle.Zero);
+            GL.BindVertexArray(glHandle.Zero);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetVertexAttribute(uint index, int vertexLength, TypeCode dataType, bool isNomalized, uint stride, int pointer)
         {
-            binding.GL.SetVertexAttribute(
+            GL.SetVertexAttribute(
                 index, vertexLength, dataType,
                 isNomalized,
                 stride, pointer);
@@ -69,7 +69,7 @@ namespace StgSharp.Graphics
         {
             if (disposing)
             {
-                binding.GL.DeleteVertexArrays(_bufferHandle);
+                GL.DeleteVertexArrays(_bufferHandle);
                 _bufferHandle.Release();
             }
         }

@@ -58,7 +58,7 @@ namespace StgSharp.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Enqueue(Vec4d v)
+        public void Enqueue(vec4d v)
         {
             paramQueue.Enqueue(v);
         }
@@ -231,12 +231,12 @@ namespace StgSharp.Logic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void TryDequeue(out Vec4d v)
+        public void TryDequeue(out vec4d v)
         {
             M128 m;
             if (this.TryDequeue(out m))
             {
-                v = *(Vec4d*)&m;
+                v = *(vec4d*)&m;
             }
             else
             {

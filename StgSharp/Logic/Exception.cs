@@ -38,25 +38,4 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Logic
 {
-    [System.Serializable]
-    internal class FrameTimeoutException : Exception
-    {
-
-        protected FrameTimeoutException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context) : base(info, context)
-        {
-        }
-        internal FrameTimeoutException()
-        { }
-
-        internal FrameTimeoutException(string message) : base(message)
-        {
-        }
-
-        internal FrameTimeoutException(string message, Exception inner) : base(message, inner)
-        {
-        }
-
-    }
 }

@@ -60,13 +60,10 @@ namespace StgSharp.Graphics
         /// </summary>
         /// <param name="form">The <see cref="Form"/> used as current OpenGL context</param>
         /// <param name="loader">A delegate to get address of OprnGL api</param>
-        public static unsafe void LoadGLapi(this Form form, GLfuncLoader loader)
+        public static unsafe void LoadGLapi(this Form form)
         {
             GLcontext* context = (GLcontext*)form.graphicContextID;
-            if (loader == null)
-            {
-                loader = InternalIO.glfwGetProcAddress;
-            }
+            GLfuncLoader loader = InternalIO.glfwGetProcAddress;
 #pragma warning disable CS8909
             if (((GLcontext*)form.graphicContextID)->glGetString != (delegate*<uint, IntPtr>)IntPtr.Zero)
 #pragma warning restore CS8909
@@ -1084,7 +1081,7 @@ namespace StgSharp.Graphics
             contextPtr->glDeleteTextures = (delegate*<uint, uint*, void>)load("glDeleteTextures");
             contextPtr->glDrawArrays = (delegate*<uint, int, uint, void>)load("glDrawArrays");
             contextPtr->glDrawElements = (delegate*<uint, uint, uint, void*, void>)load("glDrawElements");
-            contextPtr->glGenTextures = (delegate*<uint, uint*, void>)load("glGenTextures");
+            contextPtr->glGenTextures = (delegate*<int, uint*, void>)load("glGenTextures");
             contextPtr->glGetPointerv = (delegate*<uint, void**, void>)load("glGetPointerv");
             contextPtr->glIsTexture = (delegate*<uint, bool>)load("glIsTexture");
             contextPtr->glPolygonOffset = (delegate*<float, float, void>)load("glPolygonOffset");
@@ -1180,10 +1177,10 @@ namespace StgSharp.Graphics
             contextPtr->glBindBuffer = (delegate*<uint, uint, void>)load("glBindBuffer");
             contextPtr->glBufferData = (delegate*<uint, IntPtr, IntPtr, uint, void>)load("glBufferData");
             contextPtr->glBufferSubData = (delegate*<uint, IntPtr, UIntPtr, void*, void>)load("glBufferSubData");
-            contextPtr->glDeleteBuffers = (delegate*<uint, uint*, void>)load("glDeleteBuffers");
+            contextPtr->glDeleteBuffers = (delegate*<int, uint*, void>)load("glDeleteBuffers");
             contextPtr->glDeleteQueries = (delegate*<uint, uint*, void>)load("glDeleteQueries");
             contextPtr->glEndQuery = (delegate*<uint, void>)load("glEndQuery");
-            contextPtr->glGenBuffers = (delegate*<uint, uint*, void>)load("glGenBuffers");
+            contextPtr->glGenBuffers = (delegate*<int, uint*, void>)load("glGenBuffers");
             contextPtr->glGenQueries = (delegate*<uint, uint*, void>)load("glGenQueries");
             contextPtr->glGetBufferParameteriv = (delegate*<uint, uint, int*, void>)load("glGetBufferParameteriv");
             contextPtr->glGetBufferPointerv = (delegate*<uint, uint, void**, void>)load("glGetBufferPointerv");
@@ -1247,7 +1244,7 @@ namespace StgSharp.Graphics
             contextPtr->glStencilMaskSeparate = (delegate*<uint, uint, void>)load("glStencilMaskSeparate");
             contextPtr->glStencilOpSeparate = (delegate*<uint, uint, uint, uint, void>)load("glStencilOpSeparate");
             contextPtr->glUniform1f = (delegate*<int, float, void>)load("glUniform1f");
-            contextPtr->glUniform1fv = (delegate*<int, uint, Vec4d*, void>)load("glUniform1fv");
+            contextPtr->glUniform1fv = (delegate*<int, uint, vec4d*, void>)load("glUniform1fv");
             contextPtr->glUniform1i = (delegate*<int, int, void>)load("glUniform1i");
             contextPtr->glUniform1iv = (delegate*<int, uint, int*, void>)load("glUniform1iv");
             contextPtr->glUniform2f = (delegate*<int, float, float, void>)load("glUniform2f");
@@ -1360,7 +1357,7 @@ namespace StgSharp.Graphics
             contextPtr->glColorMaski = (delegate*<uint, bool, bool, bool, bool, void>)load("glColorMaski");
             contextPtr->glDeleteFramebuffers = (delegate*<uint, uint*, void>)load("glDeleteFramebuffers");
             contextPtr->glDeleteRenderbuffers = (delegate*<uint, uint*, void>)load("glDeleteRenderbuffers");
-            contextPtr->glDeleteVertexArrays = (delegate*<uint, uint*, void>)load("glDeleteVertexArrays");
+            contextPtr->glDeleteVertexArrays = (delegate*<int, uint*, void>)load("glDeleteVertexArrays");
             contextPtr->glDisablei = (delegate*<uint, uint, void>)load("glDisablei");
             contextPtr->glEnablei = (delegate*<uint, uint, void>)load("glEnablei");
             contextPtr->glEndConditionalRender = (delegate*<void>)load("glEndConditionalRender");
@@ -1373,7 +1370,7 @@ namespace StgSharp.Graphics
             contextPtr->glFramebufferTextureLayer = (delegate*<uint, uint, uint, int, int, void>)load("glFramebufferTextureLayer");
             contextPtr->glGenFramebuffers = (delegate*<uint, uint*, void>)load("glGenFramebuffers");
             contextPtr->glGenRenderbuffers = (delegate*<uint, uint*, void>)load("glGenRenderbuffers");
-            contextPtr->glGenVertexArrays = (delegate*<uint, uint*, void>)load("glGenVertexArrays");
+            contextPtr->glGenVertexArrays = (delegate*<int, uint*, void>)load("glGenVertexArrays");
             contextPtr->glGenerateMipmap = (delegate*<uint, void>)load("glGenerateMipmap");
             contextPtr->glGetBooleani_v = (delegate*<uint, uint, bool*, void>)load("glGetBooleani_v");
             contextPtr->glGetFragDataLocation = (delegate*<uint, byte*, int>)load("glGetFragDataLocation");

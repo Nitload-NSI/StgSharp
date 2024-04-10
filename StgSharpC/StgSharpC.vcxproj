@@ -159,6 +159,7 @@
     <ClCompile Include="mat4.c" />
     <ClCompile Include="stb_image.c" />
     <ClCompile Include="StgSharpC.c" />
+    <ClCompile Include="vector.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gl.h" />

@@ -60,11 +60,11 @@ namespace StgSharp
 
         [DllImport(SSC_libname, EntryPoint = "loadImageData",
             CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        internal static extern unsafe void InternalLoadImage(string fileName, Image.ImageInfo* output, ImageLoader loader);
+        internal static extern unsafe void InternalLoadImage(string fileName, ImageInfo* output, ImageLoader loader);
 
         [DllImport(SSC_libname, EntryPoint = "unloadImageData",
             CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        internal static extern unsafe void InternalUnloadImage(Image.ImageInfo* output);
+        internal static extern unsafe void InternalUnloadImage(ImageInfo* output);
 
         #endregion ssgc api define
     }
@@ -424,7 +424,7 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<uint, double, double, int, int, double, double, int, int, double, double, int, int, double*, void> glDeformationMap3dSGIX;
         internal unsafe delegate*<uint, float, float, int, int, float, float, int, int, float, float, int, int, float*, void> glDeformationMap3fSGIX;
         internal unsafe delegate*<uint, uint, void> glDeleteAsyncMarkersSGIX;
-        internal unsafe delegate*<uint, uint*, void> glDeleteBuffers;
+        internal unsafe delegate*<int, uint*, void> glDeleteBuffers;
         internal unsafe delegate*<uint, uint*, void> glDeleteBuffersARB;
         internal unsafe delegate*<uint, uint*, void> glDeleteCommandListsNV;
         internal unsafe delegate*<uint, uint*, void> glDeleteFencesAPPLE;
@@ -458,7 +458,7 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<uint, uint*, void> glDeleteTexturesEXT;
         internal unsafe delegate*<uint, uint*, void> glDeleteTransformFeedbacks;
         internal unsafe delegate*<uint, uint*, void> glDeleteTransformFeedbacksNV;
-        internal unsafe delegate*<uint, uint*, void> glDeleteVertexArrays;
+        internal unsafe delegate*<int, uint*, void> glDeleteVertexArrays;
         internal unsafe delegate*<uint, uint*, void> glDeleteVertexArraysAPPLE;
         internal unsafe delegate*<uint, void> glDeleteVertexShaderEXT;
         internal unsafe delegate*<GLclampd, GLclampd, void> glDepthBoundsEXT;
@@ -653,7 +653,7 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<float, float, float, float, float, float, void> glFrustumfOES;
         internal unsafe delegate*<GLfixed, GLfixed, GLfixed, GLfixed, GLfixed, GLfixed, void> glFrustumxOES;
         internal unsafe delegate*<uint, uint> glGenAsyncMarkersSGIX;
-        internal unsafe delegate*<uint, uint*, void> glGenBuffers;
+        internal unsafe delegate*<int, uint*, void> glGenBuffers;
         internal unsafe delegate*<uint, uint*, void> glGenBuffersARB;
         internal unsafe delegate*<uint, uint*, void> glGenFencesAPPLE;
         internal unsafe delegate*<uint, uint*, void> glGenFencesNV;
@@ -675,11 +675,11 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<uint, uint*, void> glGenSamplers;
         internal unsafe delegate*<uint, uint*, void> glGenSemaphoresEXT;
         internal unsafe delegate*<uint, uint, uint, uint, uint> glGenSymbolsEXT;
-        internal unsafe delegate*<uint, uint*, void> glGenTextures;
+        internal unsafe delegate*<int, uint*, void> glGenTextures;
         internal unsafe delegate*<uint, uint*, void> glGenTexturesEXT;
         internal unsafe delegate*<uint, uint*, void> glGenTransformFeedbacks;
         internal unsafe delegate*<uint, uint*, void> glGenTransformFeedbacksNV;
-        internal unsafe delegate*<uint, uint*, void> glGenVertexArrays;
+        internal unsafe delegate*<int, uint*, void> glGenVertexArrays;
         internal unsafe delegate*<uint, uint*, void> glGenVertexArraysAPPLE;
         internal unsafe delegate*<uint, uint> glGenVertexShadersEXT;
         internal unsafe delegate*<uint, void> glGenerateMipmap;
@@ -2079,7 +2079,7 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<int, uint, double*, void> glUniform1dv;
         internal unsafe delegate*<int, float, void> glUniform1f;
         internal unsafe delegate*<int, float, void> glUniform1fARB;
-        internal unsafe delegate*<int, uint, Vec4d*, void> glUniform1fv;
+        internal unsafe delegate*<int, uint, vec4d*, void> glUniform1fv;
         internal unsafe delegate*<int, uint, float*, void> glUniform1fvARB;
         internal unsafe delegate*<int, int, void> glUniform1i;
         internal unsafe delegate*<int, long, void> glUniform1i64ARB;
