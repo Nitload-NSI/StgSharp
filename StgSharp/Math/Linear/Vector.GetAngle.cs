@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Vector.GetAngle.cs"
+//     file="Linear.GetAngle.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,10 +30,10 @@
 //-----------------------------------------------------------------------
 namespace StgSharp.Math
 {
-    public static unsafe partial class Vector
+    public static unsafe partial class Linear
     {
 
-        public static float GetAngle(Vec2d vec1, Vec2d vec2)
+        public static float GetAngle(vec2d vec1, vec2d vec2)
         {
             return Scaler.ACos(1
                 //vec1.multiple(vec2)

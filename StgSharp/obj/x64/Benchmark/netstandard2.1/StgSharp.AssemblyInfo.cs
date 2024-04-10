@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StgSharp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Benchmark")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b207f16616b7bd967d647a809cc27e7174063451")]
 [assembly: System.Reflection.AssemblyProductAttribute("StgSharp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StgSharp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

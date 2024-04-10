@@ -42,7 +42,7 @@ namespace StgSharp.Geometries
         protected TimeSpanProvider time;
 
         internal PartialPlainCoordinate coordinate;
-        internal Matrix2x4 textureFrame;
+        internal Matrix24 textureFrame;
 
         public PlainGeometry()
         {

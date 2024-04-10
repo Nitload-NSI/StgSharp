@@ -46,21 +46,29 @@ namespace StgSharp.Graphics
     /// must be indexed from a <see cref="glHandleSet"/>.
     /// Direct call will cause <see langword="InvalidOperationException"/>
     /// </summary>
-    public unsafe struct glHandle
+    public unsafe class glHandle
     {
+        private static uint* zeroHandle = (uint*)Marshal.AllocHGlobal(Marshal.SizeOf<uint>());
 
-        internal glHandleSet source;
+        internal uint* source;
         internal uint* valuePtr;
 
         private glHandle(IntPtr handle)
         {
             this.valuePtr = (uint*)handle;
-            source = null;
+            source = (uint*)0;
+        }
+
+        private glHandle(uint value)
+        {
+            source = (uint*)0;
+            valuePtr = (uint*)Marshal.AllocHGlobal(sizeof(uint));
+            *valuePtr = value;
         }
 
         internal glHandle(uint* val, glHandleSet set)
         {
-            source = set;
+            source = set!=null ? set!.handle:(uint*)0;
             valuePtr = val;
         }
 
@@ -71,80 +79,109 @@ namespace StgSharp.Graphics
 
         public IntPtr Handle
         {
-            get
-            {
-                if (source.handle == (uint*)0)
-                {
-                    throw new InvalidOperationException($"Handle set {nameof(source)} is not pinned.");
-                }
-                return (IntPtr)valuePtr;
-            }
+            get=> (IntPtr)valuePtr;
+        }
+
+        public bool IsIsolated
+        {
+            get => source == (uint*)0;
         }
 
         public uint Value
         {
-            get
-            {
-                if (source.handle == (uint*)0)
-                {
-                    throw new InvalidOperationException($"Handle set {nameof(source)} is not pinned.");
-                }
-                return *valuePtr;
-            }
-            set
-            {
-                if (source.handle == (uint*)0)
-                {
-                    throw new InvalidOperationException($"Handle set {nameof(source)} is not pinned.");
-                }
-                *valuePtr = value;
-            }
+            get => *valuePtr;
+            set => *valuePtr = value;
         }
 
         public static glHandle Zero => Alloc(0);
 
-        internal uint DirectValue => *valuePtr;
-
         public static glHandle Alloc(uint value)
         {
-            glHandle ret = default;
-            ret.source = new glHandleSet(1);
-            ret.valuePtr = ret.source.handle;
-            *ret.valuePtr = value;
-            return ret;
+            return new glHandle(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static glHandle Alloc(IntPtr handle)
+        public static glHandle FromPtr(IntPtr p)
         {
-            return new glHandle(handle);
+            return new glHandle(p);
         }
 
+        ~glHandle()
+        {
+            if (valuePtr != zeroHandle && IsIsolated) 
+            {
+                Marshal.FreeHGlobal((IntPtr)valuePtr);
+            }
+        }
     }
 
-    public unsafe struct glSHandle
+    public unsafe class glSHandle
     {
+        private static int* zeroHandle = (int*)Marshal.AllocHGlobal(Marshal.SizeOf<int>());
 
-        internal glHandleSet source;
+        internal int* source;
         internal int* valuePtr;
+
+        private glSHandle(IntPtr handle)
+        {
+            this.valuePtr = (int*)handle;
+            source = (int*)0;
+        }
+
+        private glSHandle(int value)
+        {
+            source = (int*)0;
+            valuePtr = (int*)Marshal.AllocHGlobal(sizeof(int));
+            *valuePtr = value;
+        }
 
         internal glSHandle(int* val, glHandleSet set)
         {
-            source = set;
+            source = set != null ? (int*)set!.handle : (int*)0;
             valuePtr = val;
+        }
+
+
+        [Obsolete("Cannot init instance of this type", true)]
+        public glSHandle()
+        {
+        }
+
+        public IntPtr Handle
+        {
+            get => (IntPtr)valuePtr;
+        }
+
+        public bool IsIsolated
+        {
+            get => source == (uint*)0;
+        }
+
+        public int Value
+        {
+            get => *valuePtr;
+            set => *valuePtr = value;
         }
 
         public static glSHandle Zero => Alloc(0);
 
-        internal int DirectValue => *valuePtr;
-
         public static glSHandle Alloc(int value)
         {
-            glSHandle ret = default;
-            ret.source = new glHandleSet(1);
-            ret.valuePtr = (int*)ret.source.handle;
-            *ret.valuePtr = value;
-            return ret;
+            return new glSHandle(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static glSHandle FromPtr(IntPtr p)
+        {
+            return new glSHandle(p);
+        }
+
+        ~glSHandle()
+        {
+            if (valuePtr != zeroHandle && IsIsolated)
+            {
+                Marshal.FreeHGlobal((IntPtr)valuePtr);
+            }
         }
 
     }
@@ -213,6 +250,11 @@ namespace StgSharp.Graphics
             handle = (uint*)GCHandle.Alloc(_value, GCHandleType.Pinned).AddrOfPinnedObject();
         }
 
+        public IntPtr Handle
+        {
+            get => (IntPtr)handle;
+        }
+
         public glHandle this[int index]
         {
             get
@@ -253,21 +295,6 @@ namespace StgSharp.Graphics
             }
         }
 
-        /// <summary>
-        /// temporarily release the handle of GLhandle sets.
-        /// Please call <see cref="Pin"/> method before indexing.
-        /// </summary>
-        public void Free()
-        {
-            if (_value == null)
-            {
-                return;
-            }
-            GCHandle h = GCHandle.FromIntPtr((IntPtr)handle);
-            h.Free();
-            handle = (uint*)0;
-        }
-
         public void Pin()
         {
             if (_value == null)
@@ -278,7 +305,7 @@ namespace StgSharp.Graphics
         }
 
         /// <summary>
-        /// Realse all resource in this handle.
+        /// Release all resource in this handle.
         /// This will release all resource in this <see cref="glHandle"/>.
         /// This <see langword="glHandle"/> will be not usable.
         /// </summary>
@@ -301,5 +328,9 @@ namespace StgSharp.Graphics
             _value[index] = value;
         }
 
+        ~glHandleSet() 
+        {
+            //unsafe, 不确定这个句柄组的单一索引是不是完全卸载
+        }
     }
 }

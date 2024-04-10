@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Vector.Cross.cs"
+//     file="Linear.Cross.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,10 +30,10 @@
 //-----------------------------------------------------------------------
 namespace StgSharp.Math
 {
-    public static unsafe partial class Vector
+    public static unsafe partial class Linear
     {
 
-        public static float Cross(Vec2d vec1, Vec2d vec2)
+        public static float Cross(vec2d vec1, vec2d vec2)
         {
             return (vec1.X * vec2.Y) - (vec1.Y * vec2.X);
         }

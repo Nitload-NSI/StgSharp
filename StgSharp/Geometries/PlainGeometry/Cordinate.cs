@@ -44,11 +44,12 @@ namespace StgSharp.Geometries
     public struct PartialPlainCoordinate
     {
 
+        internal Matrix32 axis;
+
         /// <summary>
         /// The origin of this coordinate.
         /// </summary>
         public vec3d origin;
-        internal Matrix3x2 axis;
 
         public PartialPlainCoordinate
             (
@@ -58,7 +59,7 @@ namespace StgSharp.Geometries
             )
         {
             this.origin = origin;
-            axis = new Matrix3x2();
+            axis = new Matrix32();
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out axis.mat);
 #endif
@@ -79,7 +80,7 @@ namespace StgSharp.Geometries
         public vec3d axis_V => axis.colum1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public vec3d GetRealLocate(Vec2d raletiveLocation)
+        public vec3d GetRealLocate(vec2d raletiveLocation)
         {
             return origin + axis.VerticalVecMultiply(raletiveLocation);
         }

@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Graphic;
 using StgSharp.Math;
 
 using System;
@@ -39,11 +40,21 @@ using System.Text;
 
 namespace StgSharp.Graphics
 {
-    public class Uniform<T> where T : struct
+    public class Uniform
     {
-
-        private Form binding;
+        protected IntPtr binding;
         internal glSHandle id;
+
+        
+        public glSHandle Handle
+        {
+            get => id;
+        }
+    }
+
+    public sealed class Uniform<T> : Uniform
+        where T : struct
+    {
 
         internal unsafe Uniform(glSHandle id)
         {
@@ -53,20 +64,34 @@ namespace StgSharp.Graphics
         internal unsafe Uniform(
             ShaderProgram program, string name, Form binding)
         {
+            this.binding = binding.graphicContextID;
+            id = GL.GetUniformLocation(program.handle, name);
+        }
+
+        internal unsafe Uniform(
+            ShaderProgram program, string name, IntPtr binding)
+        {
             this.binding = binding;
-            id = binding.GL.GetUniformLocation(program.handle, name);
+            id = GL.GetUniformLocation(program.handle, name);
+        }
+
+        internal Uniform()
+        {
+
+        }
+
+        internal static Uniform<T> FromHandle(glSHandle handle)
+        {
+            return new Uniform<T>() { id = handle };
         }
 
     }
 
-    public class Uniform<T, U>
+    public sealed class Uniform<T, U>: Uniform
         where T : struct
         where U : struct
     {
 
-        private Form binding;
-        internal glSHandle id;
-
         internal unsafe Uniform(glSHandle id)
         {
             this.id = id;
@@ -75,43 +100,72 @@ namespace StgSharp.Graphics
         internal unsafe Uniform(
             ShaderProgram program, string name, Form binding)
         {
+            this.binding = binding.graphicContextID;
+            id = GL.GetUniformLocation(program.handle, name);
+        }
+
+        internal unsafe Uniform(
+            ShaderProgram program, string name, IntPtr binding)
+        {
             this.binding = binding;
-            id = binding.GL.GetUniformLocation(program.handle, name);
+            id = GL.GetUniformLocation(program.handle, name);
+        }
+
+        internal Uniform()
+        {
+
+        }
+
+        internal static Uniform<T,U> FromHandle(glSHandle handle)
+        {
+            return new Uniform<T, U>() { id = handle };
         }
 
     }
 
-    public class Uniform<T, U, V>
+    public sealed class Uniform<T, U, V>:Uniform
         where T : struct
         where U : struct
         where V : struct
     {
 
-        private Form binding;
-        internal glSHandle id;
-
         internal unsafe Uniform(glSHandle id)
         {
             this.id = id;
         }
 
+        internal unsafe Uniform(
+            ShaderProgram program, string name)
+        {
+            this.binding = (IntPtr)GL.api;
+            id = GL.GetUniformLocation(program.handle, name);
+        }
+
         public unsafe Uniform(ShaderProgram program, string name, Form binding)
         {
-            this.binding = binding;
-            id = binding.GL.GetUniformLocation(program.handle, name);
+            this.binding = binding.graphicContextID;
+            id = GL.GetUniformLocation(program.handle, name);
+        }
+
+        internal Uniform()
+        {
+
+        }
+
+        internal static Uniform<T,U,V> FromHandle(glSHandle handle)
+        {
+            return new Uniform<T, U, V>() { id = handle };
         }
 
     }
 
-    public class Uniform<T, U, V, W>
+    public sealed class Uniform<T, U, V, W>:Uniform
         where T : struct
         where U : struct
         where V : struct
         where W : struct
     {
 
-        private Form binding;
-        internal glSHandle id;
 
         internal unsafe Uniform(glSHandle id)
         {
@@ -120,171 +174,82 @@ namespace StgSharp.Graphics
 
         internal unsafe Uniform(ShaderProgram program, string name, Form binding)
         {
-            this.binding = binding;
-            id = binding.GL.GetUniformLocation(program.handle, name);
+            this.binding = binding.graphicContextID;
+            id = GL.GetUniformLocation(program.handle, name);
+        }
+
+        internal unsafe Uniform(
+            ShaderProgram program, string name)
+        {
+            this.binding = (IntPtr)GL.api;
+            id = GL.GetUniformLocation(program.handle, name);
+        }
+
+        internal Uniform()
+        {
+
+        }
+
+        internal static Uniform<T, U, V, W> FromHandle(glSHandle handle)
+        {
+            return new Uniform<T, U, V, W>() { id = handle };
         }
 
     }
 
-    internal partial class GLonRender : IglFunc
+    internal static partial class GL
     {
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetValue(Uniform<float, float, float, float> uniform, Vec4d vec)
+        public unsafe static void SetValue(Uniform<Matrix44> uniform, Matrix44 mat)
         {
-            api->glUniform1fv(uniform.id.DirectValue, 4, &vec);
+            Matrix44 temp = mat;
+            api->glUniformMatrix4fv(uniform.id.Value, 1, false, (float*)&mat);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetValue(Uniform<Vec4d> uniform, Vec4d vec)
+        public unsafe static void SetValue(Uniform<float, float, float, float> uniform, vec4d vec)
         {
-            api->glUniform1fv(uniform.id.DirectValue, 4, &vec);
+            vec4d temp = vec;
+            api->glUniform1fv(uniform.id.Value , 4, &temp);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe void IglFunc.SetValue(Uniform<float> uniform, float v0)
+        public unsafe static void SetValue(Uniform<vec4d> uniform, vec4d vec)
         {
-            api->glUniform1f(uniform.id.DirectValue, v0);
+            vec4d temp = vec;
+            api->glUniform1fv(uniform.id.Value , 4, &temp);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe void IglFunc.SetValue(Uniform<int> uniform, int i0)
+        public static unsafe void SetValue(Uniform<float> uniform, float v0)
         {
-            api->glUniform1i(uniform.id.DirectValue, i0);
+            api->glUniform1f(uniform.id.Value , v0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe void IglFunc.SetValue(Uniform<float, float> uniform, float v0, float v1)
+        public static unsafe void SetValue(Uniform<int> uniform, int i0)
         {
-            api->glUniform2f(uniform.id.DirectValue, v0, v1);
+            api->glUniform1i(uniform.id.Value , i0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe void IglFunc.SetValue(Uniform<float, float, float> uniform, float v0, float v1, float v2)
+        public static unsafe void SetValue(Uniform<float, float> uniform, float v0, float v1)
         {
-            api->glUniform3f(uniform.id.DirectValue, v0, v1, v2);
+            api->glUniform2f(uniform.id.Value , v0, v1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe void IglFunc.SetValue(Uniform<float, float, float, float> uniform, float v0, float v1, float v2, float v3)
+        public static unsafe void SetValue(Uniform<float, float, float> uniform, float v0, float v1, float v2)
         {
-            api->glUniform4f(uniform.id.DirectValue, v0, v1, v2, v3);
+            api->glUniform3f(uniform.id.Value , v0, v1, v2);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void SetValue(Uniform<float, float, float, float> uniform, float v0, float v1, float v2, float v3)
+        {
+            api->glUniform4f(uniform.id.Value , v0, v1, v2, v3);
         }
 
     }
 
-    internal unsafe partial class GLonUpdate
-    {
-
-        private IntPtr UniformVal1fPtr = (IntPtr)(delegate*<FrameOperationBuffer, GLcontext*, void>)&UniformVal1f;
-        private IntPtr UniformVal1fvPtr = (IntPtr)(delegate*<FrameOperationBuffer, GLcontext*, void>)&UniformVal1fv;
-        private IntPtr UniformVal1iPtr = (IntPtr)(delegate*<FrameOperationBuffer, GLcontext*, void>)&UniformVal1i;
-        private IntPtr UniformVal2fPtr = (IntPtr)(delegate*<FrameOperationBuffer, GLcontext*, void>)&UniformVal2f;
-        private IntPtr UniformVal3fPtr = (IntPtr)(delegate*<FrameOperationBuffer, GLcontext*, void>)&UniformVal3f;
-        private IntPtr UniformVal4fPtr = (IntPtr)(delegate*<FrameOperationBuffer, GLcontext*, void>)&UniformVal4f;
-
-        private static void UniformVal1f(FrameOperationBuffer frameOpBuffer, GLcontext* activatedContext)
-        {
-            M128 m = default;
-            frameOpBuffer.TryDequeue(out m);
-            activatedContext->glUniform1f(*(int*)m.Read<ulong>(0), m.Read<uint>(2));
-        }
-
-        private static unsafe void UniformVal1fv(FrameOperationBuffer frameOpBuffer, GLcontext* activatedContext)
-        {
-            M128 m = default, v = default;
-            frameOpBuffer.TryDequeue(out m);
-            frameOpBuffer.TryDequeue(out v);
-            activatedContext->glUniform1fv(*(int*)m.Read<ulong>(0), 4, (Vec4d*)&v);
-        }
-
-        private static void UniformVal1i(FrameOperationBuffer frameOpBuffer, GLcontext* activatedContext)
-        {
-            M128 m = default;
-            frameOpBuffer.TryDequeue(out m);
-            activatedContext->glUniform1i(*(int*)m.Read<ulong>(0), m.Read<int>(2));
-        }
-
-        private static void UniformVal2f(FrameOperationBuffer frameOpBuffer, GLcontext* activatedContext)
-        {
-            M128 m = default;
-            frameOpBuffer.TryDequeue(out m);
-            activatedContext->glUniform2f(*(int*)m.Read<ulong>(0), m.Read<float>(2), m.Read<float>(3));
-        }
-
-        private static void UniformVal3f(FrameOperationBuffer frameOpBuffer, GLcontext* activatedContext)
-        {
-            IntPtr handle = IntPtr.Zero;
-            M128 m = default;
-            frameOpBuffer.TryDequeue(out handle);
-            frameOpBuffer.TryDequeue(out m);
-            activatedContext->glUniform3f(*(int*)handle, m.Read<float>(0), m.Read<float>(1), m.Read<float>(2));
-        }
-
-        private static void UniformVal4f(FrameOperationBuffer frameOpBuffer, GLcontext* activatedContext)
-        {
-            IntPtr handle = IntPtr.Zero;
-            M128 m = default;
-            frameOpBuffer.TryDequeue(out handle);
-            frameOpBuffer.TryDequeue(out m);
-            activatedContext->glUniform4f(*(int*)handle, m.Read<float>(0), m.Read<float>(1), m.Read<float>(2), m.Read<float>(3));
-        }
-
-        unsafe void IglFunc.SetValue(Uniform<float, float, float> uniform, float f0, float f1, float f2)
-        {
-            frameOpBuffer.ParamEnqueue((IntPtr)uniform.id.valuePtr);
-            frameOpBuffer.ParamEnqueue(f0, f1, f2);
-            frameOpBuffer.MethodEnqueue(UniformVal3fPtr);
-        }
-
-        unsafe void IglFunc.SetValue(Uniform<float, float> uniform, float f0, float f1)
-        {
-            M128 m = default;
-            m.Write<ulong>(0, (ulong)uniform.id.valuePtr);
-            m.Write<float>(2, f0);
-            m.Write<float>(3, f1);
-            frameOpBuffer.ParamEnqueue(m);
-            frameOpBuffer.MethodEnqueue(UniformVal2fPtr);
-        }
-
-        unsafe void IglFunc.SetValue(Uniform<float, float, float, float> uniform, float f0, float f1, float f2, float f3)
-        {
-            frameOpBuffer.ParamEnqueue((IntPtr)uniform.id.valuePtr);
-            frameOpBuffer.ParamEnqueue(f0, f1, f2, f3);
-            frameOpBuffer.MethodEnqueue(UniformVal4fPtr);
-        }
-
-        unsafe void IglFunc.SetValue(Uniform<float, float, float, float> uniform, Vec4d vec)
-        {
-            frameOpBuffer.ParamEnqueue((IntPtr)uniform.id.valuePtr);
-            frameOpBuffer.ParamEnqueue(vec);
-            frameOpBuffer.MethodEnqueue(UniformVal1fvPtr);
-        }
-
-        unsafe void IglFunc.SetValue(Uniform<float> uniform, float f0)
-        {
-            M128 m = default;
-            m.Write<ulong>(0, (ulong)uniform.id.valuePtr);
-            m.Write<float>(2, f0);
-            frameOpBuffer.ParamEnqueue(m);
-            frameOpBuffer.MethodEnqueue(UniformVal1fPtr);
-        }
-
-        unsafe void IglFunc.SetValue(Uniform<int> uniform, int i0)
-        {
-            M128 m = default;
-            m.Write<ulong>(0, (ulong)uniform.id.valuePtr);
-            m.Write<int>(2, i0);
-            frameOpBuffer.ParamEnqueue(m);
-            frameOpBuffer.MethodEnqueue(UniformVal1fPtr);
-        }
-
-        unsafe void IglFunc.SetValue(Uniform<Vec4d> uniform, Vec4d vec)
-        {
-            frameOpBuffer.ParamEnqueue((IntPtr)uniform.id.valuePtr);
-            frameOpBuffer.ParamEnqueue(vec);
-            frameOpBuffer.MethodEnqueue(UniformVal1fvPtr);
-        }
-
-    }
 }

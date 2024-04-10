@@ -1,0 +1,117 @@
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="FormThreadAttribute.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace StgSharp.Graphics
+{
+    /// <summary>
+    /// Mark that a method in a <see cref="Form"/> 
+    /// should be called when rendering.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class RenderActivityAttribute : Attribute
+    {
+
+        internal bool _isRenderProgress;
+        internal int _priority;
+
+        public RenderActivityAttribute()
+        {
+            _priority = (int)RenderPriority.Default;
+        }
+
+        public RenderActivityAttribute(RenderPriority priority)
+        {
+            _priority = (int)priority;
+        }
+        public RenderActivityAttribute(int priority)
+        {
+            _priority = priority;
+        }
+
+        public int Priority { get => _priority; set => _priority = value; }
+
+    }
+
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class MultiFrameActivityAttribute : Attribute
+    {
+
+        internal int _minFrameCount;
+
+    }
+
+    /// <summary>
+    /// Priority level of a render activity.
+    /// </summary>
+    public enum RenderPriority : int
+    {
+        /// <summary>
+        /// One level higher than <see  cref="RenderPriority.Default"/>.
+        /// </summary>
+        Pre_1 = -1,
+        /// <summary>
+        /// Two level higher than <see  cref="RenderPriority.Default"/>.
+        /// </summary>
+        Pre_2 = -2,
+        /// <summary>
+        /// Three level higher than <see  cref="RenderPriority.Default"/>.
+        /// </summary>
+        Pre_3 = -3,
+        /// <summary>
+        /// One level lower than <see  cref="RenderPriority.Default"/>.
+        /// </summary>
+        Aft_1 = 1,
+        /// <summary>
+        /// Two level lower than <see  cref="RenderPriority.Default"/>.
+        /// </summary>
+        Aft_2 = 2,
+        /// <summary>
+        /// Three level lower than <see  cref="RenderPriority.Default"/>.
+        /// </summary>
+        Aft_3 = 3,
+        /// <summary>
+        /// Highest priority, in <see cref="RenderPriority"/>, it is <see cref="Pre_3"/>.
+        /// </summary>
+        Highest = Pre_3,
+        /// <summary>
+        /// Default priority, usually <see cref="Form.Main"/> is in this priority.
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// Lowest priority, in <see cref="RenderPriority"/>, it is <see cref="Aft_3"/>.
+        /// </summary>
+        Least = Aft_3,
+    }
+}

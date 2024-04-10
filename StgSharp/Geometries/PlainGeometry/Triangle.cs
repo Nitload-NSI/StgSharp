@@ -44,11 +44,11 @@ namespace StgSharp.Geometries
         internal GetLocationHandler movVertex02Opearion = new GetLocationHandler(GeometryOperation.DefualtMotion);
         internal GetLocationHandler movVertex03Opearion = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
-        internal Matrix3x3 vertexMat;
+        internal Matrix33 vertexMat;
 
         public Triangle()
         {
-            vertexMat = new Matrix3x3();
+            vertexMat = new Matrix33();
         }
 
         public Triangle(

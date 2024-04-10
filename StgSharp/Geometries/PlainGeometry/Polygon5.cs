@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------
 using StgSharp.Controlling;
 using StgSharp.Math;
-using StgSharp.Math.Linear;
+ 
 
 using System.Numerics;
 

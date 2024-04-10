@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Vector.GetLength.cs"
+//     file="Linear.GetLength.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,24 +30,17 @@
 //-----------------------------------------------------------------------
 namespace StgSharp.Math
 {
-    public static unsafe partial class Vector
+    public static unsafe partial class Linear
     {
 
         public static float GetLength(this vec3d vec)
         {
-            return Scaler.Sqrt(
-                (vec.X * vec.X) +
-                (vec.Y * vec.Y) +
-                (vec.Z * vec.Z)
-                );
+            return Scaler.Sqrt(vec.Dot(vec));
         }
 
-        public static float GetLength(this Vec2d vec)
+        public static float GetLength(this vec2d vec)
         {
-            return Scaler.Sqrt(
-                (vec.X * vec.X) +
-                (vec.Y * vec.Y)
-                );
+            return Scaler.Sqrt(vec.Dot(vec));
         }
 
     }

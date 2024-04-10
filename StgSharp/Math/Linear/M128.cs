@@ -69,7 +69,7 @@ namespace StgSharp.Math
         public string ToString(int sample)
         {
             string str = string.Empty;
-            for (int i = 0; i < 16; i++)
+            for (int i = 15; i >= 0; i--)
             {
                 str += $"{Convert.ToString(this.Read<byte>(i), sample)} ";
             }
@@ -78,6 +78,9 @@ namespace StgSharp.Math
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write<T>(int index, T value) where T : struct
+#if NET8_0_OR_GREATER
+            , INumber
+#endif
         {
             fixed (Vector4* p = &vec)
             {

@@ -69,6 +69,13 @@ extern "C"
 
 #pragma endregion
 
+#pragma region Vector
+
+    SSCAPI void SSCDECL normalize(__m128* source, __m128* target);
+
+#pragma endregion
+
+
 #pragma region mat2
 
     SSCAPI _inline void __cdecl transpose2to3(matrix2map* source, matrix3map* target);

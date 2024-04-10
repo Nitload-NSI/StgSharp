@@ -40,11 +40,10 @@ namespace StgSharp.Graphics
 {
     public partial class Form
     {
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected Shader CreateShader(ShaderType type, int count)
         {
-            return new Shader(this.gl, gl.CreateShaderSet(count, type), type);
+            return new Shader( GL.CreateShaderSet(count, type), type);
         }
         /// <summary>
         /// Create an instance of <see cref="Shader"/> program
@@ -55,29 +54,27 @@ namespace StgSharp.Graphics
         {
             return new ShaderProgram(this);
         }
-
     }
 
     public class Shader
     {
 
-        private readonly IglFunc GL;
+        private readonly IntPtr context;
         internal readonly glHandleSet handle;
         public readonly ShaderType type;
 
-        internal Shader(IglFunc gl, glHandleSet handle, ShaderType usage)
+        internal unsafe Shader(glHandleSet handle, ShaderType usage)
         {
             this.handle = handle;
-            GL = gl;
+            context = (IntPtr)GL.api;
             type = usage;
         }
 
-        //TODO:写链接着色器的文档注释
         /// <summary>
-        ///
+        /// Attach one shader code to a shader program.
         /// </summary>
-        /// <param name="target"></param>
-        /// <param name="index"></param>
+        /// <param name="target">Shader program to attach</param>
+        /// <param name="index">Index of shader code in current shader code set.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AttachTo(int index, ShaderProgram target)
         {
@@ -105,16 +102,16 @@ namespace StgSharp.Graphics
     public class ShaderProgram
     {
 
-        private readonly Form binding;
+        private readonly IntPtr binding;
         internal readonly glHandle handle;
 
         /// <summary>
-        /// Inti a shader with no program attached.
+        /// Init a program with no shader attached.
         /// </summary>
         internal unsafe ShaderProgram(Form binding)
         {
-            this.binding = binding;
-            handle = binding.GL.CreateProgram();
+            this.binding = binding.graphicContextID;
+            handle = GL.CreateProgram();
         }
 
         /// <summary>
@@ -153,7 +150,21 @@ namespace StgSharp.Graphics
             where U : struct
             where V : struct
         {
-            return new Uniform<T, U, V>(this, name, binding);
+            return new Uniform<T, U, V>(this, name);
+        }
+        /// <summary>
+        /// Get a uniform form current shader,
+        /// the value type of the uniform should be provided.
+        /// </summary>
+        /// <param name="name">Name of the Uniform in shader code</param>
+        /// <returns></returns>
+        public unsafe Uniform<T, U, V, W> GetUniform<T, U, V, W>(string name)
+            where T : struct
+            where U : struct
+            where V : struct
+            where W : struct
+        {
+            return new Uniform<T, U, V, W>(this, name);
         }
 
         /// <summary>
@@ -161,7 +172,7 @@ namespace StgSharp.Graphics
         /// </summary>
         public unsafe void Link()
         {
-            if (InternalIO.InternalLinkShaderProgram(binding.GL.Context, handle.Value) == 0)
+            if (InternalIO.InternalLinkShaderProgram((GLcontext*)this.binding, handle.Value) == 0)
             {
                 IntPtr logPtr = InternalIO.InternalReadSSCLog();
                 try
@@ -185,7 +196,12 @@ namespace StgSharp.Graphics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Use()
         {
-            binding.GL.UseProgram(handle);
+            GL.UseProgram(handle);
+        }
+
+        ~ShaderProgram()
+        {
+            //handle.Dispose();
         }
 
     }

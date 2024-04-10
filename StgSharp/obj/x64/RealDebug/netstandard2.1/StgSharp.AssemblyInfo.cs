@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StgSharp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("RealDebug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e1e416bb41a7e16ddec5e7c16d64c72d6aa380e1")]
 [assembly: System.Reflection.AssemblyProductAttribute("StgSharp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StgSharp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

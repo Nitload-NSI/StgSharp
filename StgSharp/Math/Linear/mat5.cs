@@ -34,7 +34,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace StgSharp.Math.Linear
+namespace StgSharp.Math
 {
     [StructLayout(LayoutKind.Explicit, Size = 5 * 4 * sizeof(float))]
     public struct mat5 : IMat

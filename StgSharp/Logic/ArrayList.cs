@@ -47,12 +47,12 @@ namespace StgSharp.Logic
 
         [FieldOffset(0)] public ulong all;
         [FieldOffset(0)] public long all_s;
+        [FieldOffset(4)] public uint high;
+        [FieldOffset(4)] public int high_s;
 
         [FieldOffset(0)] public uint low;
-        [FieldOffset(4)] public uint high;
 
         [FieldOffset(0)] public int low_s;
-        [FieldOffset(4)] public int high_s;
 
         public LogSeperator(uint high, uint low)
         {

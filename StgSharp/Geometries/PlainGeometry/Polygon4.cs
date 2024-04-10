@@ -43,17 +43,17 @@ namespace StgSharp.Geometries
         internal readonly GetLocationHandler moveVertex2Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
         internal readonly GetLocationHandler moveVertex3Operation = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
-        internal Matrix2x4 vertexMat;
+        internal Matrix24 vertexMat;
 
         internal Polygon4()
         {
         }
 
         public Polygon4(PartialPlainCoordinate coordinate,
-            Vec2d topLeft,
-            Vec2d topRight,
-            Vec2d bottomRight,
-            Vec2d bottomLeft,
+            vec2d topLeft,
+            vec2d topRight,
+            vec2d bottomRight,
+            vec2d bottomLeft,
             bool Orth
             )
         {
@@ -76,8 +76,8 @@ namespace StgSharp.Geometries
 
             textureFrame.mat.colum1 = maxCoord;
             textureFrame.mat.colum3 = minCoord;
-            textureFrame.Colum0 = new Vec2d(minCoord.X, maxCoord.Y);
-            textureFrame.Colum2 = new Vec2d(maxCoord.X, minCoord.Y);
+            textureFrame.Colum0 = new vec2d(minCoord.X, maxCoord.Y);
+            textureFrame.Colum2 = new vec2d(maxCoord.X, minCoord.Y);
         }
 
         public Polygon4(
@@ -93,10 +93,10 @@ namespace StgSharp.Geometries
             vertexMat.mat.colum3 = new Vector4(v3x, v3y, v3z, 0);
         }
 
-        public GetLocationHandler MovVertex0Operaion => moveVertex0Operation;
-        public GetLocationHandler MovVertex1Operaion => moveVertex1Operation;
-        public GetLocationHandler MovVertex2Operaion => moveVertex2Operation;
-        public GetLocationHandler MovVertex3Operaion => moveVertex3Operation;
+        public GetLocationHandler MovVertex0Operation => moveVertex0Operation;
+        public GetLocationHandler MovVertex1Operation => moveVertex1Operation;
+        public GetLocationHandler MovVertex2Operation => moveVertex2Operation;
+        public GetLocationHandler MovVertex3Operation => moveVertex3Operation;
 
         public Point Vertex0
         {

@@ -39,69 +39,90 @@ namespace StgSharp.Math
     /// Vec2Ds in StgSharp are defaultly usaed as colum vector. 
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public struct Vec2d
+    public struct vec2d
     {
+
+        [FieldOffset(0)]
+        internal Vector2 v;
+
+        [FieldOffset(0)]
+        internal Vector4 vec;
+
+        [FieldOffset(0)] internal unsafe fixed float num[2];
 
         [FieldOffset(0)]
         public float X;
         [FieldOffset(4)]
         public float Y;
 
-        [FieldOffset(0)]
-        internal Vector4 vec;
-        [FieldOffset(0)]
-        internal Vector2 v;
-
-        internal Vec2d(Vector2 vec)
+        internal vec2d(Vector2 vec)
         {
             v = vec;
         }
 
-        public Vec2d(float x, float y)
+        public vec2d(float x, float y)
         {
             v = new Vector2(x, y);
         }
 
-        public static Vec2d Unit => new Vec2d(1, 1);
 
-        public static Vec2d Zero => new Vec2d(0, 0);
-
-        public float Cross(Vec2d right)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float Cross(vec2d right)
         {
             return (X * right.Y) - (Y * right.X);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec2d operator -(Vec2d left, Vec2d right)
+        public float Dot(vec2d vec)
         {
-            return new Vec2d(left.v - right.v);
+            return Vector2.Dot(v, vec.v);
         }
 
-        public static bool operator !=(Vec2d left, Vec2d right)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static vec2d operator -(vec2d left, vec2d right)
+        {
+            return new vec2d(left.v - right.v);
+        }
+
+        public static bool operator !=(vec2d left, vec2d right)
         {
             return !(left == right);
         }
 
-        public static Vec2d operator *(Vec2d vec, float value)
+        public static vec2d operator *(vec2d vec, float value)
         {
-            return new Vec2d(vec.v * value);
+            return new vec2d(vec.v * value);
         }
 
-        public static Vec2d operator /(Vec2d vec, float value)
+        public static vec2d operator /(vec2d vec, float value)
         {
-            return new Vec2d(vec.v / value);
+            return new vec2d(vec.v / value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec2d operator +(Vec2d left, Vec2d right)
+        public static vec2d operator +(vec2d left, vec2d right)
         {
-            return new Vec2d(left.v + right.v);
+            return new vec2d(left.v + right.v);
         }
 
-        public static bool operator ==(Vec2d left, Vec2d right)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(vec2d left, vec2d right)
         {
             return left.v == right.v;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator vec2d((float, float) tuple)
+        {
+            return new vec2d(tuple.Item1, tuple.Item2);
+        }
+    }
+
+    public static class Vec2d
+    {
+
+        public static vec2d Unit => new vec2d(1, 1);
+
+        public static vec2d Zero => new vec2d(0, 0);
     }
 }

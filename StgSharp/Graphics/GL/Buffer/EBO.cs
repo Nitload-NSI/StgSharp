@@ -39,7 +39,7 @@ using System.Text;
 namespace StgSharp.Graphics
 {
     /// <summary>
-    /// A collecion of handle to Element Buffer Object in OpenGL.
+    /// A collection of handle to Element Buffer Object in OpenGL.
     /// Each <see langword="uint"/> value indexed from instance of this class this
     /// is the only handle to one Element Buffer Object.
     /// </summary>
@@ -48,27 +48,27 @@ namespace StgSharp.Graphics
 
         internal ElementBuffer(int n, Form binding)
         {
-            this.binding = binding;
-            _bufferHandle = binding.GL.GenBuffers(n);
+            this.binding = binding.graphicContextID;
+            _bufferHandle = GL.GenBuffers(n);
         }
 
         public override sealed void Bind(int index)
         {
-            binding.GL.BindBuffer(BufferType.ELEMENT_ARRAY_BUFFER, _bufferHandle[index]);
+            GL.BindBuffer(BufferType.ELEMENT_ARRAY_BUFFER, _bufferHandle[index]);
         }
 
         public void SetValue<T>(int index, T[] bufferArray, BufferUsage usage)
             where T : struct, IConvertible
         {
-            binding.GL.BindBuffer(BufferType.ELEMENT_ARRAY_BUFFER, _bufferHandle[index]);
-            binding.GL.SetBufferData(BufferType.ELEMENT_ARRAY_BUFFER, bufferArray, usage);
+            GL.BindBuffer(BufferType.ELEMENT_ARRAY_BUFFER, _bufferHandle[index]);
+            GL.SetBufferData(BufferType.ELEMENT_ARRAY_BUFFER, bufferArray, usage);
         }
 
         protected override sealed void Dispose(bool disposing)
         {
             if (disposing)
             {
-                binding.GL.DeleteBuffers(_bufferHandle);
+                GL.DeleteBuffers(_bufferHandle);
                 _bufferHandle.Release();
             }
         }

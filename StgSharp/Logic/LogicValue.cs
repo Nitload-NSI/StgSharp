@@ -45,25 +45,25 @@ namespace StgSharp.Logic
     {
 
         /// <summary>
-        /// A <see cref="ushort"/> value.
-        /// The lower byte is <see cref="bool0"/>,
-        /// and higher byte is <see cref="bool1"/>.
-        /// </summary>
-        [FieldOffset(0)] public ushort Value;
-
-        /// <summary>
         /// The first <see cref="bool"/> value.
         /// </summary>
         [FieldOffset(0)] public bool bool0;
-
-        [FieldOffset(0)] public byte byte0;
 
         /// <summary>
         /// The second <see cref="bool"/> value.
         /// </summary>
         [FieldOffset(1)] public bool bool1;
 
+        [FieldOffset(0)] public byte byte0;
+
         [FieldOffset(1)] public bool byte1;
+
+        /// <summary>
+        /// A <see cref="ushort"/> value.
+        /// The lower byte is <see cref="bool0"/>,
+        /// and higher byte is <see cref="bool1"/>.
+        /// </summary>
+        [FieldOffset(0)] public ushort Value;
 
     }
 }

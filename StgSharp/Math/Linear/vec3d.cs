@@ -43,9 +43,14 @@ namespace StgSharp.Math
     {
 
         [FieldOffset(0)]
+        internal Vector3 v;
+
+        [FieldOffset(0)]
         internal Vector4 vec;
         [FieldOffset(0)]
-        internal Vector3 v;
+        internal M128 reg;
+
+        [FieldOffset(0)] internal unsafe fixed float num[3];
 
         [FieldOffset(0)] public float X;
         [FieldOffset(4)] public float Y;
@@ -83,10 +88,7 @@ namespace StgSharp.Math
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float Dot(vec3d right)
         {
-            Vector4 vector4 = this.vec * right.vec;
-            return vector4.X
-                + vector4.Y
-                + vector4.Z;
+            return Vector3.Dot(v,right.v);
         }
 
         public bool Equals(vec3d other)
@@ -140,6 +142,12 @@ namespace StgSharp.Math
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static vec3d operator -(vec3d vec)
+        {
+            return new vec3d(-vec.vec);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static vec3d operator -(vec3d left, vec3d right)
         {
             return new vec3d(left.v - right.v);
@@ -189,8 +197,23 @@ namespace StgSharp.Math
     public static class Vec3d
     {
 
-        public static vec3d Unit => new vec3d(1, 1, 1);
+        public static bool IsParallel(vec3d left, vec3d right)
+        {
+            return Cross(left,right) == Zero;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static vec3d Cross(vec3d left, vec3d right)
+        {
+            return Linear.Cross(left, right);
+        }
+
+        public static vec3d One => new vec3d(1, 1, 1);
         public static vec3d Zero => new vec3d(0, 0, 0);
 
+        public static vec3d UnitZ => new vec3d(0, 0, 1);
+        public static vec3d UnitX => new vec3d(1, 0, 0);
+        public static vec3d UnitY => new vec3d(0, 1, 0);
     }
 }

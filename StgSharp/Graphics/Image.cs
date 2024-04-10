@@ -51,7 +51,7 @@ namespace StgSharp.Graphics
         {
             info = information;
             int length = info.width * info.height * info.channel;
-            pixelArrayHandle = glHandle.Alloc(information.pixelPtr);
+            pixelArrayHandle = glHandle.FromPtr(information.pixelPtr);
         }
 
         public unsafe Image()
@@ -69,16 +69,21 @@ namespace StgSharp.Graphics
             Marshal.FreeHGlobal(info.pixelPtr);
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct ImageInfo
+
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct ImageInfo
+    {
+        internal int width;
+        internal int height;
+        internal int channel;
+        internal IntPtr pixelPtr;
+
+
+        public override string ToString()
         {
-
-            internal int width;
-            internal int height;
-            internal int channel;
-            internal IntPtr pixelPtr;
-
+            return $"{channel}\t{width}\t{height}\t{pixelPtr}";
         }
-
     }
 }

@@ -30,12 +30,22 @@ D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharp
   stb_image.c
 D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\stb_image.c(832,17): warning C4047: “=”:“stbi_uc”与“char [33]”的间接级别不同
   StgSharpC.c
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(130,1): warning C4005: “APIENTRY”: 宏重定义
+  (编译源文件“StgSharpC.c”)
+  D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\glfw3.h(123,1):
+  参见“APIENTRY”的前一个定义
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\wingdi.h(36,1): warning C4005: “WINGDIAPI”: 宏重定义
+  (编译源文件“StgSharpC.c”)
+  D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\glfw3.h(133,1):
+  参见“WINGDIAPI”的前一个定义
+  
 D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\StgSharpC.c(23,18): warning C4047: “=”:“char”与“char [27]”的间接级别不同
 D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\StgSharpC.c(67,5): warning C4047: “return”:“char *”与“char (*)[512]”的间接级别不同
+  vector.c
     正在创建库 D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC.lib 和对象 D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC.exp
   正在生成代码
-  0 of 175 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  Previous IPDB was built with incompatible compiler, fall back to full compilation.
+  All 176 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   已完成代码的生成
   StgSharpC.vcxproj -> D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC.dll
