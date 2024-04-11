@@ -24,7 +24,10 @@ SOFTWARE.
 StgSharp program uses the fallowing open source projects,
 I'd like to refer to them here and show my sincere appreciation:
 
-1. [GLFW](https://github.com/glfw/glfw?tab=Zlib-1-ov-file#readme)
+1. [GLFW]
+
+
+    Remote repository on: https://github.com/glfw/glfw?tab=Zlib-1-ov-file#readme
     
     Copyright (c) 2002-2006 Marcus Geelnard
     
@@ -41,6 +44,8 @@ I'd like to refer to them here and show my sincere appreciation:
     This notice may not be removed or altered from any source distribution.
 
 2. GLAD, Khronos Specifications and other Specification headers
+
+    Web service available on https://gen.glad.sh/
     
     The glad source code:
     
