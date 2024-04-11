@@ -5,7 +5,7 @@
 
 ## General Introduction ##
 
-Stg# is the new generation STG game engine. STG# is written in C# and runs on .NET platform.
+Stg# is a new generation STG game engine. STG# is written in C# based on OpenGL. It provide a both low hand high level binding to OpenGL, multimedia and device control, giving everything you need to make your own stg games.We are looking forward to provide full aupport on Linux and other OS platforms, but it requires a long journey to go.
 
 The Stg# engine contains the fallowing parts:
 
@@ -14,13 +14,12 @@ The Stg# engine contains the fallowing parts:
 3. A series functions to optimize the performance
 4. A game resource manager
 
-Timeline of Stg# is controlled by a new type of scipt language called SGSL(Shooting Game Script Language). SGSL allows developers to manage files and debug in an reletively easy mod. Developers edit games in different "Organizations", which can be devided into "Generatings" and "Processings", which defines how bollet creats and move.
 
 The Stg# main program is in project named "StgSharp", which contains most of the math method, graphic APIs, and application resources manager.
 
-Most of the basic graphic functions are contained in the project called "StgSharpGraphic". And the functions to optimize performance, mainly to accelerate vector computing, are contained in project called "StgSharpOptimizing".
+Most of the basic graphic functions are contained in the project called "StgSharpGraphic". And the functions to optimize performance, mainly to accelerate vector computing, are contained in project called "StgSharpC".
 
-Early version of Stg# Math Library use C# to calculate, so there is no project called "StgSharpOptimizing", but is relatively low in efficiency and accuracy. In future versions, the math library will be optimaized by useing SSE Instructions.
+StgSharp provides full support of all OpenGL APIs nad features. And a cross platform window manager based on [GLFW](https://www.glfw.org/). 
 
 ## Install ##
 
@@ -34,13 +33,19 @@ Stg# on windows has two files, C# code are compiled in file "StgSharp.dll", whil
 ### Linux and other OS ###
 
 
-## Version History
+## Future Plan ##
 
-| Version | Description                                        | Windows    | Linux      | OS X Serieses | Android    | HarmonyOS* |
-|---------|----------------------------------------------------|------------|------------|---------------|------------|------------|
-| 0.3.0   | The first usable version with all usable function  | No Release | No Release | No Release    | No Release | No Plan    |
-| 0.4.0   | Rewrite the OpenGL api loader, more function added | No Release | No Release | No Plan       | No Release | No Plan    |
+StgSharp looks forward to provide support to different graphic APIs. We prepare to provide Vulcan support at 2.0 version.
 
-*No current plan for HarmonyOS support is the result of no dotNet support.
+StgSharp will also bew available on
+
+## Version History *
+
+| Version | Description                                        | Windows    | Linux      | Android    |
+|---------|----------------------------------------------------|------------|------------|------------|
+| 0.3.0   | The first usable version with min usable function  | No Release | No Release | No Release |
+| 0.4.x   | Rewrite the OpenGL api loader, more function added | No Release | No Release | No Release |
+
+*No current support plan for HarmonyOS and OS X series is the result of no dotNet JIT optimization support.
 
 
