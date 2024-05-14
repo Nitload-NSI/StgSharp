@@ -42,24 +42,25 @@ namespace StgSharp
 
         #region det
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "det_mat3",
+        [DllImport(InternalIO.SSC_libName, EntryPoint = "det_mat3",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe float det_mat3(Mat3* mat);
 
         #endregion
 
+
         #region transpose
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "transpose3to4",
+        [DllImport(SSC_libName, EntryPoint = "transpose3to4",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose3to4_internal(Mat3* source, Mat4* target);
 
-        [DllImport("StgsharpGra[hic", EntryPoint = "transpose3to4",
+        [DllImport(SSC_libName, EntryPoint = "transpose3to3",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose3to3_internal(Mat3* source, Mat3* target);
 
-        [DllImport("StgsharpGra[hic", EntryPoint = "transpose3to2",
+        [DllImport(SSC_libName, EntryPoint = "transpose3to2",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose3to2_internal(Mat3* source, Mat2* target);
 
@@ -77,10 +78,6 @@ namespace StgSharp.Math
     public struct Mat3 : IEquatable<Mat3>, IMat
     {
 
-        [FieldOffset(0)] internal Vector4 colum0;
-        [FieldOffset(4 * sizeof(float))] internal Vector4 colum1;
-        [FieldOffset(8 * sizeof(float))] internal Vector4 colum2;
-
         [FieldOffset(0 * sizeof(float))] internal float m00;
 
         [FieldOffset(4 * sizeof(float))] internal float m01;
@@ -95,6 +92,10 @@ namespace StgSharp.Math
         [FieldOffset(3 * sizeof(float))] internal float m30;
         [FieldOffset(7 * sizeof(float))] internal float m31;
         [FieldOffset(11 * sizeof(float))] internal float m32;
+
+        [FieldOffset(0)] internal Vector4 colum0;
+        [FieldOffset(4 * sizeof(float))] internal Vector4 colum1;
+        [FieldOffset(8 * sizeof(float))] internal Vector4 colum2;
 
         public override bool Equals(object? obj)
         {

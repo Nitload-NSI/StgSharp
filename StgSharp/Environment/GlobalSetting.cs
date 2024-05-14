@@ -31,7 +31,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,7 +42,28 @@ namespace StgSharp
     public static unsafe partial class StgSharp
     {
 
+        static byte[] _currentHash;
+
         private static bool _inited;
+        internal const int ssdSegmentLength = 16;
+
+        public static byte[] CurrentAssemblyHash
+        {
+            get
+            {
+                if (_currentHash == null)
+                {
+                    string route = Assembly.GetExecutingAssembly().Location;
+                    string time = DateTime.UtcNow.ToString();
+                    using (SHA256 sh = SHA256.Create())
+                    {
+                        byte[] bytes = Encoding.UTF8.GetBytes(route);
+                        _currentHash = sh.ComputeHash(bytes);
+                    }
+                }
+                return _currentHash;
+            }
+        }
 
         /// <summary>
         /// Init an instance of OpenGL program,
@@ -76,5 +99,5 @@ namespace StgSharp
 
         }
 
-    }
+    }//------------------------end of class------------------------//
 }

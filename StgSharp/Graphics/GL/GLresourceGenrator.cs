@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Graphics
 {
-    public partial class Form
+    public partial class glRenderStream
     {
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace StgSharp.Graphics
         /// <summary>
         /// Create a sets of <see cref="Texture"/>
         /// </summary>
-        /// <param name="count">Amount of textures to be crated.</param>
+        /// <param name="count">Amount of textures to be created.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected Texture CreateTexture(int count)
@@ -65,7 +65,7 @@ namespace StgSharp.Graphics
         /// <summary>
         /// Create a set of <see cref="VertexArray"/>.
         /// </summary>
-        /// <param name="count">Amount of VAO to be crated.</param>
+        /// <param name="count">Amount of VAO to be created.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected VertexArray CreateVertexArray(int count)
@@ -74,7 +74,7 @@ namespace StgSharp.Graphics
         }
 
         /// <summary>
-        /// Create aset of <see cref="VertexBuffer"/>.
+        /// Create a set of <see cref="VertexBuffer"/>.
         /// </summary>
         /// <param name="count">Amount of Object to be created.</param>
         /// <returns></returns>
@@ -84,5 +84,6 @@ namespace StgSharp.Graphics
             return new VertexBuffer(count, this);
         }
 
+        
     }
 }

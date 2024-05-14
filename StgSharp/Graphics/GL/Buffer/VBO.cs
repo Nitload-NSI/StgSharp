@@ -43,9 +43,9 @@ namespace StgSharp.Graphics
     public unsafe class VertexBuffer : BufferObjectBase
     {
 
-        internal VertexBuffer(int n, Form binding)
+        internal VertexBuffer(int n, glRenderStream binding)
         {
-            this.binding = binding.graphicContextID;
+            this.binding = binding.ContextHandle;
             _bufferHandle = GL.GenBuffers(n);
         }
 
@@ -61,7 +61,8 @@ namespace StgSharp.Graphics
         /// <param name="index">Index to find certain VBO in this instance</param>
         /// <param name="bufferData">Data to write in</param>
         /// <param name="usage">How OpenGL use these data, defined by <see cref="BufferUsage"/></param>
-        public void SetValue<T>(int index, T bufferData, BufferUsage usage) where T : struct, IMat
+        public void WriteMatrixData<T>(int index, T bufferData, BufferUsage usage) 
+            where T : struct, IMat
         {
             GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
             GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferData, usage);
@@ -72,12 +73,63 @@ namespace StgSharp.Graphics
         /// </summary>
         /// <typeparam name="T">Type of bufferData</typeparam>
         /// <param name="index">Index to find certain VBO in this instance</param>
-        /// <param name="bufferArray">A array of data to write in</param>
+        /// <param name="bufferArray">Data to write in</param>
         /// <param name="usage">How OpenGL use these data, defined by <see cref="BufferUsage"/></param>
-        public void SetValueArray<T>(int index, T[] bufferArray, BufferUsage usage) where T : struct, IConvertible
+        public void WriteScalerData<T>(int index, T[] bufferArray, BufferUsage usage)
+            where T : struct,
+#if NET8_0_OR_GREATER
+            INumber
+#else
+            IConvertible
+#endif
         {
             GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
             GL.SetBufferData(BufferType.ARRAY_BUFFER, bufferArray, usage);
+        }
+
+        /// <summary>
+        /// Set data to current vertex buffer object
+        /// </summary>
+        /// <typeparam name="T">Type of bufferData</typeparam>
+        /// <param name="index">Index to find certain VBO in this instance</param>
+        /// <param name="scalerSpan">A <see cref="Span{T}"/> of data to write in</param>
+        /// <param name="usage">How OpenGL use these data, defined by <see cref="BufferUsage"/></param>
+        public void WriteScalerData<T>(int index, Span<T> scalerSpan, BufferUsage usage)
+            where T : struct,
+#if NET8_0_OR_GREATER
+            INumber
+#else
+            IConvertible
+#endif
+        {
+            GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
+            GL.SetBufferData(BufferType.ARRAY_BUFFER, scalerSpan, usage);
+        }
+
+        /// <summary>
+        /// Set data to current vertex buffer object
+        /// </summary>
+        /// <typeparam name="T">Type of bufferData</typeparam>
+        /// <param name="index">Index to find certain VBO in this instance</param>
+        /// <param name="vectorSpan">A <see cref="Span{T}"/> of data to write in</param>
+        /// <param name="usage">How OpenGL use these data, defined by <see cref="BufferUsage"/></param>
+        public void WriteVectorData<T>(int index, Span<T> vectorSpan, BufferUsage usage) where T : struct, IVector
+        {
+            GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
+            GL.SetBufferVectorData(BufferType.ARRAY_BUFFER, vectorSpan, usage);
+        }
+
+        /// <summary>
+        /// Set data to current vertex buffer object
+        /// </summary>
+        /// <typeparam name="T">Type of bufferData</typeparam>
+        /// <param name="index">Index to find certain VBO in this instance</param>
+        /// <param name="vectorArray">A array of data to write in</param>
+        /// <param name="usage">How OpenGL use these data, defined by <see cref="BufferUsage"/></param>
+        public void WriteVectorData<T>(int index, T[] vectorArray, BufferUsage usage) where T : struct, IVector
+        {
+            GL.BindBuffer(BufferType.ARRAY_BUFFER, _bufferHandle[index]);
+            GL.SetBufferVectorData(BufferType.ARRAY_BUFFER, vectorArray, usage);
         }
 
         /// <summary>

@@ -28,12 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//
-// 
-// some of the code is rewritten from the AMD code:
-// https://github.com/amd/aocl-libm-ose/blob/a43e092b03213eb0e129a1cc129900e6e4475778/src/ref/asinf.c
-
-
 using System;
 
 

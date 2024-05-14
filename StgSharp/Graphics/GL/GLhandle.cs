@@ -330,7 +330,7 @@ namespace StgSharp.Graphics
 
         ~glHandleSet() 
         {
-            //unsafe, 不确定这个句柄组的单一索引是不是完全卸载
+            
         }
     }
 }

@@ -83,6 +83,10 @@ namespace StgSharp
             mainTimeProvider = new StgSharpTime();
             MainTimeProvider.StartProvidingTime();
             InternalIO.glfwInit();
+            InternalIO.InternalAppendLog("\n\n\n");
+            InternalIO.InternalWriteLog(
+                $"Program {Assembly.GetEntryAssembly()!.FullName} Started.",
+                LogType.Info);
         }
 
         public static void Mark(bool needConsole)
@@ -97,6 +101,7 @@ namespace StgSharp
         public static void Terminate()
         {
             MainTimeProvider.Terminate();
+            InternalIO.glfwTerminate();
         }
 
         public static void Track(

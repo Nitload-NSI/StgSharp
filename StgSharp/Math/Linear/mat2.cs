@@ -42,7 +42,7 @@ namespace StgSharp
 
         #region add
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "add_Mat2",
+        [DllImport(InternalIO.SSC_libName, EntryPoint = "add_Mat2",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern Mat2* add_mat2(Mat2* left, Mat2* right);
@@ -52,7 +52,7 @@ namespace StgSharp
 
         #region deinit mat2
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "deinit_mat2",
+        [DllImport(InternalIO.SSC_libName, EntryPoint = "deinit_mat2",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe void deinit_mat2(Mat2* mat);
@@ -61,22 +61,23 @@ namespace StgSharp
 
         #region sub
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "sub_mat2",
+        [DllImport(InternalIO.SSC_libName, EntryPoint = "sub_mat2",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe Mat2* sub_mat2(Mat2* left, Mat2* right);
 
         #endregion
 
+
         #region transpose
 
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "transmpose2to4",
+        [DllImport(InternalIO.SSC_libName, EntryPoint = "transpose2to4",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe void Transpose2to4_internal(Mat2* source, Mat4* target);
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "transmpose2to3",
+        [DllImport(InternalIO.SSC_libName, EntryPoint = "transpose2to3",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe void Transpose2to3_internal(Mat2* source, Mat3* target);
@@ -93,11 +94,7 @@ namespace StgSharp.Math
     internal struct Mat2 : IEquatable<Mat2>
     {
 
-        [FieldOffset(0)] internal Vector4 colum0;
-        [FieldOffset(4 * sizeof(float))] internal Vector4 colum1;
-
         [FieldOffset(0 * sizeof(float))] internal float m00;
-
         [FieldOffset(4 * sizeof(float))] internal float m01;
         [FieldOffset(1 * sizeof(float))] internal float m10;
         [FieldOffset(5 * sizeof(float))] internal float m11;
@@ -105,6 +102,9 @@ namespace StgSharp.Math
         [FieldOffset(6 * sizeof(float))] internal float m21;
         [FieldOffset(3 * sizeof(float))] internal float m30;
         [FieldOffset(7 * sizeof(float))] internal float m31;
+
+        [FieldOffset(0)] internal Vector4 colum0;
+        [FieldOffset(4 * sizeof(float))] internal Vector4 colum1;
 
         internal Mat2(
             Vector4 c0,

@@ -46,9 +46,9 @@ namespace StgSharp.Graphics
     public unsafe class ElementBuffer : BufferObjectBase
     {
 
-        internal ElementBuffer(int n, Form binding)
+        internal ElementBuffer(int n, glRenderStream binding)
         {
-            this.binding = binding.graphicContextID;
+            this.binding = binding.ContextHandle;
             _bufferHandle = GL.GenBuffers(n);
         }
 

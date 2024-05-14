@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharpDebug.Logic;
+using StgSharp.Logic;
 
 using System;
 using System.Linq;
@@ -36,8 +36,6 @@ using System.Threading;
 
 namespace StgSharp
 {
-    public delegate void TimeSpanRefeshCallback();
-
 
     /// <summary>
     /// A microsecond-accuracy timer. It will refresh every a certain time span.
@@ -45,10 +43,10 @@ namespace StgSharp
     public class TimeSpanProvider
     {
 
-        private Action<SemaphoreFullException> _frameUpdateMissCallback = null;
+        private Action _frameUpdateMissCallback = null;
 
         private readonly int _maxSpanCount;
-        private TimeSpanRefeshCallback _refeshCallback;
+        private Action _refreshCallback;
         private SemaphoreSlim _refreshSemaphore = new SemaphoreSlim(0, 1);
         private long _spanBegin;
         private readonly long _spanLength;
@@ -58,38 +56,39 @@ namespace StgSharp
         /// <summary>
         /// Create a new <see cref="TimeSpanProvider"/> and define the length of time span. Length of a single time span is defined in microseconds.
         /// </summary>
-        /// <param name="spanLength"></param>
-        /// <parma name="provider"></parma>
-        public TimeSpanProvider(long spanLength, TimeSourceProviderBase provider)
+        /// <param name="spanMicroSeconds"></param>
+        /// <param name="provider"></param>
+        public TimeSpanProvider(long spanMicroSeconds, TimeSourceProviderBase provider)
         {
-            _spanLength = spanLength;
+            _spanLength = spanMicroSeconds;
             _maxSpanCount = int.MaxValue;
             provider.AddSubscriber(this);
             _subscribed = true;
-            _refeshCallback = () => { };
+            _refreshCallback = new Action(() => { });
         }
 
         /// <summary>
         /// Create a new <see cref="TimeSpanProvider"/> and define the length of time span. 
         /// Length of a single time span is defined in seconds.
         /// </summary>
-        /// <param name="spanLength"></param>
-        /// <parma name="provider"></parma>
-        public TimeSpanProvider(double spanLength, TimeSourceProviderBase provider)
+        /// <param name="spanSeconds"></param>
+        /// <param name="provider"></param>
+        public TimeSpanProvider(double spanSeconds, TimeSourceProviderBase provider)
         {
-            _spanLength = (long)(spanLength * 1000L * 1000L);
+            _spanLength = (long)(spanSeconds * 1000L * 1000L);
             _spanBegin = -_spanLength;
             _maxSpanCount = int.MaxValue;
             provider.AddSubscriber(this);
             _subscribed = true;
-            _refeshCallback = () => { };
+            _refreshCallback = new Action(() => { });
         }
 
         /// <summary>
         /// Create a new <see cref="TimeSpanProvider"/> and define the length of time span. Length of a single time span is defined in microseconds.
         /// </summary>
         /// <param name="spanLength"></param>
-        /// <parma name="provider"></parma>
+        /// <param name="maxSpan"></param>
+        /// <param name="provider"></param>
         public TimeSpanProvider(long spanLength, int maxSpan, TimeSourceProviderBase provider)
         {
             if (maxSpan <= 0)
@@ -103,12 +102,13 @@ namespace StgSharp
 
         public int CurrentSpan
 => timeSpanCount.Value;
+
         /// <summary>
         /// Time source provider provided in <see cref="StgSharp"/> internal framework.
         /// </summary>
         public static TimeSourceProviderBase DefaultProvider => StgSharpTime.OnlyInstance;
 
-        public Action<SemaphoreFullException> FrameUpdateMissCallback
+        public Action FrameUpdateMissCallback
         {
             get => _frameUpdateMissCallback;
             set => _frameUpdateMissCallback = value;
@@ -117,13 +117,13 @@ namespace StgSharp
         /// <summary>
         /// The method this <see cref="TimeSpanProvider"/> will call every time a new time span started.
         /// </summary>
-        public TimeSpanRefeshCallback SpanRefreshCallback
+        public Action SpanRefreshCallback
         {
-            get => _refeshCallback;
-            set => _refeshCallback = value;
+            get => _refreshCallback;
+            set => _refreshCallback = value;
         }
 
-        public void SubcsribeToTimeSource(TimeSourceProviderBase serviceHandler)
+        public void SubscribeToTimeSource(TimeSourceProviderBase serviceHandler)
         {
             if (_subscribed)
             {
@@ -140,26 +140,32 @@ namespace StgSharp
 
         internal bool CheckTime(long microseconds)
         {
-            if (microseconds - _spanBegin > _spanLength)
+            if (microseconds - _spanBegin < _spanLength)
             {
-                _spanBegin = microseconds;
-                timeSpanCount++;
-                try
+                return true;
+            }
+            
+            _spanBegin = microseconds;
+            timeSpanCount++;
+
+            if (_refreshCallback != null)
+            {
+                _refreshCallback();
+            }
+            if (_refreshSemaphore.CurrentCount == 0)
+            {
+                _refreshSemaphore.Release();
+            }
+            else
+            {
+                if (_frameUpdateMissCallback != null)
                 {
-                    _refeshCallback();
-                    _refreshSemaphore.Release();
+                    _frameUpdateMissCallback();
                 }
-                catch (SemaphoreFullException ex)
-                {
-                    if (_frameUpdateMissCallback != null)
-                    {
-                        _frameUpdateMissCallback(ex);
-                    }
-                }
-                if (timeSpanCount > _maxSpanCount)
-                {
-                    return false;
-                }
+            }
+            if (timeSpanCount > _maxSpanCount)
+            {
+                return false;
             }
             return true;
         }

@@ -4,8 +4,8 @@
 
 SSCAPI __inline void _cdecl transpose3to2(matrix3map* source, matrix2map* target)
 {
-    __m128 t0 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(1, 0, 1, 0));
-    __m128 t2 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(1, 0, 1, 0));
+    __m128 t0 = _mm_shuffle_ps(ALIGN(source->colum[0]), ALIGN(source->colum[1]), _MM_SHUFFLE(1, 0, 1, 0));
+    __m128 t2 = _mm_shuffle_ps(ALIGN(source->colum[2]), zeroVec, _MM_SHUFFLE(1, 0, 1, 0));
 
     target->colum[0] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(2, 0, 2, 0));
     target->colum[1] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(3, 1, 3, 1));
@@ -13,10 +13,10 @@ SSCAPI __inline void _cdecl transpose3to2(matrix3map* source, matrix2map* target
 
 SSCAPI __inline void _cdecl transpose3to3(matrix3map* source, matrix3map* target)
 {
-    __m128 t0 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(1, 0, 1, 0));
-    __m128 t1 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(3, 2, 3, 2));
-    __m128 t2 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(1, 0, 1, 0));
-    __m128 t3 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(3, 2, 3, 2));
+    __m128 t0 = _mm_shuffle_ps(ALIGN(source->colum[0]), ALIGN(source->colum[1]), _MM_SHUFFLE(1, 0, 1, 0));
+    __m128 t1 = _mm_shuffle_ps(ALIGN(source->colum[0]), ALIGN(source->colum[1]), _MM_SHUFFLE(3, 2, 3, 2));
+    __m128 t2 = _mm_shuffle_ps(ALIGN(source->colum[2]), zeroVec, _MM_SHUFFLE(1, 0, 1, 0));
+    __m128 t3 = _mm_shuffle_ps(ALIGN(source->colum[2]), zeroVec, _MM_SHUFFLE(3, 2, 3, 2));
 
     target->colum[0] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(2, 0, 2, 0));
     target->colum[1] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(3, 1, 3, 1));
@@ -25,10 +25,10 @@ SSCAPI __inline void _cdecl transpose3to3(matrix3map* source, matrix3map* target
 
 SSCAPI __inline void _cdecl transpose3to4(matrix3map* source, matrix4map* target)
 {
-    __m128 t0 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(1, 0, 1, 0));
-    __m128 t1 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(3, 2, 3, 2));
-    __m128 t2 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(1, 0, 1, 0));
-    __m128 t3 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(3, 2, 3, 2));
+    __m128 t0 = _mm_shuffle_ps(ALIGN(source->colum[0]), ALIGN(source->colum[1]), _MM_SHUFFLE(1, 0, 1, 0));
+    __m128 t1 = _mm_shuffle_ps(ALIGN(source->colum[0]), ALIGN(source->colum[1]), _MM_SHUFFLE(3, 2, 3, 2));
+    __m128 t2 = _mm_shuffle_ps(ALIGN(source->colum[2]), zeroVec, _MM_SHUFFLE(1, 0, 1, 0));
+    __m128 t3 = _mm_shuffle_ps(ALIGN(source->colum[2]), zeroVec, _MM_SHUFFLE(3, 2, 3, 2));
 
     target->colum[0] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(2, 0, 2, 0));
     target->colum[1] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(3, 1, 3, 1));

@@ -217,10 +217,25 @@
         </member>
         <member name="T:StgSharp.Graphics.ElementBuffer">
             <summary>
-            A collecion of handle to Element Buffer Object in OpenGL.
+            A collection of handle to Element Buffer Object in OpenGL.
             Each <see langword="uint"/> value indexed from instance of this class this
             is the only handle to one Element Buffer Object.
             </summary>
+        </member>
+        <member name="M:StgSharp.Graphics.FrameBuffer.Bind(System.Int32)">
+            <summary>
+            Bind the frame buffer object with name frame buffer to the frame buffer target specified by target.
+            <see langword="FrameBufferTarget.All"/> will be set as default target.
+            </summary>
+            <param name="index">Index of object to be binded in handle set</param>
+        </member>
+        <member name="M:StgSharp.Graphics.FrameBuffer.Bind(StgSharp.Graphics.FrameBufferTarget,System.Int32)">
+            <summary>
+            Bind the frame buffer object with name frame buffer to the frame buffer target specified by target.
+            Target of this frame buffer should be set manually.
+            </summary>
+            <param name="target">The frame buffer target of the binding operation.</param>
+            <param name="index">Index of object to be binded in handle set</param>
         </member>
         <member name="M:StgSharp.Graphics.Texture.LoadTexture(System.Int32,System.String,StgSharp.Graphics.ImageLoader)">
             <summary>
@@ -284,6 +299,14 @@
             This will release all resource in this <see cref="T:StgSharp.Graphics.glHandle"/>.
             This <see langword="glHandle"/> will be not usable.
             </summary>
+        </member>
+        <member name="M:StgSharp.Graphics.GL.BindFrameBuffer(StgSharp.Graphics.FrameBufferTarget,StgSharp.Graphics.glHandle)">
+            <summary>
+            Bind a frame buffer to a frame buffer target
+            Same function as <see href="https://docs.gl/gl3/glBindFramebuffer">glBindFramebuffer</see>.
+            </summary>
+            <param name="target"> The frame buffer target of the binding operation.</param>
+            <param name="handle"> The handle of the frame buffer object to bind.</param>
         </member>
         <member name="M:StgSharp.Graphics.ShaderEdit.IglConvertable.SetAllUniforms">
             <summary>
@@ -641,7 +664,7 @@
             Create a new <see cref="T:StgSharp.TimeSpanProvider"/> and define the length of time span. Length of a single time span is defined in microseconds.
             </summary>
             <param name="spanLength"></param>
-            <parma name="provider"></parma>
+            <param name="provider"></param>
         </member>
         <member name="M:StgSharp.TimeSpanProvider.#ctor(System.Double,StgSharpDebug.Logic.TimeSourceProviderBase)">
             <summary>
@@ -649,14 +672,14 @@
             Length of a single time span is defined in seconds.
             </summary>
             <param name="spanLength"></param>
-            <parma name="provider"></parma>
+            <param name="provider"></param>
         </member>
         <member name="M:StgSharp.TimeSpanProvider.#ctor(System.Int64,System.Int32,StgSharpDebug.Logic.TimeSourceProviderBase)">
             <summary>
             Create a new <see cref="T:StgSharp.TimeSpanProvider"/> and define the length of time span. Length of a single time span is defined in microseconds.
             </summary>
             <param name="spanLength"></param>
-            <parma name="provider"></parma>
+            <param name="provider"></param>
         </member>
         <member name="P:StgSharp.TimeSpanProvider.DefaultProvider">
             <summary>

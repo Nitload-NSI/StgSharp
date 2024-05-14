@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharpDebug.Logic;
+using StgSharp.Logic;
 
 using System;
 using System.Collections.Generic;

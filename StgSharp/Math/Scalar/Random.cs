@@ -29,10 +29,14 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Controlling;
+using StgSharp.Math.HighPrecession;
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace StgSharp.Math
@@ -40,13 +44,7 @@ namespace StgSharp.Math
     public static unsafe partial class Scaler
     {
 
-        internal static float currentSeed
-#if DEBUG    
-            = 0.5f;
-#else
-        = Abs(System.DateTime.UtcNow.GetHashCode());
-#endif
-
+        private static byte[] randomSeed;
 
         /// <summary>
         /// returns a random float number between 0 and 1.
@@ -77,14 +75,37 @@ namespace StgSharp.Math
             return result;
 
         }
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Random()
+        public static T Random<T>() where T : struct, IConvertible
+#if NET8_0_OR_GREATER
+            ,INumber
+#endif
         {
-            throw new NotImplementedException();
+            if (randomSeed == null)
+            {
+                randomSeed = new byte[64];
+                string originSeed =
+                    ($"{((Assembly.GetEntryAssembly() == null) ? (Assembly.GetAssembly(typeof(StgSharp))!) :
+                    Assembly.GetEntryAssembly())}") +
+                    ($"{DateTime.UtcNow.ToString("o")}");
+                using (SHA256 sha = SHA256.Create())
+                {
+                    randomSeed = sha.ComputeHash(Encoding.UTF8.GetBytes(originSeed));
+                }
+            }
+            using (SHA256 sha = SHA256.Create())
+            {
+                randomSeed = sha.ComputeHash(randomSeed);
+            }
+            fixed (byte* bptr = randomSeed)
+            {
+                return *(T*)bptr;
+            }
         }
 
         /// <summary>
@@ -101,6 +122,14 @@ namespace StgSharp.Math
 
             return *(int*)&seedValue;
         }
+
+        internal static float currentSeed
+#if DEBUG    
+            = 0.5f;
+#else
+        = Abs(System.DateTime.UtcNow.GetHashCode());
+#endif
+
 
     }
 }

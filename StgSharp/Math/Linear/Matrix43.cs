@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="matrix4x3.cs"
+//     file="Matrix43.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -37,7 +37,7 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(LayoutKind.Explicit, Size = (7 * 4 * sizeof(float)) + sizeof(bool), Pack = 16)]
-    public struct Matrix43 : IEquatable<Matrix43>
+    public struct Matrix43 : IEquatable<Matrix43>, IMat
     {
 
         [FieldOffset(7 * 4 * sizeof(float))]

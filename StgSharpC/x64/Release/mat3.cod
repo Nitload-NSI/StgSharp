@@ -12,7 +12,7 @@ PUBLIC	transpose3to2
 ;	COMDAT pdata
 pdata	SEGMENT
 $pdata$transpose3to3 DD imagerel $LN4
-	DD	imagerel $LN4+83
+	DD	imagerel $LN4+79
 	DD	imagerel $unwind$transpose3to3
 ;	COMDAT xdata
 xdata	SEGMENT
@@ -20,293 +20,179 @@ $unwind$transpose3to3 DD 031001H
 	DD	06810H
 	DD	02204H
 ; Function compile flags: /Ogtpy
-; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
 ;	COMDAT transpose3to2
 _TEXT	SEGMENT
 source$ = 8
 target$ = 16
 transpose3to2 PROC					; COMDAT
-
-; 7    :     __m128 t0 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(1, 0, 1, 0));
-
-  00000	0f 10 41 34	 movups	 xmm0, XMMWORD PTR [rcx+52]
-  00004	0f 10 51 30	 movups	 xmm2, XMMWORD PTR [rcx+48]
-
-; 8    :     __m128 t2 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(1, 0, 1, 0));
-
-  00008	0f 10 49 38	 movups	 xmm1, XMMWORD PTR [rcx+56]
-  0000c	0f c6 d0 44	 shufps	 xmm2, xmm0, 68		; 00000044H
-  00010	0f 57 c0	 xorps	 xmm0, xmm0
-  00013	0f c6 c8 44	 shufps	 xmm1, xmm0, 68		; 00000044H
-
-; 9    : 
-; 10   :     target->colum[0] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(2, 0, 2, 0));
-
-  00017	0f 28 c2	 movaps	 xmm0, xmm2
-  0001a	0f c6 c1 88	 shufps	 xmm0, xmm1, 136		; 00000088H
-
-; 11   :     target->colum[1] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(3, 1, 3, 1));
-
-  0001e	0f c6 d1 dd	 shufps	 xmm2, xmm1, 221		; 000000ddH
-  00022	0f 11 02	 movups	 XMMWORD PTR [rdx], xmm0
-  00025	0f 11 52 10	 movups	 XMMWORD PTR [rdx+16], xmm2
-
-; 12   : }
-
-  00029	c3		 ret	 0
+; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
+; Line 7
+  00000	0f 10 41 10	 movups	 xmm0, XMMWORD PTR [rcx+16]
+  00004	0f 10 11	 movups	 xmm2, XMMWORD PTR [rcx]
+; Line 8
+  00007	0f 10 49 20	 movups	 xmm1, XMMWORD PTR [rcx+32]
+  0000b	0f c6 d0 44	 shufps	 xmm2, xmm0, 68		; 00000044H
+  0000f	0f 57 c0	 xorps	 xmm0, xmm0
+  00012	0f c6 c8 44	 shufps	 xmm1, xmm0, 68		; 00000044H
+; Line 10
+  00016	0f 28 c2	 movaps	 xmm0, xmm2
+  00019	0f c6 c1 88	 shufps	 xmm0, xmm1, 136		; 00000088H
+; Line 11
+  0001d	0f c6 d1 dd	 shufps	 xmm2, xmm1, 221		; 000000ddH
+  00021	0f 11 02	 movups	 XMMWORD PTR [rdx], xmm0
+  00024	0f 11 52 10	 movups	 XMMWORD PTR [rdx+16], xmm2
+; Line 12
+  00028	c3		 ret	 0
 transpose3to2 ENDP
 _TEXT	ENDS
 ; Function compile flags: /Ogtpy
-; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
 ;	COMDAT transpose3to3
 _TEXT	SEGMENT
 source$ = 32
 target$ = 40
 transpose3to3 PROC					; COMDAT
-
-; 15   : {
-
+; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
+; Line 15
 $LN4:
   00000	48 83 ec 18	 sub	 rsp, 24
-
-; 16   :     __m128 t0 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(1, 0, 1, 0));
-; 17   :     __m128 t1 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(3, 2, 3, 2));
-; 18   :     __m128 t2 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(1, 0, 1, 0));
-
-  00004	0f 10 61 38	 movups	 xmm4, XMMWORD PTR [rcx+56]
-  00008	0f 10 69 34	 movups	 xmm5, XMMWORD PTR [rcx+52]
+; Line 16
+  00004	0f 10 61 10	 movups	 xmm4, XMMWORD PTR [rcx+16]
+; Line 18
+  00008	0f 10 69 20	 movups	 xmm5, XMMWORD PTR [rcx+32]
   0000c	0f 29 34 24	 movaps	 XMMWORD PTR [rsp], xmm6
-  00010	0f 57 c0	 xorps	 xmm0, xmm0
-  00013	0f 10 71 30	 movups	 xmm6, XMMWORD PTR [rcx+48]
-  00017	0f 28 cc	 movaps	 xmm1, xmm4
-  0001a	0f 57 d2	 xorps	 xmm2, xmm2
-  0001d	0f 28 de	 movaps	 xmm3, xmm6
-  00020	0f c6 c8 44	 shufps	 xmm1, xmm0, 68		; 00000044H
-  00024	0f c6 dd 44	 shufps	 xmm3, xmm5, 68		; 00000044H
-  00028	0f c6 f5 ee	 shufps	 xmm6, xmm5, 238		; 000000eeH
-
-; 19   :     __m128 t3 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(3, 2, 3, 2));
-; 20   : 
-; 21   :     target->colum[0] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(2, 0, 2, 0));
-
-  0002c	0f 28 c3	 movaps	 xmm0, xmm3
-  0002f	0f c6 e2 ee	 shufps	 xmm4, xmm2, 238		; 000000eeH
-
-; 22   :     target->colum[1] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(3, 1, 3, 1));
-; 23   :     target->colum[2] = _mm_shuffle_ps(t1, t3, _MM_SHUFFLE(2, 0, 2, 0));
-
-  00033	0f c6 f4 88	 shufps	 xmm6, xmm4, 136		; 00000088H
-  00037	0f c6 c1 88	 shufps	 xmm0, xmm1, 136		; 00000088H
-  0003b	0f c6 d9 dd	 shufps	 xmm3, xmm1, 221		; 000000ddH
-  0003f	0f 11 72 20	 movups	 XMMWORD PTR [rdx+32], xmm6
-
-; 24   : }
-
-  00043	0f 28 34 24	 movaps	 xmm6, XMMWORD PTR [rsp]
-  00047	0f 11 02	 movups	 XMMWORD PTR [rdx], xmm0
-  0004a	0f 11 5a 10	 movups	 XMMWORD PTR [rdx+16], xmm3
-  0004e	48 83 c4 18	 add	 rsp, 24
-  00052	c3		 ret	 0
+  00010	0f 57 db	 xorps	 xmm3, xmm3
+  00013	0f 10 31	 movups	 xmm6, XMMWORD PTR [rcx]
+  00016	0f 28 cd	 movaps	 xmm1, xmm5
+; Line 19
+  00019	0f c6 eb ee	 shufps	 xmm5, xmm3, 238		; 000000eeH
+  0001d	0f 28 d6	 movaps	 xmm2, xmm6
+  00020	0f c6 cb 44	 shufps	 xmm1, xmm3, 68		; 00000044H
+  00024	0f c6 d4 44	 shufps	 xmm2, xmm4, 68		; 00000044H
+  00028	0f c6 f4 ee	 shufps	 xmm6, xmm4, 238		; 000000eeH
+; Line 21
+  0002c	0f 28 c2	 movaps	 xmm0, xmm2
+; Line 23
+  0002f	0f c6 f5 88	 shufps	 xmm6, xmm5, 136		; 00000088H
+  00033	0f c6 c1 88	 shufps	 xmm0, xmm1, 136		; 00000088H
+  00037	0f c6 d1 dd	 shufps	 xmm2, xmm1, 221		; 000000ddH
+  0003b	0f 11 72 20	 movups	 XMMWORD PTR [rdx+32], xmm6
+; Line 24
+  0003f	0f 28 34 24	 movaps	 xmm6, XMMWORD PTR [rsp]
+  00043	0f 11 02	 movups	 XMMWORD PTR [rdx], xmm0
+  00046	0f 11 52 10	 movups	 XMMWORD PTR [rdx+16], xmm2
+  0004a	48 83 c4 18	 add	 rsp, 24
+  0004e	c3		 ret	 0
 transpose3to3 ENDP
 _TEXT	ENDS
 ; Function compile flags: /Ogtpy
-; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
 ;	COMDAT transpose3to4
 _TEXT	SEGMENT
 source$ = 8
 target$ = 16
 transpose3to4 PROC					; COMDAT
-
-; 28   :     __m128 t0 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(1, 0, 1, 0));
-
-  00000	0f 10 41 34	 movups	 xmm0, XMMWORD PTR [rcx+52]
-  00004	0f 10 61 30	 movups	 xmm4, XMMWORD PTR [rcx+48]
-
-; 29   :     __m128 t1 = _mm_shuffle_ps(ALIGN(source->m[0][0]), ALIGN(source->m[0][1]), _MM_SHUFFLE(3, 2, 3, 2));
-; 30   :     __m128 t2 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(1, 0, 1, 0));
-
-  00008	0f 10 51 38	 movups	 xmm2, XMMWORD PTR [rcx+56]
-  0000c	0f 28 dc	 movaps	 xmm3, xmm4
-  0000f	0f c6 e0 ee	 shufps	 xmm4, xmm0, 238		; 000000eeH
-  00013	0f c6 d8 44	 shufps	 xmm3, xmm0, 68		; 00000044H
-  00017	0f 28 ca	 movaps	 xmm1, xmm2
-  0001a	0f 57 c0	 xorps	 xmm0, xmm0
-  0001d	0f c6 c8 44	 shufps	 xmm1, xmm0, 68		; 00000044H
-
-; 31   :     __m128 t3 = _mm_shuffle_ps(ALIGN(source->m[0][2]), zeroVec, _MM_SHUFFLE(3, 2, 3, 2));
-
-  00021	0f c6 d0 ee	 shufps	 xmm2, xmm0, 238		; 000000eeH
-
-; 32   : 
-; 33   :     target->colum[0] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(2, 0, 2, 0));
-
-  00025	0f 28 c3	 movaps	 xmm0, xmm3
-  00028	0f c6 c1 88	 shufps	 xmm0, xmm1, 136		; 00000088H
-  0002c	0f 11 02	 movups	 XMMWORD PTR [rdx], xmm0
-
-; 34   :     target->colum[1] = _mm_shuffle_ps(t0, t2, _MM_SHUFFLE(3, 1, 3, 1));
-; 35   :     target->colum[2] = _mm_shuffle_ps(t1, t3, _MM_SHUFFLE(2, 0, 2, 0));
-
-  0002f	0f 28 c4	 movaps	 xmm0, xmm4
-  00032	0f c6 c2 88	 shufps	 xmm0, xmm2, 136		; 00000088H
-  00036	0f c6 d9 dd	 shufps	 xmm3, xmm1, 221		; 000000ddH
-
-; 36   :     target->colum[3] = _mm_shuffle_ps(t1, t3, _MM_SHUFFLE(3, 1, 3, 1));
-
-  0003a	0f c6 e2 dd	 shufps	 xmm4, xmm2, 221		; 000000ddH
-  0003e	0f 11 42 20	 movups	 XMMWORD PTR [rdx+32], xmm0
-  00042	0f 11 5a 10	 movups	 XMMWORD PTR [rdx+16], xmm3
-  00046	0f 11 62 30	 movups	 XMMWORD PTR [rdx+48], xmm4
-
-; 37   : }
-
-  0004a	c3		 ret	 0
+; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
+; Line 28
+  00000	0f 10 41 10	 movups	 xmm0, XMMWORD PTR [rcx+16]
+  00004	0f 10 21	 movups	 xmm4, XMMWORD PTR [rcx]
+; Line 30
+  00007	0f 10 51 20	 movups	 xmm2, XMMWORD PTR [rcx+32]
+  0000b	0f 28 dc	 movaps	 xmm3, xmm4
+  0000e	0f c6 e0 ee	 shufps	 xmm4, xmm0, 238		; 000000eeH
+  00012	0f c6 d8 44	 shufps	 xmm3, xmm0, 68		; 00000044H
+  00016	0f 28 ca	 movaps	 xmm1, xmm2
+  00019	0f 57 c0	 xorps	 xmm0, xmm0
+  0001c	0f c6 c8 44	 shufps	 xmm1, xmm0, 68		; 00000044H
+; Line 31
+  00020	0f c6 d0 ee	 shufps	 xmm2, xmm0, 238		; 000000eeH
+; Line 33
+  00024	0f 28 c3	 movaps	 xmm0, xmm3
+  00027	0f c6 c1 88	 shufps	 xmm0, xmm1, 136		; 00000088H
+  0002b	0f 11 02	 movups	 XMMWORD PTR [rdx], xmm0
+; Line 35
+  0002e	0f 28 c4	 movaps	 xmm0, xmm4
+  00031	0f c6 c2 88	 shufps	 xmm0, xmm2, 136		; 00000088H
+  00035	0f c6 d9 dd	 shufps	 xmm3, xmm1, 221		; 000000ddH
+; Line 36
+  00039	0f c6 e2 dd	 shufps	 xmm4, xmm2, 221		; 000000ddH
+  0003d	0f 11 42 20	 movups	 XMMWORD PTR [rdx+32], xmm0
+  00041	0f 11 5a 10	 movups	 XMMWORD PTR [rdx+16], xmm3
+  00045	0f 11 62 30	 movups	 XMMWORD PTR [rdx+48], xmm4
+; Line 37
+  00049	c3		 ret	 0
 transpose3to4 ENDP
 _TEXT	ENDS
 ; Function compile flags: /Ogtpy
-; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
 ;	COMDAT det_mat3_internal
 _TEXT	SEGMENT
 c0$ = 8
 c1$ = 16
 c2$ = 24
 det_mat3_internal PROC					; COMDAT
-
-; 41   :     //let adding row aligned
-; 42   :     __m128 addc1 = _mm_shuffle_ps(c1, c1, _MM_SHUFFLE(3, 0, 2, 1));
-
+; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
+; Line 42
   00000	0f 10 1a	 movups	 xmm3, XMMWORD PTR [rdx]
-
-; 43   :     __m128 addc2 = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(3, 1, 0, 2));
-
+; Line 43
   00003	41 0f 10 10	 movups	 xmm2, XMMWORD PTR [r8]
   00007	0f 28 e3	 movaps	 xmm4, xmm3
   0000a	0f c6 e3 c9	 shufps	 xmm4, xmm3, 201		; 000000c9H
   0000e	0f 28 c2	 movaps	 xmm0, xmm2
-
-; 44   : 
-; 45   :     //let sub row aligned
-; 46   :     __m128 subc1 = _mm_shuffle_ps(c1, c1, _MM_SHUFFLE(3, 1, 0, 2));
-; 47   :     __m128 subc2 = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(3, 0, 2, 1));
-; 48   : 
-; 49   :     //multple all add row
-; 50   :     __m128 cache = _mm_mul_ps(c0, addc1);
-
+; Line 50
   00011	0f 59 21	 mulps	 xmm4, XMMWORD PTR [rcx]
   00014	0f c6 c2 d2	 shufps	 xmm0, xmm2, 210		; 000000d2H
   00018	0f c6 db d2	 shufps	 xmm3, xmm3, 210		; 000000d2H
-
-; 51   :     cache = _mm_mul_ps(cache, addc2);
-; 52   : 
-; 53   :     //multiple all sub row
-; 54   :     __m128 sub = _mm_mul_ps(c0, subc1);
-
+; Line 54
   0001c	0f 59 19	 mulps	 xmm3, XMMWORD PTR [rcx]
   0001f	0f 59 e0	 mulps	 xmm4, xmm0
   00022	0f c6 d2 c9	 shufps	 xmm2, xmm2, 201		; 000000c9H
-
-; 55   :     sub = _mm_mul_ps(sub, subc2);
-
+; Line 55
   00026	0f 59 da	 mulps	 xmm3, xmm2
-
-; 56   : 
-; 57   :     //main-corner sub sub-corner
-; 58   :     cache = _mm_sub_ps(cache, sub);
-
+; Line 58
   00029	0f 5c e3	 subps	 xmm4, xmm3
-
-; 59   : 
-; 60   :     __m128 ret = _mm_hadd_ps(cache, cache);    //element 1 add element 2
-
+; Line 60
   0002c	0f 28 c4	 movaps	 xmm0, xmm4
   0002f	f2 0f 7c c4	 haddps	 xmm0, xmm4
-
-; 61   :     ret = _mm_add_ps(ret, cache);    //(e1 add e2) add element 3
-
+; Line 61
   00033	0f 58 c4	 addps	 xmm0, xmm4
-
-; 62   : 
-; 63   :     return ret.m128_f32[2];
-
+; Line 63
   00036	0f c6 c0 aa	 shufps	 xmm0, xmm0, 170		; 000000aaH
-
-; 64   : }
-
+; Line 64
   0003a	c3		 ret	 0
 det_mat3_internal ENDP
 _TEXT	ENDS
 ; Function compile flags: /Ogtpy
-; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
 ;	COMDAT det_mat3
 _TEXT	SEGMENT
 mat$ = 8
 det_mat3 PROC						; COMDAT
-
-; 68   :     return det_mat3_internal(
-
+; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\mat3.c
+; Line 68
   00000	0f 10 59 10	 movups	 xmm3, XMMWORD PTR [rcx+16]
   00004	0f 10 51 20	 movups	 xmm2, XMMWORD PTR [rcx+32]
-
-; 42   :     __m128 addc1 = _mm_shuffle_ps(c1, c1, _MM_SHUFFLE(3, 0, 2, 1));
-
+; Line 42
   00008	0f 28 e3	 movaps	 xmm4, xmm3
   0000b	0f c6 e3 c9	 shufps	 xmm4, xmm3, 201		; 000000c9H
-
-; 43   :     __m128 addc2 = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(3, 1, 0, 2));
-
+; Line 43
   0000f	0f 28 c2	 movaps	 xmm0, xmm2
-
-; 44   : 
-; 45   :     //let sub row aligned
-; 46   :     __m128 subc1 = _mm_shuffle_ps(c1, c1, _MM_SHUFFLE(3, 1, 0, 2));
-; 47   :     __m128 subc2 = _mm_shuffle_ps(c2, c2, _MM_SHUFFLE(3, 0, 2, 1));
-; 48   : 
-; 49   :     //multple all add row
-; 50   :     __m128 cache = _mm_mul_ps(c0, addc1);
-
+; Line 50
   00012	0f 59 21	 mulps	 xmm4, XMMWORD PTR [rcx]
   00015	0f c6 c2 d2	 shufps	 xmm0, xmm2, 210		; 000000d2H
   00019	0f c6 db d2	 shufps	 xmm3, xmm3, 210		; 000000d2H
-
-; 51   :     cache = _mm_mul_ps(cache, addc2);
-; 52   : 
-; 53   :     //multiple all sub row
-; 54   :     __m128 sub = _mm_mul_ps(c0, subc1);
-
+; Line 54
   0001d	0f 59 19	 mulps	 xmm3, XMMWORD PTR [rcx]
   00020	0f 59 e0	 mulps	 xmm4, xmm0
   00023	0f c6 d2 c9	 shufps	 xmm2, xmm2, 201		; 000000c9H
-
-; 55   :     sub = _mm_mul_ps(sub, subc2);
-
+; Line 55
   00027	0f 59 da	 mulps	 xmm3, xmm2
-
-; 56   : 
-; 57   :     //main-corner sub sub-corner
-; 58   :     cache = _mm_sub_ps(cache, sub);
-
+; Line 58
   0002a	0f 5c e3	 subps	 xmm4, xmm3
-
-; 59   : 
-; 60   :     __m128 ret = _mm_hadd_ps(cache, cache);    //element 1 add element 2
-
+; Line 60
   0002d	0f 28 c4	 movaps	 xmm0, xmm4
   00030	f2 0f 7c c4	 haddps	 xmm0, xmm4
-
-; 61   :     ret = _mm_add_ps(ret, cache);    //(e1 add e2) add element 3
-
+; Line 61
   00034	0f 58 c4	 addps	 xmm0, xmm4
-
-; 68   :     return det_mat3_internal(
-
+; Line 68
   00037	0f c6 c0 aa	 shufps	 xmm0, xmm0, 170		; 000000aaH
-
-; 69   :         mat->colum[0],
-; 70   :         mat->colum[1],
-; 71   :         mat->colum[2]
-; 72   :     );
-; 73   : }
-
+; Line 73
   0003b	c3		 ret	 0
 det_mat3 ENDP
 _TEXT	ENDS

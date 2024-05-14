@@ -7,6 +7,18 @@
 GladGLContext* currentContext;
 extern char infolog[512] = { 0 };
 
+SSCAPI int SSCDECL glCheckShaderStat(GladGLContext* context,uint64_t shaderHandle , int key, char** logRef)
+{
+    int stat = 0;
+    context->GetShaderiv(shaderHandle, key, &stat);
+    if (!stat)
+    {
+        context->GetShaderInfoLog(shaderHandle, 512, NULL, infolog);
+    }
+    *logRef = infolog;
+    return stat;
+}
+
 SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion)
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
@@ -17,7 +29,7 @@ SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion)
 SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char* procName)
 {
     void* ret = glfwGetProcAddress(procName);
-    printf("%llu\n", (uint64_t)ret);
+    //printf("%llu\n", (uint64_t)ret);
     if (ret = NULL)
     {
         *infolog = "Failed to load OpenGL api:";

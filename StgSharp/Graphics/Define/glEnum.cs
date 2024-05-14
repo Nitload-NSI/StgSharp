@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+
+
 namespace StgSharp.Graphics
 {
     internal enum VkStructureType : uint
@@ -39,6 +41,11 @@ namespace StgSharp.Graphics
         VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK = 1000123000,
         VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT = 1000217000,
         VK_STRUCTURE_TYPE_MAX_ENUM = 0x7FFFFFFF
+    }
+
+    public enum GLOperation : uint
+    {
+        StencilTest = GLconst.STENCIL_TEST,
     }
 
     internal enum VkResult
@@ -113,7 +120,7 @@ namespace StgSharp.Graphics
         STENCIL = GLconst.STENCIL_BUFFER_BIT,
     }
 
-    public enum GepmetryType : uint
+    public enum GeometryType : uint
     {
         POINTS = 0x0000,
         LINES = 0x0001,

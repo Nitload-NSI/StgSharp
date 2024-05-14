@@ -32,6 +32,7 @@ using StgSharp.Math;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -51,34 +52,70 @@ namespace StgSharp.Graphics
         private int _frameCount;
         private int _frameSpeed;
 
-        private short fpsCount;
-
         private IntPtr windowID;
 
+        private short fpsCount;
+        internal Form sharedForm;
+
+        internal int height;
+        internal int width;
+        internal IntPtr monitor;
+
         internal LinkedList<Control> allControl;
-        internal Vector4 backgroundColor;
+        internal string name;
         internal TimeSpanProvider fpsCountProvider;
         internal TimeSpanProvider frameTimeProvider;
-        internal IntPtr graphicContextID;
-        internal int height;
-        internal IntPtr monitor;
-        internal string name;
-        internal Form sharedForm;
-        internal int width;
+        internal Vector4 backgroundColor;
 
-        protected Form()
+        protected Form((int width, int height) size, string name)
         {
             fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
             _frameSpeed = 0;
             _frameCount = 0;
-            fpsCountProvider.SpanRefreshCallback = new TimeSpanRefeshCallback(
+            fpsCountProvider.SpanRefreshCallback =
                 () =>
                 {
                     Interlocked.Exchange(ref _frameSpeed, _frameCount);
                     Interlocked.Exchange(ref _frameCount, 0);
-                    //Console.Clear();
-                    //Console.WriteLine(_frameSpeed);
-                });
+                    Console.Clear();
+                    Console.WriteLine(_frameSpeed);
+                };
+            frameTimeProvider = new TimeSpanProvider(
+                (1000L * 1000L) / 60, TimeSpanProvider.DefaultProvider
+                );
+            frameTimeProvider.SpanRefreshCallback =
+                () =>
+                {
+                };
+            height = size.height;
+            width = size.width;
+            this.name = name;
+        }
+
+        public Form()
+        {
+            fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
+            _frameSpeed = 0;
+            _frameCount = 0;
+            fpsCountProvider.SpanRefreshCallback =
+                () =>
+                {
+                    Interlocked.Exchange(ref _frameSpeed, _frameCount);
+                    Interlocked.Exchange(ref _frameCount, 0);
+                    Console.Clear();
+                    Console.WriteLine(_frameSpeed);
+                };
+            frameTimeProvider = new TimeSpanProvider(
+                (1000L * 1000L) / 60, TimeSpanProvider.DefaultProvider
+                );
+            frameTimeProvider.SpanRefreshCallback =
+                () =>
+                {
+                };
+            height = 800;
+            width = 600;
+            name = new StackFrame(1, false).
+                GetMethod()!.DeclaringType!.Name;
         }
 
         public int CurrentFrameCount => frameTimeProvider.CurrentSpan;
@@ -90,7 +127,14 @@ namespace StgSharp.Graphics
         public int Height
         {
             get => height;
-            set => height = value;
+            set
+            {
+                height = value;
+                if (WindowID != IntPtr.Zero)
+                {
+                    InternalIO.glfwSetWindowSize(windowID, Width, Height);
+                }
+            }
         }
 
         public bool ShouldClose
@@ -109,6 +153,10 @@ namespace StgSharp.Graphics
             {
                 width = (int)value.X;
                 height = (int)value.Y;
+                if (WindowID != IntPtr.Zero)
+                {
+                    InternalIO.glfwSetWindowSize(windowID, Width, Height);
+                }
             }
         }
 
@@ -118,15 +166,27 @@ namespace StgSharp.Graphics
         public int Width
         {
             get => width;
-            set => width = value;
+            set
+            {
+                width = value;
+                if (WindowID != IntPtr.Zero)
+                {
+                    InternalIO.glfwSetWindowSize(windowID, Width, Height);
+                }
+            }
         }
 
 
-        public unsafe IntPtr WindowID => windowID;
+        public unsafe IntPtr WindowID
+        {
+            get => windowID;
+            internal set => windowID = value;
+        }
 
         internal unsafe IntPtr id => windowID;
 
-        protected FrameBufferSizeHandler FrameBufferSizeCallback
+#pragma warning disable CA1044
+        protected FrameBufferSizeHandler FrameSizeCallback
         {
             set
             {
@@ -134,59 +194,26 @@ namespace StgSharp.Graphics
                 InternalIO.glfwSetFramebufferSizeCallback(windowID, handlerPtr);
             }
         }
+#pragma warning restore CA1044
 
-        protected abstract void DeInit();
-
-        /// <summary>
-        /// Necessary operation to init graphic elements this form.
-        /// </summary>
-        /// <param name="gl">OpenGL library binded to current form.</param>
-        protected abstract void Init();
-
-        /// <summary>
-        /// Behaviour of current form when in a frame cycle.
-        /// </summary>
-        protected abstract void Main();
-
-        /// <summary>
-        /// Init an OpenGl context if current form has not been binded to any context. and set the context binded to
-        /// current form as current OpenGL context.
-        /// </summary>
-        /// <exception cref="Exception">
-        /// Something goes wrong and StgSharp fails in creating a new OpenGL context.
-        /// </exception>
-        public unsafe void MakeAsCurrentContext()
+        #region Key Control
+        
+        protected KeyStatus CheckKey(KeyboardKey key)
         {
-            if (windowID == default)
-            {
-                IntPtr windowPtr;
-                byte[] tittleBytes = Encoding.UTF8.GetBytes(name);
-                if (sharedForm == null)
-                {
-                    windowPtr = InternalIO.glfwCreateWindow(width, height, tittleBytes, monitor, IntPtr.Zero);
-                }
-                else
-                {
-                    windowPtr = InternalIO.glfwCreateWindow(width, height, tittleBytes, monitor, sharedForm.windowID);
-                }
-                if (((long)windowPtr == -1) || ((long)windowPtr == -2))
-                {
-                    throw new Exception("Cannot create window instance!");
-                }
-                else
-                {
-                    windowID = windowPtr;
-                }
-
-                graphicContextID = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GLcontext)));
-                GLcontext* contextID = (GLcontext*)graphicContextID;
-                *contextID = new GLcontext();
-                contextID->glGetString = (delegate*<uint, IntPtr>)IntPtr.Zero;
-            }
-            GL.api = (GLcontext*)graphicContextID;
-            InternalIO.glfwMakeContextCurrent(windowID);
+            return InternalIO.glfwGetKey(this.WindowID,(int)key);
         }
 
+        protected KeyStatus CheckKey(Mouse key)
+        {
+            return InternalIO.glfwGetKey(this.WindowID, (int)key);
+        }
+
+        protected KeyStatus CheckKey(Joystick key)
+        {
+            return InternalIO.glfwGetKey(this.WindowID, (int)key);
+        }
+
+        #endregion
 
         /// <summary>
         /// Set all necessary metadata to current form instance
@@ -213,25 +240,12 @@ namespace StgSharp.Graphics
             InternalIO.glfwSetWindowSize(this.windowID, (int)size.X, (int)size.Y);
         }
 
-        protected abstract void ProcessInput();
-
-        /// <summary>
-        /// Resize the current form
-        /// </summary>
-        /// <param name="width">New width of the window</param>
-        /// <param name="height">New height of the window</param>
-        public void SetSize(int width, int height)
-        {
-            this.Width = width;
-            this.Height = height;
-            InternalIO.glfwSetWindowSize(this.windowID, width, height);
-        }
 
         /// <summary>
         /// Set the size limit of current form
         /// </summary>
         /// <param name="minSize">
-        /// Minimun size of current form. In form of a <see cref="vec2d"/> of (width,height)
+        /// Minimum size of current form. In form of a <see cref="vec2d"/> of (width,height)
         /// </param>
         /// <param name="maxSize">
         /// Maximum size of current form. In form of a <see cref="vec2d"/> of (width,height)
@@ -256,19 +270,10 @@ namespace StgSharp.Graphics
         /// <param name="maxHeight">Maximum height of current form</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight)
-        { InternalIO.glfwSetWindowSizeLimits(this.windowID, minWidth, minHeight, maxWidth, maxHeight); }
-
-        #region form main
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void InternalDeInit() { DeInit(); }
-
-
-        unsafe ~Form() { Marshal.FreeHGlobal(graphicContextID); }
-
-        #endregion form main
-
+        {
+            //TODO 重做form的尺寸极限控制
+            InternalIO.glfwSetWindowSizeLimits(this.windowID, minWidth, minHeight, maxWidth, maxHeight);
+        }
 
     }
 

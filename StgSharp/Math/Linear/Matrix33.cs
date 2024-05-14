@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="matrix3x3.cs"
+//     file="Matrix33.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -36,7 +36,7 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(LayoutKind.Explicit, Size = (6 * 4 * sizeof(float)) + sizeof(bool), Pack = 16)]
-    public struct Matrix33
+    public struct Matrix33 : IMat
     {
 
         [FieldOffset(6 * 4 * sizeof(float))] internal bool isTransposed;

@@ -33,9 +33,9 @@ using StgSharp.Graphics;
 using StgSharp.Logic;
 using StgSharp.Math;
 
-namespace StgSharp
+namespace StgSharp.Graphics
 {
-    public static unsafe partial class Operation
+    public partial class Form
     {
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace StgSharp
         /// <param name="form"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static KeyStatus GetKeyStatus(Form form, Key key)
+        public static KeyStatus GetKeyStatus(Form form, KeyboardKey key)
         {
             return InternalIO.glfwGetKey(form.id, (int)key);
         }

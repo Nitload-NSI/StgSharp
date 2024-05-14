@@ -44,7 +44,7 @@ namespace StgSharp
         #region deinit_mat4
 
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "deinit_mat4",
+        [DllImport(SSC_libName, EntryPoint = "deinit_mat4",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern void deinit_mat4(Mat4* mat);
@@ -53,7 +53,7 @@ namespace StgSharp
 
         #region det
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "det_mat4",
+        [DllImport(SSC_libName, EntryPoint = "det_mat4",
             CallingConvention = CallingConvention.Cdecl)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static extern unsafe float det_mat4(Mat4* matPtr, Mat4* transpose);
@@ -63,15 +63,15 @@ namespace StgSharp
 
         #region transpose
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "transpose4to4",
+        [DllImport(SSC_libName, EntryPoint = "transpose4to4",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose4to4_internal(Mat4* source, Mat4* target);
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "transpose4to3",
+        [DllImport(SSC_libName, EntryPoint = "transpose4to3",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose4to3_internal(Mat4* source, Mat3* target);
 
-        [DllImport(InternalIO.SSC_libname, EntryPoint = "transpose4to2",
+        [DllImport(SSC_libName, EntryPoint = "transpose4to2",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe void Transpose4to2_internal(Mat4* source, Mat2* target);
 

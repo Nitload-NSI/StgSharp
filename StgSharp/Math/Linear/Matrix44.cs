@@ -49,10 +49,10 @@ namespace StgSharp.Math
 
         [FieldOffset(0)] internal Mat4 mat;
         [FieldOffset(16 * sizeof(float))] internal Mat4 transpose;
-        [FieldOffset(0 * sizeof(float))] public vec4d Colum0;
-        [FieldOffset(4 * sizeof(float))] public vec4d Colum1;
-        [FieldOffset(8 * sizeof(float))] public vec4d Colum2;
-        [FieldOffset(12 * sizeof(float))] public vec4d Colum3;
+        [FieldOffset(0 * sizeof(float))] internal vec4d colum0;
+        [FieldOffset(4 * sizeof(float))] internal vec4d colum1;
+        [FieldOffset(8 * sizeof(float))] internal vec4d colum2;
+        [FieldOffset(12 * sizeof(float))] internal vec4d colum3;
 
         internal Matrix44(Mat4 mat)
         {
@@ -145,12 +145,19 @@ namespace StgSharp.Math
         }
 
         public static Matrix44 Unit
-=> new Matrix44(
+            => new Matrix44(
                 1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1
             );
+        public static Matrix44 WNegativeUnit
+            => new Matrix44(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, -1
+                );
 
         public static Matrix44 XNegativeUnit
             => new Matrix44(
@@ -173,13 +180,6 @@ namespace StgSharp.Math
                 0, 1, 0, 0,
                 0, 0, -1, 0,
                 0, 0, 0, 1
-                );
-        public static Matrix44 WNegativeUnit
-            => new Matrix44(
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, -1
                 );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -223,7 +223,7 @@ namespace StgSharp.Math
         {
             if (!isTransposed)
             {
-                fixed (Mat4* source = &this.mat, target = &this.transpose)
+                fixed (Mat4* source = &mat, target = &transpose)
                 {
                     InternalIO.Transpose4to4_internal(source, target);
                 }
