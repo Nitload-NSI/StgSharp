@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="matrix2x3.cs"
+//     file="Matrix23.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -36,13 +36,13 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(LayoutKind.Explicit, Size = ((3 + 2) * 4 * sizeof(float)) + sizeof(bool), Pack = 16)]
-    public struct Matrix23
+    public struct Matrix23 : IMat
     {
 
         [FieldOffset(5 * 4 * sizeof(float))] internal bool isTransposed;
+        [FieldOffset(3 * 4 * sizeof(float))] internal Mat2 transpose;
 
         [FieldOffset(0)] internal Mat3 mat;
-        [FieldOffset(3 * 4 * sizeof(float))] internal Mat2 transpose;
 
         internal Matrix23(
             Vector4 c0,

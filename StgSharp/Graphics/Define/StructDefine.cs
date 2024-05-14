@@ -64,20 +64,20 @@ namespace StgSharp.Graphics
         private int major, minor, revision;
 
         /*
-        void (* makeCurrent) (GLFWwindow*);
-        void (* swapBuffers) (GLFWwindow*);
+        void (* makeCurrent) (glfwWindow*);
+        void (* swapBuffers) (glfwWindow*);
         void (* swapInterval) (int);
         int (* extensionSupported) (const byte*);
         GLFWglproc(*getProcAddress)(const byte*);
-        void (* destroy) (GLFWwindow*);
+        void (* destroy) (glfwWindow*);
         */
 
-        private delegate*<GLFWwindow*> makeCurrent;
+        private delegate*<glfwWindow*> makeCurrent;
         private int profile;
         private int release;
         private int robustness;
         private int source;
-        private delegate*<GLFWwindow*> swapBuffer;
+        private delegate*<glfwWindow*> swapBuffer;
         private delegate*<int> swapInterval;
 
         internal struct egl
@@ -114,7 +114,7 @@ namespace StgSharp.Graphics
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct GLFWvidmode
+    public unsafe struct glfwVideomode
     {
 
         /*! The refresh rate, in Hz, of the video mode.
@@ -140,7 +140,7 @@ namespace StgSharp.Graphics
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct GLFWgammaramp
+    public unsafe struct glfwGammaramp
     {
 
         /*! An array of value describing the response of the blue channel.
@@ -166,13 +166,13 @@ namespace StgSharp.Graphics
         /*! The height, in pixels, of this image.
          */
         private int height;
+        /*! The width, in pixels, of this image.
+         */
+        private int width;
         /*! The pixel data of this image, arranged left-to-right, top-to-bottom.
          */
         private byte* pixels;
 
-        /*! The width, in pixels, of this image.
-         */
-        private int width;
 
     }
 
@@ -210,134 +210,100 @@ namespace StgSharp.Graphics
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct GLFWmonitor
+    public unsafe struct glfwMonitor
     {
 
-        private GLFWvidmode currentMode;
-        private GLFWgammaramp currentRamp;
+        private fixed byte name[128];
+        private IntPtr userPointer;
 
+        private int width, height;
+
+        private glfwWindow* window;
+
+        private glfwVideomode* modes;
         private int modeCount;
+        private glfwVideomode currentMode;
 
-        //GLFWvidmode* modes;
-        private IntPtr modes;
+        private glfwGammaramp originalRamp;
+        private glfwGammaramp currentRamp;
 
-        private byte[] name = new byte[128];
-
-        private GLFWgammaramp originalRamp;
-        private void* userPointer;
-
-        // Physical dimensions in millimeters.
-        private int widthMM, heightMM;
-
-        // The window whose video mode is current on this monitor
-        //GLFWwindow* window;
-        private IntPtr window;
-
-        // not transformed
-        //GLFW_PLATFORM_MONITOR_STATE;
-
-        public GLFWmonitor()
+        public glfwMonitor()
         { }
 
+        public unsafe string Name
+        {
+            get 
+            {
+                fixed (byte* cptr = name)
+                {
+                    return Marshal.PtrToStringAnsi((IntPtr)cptr);
+                }
+            }
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct GLFWwindow
+    unsafe struct glfwWindow
     {
+        glfwWindow* next;
 
-        private int autoIconify;
+        // Window settings and state
+        int resizable;
+        int decorated;
+        int autoIconify;
+        int floating;
+        int focusOnShow;
+        int mousePassthrough;
+        int shouldClose;
+        void* userPointer;
+        int doublebuffer;
+        // glfwVideomode videoMode; // 根据GLFWvidmode的定义转换
+        IntPtr monitor; // _GLFWmonitor* monitor;
+        IntPtr cursor; // _GLFWcursor* cursor;
 
-        private fixed long callBacks[17];
-        private GLFWcursor* cursor = (GLFWcursor*)0;
-        private int cursorMode = 0;
-        private int decorated;
-        private bool doubleBuffer;
-        private int floating;
-        private int focusOnShow;
-        private fixed byte keys[349];
-        private int lockKeyMods;
-        private int maxWidth = 0, maxHeight = 0;
+        int minwidth, minheight;
+        int maxwidth, maxheight;
+        int numer, denom;
 
-        private int minWidth = 0, minHeight = 0;
-        private IntPtr monitor = IntPtr.Zero;   //public GLFWmonitor* monitor;
-        private fixed byte mouseButtons[8];
-        private int mousePassthrough;
-        private int numer = 0, denom = 0;
-        private int rawMouseMotion;
-
-        private int resizable;
-        private int stickyKeys;
-        private int stickyMouseButtons;
-        private void* userPointer = (void*)0;
-        private GLFWvidmode videoMode = default;
-        internal int shouldClose;
-
-        public GLFWcontext context = default;
-
-        //struct GLFWwindow* next in GLFW
-        public GLFWwindow* next;
+        int stickyKeys;
+        int stickyMouseButtons;
+        int lockKeyMods;
+        int cursorMode;
+        public fixed byte mouseButtons[GLconst.GLFW_MOUSE_BUTTON_LAST + 1];
+        public fixed byte keys[GLconst.GLFW_KEY_LAST + 1];
 
         // Virtual cursor position when cursor is disabled
-        public double virtualCursorPosX = 0, virtualCursorPosY = 0;
+        double virtualCursorPosX, virtualCursorPosY;
+        bool rawMouseMotion;
 
-        public GLFWwindow()
-        {
-        }
+        // _GLFWcontext context; // 根据_GLFWcontext的定义转换
 
-        public bool AutoIconify
+        // Callbacks are represented as IntPtr since we don't need the actual function pointers in C#
+        internal struct Callbacks
         {
-            get => autoIconify != 0;
-            set => autoIconify = value ? 1 : 0;
+            internal IntPtr pos;
+            internal IntPtr size;
+            internal IntPtr close;
+            internal IntPtr refresh;
+            internal IntPtr focus;
+            internal IntPtr iconify;
+            internal IntPtr maximize;
+            internal IntPtr fbsize;
+            internal IntPtr scale;
+            internal IntPtr mouseButton;
+            internal IntPtr cursorPos;
+            internal IntPtr cursorEnter;
+            internal IntPtr scroll;
+            internal IntPtr key;
+            internal IntPtr character;
+            internal IntPtr charmods;
+            internal IntPtr drop;
         }
-        public bool Decorated
-        {
-            get => decorated != 0;
-            set => decorated = value ? 1 : 0;
-        }
-        public bool Floating
-        {
-            get => floating != 0;
-            set => floating = value ? 1 : 0;
-        }
-        public bool FocusOnShow
-        {
-            get => focusOnShow != 0;
-            set => focusOnShow = value ? 1 : 0;
-        }
-        public bool LockKeyMods
-        {
-            get => lockKeyMods != 0;
-            set => lockKeyMods = value ? 1 : 0;
-        }
-        public bool MousePassThrough
-        {
-            get => mousePassthrough != 0;
-            set => mousePassthrough = value ? 1 : 0;
-        }
-        public bool RawMouseMotion { get => rawMouseMotion != 0; set => rawMouseMotion = value ? 1 : 0; }
-        public bool Resizable
-        {
-            get => resizable != 0;
-            set => resizable = value ? 1 : 0;
-        }
-        public bool ShouldClose
-        {
-            get => shouldClose != 0;
-            set => shouldClose = value ? 1 : 0;
-        }
+        Callbacks callbacks;
 
-        public bool StickyKey
-        {
-            get => stickyKeys != 0;
-            set => stickyKeys = value ? 1 : 0;
-        }
-        public bool StickyMouseButtons
-        {
-            get => stickyMouseButtons != 0;
-            set => stickyMouseButtons = value ? 1 : 0;
-        }
+    // GLFW_PLATFORM_WINDOW_STATE platformWindowState; 
+}
 
-    }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct GLFWwindowCallback
@@ -479,7 +445,7 @@ namespace StgSharp.Graphics
         private int release;
         private int robustness;
 
-        //GLFWwindow* share;
+        //glfwWindow* share;
         private IntPtr share;
         private int source;
 
@@ -558,7 +524,7 @@ namespace StgSharp.Graphics
 
         private GLFWplatform platform;
 
-        //GLFWwindow* windowListHead;
+        //glfwWindow* windowListHead;
         private IntPtr windowListHead;
 
         internal Callbacks callbacks = new Callbacks();
@@ -791,7 +757,7 @@ namespace StgSharp.Graphics
         // EGL
         //EGLenum(*getEGLPlatform)(EGLint**);
         //EGLNativeDisplayType(*getEGLNativeDisplay)(void);
-        //EGLNativeWindowType(*getEGLNativeWindow)(GLFWwindow*);
+        //EGLNativeWindowType(*getEGLNativeWindow)(glfwWindow*);
         internal IntPtr getEGLPlatform;
         internal IntPtr getFramebufferSize;
         internal IntPtr getGammaRamp;
@@ -805,7 +771,7 @@ namespace StgSharp.Graphics
         // vulkan
         //void (* getRequiredInstanceExtensions) (byte**);
         //GLFWbool(*getPhysicalDevicePresentationSupport)(VkInstance, VkPhysicalDevice, uint32_t);
-        //VkResult(*createWindowSurface)(VkInstance, GLFWwindow*,const VkAllocationCallbacks*, VkSurfaceKHR*);
+        //VkResult(*createWindowSurface)(VkInstance, glfwWindow*,const VkAllocationCallbacks*, VkSurfaceKHR*);
         internal IntPtr getRequiredInstanceExtensions;
         internal IntPtr getScancodeName;
         internal IntPtr getVideoMode;
@@ -831,15 +797,15 @@ namespace StgSharp.Graphics
         internal IntPtr setCursorMode;
 
         #region input
-        /* void (* getCursorPos) (GLFWwindow*, double*, double*);
-        void (* setCursorPos) (GLFWwindow*, double, double);
-        void (* setCursorMode) (GLFWwindow*, int);
-        void (* setRawMouseMotion) (GLFWwindow*, GLFWbool);
+        /* void (* getCursorPos) (glfwWindow*, double*, double*);
+        void (* setCursorPos) (glfwWindow*, double, double);
+        void (* setCursorMode) (glfwWindow*, int);
+        void (* setRawMouseMotion) (glfwWindow*, GLFWbool);
         GLFWbool(*rawMouseMotionSupported)(void);
         GLFWbool(*createCursor)(GLFWcursor*,const GLFWimage*,int,int);
         GLFWbool(*createStandardCursor)(GLFWcursor*, int);
         void (* destroyCursor) (GLFWcursor*);
-        void (* setCursor) (GLFWwindow*, GLFWcursor*);
+        void (* setCursor) (glfwWindow*, GLFWcursor*);
         const byte* (*getScancodeName)(int);
         int (* getKeyScancode) (int);
         void (* setClipboardString) (const byte*);
@@ -854,44 +820,44 @@ namespace StgSharp.Graphics
         void (* getMonitorPos) (GLFWmonitor*, int*, int*);
         void (* getMonitorContentScale) (GLFWmonitor*, float*, float*);
         void (* getMonitorWorkarea) (GLFWmonitor*, int*, int*, int*, int*);
-        GLFWvidmode* (* getVideoModes) (GLFWmonitor*, int*);
-        void (* getVideoMode) (GLFWmonitor*, GLFWvidmode*);
-        GLFWbool(*getGammaRamp)(GLFWmonitor*, GLFWgammaramp*);
-        void (* setGammaRamp) (GLFWmonitor*,const GLFWgammaramp*);
+        glfwVideomode* (* getVideoModes) (GLFWmonitor*, int*);
+        void (* getVideoMode) (GLFWmonitor*, glfwVideomode*);
+        GLFWbool(*getGammaRamp)(GLFWmonitor*, glfwGammaramp*);
+        void (* setGammaRamp) (GLFWmonitor*,const glfwGammaramp*);
         // window
-        GLFWbool(*createWindow)(GLFWwindow*,const GLFWwndconfig*,const GLFWctxconfig*,const GLFWfbconfig*);
-        void (* destroyWindow) (GLFWwindow*);
-        void (* setWindowTitle) (GLFWwindow*,const byte*);
-        void (* setWindowIcon) (GLFWwindow*, int,const GLFWimage*);
-        void (* getWindowPos) (GLFWwindow*, int*, int*);
-        void (* setWindowPos) (GLFWwindow*, int, int);
-        void (* getWindowSize) (GLFWwindow*, int*, int*);
-        void (* setWindowSize) (GLFWwindow*, int, int);
-        void (* setWindowSizeLimits) (GLFWwindow*, int, int, int, int);
-        void (* setWindowAspectRatio) (GLFWwindow*, int, int);
-        void (* getFramebufferSize) (GLFWwindow*, int*, int*);
-        void (* getWindowFrameSize) (GLFWwindow*, int*, int*, int*, int*);
-        void (* getWindowContentScale) (GLFWwindow*, float*, float*);
-        void (* iconifyWindow) (GLFWwindow*);
-        void (* restoreWindow) (GLFWwindow*);
-        void (* maximizeWindow) (GLFWwindow*);
-        void (* showWindow) (GLFWwindow*);
-        void (* hideWindow) (GLFWwindow*);
-        void (* requestWindowAttention) (GLFWwindow*);
-        void (* focusWindow) (GLFWwindow*);
-        void (* setWindowMonitor) (GLFWwindow*, GLFWmonitor*, int, int, int, int, int);
-        GLFWbool(*windowFocused)(GLFWwindow*);
-        GLFWbool(*windowIconified)(GLFWwindow*);
-        GLFWbool(*windowVisible)(GLFWwindow*);
-        GLFWbool(*windowMaximized)(GLFWwindow*);
-        GLFWbool(*windowHovered)(GLFWwindow*);
-        GLFWbool(*framebufferTransparent)(GLFWwindow*);
-        float (* getWindowOpacity) (GLFWwindow*);
-        void (* setWindowResizable) (GLFWwindow*, GLFWbool);
-        void (* setWindowDecorated) (GLFWwindow*, GLFWbool);
-        void (* setWindowFloating) (GLFWwindow*, GLFWbool);
-        void (* setWindowOpacity) (GLFWwindow*, float);
-        void (* setWindowMousePassthrough) (GLFWwindow*, GLFWbool);
+        GLFWbool(*createWindow)(glfwWindow*,const GLFWwndconfig*,const GLFWctxconfig*,const GLFWfbconfig*);
+        void (* destroyWindow) (glfwWindow*);
+        void (* setWindowTitle) (glfwWindow*,const byte*);
+        void (* setWindowIcon) (glfwWindow*, int,const GLFWimage*);
+        void (* getWindowPos) (glfwWindow*, int*, int*);
+        void (* setWindowPos) (glfwWindow*, int, int);
+        void (* getWindowSize) (glfwWindow*, int*, int*);
+        void (* setWindowSize) (glfwWindow*, int, int);
+        void (* setWindowSizeLimits) (glfwWindow*, int, int, int, int);
+        void (* setWindowAspectRatio) (glfwWindow*, int, int);
+        void (* getFramebufferSize) (glfwWindow*, int*, int*);
+        void (* getWindowFrameSize) (glfwWindow*, int*, int*, int*, int*);
+        void (* getWindowContentScale) (glfwWindow*, float*, float*);
+        void (* iconifyWindow) (glfwWindow*);
+        void (* restoreWindow) (glfwWindow*);
+        void (* maximizeWindow) (glfwWindow*);
+        void (* showWindow) (glfwWindow*);
+        void (* hideWindow) (glfwWindow*);
+        void (* requestWindowAttention) (glfwWindow*);
+        void (* focusWindow) (glfwWindow*);
+        void (* setWindowMonitor) (glfwWindow*, GLFWmonitor*, int, int, int, int, int);
+        GLFWbool(*windowFocused)(glfwWindow*);
+        GLFWbool(*windowIconified)(glfwWindow*);
+        GLFWbool(*windowVisible)(glfwWindow*);
+        GLFWbool(*windowMaximized)(glfwWindow*);
+        GLFWbool(*windowHovered)(glfwWindow*);
+        GLFWbool(*framebufferTransparent)(glfwWindow*);
+        float (* getWindowOpacity) (glfwWindow*);
+        void (* setWindowResizable) (glfwWindow*, GLFWbool);
+        void (* setWindowDecorated) (glfwWindow*, GLFWbool);
+        void (* setWindowFloating) (glfwWindow*, GLFWbool);
+        void (* setWindowOpacity) (glfwWindow*, float);
+        void (* setWindowMousePassthrough) (glfwWindow*, GLFWbool);
         void (* pollEvents) (void);
         void (* waitEvents) (void);
         void (* waitEventsTimeout) (double);

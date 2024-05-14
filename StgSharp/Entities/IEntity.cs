@@ -31,6 +31,7 @@
 using StgSharp.Geometries;
 using StgSharp.Math;
 
+using System;
 using System.Collections.Generic;
 
 namespace StgSharp
@@ -42,7 +43,7 @@ namespace StgSharp
         internal Point _basePoint;
         internal LinkedList<PlainGeometry> _collisionBox;
         internal Sensor<PlainGeometry> _collisionSensor;
-        internal GetLocationHandler _movHandler;
+        internal Func<int,vec3d> _movHandler;
         internal Point _pos;
         internal Point _position;
         internal string _texture;

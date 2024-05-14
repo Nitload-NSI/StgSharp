@@ -41,9 +41,9 @@ namespace StgSharp.Geometries
     {
 
         internal Point center;
-        internal GetLocationHandler movBeginOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
-        internal GetLocationHandler movCenterOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
-        internal GetLocationHandler movEndOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
+        internal Func<int,vec3d> movBeginOperation =  GeometryOperation.DefaultMotion;
+        internal Func<int,vec3d> movCenterOperation = GeometryOperation.DefaultMotion;
+        internal Func<int,vec3d> movEndOperation =    GeometryOperation.DefaultMotion;
         internal Point pointOnCircle;
         internal Point pointOnPlain;
 
@@ -79,9 +79,9 @@ namespace StgSharp.Geometries
         internal override void UpdateCoordinate(int tick)
         {
             tick = time;
-            center.Position = this.coordinate.origin + MoveCenter(tick);
-            pointOnCircle.Position = this.coordinate.origin + UpdateRadius(tick);
-            pointOnPlain.Position = this.coordinate.origin + UpdatePlain(tick);
+            center.Position = this.coordinate.Origin + MoveCenter(tick);
+            pointOnCircle.Position = this.coordinate.Origin + UpdateRadius(tick);
+            pointOnPlain.Position = this.coordinate.Origin + UpdatePlain(tick);
         }
 
     }

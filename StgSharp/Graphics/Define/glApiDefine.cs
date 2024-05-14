@@ -74,7 +74,7 @@ namespace StgSharp.Graphics
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate void glfwGetFramebufferSize(IntPtr window, int* width, int* height);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate byte* glfwGetGamepadName(int jid);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate int glfwGetGamepadState(int jid, GLFWgamepadstate* state);
-    [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate GLFWgammaramp* glfwGetGammaRamp(IntPtr monitor);
+    [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate glfwGammaramp* glfwGetGammaRamp(IntPtr monitor);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate int glfwGetInputMode(IntPtr window, int mode);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate float* glfwGetJoystickAxes(int jid, int* count);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate byte* glfwGetJoystickButtons(int jid, int* count);
@@ -101,8 +101,8 @@ namespace StgSharp.Graphics
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate ulong* glfwGetTimerValue();
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate void glfwGetVersion(int* major, int* minor, int* rev);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate byte* glfwGetVersionString();
-    [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate GLFWvidmode* glfwGetVideoMode(IntPtr monitor);
-    [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate GLFWvidmode* glfwGetVideoModes(IntPtr monitor, int* count);
+    [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate glfwVideomode* glfwGetVideoMode(IntPtr monitor);
+    [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate glfwVideomode* glfwGetVideoModes(IntPtr monitor, int* count);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate int glfwGetWindowAttrib(IntPtr window, int attrib);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate void glfwGetWindowContentScale(IntPtr window, float* xscale, float* yscale);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate void glfwGetWindowFrameSize(IntPtr window, int* left, int* top, int* right, int* bottom);
@@ -135,7 +135,7 @@ namespace StgSharp.Graphics
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate GLFWerrorfun glfwSetErrorCallback(GLFWerrorfun callback);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate FramebuffersizeHandler glfwSetFramebufferSizeCallback(IntPtr window, IntPtr callback);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate void glfwSetGamma(IntPtr monitor, float gamma);
-    [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate void glfwSetGammaRamp(IntPtr monitor, GLFWgammaramp* ramp);
+    [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate void glfwSetGammaRamp(IntPtr monitor, glfwGammaramp* ramp);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate void glfwSetInputMode(IntPtr window, int mode, int value);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun callback);
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate void glfwSetJoystickUserPointer(int jid, void* pointer);
@@ -177,7 +177,7 @@ namespace StgSharp.Graphics
     [UnmanagedFunctionPointer(callingConvention: CallingConvention.StdCall, CharSet = CharSet.Ansi)] internal unsafe delegate int glfwWindowShouldClose(IntPtr window);
     //[UnmanagedFunctionPointer(callingConvention: CallingConvention.Cdecl, CharSet = CharSet.Ansi)] internal unsafe delegate GLFWvkproc glfwGetInstanceProcAddress(VkInstance instance, byte* procname);
     //[UnmanagedFunctionPointer(callingConvention: CallingConvention.Cdecl, CharSet = CharSet.Ansi)] internal unsafe delegate int glfwGetPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice device, uint* queuefamily);
-    //[UnmanagedFunctionPointer(callingConvention: CallingConvention.Cdecl, CharSet = CharSet.Ansi)] internal unsafe delegate VkResult glfwCreateWindowSurface(VkInstance instance, GLFWwindow* window, VkAllocationCallbacks* allocator, VkSurfaceKHR* surface);
+    //[UnmanagedFunctionPointer(callingConvention: CallingConvention.Cdecl, CharSet = CharSet.Ansi)] internal unsafe delegate VkResult glfwCreateWindowSurface(VkInstance instance, glfwWindow* window, VkAllocationCallbacks* allocator, VkSurfaceKHR* surface);
 
 
     #endregion

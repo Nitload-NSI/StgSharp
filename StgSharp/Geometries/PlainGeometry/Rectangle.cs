@@ -46,21 +46,23 @@ namespace StgSharp.Geometries
                 v0x, v0y, v0z,
                 v1x, v1y, v1z,
                 v2x, v2y, v2z,
-                v3x, v2y, v3z
+                v3x, v3y, v3z
                 )
         {
-            vec2d side0 = vertexMat.Colum0 - vertexMat.Colum1;
-            vec2d side1 = vertexMat.Colum2 - vertexMat.Colum1;
+#if DEBUG
+            vec2d side0 = new vec2d( vertexMat.colum0 - vertexMat.colum1);
+            vec2d side1 = new vec2d( vertexMat.colum2 - vertexMat.colum1);
             if (side0.Cross(side1) == 0)
             {
-
+                throw new ArgumentException();
             }
+#endif
         }
 
         /// <summary>
-        /// 计算中心点相对于参考原点的位移
+        /// Calculate movement to center
         /// </summary>
-        /// <param name="tick">当前游戏刻</param>
+        /// <param name="tick">Current time tick</param>
         /// <returns></returns>
         public virtual vec3d MovCenter(uint tick)
         {

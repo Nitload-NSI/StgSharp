@@ -15,9 +15,9 @@ namespace StgSharp.Graphics
 
     public class FrameBuffer : BufferObjectBase
     {
-        internal unsafe FrameBuffer(int count, IntPtr contextBinding)
+        internal unsafe FrameBuffer(int count, glRenderStream contextBinding)
         {
-            binding = contextBinding;
+            binding = contextBinding.ContextHandle;
             _bufferHandle = new glHandleSet(count);
             ((GLcontext*)binding)->glGenFramebuffers((uint)count,_bufferHandle.handle);
         }

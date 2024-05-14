@@ -37,7 +37,7 @@ Stg# on windows has two files, C# code are compiled in file "StgSharp.dll", whil
 
 StgSharp looks forward to provide support to different graphic APIs. We prepare to provide Vulcan support at 2.0 version.
 
-StgSharp will also bew available on
+StgSharp will also bew available on different OS platforms, listed in Version History. It is needed to be informed that we removed plan on OS X series and HarmonyOS from recent plans.
 
 ## Version History *
 

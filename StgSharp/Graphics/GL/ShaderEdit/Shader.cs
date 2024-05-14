@@ -29,19 +29,23 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp;
+using StgSharp.Data;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Xml.Linq;
 
 namespace StgSharp.Graphics
 {
-    public partial class Form
+    public partial class glRenderStream
     {
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected Shader CreateShader(ShaderType type, int count)
+        protected sealed override Shader CreateShaderSegment(ShaderType type, int count)
         {
             return new Shader( GL.CreateShaderSet(count, type), type);
         }
@@ -50,23 +54,25 @@ namespace StgSharp.Graphics
         /// </summary>
         /// <returns>New instance of <see cref="Shader"/> instance. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected ShaderProgram CreateShaderProgram()
+        protected sealed override ShaderProgram CreateShaderProgram()
         {
             return new ShaderProgram(this);
         }
     }
 
-    public class Shader
+    public class Shader : SSDSerializable
     {
 
         private readonly IntPtr context;
         internal readonly glHandleSet handle;
         public readonly ShaderType type;
 
+        public override SerializableTypeCode SSDTypeCode => SerializableTypeCode.Shader;
+
         internal unsafe Shader(glHandleSet handle, ShaderType usage)
         {
             this.handle = handle;
-            context = (IntPtr)GL.api;
+            context = GL.CurrentContextHandle;
             type = usage;
         }
 
@@ -81,6 +87,16 @@ namespace StgSharp.Graphics
             GL.AttachShader(target.handle, handle[index]);
         }
 
+        public static string FromCodeFile(string fileRoute)
+        {
+            string str = File.ReadAllText(fileRoute);
+            if (str == "")
+            {
+                throw new Exception($"Cannot load and GLSL code from {fileRoute}");
+            }
+            return str;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Compile(int index, string code)
         {
@@ -90,6 +106,7 @@ namespace StgSharp.Graphics
             }
             GL.LoadShaderSource(handle[index], $"{code}\0");
             GL.CompileShader(handle[index]);
+            CheckStatus(index,ShaderStatus.CompileStatus);
         }
 
         public override string ToString()
@@ -97,6 +114,35 @@ namespace StgSharp.Graphics
             return $"This is a {type} shader, its shader handles are {handle.ToString()}.";
         }
 
+        //TODO shader 的序列化究极麻烦，原因是shader的架构问题
+        public override byte[] GetBytes()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CheckStatus(int index, ShaderStatus status)
+        {
+            string log = GL.GetShaderStatus(this,index, (int)status);
+            if (log != "")
+            {
+                throw new Exception($"Shader Error\n{status}\n" + log);
+            }
+        }
+
+        public override byte[] GetBytes(out int length)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void BuildFromByteStream(byte[] stream)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public enum ShaderStatus : int
+    {
+        CompileStatus = GLconst.COMPILE_STATUS,
     }
 
     public class ShaderProgram
@@ -108,9 +154,9 @@ namespace StgSharp.Graphics
         /// <summary>
         /// Init a program with no shader attached.
         /// </summary>
-        internal unsafe ShaderProgram(Form binding)
+        internal unsafe ShaderProgram(glRenderStream binding)
         {
-            this.binding = binding.graphicContextID;
+            this.binding = binding.ContextHandle;
             handle = GL.CreateProgram();
         }
 

@@ -40,12 +40,13 @@ namespace StgSharp.Geometries
     public class Arc : PlainGeometry
     {
 
+        internal Func<int, vec3d> movBeginOperation = GeometryOperation.DefaultMotion;
+        internal Func<int, vec3d> movCenterOperation = GeometryOperation.DefaultMotion;
+        internal Func<int, vec3d> movEndOperation = GeometryOperation.DefaultMotion;
+
         internal Point beginPoint;
         internal Point center;
         internal Point endPoint;
-        internal GetLocationHandler movBeginOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
-        internal GetLocationHandler movCenterOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
-        internal GetLocationHandler movEndOperation = new GetLocationHandler(GeometryOperation.DefualtMotion);
 
         internal override int[] Indices => throw new NotImplementedException();
 
@@ -77,9 +78,9 @@ namespace StgSharp.Geometries
         internal override void UpdateCoordinate(int tick)
         {
             tick = time;
-            center.Position = this.coordinate.origin + MoveCenter(tick);
-            beginPoint.Position = this.coordinate.origin + MovBegin(tick);
-            endPoint.Position = this.coordinate.origin + MovEnd(tick);
+            center.Position = this.coordinate.Origin + MoveCenter(tick);
+            beginPoint.Position = this.coordinate.Origin + MovBegin(tick);
+            endPoint.Position = this.coordinate.Origin + MovEnd(tick);
         }
 
     }

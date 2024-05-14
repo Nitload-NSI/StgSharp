@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="GLonRender.cs"
+//     file="GLpack.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Graphics;
 using StgSharp.Logic;
 using StgSharp.Math;
 
@@ -38,34 +39,71 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
+namespace StgSharp
+{
+    internal static unsafe partial class InternalIO
+    {
+        [DllImport(SSC_libName, EntryPoint = "glCheckShaderStat",
+            CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int glCheckShaderStatus(ref GLcontext context, uint shaderHandle,int key, ref IntPtr logPtr);
+    }
+}
 namespace StgSharp.Graphics
 {
-    internal unsafe static partial class GL
+    internal static unsafe partial class GL
     {
-        internal static GLcontext* api;
+
+        private static GLcontext* context;
+
+        public static IntPtr CurrentContextHandle
+        {
+            get { return (IntPtr)context; }
+            set 
+            {
+                context = (GLcontext*)value;
+            }
+        }
+
+        private static ref GLcontext Context
+        {
+            get 
+            {
+#if DEBUG
+                if ((IntPtr)context==IntPtr.Zero)
+                {
+                    throw new NullReferenceException();
+                }
+#endif
+                return ref *context;
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ActiveTexture(uint type)
         {
-            api->glActiveTexture(type);
+            Context.glActiveTexture(type);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AttachShader(glHandle program, glHandle shader)
         {
-            api->glAttachShader(program.Value, shader.Value);
+            Context.glAttachShader(program.Value, shader.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BindBuffer(BufferType bufferType, glHandle handle)
         {
-            api->glBindBuffer((uint)bufferType, handle.Value);
+            Context.glBindBuffer((uint)bufferType, handle.Value);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void BindTexture(uint type, glHandle texture)
+        public static string GetShaderStatus(Shader s, int index, int key)
         {
-            api->glBindTexture(type, texture.Value);
+            IntPtr sptr = IntPtr.Zero;
+            if (InternalIO.glCheckShaderStatus(ref Context, s.handle[index].Value, key,ref sptr) == 0)
+            {
+                return Marshal.PtrToStringAnsi(sptr);
+            }
+            return "";
         }
 
         /// <summary>
@@ -77,43 +115,62 @@ namespace StgSharp.Graphics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BindFrameBuffer(FrameBufferTarget target, glHandle handle)
         {
-            api->glBindFramebuffer((uint)target,handle.Value);
+            Context.glBindFramebuffer((uint)target, handle.Value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void BindTexture(uint type, glHandle texture)
+        {
+            Context.glBindTexture(type, texture.Value);
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BindVertexArray(glHandle handle)
         {
-            api->glBindVertexArray(handle.Value);
+            Context.glBindVertexArray(handle.Value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void VertexAttributeDivisor(uint layoutIndex, uint divisor)
+        {
+            Context.glVertexAttribDivisor(layoutIndex, divisor);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear(MaskBufferBit mask)
         {
-            api->glClear((uint)mask);
+            Context.glClear((uint)mask);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe public static void ClearColor(float R, float G, float B, float A)
+        public static unsafe void ClearColor(float R, float G, float B, float A)
         {
-            api->glClearColor(R, G, B, A);
+            Context.glClearColor(R, G, B, A);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe public static void ClearGraphicError()
+        public static unsafe void ClearGraphicError()
         {
-            while (api->glGetError() != 0) { }
+            while (Context.glGetError() != 0) { }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CompileShader(glHandle shaderhandle)
         {
-            api->glCompileShader(shaderhandle.Value);
+            Context.glCompileShader(shaderhandle.Value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe glHandle CreateGraphicProgram()
+        {
+            return glHandle.Alloc(Context.glCreateProgram());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static glHandle CreateProgram()
         {
-            return glHandle.Alloc(api->glCreateProgram());
+            return glHandle.Alloc(Context.glCreateProgram());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,7 +179,7 @@ namespace StgSharp.Graphics
             glHandleSet h = new glHandleSet(count);
             for (int i = 0; i < count; i++)
             {
-                h.SetValue(i, api->glCreateProgram());
+                h.SetValue(i, Context.glCreateProgram());
             }
             return h;
         }
@@ -134,10 +191,10 @@ namespace StgSharp.Graphics
             uint t = (uint)type;
             for (int i = 0; i < count; i++)
             {
-                uint id = api->glCreateShader(t);
+                uint id = Context.glCreateShader(t);
                 if (id == 0)
                 {
-                    uint error = api->glGetError();
+                    uint error = Context.glGetError();
                     InternalIO.InternalWriteLog($"Failed in creating shader: {error}", LogType.Error);
                     throw new Exception();
                 }
@@ -173,33 +230,27 @@ namespace StgSharp.Graphics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe glHandle CreateGraphicProgram()
+        public static unsafe void DeleteBuffer(glHandle handle)
         {
-            return glHandle.Alloc(api->glCreateProgram());
+            Context.glDeleteBuffers(1, (uint*)handle.Handle);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe public static void DeleteBuffer(glHandle handle)
+        public static unsafe void DeleteBuffers(glHandleSet handle)
         {
-            api->glDeleteBuffers(1, (uint*)handle.Handle);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe public static void DeleteBuffers(glHandleSet handle)
-        {
-            api->glDeleteBuffers(handle.length, (uint*)handle.Handle);
+            Context.glDeleteBuffers(handle.length, (uint*)handle.Handle);
             handle.Release();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe public static void DeleteVertexArrays(glHandleSet arrays)
+        public static unsafe void DeleteVertexArrays(glHandleSet arrays)
         {
-            api->glDeleteVertexArrays(arrays.length, (uint*)arrays.Handle);
+            Context.glDeleteVertexArrays(arrays.length, (uint*)arrays.Handle);
             arrays.Release();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe public static void DrawElements(GepmetryType mode, uint count, TypeCode type, IntPtr ptr)
+        public static unsafe void DrawElements(GeometryType mode, uint count, TypeCode type, IntPtr ptr)
         {
             uint a;
             switch (type)
@@ -222,14 +273,49 @@ namespace StgSharp.Graphics
                         LogType.Error);
                     return;
             }
-            api->glDrawElements((uint)mode, count, a, (void*)ptr);
+            Context.glDrawElements((uint)mode, count, a, (void*)ptr);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void DrawElementsInstanced(
+            GeometryType mode , uint count, TypeCode type, IntPtr ptr, uint amount
+            )
+        {
+            uint a;
+            switch (type)
+            {
+                case TypeCode.UInt32:
+                    a = GLconst.UNSIGNED_INT;
+                    break;
+
+                case TypeCode.UInt16:
+                    a = GLconst.UNSIGNED_SHORT;
+                    break;
+
+                case TypeCode.Byte:
+                    a = GLconst.UNSIGNED_BYTE;
+                    break;
+
+                default:
+                    InternalIO.InternalWriteLog(
+                        $"{$"Parameter error in parameter {nameof(type)} method DrawElements. "}{$"Only {typeof(uint).Name},{typeof(ushort).Name},{typeof(byte).Name} types are supported."}",
+                        LogType.Error);
+                    return;
+            }
+            Context.glDrawElementsInstanced((uint)mode, count, a, (void*)ptr,amount);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Enable(GLOperation operation)
+        {
+            Context.glEnable((uint)operation);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe glHandleSet GenBuffers(int count)
         {
             glHandleSet h = new glHandleSet(count);
-            api->glGenBuffers(count, (uint*)h.Handle);
+            Context.glGenBuffers(count, (uint*)h.Handle);
             return h;
         }
 
@@ -237,7 +323,7 @@ namespace StgSharp.Graphics
         public static unsafe glHandleSet GenTextures(int count)
         {
             glHandleSet h = new glHandleSet(count);
-            api->glGenTextures(count, (uint*)h.Handle);
+            Context.glGenTextures(count, (uint*)h.Handle);
             return h;
         }
 
@@ -245,9 +331,10 @@ namespace StgSharp.Graphics
         public static unsafe glHandleSet GenVertexArrays(int count)
         {
             glHandleSet h = new glHandleSet(count);
-            api->glGenVertexArrays(count, (uint*)h.Handle);
+            Context.glGenVertexArrays(count, (uint*)h.Handle);
             return h;
         }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe glSHandle GetUniformLocation(glHandle program, string name)
@@ -255,22 +342,34 @@ namespace StgSharp.Graphics
             byte[] code = Encoding.UTF8.GetBytes(name);
             fixed (byte* ptr = code)
             {
-                return glSHandle.Alloc(api->glGetUniformLocation(program.Value, ptr));
+                int ret = Context.glGetUniformLocation(program.Value, ptr);
+#if DEBUG
+                if (ret == (int)(GLconst.INVALID_OPERATION) ||
+                    ret == (int)(GLconst.INVALID_VALUE))
+                {
+                    throw new InvalidOperationException();
+                }
+                if (ret == -1 )
+                {
+                    throw new UniformEmptyReferenceException(nameof(program), name);
+                }
+#endif
+                return glSHandle.Alloc(ret);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe public static void LoadShaderSource(glHandle shaderHandle, string codeStream)
+        public static unsafe void LoadShaderSource(glHandle shaderHandle, string codeStream)
         {
             byte[] stream = Encoding.UTF8.GetBytes(codeStream);
             fixed (byte* streamPtr = stream)
             {
-                api->glShaderSource(shaderHandle.Value, 1, &streamPtr, (void*)0);
+                Context.glShaderSource(shaderHandle.Value, 1, &streamPtr, (void*)0);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe static void MakeContextCurrent(Form form)
+        public static unsafe void MakeContextCurrent(Form form)
         {
             if (form.WindowID == IntPtr.Zero)
             {
@@ -281,11 +380,14 @@ namespace StgSharp.Graphics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe static void SetBufferData<T>(BufferType bufferType, T bufferData, BufferUsage usage)
+        public static unsafe void SetBufferData<T>(BufferType bufferType, T bufferData, BufferUsage usage)
+            where T : struct
         {
             int size = Marshal.SizeOf<T>();
+#pragma warning disable CS8500
             T* p = &bufferData;
-            api->glBufferData(
+#pragma warning restore CS8500
+            Context.glBufferData(
                 (uint)bufferType,
                 (IntPtr)size,
                 (IntPtr)p,
@@ -293,16 +395,94 @@ namespace StgSharp.Graphics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe static void SetBufferData<T>(BufferType bufferType, T[] bufferArray, BufferUsage usage)
+        public static unsafe void SetBufferData<T>(BufferType bufferType, T[] bufferArray, BufferUsage usage)
+            where T : struct,
+#if NET8_0_OR_GREATER
+            INumber
+#else
+            IConvertible
+#endif
         {
             int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
             if (bufferArray == null)
             {
                 return;
             }
+#pragma warning disable CS8500
             fixed (void* bufferPtr = bufferArray)
+#pragma warning restore CS8500
             {
-                api->glBufferData(
+                Context.glBufferData(
+                                (uint)bufferType,
+                                (IntPtr)size,
+                                (IntPtr)bufferPtr,
+                                (uint)usage);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void SetBufferData<T>(BufferType bufferType, Span<T> bufferArray, BufferUsage usage)
+            where T : struct,
+#if NET8_0_OR_GREATER
+            INumber
+#else
+            IConvertible
+#endif
+        {
+            int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
+            if (bufferArray == null)
+            {
+                return;
+            }
+
+#pragma warning disable CS8500
+            fixed (void* bufferPtr = &bufferArray.GetPinnableReference())
+#pragma warning restore CS8500
+            {
+                Context.glBufferData(
+                                (uint)bufferType,
+                                (IntPtr)size,
+                                (IntPtr)bufferPtr,
+                                (uint)usage);
+            }
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void SetBufferVectorData<T>(BufferType bufferType, Span<T> bufferArray, BufferUsage usage)
+            where T : struct, IVector
+        {
+            int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
+            if (bufferArray == null)
+            {
+                return;
+            }
+#pragma warning disable CS8500
+            fixed (void* bufferPtr = &bufferArray.GetPinnableReference())
+#pragma warning restore CS8500
+            {
+                Context.glBufferData(
+                                (uint)bufferType,
+                                (IntPtr)size,
+                                (IntPtr)bufferPtr,
+                                (uint)usage);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void SetBufferVectorData<T>(BufferType bufferType, T[] bufferArray, BufferUsage usage)
+            where T : struct, IVector
+        {
+            int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
+            if (bufferArray == null)
+            {
+                return;
+            }
+#pragma warning disable CS8500
+            fixed (void* bufferPtr = bufferArray)
+#pragma warning restore CS8500
+            {
+                Context.glBufferData(
                                 (uint)bufferType,
                                 (IntPtr)size,
                                 (IntPtr)bufferPtr,
@@ -314,14 +494,14 @@ namespace StgSharp.Graphics
         public static void SetVertexAttribute(uint index, int size, TypeCode t, bool normalized, uint stride, int pointer)
         {
             uint type = InternalIO.GLtype[t];
-            api->glVertexAttribPointer(index, size, type, normalized ? 1 : 0, stride, (void*)pointer);
-            api->glEnableVertexAttribArray(index);
+            Context.glVertexAttribPointer(index, size, type, normalized ? 1 : 0, stride, (void*)pointer);
+            Context.glEnableVertexAttribArray(index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TextureImage2d<T>(int target, int level, uint internalformat, uint width, uint height, uint format, uint type, glHandle pixels)
         {
-            api->glTexImage2D(
+            Context.glTexImage2D(
                 (uint)target, level, internalformat, width, height, 0, format, type, pixels.valuePtr
                 );
         }
@@ -329,20 +509,21 @@ namespace StgSharp.Graphics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void TextureParameter(int target, uint pname, int param)
         {
-            api->glTexParameteri((uint)target, pname, param);
+            Context.glTexParameteri((uint)target, pname, param);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UseProgram(glHandle program)
         {
-            api->glUseProgram(program.Value);
+            Context.glUseProgram(program.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Viewport(int x, int y, uint width, uint height)
         {
-            api->glViewport(x, y, width, height);
+            Context.glViewport(x, y, width, height);
         }
+
     }
 }
 

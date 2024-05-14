@@ -41,8 +41,8 @@ namespace StgSharp.Geometries
         internal Point basePoint;
         internal Point beginPoint;
         internal Point endPoint;
-        internal GetLocationHandler movBegin;
-        internal GetLocationHandler movEnd;
+        internal Func<int,vec3d> movBegin;
+        internal Func<int,vec3d> movEnd;
 
         internal Line(Vector4 begin, Vector4 end)
         {
@@ -50,7 +50,10 @@ namespace StgSharp.Geometries
             endPoint = new Point(end);
         }
 
-        public Line() { }
+        public Line() 
+        {
+            
+        }
 
         public Line(Point begin, Point end)
         {
@@ -59,7 +62,7 @@ namespace StgSharp.Geometries
         }
 
 
-        internal override int[] Indices => throw new Exception();
+        internal override int[] Indices => throw new NotSupportedException();
 
         public override Line[] GetAllSides()
         {
@@ -74,18 +77,18 @@ namespace StgSharp.Geometries
         /// <summary>
         /// Move begin side of a line.
         /// It is recommended to override this function rather than
-        /// loading an <see cref="GetLocationHandler"/> with same function.
+        /// loading an <see cref="Func{T, TResult}"/> with same function.
         /// </summary>
         /// <param name="tick">Time passed since current line was created.</param>
         public virtual vec3d MoveBeginPoint(int tick)
         {
-            return movBegin.Invoke(time);
+            return movBegin(time);
         }
 
         /// <summary>
         /// Move end side of a line.
         /// It is recommended to override this function rather than
-        /// loading an <see cref="GetLocationHandler"/> with same function.
+        /// loading an <see cref="Func{T,TResult}"/> with same function.
         /// </summary>
         /// <param name="tick">Time passed since current line was created.</param>
         /// <returns></returns>
@@ -96,8 +99,8 @@ namespace StgSharp.Geometries
 
         internal override void UpdateCoordinate(int tick)
         {
-            beginPoint.Position = coordinate.origin + MoveBeginPoint(time);
-            endPoint.Position = coordinate.origin + MoveEndPoint(time);
+            beginPoint.Position = coordinate.Origin + MoveBeginPoint(time);
+            endPoint.Position = coordinate.Origin + MoveEndPoint(time);
         }
 
     }

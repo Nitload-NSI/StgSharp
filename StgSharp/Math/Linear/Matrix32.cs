@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="matrix3x2.cs"
+//     file="Matrix32.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -36,15 +36,16 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(LayoutKind.Explicit, Size = (5 * 4 * sizeof(float)) + sizeof(bool), Pack = 16)]
-    public struct Matrix32
+    public struct Matrix32 : IMat
     {
 
-        [FieldOffset(0)] internal vec3d colum0;
-        [FieldOffset(4 * 4)] internal vec3d colum1;
         [FieldOffset(5 * 4 * sizeof(float))] internal bool isTransposed;
 
         [FieldOffset(0)] internal Mat2 mat;
         [FieldOffset(2 * 4 * sizeof(float))] internal Mat3 transpose;
+
+        [FieldOffset(0)] internal vec3d colum0;
+        [FieldOffset(4 * 4)] internal vec3d colum1;
 
         internal Matrix32(
             Vector4 c0,
@@ -62,13 +63,13 @@ namespace StgSharp.Math
             float a20, float a21
             )
         {
-            mat.colum0 = new Vector4(a00, a10, a20, 0);
-            mat.colum0 = new Vector4(a01, a11, a21, 0);
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out colum0);
             Unsafe.SkipInit(out colum1);
             Unsafe.SkipInit(out transpose);
 #endif
+            mat.colum0 = new Vector4(a00, a10, a20, 0);
+            mat.colum1 = new Vector4(a01, a11, a21, 0);
         }
 
         public unsafe float this[int rowNum, int columNum]

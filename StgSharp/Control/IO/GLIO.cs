@@ -42,27 +42,27 @@ namespace StgSharp
     {
         #region ssgc api define
 
-        [DllImport(SSC_libname, EntryPoint = "initGL",
+        [DllImport(SSC_libName, EntryPoint = "initGL",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern void InternalInitGL(int majorVersion, int minorVersion);
 
-        [DllImport(SSC_libname, EntryPoint = "loadGlfuncDefault",
+        [DllImport(SSC_libName, EntryPoint = "loadGlfuncDefault",
             CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         internal static extern IntPtr InternalLoadGlfuncDefault(string name);
 
-        [DllImport(SSC_libname, EntryPoint = "linkShaderProgram",
+        [DllImport(SSC_libName, EntryPoint = "linkShaderProgram",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe uint InternalLinkShaderProgram(GLcontext* context, uint shaderProgram);
 
-        [DllImport(SSC_libname, EntryPoint = "readLog",
+        [DllImport(SSC_libName, EntryPoint = "readLog",
             CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe IntPtr InternalReadSSCLog();
 
-        [DllImport(SSC_libname, EntryPoint = "loadImageData",
+        [DllImport(SSC_libName, EntryPoint = "loadImageData",
             CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         internal static extern unsafe void InternalLoadImage(string fileName, ImageInfo* output, ImageLoader loader);
 
-        [DllImport(SSC_libname, EntryPoint = "unloadImageData",
+        [DllImport(SSC_libName, EntryPoint = "unloadImageData",
             CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         internal static extern unsafe void InternalUnloadImage(ImageInfo* output);
 
@@ -2614,5 +2614,28 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<uint, uint, uint, uint, uint, uint, void> glWriteMaskEXT;
 
         #endregion glapi
+
+        public override bool Equals(object obj)
+        {
+            return false; 
+        }
+
+        public unsafe override int GetHashCode()
+        {
+            fixed (GLcontext* sptr = &this)
+            {
+                return sptr->GetHashCode();
+            }
+        }
+
+        public static bool operator ==(GLcontext left, GLcontext right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(GLcontext left, GLcontext right)
+        {
+            return !(left == right);
+        }
     }
 }

@@ -88,28 +88,28 @@ namespace StgSharp.Graphics
 
     #region GLFW_dele
 
-    internal unsafe delegate void GLFWwindowsizefun(GLFWwindow* window, int width, int height);
-    internal unsafe delegate void GLFWwindowrefreshfun(GLFWwindow* window);
-    internal unsafe delegate void GLFWwindowposfun(GLFWwindow* window, int xpos, int ypos);
-    internal unsafe delegate void GLFWwindowmaximizefun(GLFWwindow* window, int maximized);
-    internal unsafe delegate void GLFWwindowiconifyfun(GLFWwindow* window, int iconified);
-    internal unsafe delegate void GLFWwindowfocusfun(GLFWwindow* window, int focused);
-    internal unsafe delegate void GLFWwindowcontentscalefun(GLFWwindow* window, float xscale, float yscale);
-    internal unsafe delegate void GLFWwindowclosefun(GLFWwindow* window);
+    internal unsafe delegate void GLFWwindowsizefun(glfwWindow* window, int width, int height);
+    internal unsafe delegate void GLFWwindowrefreshfun(glfwWindow* window);
+    internal unsafe delegate void GLFWwindowposfun(glfwWindow* window, int xpos, int ypos);
+    internal unsafe delegate void GLFWwindowmaximizefun(glfwWindow* window, int maximized);
+    internal unsafe delegate void GLFWwindowiconifyfun(glfwWindow* window, int iconified);
+    internal unsafe delegate void GLFWwindowfocusfun(glfwWindow* window, int focused);
+    internal unsafe delegate void GLFWwindowcontentscalefun(glfwWindow* window, float xscale, float yscale);
+    internal unsafe delegate void GLFWwindowclosefun(glfwWindow* window);
     internal unsafe delegate void GLFWvkproc();
-    internal unsafe delegate void GLFWscrollfun(GLFWwindow* window, double xoffset, double yoffset);
-    internal unsafe delegate void GLFWmousebuttonfun(GLFWwindow* window, int button, int action, int mods);
-    internal unsafe delegate void GLFWmonitorfun(GLFWmonitor* monitor, int monitorevent);
-    internal unsafe delegate void GLFWkeyfun(GLFWwindow* window, int key, int scancode, int action, int mods);
+    internal unsafe delegate void GLFWscrollfun(glfwWindow* window, double xoffset, double yoffset);
+    internal unsafe delegate void GLFWmousebuttonfun(glfwWindow* window, int button, int action, int mods);
+    internal unsafe delegate void GLFWmonitorfun(glfwMonitor* monitor, int monitorevent);
+    internal unsafe delegate void GLFWkeyfun(glfwWindow* window, int key, int scancode, int action, int mods);
     internal unsafe delegate void GLFWjoystickfun(int jid, int keyevent);
     public unsafe delegate void GLFWglproc();
-    internal unsafe delegate void FramebuffersizeHandler(IntPtr window, int width, int height); //window is the pointer to a GLFWwindow instance
+    internal unsafe delegate void FramebuffersizeHandler(IntPtr window, int width, int height); //window is the pointer to a glfwWindow instance
     internal unsafe delegate void GLFWerrorfun(int error_code, sbyte* description);
-    internal unsafe delegate void GLFWdropfun(GLFWwindow* window, int path_count, sbyte*[] paths);
-    internal unsafe delegate void GLFWcursorposfun(GLFWwindow* window, double xpos, double ypos);
-    internal unsafe delegate void GLFWcursorenterfun(GLFWwindow* window, int entered);
-    internal unsafe delegate void GLFWcharmodsfun(GLFWwindow* window, uint codepoint, int mods);
-    internal unsafe delegate void GLFWcharfun(GLFWwindow* window, uint codepoint);
+    internal unsafe delegate void GLFWdropfun(glfwWindow* window, int path_count, sbyte*[] paths);
+    internal unsafe delegate void GLFWcursorposfun(glfwWindow* window, double xpos, double ypos);
+    internal unsafe delegate void GLFWcursorenterfun(glfwWindow* window, int entered);
+    internal unsafe delegate void GLFWcharmodsfun(glfwWindow* window, uint codepoint, int mods);
+    internal unsafe delegate void GLFWcharfun(glfwWindow* window, uint codepoint);
 
     #endregion
 

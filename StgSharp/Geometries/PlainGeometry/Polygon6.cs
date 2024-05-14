@@ -30,8 +30,8 @@
 //-----------------------------------------------------------------------
 using StgSharp.Controlling;
 using StgSharp.Math;
- 
 
+using System;
 using System.Numerics;
 
 namespace StgSharp.Geometries
@@ -40,20 +40,20 @@ namespace StgSharp.Geometries
     {
 
         internal Point _refOrigin;
-        internal GetLocationHandler movVertex0Operation;
-        internal GetLocationHandler movVertex1Operation;
-        internal GetLocationHandler movVertex2Operation;
-        internal GetLocationHandler movVertex3Operation;
-        internal GetLocationHandler movVertex4Operation;
-        internal GetLocationHandler movVertex5Operation;
+        internal Func<int,vec3d> movVertex0Operation;
+        internal Func<int,vec3d> movVertex1Operation;
+        internal Func<int,vec3d> movVertex2Operation;
+        internal Func<int,vec3d> movVertex3Operation;
+        internal Func<int,vec3d> movVertex4Operation;
+        internal Func<int,vec3d> movVertex5Operation;
         internal mat6 vertexMat;
 
-        public GetLocationHandler MovVertex0Operation => movVertex0Operation;
-        public GetLocationHandler MovVertex1Operation => movVertex1Operation;
-        public GetLocationHandler MovVertex2Operation => movVertex2Operation;
-        public GetLocationHandler MovVertex3Operation => movVertex3Operation;
-        public GetLocationHandler MovVertex4Operation => movVertex4Operation;
-        public GetLocationHandler MovVertex5Operation => movVertex5Operation;
+        public Func<int,vec3d> MovVertex0Operation => movVertex0Operation;
+        public Func<int,vec3d> MovVertex1Operation => movVertex1Operation;
+        public Func<int,vec3d> MovVertex2Operation => movVertex2Operation;
+        public Func<int,vec3d> MovVertex3Operation => movVertex3Operation;
+        public Func<int,vec3d> MovVertex4Operation => movVertex4Operation;
+        public Func<int,vec3d> MovVertex5Operation => movVertex5Operation;
 
         public Point Vertex0
         {
@@ -144,7 +144,7 @@ namespace StgSharp.Geometries
         internal override void UpdateCoordinate(int tick)
         {
             int nowTick = tick - BornTime;
-            Vector4 origin = coordinate.origin.vec;
+            Vector4 origin = coordinate.Origin.vec;
             vertexMat.vec0 = origin + movVertex0(nowTick).vec;
             vertexMat.vec1 = origin + movVertex1(nowTick).vec;
             vertexMat.vec2 = origin + movVertex2(nowTick).vec;

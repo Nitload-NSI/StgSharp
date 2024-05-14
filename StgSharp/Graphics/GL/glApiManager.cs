@@ -56,16 +56,15 @@ namespace StgSharp.Graphics
         private static string glExtensionList;
 
         /// <summary>
-        /// Load all aupportable OpenGL APIs and bind them to given <see cref="Form"/> context.
+        /// Load all supported OpenGL APIs and bind them to given <see cref="Form"/> context.
         /// </summary>
-        /// <param name="form">The <see cref="Form"/> used as current OpenGL context</param>
-        /// <param name="loader">A delegate to get address of OprnGL api</param>
-        public static unsafe void LoadGLapi(this Form form)
+        /// <param name="stream">The <see cref="Form"/> used as current OpenGL context</param>
+        public static unsafe void LoadGLapi(this glRenderStream stream)
         {
-            GLcontext* context = (GLcontext*)form.graphicContextID;
-            GLfuncLoader loader = InternalIO.glfwGetProcAddress;
+            GLcontext* context = (GLcontext*)stream.ContextHandle;
+            delegate*<string,IntPtr> loader = &InternalIO.glfwGetProcAddress;
 #pragma warning disable CS8909
-            if (((GLcontext*)form.graphicContextID)->glGetString != (delegate*<uint, IntPtr>)IntPtr.Zero)
+            if (((GLcontext*)stream.ContextHandle)->glGetString != (delegate*<uint, IntPtr>)IntPtr.Zero)
 #pragma warning restore CS8909
             {
                 return;
@@ -94,7 +93,7 @@ namespace StgSharp.Graphics
                     coreVersion.Replace(branch, string.Empty);
                 }
             }
-            string[] versionSep = coreVersion.Split('.');
+            string[] versionSep = coreVersion!.Split('.');
             int majorVersion = int.Parse(versionSep[0]);
             int minorVersion = int.Parse(versionSep[1]);
             CheckCoreVersion(majorVersion, minorVersion);
@@ -103,25 +102,25 @@ namespace StgSharp.Graphics
             {
                 #region load_core_gl
 
-                LoadGLcore10((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore11((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore12((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore13((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore14((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore15((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore20((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore21((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore30((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore31((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore32((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore33((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore40((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore41((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore42((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore43((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore44((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore45((GLcontext*)form.graphicContextID, loader);
-                LoadGLcore46((GLcontext*)form.graphicContextID, loader);
+                LoadGLcore10((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore11((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore12((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore13((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore14((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore15((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore20((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore21((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore30((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore31((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore32((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore33((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore40((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore41((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore42((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore43((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore44((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore45((GLcontext*)stream.ContextHandle, loader);
+                LoadGLcore46((GLcontext*)stream.ContextHandle, loader);
 
                 #endregion load_core_gl
             }
@@ -779,7 +778,7 @@ namespace StgSharp.Graphics
         /// Get the function pointer of given OpenGL api name
         /// </summary>
         /// <param name="name">Name of the OpenGL api</param>
-        /// <returns>The funtion pointer of the api in form of <see cref="IntPtr"/></returns>
+        /// <returns>The funtion pointer of the api in stream of <see cref="IntPtr"/></returns>
         public static IntPtr LoadGLfunc(string name)
         {
             IntPtr ret = InternalIO.glfwGetProcAddress(name);
@@ -999,7 +998,7 @@ namespace StgSharp.Graphics
             }
         }
 
-        internal static unsafe void LoadGLcore10(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore10(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core10)
             {
@@ -1063,7 +1062,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 1.0 APIs");
         }
 
-        internal static unsafe void LoadGLcore11(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore11(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core11)
             {
@@ -1093,7 +1092,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 1.1 APIs");
         }
 
-        internal static unsafe void LoadGLcore12(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore12(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core12)
             {
@@ -1113,7 +1112,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 1.2 APIs");
         }
 
-        internal static unsafe void LoadGLcore13(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore13(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core13)
             {
@@ -1138,7 +1137,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 1.3 APIs");
         }
 
-        internal static unsafe void LoadGLcore14(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore14(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core14)
             {
@@ -1163,7 +1162,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 1.4 APIs");
         }
 
-        internal static unsafe void LoadGLcore15(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore15(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core15)
             {
@@ -1198,7 +1197,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 1.5 APIs");
         }
 
-        internal static unsafe void LoadGLcore20(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore20(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core20)
             {
@@ -1307,7 +1306,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 2.0 APIs");
         }
 
-        internal static unsafe void LoadGLcore21(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore21(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core21)
             {
@@ -1329,7 +1328,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 2.1 APIs");
         }
 
-        internal static unsafe void LoadGLcore30(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore30(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core30)
             {
@@ -1429,7 +1428,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 3.0 APIs");
         }
 
-        internal static unsafe void LoadGLcore31(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore31(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core31)
             {
@@ -1460,7 +1459,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 3.1 APIs");
         }
 
-        internal static unsafe void LoadGLcore32(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore32(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core32)
             {
@@ -1495,7 +1494,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 3.2 APIs");
         }
 
-        internal static unsafe void LoadGLcore33(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore33(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core33)
             {
@@ -1539,7 +1538,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 3.3 APIs");
         }
 
-        internal static unsafe void LoadGLcore40(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore40(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core40)
             {
@@ -1601,7 +1600,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 4.0 APIs");
         }
 
-        internal static unsafe void LoadGLcore41(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore41(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core41)
             {
@@ -1705,7 +1704,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 4.1 APIs");
         }
 
-        internal static unsafe void LoadGLcore42(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore42(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core42)
             {
@@ -1733,7 +1732,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 4.2 APIs");
         }
 
-        internal static unsafe void LoadGLcore43(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore43(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core43)
             {
@@ -1793,7 +1792,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 4.3 APIs");
         }
 
-        internal static unsafe void LoadGLcore44(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore44(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core44)
             {
@@ -1818,7 +1817,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 4.4 APIs");
         }
 
-        internal static unsafe void LoadGLcore45(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore45(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core45)
             {
@@ -1944,7 +1943,7 @@ namespace StgSharp.Graphics
             InternalIO.InternalAppendLog("Successfully load all OpenGL 4.5 APIs");
         }
 
-        internal static unsafe void LoadGLcore46(GLcontext* contextPtr, GLfuncLoader load)
+        internal static unsafe void LoadGLcore46(GLcontext* contextPtr,  delegate*<string, IntPtr> load)
         {
             if (!core46)
             {

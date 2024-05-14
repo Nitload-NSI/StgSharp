@@ -38,9 +38,9 @@ namespace StgSharp.Graphics
     public unsafe class VertexArray : BufferObjectBase
     {
 
-        internal VertexArray(int n, Form binding)
+        internal VertexArray(int n, glRenderStream binding)
         {
-            this.binding = binding.graphicContextID;
+            this.binding = binding.ContextHandle;
             _bufferHandle = GL.GenVertexArrays(n);
         }
 

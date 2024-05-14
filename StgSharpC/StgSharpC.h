@@ -20,6 +20,8 @@ extern "C"
 {
 #endif // _cplusplus
 
+#define byte char
+
 #pragma region Internal
 
 #define ALIGN(simdVec) _mm_loadu_ps(&simdVec)
@@ -36,7 +38,7 @@ extern "C"
     typedef char* (*imageLoader)(char const* filename, int* x, int* y, int* channels_in_file, int desired_channels);
 
     SSCAPI char infolog[512];
-
+    SSCAPI int SSCDECL glCheckShaderStat(GladGLContext* context, int key, char** logRef);
     SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion);
     SSCAPI unsigned int SSCDECL linkShaderProgram(GladGLContext* context, GLuint shadertype);
     SSCAPI void SSCDECL loadImageData(char* location, Image* out, imageLoader loader);
@@ -46,7 +48,6 @@ extern "C"
 
     //linear related function
 
-    SSCAPI __m128* SSCDECL set_m128ptr_default();
 
 #pragma region mat define
 

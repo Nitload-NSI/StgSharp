@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Data;
 using StgSharp.Math;
 
 using System;
@@ -40,11 +41,11 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Graphics
 {
-    public class Image
+    public class Image : SSDSerializable
     {
 
         internal ImageInfo info;
-
+        internal byte[] data;
         internal glHandle pixelArrayHandle;
 
         internal Image(ImageInfo information)
@@ -64,12 +65,85 @@ namespace StgSharp.Graphics
 
         public int Width => info.width;
 
+        public override SerializableTypeCode SSDTypeCode => SerializableTypeCode.PixelImage;
+
         ~Image()
         {
-            Marshal.FreeHGlobal(info.pixelPtr);
+            if (info.pixelPtr!= IntPtr.Zero)
+            {
+             //   Marshal.FreeHGlobal(info.pixelPtr);
+            }
         }
 
+        public unsafe override byte[] GetBytes()
+        {
+            if (data == null)
+            {
+                int size = Width * Height * Channel + 1 + 8;
+                data = new byte[size];
+                int i = 0;
+                fixed (byte* bptr = data)
+                {
+                    *(int*)bptr = Width;
+                    *(int*)(bptr + 4) = Height;
+                    *(bptr + 8) = (byte)Channel;
+                    byte* pptr = bptr;
+                    for (; i < size; i += 16)
+                    {
+                        *(M128*)(pptr + i) = *(M128*)(info.pixelPtr + i);
+                    }
+                    for (; i < size; i++)
+                    {
+                        *(pptr + i) = *(byte*)(info.pixelPtr + i);
+                    }
+                }
+            }
+            Marshal.FreeHGlobal(info.pixelPtr);
+            info.pixelPtr = IntPtr.Zero;
+            return data;
+        }
 
+        public unsafe override byte[] GetBytes(out int length)
+        {
+            if (data == null)
+            {
+                int size = Width * Height * Channel + 1 + 8;
+                data = new byte[size];
+                int i = 0;
+                fixed (byte* bptr = data)
+                {
+                    *(int*)bptr = Width;
+                    *(int*)(bptr + 4) = Height;
+                    *(bptr + 8) = (byte)Channel;
+                    byte* pptr = bptr;
+                    for (; i < size; i += 16)
+                    {
+                        *(M128*)(pptr + i) = *(M128*)(info.pixelPtr + i);
+                    }
+                    for (; i < size; i++)
+                    {
+                        *(pptr + i) = *(byte*)(info.pixelPtr + i);
+                    }
+                }
+            }
+            length = data.Length;
+            Marshal.FreeHGlobal(info.pixelPtr);
+            info.pixelPtr = IntPtr.Zero;
+            return data;
+        }
+
+        internal unsafe override void BuildFromByteStream(byte[] stream)
+        {
+            info = new ImageInfo();
+            fixed (byte* bptr = stream)
+            {
+                info.width = *(int*)bptr;
+                info.height = *(int*)(bptr + 4);
+                info.channel = *(bptr + 8);
+                info.pixelPtr = IntPtr.Zero;
+            }
+            data = stream;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]

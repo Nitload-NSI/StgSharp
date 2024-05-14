@@ -48,10 +48,10 @@ namespace StgSharp.Graphics
         internal glHandleSet _textureHandle;
         internal Image[] sourceList;
 
-        internal Texture(int n, Form binding)
+        internal Texture(int n, glRenderStream binding)
         {
             sourceList = new Image[n];
-            this.binding = binding.graphicContextID;
+            this.binding = binding.ContextHandle;
             _textureHandle = GL.GenTextures(n);
         }
 

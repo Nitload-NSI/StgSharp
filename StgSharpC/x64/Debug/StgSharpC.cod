@@ -142,6 +142,7 @@ msvcjmc	ENDS
 PUBLIC	__local_stdio_printf_options
 PUBLIC	_vfprintf_l
 PUBLIC	printf
+PUBLIC	glCheckShaderStat
 PUBLIC	initGL
 PUBLIC	linkShaderProgram
 PUBLIC	loadImageData
@@ -149,7 +150,6 @@ PUBLIC	loadGlfuncDefault
 PUBLIC	unloadImageData
 PUBLIC	readLog
 PUBLIC	__JustMyCode_Default
-PUBLIC	??_C@_05JMLLFKBP@?$CFllu?6@			; `string'
 PUBLIC	??_C@_0BL@MOJGOJJP@Failed?5to?5load?5OpenGL?5api?3@ ; `string'
 PUBLIC	??_C@_03OFAPEBGM@?$CFs?6@			; `string'
 EXTRN	__report_rangecheckfailure:PROC
@@ -189,6 +189,12 @@ $pdata$printf DD imagerel $LN3
 pdata	ENDS
 ;	COMDAT pdata
 pdata	SEGMENT
+$pdata$glCheckShaderStat DD imagerel $LN4
+	DD	imagerel $LN4+229
+	DD	imagerel $unwind$glCheckShaderStat
+pdata	ENDS
+;	COMDAT pdata
+pdata	SEGMENT
 $pdata$initGL DD imagerel $LN3
 	DD	imagerel $LN3+91
 	DD	imagerel $unwind$initGL
@@ -208,7 +214,7 @@ pdata	ENDS
 ;	COMDAT pdata
 pdata	SEGMENT
 $pdata$loadGlfuncDefault DD imagerel $LN7
-	DD	imagerel $LN7+202
+	DD	imagerel $LN7+186
 	DD	imagerel $unwind$loadGlfuncDefault
 pdata	ENDS
 ;	COMDAT pdata
@@ -239,10 +245,6 @@ CONST	ENDS
 CONST	SEGMENT
 ??_C@_0BL@MOJGOJJP@Failed?5to?5load?5OpenGL?5api?3@ DB 'Failed to load Op'
 	DB	'enGL api:', 00H				; `string'
-CONST	ENDS
-;	COMDAT ??_C@_05JMLLFKBP@?$CFllu?6@
-CONST	SEGMENT
-??_C@_05JMLLFKBP@?$CFllu?6@ DB '%llu', 0aH, 00H		; `string'
 CONST	ENDS
 ;	COMDAT xdata
 xdata	SEGMENT
@@ -315,6 +317,36 @@ xdata	ENDS
 ;	COMDAT voltbl
 voltbl	SEGMENT
 _volmd	DB	045H
+	DB	0ccH
+voltbl	ENDS
+;	COMDAT xdata
+xdata	SEGMENT
+$unwind$glCheckShaderStat DD 025054c19H
+	DD	011d2322H
+	DD	070160021H
+	DD	05015H
+	DD	imagerel __GSHandlerCheck
+	DD	0f8H
+xdata	ENDS
+;	COMDAT CONST
+CONST	SEGMENT
+glCheckShaderStat$rtcName$0 DB 073H
+	DB	074H
+	DB	061H
+	DB	074H
+	DB	00H
+	ORG $+11
+glCheckShaderStat$rtcVarDesc DD 024H
+	DD	04H
+	DQ	FLAT:glCheckShaderStat$rtcName$0
+	ORG $+48
+glCheckShaderStat$rtcFrameData DD 01H
+	DD	00H
+	DQ	FLAT:glCheckShaderStat$rtcVarDesc
+CONST	ENDS
+;	COMDAT voltbl
+voltbl	SEGMENT
+_volmd	DB	045H
 	DB	0a6H
 voltbl	ENDS
 ;	COMDAT xdata
@@ -374,7 +406,7 @@ _TEXT	SEGMENT
 $T1 = 200
 readLog	PROC						; COMDAT
 
-; 65   : {
+; 77   : {
 
 $LN5:
   00000	40 55		 push	 rbp
@@ -386,7 +418,7 @@ $LN5:
 	00 00		 lea	 rcx, OFFSET FLAT:__59F96598_StgSharpC@c
   00016	e8 00 00 00 00	 call	 __CheckForDebuggerJustMyCode
 
-; 66   :     infolog[511] = '\0';
+; 78   :     infolog[511] = '\0';
 
   0001b	b8 01 00 00 00	 mov	 eax, 1
   00020	48 69 c0 ff 01
@@ -407,13 +439,13 @@ $LN4@readLog:
 	00 00		 mov	 rcx, QWORD PTR $T1[rbp]
   00050	c6 04 08 00	 mov	 BYTE PTR [rax+rcx], 0
 
-; 67   :     return &infolog;
+; 79   :     return &infolog;
 
   00054	48 8d 05 00 00
 	00 00		 lea	 rax, OFFSET FLAT:infolog
 $LN2@readLog:
 
-; 68   : }
+; 80   : }
 
   0005b	48 8d a5 e8 00
 	00 00		 lea	 rsp, QWORD PTR [rbp+232]
@@ -429,7 +461,7 @@ _TEXT	SEGMENT
 out$ = 224
 unloadImageData PROC					; COMDAT
 
-; 60   : {
+; 72   : {
 
 $LN3:
   00000	48 89 4c 24 08	 mov	 QWORD PTR [rsp+8], rcx
@@ -442,7 +474,7 @@ $LN3:
 	00 00		 lea	 rcx, OFFSET FLAT:__59F96598_StgSharpC@c
   0001a	e8 00 00 00 00	 call	 __CheckForDebuggerJustMyCode
 
-; 61   :     free(out->pixelPtr);
+; 73   :     free(out->pixelPtr);
 
   0001f	48 8b 85 e0 00
 	00 00		 mov	 rax, QWORD PTR out$[rbp]
@@ -450,7 +482,7 @@ $LN3:
   0002a	ff 15 00 00 00
 	00		 call	 QWORD PTR __imp_free
 
-; 62   : }
+; 74   : }
 
   00030	48 8d a5 c8 00
 	00 00		 lea	 rsp, QWORD PTR [rbp+200]
@@ -468,7 +500,7 @@ i$1 = 40
 procName$ = 288
 loadGlfuncDefault PROC					; COMDAT
 
-; 18   : {
+; 30   : {
 
 $LN7:
   00000	48 89 4c 24 08	 mov	 QWORD PTR [rsp+8], rcx
@@ -481,91 +513,85 @@ $LN7:
 	00 00		 lea	 rcx, OFFSET FLAT:__59F96598_StgSharpC@c
   0001a	e8 00 00 00 00	 call	 __CheckForDebuggerJustMyCode
 
-; 19   :     void* ret = glfwGetProcAddress(procName);
+; 31   :     void* ret = glfwGetProcAddress(procName);
 
   0001f	48 8b 8d 20 01
 	00 00		 mov	 rcx, QWORD PTR procName$[rbp]
   00026	e8 00 00 00 00	 call	 glfwGetProcAddress
   0002b	48 89 45 08	 mov	 QWORD PTR ret$[rbp], rax
 
-; 20   :     printf("%llu\n", (uint64_t)ret);
+; 32   :     //printf("%llu\n", (uint64_t)ret);
+; 33   :     if (ret = NULL)
 
-  0002f	48 8b 55 08	 mov	 rdx, QWORD PTR ret$[rbp]
-  00033	48 8d 0d 00 00
-	00 00		 lea	 rcx, OFFSET FLAT:??_C@_05JMLLFKBP@?$CFllu?6@
-  0003a	e8 00 00 00 00	 call	 printf
-
-; 21   :     if (ret = NULL)
-
-  0003f	48 c7 45 08 00
+  0002f	48 c7 45 08 00
 	00 00 00	 mov	 QWORD PTR ret$[rbp], 0
-  00047	48 83 7d 08 00	 cmp	 QWORD PTR ret$[rbp], 0
-  0004c	74 6e		 je	 SHORT $LN5@loadGlfunc
+  00037	48 83 7d 08 00	 cmp	 QWORD PTR ret$[rbp], 0
+  0003c	74 6e		 je	 SHORT $LN5@loadGlfunc
 
-; 22   :     {
-; 23   :         *infolog = "Failed to load OpenGL api:";
+; 34   :     {
+; 35   :         *infolog = "Failed to load OpenGL api:";
 
-  0004e	b8 01 00 00 00	 mov	 eax, 1
-  00053	48 6b c0 00	 imul	 rax, rax, 0
-  00057	48 8d 0d 00 00
+  0003e	b8 01 00 00 00	 mov	 eax, 1
+  00043	48 6b c0 00	 imul	 rax, rax, 0
+  00047	48 8d 0d 00 00
 	00 00		 lea	 rcx, OFFSET FLAT:infolog
-  0005e	48 8d 15 00 00
+  0004e	48 8d 15 00 00
 	00 00		 lea	 rdx, OFFSET FLAT:??_C@_0BL@MOJGOJJP@Failed?5to?5load?5OpenGL?5api?3@
-  00065	88 14 01	 mov	 BYTE PTR [rcx+rax], dl
+  00055	88 14 01	 mov	 BYTE PTR [rcx+rax], dl
 
-; 24   :         for (size_t i = 0; i < sizeof(procName); i++)
+; 36   :         for (size_t i = 0; i < sizeof(procName); i++)
 
-  00068	48 c7 45 28 00
+  00058	48 c7 45 28 00
 	00 00 00	 mov	 QWORD PTR i$1[rbp], 0
-  00070	eb 0b		 jmp	 SHORT $LN4@loadGlfunc
+  00060	eb 0b		 jmp	 SHORT $LN4@loadGlfunc
 $LN2@loadGlfunc:
-  00072	48 8b 45 28	 mov	 rax, QWORD PTR i$1[rbp]
-  00076	48 ff c0	 inc	 rax
-  00079	48 89 45 28	 mov	 QWORD PTR i$1[rbp], rax
+  00062	48 8b 45 28	 mov	 rax, QWORD PTR i$1[rbp]
+  00066	48 ff c0	 inc	 rax
+  00069	48 89 45 28	 mov	 QWORD PTR i$1[rbp], rax
 $LN4@loadGlfunc:
-  0007d	48 83 7d 28 08	 cmp	 QWORD PTR i$1[rbp], 8
-  00082	73 25		 jae	 SHORT $LN3@loadGlfunc
+  0006d	48 83 7d 28 08	 cmp	 QWORD PTR i$1[rbp], 8
+  00072	73 25		 jae	 SHORT $LN3@loadGlfunc
 
-; 25   :         {
-; 26   :             infolog[30 + i] = procName[i];
+; 37   :         {
+; 38   :             infolog[30 + i] = procName[i];
 
-  00084	48 8d 05 00 00
+  00074	48 8d 05 00 00
 	00 00		 lea	 rax, OFFSET FLAT:infolog
-  0008b	48 8b 4d 28	 mov	 rcx, QWORD PTR i$1[rbp]
-  0008f	48 8b 95 20 01
+  0007b	48 8b 4d 28	 mov	 rcx, QWORD PTR i$1[rbp]
+  0007f	48 8b 95 20 01
 	00 00		 mov	 rdx, QWORD PTR procName$[rbp]
-  00096	48 03 d1	 add	 rdx, rcx
-  00099	48 8b ca	 mov	 rcx, rdx
-  0009c	48 8b 55 28	 mov	 rdx, QWORD PTR i$1[rbp]
-  000a0	0f b6 09	 movzx	 ecx, BYTE PTR [rcx]
-  000a3	88 4c 10 1e	 mov	 BYTE PTR [rax+rdx+30], cl
+  00086	48 03 d1	 add	 rdx, rcx
+  00089	48 8b ca	 mov	 rcx, rdx
+  0008c	48 8b 55 28	 mov	 rdx, QWORD PTR i$1[rbp]
+  00090	0f b6 09	 movzx	 ecx, BYTE PTR [rcx]
+  00093	88 4c 10 1e	 mov	 BYTE PTR [rax+rdx+30], cl
 
-; 27   :         }
+; 39   :         }
 
-  000a7	eb c9		 jmp	 SHORT $LN2@loadGlfunc
+  00097	eb c9		 jmp	 SHORT $LN2@loadGlfunc
 $LN3@loadGlfunc:
 
-; 28   :         printf("%s\n", infolog);
+; 40   :         printf("%s\n", infolog);
 
-  000a9	48 8d 15 00 00
+  00099	48 8d 15 00 00
 	00 00		 lea	 rdx, OFFSET FLAT:infolog
-  000b0	48 8d 0d 00 00
+  000a0	48 8d 0d 00 00
 	00 00		 lea	 rcx, OFFSET FLAT:??_C@_03OFAPEBGM@?$CFs?6@
-  000b7	e8 00 00 00 00	 call	 printf
+  000a7	e8 00 00 00 00	 call	 printf
 $LN5@loadGlfunc:
 
-; 29   :     }
-; 30   :     return (GLFWglproc)ret;
+; 41   :     }
+; 42   :     return (GLFWglproc)ret;
 
-  000bc	48 8b 45 08	 mov	 rax, QWORD PTR ret$[rbp]
+  000ac	48 8b 45 08	 mov	 rax, QWORD PTR ret$[rbp]
 
-; 31   : }
+; 43   : }
 
-  000c0	48 8d a5 08 01
+  000b0	48 8d a5 08 01
 	00 00		 lea	 rsp, QWORD PTR [rbp+264]
-  000c7	5f		 pop	 rdi
-  000c8	5d		 pop	 rbp
-  000c9	c3		 ret	 0
+  000b7	5f		 pop	 rdi
+  000b8	5d		 pop	 rbp
+  000b9	c3		 ret	 0
 loadGlfuncDefault ENDP
 _TEXT	ENDS
 ; Function compile flags: /Odtp /RTCsu /ZI
@@ -577,7 +603,7 @@ out$ = 232
 loader$ = 240
 loadImageData PROC					; COMDAT
 
-; 51   : {
+; 63   : {
 
 $LN4:
   00000	4c 89 44 24 18	 mov	 QWORD PTR [rsp+24], r8
@@ -592,14 +618,14 @@ $LN4:
 	00 00		 lea	 rcx, OFFSET FLAT:__59F96598_StgSharpC@c
   00024	e8 00 00 00 00	 call	 __CheckForDebuggerJustMyCode
 
-; 52   :     if (loader == NULL)
+; 64   :     if (loader == NULL)
 
   00029	48 83 bd f0 00
 	00 00 00	 cmp	 QWORD PTR loader$[rbp], 0
   00031	75 0e		 jne	 SHORT $LN2@loadImageD
 
-; 53   :     {
-; 54   :         loader = stbi_load;
+; 65   :     {
+; 66   :         loader = stbi_load;
 
   00033	48 8d 05 00 00
 	00 00		 lea	 rax, OFFSET FLAT:stbi_load
@@ -607,8 +633,8 @@ $LN4:
 	00 00		 mov	 QWORD PTR loader$[rbp], rax
 $LN2@loadImageD:
 
-; 55   :     }
-; 56   :     out->pixelPtr = loader(location, &(out->width), &(out->height), &(out->channel), 0);
+; 67   :     }
+; 68   :     out->pixelPtr = loader(location, &(out->width), &(out->height), &(out->channel), 0);
 
   00041	48 8b 85 e8 00
 	00 00		 mov	 rax, QWORD PTR out$[rbp]
@@ -630,7 +656,7 @@ $LN2@loadImageD:
 	00 00		 mov	 rcx, QWORD PTR out$[rbp]
   00080	48 89 41 10	 mov	 QWORD PTR [rcx+16], rax
 
-; 57   : }
+; 69   : }
 
   00084	48 8d a5 c8 00
 	00 00		 lea	 rsp, QWORD PTR [rbp+200]
@@ -649,7 +675,7 @@ context$ = 256
 shaderProgram$ = 264
 linkShaderProgram PROC					; COMDAT
 
-; 34   : {
+; 46   : {
 
 $LN5:
   00000	89 54 24 10	 mov	 DWORD PTR [rsp+16], edx
@@ -674,7 +700,7 @@ $LN5:
 	00 00		 lea	 rcx, OFFSET FLAT:__59F96598_StgSharpC@c
   00048	e8 00 00 00 00	 call	 __CheckForDebuggerJustMyCode
 
-; 35   :     context->LinkProgram(shaderProgram);
+; 47   :     context->LinkProgram(shaderProgram);
 
   0004d	8b 8d 08 01 00
 	00		 mov	 ecx, DWORD PTR shaderProgram$[rbp]
@@ -683,9 +709,9 @@ $LN5:
   0005a	ff 90 80 22 00
 	00		 call	 QWORD PTR [rax+8832]
 
-; 36   : 
-; 37   :     int success;
-; 38   :     context->GetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+; 48   : 
+; 49   :     int success;
+; 50   :     context->GetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 
   00060	4c 8d 45 04	 lea	 r8, QWORD PTR success$[rbp]
   00064	ba 82 8b 00 00	 mov	 edx, 35714		; 00008b82H
@@ -696,13 +722,13 @@ $LN5:
   00076	ff 90 48 1a 00
 	00		 call	 QWORD PTR [rax+6728]
 
-; 39   :     if (!success)
+; 51   :     if (!success)
 
   0007c	83 7d 04 00	 cmp	 DWORD PTR success$[rbp], 0
   00080	75 28		 jne	 SHORT $LN2@linkShader
 
-; 40   :     {
-; 41   :         context->GetProgramInfoLog(shaderProgram, 512, NULL, infolog);
+; 52   :     {
+; 53   :         context->GetProgramInfoLog(shaderProgram, 512, NULL, infolog);
 
   00082	4c 8d 0d 00 00
 	00 00		 lea	 r9, OFFSET FLAT:infolog
@@ -715,27 +741,27 @@ $LN5:
   0009e	ff 90 98 19 00
 	00		 call	 QWORD PTR [rax+6552]
 
-; 42   :         return 0;
+; 54   :         return 0;
 
   000a4	33 c0		 xor	 eax, eax
   000a6	eb 08		 jmp	 SHORT $LN1@linkShader
 
-; 43   :     }
+; 55   :     }
 
   000a8	eb 06		 jmp	 SHORT $LN3@linkShader
 $LN2@linkShader:
 
-; 44   :     else
-; 45   :     {
-; 46   :         return shaderProgram;
+; 56   :     else
+; 57   :     {
+; 58   :         return shaderProgram;
 
   000aa	8b 85 08 01 00
 	00		 mov	 eax, DWORD PTR shaderProgram$[rbp]
 $LN3@linkShader:
 $LN1@linkShader:
 
-; 47   :     }
-; 48   : }
+; 59   :     }
+; 60   : }
 
   000b0	48 8b f8	 mov	 rdi, rax
   000b3	48 8d 4d e0	 lea	 rcx, QWORD PTR [rbp-32]
@@ -762,7 +788,7 @@ majorVersion$ = 224
 minorVersion$ = 232
 initGL	PROC						; COMDAT
 
-; 11   : {
+; 23   : {
 
 $LN3:
   00000	89 54 24 10	 mov	 DWORD PTR [rsp+16], edx
@@ -776,27 +802,27 @@ $LN3:
 	00 00		 lea	 rcx, OFFSET FLAT:__59F96598_StgSharpC@c
   0001d	e8 00 00 00 00	 call	 __CheckForDebuggerJustMyCode
 
-; 12   :     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
+; 24   :     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
 
   00022	8b 95 e0 00 00
 	00		 mov	 edx, DWORD PTR majorVersion$[rbp]
   00028	b9 02 20 02 00	 mov	 ecx, 139266		; 00022002H
   0002d	e8 00 00 00 00	 call	 glfwWindowHint
 
-; 13   :     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
+; 25   :     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
 
   00032	8b 95 e8 00 00
 	00		 mov	 edx, DWORD PTR minorVersion$[rbp]
   00038	b9 03 20 02 00	 mov	 ecx, 139267		; 00022003H
   0003d	e8 00 00 00 00	 call	 glfwWindowHint
 
-; 14   :     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+; 26   :     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   00042	ba 01 20 03 00	 mov	 edx, 204801		; 00032001H
   00047	b9 08 20 02 00	 mov	 ecx, 139272		; 00022008H
   0004c	e8 00 00 00 00	 call	 glfwWindowHint
 
-; 15   : }
+; 27   : }
 
   00051	48 8d a5 c8 00
 	00 00		 lea	 rsp, QWORD PTR [rbp+200]
@@ -804,6 +830,114 @@ $LN3:
   00059	5d		 pop	 rbp
   0005a	c3		 ret	 0
 initGL	ENDP
+_TEXT	ENDS
+; Function compile flags: /Odtp /RTCsu /ZI
+; File D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\源代码\StgSharpC\StgSharpC.c
+;	COMDAT glCheckShaderStat
+_TEXT	SEGMENT
+stat$ = 4
+__$ArrayPad$ = 216
+context$ = 256
+shaderHandle$ = 264
+key$ = 272
+logRef$ = 280
+glCheckShaderStat PROC					; COMDAT
+
+; 11   : {
+
+$LN4:
+  00000	4c 89 4c 24 20	 mov	 QWORD PTR [rsp+32], r9
+  00005	44 89 44 24 18	 mov	 DWORD PTR [rsp+24], r8d
+  0000a	48 89 54 24 10	 mov	 QWORD PTR [rsp+16], rdx
+  0000f	48 89 4c 24 08	 mov	 QWORD PTR [rsp+8], rcx
+  00014	55		 push	 rbp
+  00015	57		 push	 rdi
+  00016	48 81 ec 08 01
+	00 00		 sub	 rsp, 264		; 00000108H
+  0001d	48 8d 6c 24 20	 lea	 rbp, QWORD PTR [rsp+32]
+  00022	48 8d 7c 24 20	 lea	 rdi, QWORD PTR [rsp+32]
+  00027	b9 0a 00 00 00	 mov	 ecx, 10
+  0002c	b8 cc cc cc cc	 mov	 eax, -858993460		; ccccccccH
+  00031	f3 ab		 rep stosd
+  00033	48 8b 8c 24 28
+	01 00 00	 mov	 rcx, QWORD PTR [rsp+296]
+  0003b	48 8b 05 00 00
+	00 00		 mov	 rax, QWORD PTR __security_cookie
+  00042	48 33 c5	 xor	 rax, rbp
+  00045	48 89 85 d8 00
+	00 00		 mov	 QWORD PTR __$ArrayPad$[rbp], rax
+  0004c	48 8d 0d 00 00
+	00 00		 lea	 rcx, OFFSET FLAT:__59F96598_StgSharpC@c
+  00053	e8 00 00 00 00	 call	 __CheckForDebuggerJustMyCode
+
+; 12   :     int stat = 0;
+
+  00058	c7 45 04 00 00
+	00 00		 mov	 DWORD PTR stat$[rbp], 0
+
+; 13   :     context->GetShaderiv(shaderHandle, key, &stat);
+
+  0005f	4c 8d 45 04	 lea	 r8, QWORD PTR stat$[rbp]
+  00063	8b 95 10 01 00
+	00		 mov	 edx, DWORD PTR key$[rbp]
+  00069	8b 8d 08 01 00
+	00		 mov	 ecx, DWORD PTR shaderHandle$[rbp]
+  0006f	48 8b 85 00 01
+	00 00		 mov	 rax, QWORD PTR context$[rbp]
+  00076	ff 90 40 1b 00
+	00		 call	 QWORD PTR [rax+6976]
+
+; 14   :     if (!stat)
+
+  0007c	83 7d 04 00	 cmp	 DWORD PTR stat$[rbp], 0
+  00080	75 22		 jne	 SHORT $LN2@glCheckSha
+
+; 15   :     {
+; 16   :         context->GetShaderInfoLog(shaderHandle, 512, NULL, infolog);
+
+  00082	4c 8d 0d 00 00
+	00 00		 lea	 r9, OFFSET FLAT:infolog
+  00089	45 33 c0	 xor	 r8d, r8d
+  0008c	ba 00 02 00 00	 mov	 edx, 512		; 00000200H
+  00091	8b 8d 08 01 00
+	00		 mov	 ecx, DWORD PTR shaderHandle$[rbp]
+  00097	48 8b 85 00 01
+	00 00		 mov	 rax, QWORD PTR context$[rbp]
+  0009e	ff 90 20 1b 00
+	00		 call	 QWORD PTR [rax+6944]
+$LN2@glCheckSha:
+
+; 17   :     }
+; 18   :     *logRef = infolog;
+
+  000a4	48 8b 85 18 01
+	00 00		 mov	 rax, QWORD PTR logRef$[rbp]
+  000ab	48 8d 0d 00 00
+	00 00		 lea	 rcx, OFFSET FLAT:infolog
+  000b2	48 89 08	 mov	 QWORD PTR [rax], rcx
+
+; 19   :     return stat;
+
+  000b5	8b 45 04	 mov	 eax, DWORD PTR stat$[rbp]
+
+; 20   : }
+
+  000b8	8b f8		 mov	 edi, eax
+  000ba	48 8d 4d e0	 lea	 rcx, QWORD PTR [rbp-32]
+  000be	48 8d 15 00 00
+	00 00		 lea	 rdx, OFFSET FLAT:glCheckShaderStat$rtcFrameData
+  000c5	e8 00 00 00 00	 call	 _RTC_CheckStackVars
+  000ca	8b c7		 mov	 eax, edi
+  000cc	48 8b 8d d8 00
+	00 00		 mov	 rcx, QWORD PTR __$ArrayPad$[rbp]
+  000d3	48 33 cd	 xor	 rcx, rbp
+  000d6	e8 00 00 00 00	 call	 __security_check_cookie
+  000db	48 8d a5 e8 00
+	00 00		 lea	 rsp, QWORD PTR [rbp+232]
+  000e2	5f		 pop	 rdi
+  000e3	5d		 pop	 rbp
+  000e4	c3		 ret	 0
+glCheckShaderStat ENDP
 _TEXT	ENDS
 ; Function compile flags: /Odtp /RTCsu /ZI
 ; File C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt\stdio.h

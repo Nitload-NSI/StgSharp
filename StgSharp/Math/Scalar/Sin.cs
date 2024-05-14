@@ -28,7 +28,9 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using System;
 using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 
 namespace StgSharp.Math
 {
@@ -65,8 +67,10 @@ namespace StgSharp.Math
 
         };
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe float Sin(float x)
         {
+            /*
             float refer = x / 360.0f;
             refer -= (int)refer;
 
@@ -79,6 +83,8 @@ namespace StgSharp.Math
 
             return (sinData[a] * ((1 - (0.0123370055f * refer2)) + (2.536695709e-5f * refer2 * refer2)))
                 + (cosData[a] * ((0.1570796327f * refer) - (6.459640975e-4f * refer * refer2)));
+            */
+            return MathF.Sin(x);
         }
 
     }

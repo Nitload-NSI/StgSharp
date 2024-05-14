@@ -34,7 +34,7 @@ using System;
 using System.Linq;
 using System.Threading;
 
-namespace StgSharpDebug.Logic
+namespace StgSharp.Logic
 {
 
 

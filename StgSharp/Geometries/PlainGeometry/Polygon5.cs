@@ -30,8 +30,8 @@
 //-----------------------------------------------------------------------
 using StgSharp.Controlling;
 using StgSharp.Math;
- 
 
+using System;
 using System.Numerics;
 
 namespace StgSharp.Geometries
@@ -40,11 +40,11 @@ namespace StgSharp.Geometries
     {
 
         internal Point _refOrigin;
-        internal GetLocationHandler movP01Operation = default;
-        internal GetLocationHandler movP02Operation = default;
-        internal GetLocationHandler movP03Operation = default;
-        internal GetLocationHandler movP04Operation = default;
-        internal GetLocationHandler movP05Operation = default;
+        internal Func<int,vec3d> movP01Operation = default;
+        internal Func<int,vec3d> movP02Operation = default;
+        internal Func<int,vec3d> movP03Operation = default;
+        internal Func<int,vec3d> movP04Operation = default;
+        internal Func<int,vec3d> movP05Operation = default;
         internal mat5 vertexMat;
 
         public unsafe Polygon5()
@@ -67,11 +67,11 @@ namespace StgSharp.Geometries
         }
 
 
-        public GetLocationHandler MovP01Operation => movP01Operation;
-        public GetLocationHandler MovP02Operation => movP02Operation;
-        public GetLocationHandler MovP03Operation => movP03Operation;
-        public GetLocationHandler MovP04Operation => movP04Operation;
-        public GetLocationHandler MovP05Operation => movP05Operation;
+        public Func<int,vec3d> MovP01Operation => movP01Operation;
+        public Func<int,vec3d> MovP02Operation => movP02Operation;
+        public Func<int,vec3d> MovP03Operation => movP03Operation;
+        public Func<int,vec3d> MovP04Operation => movP04Operation;
+        public Func<int,vec3d> MovP05Operation => movP05Operation;
 
         public Point Vertex0
         {
@@ -153,11 +153,11 @@ namespace StgSharp.Geometries
         internal override void UpdateCoordinate(int tick)
         {
             int nowTick = tick - BornTime;
-            vertexMat.vec0 = (coordinate.origin + movVertex01(nowTick)).vec;
-            vertexMat.vec1 = (coordinate.origin + movVertex02(nowTick)).vec;
-            vertexMat.vec2 = (coordinate.origin + movVertex03(nowTick)).vec;
-            vertexMat.vec3 = (coordinate.origin + movVertex04(nowTick)).vec;
-            vertexMat.vec4 = (coordinate.origin + movVertex05(nowTick)).vec;
+            vertexMat.vec0 = (coordinate.Origin + movVertex01(nowTick)).vec;
+            vertexMat.vec1 = (coordinate.Origin + movVertex02(nowTick)).vec;
+            vertexMat.vec2 = (coordinate.Origin + movVertex03(nowTick)).vec;
+            vertexMat.vec3 = (coordinate.Origin + movVertex04(nowTick)).vec;
+            vertexMat.vec4 = (coordinate.Origin + movVertex05(nowTick)).vec;
         }
 
     }

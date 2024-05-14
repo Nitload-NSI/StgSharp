@@ -30,6 +30,6 @@
 
 #define SSCDECL __cdecl
 
-#define zeroVec (__m128){0,0,0,0}
+#define zeroVec _mm_setzero_ps()
 
 #endif //

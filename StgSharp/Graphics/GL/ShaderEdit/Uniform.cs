@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Graphic;
+using StgSharp.Graphics;
 using StgSharp.Math;
 
 using System;
@@ -62,9 +62,9 @@ namespace StgSharp.Graphics
         }
 
         internal unsafe Uniform(
-            ShaderProgram program, string name, Form binding)
+            ShaderProgram program, string name, glRenderStream binding)
         {
-            this.binding = binding.graphicContextID;
+            this.binding = binding.ContextHandle;
             id = GL.GetUniformLocation(program.handle, name);
         }
 
@@ -98,9 +98,9 @@ namespace StgSharp.Graphics
         }
 
         internal unsafe Uniform(
-            ShaderProgram program, string name, Form binding)
+            ShaderProgram program, string name, glRenderStream binding)
         {
-            this.binding = binding.graphicContextID;
+            this.binding = binding.ContextHandle;
             id = GL.GetUniformLocation(program.handle, name);
         }
 
@@ -137,13 +137,13 @@ namespace StgSharp.Graphics
         internal unsafe Uniform(
             ShaderProgram program, string name)
         {
-            this.binding = (IntPtr)GL.api;
+            this.binding = GL.CurrentContextHandle;
             id = GL.GetUniformLocation(program.handle, name);
         }
 
-        public unsafe Uniform(ShaderProgram program, string name, Form binding)
+        public unsafe Uniform(ShaderProgram program, string name, glRenderStream binding)
         {
-            this.binding = binding.graphicContextID;
+            this.binding = binding.ContextHandle;
             id = GL.GetUniformLocation(program.handle, name);
         }
 
@@ -172,16 +172,16 @@ namespace StgSharp.Graphics
             this.id = id;
         }
 
-        internal unsafe Uniform(ShaderProgram program, string name, Form binding)
+        internal unsafe Uniform(ShaderProgram program, string name, glRenderStream binding)
         {
-            this.binding = binding.graphicContextID;
+            this.binding = binding.ContextHandle;
             id = GL.GetUniformLocation(program.handle, name);
         }
 
         internal unsafe Uniform(
             ShaderProgram program, string name)
         {
-            this.binding = (IntPtr)GL.api;
+            this.binding = GL.CurrentContextHandle;
             id = GL.GetUniformLocation(program.handle, name);
         }
 
@@ -203,51 +203,51 @@ namespace StgSharp.Graphics
         public unsafe static void SetValue(Uniform<Matrix44> uniform, Matrix44 mat)
         {
             Matrix44 temp = mat;
-            api->glUniformMatrix4fv(uniform.id.Value, 1, false, (float*)&mat);
+            Context.glUniformMatrix4fv(uniform.id.Value, 1, false, (float*)&temp);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe static void SetValue(Uniform<float, float, float, float> uniform, vec4d vec)
         {
             vec4d temp = vec;
-            api->glUniform1fv(uniform.id.Value , 4, &temp);
+            Context.glUniform1fv(uniform.id.Value , 4, &temp);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe static void SetValue(Uniform<vec4d> uniform, vec4d vec)
         {
             vec4d temp = vec;
-            api->glUniform1fv(uniform.id.Value , 4, &temp);
+            Context.glUniform1fv(uniform.id.Value , 4, &temp);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void SetValue(Uniform<float> uniform, float v0)
         {
-            api->glUniform1f(uniform.id.Value , v0);
+            Context.glUniform1f(uniform.id.Value , v0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void SetValue(Uniform<int> uniform, int i0)
         {
-            api->glUniform1i(uniform.id.Value , i0);
+            Context.glUniform1i(uniform.id.Value , i0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void SetValue(Uniform<float, float> uniform, float v0, float v1)
         {
-            api->glUniform2f(uniform.id.Value , v0, v1);
+            Context.glUniform2f(uniform.id.Value , v0, v1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void SetValue(Uniform<float, float, float> uniform, float v0, float v1, float v2)
         {
-            api->glUniform3f(uniform.id.Value , v0, v1, v2);
+            Context.glUniform3f(uniform.id.Value , v0, v1, v2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void SetValue(Uniform<float, float, float, float> uniform, float v0, float v1, float v2, float v3)
         {
-            api->glUniform4f(uniform.id.Value , v0, v1, v2, v3);
+            Context.glUniform4f(uniform.id.Value , v0, v1, v2, v3);
         }
 
     }

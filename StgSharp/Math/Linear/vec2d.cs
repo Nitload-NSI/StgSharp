@@ -36,19 +36,19 @@ namespace StgSharp.Math
 {
     /// <summary>
     /// A two dimension vector defined by two elements.
-    /// Vec2Ds in StgSharp are defaultly usaed as colum vector. 
+    /// Vec2Ds in StgSharp are default used as colum vector. 
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public struct vec2d
+    public struct vec2d:IVector
     {
+
+        [FieldOffset(0)] internal unsafe fixed float num[2];
 
         [FieldOffset(0)]
         internal Vector2 v;
 
         [FieldOffset(0)]
         internal Vector4 vec;
-
-        [FieldOffset(0)] internal unsafe fixed float num[2];
 
         [FieldOffset(0)]
         public float X;
@@ -58,6 +58,10 @@ namespace StgSharp.Math
         internal vec2d(Vector2 vec)
         {
             v = vec;
+        }
+        internal vec2d(Vector4 vec)
+        {
+            this.vec = vec;
         }
 
         public vec2d(float x, float y)
@@ -116,6 +120,7 @@ namespace StgSharp.Math
         {
             return new vec2d(tuple.Item1, tuple.Item2);
         }
+
     }
 
     public static class Vec2d
@@ -124,5 +129,6 @@ namespace StgSharp.Math
         public static vec2d Unit => new vec2d(1, 1);
 
         public static vec2d Zero => new vec2d(0, 0);
+
     }
 }
