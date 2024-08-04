@@ -5,13 +5,13 @@
 
 ## General Introduction ##
 
-Stg# is a new generation STG game engine. STG# is written in C# based on OpenGL. It provide a both low hand high level binding to OpenGL, multimedia and device control, giving everything you need to make your own stg games.We are looking forward to provide full aupport on Linux and other OS platforms, but it requires a long journey to go.
+Stg# is a new generation STG game engine. STG# is written in C# based on OpenGL. It provide a both low hand high level binding to OpenGL, multimedia and device control, giving everything you need to make your own stg games.We are looking forward to provide full support on Linux and other OS platforms, but it requires a long journey to go.
 
 The Stg# engine contains the fallowing parts:
 
 1. A high efficiency math library
-2. A series of APIs to creat windowed aplication and game structures
-3. A series functions to optimize the performance
+2. A sets of APIs to create a MVVM windowed application
+3. A sets of functions to optimize performance
 4. A game resource manager
 
 
@@ -35,9 +35,9 @@ Stg# on windows has two files, C# code are compiled in file "StgSharp.dll", whil
 
 ## Future Plan ##
 
-StgSharp looks forward to provide support to different graphic APIs. We prepare to provide Vulcan support at 2.0 version.
+StgSharp looks forward to provide support to different graphic APIs. We are lokking forward to providing Vulcan support at 2.0 version.
 
-StgSharp will also bew available on different OS platforms, listed in Version History. It is needed to be informed that we removed plan on OS X series and HarmonyOS from recent plans.
+StgSharp will also bew available on different OS platforms, listed in Version History. It is needed to be informed that we removed the plan on OS X series and HarmonyOS from recent plans.
 
 ## Version History *
 
@@ -45,6 +45,7 @@ StgSharp will also bew available on different OS platforms, listed in Version Hi
 |---------|----------------------------------------------------|------------|------------|------------|
 | 0.3.0   | The first usable version with min usable function  | No Release | No Release | No Release |
 | 0.4.x   | Rewrite the OpenGL api loader, more function added | No Release | No Release | No Release |
+| 0.5.x   | Support MVVM mode                                  | No Release | No Release | No Release |
 
 *No current support plan for HarmonyOS and OS X series is the result of no dotNet JIT optimization support.
 
