@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Controlling;
+
 using StgSharp.Data;
 
 using System;
@@ -198,6 +198,18 @@ namespace StgSharp.Math
             vec3d v = *(vec3d*)&tuple;
             v.vec.W = 0.0f;
             return v;
+        }
+
+        public unsafe vec2d XY
+        {
+            get => new vec2d(this.vec);
+            set
+            {
+                fixed (Vector3* vptr = &v)
+                {
+                    *(Vector2*)vptr = value.v;
+                }
+            }
         }
 
     }

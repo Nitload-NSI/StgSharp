@@ -44,7 +44,9 @@ namespace StgSharp.Logic
         private SemaphoreSlim _addSubscriberSemaphore = new SemaphoreSlim(1, 1);
 
         protected SemaphoreSlim CheckSubscriberSemaphore
-=> _addSubscriberSemaphore;
+        { 
+            get => _addSubscriberSemaphore;
+        }
 
         public void AddSubscriber(TimeSpanProvider subscriber)
         {
@@ -81,6 +83,8 @@ namespace StgSharp.Logic
         }
 
         public abstract void StartProvidingTime();
+        public abstract void StopProvidingTime();
+
 
         protected abstract void AddSubscriberUnsynced(TimeSpanProvider subscriber);
         protected abstract void RemoveSubscriberUnsynced(TimeSpanProvider subscriber);

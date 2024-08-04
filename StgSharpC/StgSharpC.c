@@ -24,6 +24,7 @@ SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 }
 
 SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char* procName)

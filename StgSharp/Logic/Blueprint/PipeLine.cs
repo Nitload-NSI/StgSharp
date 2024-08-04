@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Security.Authentication.ExtendedProtection;
 using System.Text;
 using System.Threading;
@@ -42,7 +43,6 @@ namespace StgSharp.Logic
 
     public class BlueprintPipeline
     {
-
         private BlueprintNode after;
         private BlueprintNode former;
         private BlueprintPipelineArgs args;
@@ -61,24 +61,29 @@ namespace StgSharp.Logic
 
         public int Level => former.Level;
 
-        public BlueprintPipelineArgs Value
+        public BlueprintPipelineArgs Args
         {
             get => args;
             set => args = value;
         }
 
+        #region pipline op
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CompleteAndSkip()
         {
             //Console.WriteLine($"Complete\t{former.Name}\t->\t{after.Name}");
             formerCompleteSemaphore.Release();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CompleteAndWriteData(BlueprintPipelineArgs args)
         {
             this.args = args;
-            //Console.WriteLine($"Complete\t{former.Name}\t->\t{after.Name}");
-            formerCompleteSemaphore.Release();
+            CompleteAndSkip();
         }
+
+        #endregion
 
         public static void SkipAll(Dictionary<string, BlueprintPipeline> ports)
         {
@@ -112,13 +117,21 @@ namespace StgSharp.Logic
 
         public void WaitForStart()
         {
-            //Console.WriteLine($"Waiting   \t{former.Name}\t->\t{after.Name}");
+            //Console.WriteLine($"Waiting   \t{former.ContextName}\t->\t{after.ContextName}");
             formerCompleteSemaphore.Wait();
         }
+
+        ~BlueprintPipeline()
+        {
+            formerCompleteSemaphore.Dispose();
+        }
+
 
     }
 
     public abstract class BlueprintPipelineArgs
     {
+        public object? Value { get; set; }
+
     }
 }

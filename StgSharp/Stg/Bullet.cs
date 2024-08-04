@@ -36,7 +36,7 @@ using System;
 
 namespace StgSharp.Gaming
 {
-    public abstract class Bullet : IInstancing<Bullet>, IPlainEntity
+    public abstract class Bullet : IInstancing, IPlainEntity
     {
         protected Bullet
             (
@@ -53,9 +53,9 @@ namespace StgSharp.Gaming
             }
             GlobalBuffer = buffer;
             BufferId = buffer.CreateInstanceID();
-            ((IInstancing<Bullet>)this).Scale = scale;
-            ((IInstancing<Bullet>)this).Coord = new vec3d( beginPosition,0);
-            ((IInstancing<Bullet>)this).Rotation = angle;
+            ((IInstancing)this).Scale = scale;
+            ((IInstancing)this).Coord = new vec3d( beginPosition,0);
+            ((IInstancing)this).Rotation = angle;
             Motion = movement;
         }
 
@@ -71,7 +71,7 @@ namespace StgSharp.Gaming
             set;
         }
 
-        public PlainInstancingBuffer<Bullet> GlobalBuffer
+        public IInstancingBuffer GlobalBuffer
         {
             get;
             set;
@@ -83,10 +83,10 @@ namespace StgSharp.Gaming
             set; 
         }
 
-        vec3d IInstancing<Bullet>.CenterPositionGlobal 
+        vec3d IInstancing.CenterPositionGlobal 
         { 
             get;
-            set; 
+            set;
         }
 
         public bool CollideWith(IPlainEntity entity)

@@ -100,6 +100,8 @@ namespace StgSharp.Data
             }
         }
 
+
+
 #if NET5_0_OR_GREATER
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

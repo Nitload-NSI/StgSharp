@@ -55,7 +55,7 @@ namespace StgSharp
         }
 
         /// <summary>
-        /// A sensor used for cheking out if a bullet hit a player or something else
+        /// A sensor used for checking out if a bullet hit a player or something else
         /// </summary>
         public Sensor<PlainGeometry> CollisionSensor
         {
@@ -68,7 +68,7 @@ namespace StgSharp
         /// </summary>
         public vec2d Location { get; }
 
-        public string Texture { get; set; }
+        public string TextureGL { get; set; }
 
         /// <summary>
         /// X position of an enenmy entity

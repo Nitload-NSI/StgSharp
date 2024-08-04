@@ -32,68 +32,42 @@ using StgSharp.Graphics;
 using StgSharp.Math;
 
 using System;
+using System.ComponentModel;
 
 namespace StgSharp.Geometries
 {
     /// <summary>
-    /// 平面几何体。包含三角形，对称四边形，自由多边形等。最多可由16个点参数定义。
+    /// Plain geometry only contains straight sides.
     /// </summary>
-    public abstract class PlainGeometry: IGeometry
+    public abstract class PlainGeometry : IGeometry
     {
+        protected vec4d[] vertexMat;
+        internal CoordinationBase coordinate;
 
-        protected TimeSpanProvider time;
 
-        internal ICoord coordinate;
-
-        public static int VertexCount { get; }
-
-        public PlainGeometry()
+        internal PlainGeometry(CoordinationBase coordination)
         {
+            coordinate = coordination;
         }
 
-        vec4d IGeometry.this[int index] 
+        public Point this[int index]
         {
-            get => throw new NotImplementedException(); 
-            set => throw new NotImplementedException(); 
+            get => new Point(vertexMat[index]);
+            set => vertexMat[index].vec = value.coordVec;
         }
 
-        /// <summary>
-        /// Tick time this geometry eas crested
-        /// </summary>
-        public int BornTime => time;
 
-        public ICoord ReferenceCoordinate => this.coordinate;
+        public int VertexCount => this.vertexMat.Length;
 
-        internal abstract int[] Indices { get; }
+        public abstract ReadOnlySpan<int> VertexIndices { get; }
 
-        int IGeometry.VertexCount => throw new NotImplementedException();
+#pragma warning disable CA1819 
+        public vec4d[] VertexStream => vertexMat;
 
-        vec4d[] IGeometry.VertexStream => throw new NotImplementedException();
+        public CoordinationBase Coordination => this.coordinate;
+#pragma warning restore CA1819
 
-        /// <summary>
-        /// Get all sides of this <see cref="PlainGeometry"/>.
-        /// </summary>
-        /// <returns>A array contains all straight <see cref="Line"/>s of current geometry item.</returns>
-        public abstract Line[] GetAllSides();
 
-        /// <summary>
-        /// Get a flat <see cref="Plain"/> coincide with current geometry.
-        /// </summary>
-        /// <returns></returns>
-        public abstract Plain GetPlain();
 
-        internal abstract void UpdateCoordinate(int tick);
-
-        void IGeometry.GetVertexHandle(ICoord coordinate, int count)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IGeometry.Transform(Matrix44 transFormMatrix)
-        {
-            throw new NotImplementedException();
-        }
-
-        //public abstract Rectangle GetRenderFrame();
     }
 }

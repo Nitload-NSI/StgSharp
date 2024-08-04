@@ -41,11 +41,19 @@ namespace StgSharp
 {
     public static unsafe partial class StgSharp
     {
+        private static int _mainThreadID = -1;
 
         static byte[] _currentHash;
 
         private static bool _inited;
         internal const int ssdSegmentLength = 16;
+
+        public static int MainThreadID
+        {
+            get => _mainThreadID == -1 ? 
+                throw new InvalidOperationException("StgSharp environment is not inited. " +
+                    "Main thread id is not available") :_mainThreadID;
+        }
 
         public static byte[] CurrentAssemblyHash
         {
@@ -66,7 +74,7 @@ namespace StgSharp
         }
 
         /// <summary>
-        /// Init an instance of OpenGL program,
+        /// CustomizeInit an instance of OpenGL program,
         /// This method should be called before any other StgSharp api.
         /// </summary>
         public static void InitGL(int majorVersion, int minorVersion)
@@ -96,8 +104,6 @@ namespace StgSharp
                     vsyncActivated = value;
                 }
             }
-
         }
-
-    }//------------------------end of class------------------------//
+    }//-------------------------------------- End of Class ---------------------------------------//
 }
