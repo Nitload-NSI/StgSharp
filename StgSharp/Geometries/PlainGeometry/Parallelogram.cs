@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Controlling;
+
 using StgSharp.Math;
 
 using System;
@@ -38,65 +38,52 @@ namespace StgSharp.Geometries
     public class Parallelogram : Polygon4
     {
 
+        internal readonly Func<int, vec3d> movCenterOperation =
+            new Func<int, vec3d>(GeometryOperation.DefaultMotion);
+
         internal Point center;
 
-        internal readonly Func<int,vec3d> movCenterOperation =
-            new Func<int,vec3d>(GeometryOperation.DefaultMotion);
-
         public Parallelogram(
-            float v0x, float v0y, float v0z,
-            float v1x, float v1y, float v1z,
-            float v2x, float v2y, float v2z,
-            float v3x, float v3y, float v3z
+            float v0x, float v0y,
+            float v1x, float v1y,
+            float v2x, float v2y,
+            float v3x, float v3y
             ) : base(
-                v0x, v0y, v0z,
-                v1x, v1y, v1z,
-                v2x, v2y, v2z,
-                v3x, v3y, v3z
+                v0x, v0y, v1x, v1y,
+                v2x, v2y, v3x, v3y
                 )
         {
+#if DEBUG
             if (
-                vertexMat.colum0 + vertexMat.colum2 !=
-                vertexMat.colum1 + vertexMat.colum3
+                this[0].Coord + this[2].Coord !=
+                this[1].Coord + this[3].Coord
                 )
             {
                 InternalIO.InternalWriteLog("Init of geometry item failed, because four vertices cannot form a rectangle.", LogType.Warning);
             }
+#endif
         }
 
-        public Func<int,vec3d> MovCenterOperation => movCenterOperation;
-        public Func<int,vec3d> MovVertex01Operation => moveVertex0Operation;
-        public Func<int,vec3d> MovVertex02Operation => moveVertex1Operation;
-
-        public virtual vec3d MovCenter(int tick)
+        public Parallelogram(
+            PlainCoordinate coordination,
+            float v0x, float v0y,
+            float v1x, float v1y,
+            float v2x, float v2y,
+            float v3x, float v3y
+            ) : base(coordination,
+                v0x, v0y, v1x, v1y,
+                v2x, v2y, v3x, v3y
+                )
         {
-            return movCenterOperation.Invoke(tick);
-        }
-
-        /// <summary>
-        /// Move the third vertex. this is a useless method for Parallelograms.
-        /// </summary>
-        /// <param name="tick">Current time tick</param>
-        /// <returns></returns>
-        /// <exception cref="UnusedVertexException">Geometry over defined</exception>
-        public override sealed vec3d MoveVertex2(int tick)
-        {
-            throw new UnusedVertexException();
-        }
-
-        /// <summary>
-        /// Move the third vertex. This method is useless for Parallelograms.
-        /// </summary>
-        /// <param name="tick">Current time tick</param>
-        /// <returns></returns>
-        /// <exception cref="UnusedVertexException">Geometry over defined</exception>
-        public override sealed vec3d MoveVertex3(int tick)
-        {
-            throw new UnusedVertexException();
-        }
-
-        internal override sealed void UpdateCoordinate(int tick)
-        {
+#if DEBUG
+            if (
+                this[0].Coord + this[2].Coord !=
+                this[1].Coord + this[3].Coord
+                )
+            {
+                InternalIO.InternalWriteLog("Init of geometry item failed, because four vertices cannot form a rectangle.", LogType.Warning);
+            }
+#endif
         }
 
     }

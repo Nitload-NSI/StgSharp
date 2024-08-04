@@ -71,9 +71,9 @@ namespace StgSharp.Geometries
 
         public Plain(Point p1, Point p2, Point p3)
         {
-            vec3d origin = p1.Position;
-            vec3d v1 = p2.Position - origin;
-            vec3d v2 = p3.Position - origin;
+            vec3d origin = p1.Coord;
+            vec3d v1 = p2.Coord - origin;
+            vec3d v2 = p3.Coord - origin;
 
 
             vec1 = v1 - (v2 * (v1.Y / v2.Y));   //计算平面在xz平面上的方向投影

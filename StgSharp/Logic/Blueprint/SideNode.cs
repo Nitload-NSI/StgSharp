@@ -5,15 +5,20 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace StgSharp.Logic
 {
-    internal sealed class BeginningNode:BlueprintNode
+    internal sealed class BeginningNode : BlueprintNode
     {
-        public BeginningNode():base(name : "BeginningNode",null,
-            true, ["default"], ["default"]
-            ) { }
+        private Blueprint _bp;
+
+        public BeginningNode( Blueprint bp ) : base(name: "BeginningNode",true, ["default"], ["default"]
+            )
+        {
+            _bp = bp;
+        }
 
         internal (string name, BlueprintPipelineArgs arg)[] InputData
         {
@@ -25,60 +30,62 @@ namespace StgSharp.Logic
                 }
                 foreach (var parameter in value)
                 {
-                    OutputInterfaces[parameter.name].Value = parameter.arg;
+                    OutputInterfaces[parameter.name].Args = parameter.arg;
                 }
             }
         }
 
         public new void SetCertainOutputPort(string name, BlueprintPipeline pipeline)
         {
-            if (outputInterfaces.ContainsKey(name))
+            if (_outputInterfaces.ContainsKey(name))
             {
-                outputInterfaces[name] = pipeline;
+                _outputInterfaces[name] = pipeline;
             }
-            outputInterfaces.Add(name,pipeline);
+            _outputInterfaces.Add(name, pipeline);
         }
 
-        public new void Run()
+        public override void Run()
         {
-            BlueprintPipeline.SkipAll(outputInterfaces);
+            _bp.RunningStat.Wait();
+            BlueprintPipeline.SkipAll(_outputInterfaces);
         }
     }
 
     internal sealed class EndingNode : BlueprintNode
     {
-        public EndingNode():base(name:"EndingNode",
-            operation: (
-                in Dictionary<string , BlueprintPipeline> input,
-                in Dictionary<string, BlueprintPipeline> output
-                ) => 
-            {
-            },
-            true, ["default"], ["default"]
-            ) { }
+        private Blueprint _bp;
+
+        public EndingNode(Blueprint bp) : base(name: "EndingNode",true, ["default"], ["default"]
+            )
+        {
+            _bp = bp;
+        }
 
         internal (string name, BlueprintPipelineArgs arg)[] OutputData
         {
-            get 
-            { 
+            get
+            {
                 return InputInterfaces.Select(
-                key => (key.Key, key.Value.Value) ).
+                key => (key.Key, key.Value.Args)).
                 ToArray();
             }
         }
 
         public new void SetCertainInputPort(string name, BlueprintPipeline pipeline)
         {
-            if (inputInterfaces.ContainsKey(name))
+            if (_inputInterfaces.ContainsKey(name))
             {
-                inputInterfaces[name] = pipeline;
+                _inputInterfaces[name] = pipeline;
             }
-            inputInterfaces.Add(name, pipeline);
+            _inputInterfaces.Add(name, pipeline);
         }
 
-        public new void Run() 
+        public override void Run()
         {
-            BlueprintPipeline.WaitAll(inputInterfaces);
+            BlueprintPipeline.WaitAll(_inputInterfaces);
+            Interlocked.Exchange(ref _bp.currentGlobalNodeIndex, 0);
+            Interlocked.Exchange(ref _bp.currentNativeNodeIndex, 0);
+            _bp.RunningStat.Release();
         }
     }
 }

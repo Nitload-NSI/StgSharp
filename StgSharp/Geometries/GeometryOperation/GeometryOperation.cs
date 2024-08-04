@@ -8,6 +8,7 @@ using System.Text;
 
 namespace StgSharp.Geometries
 {
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate vec3d GeometryMotionDelegate(TimeSpanProvider timeSource, out float rotation);
 
     public class GeometryMotion
@@ -20,15 +21,7 @@ namespace StgSharp.Geometries
 
         public static GeometryMotion DefaultMotion
         {
-            get
-            { 
-            return new GeometryMotion
-                (
-                true,
-                 null,
-                null
-                );
-            }
+            get => new GeometryMotion(true, null, null);
         }
 
         private static vec3d defaultMotion(TimeSpanProvider provider, out float rotation)
@@ -60,7 +53,7 @@ namespace StgSharp.Geometries
             {
                 movement = motionDelegate;
             }
-            sourceIsStatic = false;
+            //sourceIsStatic = false;
         }
 
         public bool IsIncrement
@@ -71,11 +64,11 @@ namespace StgSharp.Geometries
 
         public unsafe void RunMotion(ref vec3d coord, ref float rotation)
         {
-            float rot = 0;
+            float rot;
             vec3d vec;
             if (sourceIsStatic) 
             {
-                vec = ((delegate*<TimeSpanProvider, out float, vec3d>)handle)(time, out rot);
+                vec = ((delegate* unmanaged[Cdecl]<TimeSpanProvider, out float, vec3d>)handle)(time, out rot);
             }
             else
             {
@@ -89,7 +82,7 @@ namespace StgSharp.Geometries
             }
             else
             {
-                coord = vec.XYZ;
+                coord = vec;
                 rotation = rot;
             }
         }

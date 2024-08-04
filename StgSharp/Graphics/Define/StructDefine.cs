@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Graphics.OpenGL;
+
 using System;
 using System.Runtime.InteropServices;
 
@@ -276,7 +278,7 @@ namespace StgSharp.Graphics
         double virtualCursorPosX, virtualCursorPosY;
         bool rawMouseMotion;
 
-        // _GLFWcontext context; // 根据_GLFWcontext的定义转换
+        // _GLFWcontext viewPortDisplay; // 根据_GLFWcontext的定义转换
 
         // Callbacks are represented as IntPtr since we don't need the actual function pointers in C#
         internal struct Callbacks
@@ -951,6 +953,7 @@ namespace StgSharp.Graphics
     [StructLayout(LayoutKind.Sequential)]
     internal struct GLsync
     {
+        public IntPtr Handle;
     }
 
     #endregion glad struct

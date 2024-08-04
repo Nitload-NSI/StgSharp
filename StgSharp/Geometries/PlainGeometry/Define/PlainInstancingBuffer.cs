@@ -44,12 +44,15 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Geometries
 {
-    public class PlainInstancingBuffer<T> : IDisposable,IEnumerable<T> where T : IInstancing<T>
+    public class PlainInstancingBuffer<T> : 
+        IDisposable,IEnumerable<T>, IInstancingBuffer 
+        where T : 
+        IInstancing
     {
 
         private CoordinatePlain globalCorrdinnate;
         private List<vec4d> coordList;
-        private List<IInstancing<T>> instanceList;
+        private List<IInstancing> instanceList;
         private List<float> scalingList;
         private Mutex mutex;
         private bool disposedValue;
@@ -64,29 +67,29 @@ namespace StgSharp.Geometries
         public PlainInstancingBuffer()
         {
             coordList = new List<vec4d>(capacity: 100);
-            instanceList = new List<IInstancing<T>>(capacity:100);
+            instanceList = new List<IInstancing>(capacity:100);
             scalingList = new List<float>(capacity: 100);
-            coordArray = new vec4d[0];
-            scaleArray = new float[0];
+            coordArray = Array.Empty<vec4d>();
+            scaleArray = Array.Empty<float>();
             mutex = new Mutex();
         }
 
-        internal List<IInstancing<T>> InstanceList
+        public List<IInstancing> InstanceList
         {
             get => instanceList;
         }
 
-        internal List<vec4d> CoordList
+        public List<vec4d> CoordAndRotationList
         {
             get => coordList;
         }
 
-        internal List<float> ScalingList
+        public List<float> ScalingList
         {
             get => scalingList;
         }
 
-        public Span<vec4d> CoordSpan
+        public Span<vec4d> CoordAndRotationSpan
         {
             get
             {
@@ -96,7 +99,11 @@ namespace StgSharp.Geometries
                         GetField("_items", BindingFlags.NonPublic | BindingFlags.Instance);
                     if (fieldInfo == null)
                     {
+#pragma warning disable CA1065
+#pragma warning disable CA2201
                         throw new NullReferenceException();
+#pragma warning restore CA2201
+#pragma warning restore CA1065
                     }
                     coordArray = (vec4d[])fieldInfo.GetValue(coordList);
                 }
@@ -114,13 +121,19 @@ namespace StgSharp.Geometries
                         GetField("_items", BindingFlags.NonPublic | BindingFlags.Instance);
                     if (fieldInfo == null)
                     {
+#pragma warning disable CA1065
+#pragma warning disable CA2201
                         throw new NullReferenceException();
+#pragma warning restore CA2201
+#pragma warning restore CA1065
                     }
                     scaleArray = (float[])fieldInfo.GetValue(scalingList);
                 }
                 return new Span<float>(scaleArray, 0, coordList.Count);
             }
         }
+
+        IGeometry IInstancingBuffer.TypicalShape => throw new NotImplementedException();
 
         public int CreateInstanceID()
         {
@@ -142,7 +155,7 @@ namespace StgSharp.Geometries
                     paramName: nameof(instance));
             }
             int index = instance.BufferId;
-            IInstancing<T> temp = instanceList[instanceList.Count - 1];
+            IInstancing temp = instanceList[instanceList.Count - 1];
             instanceList[instance.BufferId] = temp;
             temp.BufferId = instance.BufferId;
 

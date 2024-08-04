@@ -29,6 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Graphics;
+using StgSharp.Graphics.OpenGL;
 using StgSharp.Math;
 
 using System;
@@ -50,7 +51,7 @@ namespace StgSharp.Graphics.ShaderEdit
         {
             ShaderParameter p = new ShaderParameter(name,ShaderParameter.TypeMarshal<T>());
             uniformDefine.Add(index,p);
-            //return new Uniform<T>();
+            //return new Uniform<TView>();
             throw new NotImplementedException();
         }
 

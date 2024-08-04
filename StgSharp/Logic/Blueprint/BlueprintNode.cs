@@ -30,20 +30,20 @@
 //-----------------------------------------------------------------------
 
 
+using StgSharp.Entities;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace StgSharp.Logic
 {
-    public delegate void BlueprintNodeAction(
-        in Dictionary<string, BlueprintPipeline> inpput,
-        in Dictionary<string, BlueprintPipeline> output);
-
-
 
     /// <summary>
     /// 
@@ -52,83 +52,72 @@ namespace StgSharp.Logic
     /// Reset pipeline has risk, this operation is a direct operation to port
     /// in current node, the port on the other node cannot get the change.
     /// </risk>
+#pragma warning disable CA1036
     public class BlueprintNode : IComparable<BlueprintNode>
+#pragma warning restore CA1036
     {
 
-        private Blueprint local;
-        private BlueprintNodeAction mainOperation;
-
-        private bool levelAvailabel, nativeRequested;
-        private int level;
+        private protected bool levelAvailable, nativeRequested;
+        private protected Dictionary<string, BlueprintPipeline> _inputInterfaces;
+        private protected Dictionary<string, BlueprintPipeline> _outputInterfaces;
+        private protected int _level;
+        private IConvertableToBlueprintNode mainOperation;
         private string name;
 
-        protected Dictionary<string, BlueprintPipeline> inputInterfaces;
-        protected Dictionary<string, BlueprintPipeline> outputInterfaces;
-
         internal BlueprintNode(string name,
-            BlueprintNodeAction operation, bool isNative,
-            string[] inputPorts,
-            string[] outputPorts)
+            IConvertableToBlueprintNode node, bool isNative)
         {
-            this.levelAvailabel = false;
+            this.levelAvailable = false;
             this.name = name;
             nativeRequested = isNative;
-            mainOperation = operation;
-            inputInterfaces = new Dictionary<string, BlueprintPipeline>();
-            outputInterfaces = new Dictionary<string, BlueprintPipeline>();
-            if (inputPorts.Length * outputPorts.Length == 0)
+            mainOperation = node;
+            _inputInterfaces = new Dictionary<string, BlueprintPipeline>();
+            _outputInterfaces = new Dictionary<string, BlueprintPipeline>();
+            foreach (string portName in node.InputInterfacesName)
             {
-                throw new Exception();
+                _inputInterfaces.Add(portName, null!);
             }
-            foreach (var portName in inputPorts)
+
+            foreach (string portName in node.OutputInterfacesName)
             {
-                inputInterfaces.Add(portName, null);
-            }
-            foreach (var portName in outputPorts)
-            {
-                outputInterfaces.Add(portName, null);
+                _outputInterfaces.Add(portName, null!);
             }
         }
 
 
-        public BlueprintNode(string name, IConvertableToBlueprintNode convertable)
-        {
-            this.levelAvailabel = false;
-            this.name = name;
-            inputInterfaces = new Dictionary<string, BlueprintPipeline>();
-            outputInterfaces = new Dictionary<string, BlueprintPipeline>();
-            mainOperation = convertable.MainExecution;
-            foreach (var soket in convertable.InputInterfacesName)
-            {
-                inputInterfaces.Add(soket, null);
-            }
-            foreach (var soket in convertable.OutputInterfacesName)
-            {
-                outputInterfaces.Add(soket, null);
-            }
-        }
-
-        public BlueprintNode(string name,
+#pragma warning disable CS8618
+        internal BlueprintNode(string name, bool isNative,
             string[] inputPorts,
             string[] outputPorts
             )
+#pragma warning restore CS8618
         {
-            this.levelAvailabel = false;
+            if (inputPorts == null || inputPorts.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(inputPorts));
+            }
+            if (outputPorts == null || outputPorts.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(outputPorts));
+            }
+            levelAvailable = false;
             this.name = name;
-            inputInterfaces = new Dictionary<string, BlueprintPipeline>();
-            outputInterfaces = new Dictionary<string, BlueprintPipeline>();
-            if (inputPorts.Length * outputPorts.Length == 0)
+            IsNative = isNative;
+            _inputInterfaces = new Dictionary<string, BlueprintPipeline>();
+            _outputInterfaces = new Dictionary<string, BlueprintPipeline>();
+            foreach (string portName in inputPorts)
             {
-                throw new Exception();
+                _inputInterfaces.Add(portName, null!);
             }
-            foreach (var portName in inputPorts)
+            foreach (string portName in outputPorts)
             {
-                inputInterfaces.Add(portName, null);
+                _outputInterfaces.Add(portName, null!);
             }
-            foreach (var portName in outputPorts)
-            {
-                outputInterfaces.Add(portName, null);
-            }
+        }
+
+        internal IConvertableToBlueprintNode Value
+        {
+            get => mainOperation;
         }
 
         public bool IsNative
@@ -136,35 +125,36 @@ namespace StgSharp.Logic
             get => nativeRequested;
             internal set => nativeRequested = value;
         }
+
         public int Level
         {
             get
             {
-                if (levelAvailabel)
+                if (levelAvailable)
                 {
-                    return level;
+                    return _level;
                 }
-                level = 0;
-                foreach (var item in inputInterfaces)
+                _level = 0;
+                foreach (KeyValuePair<string, BlueprintPipeline> item in _inputInterfaces)
                 {
                     if (item.Value == null)
                     {
                         continue;
                     }
-                    if (level <= item.Value.Level)
+                    if (_level <= item.Value.Level)
                     {
-                        level = item.Value.Level;
+                        _level = item.Value.Level;
                     }
                 }
-                level += 1;
-                return level;
+                _level += 1;
+                return _level;
             }
         }
 
         public string Name => name;
 
-        internal Dictionary<string, BlueprintPipeline> InputInterfaces => inputInterfaces;
-        internal Dictionary<string, BlueprintPipeline> OutputInterfaces => outputInterfaces;
+        internal Dictionary<string, BlueprintPipeline> InputInterfaces => _inputInterfaces;
+        internal Dictionary<string, BlueprintPipeline> OutputInterfaces => _outputInterfaces;
 
 
         public void AddAfter(
@@ -172,7 +162,7 @@ namespace StgSharp.Logic
             string formerOutputPortName,
             string thisInputPortName)
         {
-            this.levelAvailabel = false;
+            this.levelAvailable = false;
             BlueprintPipeline pipeline = new BlueprintPipeline(former, this);
             if (former is BeginningNode bnode)
             {
@@ -191,7 +181,7 @@ namespace StgSharp.Logic
             string thisOutputPortName,
             string afterInputPortName)
         {
-            this.levelAvailabel = false;
+            this.levelAvailable = false;
             BlueprintPipeline pipeline = new BlueprintPipeline(this, after);
             if (after is EndingNode enode)
             {
@@ -204,14 +194,24 @@ namespace StgSharp.Logic
             SetCertainOutputPort(thisOutputPortName, pipeline);
         }
 
+        public int CompareTo(BlueprintNode other)
+        {
+#pragma warning disable CA1062
+            return this.Level.CompareTo(other.Level);
+#pragma warning restore CA1062
+        }
 
-        public void Run()
+
+        public virtual void Run()
         {
             try
             {
                 //Console.WriteLine(name);
-                BlueprintPipeline.WaitAll(inputInterfaces);
-                mainOperation(in inputInterfaces, in outputInterfaces);
+                BlueprintPipeline.WaitAll(_inputInterfaces);
+                if (mainOperation != null)
+                {
+                    mainOperation.ExecuteMain(in _inputInterfaces, in _outputInterfaces);
+                }
             }
             catch (Exception)
             {
@@ -219,73 +219,74 @@ namespace StgSharp.Logic
             }
         }
 
-
-        int IComparable<BlueprintNode>.CompareTo(BlueprintNode other)
-        {
-            return this.Level.CompareTo(other.Level);
-        }
-
         #region port operation
 
         public BlueprintPipeline GetCertainInputPort(string name)
         {
-            if (!inputInterfaces.ContainsKey(name))
+            BlueprintPipeline ret;
+            if (!_inputInterfaces.TryGetValue(name, out ret))
             {
                 throw new Exception($"Cannot find the interface named {name} in node {Name}.");
             }
-            return inputInterfaces[name];
+            return ret;
         }
 
 
         public BlueprintPipeline GetCertainOutputPort(string name)
         {
-            if (!outputInterfaces.ContainsKey(name))
+            BlueprintPipeline ret;
+            if (!_outputInterfaces.TryGetValue(name, out ret))
             {
                 throw new Exception($"Cannot find the interface named {name} in node {Name}.");
             }
-            return outputInterfaces[name];
+            return ret;
         }
 
         public void SetCertainInputPort(string name, BlueprintPipeline pipeline)
         {
-            if (!inputInterfaces.ContainsKey(name))
+            if (!_inputInterfaces.ContainsKey(name))
             {
                 throw new Exception($"Cannot find the interface named {name} in node {Name}.");
             }
-            inputInterfaces[name] = pipeline;
+            _inputInterfaces[name] = pipeline;
         }
 
         public void SetCertainOutputPort(string name, BlueprintPipeline pipeline)
         {
-            if (!outputInterfaces.ContainsKey(name))
+            if (!_outputInterfaces.ContainsKey(name))
             {
                 throw new Exception($"Cannot find the interface named {name} in node {Name}.");
             }
-            outputInterfaces[name] = pipeline;
+            _outputInterfaces[name] = pipeline;
         }
 
         #endregion
 
+        
+    }//--------------------------------- end of class -----------------------------------
 
-    }//--------------------------------- end of class -----------------------------
-
-    public interface IConvertableToBlueprintNode
-    {
-
-        public string[] InputInterfacesName { get; }
-        public BlueprintNodeAction MainExecution { get; }
-        public string[] OutputInterfacesName { get; }
-
-    }
+    
 
     public class BlueprintNodeRunException : Exception
     {
+
+        protected BlueprintNodeRunException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+
+        public BlueprintNodeRunException()
+        {
+        }
 
         public BlueprintNodeRunException(Exception ex) : base(string.Empty, ex)
         {
         }
 
-        public BlueprintNodeRunException(string message, Exception ex) : base(message, ex)
+        public BlueprintNodeRunException(string message) : base(message)
+        {
+        }
+
+        public BlueprintNodeRunException(string message, Exception innerException) : base(message, innerException)
         {
         }
 

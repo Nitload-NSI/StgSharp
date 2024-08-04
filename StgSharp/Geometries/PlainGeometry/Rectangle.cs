@@ -38,20 +38,44 @@ namespace StgSharp.Geometries
     {
 
         public Rectangle(
-            float v0x, float v0y, float v0z,
-            float v1x, float v1y, float v1z,
-            float v2x, float v2y, float v2z,
-            float v3x, float v3y, float v3z
+            float v0x, float v0y,
+            float v1x, float v1y,
+            float v2x, float v2y,
+            float v3x, float v3y
             ) : base(
-                v0x, v0y, v0z,
-                v1x, v1y, v1z,
-                v2x, v2y, v2z,
-                v3x, v3y, v3z
+                v0x, v0y,
+                v1x, v1y,
+                v2x, v2y,
+                v3x, v3y
                 )
         {
 #if DEBUG
-            vec2d side0 = new vec2d( vertexMat.colum0 - vertexMat.colum1);
-            vec2d side1 = new vec2d( vertexMat.colum2 - vertexMat.colum1);
+            vec2d side0 = (this[0].Coord - this[1].Coord).XY;
+            vec2d side1 = (this[2].Coord - this[1].Coord).XY;
+            if (side0.Cross(side1) == 0)
+            {
+                throw new ArgumentException();
+            }
+#endif
+        }
+
+
+        public Rectangle(
+            PlainCoordinate coordination,
+            float v0x, float v0y,
+            float v1x, float v1y,
+            float v2x, float v2y,
+            float v3x, float v3y
+            ) : base(coordination,
+                v0x, v0y,
+                v1x, v1y,
+                v2x, v2y,
+                v3x, v3y
+                )
+        {
+#if DEBUG
+            vec2d side0 = (this[0].Coord - this[1].Coord).XY;
+            vec2d side1 = (this[2].Coord - this[1].Coord).XY;
             if (side0.Cross(side1) == 0)
             {
                 throw new ArgumentException();
@@ -62,14 +86,12 @@ namespace StgSharp.Geometries
         /// <summary>
         /// Calculate movement to center
         /// </summary>
-        /// <param name="tick">Current time tick</param>
+        /// <param name="tick">CurrentBlueprint time tick</param>
         /// <returns></returns>
         public virtual vec3d MovCenter(uint tick)
         {
             return default(vec3d);
         }
-
-
 
     }
 }

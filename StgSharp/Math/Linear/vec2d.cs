@@ -102,6 +102,10 @@ namespace StgSharp.Math
         {
             return new vec2d(vec.v / value);
         }
+        public static vec2d operator *(float value, vec2d vec)
+        {
+            return new vec2d(vec.v * value);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static vec2d operator +(vec2d left, vec2d right)

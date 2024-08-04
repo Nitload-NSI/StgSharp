@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Controlling;
+
 using StgSharp.Data;
 using StgSharp.Math;
 
@@ -95,6 +95,15 @@ namespace StgSharp.Math
                 W = w;
             }
         }
+        public unsafe vec2d XY
+        {
+            get => new vec2d(vec);
+            set
+            {
+                X = value.X;
+                Y = value.Y;
+            }
+        }
 
         public override bool Equals(object obj)
         {
@@ -128,9 +137,21 @@ namespace StgSharp.Math
                 );
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static vec4d operator +(vec4d left, vec4d right)
+        {
+            return new vec4d(left.vec + right.vec);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static vec4d operator -(vec4d left, vec4d right)
+        {
+            return new vec4d(left.vec - right.vec);
+        }
+
         public static bool operator ==(vec4d left, vec4d right)
         {
-            return left.Equals(right);
+            return left.vec == right.vec;
         }
 
         public static implicit operator M128(vec4d vec)
@@ -143,5 +164,16 @@ namespace StgSharp.Math
             return vec == other.vec;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static vec4d Subtract(vec4d left, vec4d right)
+        {
+            return left - right;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static vec4d Add(vec4d left, vec4d right)
+        {
+            return left + right;
+        }
     }
 }
