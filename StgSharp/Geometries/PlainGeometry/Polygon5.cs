@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Controlling;
+
 using StgSharp.Math;
 
 using System;
@@ -39,126 +39,46 @@ namespace StgSharp.Geometries
     public unsafe class Polygon5 : PlainGeometry
     {
 
-        internal Point _refOrigin;
-        internal Func<int,vec3d> movP01Operation = default;
-        internal Func<int,vec3d> movP02Operation = default;
-        internal Func<int,vec3d> movP03Operation = default;
-        internal Func<int,vec3d> movP04Operation = default;
-        internal Func<int,vec3d> movP05Operation = default;
-        internal mat5 vertexMat;
-
-        public unsafe Polygon5()
+        public unsafe Polygon5():base(PlainCoordinate.StandardPlainCoordination)
         {
+            vertexMat = new vec4d[5];
         }
 
         public Polygon5(
-            float v0x, float v0y, float v0z,
-            float v1x, float v1y, float v1z,
-            float v2x, float v2y, float v2z,
-            float v3x, float v3y, float v3z,
-            float v4x, float v4y, float v4z
-            )
+            float v0x, float v0y,
+            float v1x, float v1y,
+            float v2x, float v2y,
+            float v3x, float v3y,
+            float v4x, float v4y
+            ):base(PlainCoordinate.StandardPlainCoordination)
         {
-            vertexMat.vec0 = new Vector4(v0x, v0y, v0z, 0);
-            vertexMat.vec1 = new Vector4(v1x, v1y, v1z, 0);
-            vertexMat.vec2 = new Vector4(v2x, v2y, v2z, 0);
-            vertexMat.vec3 = new Vector4(v3x, v3y, v3z, 0);
-            vertexMat.vec4 = new Vector4(v4x, v4y, v4z, 0);
+            vertexMat = new vec4d[5];
+            this[0] = new Point(v0x, v0y, 0);
+            this[1] = new Point(v1x, v1y, 0);
+            this[2] = new Point(v2x, v2y, 0);
+            this[3] = new Point(v3x, v3y, 0);
+            this[4] = new Point(v4x, v4y, 0);
         }
 
-
-        public Func<int,vec3d> MovP01Operation => movP01Operation;
-        public Func<int,vec3d> MovP02Operation => movP02Operation;
-        public Func<int,vec3d> MovP03Operation => movP03Operation;
-        public Func<int,vec3d> MovP04Operation => movP04Operation;
-        public Func<int,vec3d> MovP05Operation => movP05Operation;
-
-        public Point Vertex0
+        public Polygon5(
+            PlainCoordinate coordination,
+            float v0x, float v0y,
+            float v1x, float v1y,
+            float v2x, float v2y,
+            float v3x, float v3y,
+            float v4x, float v4y
+            ):base(coordination)
         {
-            get => new Point(vertexMat.vec0);
-            set => vertexMat.vec0 = value.position.vec;
+            vertexMat = new vec4d[5];
+            this[0] = new Point(v0x, v0y, 0);
+            this[1] = new Point(v1x, v1y, 0);
+            this[2] = new Point(v2x, v2y, 0);
+            this[3] = new Point(v3x, v3y, 0);
+            this[4] = new Point(v4x, v4y, 0);
         }
 
-        public Point Vertex1
-        {
-            get => new Point(vertexMat.vec1);
-            set => vertexMat.vec1 = value.position.vec;
-        }
+        internal static int[] Indices = [ 0, 1, 2, 0, 2, 3, 0, 3, 4 ];
 
-        public Point Vertex2
-        {
-            get => new Point(vertexMat.vec2);
-            set => vertexMat.vec2 = value.position.vec;
-        }
-
-        public Point Vertex3
-        {
-            get => new Point(vertexMat.vec3);
-            set => vertexMat.vec3 = value.position.vec;
-        }
-
-        public Point Vertex4
-        {
-            get => new Point(vertexMat.vec4);
-            set => vertexMat.vec4 = value.position.vec;
-        }
-
-        public mat5 VertexBuffer => vertexMat;
-
-        internal override int[] Indices => new int[9] { 0, 1, 2, 0, 2, 3, 0, 3, 4 };
-
-        public override Line[] GetAllSides()
-        {
-            return new Line[5]
-                {
-                    new Line(Vertex0,Vertex1),
-                    new Line(Vertex1,Vertex2),
-                    new Line(Vertex2,Vertex3),
-                    new Line(Vertex3,Vertex4),
-                    new Line(Vertex4,Vertex0)
-                };
-        }
-
-        public override Plain GetPlain()
-        {
-            return new Plain(Vertex0, Vertex1, Vertex2);
-        }
-
-        public virtual vec3d movVertex01(int tick)
-        {
-            return movP01Operation.Invoke(time);
-        }
-
-        public virtual vec3d movVertex02(int tick)
-        {
-            return movP02Operation.Invoke(time);
-        }
-
-        public virtual vec3d movVertex03(int tick)
-        {
-            return movP03Operation.Invoke(time);
-        }
-
-        public virtual vec3d movVertex04(int tick)
-        {
-            return movP04Operation.Invoke(time);
-        }
-
-        public virtual vec3d movVertex05(int tick)
-        {
-            return movP05Operation.Invoke(time);
-        }
-
-
-        internal override void UpdateCoordinate(int tick)
-        {
-            int nowTick = tick - BornTime;
-            vertexMat.vec0 = (coordinate.Origin + movVertex01(nowTick)).vec;
-            vertexMat.vec1 = (coordinate.Origin + movVertex02(nowTick)).vec;
-            vertexMat.vec2 = (coordinate.Origin + movVertex03(nowTick)).vec;
-            vertexMat.vec3 = (coordinate.Origin + movVertex04(nowTick)).vec;
-            vertexMat.vec4 = (coordinate.Origin + movVertex05(nowTick)).vec;
-        }
-
+        public override ReadOnlySpan<int> VertexIndices => Indices;
     }
 }

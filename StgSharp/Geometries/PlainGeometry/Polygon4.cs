@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Controlling;
+
 using StgSharp.Math;
 
 using System;
@@ -38,136 +38,85 @@ namespace StgSharp.Geometries
 {
     public class Polygon4 : PlainGeometry
     {
+        protected static int[] Indices = [0, 1, 2, 0, 2, 3];
 
-        internal readonly Func<int,vec3d> moveVertex0Operation = GeometryOperation.DefaultMotion;
-        internal readonly Func<int,vec3d> moveVertex1Operation = GeometryOperation.DefaultMotion;
-        internal readonly Func<int,vec3d> moveVertex2Operation = GeometryOperation.DefaultMotion;
-        internal readonly Func<int,vec3d> moveVertex3Operation = GeometryOperation.DefaultMotion;
-
-        internal Mat4 vertexMat;
-
-        internal Polygon4()
+        internal Polygon4():base(PlainCoordinate.StandardPlainCoordination)
         {
+            vertexMat = new vec4d[4];
         }
 
-        public Polygon4(ICoord coordinate,
-            vec2d topLeft,
-            vec2d topRight,
-            vec2d bottomRight,
-            vec2d bottomLeft
-            )
+        internal Polygon4(vec4d[] rawCoord):
+            base(PlainCoordinate.StandardPlainCoordination)
         {
-            this.coordinate = coordinate;
-            vertexMat.colum0 = topLeft.vec;
-            vertexMat.colum1 = topRight.vec;
-            vertexMat.colum2 = bottomRight.vec;
-            vertexMat.colum3 = bottomLeft.vec;
-
-            Vector4 maxCoord = vertexMat.colum0;
-            Vector4 minCoord = vertexMat.colum0;
-
-            maxCoord = Vector4.Max(maxCoord, vertexMat.colum1);
-            maxCoord = Vector4.Max(maxCoord, vertexMat.colum2);
-            maxCoord = Vector4.Max(maxCoord, vertexMat.colum3);
-
-            minCoord = Vector4.Min(minCoord, vertexMat.colum1);
-            minCoord = Vector4.Min(minCoord, vertexMat.colum2);
-            minCoord = Vector4.Min(minCoord, vertexMat.colum3);
+            if (rawCoord.Length != 4)
+            {
+                throw new ArgumentOutOfRangeException(nameof(rawCoord));
+            }
+            vertexMat = rawCoord;
         }
 
         public Polygon4(
-            float v0x, float v0y, float v0z,
-            float v1x, float v1y, float v1z,
-            float v2x, float v2y, float v2z,
-            float v3x, float v3y, float v3z
-            )
+            Point topLeft,
+            Point topRight,
+            Point bottomRight,
+            Point bottomLeft
+            ):base(PlainCoordinate.StandardPlainCoordination)
         {
-            vertexMat.colum0 = new Vector4(v0x, v0y, v0z, 0);
-            vertexMat.colum1 = new Vector4(v1x, v1y, v1z, 0);
-            vertexMat.colum2 = new Vector4(v2x, v2y, v2z, 0);
-            vertexMat.colum3 = new Vector4(v3x, v3y, v3z, 0);
+            this[0] = topLeft;
+            this[1] = topRight;
+            this[2] = bottomRight;
+            this[3] = bottomLeft;
+
         }
 
-        public Func<int,vec3d> MovVertex0Operation => moveVertex0Operation;
-        public Func<int,vec3d> MovVertex1Operation => moveVertex1Operation;
-        public Func<int,vec3d> MovVertex2Operation => moveVertex2Operation;
-        public Func<int,vec3d> MovVertex3Operation => moveVertex3Operation;
-
-        public Point Vertex0
+        public Polygon4(
+            float v0x, float v0y,
+            float v1x, float v1y,
+            float v2x, float v2y,
+            float v3x, float v3y
+            ):base(PlainCoordinate.StandardPlainCoordination)
         {
-            get => new Point(vertexMat.colum0);
-            set => vertexMat.colum0 = value.position.vec;
-        }
+            vertexMat = new vec4d[4];
 
-        public Point Vertex1
-        {
-            get => new Point(vertexMat.colum1);
-            set => vertexMat.colum1 = value.position.vec;
-        }
-
-        public Point Vertex2
-        {
-            get => new Point(vertexMat.colum2);
-            set => vertexMat.colum1 = value.position.vec;
-        }
-
-        public Mat4 VertexBuffer => vertexMat;
-
-
-
-        internal override sealed int[] Indices => new int[6] { 0, 1, 2, 0, 2, 3 };
-
-        internal Point Vertex3
-        {
-            get => new Point(vertexMat.colum3);
-            set => vertexMat.colum1 = value.position.vec;
+            this[0] = new Point(v0x, v0y, 0);
+            this[1] = new Point(v1x, v1y, 0);
+            this[2] = new Point(v2x, v2y, 0);
+            this[3] = new Point(v3x, v3y, 0);
         }
 
 
-        public override Line[] GetAllSides()
+        public Polygon4(CoordinationBase coordinate,
+            PlainCoordinate coordination,
+            Point topLeft,
+            Point topRight,
+            Point bottomRight,
+            Point bottomLeft
+            ) : base(coordinate)
         {
-            Line[] sides =
-                [
-                    new Line(Vertex0, Vertex1),
-                    new Line(Vertex1, Vertex2),
-                    new Line(Vertex2, Vertex3),
-                    new Line(Vertex3, Vertex0)
-                ];
+            this[0] = topLeft;
+            this[1] = topRight;
+            this[2] = bottomRight;
+            this[3] = bottomLeft;
 
-            return sides;
         }
 
-        public override Plain GetPlain()
+        public Polygon4(
+            PlainCoordinate coordination,
+            float v0x, float v0y,
+            float v1x, float v1y,
+            float v2x, float v2y,
+            float v3x, float v3y
+            ) : base(coordination)
         {
-            return new Plain(
-                vertexMat.colum0,
-                vertexMat.colum1,
-                vertexMat.colum2);
+            vertexMat = new vec4d[4];
+
+            this[0] = new Point(v0x, v0y, 0);
+            this[1] = new Point(v1x, v1y, 0);
+            this[2] = new Point(v2x, v2y, 0);
+            this[3] = new Point(v3x, v3y, 0);
         }
 
-        public virtual vec3d MoveVertex0(int tick)
-        {
-            return moveVertex0Operation(tick);
-        }
-
-        public virtual vec3d MoveVertex1(int tick)
-        {
-            return moveVertex1Operation(tick);
-        }
-
-        public virtual vec3d MoveVertex2(int tick)
-        {
-            return moveVertex2Operation(tick);
-        }
-
-        public virtual vec3d MoveVertex3(int tick)
-        {
-            return moveVertex3Operation(tick);
-        }
-
-        internal override void UpdateCoordinate(int tick)
-        {
-        }
+        public override ReadOnlySpan<int> VertexIndices => Indices;
 
     }
 }

@@ -42,21 +42,21 @@ namespace StgSharp.Geometries
     {
 
         public Square(
-            float v0x, float v0y, float v0z,
-            float v1x, float v1y, float v1z,
-            float v2x, float v2y, float v2z,
-            float v3x, float v3y, float v3z)
-            : base(v0x, v0y, v0z,
-                  v1x, v1y, v1z,
-                  v2x, v2y, v2z,
-                  v3x, v3y, v3z)
+            float v0x, float v0y,
+            float v1x, float v1y,
+            float v2x, float v2y,
+            float v3x, float v3y)
+            : base(v0x, v0y,
+                  v1x, v1y,
+                  v2x, v2y,
+                  v3x, v3y)
         {
+            if (true)
+            {
+
+            }
         }
 
-        public override sealed vec3d MoveVertex1(int tick)
-        {
-            return default;
-        }
 
     }
 }

@@ -41,29 +41,24 @@ namespace StgSharp.Data
     {
         private SSDrawHead head;
 
-        private Dictionary<string, int> idDict;
-        private Dictionary<int,SSDraw> fileList;
-        private Dictionary<int, SSDraw> drawList;
+        private Dictionary<string, SSDraw> fileList;
         
-        private List<SSDSegment> segments;
-        private FileStream file;    //很多时候
+        private FileStream file;
 
-
-        public SSDSegment FindSegment(int id)
+        public SSD()
         {
-            SSDSegment s = segments[id];
-            if (s.ID != id)
-            {
-                foreach (var item in segments)
-                {
-                    if (item.ID == id)
-                    {
-                        s = item;
-                        break;
-                    }
-                }
-            }
-            return s;
+            fileList = new Dictionary<string, SSDraw>();
+        }
+
+        public SSD(FileStream fileStream)
+        {
+            fileList = new Dictionary<string, SSDraw>();
+            file = fileStream;
+        }
+
+        public static SSD FromFile(string fileRoute)
+        {
+            return new SSD(new FileStream(fileRoute, FileMode.Open, FileAccess.Read)) { };
         }
 
     }

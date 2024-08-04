@@ -157,7 +157,7 @@ namespace StgSharp
 
         [DllImport(SSC_libName, EntryPoint = "glfwGetWindowUserPointer")] internal static extern unsafe void* glfwGetWindowUserPointer(IntPtr window);
 
-        [DllImport(SSC_libName, EntryPoint = "glfwSetWindowPosCallback")] internal static extern unsafe GLFWwindowposfun glfwSetWindowPosCallback(IntPtr window, GLFWwindowposfun callback);
+        [DllImport(SSC_libName, EntryPoint = "glfwSetWindowPosCallback")] internal static extern unsafe GLFWwindowposfun glfwSetWindowPosCallback(IntPtr window, IntPtr callback);
 
         [DllImport(SSC_libName, EntryPoint = "glfwSetWindowSizeCallback")] internal static extern unsafe GLFWwindowsizefun glfwSetWindowSizeCallback(IntPtr window, GLFWwindowsizefun callback);
 
@@ -171,7 +171,7 @@ namespace StgSharp
 
         [DllImport(SSC_libName, EntryPoint = "glfwSetWindowMaximizeCallback")] internal static extern unsafe GLFWwindowmaximizefun glfwSetWindowMaximizeCallback(IntPtr window, GLFWwindowmaximizefun callback);
 
-        [DllImport(SSC_libName, EntryPoint = "glfwSetFramebufferSizeCallback")] internal static extern unsafe FramebuffersizeHandler glfwSetFramebufferSizeCallback(IntPtr window, IntPtr callback);
+        [DllImport(SSC_libName, EntryPoint = "glfwSetFramebufferSizeCallback")] internal static extern unsafe FrameBufferSizeHandler glfwSetFramebufferSizeCallback(IntPtr window, IntPtr callback);
 
         [DllImport(SSC_libName, EntryPoint = "glfwSetWindowContentScaleCallback")] internal static extern unsafe GLFWwindowcontentscalefun glfwSetWindowContentScaleCallback(IntPtr window, GLFWwindowcontentscalefun callback);
 

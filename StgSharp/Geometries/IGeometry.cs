@@ -41,8 +41,9 @@ namespace StgSharp.Geometries
 {
     public interface IGeometry
     {
+        public CoordinationBase Coordination { get; }
 
-        public vec4d this[int index]
+        public Point this[int index]
         {
             get;
             set;
@@ -53,14 +54,17 @@ namespace StgSharp.Geometries
             get;
         }
 
+#pragma warning disable CA1819 
         public vec4d[] VertexStream
+#pragma warning restore CA1819 
         {
             get;
         }
 
-        public void GetVertexHandle(ICoord coordinate, int count);
-
-        public void Transform(Matrix44 transFormMatrix);
+        public ReadOnlySpan<int> VertexIndices 
+        {
+            get;
+        }
 
     }
 }

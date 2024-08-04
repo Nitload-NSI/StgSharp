@@ -14,8 +14,9 @@ namespace StgSharp.Geometries
         public vec2d CenterPosition { get; set; }
 
         public bool CollideWith(IPlainEntity entity);
-
     }
+
+
 
     public class PlainEntity:IPlainEntity
     {
@@ -23,8 +24,8 @@ namespace StgSharp.Geometries
 
         vec2d IPlainEntity.CenterPosition 
         {
-            get => throw new NotImplementedException(); 
-            set => throw new NotImplementedException(); 
+            get => _shape.Coordination.LocalOrigin.Coord.XY;
+            set => throw new InvalidOperationException(); 
         }
 
         public PlainEntity(PlainGeometry shape)

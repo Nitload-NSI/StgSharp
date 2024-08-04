@@ -30,8 +30,45 @@
 //-----------------------------------------------------------------------
 
 
-namespace StgSharp.Graphics
+using System.Runtime.CompilerServices;
+
+namespace StgSharp.Graphics.OpenGL
 {
+    public enum PixelChannelLayout
+    {
+        UByte = GLconst.UNSIGNED_BYTE,
+        Byte = GLconst.BYTE,
+        UShort = GLconst.UNSIGNED_SHORT,
+        Short = GLconst.SHORT,
+        UInt = GLconst.UNSIGNED_INT,
+        Int = GLconst.INT,
+        Float = GLconst.FLOAT,
+        UByte332 = GLconst.UNSIGNED_BYTE_3_3_2,
+        UByte233Rev = GLconst.UNSIGNED_BYTE_2_3_3_REV,
+        UShort565 = GLconst.UNSIGNED_SHORT_5_6_5,
+        UShort565Rev = GLconst.UNSIGNED_SHORT_5_6_5_REV,
+        UShort4444 = GLconst.UNSIGNED_SHORT_4_4_4_4,
+        UShort4444Rev = GLconst.UNSIGNED_SHORT_4_4_4_4_REV,
+        UShort5551 = GLconst.UNSIGNED_SHORT_5_5_5_1,
+        UShort1555Rev = GLconst.UNSIGNED_SHORT_1_5_5_5_REV,
+        UInt8888 = GLconst.UNSIGNED_INT_8_8_8_8,
+        UInt8888Rev = GLconst.UNSIGNED_INT_8_8_8_8_REV,
+        UInt1010102 = GLconst.UNSIGNED_INT_10_10_10_2,
+        UInt2101010Rev = GLconst.UNSIGNED_INT_2_10_10_10_REV
+    }
+
+    public enum FrameBufferStatus
+    {
+        Complete = GLconst.FRAMEBUFFER_COMPLETE, // GL_FRAMEBUFFER_COMPLETE
+        IncompleteAttachment = GLconst.FRAMEBUFFER_INCOMPLETE_ATTACHMENT, // GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT
+        IncompleteMissingAttachment = GLconst.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, // GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT
+        IncompleteDrawBuffer = GLconst.FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER, // GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER
+        IncompleteReadBuffer = GLconst.FRAMEBUFFER_INCOMPLETE_READ_BUFFER, // GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER
+        Unsupported = GLconst.FRAMEBUFFER_UNSUPPORTED, // GL_FRAMEBUFFER_UNSUPPORTED
+        IncompleteMultisample = GLconst.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, // GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE
+        IncompleteLayerTargets = GLconst.FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS // GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS
+    }
+
     internal enum VkStructureType : uint
     {
         VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR = 1000004000,
@@ -41,6 +78,50 @@ namespace StgSharp.Graphics
         VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK = 1000123000,
         VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT = 1000217000,
         VK_STRUCTURE_TYPE_MAX_ENUM = 0x7FFFFFFF
+    }
+
+    public enum FrameBufferChannel
+    {
+        STENCIL_INDEX = GLconst.STENCIL_INDEX,
+        DEPTH_COMPONENT = GLconst.DEPTH_COMPONENT,
+        DEPTH_STENCIL = GLconst.DEPTH_STENCIL,
+        RED = GLconst.RED,
+        GREEN = GLconst.GREEN,
+        BLUE = GLconst.BLUE,
+        RGB = GLconst.RGB,
+        BGR = GLconst.BGR,
+        RGBA = GLconst.RGBA,
+        BGRA = GLconst.BGRA
+    }
+
+    public enum FrameBufferAttachment
+    {
+        Color = GLconst.COLOR_ATTACHMENT0,
+        Depth = GLconst.DEPTH_ATTACHMENT,
+        Stencil = GLconst.STENCIL_ATTACHMENT,
+    }
+
+    public enum Texture2DTarget
+    {
+        Texture2D = GLconst.TEXTURE_2D,
+        ProxyTexture2D = GLconst.PROXY_TEXTURE_2D,
+        Texture1DArray = GLconst.TEXTURE_1D_ARRAY,
+        ProxyTexture1DArray = GLconst.PROXY_TEXTURE_1D_ARRAY,
+        TextureRectangle = GLconst.TEXTURE_RECTANGLE,
+        ProxyTextureRectangle = GLconst.PROXY_TEXTURE_RECTANGLE,
+        TextureCubeMapPositiveX = GLconst.TEXTURE_CUBE_MAP_POSITIVE_X,
+        TextureCubeMapNegativeX = GLconst.TEXTURE_CUBE_MAP_NEGATIVE_X,
+        TextureCubeMapPositiveY = GLconst.TEXTURE_CUBE_MAP_POSITIVE_Y,
+        TextureCubeMapNegativeY = GLconst.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+        TextureCubeMapPositiveZ = GLconst.TEXTURE_CUBE_MAP_POSITIVE_Z,
+        TextureCubeMapNegativeZ = GLconst.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+        ProxyTextureCubeMap = GLconst.PROXY_TEXTURE_CUBE_MAP
+    }
+
+    public enum RenderBufferInternalFormat : uint
+    {
+        RGBA8 = GLconst.RGBA8,
+        Depth24_Stencil8 = GLconst.DEPTH24_STENCIL8,
     }
 
     public enum GLOperation : uint
@@ -76,17 +157,23 @@ namespace StgSharp.Graphics
         VK_RESULT_MAX_ENUM = 0x7FFFFFFF
     }
 
+#pragma warning disable CA1008 
     public enum ShaderType : int
+#pragma warning restore CA1008 
     {
-        Fragment = 0x8B30,
-        Vertex = 0x8B31,
+        Fragment = GLconst.FRAGMENT_SHADER,
+        Vertex = GLconst.VERTEX_SHADER,
+        Compute = GLconst.COMPUTE_SHADER,
+        Geometry = GLconst.GEOMETRY_SHADER,
     }
 
-    public enum BufferType : uint
+#pragma warning disable CA1008 // 枚举应具有零值
+    public enum BufferType : int
+#pragma warning restore CA1008 // 枚举应具有零值
     {
-        ARRAY_BUFFER = 0x8892,
-        ELEMENT_ARRAY_BUFFER = 0x8893,
-        ATOMIC_COUNTER_BUFFER = GLconst.ATOMIC_COUNTER_BUFFER,
+        ArrayBuffer = GLconst.ARRAY_BUFFER,
+        ElementArrayBuffer = GLconst.ELEMENT_ARRAY_BUFFER,
+        AtomicCounterBuffer = GLconst.ATOMIC_COUNTER_BUFFER,
         COPY_READ_BUFFER = GLconst.COPY_READ_BUFFER,
         COPY_WRITE_BUFFER = GLconst.COPY_WRITE_BUFFER,
         DISPATCH_INDIRECT_BUFFER = GLconst.DISPATCH_INDIRECT_BUFFER,
@@ -100,18 +187,21 @@ namespace StgSharp.Graphics
         UNIFORM_BUFFER = GLconst.UNIFORM_BUFFER,
     }
 
+#pragma warning disable CA1008 // 枚举应具有零值
     public enum BufferUsage : int
+#pragma warning restore CA1008 // 枚举应具有零值
     {
-        STREAM_DRAW = 0x88E0,
-        STREAM_READ = 0x88E1,
-        STREAM_COPY = 0x88E2,
-        STATIC_DRAW = 0x88E4,
-        STATIC_READ = 0x88E5,
-        STATIC_COPY = 0x88E6,
-        DYNAMIC_DRAW = 0x88E8,
-        DYNAMIC_READ = 0x88E9,
-        DYNAMIC_COPY = 0x88EA
+        StreamDraw = 0x88E0,
+        StreamRead = 0x88E1,
+        StreamCopy = 0x88E2,
+        StaticDraw = 0x88E4,
+        StaticRead = 0x88E5,
+        StaticCopy = 0x88E6,
+        DynamicDraw = 0x88E8,
+        DynamicRead = 0x88E9,
+        DynamicCopy = 0x88EA
     }
+
 
     public enum MaskBufferBit
     {

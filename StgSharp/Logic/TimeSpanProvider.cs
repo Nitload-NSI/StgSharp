@@ -43,15 +43,17 @@ namespace StgSharp
     public class TimeSpanProvider
     {
 
-        private Action _frameUpdateMissCallback = null;
-
-        private readonly int _maxSpanCount;
+        private Action _frameUpdateMissCallback = () => { };
         private Action _refreshCallback;
-        private SemaphoreSlim _refreshSemaphore = new SemaphoreSlim(0, 1);
-        private long _spanBegin;
-        private readonly long _spanLength;
         private bool _subscribed;
         private Counter<int> timeSpanCount = new Counter<int>(-1, 1, 1);
+        private readonly int _maxSpanCount;
+        private long _spanBegin;
+        private readonly long _spanLength;
+        private SemaphoreSlim _refreshSemaphore = new SemaphoreSlim(0, 1);
+        private readonly TimeSourceProviderBase _timeSource;
+
+        
 
         /// <summary>
         /// Create a new <see cref="TimeSpanProvider"/> and define the length of time span. Length of a single time span is defined in microseconds.
@@ -60,6 +62,11 @@ namespace StgSharp
         /// <param name="provider"></param>
         public TimeSpanProvider(long spanMicroSeconds, TimeSourceProviderBase provider)
         {
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+            _timeSource = provider;
             _spanLength = spanMicroSeconds;
             _maxSpanCount = int.MaxValue;
             provider.AddSubscriber(this);
@@ -75,6 +82,10 @@ namespace StgSharp
         /// <param name="provider"></param>
         public TimeSpanProvider(double spanSeconds, TimeSourceProviderBase provider)
         {
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
             _spanLength = (long)(spanSeconds * 1000L * 1000L);
             _spanBegin = -_spanLength;
             _maxSpanCount = int.MaxValue;
@@ -91,6 +102,10 @@ namespace StgSharp
         /// <param name="provider"></param>
         public TimeSpanProvider(long spanLength, int maxSpan, TimeSourceProviderBase provider)
         {
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
             if (maxSpan <= 0)
             {
                 maxSpan = int.MaxValue;
@@ -101,17 +116,28 @@ namespace StgSharp
         }
 
         public int CurrentSpan
-=> timeSpanCount.Value;
+        {
+            get => timeSpanCount.Value;
+        }
+
+        public float CurrentSecond
+        {
+            get => timeSpanCount.Value * SpanLengthLowPrecession;
+        }
 
         /// <summary>
         /// Time source provider provided in <see cref="StgSharp"/> internal framework.
         /// </summary>
         public static TimeSourceProviderBase DefaultProvider => StgSharpTime.OnlyInstance;
 
-        public Action FrameUpdateMissCallback
+        public double SpanLength
         {
-            get => _frameUpdateMissCallback;
-            set => _frameUpdateMissCallback = value;
+            get => (_spanLength * 1.0) / (1000L * 1000L);
+        }
+
+        public float SpanLengthLowPrecession
+        {
+            get => (_spanLength * 1.0f) / (1000 * 1000);
         }
 
         /// <summary>
@@ -125,6 +151,10 @@ namespace StgSharp
 
         public void SubscribeToTimeSource(TimeSourceProviderBase serviceHandler)
         {
+            if (serviceHandler == null)
+            {
+                throw new ArgumentNullException(nameof(serviceHandler));
+            }
             if (_subscribed)
             {
                 return;
@@ -140,18 +170,20 @@ namespace StgSharp
 
         internal bool CheckTime(long microseconds)
         {
+            //Console.Write("1 ");
             if (microseconds - _spanBegin < _spanLength)
             {
                 return true;
             }
-            
+            //Console.Write("2 ");
             _spanBegin = microseconds;
             timeSpanCount++;
-
+            //Console.Write("3 ");
             if (_refreshCallback != null)
             {
                 _refreshCallback();
             }
+            //Console.Write("4 ");
             if (_refreshSemaphore.CurrentCount == 0)
             {
                 _refreshSemaphore.Release();
@@ -163,17 +195,23 @@ namespace StgSharp
                     _frameUpdateMissCallback();
                 }
             }
-            if (timeSpanCount > _maxSpanCount)
-            {
-                return false;
-            }
-            return true;
+            //Console.Write("5 ");
+            //Console.WriteLine( $"{timeSpanCount}\n" );
+            return timeSpanCount < _maxSpanCount;
         }
 
         public static implicit operator int(TimeSpanProvider provider)
         {
-            return provider.timeSpanCount.Value;
+            if (provider == null)
+            {
+                return 0;
+            }
+            return provider.ToInt32();
         }
 
+        public int ToInt32()
+        {
+            return (int)timeSpanCount.Value;
+        }
     }
 }

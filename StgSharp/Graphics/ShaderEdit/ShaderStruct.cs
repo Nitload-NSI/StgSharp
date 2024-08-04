@@ -1,4 +1,6 @@
-﻿using System;
+﻿using StgSharp.Graphics.OpenGL;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,17 +16,17 @@ namespace StgSharp.Graphics.ShaderEdit
 
     public class ShaderStruct
     {
-        internal Dictionary<glSHandle, ShaderStructMember> uniformPair;
+        internal Dictionary<GlHandle, ShaderStructMember> uniformPair;
 
-        public ShaderStruct(params (glSHandle, ShaderStructMember)[] UniformPais)
+        public ShaderStruct(params (GlHandle, ShaderStructMember)[] uniformPairs)
         {
-            uniformPair = new Dictionary<glSHandle, ShaderStructMember>();
-            if (UniformPais.Length == 0)
+            uniformPair = new Dictionary<GlHandle, ShaderStructMember>();
+            if (uniformPairs.Length == 0)
             {
                 return;
             }
 
-            foreach (var item in UniformPais)
+            foreach (var item in uniformPairs)
             {
                 uniformPair.Add(item.Item1,item.Item2);
             }
@@ -36,10 +38,10 @@ namespace StgSharp.Graphics.ShaderEdit
 
         public unsafe void SetAllUniforms()
         {
-            GLcontext* gl = (GLcontext*) GL.CurrentContextHandle;
+            OpenglContext* gl = (OpenglContext*)OpenGL.GlFunction.CurrentGL.ContextHandle;
             foreach (var uniform in uniformPair)
             {
-                int id = uniform.Key.Value;
+                int id = uniform.Key.SignedValue;
                 ShaderStructMember s = uniform.Value;
                 switch (s.type)
                 {
@@ -59,6 +61,6 @@ namespace StgSharp.Graphics.ShaderEdit
                             "Incorrect type \"Unknown\" defined in this self define type");
                 }
             }
-        }
+        }//------------------------------------ End of Class ---------------------------------------
     }
 }

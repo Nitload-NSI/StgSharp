@@ -42,6 +42,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 #if Windows
@@ -87,6 +88,26 @@ namespace StgSharp
             InternalIO.InternalWriteLog(
                 $"Program {Assembly.GetEntryAssembly()!.FullName} Started.",
                 LogType.Info);
+            _mainThreadID = Environment.CurrentManagedThreadId;
+        }
+
+        public static void LogError(Exception ex)
+        {
+            InternalIO.InternalWriteLog(ex.Message, LogType.Error);
+        }
+
+        public static void LogWarning(string log)
+        {
+            InternalIO.InternalWriteLog(log, LogType.Warning);
+        }
+        public static void LogWarning(Exception notVerySeriesException)
+        {
+            InternalIO.InternalWriteLog(notVerySeriesException.Message, LogType.Warning);
+        }
+
+        public static void LogInfo(string log)
+        {
+            InternalIO.InternalWriteLog(log, LogType.Info);
         }
 
         public static void Mark(bool needConsole)
@@ -100,7 +121,7 @@ namespace StgSharp
 
         public static void Terminate()
         {
-            MainTimeProvider.Terminate();
+            MainTimeProvider.StopProvidingTime();
             InternalIO.glfwTerminate();
         }
 
@@ -134,7 +155,7 @@ namespace StgSharp
         }
 
         /// <summary>
-        /// Write a log message to log file, and mark the level of this message.
+        /// Write a log message to log file, and mark the _level of this message.
         /// </summary>
         /// <param name="message">A string contains information of how current evironment runs.</param>
         /// <param name="logType">The severity of current message.</param>

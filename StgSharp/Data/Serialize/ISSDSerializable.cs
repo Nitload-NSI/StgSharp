@@ -7,15 +7,13 @@ using System.Threading.Tasks;
 namespace StgSharp.Data
 {
 
-    public abstract class SSDSerializable
+    public interface ISSDSerializable
     {
-        public abstract SerializableTypeCode SSDTypeCode { get; }
+        public SerializableTypeCode SSDTypeCode { get; }
 
-        public abstract byte[] GetBytes();
+        public byte[] GetBytes();
 
-        public abstract byte[] GetBytes(out int length);
-
-        internal abstract void BuildFromByteStream(byte[] stream);
+        internal void FromBytes(byte[] stream);
     }
 
     public enum SerializableTypeCode
@@ -28,21 +26,20 @@ namespace StgSharp.Data
         Shader = 5,
         Text = 6,
         RawData = 7,
-        VirtualFolder = 8,
-
+        VirtualFolder = int.MaxValue,
     }
 
     public static partial class Serializer
     {
-        public static byte[] Serialize(SSDSerializable serializableObject)
+        public static byte[] Serialize(ISSDSerializable serializableObject)
         {
             return serializableObject.GetBytes();
         }
 
-        public static T Deserialize<T>(byte[] stream)where T : SSDSerializable
+        public static T Deserialize<T>(byte[] stream)where T : ISSDSerializable
         {
             T serializableObject = (T)Activator.CreateInstance<T>();
-            serializableObject.BuildFromByteStream(stream);
+            serializableObject.FromBytes(stream);
             return serializableObject;
         }
 

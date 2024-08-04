@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Controlling;
+
 
 using System;
 using System.Collections.Generic;
@@ -67,11 +67,6 @@ namespace StgSharp.Entities
             new NotImplementedException();
         }
 
-        internal void InternalDieOperation(Control home)
-        {
-            _dieBulletLauncher.Launch();
-            _awardLauncher.Launch();
-        }
 
     }
 }

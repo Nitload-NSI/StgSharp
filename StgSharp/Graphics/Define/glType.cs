@@ -103,7 +103,6 @@ namespace StgSharp.Graphics
     internal unsafe delegate void GLFWkeyfun(glfwWindow* window, int key, int scancode, int action, int mods);
     internal unsafe delegate void GLFWjoystickfun(int jid, int keyevent);
     public unsafe delegate void GLFWglproc();
-    internal unsafe delegate void FramebuffersizeHandler(IntPtr window, int width, int height); //window is the pointer to a glfwWindow instance
     internal unsafe delegate void GLFWerrorfun(int error_code, sbyte* description);
     internal unsafe delegate void GLFWdropfun(glfwWindow* window, int path_count, sbyte*[] paths);
     internal unsafe delegate void GLFWcursorposfun(glfwWindow* window, double xpos, double ypos);

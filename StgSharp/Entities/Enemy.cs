@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Controlling;
+
 
 namespace StgSharp.Entities
 {
@@ -49,11 +49,6 @@ namespace StgSharp.Entities
             CommonBulletLauncher.Launch();
         }
 
-        internal void InternalDieOperation(Control home)
-        {
-            _dieBulletLauncher.Launch();
-            _awardLauncher.Launch();
-        }
 
     }
 }

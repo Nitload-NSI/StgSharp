@@ -28,8 +28,11 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Graphics.OpenGL;
 using StgSharp.Logic;
 using StgSharp.Math;
+using StgSharp.MVVM;
+using StgSharp.MVVM.View;
 
 using System;
 using System.Collections.Generic;
@@ -42,116 +45,93 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Graphics
 {
-    public abstract class RenderStream: IConvertableToBlueprintNode
+    public abstract class RenderStream 
     {
-
-        private IntPtr canvasHandle;
-        private IntPtr contextHandle;
-
-        private int height;
-        private IntPtr monitor;
-        private IntPtr sharedCanvas;
-        private int width;
-        protected (int x, int y, int z) _coordStretch;
-        protected string name;
+        private protected (int x, int y, int z) _coordStretch;
         private Camera nativeCamera;
-
-        public RenderStream(RenderStreamConstructArgs args)
+        private protected ViewPort primeArgs;
+        internal TimeSpanProvider _timeProvider;
+        
+        public (int width, int height) Size
         {
-            height = args.Height;
-            monitor = args.Monitor;
-            width = args.Width;
-            name = args.Name;
-            monitor = args.Monitor;
-            _coordStretch = args.UnitCubeSize;
-        }
-
-        public IntPtr CanvasHandle
-        {
-            get => canvasHandle;
-            internal set => canvasHandle = value;
-        }
-
-        public IntPtr ContextHandle
-        {
-            get => contextHandle;
-            internal set => contextHandle = value;
-        }
-
-        internal protected Camera NativeCamera
-        {
-            get => nativeCamera;
-            internal set => nativeCamera = value; 
-        }
-
-        public FrameBufferSizeHandler FrameSizeCallback
-        {
-            set
+            get => (Width, Height);
+            internal set
             {
-                IntPtr handlerPtr = Marshal.GetFunctionPointerForDelegate(value);
-                InternalIO.glfwSetFramebufferSizeCallback(CanvasHandle, handlerPtr);
+                primeArgs.Height = value.width;
+                primeArgs.Width = value.height;
+                InternalIO.glfwSetWindowSize(this.CanvasHandle, Width, Height);
             }
         }
 
-        public vec2d GlobalCoordSize => ((Width * 1.0f) / _coordStretch.x, (Height * 1.0f) / _coordStretch.y);
-          
         public int Height
         {
-            get => height;
-            internal set
-            {
-                height = value;
-                InternalIO.glfwSetWindowSize(this.canvasHandle, Width, Height);
-            }
-        }
-
-        public IntPtr Monitor
-        {
-            get => monitor;
-            internal set => monitor = value;
-        }
-
-        public string Name
-        {
-            get => name;
-            internal set => name = value;
-        }
-
-        public IntPtr SharedCanvas
-        {
-            get => sharedCanvas;
-            internal set => sharedCanvas = value;
-        }
-
-        public vec2d Size
-        {
-            get => new vec2d(width, height);
-            internal set
-            {
-                height = (int)value.Y;
-                width = (int)value.X;
-                InternalIO.glfwSetWindowSize(this.canvasHandle, Width, Height);
-            }
+            get => primeArgs.Height;
+            internal set { primeArgs.Height = value; }
         }
 
         public int Width
         {
-            get => width;
-            internal set
-            {
-                width = value;
-                InternalIO.glfwSetWindowSize(this.canvasHandle, Width, Height);
-            }
+            get => primeArgs.Width;
+            internal set { primeArgs.Width = value; }
         }
 
-        protected abstract string[] InputPortsName { get; }
-        protected abstract string[] OutputPortsName { get; }
+        public IntPtr Monitor
+        {
+            get => primeArgs.Monitor;
+            internal set => primeArgs.Monitor = value;
+        }
 
-        string[] IConvertableToBlueprintNode.InputInterfacesName => InputPortsName;
+        public abstract bool IsContextSharable
+        {
+            get;
+        }
 
-        string[] IConvertableToBlueprintNode.OutputInterfacesName => OutputPortsName;
+        public string Name
+        {
+            get => primeArgs.Name;
+        }
 
-        BlueprintNodeAction IConvertableToBlueprintNode.MainExecution => InternalDraw;
+        public vec2d GlobalCoordSize => ((Width * 1.0f) / _coordStretch.x, (Height * 1.0f) / _coordStretch.y);
+
+        public ViewPort Port
+        {
+            get => primeArgs;
+            internal set => primeArgs = value;
+        }
+        internal IntPtr CanvasHandle { get => primeArgs.ViewPortID; }
+
+
+        internal IntPtr ContextHandle
+        {
+            get => primeArgs.GraphicHandle;
+            private protected set => primeArgs.GraphicHandle = value;
+        }
+
+        protected internal Camera NativeCamera
+        {
+            get => nativeCamera;
+            internal set => nativeCamera = value;
+        }
+
+        protected int PassedFrames
+        {
+            get => _timeProvider.CurrentSpan;
+        }
+
+        protected float TimePassed
+        {
+            get => _timeProvider.CurrentSecond;
+        }
+
+        protected float FramePassed
+        {
+            get => _timeProvider.CurrentSpan;
+        }
+
+        protected TimeSpanProvider TimeProvider
+        {
+            get => _timeProvider;
+        }
 
         /// <summary>
         /// Set the size limit of current form
@@ -163,42 +143,71 @@ namespace StgSharp.Graphics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight);
 
-        internal abstract void CreateCanvas();
+        public static TTarget ShareContextFrom<TSource, TTarget>(TSource source)
+            where TSource : RenderStream
+            where TTarget : RenderStream, new()
+        {
+            TTarget target = new TTarget();
+            target.Initialize(source.Port,source._coordStretch,source._timeProvider);
+            return target;
+        }
+
+        internal protected static void PollEvents()
+        {
+            InternalIO.glfwPollEvents();
+        }
+
+        internal protected void SwapBuffers()
+        {
+            InternalIO.glfwSwapBuffers(CanvasHandle);
+        }
 
         #region native camera operation
-        protected abstract void NativeCameraViewRange(Radius FieldOfRange,vec2d offset, (float frontDepth, float backDepth ) viewDepth );
+        protected abstract void NativeCameraViewRange(Radius fieldOfRange, vec2d offset, (float frontDepth, float backDepth) viewDepth);
         protected abstract void NativeCameraViewTarget(vec3d position, vec3d direction, vec3d up);
+
         /// <summary>
-        /// Get <see cref="Uniform{T}"/>(T is <see cref="Matrix44"/>) uniform from a shader.
+        /// Get <see cref="Uniform{T}"/>(TView is <see cref="Matrix44"/>) uniform from a shader.
         /// This uniform will be used as projection matrix of this camera.
         /// Additionally, for multi-shader rendering, each shader requires a uniform, 
         /// so do not ignore return value of this method.
         /// </summary>
         /// <param name="source">Shader using this camera</param>
-        /// <param name="name">Name of projection camera named in shader</param>
+        /// <param name="name">ContextName of projection camera named in shader</param>
         /// <returns>
-        /// <see cref="Uniform{T}"/>(T is <see cref="Matrix44"/>) representing 
+        /// <see cref="Uniform{T}"/>(TView is <see cref="Matrix44"/>) representing 
         /// projection matrix in shader program.
         /// </returns>
         protected abstract Uniform<Matrix44> NativeCameraUniform(ShaderProgram source, string name);
         #endregion
 
         #region internal operation
-        internal abstract void InternalDraw(
-            in Dictionary<string, BlueprintPipeline> input,
-            in Dictionary<string, BlueprintPipeline> output);
-        internal abstract void InternalInit();
-        internal abstract void InternalTerminate();
+        internal abstract void Draw();
+
+        public void Initialize(ViewPort v, (int, int, int) unitCubeSize, TimeSpanProvider timeProvider)
+        {
+            if (v == null)
+            {
+                throw new ArgumentNullException(nameof(v));
+            }
+            primeArgs = v;
+            this._timeProvider = timeProvider;
+            _coordStretch = unitCubeSize;
+            nativeCamera = new Camera();
+            PlatformSpecifiedInitialize();
+            CustomizeInit();
+        }
+
+        internal abstract void PlatformSpecifiedInitialize();
+
+        internal abstract void Terminate();
         #endregion
 
         #region public operation
-        protected abstract void Deinit();
-        protected abstract void Init();
-        protected abstract void Main(
-            in Dictionary<string, BlueprintPipeline> input,
-            in Dictionary<string, BlueprintPipeline> output);
-        protected abstract void ProcessInput();
-        
+        protected abstract void CustomizeDeinit();
+        protected abstract void CustomizeInit();
+        protected abstract void Main();
+
         #endregion
 
         #region public resource generator
@@ -206,19 +215,8 @@ namespace StgSharp.Graphics
         protected abstract Shader CreateShaderSegment(ShaderType type, int count);
         protected abstract ShaderProgram CreateShaderProgram();
 
-        
-
         #endregion
 
     }
 
-    public class RenderStreamConstructArgs
-    {
-
-        public int Height { get; set; }
-        public IntPtr Monitor { get; set; }
-        public string Name { get; set; }
-        public int Width { get; set; }
-        public (int x, int y, int z) UnitCubeSize { get; set; }
-    }
 }

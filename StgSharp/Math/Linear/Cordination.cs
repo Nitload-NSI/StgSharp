@@ -31,10 +31,6 @@
 namespace StgSharp.Math
 {
 
-    internal class Coordination
-    {
-    }
-
     public enum CoordinatePlain
     {
         XY,

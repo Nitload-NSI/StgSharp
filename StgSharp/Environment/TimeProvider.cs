@@ -39,19 +39,17 @@ using System.Threading;
 
 namespace StgSharp
 {
-    public partial class StgSharp
+    public static partial class StgSharp
     {
 
+        internal static StgSharpTime mainTimeProvider = new StgSharpTime();
 
-        internal static StgSharpTime mainTimeProvider;
-
-        internal static StgSharpTime MainTimeProvider => mainTimeProvider;
+        internal static TimeSourceProviderBase MainTimeProvider => mainTimeProvider;
 
     }
 
     public sealed class StgSharpTime : TimeSourceProviderBase
     {
-
         private static long accuracy;
         private static Stopwatch mainProvider = new Stopwatch();
         private static List<TimeSpanProvider> subscriberList = new List<TimeSpanProvider>();
@@ -61,7 +59,7 @@ namespace StgSharp
         {
         }
 
-        public static StgSharpTime OnlyInstance => StgSharp.MainTimeProvider;
+        public static TimeSourceProviderBase OnlyInstance => StgSharp.MainTimeProvider;
 
         public override sealed void StartProvidingTime()
         {
@@ -109,6 +107,14 @@ namespace StgSharp
         protected override sealed void RemoveSubscriberUnsynced(TimeSpanProvider subscriber)
         {
             subscriberList.Remove(subscriber);
+        }
+
+        public override void StopProvidingTime()
+        {
+            lock (mainProvider)
+            {
+                mainProvider.Stop();
+            }
         }
 
         private void ProvideTime()

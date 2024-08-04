@@ -29,6 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Graphics;
+using StgSharp.Graphics.OpenGL;
 using StgSharp.Graphics.ShaderEdit;
 using StgSharp.Math;
 
@@ -107,7 +108,7 @@ namespace StgSharp.Graphics
         /// </summary>
         /// <param name="source">Shader program requires this camera.</param>
         /// <param name="uniformName">
-        /// Name of all related uniforms.
+        /// ContextName of all related uniforms.
         /// If you fallow form from <see cref="IglConvertable.DisplayGLtypeDefinition"/>
         /// </param>
         /// <exception cref="ArgumentException"></exception>
@@ -115,7 +116,7 @@ namespace StgSharp.Graphics
         {
             if (uniformName.Length != 1)
             {
-                throw new ArgumentException();
+                throw new ArgumentException("Camera needs only one uniform.", nameof(uniformName));
             }
             convertedUniform = source.GetUniform<Matrix44>(uniformName[0]);
         }
@@ -141,8 +142,8 @@ namespace StgSharp.Graphics
 
         public unsafe void SetAllUniforms()
         {
-            //Console.WriteLine(Projection * View);
-            GL.SetValue(convertedUniform, Projection * View);
+            //Console.WriteLine(Projection * ViewBase);
+            OpenGL.GlFunction.CurrentGL.SetUniformValue(convertedUniform, Projection * View);
         }
 
         public void SetViewDirection(vec3d position, vec3d target, vec3d up)
@@ -224,7 +225,7 @@ namespace StgSharp.Graphics
         {
         }
 
-        #region ratation
+        #region rotation
 
         public void Yaw(Radius r)
         {
@@ -312,6 +313,7 @@ namespace StgSharp.Graphics
             rotationAtt.isTransposed = false;
 
         }
+
 
         #endregion
 

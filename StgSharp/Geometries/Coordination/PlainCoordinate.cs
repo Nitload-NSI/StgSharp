@@ -37,31 +37,30 @@ using System.Text;
 
 namespace StgSharp.Geometries
 {
-    public class PlainCoordinate : ICoord
+    public class PlainCoordinate : CoordinationBase
     {
-
         public PlainCoordinate(
-            vec3d origin,
+            CoordinationBase local,
+            Point origin,
             vec3d xAxis,
             vec3d yAxis
-            )
+            ) : base(local)
         {
             CoordMat = Matrix44.Unit;
-            Linear.Orthogonalize(ref xAxis, ref yAxis);
 
             CoordMat.colum0 = new vec4d(xAxis, 0);
             CoordMat.colum1 = new vec4d(yAxis, 0);
-            CoordMat.colum2 = new vec4d(Vec3d.Cross(xAxis, yAxis), 0);
+            CoordMat.colum2 = new vec4d(Linear.Normalize(Vec3d.Cross(xAxis, yAxis)), 0);
 
-            Origin = origin;
+            LocalOrigin = origin;
         }
 
+        private static PlainCoordinate statndardPlainCoordination = new PlainCoordinate(
+            null, new Point(0,0,0), 
+            new vec3d(1,0,0),
+            new vec3d(0, 1, 0)
+            );
 
-        public new vec3d Z_axis
-        {
-            get => Vec3d.Cross(X_axis, Y_axis);
-            set => throw new InvalidOperationException();
-        }
-
+        public static PlainCoordinate StandardPlainCoordination => statndardPlainCoordination;
     }
 }

@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Geometries
 {
-    public class StreamLocalCoordinate : ICoord
+    /*
+    public class StreamLocalCoordinate : CoordinationBase
     {
     }
+    /**/
 }
