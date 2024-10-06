@@ -1,114 +1,75 @@
-﻿#ifndef SSC
+﻿#ifdef _MSC_VER
+#pragma once
+#endif
+
+#ifndef SSC
 #define SSC
 
-#define SSC_Api
-
-#include "ssgc_framework.h"
-#include "ssgc_internal.h"
-#include "gl.h"
-#include "wgl.h"
-#include "glfw3.h"
-#include <immintrin.h>
+#include "ssc_framework.h"
+#include "ssc_internal.h"
 
 #define STBIDEF SSCAPI
 #include "stb_image.h"
 
-#pragma comment(lib,"glfw3.lib")
+#include "gl.h"
+#include "wgl.h"
+#include "glfw3.h"
+#include <immintrin.h>
+#include <assert.h>
+
+#ifndef  SSCAPI_DEFINE
+
+#ifdef _WIN32
+#define SSCAPI __declspec(dllexport)
+#elif defined _LINUX_
+#define SSCAPI __attribute__((dllexport))
+#elif defined _APPLE_
+#define SSCAPI __attribute__((visibility("default")))
+#else
+#define SSCAPI
+#endif
+
+#endif // ! SSCAPI_DEFINE
+
 
 #if __cplusplus
-extern "C"
-{
-#endif // _cplusplus
+extern "C" {
+#endif
 
 #define byte char
-
-#pragma region Internal
+#define ssc_null_assert(ptr) assert(ptr != NULL)
 
 #define ALIGN(simdVec) _mm_loadu_ps(&simdVec)
 
-    typedef struct Image {
+typedef struct Image {
         int width;
         int height;
         int channel;
-        char* pixelPtr;
-    }Image;
+        char *pixelPtr;
+} Image;
+
+typedef char *(*imageLoader)(char const *filename, int *x, int *y,
+                             int *channels_in_file, int desired_channels);
+
+SSCAPI char infolog[512];
+SSCAPI int SSCDECL glCheckShaderStat(GladGLContext *context,
+                                     uint64_t shaderHandle, int key,
+                                     char **logRef);
+SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion);
+SSCAPI unsigned int SSCDECL linkShaderProgram(GladGLContext *context,
+                                              GLuint shadertype);
+SSCAPI void SSCDECL loadImageData(char *location, Image *out,
+                                  imageLoader loader);
+SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char *procName);
+SSCAPI void SSCDECL unloadImageData(Image *out);
+SSCAPI char *SSCDECL readLog(void);
 
 #pragma endregion
 
-    typedef char* (*imageLoader)(char const* filename, int* x, int* y, int* channels_in_file, int desired_channels);
+SSCAPI void SSCDECL load_intrinsic_function(void *intrinsic_context);
 
-    SSCAPI char infolog[512];
-    SSCAPI int SSCDECL glCheckShaderStat(GladGLContext* context, int key, char** logRef);
-    SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion);
-    SSCAPI unsigned int SSCDECL linkShaderProgram(GladGLContext* context, GLuint shadertype);
-    SSCAPI void SSCDECL loadImageData(char* location, Image* out, imageLoader loader);
-    SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char* procName);
-    SSCAPI void SSCDECL unloadImageData(Image* out);
-    SSCAPI char* SSCDECL readLog(void);
-
-    //linear related function
-
-
-#pragma region mat define
-
-    typedef union matrix2map
-    {
-        __m128 colum[2];
-        float m[4][2];
-    }matrix2map;
-
-    typedef struct matrix3map
-    {
-        __m128 colum[3];
-        float m[4][3];
-    }matrix3map;
-
-    typedef union matrix4map {
-        __m128 colum[4];
-        float m[4][4];
-    }matrix4map;
-
-#pragma endregion
-
-#pragma region Vector
-
-    SSCAPI void SSCDECL normalize(__m128* source, __m128* target);
-
-#pragma endregion
-
-
-#pragma region mat2
-
-    SSCAPI _inline void __cdecl transpose2to3(matrix2map* source, matrix3map* target);
-    SSCAPI _inline void __cdecl transpose2to4(matrix2map* source, matrix4map* target);
-    SSCAPI _inline void __cdecl deinit_mat2(matrix2map* mat);
-
-#pragma endregion
-
-#pragma region mat3
-
-    SSCAPI __inline void _cdecl transpose3to2(matrix3map* source, matrix2map* target);
-    SSCAPI __inline void _cdecl transpose3to3(matrix3map* source, matrix3map* target);
-    SSCAPI __inline void _cdecl transpose3to4(matrix3map* source, matrix4map* target);
-    SSCAPI _inline float _cdecl det_mat3(matrix3map* mat);
-    SSCAPI __inline float det_mat3_internal(__m128 const c1, __m128 const c2, __m128 const c3);
-
-#pragma endregion
-
-#pragma region mat4
-    //type and function for 4 colum matrix
-
-    SSCAPI __inline void __cdecl transpose4to2(matrix4map* source, matrix4map* target);
-    SSCAPI __inline void __cdecl transpose4to4(matrix4map* matrix, matrix4map* target);
-
-    SSCAPI __inline float __cdecl det_mat4(matrix4map* matPtr, matrix4map* transpose);
-
-    SSCAPI __inline void __cdecl deinit_mat4(matrix4map* matPtr);
-
-#pragma endregion
-
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
-#endif //  __cplusplus
+#endif
 
-#endif // !SSG
+#endif
