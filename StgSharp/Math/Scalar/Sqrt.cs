@@ -36,7 +36,7 @@ namespace StgSharp.Math
     public static partial class Scaler
     {
 
-        public static unsafe float SeedSqrt(float x)
+        public static unsafe float SeedSqrt( float x )
         {
             /*
              * 本方法采用分别对指数和小数处理的方法计算平方根
@@ -47,12 +47,11 @@ namespace StgSharp.Math
              * 在进一步简化操作后，计算精度达到0.5%，速度约为.Net库函数的3倍
              */
 
-            if (x < 0)
-            {
-                throw new ArgumentOutOfRangeException("Input is smaller than zero!");
+            if( x < 0 ) {
+                throw new ArgumentOutOfRangeException(
+                    "Input is smaller than zero!" );
             }
-            if (x == 0)
-            {
+            if( x == 0 ) {
                 return 0;
             }
             /*
@@ -61,19 +60,17 @@ namespace StgSharp.Math
             * 故不考虑正负号
             */
 
-            if (x < 0)
-            {
+            if( x < 0 ) {
                 throw new ArgumentOutOfRangeException();
             }
-            if (x <= 1e-12)
-            {
+            if( x <= 1e-12 ) {
                 return 0;
             }
 
             //提取指数位并减去指数位中的127
             //由于平方根仅对正数有效
             //故不考虑正负号
-            uint a = *(uint*)&x;
+            uint a = *( uint* )&x;
             uint f = a;
             f >>= 23;
             f /= 2;
@@ -96,14 +93,15 @@ namespace StgSharp.Math
             f <<= 23;
             e += f;
 
-            float result = *(float*)&e;
-            result = (result + (x / result)) / 2;
-            return (result + (x / result)) / 2;
+            float result = *( float* )&e;
+            result = ( result + ( x / result ) ) / 2;
+            return ( result + ( x / result ) ) / 2;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Sqrt(float x)
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static float Sqrt( float x )
         {
-            return MathF.Sqrt(x);
+            return MathF.Sqrt( x );
             /**/
         }
 

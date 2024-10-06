@@ -34,7 +34,5 @@ using System.Text;
 
 namespace StgSharp.Geometries.SpaceGeometry
 {
-    internal class Class1
-    {
-    }
+    internal class Class1 { }
 }

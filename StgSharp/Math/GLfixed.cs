@@ -37,13 +37,13 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Math
 {
-    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    [StructLayout( LayoutKind.Explicit, Size = 8 )]
     public struct GLfixed
     {
 
-        [FieldOffset(0)] public int All;
-        [FieldOffset(0)] public short Decimals;
-        [FieldOffset(4)] public short Inertger;
+        [FieldOffset( 0 )] public int All;
+        [FieldOffset( 0 )] public short Decimals;
+        [FieldOffset( 4 )] public short Inertger;
 
     }
 }

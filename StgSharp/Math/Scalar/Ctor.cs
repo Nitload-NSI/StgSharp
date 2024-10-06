@@ -33,24 +33,30 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.Math
 {
-    public unsafe delegate float ScalarCalcHandler(float* x);
+    public unsafe delegate float ScalarCalcHandler( float* x );
 
     public static unsafe partial class Scaler
     {
 
-        const uint MEM_COMMIT = 0x1000;
-        const uint MEM_RELEASE = 0x8000;
-        const uint MEM_RESERVE = 0x2000;
-        const uint PAGE_EXECUTE_READWRITE = 0x40;
+        private const uint MEM_COMMIT = 0x1000;
+        private const uint MEM_RELEASE = 0x8000;
+        private const uint MEM_RESERVE = 0x2000;
+        private const uint PAGE_EXECUTE_READWRITE = 0x40;
 
-        static Scaler()
-        {
-        }
+        static Scaler() { }
 
-        [DllImport("Kernel32.dll", EntryPoint = "VirtualAlloc")]
-        private static extern IntPtr VirtualAlloc(IntPtr address, int size, uint allocType, uint protect);
-        [DllImport("Kernel32.dll", EntryPoint = "VirtualFree")]
-        private static extern bool VirtualFree(IntPtr address, int size, uint freeType);
+        [DllImport( "Kernel32.dll", EntryPoint = "VirtualAlloc" )]
+        private static extern IntPtr VirtualAlloc(
+            IntPtr address,
+            int size,
+            uint allocType,
+            uint protect );
+
+        [DllImport( "Kernel32.dll", EntryPoint = "VirtualFree" )]
+        private static extern bool VirtualFree(
+            IntPtr address,
+            int size,
+            uint freeType );
 
     }
 }

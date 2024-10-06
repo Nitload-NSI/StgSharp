@@ -43,22 +43,27 @@ namespace StgSharp.Geometries
     public interface IInstancing
     {
 
-        public int BufferId
+        public float Rotation
         {
-            get;
-            internal set;
+            get { return GlobalBuffer.CoordAndRotationList[ BufferId ].W; }
+            set
+            {
+                Vec4 temp = GlobalBuffer.CoordAndRotationList[ BufferId ];
+                temp.W = value;
+                GlobalBuffer.CoordAndRotationList[ BufferId ] = temp;
+            }
         }
 
-        public vec3d CenterPositionGlobal
+        public float Scale
         {
-            get;
-            internal set;
+            get { return GlobalBuffer.ScalingList[ BufferId ]; }
+            set { GlobalBuffer.ScalingList[ BufferId ] = value; }
         }
 
-        public vec3d Coord
+        public GeometryMotion Motion
         {
-            get { return GlobalBuffer.CoordAndRotationList[BufferId].XYZ; }
-            set { GlobalBuffer.CoordAndRotationList[BufferId] = new vec4d(value.vec); }
+            get;
+            set;
         }
 
         public IInstancingBuffer GlobalBuffer
@@ -67,35 +72,31 @@ namespace StgSharp.Geometries
             internal set;
         }
 
-        public float Rotation
+        public int BufferId
         {
-            get { return GlobalBuffer.CoordAndRotationList[BufferId].W; }
-            set
-            {
-                vec4d temp = GlobalBuffer.CoordAndRotationList[BufferId];
-                temp.W = value;
-                GlobalBuffer.CoordAndRotationList[BufferId] = temp;
-            }
+            get;
+            internal set;
         }
 
-        public float Scale
+        public Vec3 CenterPositionGlobal
         {
-            get { return GlobalBuffer.ScalingList[BufferId]; }
-            set { GlobalBuffer.ScalingList[BufferId] = value; }
+            get;
+            internal set;
         }
 
-        public GeometryMotion Motion
+        public Vec3 Coord
         {
-            get; set;
+            get { return GlobalBuffer.CoordAndRotationList[ BufferId ].XYZ; }
+            set { GlobalBuffer.CoordAndRotationList[ BufferId ] = new Vec4(
+                      value.vec ); }
         }
 
         public void Move()
         {
-            (vec3d coord, float rotation) = (Coord, Rotation);
-            Motion.RunMotion(ref coord, ref rotation);
+            (Vec3 coord, float rotation) = (Coord, Rotation);
+            Motion.RunMotion( ref coord, ref rotation );
             (Coord, Rotation) = (coord, rotation);
         }
 
     }
-
 }

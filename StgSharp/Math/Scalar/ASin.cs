@@ -30,7 +30,6 @@
 //-----------------------------------------------------------------------
 using System;
 
-
 namespace StgSharp.Math
 {
     public static unsafe partial class Scaler
@@ -41,16 +40,15 @@ namespace StgSharp.Math
         hpiby2_head = 7.8539812565e-01f, /* 0x3f490fda */
         piby2 = 1.5707963705e+00f; /* 0x3fc90fdb */
 
-
         /// <summary>
         /// Reurns the value of ArcSin(x)
         /// </summary>
-        /// <param name="x">The sine value of the angle</param>
+        /// <param name="x"> The sine value of the angle </param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static float ASin(float x)
+        public static float ASin( float x )
         {
-            return MathF.Asin(x);
+            return MathF.Asin( x );
             /*
             int sign = 1;
             float y;

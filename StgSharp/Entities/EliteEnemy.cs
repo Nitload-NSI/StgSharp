@@ -29,7 +29,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
-
 using System;
 using System.Collections.Generic;
 
@@ -39,13 +38,27 @@ namespace StgSharp.Entities
     {
 
         internal Launcher<EntityPartical> _awardLauncher;
-        internal LinkedList<Launcher<EntityPartical>> _commonBulletLauncher;
         internal Launcher<EntityPartical> _dieBulletLauncher;
+        internal LinkedList<Launcher<EntityPartical>> _commonBulletLauncher;
         public bool _selectalbe;
 
-        public Launcher<EntityPartical> AwardLauncher { get; set; }
-        public LinkedList<Launcher<EntityPartical>> CommonBulletLauncher { get; set; }
-        public Launcher<EntityPartical> DieBulletLauncher { get; set; }
+        public Launcher<EntityPartical> AwardLauncher
+        {
+            get;
+            set;
+        }
+
+        public Launcher<EntityPartical> DieBulletLauncher
+        {
+            get;
+            set;
+        }
+
+        public LinkedList<Launcher<EntityPartical>> CommonBulletLauncher
+        {
+            get;
+            set;
+        }
 
         public virtual void OnRender()
         {
@@ -55,8 +68,7 @@ namespace StgSharp.Entities
         public override void OnRenderFrame()
         {
             this.OnUpdate();
-            foreach (Launcher<EntityPartical> launcher in CommonBulletLauncher)
-            {
+            foreach( Launcher<EntityPartical> launcher in CommonBulletLauncher ) {
                 launcher.Launch();
             }
             this.OnRender();
@@ -66,7 +78,6 @@ namespace StgSharp.Entities
         {
             new NotImplementedException();
         }
-
 
     }
 }

@@ -41,33 +41,32 @@ namespace StgSharp.Geometries
     /// </summary>
     public abstract class PlainGeometry : IGeometry
     {
-        protected vec4d[] vertexMat;
+
+        protected Vec4[] vertexMat;
         internal CoordinationBase coordinate;
 
-
-        internal PlainGeometry(CoordinationBase coordination)
+        internal PlainGeometry( CoordinationBase coordination )
         {
             coordinate = coordination;
         }
 
-        public Point this[int index]
+        public Point this[ int index ]
         {
-            get => new Point(vertexMat[index]);
-            set => vertexMat[index].vec = value.coordVec;
+            get => new Point( vertexMat[ index ] );
+            set => vertexMat[ index ].vec = value.coordVec;
         }
-
 
         public int VertexCount => this.vertexMat.Length;
 
-        public abstract ReadOnlySpan<int> VertexIndices { get; }
+        public abstract ReadOnlySpan<int> VertexIndices
+        {
+            get;
+        }
 
-#pragma warning disable CA1819 
-        public vec4d[] VertexStream => vertexMat;
+        #pragma warning disable CA1819 
+        public Vec4[] VertexStream => vertexMat;
 
         public CoordinationBase Coordination => this.coordinate;
 #pragma warning restore CA1819
-
-
-
     }
 }

@@ -53,9 +53,20 @@ namespace StgSharp.Controls
             buttonList = new List<TriggerButton>();
         }
 
-        public ReadOnlySpan<vec4d> TextureBox
+        public bool IsEntity
+        {
+            get => false;
+        }
+
+        public ReadOnlySpan<Vec4> TextureBox
         {
             get => throw new NotSupportedException();
+        }
+
+        public Rectangle BoundingBox
+        {
+            get;
+            set;
         }
 
         public TriggerButton CurrentButton
@@ -63,28 +74,27 @@ namespace StgSharp.Controls
             get => current;
         }
 
-        public vec2d Position { get; set; }
-
-        public Rectangle BoundingBox { get; set; }
-
-        public bool IsEntity { get => false; }
+        public Vec2 Position
+        {
+            get;
+            set;
+        }
 
         protected List<TriggerButton> AllButton
         {
             get => buttonList;
         }
 
-        public void AddButton(TriggerButton button)
+        public void AddButton( TriggerButton button )
         {
-            buttonList.Add(button);
+            buttonList.Add( button );
         }
 
         public abstract void Confirm();
 
         public IEnumerator<PlainGeometryMesh> GetEnumerator()
         {
-            foreach (TriggerButton item in buttonList)
-            {
+            foreach( TriggerButton item in buttonList ) {
                 yield return item.Single();
             }
         }
@@ -92,12 +102,10 @@ namespace StgSharp.Controls
         public void MoveDown()
         {
             TriggerButton button = current;
-            while ((button.Down != null) && button.Down.IsDisabled)
-            {
+            while( ( button.Down != null ) && button.Down.IsDisabled ) {
                 button = button.Right;
             }
-            if (current == button)
-            {
+            if( current == button ) {
                 return;
             }
             current.DeHighlight();
@@ -108,12 +116,10 @@ namespace StgSharp.Controls
         public void MoveLeft()
         {
             TriggerButton button = current;
-            while ((button.Left != null) && button.Left.IsDisabled)
-            {
+            while( ( button.Left != null ) && button.Left.IsDisabled ) {
                 button = button.Left;
             }
-            if (current == button)
-            {
+            if( current == button ) {
                 return;
             }
             current.DeHighlight();
@@ -124,12 +130,10 @@ namespace StgSharp.Controls
         public void MoveRight()
         {
             TriggerButton button = current;
-            while ((button.Right != null) && button.Right.IsDisabled)
-            {
+            while( ( button.Right != null ) && button.Right.IsDisabled ) {
                 button = button.Right;
             }
-            if (current == button)
-            {
+            if( current == button ) {
                 return;
             }
             current.DeHighlight();
@@ -140,12 +144,10 @@ namespace StgSharp.Controls
         public void MoveUp()
         {
             TriggerButton button = current;
-            while ((button.Up != null) && button.Up.IsDisabled)
-            {
+            while( ( button.Up != null ) && button.Up.IsDisabled ) {
                 button = button.Right;
             }
-            if (current == button)
-            {
+            if( current == button ) {
                 return;
             }
             current.DeHighlight();

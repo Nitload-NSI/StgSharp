@@ -1,0 +1,73 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\NitloadIndustry\\\u7814\u7A76\u9879\u76EE\\1-Flagship\\TH2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5EEA27B3-8FB1-42A0-B710-228923C529C0}|StgSharp\\StgSharp.csproj|d:\\nitloadindustry\\\u7814\u7A76\u9879\u76EE\\1-flagship\\th2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\stgsharp\\controlling\\controls\\controllingintem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5EEA27B3-8FB1-42A0-B710-228923C529C0}|StgSharp\\StgSharp.csproj|solutionrelative:stgsharp\\controlling\\controls\\controllingintem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5EEA27B3-8FB1-42A0-B710-228923C529C0}|StgSharp\\StgSharp.csproj|d:\\nitloadindustry\\\u7814\u7A76\u9879\u76EE\\1-flagship\\th2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\stgsharp\\geometries\\point.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5EEA27B3-8FB1-42A0-B710-228923C529C0}|StgSharp\\StgSharp.csproj|solutionrelative:stgsharp\\geometries\\point.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\NitloadIndustry\\\u7814\u7A76\u9879\u76EE\\1-Flagship\\TH2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\StgSharp\\Geometries\\Triangle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:StgSharp\\Geometries\\Triangle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ControllingIntem.cs",
+              "DocumentMoniker": "D:\\NitloadIndustry\\\u7814\u7A76\u9879\u76EE\\1-Flagship\\TH2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\StgSharp\\Controlling\\Controls\\ControllingIntem.cs",
+              "RelativeDocumentMoniker": "StgSharp\\Controlling\\Controls\\ControllingIntem.cs",
+              "ToolTip": "D:\\NitloadIndustry\\\u7814\u7A76\u9879\u76EE\\1-Flagship\\TH2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\StgSharp\\Controlling\\Controls\\ControllingIntem.cs",
+              "RelativeToolTip": "StgSharp\\Controlling\\Controls\\ControllingIntem.cs",
+              "ViewState": "AgIAADMAAAAAAAAAAAAIwBAAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-06T17:58:20.114Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Point.cs",
+              "DocumentMoniker": "D:\\NitloadIndustry\\\u7814\u7A76\u9879\u76EE\\1-Flagship\\TH2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\StgSharp\\Geometries\\Point.cs",
+              "RelativeDocumentMoniker": "StgSharp\\Geometries\\Point.cs",
+              "ToolTip": "D:\\NitloadIndustry\\\u7814\u7A76\u9879\u76EE\\1-Flagship\\TH2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\StgSharp\\Geometries\\Point.cs",
+              "RelativeToolTip": "StgSharp\\Geometries\\Point.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAuwCEAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-06T17:53:38.968Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Triangle.cs",
+              "DocumentMoniker": "D:\\NitloadIndustry\\\u7814\u7A76\u9879\u76EE\\1-Flagship\\TH2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\StgSharp\\Geometries\\Triangle.cs",
+              "RelativeDocumentMoniker": "StgSharp\\Geometries\\Triangle.cs",
+              "ToolTip": "D:\\NitloadIndustry\\\u7814\u7A76\u9879\u76EE\\1-Flagship\\TH2020\\\u5185\u6838\u5F00\u6E90\u53D1\u5E03\\StgSharp\\Geometries\\Triangle.cs",
+              "RelativeToolTip": "StgSharp\\Geometries\\Triangle.cs",
+              "ViewState": "AQIAABIAAAAAAAAAAAAmwB8AAAA0AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2023-09-12T14:38:55.637Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

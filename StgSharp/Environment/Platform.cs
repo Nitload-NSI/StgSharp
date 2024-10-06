@@ -60,23 +60,25 @@ namespace StgSharp
 {
     internal enum GraphicAPI : byte
     {
+
         GL,
         DX,
         VK
+
     }
 
     public static partial class StgSharp
     {
 
         /// <summary>
-        /// Version of current StgSharp platform.
-        /// Main version represent in hundred's digit,
-        /// and sub version represent in ten's digit.
+        /// Version of current StgSharp platform. Main version represent in hundred's digit, and sub
+        /// version represent in ten's digit.
         /// </summary>
         public const long version = 430;
 
-        private static uint markCount = 0;
         private static bool vsyncActivated;
+
+        private static uint markCount = 0;
         internal static GraphicAPI API = default;
 
         public static void Init()
@@ -84,38 +86,39 @@ namespace StgSharp
             mainTimeProvider = new StgSharpTime();
             MainTimeProvider.StartProvidingTime();
             InternalIO.glfwInit();
-            InternalIO.InternalAppendLog("\n\n\n");
+            InternalIO.InternalAppendLog( "\n\n\n" );
             InternalIO.InternalWriteLog(
                 $"Program {Assembly.GetEntryAssembly()!.FullName} Started.",
-                LogType.Info);
+                LogType.Info );
             _mainThreadID = Environment.CurrentManagedThreadId;
         }
 
-        public static void LogError(Exception ex)
+        public static void LogError( Exception ex )
         {
-            InternalIO.InternalWriteLog(ex.Message, LogType.Error);
+            InternalIO.InternalWriteLog( ex.Message, LogType.Error );
         }
 
-        public static void LogWarning(string log)
+        public static void LogInfo( string log )
         {
-            InternalIO.InternalWriteLog(log, LogType.Warning);
-        }
-        public static void LogWarning(Exception notVerySeriesException)
-        {
-            InternalIO.InternalWriteLog(notVerySeriesException.Message, LogType.Warning);
+            InternalIO.InternalWriteLog( log, LogType.Info );
         }
 
-        public static void LogInfo(string log)
+        public static void LogWarning( string log )
         {
-            InternalIO.InternalWriteLog(log, LogType.Info);
+            InternalIO.InternalWriteLog( log, LogType.Warning );
         }
 
-        public static void Mark(bool needConsole)
+        public static void LogWarning( Exception notVerySeriesException )
+        {
+            InternalIO.InternalWriteLog(
+                notVerySeriesException.Message, LogType.Warning );
+        }
+
+        public static void Mark( bool needConsole )
         {
             markCount++;
-            if (needConsole)
-            {
-                Console.WriteLine(markCount);
+            if( needConsole ) {
+                Console.WriteLine( markCount );
             }
         }
 
@@ -131,68 +134,60 @@ namespace StgSharp
             bool isConsole,
             [CallerFilePath] string filePath = "",
             [CallerMemberName] string callerName = "",
-            [CallerLineNumber] int lineNumber = 0
-            )
+            [CallerLineNumber] int lineNumber = 0 )
         {
             Type t = target.GetType();
             string log = $"Tracked object: {nameof(target)}\t\tType:{t.Name}\n";
-            FieldInfo[] fieldInfo = t.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            FieldInfo[] fieldInfo = t.GetFields(
+                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance );
             log += "|\tFieldName\t|\tFieldType\t|\tFieldValue\t|\n";
-            foreach (FieldInfo field in fieldInfo)
-            {
+            foreach( FieldInfo field in fieldInfo ) {
                 log += $"|{field.Name}\t\t|{field.FieldType}\t\t|{field.GetValue(target)}\t\t|\n";
             }
             log += $"Tracking at:\n{filePath}\t{callerName}\tline {lineNumber}\n";
             log += $"Additional information:\n{message}\n";
-            if (isConsole)
-            {
-                Console.WriteLine(log);
-            }
-            else
-            {
-                InternalIO.InternalWriteLog(log, LogType.Info);
+            if( isConsole ) {
+                Console.WriteLine( log );
+            } else {
+                InternalIO.InternalWriteLog( log, LogType.Info );
             }
         }
 
         /// <summary>
         /// Write a log message to log file, and mark the _level of this message.
         /// </summary>
-        /// <param name="message">A string contains information of how current evironment runs.</param>
-        /// <param name="logType">The severity of current message.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteLog(string message, LogType logType)
+        /// <param name="message"> A string contains information of how current evironment runs. </param>
+        /// <param name="logType"> The severity of current message. </param>
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static void WriteLog( string message, LogType logType )
         {
-            InternalIO.InternalWriteLog(message, logType);
+            InternalIO.InternalWriteLog( message, logType );
         }
 
-        internal static TDele ConvertAPI<TDele>(IntPtr funcPtr)
+        internal static TDele ConvertAPI<TDele>( IntPtr funcPtr )
         {
-            if (funcPtr == IntPtr.Zero)
-            {
-                throw new Exception("Failed to convert api, the function pointer is zero.");
+            if( funcPtr == IntPtr.Zero ) {
+                throw new Exception(
+                    "Failed to convert api, the function pointer is zero." );
             }
-            try
-            {
-                return Marshal.GetDelegateForFunctionPointer<TDele>(funcPtr);
+            try {
+                return Marshal.GetDelegateForFunctionPointer<TDele>( funcPtr );
             }
-            catch (Exception)
-            {
+            catch( Exception ) {
                 throw;
             }
         }
 
-        internal static Delegate ConvertAPI(IntPtr funcPtr, Type T)
+        internal static Delegate ConvertAPI( IntPtr funcPtr, Type T )
         {
-            if (funcPtr == IntPtr.Zero)
-            {
-                throw new Exception("Failed to convert api, the function pointer is zero.");
+            if( funcPtr == IntPtr.Zero ) {
+                throw new Exception(
+                    "Failed to convert api, the function pointer is zero." );
             }
-            try
-            {
-                return Marshal.GetDelegateForFunctionPointer(funcPtr, T);
+            try {
+                return Marshal.GetDelegateForFunctionPointer( funcPtr, T );
             }
-            catch (Exception)
-            {
+            catch( Exception ) {
                 throw;
             }
         }

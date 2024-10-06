@@ -28,12 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Data.Intrinsic;
 using StgSharp.Geometries;
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -47,15 +49,18 @@ namespace StgSharp
 {
     public enum LogType
     {
+
         Error,
         Warning,
         Info,
         InfoError,
         InfoWarning,
+
     }
-    
+
     internal static unsafe partial class InternalIO
     {
+
         internal const string SS_errorLog =
             "SS_errorlog.log";
 
@@ -65,43 +70,46 @@ namespace StgSharp
         internal static Dictionary<TypeCode, uint> GLtype =
             new Dictionary<TypeCode, uint>();
 
-        internal static SemaphoreSlim logSyncSemaphore = new SemaphoreSlim(1, 1);
-
         internal static readonly GCHandle ssc_logHandle =
-            GCHandle.Alloc(new byte[512], GCHandleType.Pinned);
+            GCHandle.Alloc( new byte[512], GCHandleType.Pinned );
 
         internal static IntPtr SSClibPtr = IntPtr.Zero;
 
+        internal static SemaphoreSlim logSyncSemaphore = new SemaphoreSlim(
+            1, 1 );
+
         static InternalIO()
         {
-            GLtype.Add(TypeCode.Single, GLconst.FLOAT);
-            GLtype.Add(TypeCode.Int32, GLconst.INT);
-            GLtype.Add(TypeCode.UInt32, GLconst.UNSIGNED_INT);
-            GLtype.Add(TypeCode.Int16, GLconst.SHORT);
-            GLtype.Add(TypeCode.UInt16, GLconst.UNSIGNED_SHORT);
-            GLtype.Add(TypeCode.SByte, GLconst.BYTE);
-            GLtype.Add(TypeCode.Byte, GLconst.UNSIGNED_BYTE);
+            GLtype.Add( TypeCode.Single, GLconst.FLOAT );
+            GLtype.Add( TypeCode.Int32, GLconst.INT );
+            GLtype.Add( TypeCode.UInt32, GLconst.UNSIGNED_INT );
+            GLtype.Add( TypeCode.Int16, GLconst.SHORT );
+            GLtype.Add( TypeCode.UInt16, GLconst.UNSIGNED_SHORT );
+            GLtype.Add( TypeCode.SByte, GLconst.BYTE );
+            GLtype.Add( TypeCode.Byte, GLconst.UNSIGNED_BYTE );
+
+            fixed( IntrinsicContext* cptr = &_intrinsicContext ) {
+                LoadIntrinsicFunction( cptr );
+            }
         }
 
-        internal static void InternalAppendLog(string log)
+        internal static void InternalAppendLog( string log )
         {
-            if (!File.Exists(SS_errorLog))
-            {
-                FileStream stream = File.Create(SS_errorLog);
+            if( !File.Exists( SS_errorLog ) ) {
+                FileStream stream = File.Create( SS_errorLog );
                 stream.Close();
             }
 
-            using (StreamWriter logStream = File.AppendText(SS_errorLog))
-            {
-                logStream.WriteLine(log);
+            using( StreamWriter logStream = File.AppendText( SS_errorLog ) ) {
+                logStream.WriteLine( log );
             }
         }
 
-        [Obsolete("Not completed", true)]
-        internal static IntPtr InternalLoadProc<T>(IntPtr lib, string name) where T : Delegate
+        [Obsolete( "Not completed", true )]
+        internal static IntPtr InternalLoadProc<T>( IntPtr lib, string name )
+            where T: Delegate
         {
-            try
-            {
+            try {
                 IntPtr procPtr =
 #if WINDOWS
                     IntPtr.Zero;
@@ -109,48 +117,48 @@ namespace StgSharp
 
 #else
                     IntPtr.Zero;
-#endif
+                #endif
                 return procPtr;
             }
-            catch (Exception)
-            {
+            catch( Exception ) {
                 throw;
             }
         }
 
-        internal static void InternalWriteLog(string logLine, LogType logType)
+        internal static void InternalWriteLog( string logLine, LogType logType )
         {
             logSyncSemaphore.Wait();
-            if (!File.Exists(SS_errorLog))
-            {
-                FileStream stream = File.Create(SS_errorLog);
+            if( !File.Exists( SS_errorLog ) ) {
+                FileStream stream = File.Create( SS_errorLog );
                 stream.Close();
             }
 
-            using (StreamWriter logStream = File.AppendText(SS_errorLog))
-            {
-                logStream.WriteLine($"{logType}\t{DateTime.Now.ToString("o")}");
-                logStream.WriteLine(logLine);
+            using( StreamWriter logStream = File.AppendText( SS_errorLog ) ) {
+                logStream.WriteLine(
+                    $"{logType}\t{DateTime.Now.ToString("o")}" );
+                logStream.WriteLine( logLine );
             }
             logSyncSemaphore.Release();
         }
 
-        internal static void InternalWriteLog(string beforeTime, string logLine, LogType logType)
+        internal static void InternalWriteLog(
+            string beforeTime,
+            string logLine,
+            LogType logType )
         {
             logSyncSemaphore.Wait();
-            if (!File.Exists(InternalIO.SS_errorLog))
-            {
-                FileStream stream = File.Create(InternalIO.SS_errorLog);
+            if( !File.Exists( InternalIO.SS_errorLog ) ) {
+                FileStream stream = File.Create( InternalIO.SS_errorLog );
                 stream.Close();
             }
 
-            using (StreamWriter logStream = File.AppendText(SS_errorLog))
-            {
-                logStream.WriteLine(beforeTime);
-                logStream.WriteLine($"{logType}\t@\t{DateTime.Now.ToString("o")}");
-                logStream.WriteLine(logLine);
+            using( StreamWriter logStream = File.AppendText( SS_errorLog ) ) {
+                logStream.WriteLine( beforeTime );
+                logStream.WriteLine(
+                    $"{logType}\t@\t{DateTime.Now.ToString("o")}" );
+                logStream.WriteLine( logLine );
             }
-            logSyncSemaphore.Release(1);
+            logSyncSemaphore.Release( 1 );
         }
 
     }

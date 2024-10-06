@@ -30,6 +30,7 @@
 //-----------------------------------------------------------------------
 using StgSharp.Math;
 
+using System;
 using System.Numerics;
 
 namespace StgSharp.Geometries
@@ -38,59 +39,54 @@ namespace StgSharp.Geometries
     {
 
         public Rectangle(
-            float v0x, float v0y,
-            float v1x, float v1y,
-            float v2x, float v2y,
-            float v3x, float v3y
-            ) : base(
-                v0x, v0y,
-                v1x, v1y,
-                v2x, v2y,
-                v3x, v3y
-                )
+            float v0x,
+            float v0y,
+            float v1x,
+            float v1y,
+            float v2x,
+            float v2y,
+            float v3x,
+            float v3y )
+            : base( v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y )
         {
-#if DEBUG
-            vec2d side0 = (this[0].Coord - this[1].Coord).XY;
-            vec2d side1 = (this[2].Coord - this[1].Coord).XY;
-            if (side0.Cross(side1) == 0)
-            {
+            #if DEBUG
+            Vec2 side0 = ( this[ 0 ].Coord - this[ 1 ].Coord ).XY;
+            Vec2 side1 = ( this[ 2 ].Coord - this[ 1 ].Coord ).XY;
+            if( side0.Cross( side1 ) == 0 ) {
                 throw new ArgumentException();
             }
-#endif
+            #endif
         }
-
 
         public Rectangle(
             PlainCoordinate coordination,
-            float v0x, float v0y,
-            float v1x, float v1y,
-            float v2x, float v2y,
-            float v3x, float v3y
-            ) : base(coordination,
-                v0x, v0y,
-                v1x, v1y,
-                v2x, v2y,
-                v3x, v3y
-                )
+            float v0x,
+            float v0y,
+            float v1x,
+            float v1y,
+            float v2x,
+            float v2y,
+            float v3x,
+            float v3y )
+            : base( coordination, v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y )
         {
-#if DEBUG
-            vec2d side0 = (this[0].Coord - this[1].Coord).XY;
-            vec2d side1 = (this[2].Coord - this[1].Coord).XY;
-            if (side0.Cross(side1) == 0)
-            {
+            #if DEBUG
+            Vec2 side0 = ( this[ 0 ].Coord - this[ 1 ].Coord ).XY;
+            Vec2 side1 = ( this[ 2 ].Coord - this[ 1 ].Coord ).XY;
+            if( side0.Cross( side1 ) == 0 ) {
                 throw new ArgumentException();
             }
-#endif
+            #endif
         }
 
         /// <summary>
         /// Calculate movement to center
         /// </summary>
-        /// <param name="tick">CurrentBlueprint time tick</param>
+        /// <param name="tick"> CurrentBlueprint time tick </param>
         /// <returns></returns>
-        public virtual vec3d MovCenter(uint tick)
+        public virtual Vec3 MovCenter( uint tick )
         {
-            return default(vec3d);
+            return default( Vec3 );
         }
 
     }

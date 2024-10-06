@@ -36,10 +36,10 @@ namespace StgSharp.Math
     public static unsafe partial class Scaler
     {
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe float ACos(float x)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static unsafe float ACos( float x )
         {
-            return MathF.Acos(x);
+            return MathF.Acos( x );
 
             /*
                         int sign = 1;

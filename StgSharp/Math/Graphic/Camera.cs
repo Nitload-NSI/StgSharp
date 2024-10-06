@@ -55,39 +55,37 @@ namespace StgSharp.Graphics
         internal Radius _row;
         internal Radius _yaw;
         internal Uniform<Matrix44> convertedUniform;
-        internal vec3d _target, up;
-
+        internal Vec3 _target, up;
 
         public Camera()
         {
             cameraAtt = Matrix44.Unit;
-            _target = Vec3d.Zero;
-            up = Vec3d.Zero;
+            _target = Vec3.Zero;
+            up = Vec3.Zero;
             _isLookAtAvailable = false;
             _lookAt = Matrix44.Unit;
             rotationAtt = Matrix44.Unit;
             _projection = new Matrix44();
         }
 
-        public Camera(vec3d position, vec3d target, vec3d up) : this()
+        public Camera( Vec3 position, Vec3 target, Vec3 up )
+            : this()
         {
             rotationAtt = Matrix44.Unit;
             cameraAtt = new Matrix44();
-            SetViewDirection(position, target, up);
+            SetViewDirection( position, target, up );
             _pitch = Radius.Zero;
             _row = Radius.Zero;
             _yaw = Radius.Zero;
         }
 
-        public Matrix44 Projection
-=> _projection;
+        public Matrix44 Projection => _projection;
 
         public Matrix44 View
         {
             get
             {
-                if (_isLookAtAvailable)
-                {
+                if( _isLookAtAvailable ) {
                     return _lookAt;
                 }
                 Matrix44 move = Matrix44.Unit;
@@ -100,67 +98,66 @@ namespace StgSharp.Graphics
 
         public void DisplayGLtypeDefinition()
         {
-            Console.WriteLine("uniform matrix4x4 cameraName;");
+            Console.WriteLine( "uniform matrix4x4 cameraName;" );
         }
 
         /// <summary>
-        /// Get all uniform related to this <see cref="Camera"/>.
+        /// Get all uniform related to this <see cref="Camera" />.
         /// </summary>
-        /// <param name="source">Shader program requires this camera.</param>
+        /// <param name="source"> Shader program requires this camera. </param>
         /// <param name="uniformName">
-        /// ContextName of all related uniforms.
-        /// If you fallow form from <see cref="IglConvertable.DisplayGLtypeDefinition"/>
+        /// ContextName of all related uniforms. If you fallow form from <see
+        /// cref="IglConvertable.DisplayGLtypeDefinition" />
         /// </param>
         /// <exception cref="ArgumentException"></exception>
-        public unsafe void GainAllUniforms(ShaderProgram source, params string[] uniformName)
+        public unsafe void GainAllUniforms(
+            ShaderProgram source,
+            params string[] uniformName )
         {
-            if (uniformName.Length != 1)
-            {
-                throw new ArgumentException("Camera needs only one uniform.", nameof(uniformName));
+            if( uniformName.Length != 1 ) {
+                throw new ArgumentException(
+                    "Camera needs only one uniform.", nameof( uniformName ) );
             }
-            convertedUniform = source.GetUniform<Matrix44>(uniformName[0]);
+            convertedUniform = source.GetUniform<Matrix44>( uniformName[ 0 ] );
         }
 
-        public void MoveNear(float distance)
+        public void MoveNear( float distance )
         {
             cameraAtt.colum3.Z -= distance;
             _isLookAtAvailable = false;
         }
 
-        public void MoveRight(float distance)
+        public void MoveRight( float distance )
         {
             cameraAtt.colum3.X -= distance;
             _isLookAtAvailable = false;
         }
 
-        public void MoveUp(float distance)
+        public void MoveUp( float distance )
         {
             cameraAtt.colum3.Y -= distance;
             _isLookAtAvailable = false;
         }
 
-
         public unsafe void SetAllUniforms()
         {
             //Console.WriteLine(Projection * ViewBase);
-            OpenGL.GlFunction.CurrentGL.SetUniformValue(convertedUniform, Projection * View);
+            OpenGL.OpenGLFunction.CurrentGL
+                .SetUniformValue( convertedUniform, Projection * View );
         }
 
-        public void SetViewDirection(vec3d position, vec3d target, vec3d up)
+        public void SetViewDirection( Vec3 position, Vec3 target, Vec3 up )
         {
-            vec3d direction = position - target;
-            if ((position.vec == cameraAtt.colum3.vec) && (this.up == up) && (cameraAtt.colum2.vec == direction.vec))
-            {
+            Vec3 direction = position - target;
+            if( ( position.vec == cameraAtt.colum3.vec ) && ( this.up == up ) && ( cameraAtt.colum2.vec == direction.vec ) ) {
                 //no difference with precious value
                 return;
             }
-            if (direction.GetLength() == 0)
-            {
+            if( direction.GetLength() == 0 ) {
                 //deadlock
                 throw new ArgumentException();
             }
-            if (Vec3d.IsParallel(direction, up))
-            {
+            if( Vec3.IsParallel( direction, up ) ) {
                 throw new ArgumentException();
             }
             _target = direction;
@@ -168,9 +165,9 @@ namespace StgSharp.Graphics
 
             _isLookAtAvailable = false;
 
-            Linear.Orthogonalize(ref direction, ref up);
+            Linear.Orthogonalize( ref direction, ref up );
 
-            vec3d right = Linear.Orthogonalize(Linear.Cross(up, direction));
+            Vec3 right = Linear.Orthogonalize( Linear.Cross( up, direction ) );
 
             cameraAtt.colum0.vec = right.vec;
             cameraAtt.colum1.vec = up.vec;
@@ -180,10 +177,13 @@ namespace StgSharp.Graphics
             InternalPitch();
             InternalRow();
             InternalYaw();
-
         }
 
-        public void SetViewRange(Radius fovRadius, vec2d size, vec2d offset, (float front, float back) dephRange)
+        public void SetViewRange(
+            Radius fovRadius,
+            Vec2 size,
+            Vec2 offset,
+            (float front, float back) dephRange )
         {
             float
                 distance = _target.GetLength(),
@@ -191,28 +191,27 @@ namespace StgSharp.Graphics
                 far = distance + dephRange.back,
                 offsetX = offset.X,
                 offsetY = offset.Y,
-                width = Scaler.Abs(GeometryScaler.Tan(fovRadius / 2) * near * 2),
-                height = (width * size.Y) / size.X;
+                width = Scaler.Abs(
+                GeometryScaler.Tan( fovRadius / 2 ) * near * 2 ),
+                height = ( width * size.Y ) / size.X;
 
-            _projection.colum0.X = (2 * near) / width;
-            _projection.colum1.Y = (2 * near) / height;
-            _projection.colum2.X = (2 * offsetX) / width;
-            _projection.colum2.Y = (2 * offsetY) / height;
-            _projection.colum2.Z = (far + near) / (near - far);
+            _projection.colum0.X = ( 2 * near ) / width;
+            _projection.colum1.Y = ( 2 * near ) / height;
+            _projection.colum2.X = ( 2 * offsetX ) / width;
+            _projection.colum2.Y = ( 2 * offsetY ) / height;
+            _projection.colum2.Z = ( far + near ) / ( near - far );
             _projection.colum2.W = -1;
-            _projection.colum3.Z = (2 * near * far) / (near - far);
-
+            _projection.colum3.Z = ( 2 * near * far ) / ( near - far );
         }
 
-        public void Test(params vec4d[] vec)
+        public void Test( params Vec4[] vec )
         {
-            Console.WriteLine(View);
-            Console.WriteLine(Projection);
-            Console.WriteLine(Projection * View);
-            Console.WriteLine(View);
-            foreach (vec4d item in vec)
-            {
-                Console.Write($"{Projection * View * item};");
+            Console.WriteLine( View );
+            Console.WriteLine( Projection );
+            Console.WriteLine( Projection * View );
+            Console.WriteLine( View );
+            foreach( Vec4 item in vec ) {
+                Console.Write( $"{Projection * View * item};" );
             }
         }
 
@@ -221,31 +220,32 @@ namespace StgSharp.Graphics
             throw new NotImplementedException();
         }
 
-        ~Camera()
-        {
-        }
+        ~Camera() { }
 
         #region rotation
 
-        public void Yaw(Radius r)
+        public void Yaw( Radius r )
         {
             _yaw -= r;
+
             //Console.WriteLine(_yaw._radius);
             //Console.WriteLine(rotationAtt);
             InternalYaw();
         }
 
-        public void Pitch(Radius r)
+        public void Pitch( Radius r )
         {
             _pitch -= r;
+
             //Console.WriteLine(_pitch._radius);
             //Console.WriteLine(rotationAtt);
             InternalPitch();
         }
 
-        public void Row(Radius r)
+        public void Row( Radius r )
         {
             _row -= r;
+
             //Console.WriteLine(_row._radius);
             //Console.WriteLine(rotationAtt);
             InternalRow();
@@ -256,15 +256,12 @@ namespace StgSharp.Graphics
             _isLookAtAvailable = false;
 
             Matrix32 partialCoord = new Matrix32(
-                cameraAtt.colum1.vec,
-                cameraAtt.colum2.vec
-                );
+                cameraAtt.colum1.vec, cameraAtt.colum2.vec );
             float angle = _pitch._radius;
 
             Matrix22 rotation = new Matrix22(
-                Scaler.Cos(angle), -Scaler.Sin(angle),
-                Scaler.Sin(angle), Scaler.Cos(angle)
-                );
+                Scaler.Cos( angle ), -Scaler.Sin( angle ), Scaler.Sin( angle ),
+                Scaler.Cos( angle ) );
 
             partialCoord *= rotation;
             rotationAtt.colum1.vec = partialCoord.colum0.vec;
@@ -277,15 +274,12 @@ namespace StgSharp.Graphics
             _isLookAtAvailable = false;
 
             Matrix32 partialCoord = new Matrix32(
-                cameraAtt.colum0.vec,
-                cameraAtt.colum1.vec
-                );
+                cameraAtt.colum0.vec, cameraAtt.colum1.vec );
             float angle = _row._radius;
 
             Matrix22 rotation = new Matrix22(
-                Scaler.Cos(angle), -Scaler.Sin(angle),
-                Scaler.Sin(angle), Scaler.Cos(angle)
-                );
+                Scaler.Cos( angle ), -Scaler.Sin( angle ), Scaler.Sin( angle ),
+                Scaler.Cos( angle ) );
 
             partialCoord *= rotation;
             rotationAtt.colum0.vec = partialCoord.colum0.vec;
@@ -298,25 +292,18 @@ namespace StgSharp.Graphics
             _isLookAtAvailable = false;
 
             Matrix32 partialCoord = new Matrix32(
-                cameraAtt.colum0.vec,
-                cameraAtt.colum2.vec
-                );
+                cameraAtt.colum0.vec, cameraAtt.colum2.vec );
             float angle = _yaw._radius;
             Matrix22 rotation = new Matrix22(
-                Scaler.Cos(angle), -Scaler.Sin(angle),
-                Scaler.Sin(angle), Scaler.Cos(angle)
-                );
+                Scaler.Cos( angle ), -Scaler.Sin( angle ), Scaler.Sin( angle ),
+                Scaler.Cos( angle ) );
 
             partialCoord *= rotation;
             rotationAtt.colum0.vec = partialCoord.colum0.vec;
             rotationAtt.colum2.vec = partialCoord.colum1.vec;
             rotationAtt.isTransposed = false;
-
         }
 
-
         #endregion
-
-
     }
 }

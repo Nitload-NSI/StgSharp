@@ -38,19 +38,20 @@ namespace StgSharp.Geometries
 {
     public class Polygon4 : PlainGeometry
     {
+
         protected static int[] Indices = [0, 1, 2, 0, 2, 3];
 
-        internal Polygon4():base(PlainCoordinate.StandardPlainCoordination)
+        internal Polygon4()
+            : base( PlainCoordinate.StandardPlainCoordination )
         {
-            vertexMat = new vec4d[4];
+            vertexMat = new Vec4[4];
         }
 
-        internal Polygon4(vec4d[] rawCoord):
-            base(PlainCoordinate.StandardPlainCoordination)
+        internal Polygon4( Vec4[] rawCoord )
+            : base( PlainCoordinate.StandardPlainCoordination )
         {
-            if (rawCoord.Length != 4)
-            {
-                throw new ArgumentOutOfRangeException(nameof(rawCoord));
+            if( rawCoord.Length != 4 ) {
+                throw new ArgumentOutOfRangeException( nameof( rawCoord ) );
             }
             vertexMat = rawCoord;
         }
@@ -59,61 +60,67 @@ namespace StgSharp.Geometries
             Point topLeft,
             Point topRight,
             Point bottomRight,
-            Point bottomLeft
-            ):base(PlainCoordinate.StandardPlainCoordination)
+            Point bottomLeft )
+            : base( PlainCoordinate.StandardPlainCoordination )
         {
-            this[0] = topLeft;
-            this[1] = topRight;
-            this[2] = bottomRight;
-            this[3] = bottomLeft;
-
+            this[ 0 ] = topLeft;
+            this[ 1 ] = topRight;
+            this[ 2 ] = bottomRight;
+            this[ 3 ] = bottomLeft;
         }
 
         public Polygon4(
-            float v0x, float v0y,
-            float v1x, float v1y,
-            float v2x, float v2y,
-            float v3x, float v3y
-            ):base(PlainCoordinate.StandardPlainCoordination)
-        {
-            vertexMat = new vec4d[4];
-
-            this[0] = new Point(v0x, v0y, 0);
-            this[1] = new Point(v1x, v1y, 0);
-            this[2] = new Point(v2x, v2y, 0);
-            this[3] = new Point(v3x, v3y, 0);
-        }
-
-
-        public Polygon4(CoordinationBase coordinate,
+            CoordinationBase coordinate,
             PlainCoordinate coordination,
             Point topLeft,
             Point topRight,
             Point bottomRight,
-            Point bottomLeft
-            ) : base(coordinate)
+            Point bottomLeft )
+            : base( coordinate )
         {
-            this[0] = topLeft;
-            this[1] = topRight;
-            this[2] = bottomRight;
-            this[3] = bottomLeft;
+            this[ 0 ] = topLeft;
+            this[ 1 ] = topRight;
+            this[ 2 ] = bottomRight;
+            this[ 3 ] = bottomLeft;
+        }
 
+        public Polygon4(
+            float v0x,
+            float v0y,
+            float v1x,
+            float v1y,
+            float v2x,
+            float v2y,
+            float v3x,
+            float v3y )
+            : base( PlainCoordinate.StandardPlainCoordination )
+        {
+            vertexMat = new Vec4[4];
+
+            this[ 0 ] = new Point( v0x, v0y, 0 );
+            this[ 1 ] = new Point( v1x, v1y, 0 );
+            this[ 2 ] = new Point( v2x, v2y, 0 );
+            this[ 3 ] = new Point( v3x, v3y, 0 );
         }
 
         public Polygon4(
             PlainCoordinate coordination,
-            float v0x, float v0y,
-            float v1x, float v1y,
-            float v2x, float v2y,
-            float v3x, float v3y
-            ) : base(coordination)
+            float v0x,
+            float v0y,
+            float v1x,
+            float v1y,
+            float v2x,
+            float v2y,
+            float v3x,
+            float v3y )
+            : base( coordination )
         {
-            vertexMat = new vec4d[4];
+            vertexMat = new Vec4[4];
 
-            this[0] = new Point(v0x, v0y, 0);
-            this[1] = new Point(v1x, v1y, 0);
-            this[2] = new Point(v2x, v2y, 0);
-            this[3] = new Point(v3x, v3y, 0);
+            this[ 0 ] = new Point( v0x, v0y, 0 );
+            this[ 1 ] = new Point( v1x, v1y, 0 );
+            this[ 2 ] = new Point( v2x, v2y, 0 );
+            this[ 3 ] = new Point( v3x, v3y, 0 );
         }
 
         public override ReadOnlySpan<int> VertexIndices => Indices;

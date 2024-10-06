@@ -37,7 +37,5 @@ namespace StgSharp
 
         public float Velocity => _velocity;
 
-
-
     }
 }

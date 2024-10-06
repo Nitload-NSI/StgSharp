@@ -39,28 +39,29 @@ namespace StgSharp.Geometries
 {
     public class PlainCoordinate : CoordinationBase
     {
+
+        private static PlainCoordinate statndardPlainCoordination = new PlainCoordinate(
+            null, new Point( 0, 0, 0 ), new Vec3( 1, 0, 0 ),
+            new Vec3( 0, 1, 0 ) );
+
         public PlainCoordinate(
             CoordinationBase local,
             Point origin,
-            vec3d xAxis,
-            vec3d yAxis
-            ) : base(local)
+            Vec3 xAxis,
+            Vec3 yAxis )
+            : base( local )
         {
             CoordMat = Matrix44.Unit;
 
-            CoordMat.colum0 = new vec4d(xAxis, 0);
-            CoordMat.colum1 = new vec4d(yAxis, 0);
-            CoordMat.colum2 = new vec4d(Linear.Normalize(Vec3d.Cross(xAxis, yAxis)), 0);
+            CoordMat.colum0 = new Vec4( xAxis, 0 );
+            CoordMat.colum1 = new Vec4( yAxis, 0 );
+            CoordMat.colum2 = new Vec4(
+                Linear.Normalize( Vec3.Cross( xAxis, yAxis ) ), 0 );
 
             LocalOrigin = origin;
         }
 
-        private static PlainCoordinate statndardPlainCoordination = new PlainCoordinate(
-            null, new Point(0,0,0), 
-            new vec3d(1,0,0),
-            new vec3d(0, 1, 0)
-            );
-
         public static PlainCoordinate StandardPlainCoordination => statndardPlainCoordination;
+
     }
 }

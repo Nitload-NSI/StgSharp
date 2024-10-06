@@ -40,13 +40,31 @@ namespace StgSharp
     {
 
         protected uint _bornTick;
-        internal Point _basePoint;
+        internal Func<int, Vec3> _movHandler;
         internal LinkedList<PlainGeometry> _collisionBox;
-        internal Sensor<PlainGeometry> _collisionSensor;
-        internal Func<int,vec3d> _movHandler;
+        internal Point _basePoint;
         internal Point _pos;
         internal Point _position;
+        internal Sensor<PlainGeometry> _collisionSensor;
         internal string _texture;
+
+        /// <summary>
+        /// X position of an enenmy entity
+        /// </summary>
+        public float X
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Y position of an enemy entity
+        /// </summary>
+        public float Y
+        {
+            get;
+            set;
+        }
 
         public LinkedList<PlainGeometry> CollisionBox
         {
@@ -63,26 +81,24 @@ namespace StgSharp
             set => _collisionSensor = value;
         }
 
-        /// <summary>
-        /// A 2D vector presenting the position of an enemy entity, position can also be visited by X, Y
-        /// </summary>
-        public vec2d Location { get; }
-
-        public string TextureGL { get; set; }
-
-        /// <summary>
-        /// X position of an enenmy entity
-        /// </summary>
-        public float X { get; set; }
+        public string TextureGL
+        {
+            get;
+            set;
+        }
 
         /// <summary>
-        /// Y position of an enemy entity
+        /// A 2D vector presenting the position of an enemy entity, position can also be visited by
+        /// X, Y
         /// </summary>
-        public float Y { get; set; }
+        public Vec2 Location
+        {
+            get;
+        }
 
         public abstract void OnRenderFrame();
 
-        public void SetLocation(Point p)
+        public void SetLocation( Point p )
         {
             _pos = p;
         }
