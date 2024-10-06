@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IMemoryType.cs"
+//     file="IClickTrigger.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,31 +30,22 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace StgSharp.Math
+namespace StgSharp.Controlling.UsrActivity
 {
-    public interface IMemoryType
+    public interface IClickTrigger
     {
 
-        public T Read<T>(int index) where T : struct
-#if NET8_0_OR_GREATER
-            , INumber
-#else
-            , IConvertible
-#endif
-            ;
+        public int TargetKeyOrButtonID
+        {
+            get;
+        }
 
-        public void Write<T>(int index, T value) where T : struct
-#if NET8_0_OR_GREATER
-            , INumber
-#else
-            , IConvertible
-#endif
-            ;
-
+        public KeyStatus TriggeredStatus
+        {
+            get;
+        }
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="GLresourceGenrator.cs"
+//     file="glRenderSourceGenrator.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -29,6 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -37,66 +38,70 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Graphics.OpenGL
 {
-    public partial class glRenderStream
+    public partial class glRender
     {
 
-        /// <summary>
-        /// Create a set of <see cref="ElementBuffer"/>.
-        /// </summary>
-        /// <param name="count">Amount of EBO to be created.</param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected ElementBuffer CreateElementBuffer(int count)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        protected AutoTextureGL CreateAutoTexture( int count )
         {
-            return new ElementBuffer(count, this);
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected RenderBuffer CreateRenderBuffer(int count)
-        {
-            return new RenderBuffer(count, this);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected FrameBuffer CreateFrameBuffer(int count)
-        {
-            return new FrameBuffer(count, this);
+            return new AutoTextureGL( count, this );
         }
 
         /// <summary>
-        /// Create a sets of <see cref="TextureGL"/>
+        /// Create a set of <see cref="ElementBuffer" />.
         /// </summary>
-        /// <param name="count">Amount of textures to be created.</param>
+        /// <param name="count"> Amount of EBO to be created. </param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected TextureGL CreateTexture(int count)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        protected ElementBuffer CreateElementBuffer( int count )
         {
-            return new TextureGL(count, this);
+            return new ElementBuffer( count, this );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        protected FrameBuffer CreateFrameBuffer( int count )
+        {
+            return new FrameBuffer( count, this );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        protected RenderBuffer CreateRenderBuffer( int count )
+        {
+            return new RenderBuffer( count, this );
         }
 
         /// <summary>
-        /// Create a set of <see cref="VertexArray"/>.
+        /// Create a sets of <see cref="TextureGL" />
         /// </summary>
-        /// <param name="count">Amount of VAO to be created.</param>
+        /// <param name="count"> Amount of textures to be created. </param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected VertexArray CreateVertexArray(int count)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        protected TextureGL CreateTexture( int count )
         {
-            return new VertexArray(count, this);
+            return new TextureGL( count, this );
         }
 
         /// <summary>
-        /// Create a set of <see cref="VertexBuffer"/>.
+        /// Create a set of <see cref="VertexArray" />.
         /// </summary>
-        /// <param name="count">Amount of Object to be created.</param>
+        /// <param name="count"> Amount of VAO to be created. </param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected VertexBuffer CreateVertexBuffer(int count)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        protected VertexArray CreateVertexArray( int count )
         {
-            return new VertexBuffer(count, this);
+            return new VertexArray( count, this );
         }
 
-        
+        /// <summary>
+        /// Create a set of <see cref="VertexBuffer" />.
+        /// </summary>
+        /// <param name="count"> Amount of Object to be created. </param>
+        /// <returns></returns>
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        protected VertexBuffer CreateVertexBuffer( int count )
+        {
+            return new VertexBuffer( count, this );
+        }
+
     }
 }

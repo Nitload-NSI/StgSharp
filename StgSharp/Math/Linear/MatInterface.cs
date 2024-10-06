@@ -34,7 +34,5 @@ using System.Text;
 
 namespace StgSharp.Math
 {
-    public interface IMat
-    {
-    }
+    public interface IMat { }
 }

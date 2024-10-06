@@ -39,28 +39,30 @@ namespace StgSharp.Data
 {
     public partial class SSD
     {
-        private SSDrawHead head;
 
         private Dictionary<string, SSDraw> fileList;
-        
+
         private FileStream file;
+        private SSDrawHead head;
 
         public SSD()
         {
             fileList = new Dictionary<string, SSDraw>();
         }
 
-        public SSD(FileStream fileStream)
+        public SSD( FileStream fileStream )
         {
             fileList = new Dictionary<string, SSDraw>();
             file = fileStream;
         }
 
-        public static SSD FromFile(string fileRoute)
+        public static SSD FromFile( string fileRoute )
         {
-            return new SSD(new FileStream(fileRoute, FileMode.Open, FileAccess.Read)) { };
+            return new SSD(
+                new FileStream( fileRoute, FileMode.Open, FileAccess.Read ) )
+            {
+            };
         }
 
     }
-
 }

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="TimeSourceProvider.cs"
+//     file="EmptyThread.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,67 +28,35 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp;
-
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
-namespace StgSharp.Logic
+namespace StgSharp.Threading
 {
-
-
-    public abstract class TimeSourceProviderBase
+    public static partial class ThreadHelper
     {
 
-        private SemaphoreSlim _addSubscriberSemaphore = new SemaphoreSlim(1, 1);
+        private static readonly Thread _emptyThreadCache = new Thread(
+            () => { } );
 
-        protected SemaphoreSlim CheckSubscriberSemaphore
-        { 
-            get => _addSubscriberSemaphore;
-        }
-
-        public void AddSubscriber(TimeSpanProvider subscriber)
+        static ThreadHelper()
         {
-            _addSubscriberSemaphore.Wait();
-            try
-            {
-                AddSubscriberUnsynced(subscriber);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                _addSubscriberSemaphore.Release();
-            }
+            _emptyThreadCache.Start();
         }
 
-        public void RemoveSubscriber(TimeSpanProvider subscriber)
+        /// <summary>
+        /// An individual thread doing nothing,  and its <see cref="Thread.IsAlive" /> <see
+        /// langword="property" /> always returns false.
+        /// </summary>
+        public static Thread EmptyThread
         {
-            _addSubscriberSemaphore.Wait();
-            try
-            {
-                RemoveSubscriberUnsynced(subscriber);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                _addSubscriberSemaphore.Release();
-            }
+            get => _emptyThreadCache;
         }
-
-        public abstract void StartProvidingTime();
-        public abstract void StopProvidingTime();
-
-
-        protected abstract void AddSubscriberUnsynced(TimeSpanProvider subscriber);
-        protected abstract void RemoveSubscriberUnsynced(TimeSpanProvider subscriber);
 
     }
-
 }

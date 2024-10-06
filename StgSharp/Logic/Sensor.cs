@@ -32,24 +32,18 @@ using StgSharp.Geometries;
 
 namespace StgSharp
 {
-
-    public delegate bool SensorRuleHandler(PlainGeometry target, PlainGeometry boarder);
+    public delegate bool SensorRuleHandler(
+        PlainGeometry target,
+        PlainGeometry boarder );
 
     public class Sensor<T>
     {
 
         internal PlainGeometry _boarder;
-        internal SensorRuleHandler _rule;
         internal PlainGeometry _target;
-
+        internal SensorRuleHandler _rule;
 
         public PlainGeometry boarder => _boarder;
-
-        public SensorRuleHandler Rule
-        {
-            get => _rule;
-            set => _rule = value;
-        }
 
         public PlainGeometry target
         {
@@ -57,13 +51,23 @@ namespace StgSharp
             set => _target = value;
         }
 
-        public static Sensor<T> operator -(Sensor<T> sensor, SensorRuleHandler rule)
+        public SensorRuleHandler Rule
+        {
+            get => _rule;
+            set => _rule = value;
+        }
+
+        public static Sensor<T> operator -(
+            Sensor<T> sensor,
+            SensorRuleHandler rule )
         {
             sensor._rule -= rule;
             return sensor;
         }
 
-        public static Sensor<T> operator +(Sensor<T> sensor, SensorRuleHandler rule)
+        public static Sensor<T> operator +(
+            Sensor<T> sensor,
+            SensorRuleHandler rule )
         {
             sensor._rule += rule;
             return sensor;

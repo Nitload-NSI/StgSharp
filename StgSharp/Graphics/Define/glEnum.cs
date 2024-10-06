@@ -29,13 +29,13 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
-
 using System.Runtime.CompilerServices;
 
 namespace StgSharp.Graphics.OpenGL
 {
     public enum PixelChannelLayout
     {
+
         UByte = GLconst.UNSIGNED_BYTE,
         Byte = GLconst.BYTE,
         UShort = GLconst.UNSIGNED_SHORT,
@@ -55,10 +55,12 @@ namespace StgSharp.Graphics.OpenGL
         UInt8888Rev = GLconst.UNSIGNED_INT_8_8_8_8_REV,
         UInt1010102 = GLconst.UNSIGNED_INT_10_10_10_2,
         UInt2101010Rev = GLconst.UNSIGNED_INT_2_10_10_10_REV
+
     }
 
     public enum FrameBufferStatus
     {
+
         Complete = GLconst.FRAMEBUFFER_COMPLETE, // GL_FRAMEBUFFER_COMPLETE
         IncompleteAttachment = GLconst.FRAMEBUFFER_INCOMPLETE_ATTACHMENT, // GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT
         IncompleteMissingAttachment = GLconst.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, // GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT
@@ -67,10 +69,12 @@ namespace StgSharp.Graphics.OpenGL
         Unsupported = GLconst.FRAMEBUFFER_UNSUPPORTED, // GL_FRAMEBUFFER_UNSUPPORTED
         IncompleteMultisample = GLconst.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, // GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE
         IncompleteLayerTargets = GLconst.FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS // GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS
+
     }
 
     internal enum VkStructureType : uint
     {
+
         VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR = 1000004000,
         VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR = 1000005000,
         VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR = 1000006000,
@@ -78,10 +82,12 @@ namespace StgSharp.Graphics.OpenGL
         VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK = 1000123000,
         VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT = 1000217000,
         VK_STRUCTURE_TYPE_MAX_ENUM = 0x7FFFFFFF
+
     }
 
     public enum FrameBufferChannel
     {
+
         STENCIL_INDEX = GLconst.STENCIL_INDEX,
         DEPTH_COMPONENT = GLconst.DEPTH_COMPONENT,
         DEPTH_STENCIL = GLconst.DEPTH_STENCIL,
@@ -92,17 +98,22 @@ namespace StgSharp.Graphics.OpenGL
         BGR = GLconst.BGR,
         RGBA = GLconst.RGBA,
         BGRA = GLconst.BGRA
+
     }
 
     public enum FrameBufferAttachment
     {
+
         Color = GLconst.COLOR_ATTACHMENT0,
         Depth = GLconst.DEPTH_ATTACHMENT,
         Stencil = GLconst.STENCIL_ATTACHMENT,
+        DepthAndStencil = GLconst.DEPTH_STENCIL_ATTACHMENT,
+
     }
 
     public enum Texture2DTarget
     {
+
         Texture2D = GLconst.TEXTURE_2D,
         ProxyTexture2D = GLconst.PROXY_TEXTURE_2D,
         Texture1DArray = GLconst.TEXTURE_1D_ARRAY,
@@ -116,21 +127,27 @@ namespace StgSharp.Graphics.OpenGL
         TextureCubeMapPositiveZ = GLconst.TEXTURE_CUBE_MAP_POSITIVE_Z,
         TextureCubeMapNegativeZ = GLconst.TEXTURE_CUBE_MAP_NEGATIVE_Z,
         ProxyTextureCubeMap = GLconst.PROXY_TEXTURE_CUBE_MAP
+
     }
 
     public enum RenderBufferInternalFormat : uint
     {
+
         RGBA8 = GLconst.RGBA8,
         Depth24_Stencil8 = GLconst.DEPTH24_STENCIL8,
+
     }
 
     public enum GLOperation : uint
     {
+
         StencilTest = GLconst.STENCIL_TEST,
+
     }
 
     internal enum VkResult
     {
+
         VK_SUCCESS = 0,
         VK_NOT_READY = 1,
         VK_TIMEOUT = 2,
@@ -155,22 +172,26 @@ namespace StgSharp.Graphics.OpenGL
         VK_ERROR_NATIVE_WINDOW_IN_USE_KHR = -1000000001,
         VK_ERROR_VALIDATION_FAILED_EXT = -1000011001,
         VK_RESULT_MAX_ENUM = 0x7FFFFFFF
+
     }
 
-#pragma warning disable CA1008 
+    #pragma warning disable CA1008 
     public enum ShaderType : int
-#pragma warning restore CA1008 
+    #pragma warning restore CA1008 
     {
+
         Fragment = GLconst.FRAGMENT_SHADER,
         Vertex = GLconst.VERTEX_SHADER,
         Compute = GLconst.COMPUTE_SHADER,
         Geometry = GLconst.GEOMETRY_SHADER,
+
     }
 
-#pragma warning disable CA1008 // 枚举应具有零值
+    #pragma warning disable CA1008 // 枚举应具有零值
     public enum BufferType : int
-#pragma warning restore CA1008 // 枚举应具有零值
+    #pragma warning restore CA1008 // 枚举应具有零值
     {
+
         ArrayBuffer = GLconst.ARRAY_BUFFER,
         ElementArrayBuffer = GLconst.ELEMENT_ARRAY_BUFFER,
         AtomicCounterBuffer = GLconst.ATOMIC_COUNTER_BUFFER,
@@ -185,12 +206,14 @@ namespace StgSharp.Graphics.OpenGL
         TEXTURE_BUFFER = GLconst.TEXTURE_BUFFER,
         TRANSFORM_FEEDBACK_BUFFER = GLconst.TRANSFORM_FEEDBACK_BUFFER,
         UNIFORM_BUFFER = GLconst.UNIFORM_BUFFER,
+
     }
 
-#pragma warning disable CA1008 // 枚举应具有零值
+    #pragma warning disable CA1008 // 枚举应具有零值
     public enum BufferUsage : int
-#pragma warning restore CA1008 // 枚举应具有零值
+    #pragma warning restore CA1008 // 枚举应具有零值
     {
+
         StreamDraw = 0x88E0,
         StreamRead = 0x88E1,
         StreamCopy = 0x88E2,
@@ -200,18 +223,21 @@ namespace StgSharp.Graphics.OpenGL
         DynamicDraw = 0x88E8,
         DynamicRead = 0x88E9,
         DynamicCopy = 0x88EA
-    }
 
+    }
 
     public enum MaskBufferBit
     {
+
         COLOR = GLconst.COLOR_BUFFER_BIT,
         DEPTH = GLconst.DEPTH_BUFFER_BIT,
         STENCIL = GLconst.STENCIL_BUFFER_BIT,
+
     }
 
     public enum GeometryType : uint
     {
+
         POINTS = 0x0000,
         LINES = 0x0001,
         LINE_LOOP = 0x0002,
@@ -219,11 +245,14 @@ namespace StgSharp.Graphics.OpenGL
         TRIANGLES = 0x0004,
         TRIANGLE_STRIP = 0x0005,
         TRIANGLE_FAN = 0x0006
+
     }
 
     public enum TextureFiltering
     {
+
         Nearest = 0x2600,
         Linear = 0x2601
+
     }
 }

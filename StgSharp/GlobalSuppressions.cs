@@ -13,3 +13,5 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Design", "CA1043:将整型或字符串参数用于索引器", Justification = "<挂起>", Scope = "member", Target = "~P:StgSharp.MVVM.View.ViewBase.IViewResponder`1.Item(StgSharp.Controlling.UsrActivity.ITrigger)")]
 [assembly: SuppressMessage("Design", "CA1043:将整型或字符串参数用于索引器", Justification = "<挂起>", Scope = "member", Target = "~P:StgSharp.MVVM.View.ViewBase.ViewResponder`1.Item(StgSharp.Controlling.UsrActivity.ITrigger)")]
 [assembly: SuppressMessage("Performance", "CA1864:首选 \"IDictionary.TryAdd(TKey, TValue)\" 方法", Justification = "<挂起>", Scope = "member", Target = "~P:StgSharp.MVVM.View.ViewBase.ViewRender`1.Item(System.String)")]
+[assembly: SuppressMessage("Design", "CA1033:接口方法应可由子类型调用", Justification = "<挂起>", Scope = "member", Target = "~P:StgSharp.Collections.IBidirectionalDictionary`2.System#Collections#Generic#IDictionary<TFirst,TSecond>#Keys")]
+[assembly: SuppressMessage("Design", "CA1033:接口方法应可由子类型调用", Justification = "<挂起>", Scope = "member", Target = "~P:StgSharp.Collections.IBidirectionalDictionary`2.System#Collections#Generic#IDictionary<TFirst,TSecond>#Values")]

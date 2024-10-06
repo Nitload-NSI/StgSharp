@@ -29,6 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Controlling.UsrActivity;
+using StgSharp.MVVM.ViewModel;
 
 using System;
 using System.Collections.Generic;
@@ -40,88 +41,102 @@ namespace StgSharp.MVVM.View
 {
     public partial class ViewBase
     {
-        protected interface IViewResponder<out TVIew> where TVIew : ViewBase
+
+        protected interface IViewResponder<out TVIew> where TVIew: ViewBase
         {
 
-            Action? this[ITrigger trigger] { get; set; }
+            Action? this[ IClickTrigger trigger ]
+            {
+                get;
+                set;
+            }
 
-            void CustomizedInitialize(Func<ITrigger, string, Action> keyRegister);
+            void CustomizedInitialize(
+                Func<IClickTrigger, string, Action> keyRegister );
+
+            void Initialize( MethodLookUpDelegate methodGetter );
 
             void ProcessUserInput();
 
             bool ValidateInitializing();
 
-            void Initialize(Func<string, Action> keyGetter);
-
         }
 
-        protected abstract class ViewResponder<TView> : IViewResponder<TView> where TView : ViewBase
+        protected abstract class ViewResponder<TView> : IViewResponder<TView>
+            where TView: ViewBase
         {
 
             private bool _isInitialized;
-            private Dictionary<ITrigger, Action> keyCallbackIndex;
+            private Dictionary<IClickTrigger, Action> keyCallbackIndex;
             private Dictionary<string, Action> nameToCallbackMap;
             private TView _binding;
 
-            protected ViewResponder(TView binding)
+            protected ViewResponder( TView binding )
             {
-                keyCallbackIndex = new Dictionary<ITrigger, Action>();
+                keyCallbackIndex = new Dictionary<IClickTrigger, Action>();
                 nameToCallbackMap = new Dictionary<string, Action>();
                 _binding = binding;
             }
 
-            public Action? this[ITrigger trigger]
+            #pragma warning disable CA1043
+            public Action? this[ IClickTrigger trigger ]
+            #pragma warning restore CA1043
             {
-                get => keyCallbackIndex.TryGetValue(trigger, out Action callback) ? callback : null;
+                get => keyCallbackIndex.TryGetValue(
+                    trigger, out Action callback ) ?
+                callback : null;
                 set
                 {
-                    if (keyCallbackIndex.TryGetValue(trigger, out Action callback))
-                    {
+                    if( keyCallbackIndex.TryGetValue(
+                        trigger, out Action callback ) ) {
                         callback += value;
-                    }
-                    else
-                    {
-                        keyCallbackIndex.Add(trigger, value ?? throw new ArgumentNullException(nameof(value)));
+                    } else {
+                        keyCallbackIndex.Add(
+                            trigger,
+                            value ??
+                                throw new ArgumentNullException(
+                                    nameof( value ) ) );
                     }
                 }
             }
 
             protected TView Binding => _binding;
 
-            public abstract void CustomizedInitialize(Func<ITrigger, string, Action> keyRegister);
+            public abstract void CustomizedInitialize(
+                Func<IClickTrigger, string, Action> keyRegister );
+
+            public void Initialize( MethodLookUpDelegate methodGetter )
+            {
+                if( _isInitialized ) {
+                    return;
+                }
+                CustomizedInitialize(
+                    ( trigger, name ) => {
+                        if( !nameToCallbackMap.TryGetValue(
+                            name, out Action ret ) ) {
+                            if( methodGetter( name, out Action lookup ) ) {
+                                this[ trigger ] = lookup;
+                            } else {
+                                throw new InvalidOperationException(
+                                    $"Cannot find method named {name} in binded view model" );
+                            }
+                        }
+                        return ret;
+                    } );
+            }
 
             public void ProcessUserInput()
             {
-                foreach (KeyValuePair<ITrigger, Action> pair in keyCallbackIndex)
-                {
-                    if (InternalIO.glfwGetKey(_binding.ViewHandle, pair.Key.TargetKeyOrButtonID) == pair.Key.TriggeredStatus)
-                    {
+                foreach( KeyValuePair<IClickTrigger, Action> pair in keyCallbackIndex ) {
+                    if( InternalIO.glfwGetKey(
+                        _binding.ViewHandle,
+                        pair.Key.TargetKeyOrButtonID ) == pair.Key.TriggeredStatus ) {
                         pair.Value();
                     }
                 }
             }
 
             public abstract bool ValidateInitializing();
-
-            public void Initialize(Func<string, Action> keyGetter)
-            {
-                if (_isInitialized)
-                {
-                    return;
-                }
-                CustomizedInitialize(
-                    (trigger, name) =>
-                    {
-                        if (!nameToCallbackMap.TryGetValue(name, out Action ret))
-                        {
-                            ret = keyGetter.Invoke(name) ??
-                                throw new InvalidOperationException($"Cannot find method named {name} in binded view model");
-                        }
-                        this[trigger] = ret;
-                        return ret;
-                    }
-                    );
-            }
 
         }
 

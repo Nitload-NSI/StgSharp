@@ -28,13 +28,15 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Data.Intrinsic;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,19 +44,59 @@ namespace StgSharp.MVVM.ViewModel
 {
 #nullable enable
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] public delegate ref object BindingDataGetter();
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] public delegate void BindingDataSetter(ref object value);
+[UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
+    public delegate ref object BindingDataGetter();
+[UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
+    public delegate void BindingDataSetter( ref object value );
+[UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
+    public delegate bool MethodLookUpDelegate(
+        string name,
+        out Action callback );
 
+    public abstract partial class ViewModelBase
+    {
+
+        public bool MethodLookup( string methodName, out Action callback )
+        {
+            MethodInfo method = GetType().GetMethod( methodName )!;
+            if( method == null ) {
+                callback = null!;
+                return false;
+            }
+            try {
+                callback = ( Action )Delegate.CreateDelegate(
+                    typeof( Action ), this, methodName );
+                return true;
+            }
+            catch( MissingMethodException ) {
+                callback = null!;
+                return false;
+            }
+            catch( MethodAccessException ) {
+                callback = null!;
+                return false;
+            }
+            catch( Exception ) {
+                throw;
+            }
+        }
+
+    }
+
+    [StructLayout( LayoutKind.Explicit )]
     public unsafe struct DataBindingEntry
     {
-        private IntPtr getterPtr, setterPtr;
+
+        [FieldOffset( 0 )] private IntPtr getterPtr;
+        [FieldOffset( 8 )] private IntPtr setterPtr;
+        [FieldOffset( 0 )] private M128 _mask;
 
         public DataBindingEntry(
             [NotNull] BindingDataGetter gettingCallback,
-            [NotNull] BindingDataSetter settingCallback)
+            [NotNull] BindingDataSetter settingCallback )
         {
-            getterPtr = Marshal.GetFunctionPointerForDelegate(gettingCallback);
-            setterPtr = Marshal.GetFunctionPointerForDelegate(settingCallback);
+            getterPtr = Marshal.GetFunctionPointerForDelegate( gettingCallback );
+            setterPtr = Marshal.GetFunctionPointerForDelegate( settingCallback );
         }
 
         public static DataBindingEntry NullBinding
@@ -62,19 +104,52 @@ namespace StgSharp.MVVM.ViewModel
             get => new DataBindingEntry();
         }
 
-        public bool ExactEqual(DataBindingEntry other)
+        public bool Equals( DataBindingEntry other )
         {
-            return (getterPtr == other.getterPtr) && (setterPtr == other.setterPtr);
+            return ( _mask == other._mask );
+        }
+
+        public override bool Equals( object obj )
+        {
+            if( obj is not DataBindingEntry other ) {
+                return false;
+            }
+            return Equals( other );
+        }
+
+        public bool ExactEqual( DataBindingEntry other )
+        {
+            return ( getterPtr == other.getterPtr ) && ( setterPtr == other.setterPtr );
+        }
+
+        public override int GetHashCode()
+        {
+            return _mask.GetHashCode();
         }
 
         public ref object GetValue()
         {
-            return ref ((delegate* unmanaged[Cdecl]<ref object>)getterPtr)();
+            return ref ( ( delegate* unmanaged[Cdecl]<ref object> )getterPtr )();
         }
 
-        public void SetData(ref object value)
+        public void SetValue( ref object value )
         {
-            ((delegate* unmanaged[Cdecl]<ref object, void>)setterPtr)(ref value);
+            ( ( delegate* unmanaged[Cdecl]<ref object, void> )setterPtr )(
+                ref value );
+        }
+
+        public static bool operator !=(
+            DataBindingEntry left,
+            DataBindingEntry right )
+        {
+            return left._mask != right._mask;
+        }
+
+        public static bool operator ==(
+            DataBindingEntry left,
+            DataBindingEntry right )
+        {
+            return left._mask == right._mask;
         }
 
     }
