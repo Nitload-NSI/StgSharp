@@ -38,34 +38,37 @@ namespace StgSharp.Geometries
 {
     public class Polygon6 : PlainGeometry
     {
-        public Polygon6():base(PlainCoordinate.StandardPlainCoordination)
+
+        internal static int[] Indices = [0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5];
+
+        public Polygon6()
+            : base( PlainCoordinate.StandardPlainCoordination )
         {
-            vertexMat = new vec4d[6];
+            vertexMat = new Vec4[6];
         }
 
         public Polygon6(
             PlainCoordinate coordination,
-            vec2d vert0,
-            vec2d vert1,
-            vec2d vert2,
-            vec2d vert3,
-            vec2d vert4,
-            vec2d vert5,
-            vec2d vert6
-            ) : base(coordination)
+            Vec2 vert0,
+            Vec2 vert1,
+            Vec2 vert2,
+            Vec2 vert3,
+            Vec2 vert4,
+            Vec2 vert5,
+            Vec2 vert6 )
+            : base( coordination )
         {
-            vertexMat = new vec4d[6];
-            vertexMat[0].vec = vert0.vec;
-            vertexMat[1].vec = vert1.vec;
-            vertexMat[2].vec = vert2.vec;
-            vertexMat[3].vec = vert3.vec;
-            vertexMat[4].vec = vert4.vec;
-            vertexMat[5].vec = vert5.vec;
-            vertexMat[6].vec = vert6.vec;
+            vertexMat = new Vec4[6];
+            vertexMat[ 0 ].vec = vert0.vec;
+            vertexMat[ 1 ].vec = vert1.vec;
+            vertexMat[ 2 ].vec = vert2.vec;
+            vertexMat[ 3 ].vec = vert3.vec;
+            vertexMat[ 4 ].vec = vert4.vec;
+            vertexMat[ 5 ].vec = vert5.vec;
+            vertexMat[ 6 ].vec = vert6.vec;
         }
 
-        internal static int[] Indices = [ 0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5 ];
-
         public override ReadOnlySpan<int> VertexIndices => Indices;
+
     }
 }

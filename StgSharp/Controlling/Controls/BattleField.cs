@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------
 using StgSharp.Geometries;
 using StgSharp.Graphics;
-using StgSharp.Logic;
+
 using StgSharp.Math;
 
 using System;
@@ -43,18 +43,30 @@ namespace StgSharp.Controls
 {
     public class BattleField : ControllingItem
     {
-        public ReadOnlySpan<vec4d> TextureBox 
-        {
-            get => throw new NotImplementedException() ;
-        }
-        public vec2d Position { get; set; }
-        public Rectangle BoundingBox { get; set; }
 
         public bool IsEntity => true;
+
+        public ReadOnlySpan<Vec4> TextureBox
+        {
+            get => throw new NotImplementedException();
+        }
+
+        public Rectangle BoundingBox
+        {
+            get;
+            set;
+        }
+
+        public Vec2 Position
+        {
+            get;
+            set;
+        }
 
         public IEnumerator<PlainGeometryMesh> GetEnumerator()
         {
             throw new NotImplementedException();
         }
+
     }
 }

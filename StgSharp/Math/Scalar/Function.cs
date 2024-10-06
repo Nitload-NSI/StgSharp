@@ -30,9 +30,5 @@
 //-----------------------------------------------------------------------
 namespace StgSharp.Math
 {
-    public class Function
-    {
-
-
-    }
+    public class Function { }
 }

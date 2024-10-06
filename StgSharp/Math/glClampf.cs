@@ -38,55 +38,54 @@ using System.Threading.Tasks;
 namespace StgSharp.Math
 {
     /// <summary>
-    /// OpenGL numeric type.
-    /// An IEEE-754 floating-point value, clamped to the range [0,1].
+    /// OpenGL numeric type. An IEEE-754 floating-point value, clamped to the range [0,1].
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public struct GLclampf
     {
 
         public float value;
 
-        public GLclampf(float a)
+        public GLclampf( float a )
         {
             value = a;
         }
 
-        public static explicit operator float(GLclampf v)
+        public static explicit operator float( GLclampf v )
         {
             return v.value;
         }
 
-        public static explicit operator GLclampf(float v)
+        public static explicit operator GLclampf( float v )
         {
-            return new GLclampf(v);
+            return new GLclampf( v );
         }
 
     }
 
     /// <summary>
-    /// OpenGL numeric type.
-    /// An IEEE-754 double precision floating-point value, clamped to the range [0,1].
+    /// OpenGL numeric type. An IEEE-754 double precision floating-point value, clamped to the range
+    /// [0,1].
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public struct GLclampd
     {
 
         public double value;
 
-        public GLclampd(double a)
+        public GLclampd( double a )
         {
             value = a;
         }
 
-        public static explicit operator double(GLclampd v)
+        public static explicit operator double( GLclampd v )
         {
             return v.value;
         }
 
-        public static explicit operator GLclampd(double v)
+        public static explicit operator GLclampd( double v )
         {
-            return new GLclampd(v);
+            return new GLclampd( v );
         }
 
     }

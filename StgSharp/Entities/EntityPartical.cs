@@ -30,8 +30,5 @@
 //-----------------------------------------------------------------------
 namespace StgSharp.Entities
 {
-    public abstract class EntityPartical : IEntity
-    {
-
-    }
+    public abstract class EntityPartical : IEntity { }
 }

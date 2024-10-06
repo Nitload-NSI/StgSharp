@@ -34,15 +34,14 @@ using System.Runtime.CompilerServices;
 
 namespace StgSharp.Geometries
 {
-
     public static unsafe class GeometryOperation
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static vec3d DefaultMotion(int tick)
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static Vec3 DefaultMotion( int tick )
         {
-            return default(vec3d);
+            return default( Vec3 );
         }
 
     }
-
 }

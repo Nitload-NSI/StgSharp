@@ -36,20 +36,19 @@ namespace StgSharp.Geometries
     public unsafe class ToUpperDimensionException : Exception
     {
 
-        protected ToUpperDimensionException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-        public ToUpperDimensionException()
-        {
-        }
+        protected ToUpperDimensionException(
+            SerializationInfo info,
+            StreamingContext context )
+            : base( info, context ) { }
 
-        public ToUpperDimensionException(string message) : base(message)
-        {
-        }
+        public ToUpperDimensionException() { }
 
-        public ToUpperDimensionException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+        public ToUpperDimensionException( string message ) : base( message ) { }
+
+        public ToUpperDimensionException(
+            string message,
+            Exception innerException )
+            : base( message, innerException ) { }
 
     }
 
@@ -59,20 +58,17 @@ namespace StgSharp.Geometries
     public class UnusedVertexException : Exception
     {
 
-        protected UnusedVertexException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-        public UnusedVertexException()
-        {
-        }
+        protected UnusedVertexException(
+            SerializationInfo info,
+            StreamingContext context )
+            : base( info, context ) { }
 
-        public UnusedVertexException(string message) : base(message)
-        {
-        }
+        public UnusedVertexException() { }
 
-        public UnusedVertexException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+        public UnusedVertexException( string message ) : base( message ) { }
+
+        public UnusedVertexException( string message, Exception innerException )
+            : base( message, innerException ) { }
 
     }
 }

@@ -37,24 +37,23 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Math
 {
-
-    [StructLayout(LayoutKind.Explicit, Size = 16)]
+    [StructLayout( LayoutKind.Explicit, Size = 16 )]
     public struct GLhalfNV
     {
 
-        [FieldOffset(0)] public short binary;
+        [FieldOffset( 0 )] public short binary;
 
-        public GLhalfNV(short bin)
+        public GLhalfNV( short bin )
         {
             binary = bin;
         }
 
-        public static explicit operator GLhalfNV(short x)
+        public static explicit operator GLhalfNV( short x )
         {
-            return new GLhalfNV(x);
+            return new GLhalfNV( x );
         }
 
-        public static explicit operator short(GLhalfNV x)
+        public static explicit operator short( GLhalfNV x )
         {
             return x.binary;
         }

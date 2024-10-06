@@ -40,8 +40,14 @@ using System.Text;
 
 namespace StgSharp.Controls
 {
+    public delegate void RenderButtonTextureCallback(
+        ButtonStatus status,
+        float beginTime,
+        in TextureProvider texture );
+
     public enum ButtonStatus
     {
+
         Error = 0b0,
         Disable = 0b1,
         Enable = 0b10,
@@ -49,92 +55,33 @@ namespace StgSharp.Controls
         Confirm = 0b1000,
 
         DisableToEnable = Disable | Enable,
-        EnableToDisable = -(Enable | DisableToEnable),
+        EnableToDisable = -( Enable | DisableToEnable ),
 
         EnableToHighlight = Enable | Highlight,
-        HighlightToEnable = -(Enable | Highlight),
+        HighlightToEnable = -( Enable | Highlight ),
 
-        HighlightToDisable = -(Highlight | Disable),
+        HighlightToDisable = -( Highlight | Disable ),
+
     }
-
-    public delegate void RenderButtonTextureCallback(ButtonStatus status, float beginTime, in TextureProvider texture);
 
     public class TriggerButton : ControllingItem
     {
-        private TextureProvider _texture;
+
+        private Action? confirmCallback;
+        private Action? disableCallback;
+
+        #nullable enable
+        private Action? enableCallback;
         private float _statusBeginTime;
 
-        public TriggerButton Left { get; internal set; }
-        public TriggerButton Right { get; internal set; }
-        public TriggerButton Up { get; internal set; }
-        public TriggerButton Down { get; internal set; }
+        private RenderButtonTextureCallback _renderButton;
+        private TextureProvider _texture;
 
-#nullable enable
-        private Action? enableCallback;
-        private Action? disableCallback;
-        private Action? confirmCallback;
-#nullable restore
+        #nullable restore
 
         public TriggerButton()
         {
             CurrentStatus = ButtonStatus.Disable;
-        }
-
-        protected ButtonStatus CurrentStatus { get; set; }
-
-        private RenderButtonTextureCallback _renderButton;
-
-        public event RenderButtonTextureCallback RenderButtonTexture 
-        {
-            add
-            {
-                if (_renderButton == null)
-                {
-                    _renderButton = value;
-                }
-                else
-                {
-                    _renderButton += value;
-                }
-            }
-            remove 
-            {
-                if (_renderButton != null)
-                {
-                    _renderButton -= value;
-                }
-            }
-        }
-
-        internal TextureProvider Texture
-        {
-            get => _texture;
-            set => _texture = value;
-        }
-
-        public ReadOnlySpan<vec4d> TextureBox
-        {
-            get => MemoryMarshal.Cast<vec2d, vec4d>(_texture.TextureCoordinate); 
-        }
-
-        public bool IsHighLighted { get; internal set; }
-
-        public bool IsDisabled { get; internal set; }
-        public vec2d Position { get; set; }
-        public Rectangle BoundingBox { get; set; }
-
-        public bool IsEntity => true;
-
-        public event Action EnableEvent
-        {
-            add { enableCallback += value; } 
-            remove { enableCallback -= value; }
-        }
-
-        public event Action DisableEvent
-        {
-            add { disableCallback += value; }
-            remove { disableCallback -= value; }
         }
 
         public event Action ConfirmEvent
@@ -143,25 +90,108 @@ namespace StgSharp.Controls
             remove { confirmCallback -= value; }
         }
 
-        internal void Init( ButtonStatus status )
+        public event Action DisableEvent
         {
-            if (CurrentStatus == ButtonStatus.Error)
+            add { disableCallback += value; }
+            remove { disableCallback -= value; }
+        }
+
+        public event Action EnableEvent
+        {
+            add { enableCallback += value; }
+            remove { enableCallback -= value; }
+        }
+
+        public event RenderButtonTextureCallback RenderButtonTexture
+        {
+            add
             {
-                CurrentStatus = status;
+                if( _renderButton == null ) {
+                    _renderButton = value;
+                } else {
+                    _renderButton += value;
+                }
+            }
+            remove
+            {
+                if( _renderButton != null ) {
+                    _renderButton -= value;
+                }
             }
         }
 
-        public void Enable()
+        public bool IsHighLighted
         {
-            if (CurrentStatus == ButtonStatus.Disable)
-            {
-                CurrentStatus = ButtonStatus.DisableToEnable;
+            get;
+            internal set;
+        }
+
+        public bool IsDisabled
+        {
+            get;
+            internal set;
+        }
+
+        public bool IsEntity => true;
+
+        public ReadOnlySpan<Vec4> TextureBox
+        {
+            get => MemoryMarshal.Cast<Vec2, Vec4>( _texture.TextureCoordinate );
+        }
+
+        public Rectangle BoundingBox
+        {
+            get;
+            set;
+        }
+
+        public TriggerButton Left
+        {
+            get;
+            internal set;
+        }
+
+        public TriggerButton Right
+        {
+            get;
+            internal set;
+        }
+
+        public TriggerButton Up
+        {
+            get;
+            internal set;
+        }
+
+        public TriggerButton Down
+        {
+            get;
+            internal set;
+        }
+
+        public Vec2 Position
+        {
+            get;
+            set;
+        }
+
+        internal TextureProvider Texture
+        {
+            get => _texture;
+            set => _texture = value;
+        }
+
+        protected ButtonStatus CurrentStatus
+        {
+            get;
+            set;
+        }
+
+        public void DeHighlight()
+        {
+            if( CurrentStatus == ButtonStatus.Highlight ) {
+                CurrentStatus = ButtonStatus.HighlightToEnable;
             }
-            else
-            {
-                return;
-            }
-            if ( enableCallback != null)enableCallback();
         }
 
         public void Disable()
@@ -172,34 +202,46 @@ namespace StgSharp.Controls
                 ButtonStatus.Highlight => ButtonStatus.HighlightToDisable,
                 _ => CurrentStatus,
             };
-            if (disableCallback != null) disableCallback();
+            if( disableCallback != null ) {
+                disableCallback();
+            }
         }
 
-        public void Highlight()
+        public void Enable()
         {
-            if (CurrentStatus == ButtonStatus.Enable)
-            {
-                CurrentStatus |= ButtonStatus.EnableToHighlight;
-            }
-            else
-            {
+            if( CurrentStatus == ButtonStatus.Disable ) {
+                CurrentStatus = ButtonStatus.DisableToEnable;
+            } else {
                 return;
             }
-            if (confirmCallback != null) confirmCallback();
-        }
-
-        public void DeHighlight()
-        {
-            if (CurrentStatus == ButtonStatus.Highlight)
-            {
-                CurrentStatus = ButtonStatus.HighlightToEnable;
+            if( enableCallback != null ) {
+                enableCallback();
             }
         }
 
         public IEnumerator<PlainGeometryMesh> GetEnumerator()
         {
-            _renderButton(CurrentStatus,_statusBeginTime, in _texture);
-            yield return new PlainGeometryMesh(this.BoundingBox, _texture);
+            _renderButton( CurrentStatus, _statusBeginTime, in _texture );
+            yield return new PlainGeometryMesh( this.BoundingBox, _texture );
+        }
+
+        public void Highlight()
+        {
+            if( CurrentStatus == ButtonStatus.Enable ) {
+                CurrentStatus |= ButtonStatus.EnableToHighlight;
+            } else {
+                return;
+            }
+            if( confirmCallback != null ) {
+                confirmCallback();
+            }
+        }
+
+        internal void Init( ButtonStatus status )
+        {
+            if( CurrentStatus == ButtonStatus.Error ) {
+                CurrentStatus = status;
+            }
         }
 
     }//----------------------------------- End of class --------------------------------------------
