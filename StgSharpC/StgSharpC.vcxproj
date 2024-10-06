@@ -159,20 +159,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.c" />
+    <ClCompile Include="intrinsic.c" />
     <ClCompile Include="mat2.c" />
     <ClCompile Include="mat3.c" />
     <ClCompile Include="mat4.c" />
     <ClCompile Include="stb_image.c" />
     <ClCompile Include="StgSharpC.c" />
+    <ClCompile Include="quick_hash.c" />
     <ClCompile Include="vector.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gl.h" />
     <ClInclude Include="glfw3.h" />
     <ClInclude Include="glfw3native.h" />
+    <ClInclude Include="ssc_intrinsic.h" />
     <ClInclude Include="khrplatform.h" />
-    <ClInclude Include="ssgc_framework.h" />
-    <ClInclude Include="ssgc_internal.h" />
+    <ClInclude Include="ssc_framework.h" />
+    <ClInclude Include="ssc_internal.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="StgSharpC.h" />
     <ClInclude Include="wgl.h" />
