@@ -1,4 +1,7 @@
+#ifdef _MSC_VER
 #pragma once
+#endif
+
 #include "xmmintrin.h"
 /*
 #include "GLAD/gl.h"
@@ -6,18 +9,15 @@
 #include "StgSharpC.h"
 */
 
-#ifndef SSG_INTERNAL
-#define SSG_INTERNAL
+#ifndef SSC_INTERNAL
+#define SSC_INTERNAL
 
 #ifdef _WIN32
-
-#define WIN32_LEAN_AND_MEAN             // 从 Windows 头文件中排除极少使用的内容
-// Windows 头文件
-#include <windows.h>
-
+#define WIN32_LEAN_AND_MEAN
 #define SSCAPI __declspec(dllexport)
+#include <windows.h>
 #elif defined _LINUX_
-#define SSCAPI __attribute__ ((dllexport))
+#define SSCAPI __attribute__((dllexport))
 #elif defined _APPLE_
 #define SSCAPI __attribute__((visibility("default")))
 #else
@@ -31,5 +31,9 @@
 #define SSCDECL __cdecl
 
 #define zeroVec _mm_setzero_ps()
+
+#define SSCAPI_DEFINE
+
+#define INTERNAL extern
 
 #endif //

@@ -47,6 +47,12 @@
     <ClCompile Include="vector.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="intrinsic.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="quick_hash.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="glfw3.h">
@@ -58,10 +64,10 @@
     <ClInclude Include="khrplatform.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ssgc_framework.h">
+    <ClInclude Include="ssc_framework.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ssgc_internal.h">
+    <ClInclude Include="ssc_internal.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
@@ -71,6 +77,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="gl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ssc_intrinsic.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="wgl.h">
