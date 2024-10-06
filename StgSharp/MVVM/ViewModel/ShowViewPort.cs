@@ -28,8 +28,11 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Controls;
 using StgSharp.Graphics;
 using StgSharp.MVVM.View;
+using StgSharp.Threading;
+using StgSharp.Timing;
 
 using System;
 using System.Collections.Generic;
@@ -41,6 +44,7 @@ namespace StgSharp.MVVM.ViewModel
     public abstract partial class ViewModelBase
     {
 
+        private volatile bool _closed = true;
         private ViewBase _nextView, _currentView;
 
         protected ViewBase CurrentView
@@ -52,45 +56,90 @@ namespace StgSharp.MVVM.ViewModel
         /// <summary>
         /// CustomizeInit this form and render it on screen, and respond with operation
         /// </summary>
-        public unsafe void UseViewModel(string viewEntryName)
+        public unsafe void UseViewModel( string viewEntryName )
         {
             CustomizeInitialize();
-            //BuildGlobalKeyControl();
-            UseViewInNextFrame(viewEntryName);
-            while (0 == InternalIO.glfwWindowShouldClose(this.viewPortDisplay.ViewPortID))
-            {
-                ShowFrameOnce();
+            UseViewInNextFrame( viewEntryName );
+            TimeSpanAwaitingToken fpsCountingToken = fpsCountProvider.ParticipantSpanAwaiting(
+                1 );
+            fpsCountingToken.TimeSpanRefreshed += CountFps;
+            fpsCountingToken.MissTimeSpanRefreshed += CountFps;
+            if( _nextView != _currentView ) {
+                Interlocked.Exchange( ref _currentView, _nextView );
             }
+            Thread renderThread = new Thread(
+                ( token ) => {
+                    try {
+                        ProcessFrameWithoutEvent();
+                    }
+                    catch( Exception ex ) {
+                        InternalIO.InternalWriteLog(
+                            $"Critical error when rendering:\n" + $"{ex}",
+                            LogType.Error );
+                        ShouldClose = true;
+                    }
+                } );
+            renderThread.Start();
+            /**/
+            using( TimeSpanAwaitingToken eventAwaitingToken = frameTimeProvider.ParticipantSpanAwaiting(
+                1 ) ) {
+                while( _closed ) {
+                    if( _nextView != _currentView ) {
+                        Interlocked.Exchange( ref _currentView, _nextView );
+                    }
+                    InternalIO.glfwPollEvents();
+                    eventAwaitingToken.WaitNextSpan();
+                    _closed = !ShouldClose;
+                }
+            }
+            /**/
+            renderThread.Join();
+            fpsCountingToken.Dispose();
+            fpsCountProvider.StopSpanProviding();
+            frameTimeProvider.StopSpanProviding();
         }
 
-        private void ShowFrameOnce()
+        protected void UseViewInNextFrame( string name )
         {
-            viewPortDisplay.FlushSize();
-            if (_nextView != _currentView)
-            {
-                Interlocked.Exchange(ref _currentView, _nextView);
-            }
-            CurrentView.Use();
-            RenderStream.PollEvents();
-            frameTimeProvider.WaitNextSpan();
-            Interlocked.Add(ref _frameCount, 1);
-        }
-
-        protected void UseViewInNextFrame(string name)
-        {
-            if (!allView.TryGetValue(name, out ViewBase v))
-            {
-                throw new KeyNotFoundException($"{($"Cannot find View named {name} ")}{($"in current View Model of {GetType().FullName}")}");
+            if( !allView.TryGetValue( name, out ViewBase v ) ) {
+                throw new KeyNotFoundException(
+                    $"{$"Cannot find View named {name} "}{$"in current View Model of {GetType().FullName}"}" );
             }
             CurrentView = v;
         }
 
+        private void CountFps( object sender, EventArgs e )
+        {
+            Interlocked.Exchange( ref _frameSpeed, _frameCount );
+            Interlocked.Exchange( ref _frameCount, 0 );
+            /**/
+            Console.Clear();
+            Console.WriteLine( FrameSpeed );
+            /**/
+        }
+
         private unsafe void PrivateShow()
         {
-            if (0 == InternalIO.glfwWindowShouldClose(this.viewPortDisplay.ViewPortID))
-            {
+            if( 0 == InternalIO.glfwWindowShouldClose(
+                this.viewPortDisplay.ViewPortID ) ) {
                 CurrentView.Use();
                 RenderStream.PollEvents();
+            }
+        }
+
+        private void ProcessFrameWithoutEvent()
+        {
+            using( TimeSpanAwaitingToken renderAwaitingToken = frameTimeProvider.ParticipantSpanAwaiting(
+                1 ) ) {
+                renderAwaitingToken.TimeSpanRefreshed += ( _, _ ) => { };
+                while( _closed ) {
+                    foreach( ViewPort context in CurrentView.Render ) {
+                        context.FlushSize();
+                    }
+                    CurrentView.Use();
+                    renderAwaitingToken.WaitNextSpan();
+                    Interlocked.Add( ref _frameCount, 1 );
+                }
             }
         }
 

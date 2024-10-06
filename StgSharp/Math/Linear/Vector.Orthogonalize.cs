@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Data;
+using StgSharp.Data.Intrinsic;
 using StgSharp.Math;
 
 using System;
@@ -41,16 +41,18 @@ using System.Threading.Tasks;
 
 namespace StgSharp
 {
-
     internal static partial class InternalIO
     {
 
-        [DllImport(SSC_libName, EntryPoint = "normalize",
-            CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe void Normalize(M128* source, M128* target);
+        [DllImport(
+            SSC_libName,
+            EntryPoint = "normalize",
+            CallingConvention = CallingConvention.Cdecl )]
+        internal static extern unsafe void Normalize(
+            M128* source,
+            M128* target );
 
     }
-
 }
 
 namespace StgSharp.Math
@@ -58,23 +60,27 @@ namespace StgSharp.Math
     public static partial class Linear
     {
 
-        public static vec4d Orthogonalize(vec4d vec)
+        public static Vec4 Orthogonalize( Vec4 vec )
         {
-            return new vec4d { vec = Vector4.Normalize(vec.vec) };
+            return new Vec4 { vec = Vector4.Normalize( vec.vec ) };
         }
-        public static vec3d Orthogonalize(vec3d vec)
+
+        public static Vec3 Orthogonalize( Vec3 vec )
         {
-            return new vec3d { vec = Vector4.Normalize(vec.vec) };
+            return new Vec3 { vec = Vector4.Normalize( vec.vec ) };
         }
-        public static unsafe void Orthogonalize(ref vec4d source, ref vec4d target)
+
+        public static unsafe void Orthogonalize(
+            ref Vec4 source,
+            ref Vec4 target )
         {
             Vector4 s = source.vec;
             Vector4 t = target.vec;
 
-            s = Vector4.Normalize(s);
+            s = Vector4.Normalize( s );
 
-            float dotProduct = Vector4.Dot(s, t);
-            Vector4 projection = Vector4.Multiply(s, t);
+            float dotProduct = Vector4.Dot( s, t );
+            Vector4 projection = Vector4.Multiply( s, t );
 
             t -= projection;
 
@@ -83,20 +89,23 @@ namespace StgSharp.Math
         }
 
         /// <summary>
-        /// Orthogonalize two <see cref="vec3d"/>s, let their length be 1
-        /// and perpendicular to each other.
+        /// Orthogonalize two <see cref="Vec3" />s, let their length be 1 and perpendicular to each
+        /// other.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="target"></param>
-        public static unsafe void Orthogonalize(ref vec3d source, ref vec3d target)
+        public static unsafe void Orthogonalize(
+            ref Vec3 source,
+            ref Vec3 target )
         {
             Vector3 s = source.v;
             Vector3 t = target.v;
 
-            s = Vector3.Normalize(s);
-            Vector3 projection = (Vector3.Dot(t, s) / Vector3.Dot(s, s)) * s;
+            s = Vector3.Normalize( s );
+            Vector3 projection = ( Vector3.Dot( t, s ) / Vector3.Dot( s,
+                                                                      s ) ) * s;
             t -= projection;
-            t = Vector3.Normalize(t);
+            t = Vector3.Normalize( t );
 
             source.v = s;
             target.v = t;

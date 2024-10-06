@@ -33,14 +33,14 @@ namespace StgSharp.Math
     public static unsafe partial class Linear
     {
 
-        public static float GetLength(this vec3d vec)
+        public static float GetLength( this Vec3 vec )
         {
-            return Scaler.Sqrt(vec.Dot(vec));
+            return Scaler.Sqrt( vec.Dot( vec ) );
         }
 
-        public static float GetLength(this vec2d vec)
+        public static float GetLength( this Vec2 vec )
         {
-            return Scaler.Sqrt(vec.Dot(vec));
+            return Scaler.Sqrt( vec.Dot( vec ) );
         }
 
     }

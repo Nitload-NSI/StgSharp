@@ -39,28 +39,25 @@ namespace StgSharp.Data
 {
     public class SSDFolder : ISSDSerializable
     {
+
+        internal Dictionary<string, SSDFolder> folders;
         internal int _folderID;
         internal string _name;
-        internal Dictionary<string, SSDFolder> folders;
 
         internal SSDFolder()
         {
             folders = new Dictionary<string, SSDFolder>();
         }
 
-        internal SSDFolder(string name)
+        internal SSDFolder( string name )
         {
-            if (name == "root")
-            {
+            if( name == "root" ) {
                 throw new ArgumentException(
-                    "Name cannot be root," +
-                    "it is preserved for root file indexer.");
+                    "Name cannot be root," + "it is preserved for root file indexer." );
             }
-            if (name == "default")
-            {
+            if( name == "default" ) {
                 throw new ArgumentException(
-                    "Name cannot be default," +
-                    "it is preserved for default file id provider.");
+                    "Name cannot be default," + "it is preserved for default file id provider." );
             }
             _name = name;
             folders = new Dictionary<string, SSDFolder>();
@@ -68,14 +65,13 @@ namespace StgSharp.Data
 
         public SerializableTypeCode SSDTypeCode => SerializableTypeCode.VirtualFolder;
 
-
-        //TODO 虚拟文件夹的GetBytes好难写
-        public byte[] GetBytes()
+        public void FromBytes( byte[] stream )
         {
             throw new NotImplementedException();
         }
 
-        public void FromBytes(byte[] stream)
+        //TODO 虚拟文件夹的GetBytes好难写
+        public byte[] GetBytes()
         {
             throw new NotImplementedException();
         }

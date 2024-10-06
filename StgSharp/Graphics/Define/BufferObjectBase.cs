@@ -43,39 +43,40 @@ namespace StgSharp.Graphics
     /// </summary>
     public abstract class BufferObjectBase : IDisposable
     {
-        protected RenderStream binding;
+
         protected GlHandle[] _bufferHandle;
+        protected RenderStream binding;
 
         /// <summary>
         /// Get the only handle to one of the Object instance
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public GlHandle this[int index] => _bufferHandle[index];
+        public GlHandle this[ int index ] => _bufferHandle[ index ];
 
         /// <summary>
         /// Bind a buffer instance to OpenGL
         /// </summary>
-        /// <param name="index">Index of handle of the object in this instance to be bind</param>
-        public abstract void Bind(int index);
+        /// <param name="index"> Index of handle of the object in this instance to be bind </param>
+        public abstract void Bind( int index );
 
         public void Dispose()
         {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            Dispose( disposing: true );
+            GC.SuppressFinalize( this );
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"This is a {GetType().FullName}, containing {_bufferHandle.Length} buffer handles: {_bufferHandle.ToString()}.";
         }
 
-        protected abstract void Dispose(bool disposing);
+        protected abstract void Dispose( bool disposing );
 
         ~BufferObjectBase()
         {
-            Dispose(disposing: false);
+            Dispose( disposing: false );
         }
 
     }

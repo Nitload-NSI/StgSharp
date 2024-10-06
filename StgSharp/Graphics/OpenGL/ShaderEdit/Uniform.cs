@@ -42,162 +42,157 @@ namespace StgSharp.Graphics.OpenGL
 {
     public class Uniform
     {
+
         internal GlHandle id;
 
         public GlHandle Handle
         {
             get => id;
         }
+
     }
 
-    public sealed class Uniform<T> : Uniform
-        where T : struct
+    public sealed class Uniform<T> : Uniform where T: struct
     {
 
-        internal unsafe Uniform(GlHandle id)
+        internal Uniform() { }
+
+        internal unsafe Uniform( GlHandle id )
         {
             this.id = id;
         }
 
-        internal Uniform()
+        internal static Uniform<T> FromHandle( GlHandle handle )
         {
-
-        }
-
-        internal static Uniform<T> FromHandle(GlHandle handle)
-        {
-            return new Uniform<T>() { id = handle };
+            return new Uniform<T> { id = handle };
         }
 
     }
 
-    public sealed class Uniform<T, U>: Uniform
-        where T : struct
-        where U : struct
+    public sealed class Uniform<T, U> : Uniform where T: struct where U: struct
     {
 
-        internal unsafe Uniform(GlHandle id)
+        internal Uniform() { }
+
+        internal unsafe Uniform( GlHandle id )
         {
             this.id = id;
         }
 
-        
-
-        internal Uniform()
+        internal static Uniform<T, U> FromHandle( GlHandle handle )
         {
-
-        }
-
-        internal static Uniform<T,U> FromHandle(GlHandle handle)
-        {
-            return new Uniform<T, U>() { id = handle };
+            return new Uniform<T, U> { id = handle };
         }
 
     }
 
-    public sealed class Uniform<T, U, V>:Uniform
-        where T : struct
-        where U : struct
-        where V : struct
+    public sealed class Uniform<T, U, V> : Uniform where T: struct
+        where U: struct
+        where V: struct
     {
 
-        internal unsafe Uniform(GlHandle id)
+        internal Uniform() { }
+
+        internal unsafe Uniform( GlHandle id )
         {
             this.id = id;
         }
 
-        internal Uniform()
+        internal static Uniform<T, U, V> FromHandle( GlHandle handle )
         {
-
-        }
-
-        internal static Uniform<T,U,V> FromHandle(GlHandle handle)
-        {
-            return new Uniform<T, U, V>() { id = handle };
+            return new Uniform<T, U, V> { id = handle };
         }
 
     }
 
-    public sealed class Uniform<T, U, V, W>:Uniform
-        where T : struct
-        where U : struct
-        where V : struct
-        where W : struct
+    public sealed class Uniform<T, U, V, W> : Uniform where T: struct
+        where U: struct
+        where V: struct
+        where W: struct
     {
 
+        internal Uniform() { }
 
-        internal unsafe Uniform(GlHandle id)
+        internal unsafe Uniform( GlHandle id )
         {
             this.id = id;
         }
 
-        internal Uniform()
+        internal static Uniform<T, U, V, W> FromHandle( GlHandle handle )
         {
-
-        }
-
-        internal static Uniform<T, U, V, W> FromHandle(GlHandle handle)
-        {
-            return new Uniform<T, U, V, W>() { id = handle };
+            return new Uniform<T, U, V, W> { id = handle };
         }
 
     }
 
-    public unsafe partial class GlFunction
+    public unsafe partial class OpenGLFunction
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue
-            (Uniform<Matrix44> uniform, Matrix44 mat)
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetUniformValue( Uniform<Matrix44> uniform, Matrix44 mat )
         {
             Matrix44 temp = mat;
-            Context.glUniformMatrix4fv(uniform.id.SignedValue, 1, false, (float*)&temp);
+            Context.glUniformMatrix4fv(
+                uniform.id.SignedValue, 1, false, ( float* )&temp );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue(Uniform<float, float, float, float> uniform, vec4d vec)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetUniformValue(
+            Uniform<float, float, float, float> uniform,
+            Vec4 vec )
         {
-            vec4d temp = vec;
-            Context.glUniform1fv(uniform.id.SignedValue , 4, &temp);
+            Vec4 temp = vec;
+            Context.glUniform1fv( uniform.id.SignedValue, 4, &temp );
         }
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue(Uniform<vec4d> uniform, vec4d vec)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetUniformValue( Uniform<Vec4> uniform, Vec4 vec )
         {
-            vec4d temp = vec;
-            Context.glUniform1fv(uniform.id.SignedValue , 4, &temp);
+            Vec4 temp = vec;
+            Context.glUniform1fv( uniform.id.SignedValue, 4, &temp );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue(Uniform<float> uniform, float v0)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetUniformValue( Uniform<float> uniform, float v0 )
         {
-            Context.glUniform1f(uniform.id.SignedValue , v0);
+            Context.glUniform1f( uniform.id.SignedValue, v0 );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue(Uniform<int> uniform, int i0)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetUniformValue( Uniform<int> uniform, int i0 )
         {
-            Context.glUniform1i(uniform.id.SignedValue , i0);
+            Context.glUniform1i( uniform.id.SignedValue, i0 );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue(Uniform<float, float> uniform, float v0, float v1)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetUniformValue(
+            Uniform<float, float> uniform,
+            float v0,
+            float v1 )
         {
-            Context.glUniform2f(uniform.id.SignedValue , v0, v1);
+            Context.glUniform2f( uniform.id.SignedValue, v0, v1 );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue(Uniform<float, float, float> uniform, float v0, float v1, float v2)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetUniformValue(
+            Uniform<float, float, float> uniform,
+            float v0,
+            float v1,
+            float v2 )
         {
-            Context.glUniform3f(uniform.id.SignedValue , v0, v1, v2);
+            Context.glUniform3f( uniform.id.SignedValue, v0, v1, v2 );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue(Uniform<float, float, float, float> uniform, float v0, float v1, float v2, float v3)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetUniformValue(
+            Uniform<float, float, float, float> uniform,
+            float v0,
+            float v1,
+            float v2,
+            float v3 )
         {
-            Context.glUniform4f(uniform.id.SignedValue , v0, v1, v2, v3);
+            Context.glUniform4f( uniform.id.SignedValue, v0, v1, v2, v3 );
         }
 
     }
-
 }

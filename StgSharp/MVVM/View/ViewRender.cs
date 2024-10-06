@@ -28,8 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Data;
 using StgSharp.Graphics;
-using StgSharp.Logic;
 
 using StgSharp.Math;
 using StgSharp.MVVM.ViewModel;
@@ -48,12 +48,19 @@ namespace StgSharp.MVVM.View
 {
     public abstract partial class ViewBase
     {
-        protected interface IViewRender<out TView> where TView : ViewBase
+
+        protected internal interface IViewRender<out TView>
+            where TView: ViewBase
         {
 
-            RenderStream this[string renderName] { get; }
+            RenderStream this[ DataLabel renderName ]
+            {
+                get;
+            }
 
             void CustomizedInitialize();
+
+            IEnumerator<ViewPort> GetEnumerator();
 
             void Initialize();
 
@@ -62,32 +69,26 @@ namespace StgSharp.MVVM.View
         }
 
         protected abstract class ViewRender<TView> : IViewRender<TView>
-            where TView : ViewBase
+            where TView: ViewBase
         {
 
-#pragma warning disable CS8618 
-            private Dictionary<string, RenderStream> _render;
-            private TView _binding;
-#pragma warning restore CS8618
-
-            protected ViewRender(TView binding)
+            protected ViewRender( TView binding )
             {
                 _binding = binding;
+                _render = new Dictionary<DataLabel, RenderStream>();
             }
 
-            public RenderStream this[string renderName]
+            public RenderStream this[ DataLabel renderName ]
             {
-                get => _render.TryGetValue(renderName, out RenderStream stream) ? stream : null!;
+                get => _render.TryGetValue(
+                    renderName, out RenderStream stream ) ?
+                stream : ( null! );
                 protected set
                 {
-
-                    if (_render.ContainsKey(renderName))
-                    {
-                        _render[renderName] = value;
-                    }
-                    else
-                    {
-                        _render.Add(renderName, value);
+                    if( _render.ContainsKey( renderName ) ) {
+                        _render[ renderName ] = value;
+                    } else {
+                        _render.Add( renderName, value );
                     }
                 }
             }
@@ -96,30 +97,42 @@ namespace StgSharp.MVVM.View
 
             protected ViewPort ContextBinding => _binding.context;
 
-            protected ViewDesigner<TView> Design => (_binding.Designer as ViewDesigner<TView>)!;
+            protected ViewDesigner<TView> Design => ( _binding.Designer as ViewDesigner<TView> )!;
 
-            protected Dictionary<string, RenderStream> Render
+            protected Dictionary<DataLabel, RenderStream> Render
             {
                 get => _render;
             }
 
-            protected ViewResponder<TView> Responder => (_binding.Responder as ViewResponder<TView>)!;
+            protected ViewResponder<TView> Responder => ( _binding.Responder as ViewResponder<TView> )!;
 
-            public T CreateRenderStream<T>(ViewPort vp, (int x, int y, int z) unitCubeSize) where T : RenderStream, new()
+            public T CreateRenderStream<T>( (int x, int y, int z) unitCubeSize )
+                where T: RenderStream, new()
             {
                 T ret = new T();
-                ret.Initialize(vp, unitCubeSize, Binding.TimeProvider);
+                ret.Initialize(
+                    _binding.context, unitCubeSize, Binding.TimeProvider );
                 return ret;
             }
 
-            public T CreateRenderStream<T>((int x, int y, int z) unitCubeSize) where T : RenderStream, new()
+            public T CreateRenderStream<T>(
+                ViewPort vp,
+                (int x, int y, int z) unitCubeSize )
+                where T: RenderStream, new()
             {
                 T ret = new T();
-                ret.Initialize(_binding.context, unitCubeSize, Binding.TimeProvider);
+                ret.Initialize( vp, unitCubeSize, Binding.TimeProvider );
                 return ret;
             }
 
             public abstract void CustomizedInitialize();
+
+            public IEnumerator<ViewPort> GetEnumerator()
+            {
+                foreach( RenderStream item in Render.Values ) {
+                    yield return item.BindedViewPortContext;
+                }
+            }
 
             public void Initialize()
             {
@@ -128,6 +141,11 @@ namespace StgSharp.MVVM.View
 
             public abstract bool ValidateInitializing();
 
+            #pragma warning disable CS8618 
+            private Dictionary<DataLabel, RenderStream> _render;
+            private TView _binding;
+#pragma warning restore CS8618
         }
+
     }
 }

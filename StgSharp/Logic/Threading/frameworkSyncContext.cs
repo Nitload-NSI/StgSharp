@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="mat6.cs"
+//     file="frameworkSyncContext.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -29,23 +29,26 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
+using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace StgSharp.Math
+namespace StgSharp.Graphics
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct mat6 : IMat
+    public class FrameworkSyncContext : SynchronizationContext
     {
 
-        internal Vector4 vec0;
-        internal Vector4 vec1;
-        internal Vector4 vec2;
-        internal Vector4 vec3;
-        internal Vector4 vec4;
-        internal Vector4 vec5;
+        private ConcurrentQueue<SendOrPostCallback> _syncContexts = new ConcurrentQueue<SendOrPostCallback>(
+            );
+        private readonly Thread _mainThread = Thread.CurrentThread;
+
+        public override void Post( SendOrPostCallback d, object state )
+        {
+            base.Post( d, state );
+        }
 
     }
 }

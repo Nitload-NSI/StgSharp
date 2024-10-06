@@ -43,14 +43,18 @@ namespace StgSharp.Graphics.ShaderEdit
 {
     public class ShaderGenerator
     {
-        private Dictionary<int,ShaderParameter> uniformDefine;
+
+        private Dictionary<int, ShaderParameter> uniformDefine;
         private List<string> codeList;
         private List<ShaderFunction> usedShaderFunctions;
 
-        public Uniform<T> DefineUniform<T>(string name, int index) where T : struct
+        public Uniform<T> DefineUniform<T>( string name, int index )
+            where T: struct
         {
-            ShaderParameter p = new ShaderParameter(name,ShaderParameter.TypeMarshal<T>());
-            uniformDefine.Add(index,p);
+            ShaderParameter p = new ShaderParameter(
+                name, ShaderParameter.TypeMarshal<T>() );
+            uniformDefine.Add( index, p );
+
             //return new Uniform<TView>();
             throw new NotImplementedException();
         }
@@ -59,79 +63,81 @@ namespace StgSharp.Graphics.ShaderEdit
 
     public class ShaderFunction
     {
+
         private List<string> codeList;
         private List<ShaderParameter> inputList;
-        private string name;
         private ShaderParameter outPut;
+        private string name;
 
         public int ParameterCount => inputList.Count;
 
-        public void EmitCall(ShaderFunction function, ShaderParameter outPut, params ShaderParameter[] inputParams)
+        public void EmitCall(
+            ShaderFunction function,
+            ShaderParameter outPut,
+            params ShaderParameter[] inputParams )
         {
-            if (inputParams.Length != function.ParameterCount)
-            {
+            if( inputParams.Length != function.ParameterCount ) {
                 // Param list length not equal
-                throw new ArgumentException("Provided parameters does not match function's parameter list.");
+                throw new ArgumentException(
+                    "Provided parameters does not match function's parameter list." );
             }
-            if (!ShaderParameter.IsSameType(outPut, function.outPut))
-            {
+            if( !ShaderParameter.IsSameType( outPut, function.outPut ) ) {
                 // Type of returning value not qual
-                throw new Exception("Provided parameters does not match function's parameter list.");
+                throw new Exception(
+                    "Provided parameters does not match function's parameter list." );
             }
-            for (int i = 0; i < inputParams.Length; i++)
-            {
-                if (!ShaderParameter.IsSameType(function.inputList[i], inputParams[i]))
-                {
+            for( int i = 0; i < inputParams.Length; i++ ) {
+                if( !ShaderParameter.IsSameType(
+                    function.inputList[ i ], inputParams[ i ] ) ) {
                     // Input type not match
-                    throw new Exception("Provided parameters does not match function's parameter list.");
+                    throw new Exception(
+                        "Provided parameters does not match function's parameter list." );
                 }
             }
             string codeLine = string.Empty;    // adding a line like " outvalue = Func(input1, input2,...); "
-            if (outPut != ShaderParameter.Void)
-            {
+            if( outPut != ShaderParameter.Void ) {
                 codeLine += $"{outPut.name} = ";
             }
             codeLine += $"{function.name}(";
-            foreach (ShaderParameter inputParam in inputParams)
-            {
+            foreach( ShaderParameter inputParam in inputParams ) {
                 codeLine += inputParam.name;
             }
             codeLine += ");\n";
-            codeList.Add(codeLine);
+            codeList.Add( codeLine );
         }
 
     }
 
     public class ShaderParameter
     {
-        public static readonly ShaderParameter Void = new ShaderParameter(string.Empty, InternalShaderType.Void);
-        internal readonly bool isReadOnly;
-        internal readonly string name;
-        internal readonly InternalShaderType type;
 
-        public ShaderParameter(string name, InternalShaderType type)
+        public static readonly ShaderParameter Void = new ShaderParameter(
+            string.Empty, InternalShaderType.Void );
+        internal readonly bool isReadOnly;
+        internal readonly InternalShaderType type;
+        internal readonly string name;
+
+        public ShaderParameter( string name, InternalShaderType type )
         {
             this.name = name;
             this.type = type;
             isReadOnly = false;
         }
 
-        public static bool IsSameType(ShaderParameter param1, ShaderParameter param2)
+        public static bool IsSameType(
+            ShaderParameter param1,
+            ShaderParameter param2 )
         {
-            if (param1.type != InternalShaderType.Struct)
-            {
+            if( param1.type != InternalShaderType.Struct ) {
                 return param1.type == param2.type;
-            }
-            else
-            {
-                throw new Exception("Struct is currently not supported.");
+            } else {
+                throw new Exception( "Struct is currently not supported." );
             }
         }
 
-        public static InternalShaderType TypeMarshal<T>() where T : struct
+        public static InternalShaderType TypeMarshal<T>() where T: struct
         {
-            switch (Type.GetTypeCode(typeof(T)))
-            {
+            switch( Type.GetTypeCode( typeof( T ) ) ) {
                 case TypeCode.Single:
                     return InternalShaderType.Float;
                 case TypeCode.Double:
@@ -143,8 +149,7 @@ namespace StgSharp.Graphics.ShaderEdit
                 default:
                     break;
             }
-            switch (typeof(T).Name)
-            {
+            switch( typeof( T ).Name ) {
                 case "vec4d":
                     return InternalShaderType.Vector4;
                 case "Matrix2x2":
@@ -166,7 +171,8 @@ namespace StgSharp.Graphics.ShaderEdit
                 case "Matrix4x4":
                     return InternalShaderType.Matrix4x4;
                 default:
-                    throw new ArgumentException("Not supported shader data type.");
+                    throw new ArgumentException(
+                        "Not supported shader data type." );
             }
         }
 
@@ -175,14 +181,27 @@ namespace StgSharp.Graphics.ShaderEdit
     public enum InternalShaderType
     {
 #pragma warning disable CS1591
-        Struct, Void,
-        Int, UInt,
-        Float, Double,
-        Vector2, Vector3, Vector4,
-        VectorD2, VectorD3, VectorD4,
-        Matrix2x2, Matrix2x3, Matrix2x4,
-        Matrix3x2, Matrix3x3, Matrix3x4,
-        Matrix4x2, Matrix4x3, Matrix4x4,
+        Struct,
+        Void,
+        Int,
+        UInt,
+        Float,
+        Double,
+        Vector2,
+        Vector3,
+        Vector4,
+        VectorD2,
+        VectorD3,
+        VectorD4,
+        Matrix2x2,
+        Matrix2x3,
+        Matrix2x4,
+        Matrix3x2,
+        Matrix3x3,
+        Matrix3x4,
+        Matrix4x2,
+        Matrix4x3,
+        Matrix4x4,
 #pragma warning restore CS1591
     }
 }

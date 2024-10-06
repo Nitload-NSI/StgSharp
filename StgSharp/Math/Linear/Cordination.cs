@@ -30,11 +30,12 @@
 //-----------------------------------------------------------------------
 namespace StgSharp.Math
 {
-
     public enum CoordinatePlain
     {
+
         XY,
         YZ,
         XZ,
+
     }
 }

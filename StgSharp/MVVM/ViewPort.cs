@@ -30,11 +30,14 @@
 //-----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Math;
+using StgSharp.Threading;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -44,92 +47,100 @@ namespace StgSharp.MVVM
     public class ViewPort
     {
 
-        private FrameBufferSizeHandler _sizeHandler;
-        private FramePositionHandler _positionHandler;
-        private int _width, _height;
+        private static ConcurrentDictionary<IntPtr, ViewPort> _handleToViewPortIndex = new ConcurrentDictionary<IntPtr, ViewPort>(
+            );
+        private int _shouldCloseMask, _closeRequestedMask;
+        private int _width, _height, _newWidth, _newHeight;
 
         internal ViewPort()
         {
-            _height = 600;
-            _width = 800;
-            Name = new StackFrame(1, false).
+            _newHeight = 600;
+            _newWidth = 800;
+            FlushSize();
+            Name = new StackFrame( 1, false ).
                 GetMethod()!.DeclaringType!.Name;
             Monitor = IntPtr.Zero;
-            ViewPortID = InternalIO.glfwCreateWindow(_width, _height,
-           Encoding.UTF8.GetBytes(Name), Monitor, IntPtr.Zero
-                );
-            if (ViewPortID == IntPtr.Zero)
-            {
-                throw new InvalidOperationException("Unable to create viewport handle.");
+            ViewPortID = InternalIO.glfwCreateWindow(
+                _newWidth, _newHeight, Encoding.UTF8.GetBytes( Name ), Monitor,
+                IntPtr.Zero );
+            if( ViewPortID == IntPtr.Zero ) {
+                throw new InvalidOperationException(
+                    "Unable to create viewport handle." );
             }
+            _handleToViewPortIndex.TryAdd( ViewPortID, this );
         }
 
-        public ViewPort(vec2d size, string name, IntPtr monitor)
+        internal ViewPort( Vec2 size, string name, IntPtr monitor )
         {
-            _width = (int)size.X;
-            _height = (int)size.Y;
+            _newWidth = ( int )size.X;
+            _newHeight = ( int )size.Y;
+            FlushSize();
             Name = name;
             Monitor = monitor;
-            ViewPortID = InternalIO.glfwCreateWindow(_width, _height,
-           Encoding.UTF8.GetBytes(Name), Monitor, IntPtr.Zero
-                );
-            if (ViewPortID == IntPtr.Zero)
-            {
-                throw new InvalidOperationException("Unable to create viewport handle.");
+            ViewPortID = InternalIO.glfwCreateWindow(
+                _newWidth, _newHeight, Encoding.UTF8.GetBytes( Name ), Monitor,
+                IntPtr.Zero );
+            if( ViewPortID == IntPtr.Zero ) {
+                throw new InvalidOperationException(
+                    "Unable to create viewport handle." );
             }
-        }
-
-        public FrameBufferSizeHandler FrameSizeCallback
-        {
-            set
-            {
-                _sizeHandler = value;
-                IntPtr handlerPtr = Marshal.GetFunctionPointerForDelegate(_sizeHandler);
-                InternalIO.glfwSetFramebufferSizeCallback(ViewPortID, handlerPtr);
-            }
-        }
-
-        public FramePositionHandler FramePostionCallback
-        {
-            set
-            {
-                _positionHandler = value;
-                IntPtr handlerPtr = Marshal.GetFunctionPointerForDelegate(_positionHandler);
-                InternalIO.glfwSetWindowPosCallback(ViewPortID, handlerPtr);
-            }
+            _handleToViewPortIndex.TryAdd( ViewPortID, this );
         }
 
         public unsafe int Height
         {
             get { return _height; }
-            set { InternalIO.glfwSetWindowSize(ViewPortID, _width, value); }
+            internal set { Interlocked.Exchange( ref _height, value ); }
         }
 
         public unsafe int Width
         {
             get { return _width; }
-            set { InternalIO.glfwSetWindowSize(ViewPortID, value, _height); }
+            internal set { Interlocked .Exchange( ref _width, value ); }
         }
 
-        public IntPtr GraphicHandle { get; internal set; }
-
-        public IntPtr Monitor { get; internal set; }
-
-        public IntPtr ViewPortID { get; private set; }
-
-        public string Name { get; set; }
-
-        public void Close()
+        public IntPtr GraphicHandle
         {
-            InternalIO.glfwSetWindowShouldClose(ViewPortID, 1);
+            get;
+            internal set;
+        }
+
+        public IntPtr Monitor
+        {
+            get;
+            internal set;
+        }
+
+        public IntPtr ViewPortID
+        {
+            get;
+            private set;
+        }
+
+        public string Name
+        {
+            get;
+            set;
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static bool GetExistedViewPort(
+            IntPtr handle,
+            out ViewPort port )
+        {
+            return _handleToViewPortIndex.TryGetValue( handle, out port );
         }
 
         internal unsafe void FlushSize()
         {
-            fixed (int* wptr = &_width, hptr = &_height)
-            {
-                InternalIO.glfwGetWindowSize(ViewPortID, wptr, hptr);
-            }
+            Interlocked.Exchange( ref _height, _newHeight );
+            Interlocked.Exchange( ref _width, _newWidth );
+        }
+
+        internal void RequestFlushSizeInNextFrame( int width, int height )
+        {
+            Interlocked.Exchange( ref _newHeight, height );
+            Interlocked .Exchange( ref _newWidth, width );
         }
 
     }

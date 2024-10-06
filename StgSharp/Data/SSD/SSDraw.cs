@@ -47,29 +47,33 @@ namespace StgSharp.Data.FileIO
 {
     public class SSDraw
     {
+
         private byte[] data;
 
-        public SSDraw(string name, Stream streamSource)
+        public SSDraw( string name, Stream streamSource )
         {
-            if ((streamSource == null) || (streamSource.Length == 0))
-            {
-                throw new ArgumentNullException(nameof(streamSource));
+            if( ( streamSource == null ) || ( streamSource.Length == 0 ) ) {
+                throw new ArgumentNullException( nameof( streamSource ) );
             }
             Name = name;
             data = new byte[streamSource.Length];
-            streamSource.Read(data.AsSpan());
+            streamSource.Read( data.AsSpan() );
         }
 
-        public SSDrawHead Head { get; set; }
-        public string Name { get; set; }
+        public SSDrawHead Head
+        {
+            get;
+            set;
+        }
+
+        public string Name
+        {
+            get;
+            set;
+        }
+
     }
 
-
-    [StructLayout(LayoutKind.Explicit, Size = 32 * 16)]
-    public unsafe struct SSDrawHead
-    {
-        
-    }
-
-
+    [StructLayout( LayoutKind.Explicit, Size = 32 * 16 )]
+    public unsafe struct SSDrawHead { }
 }

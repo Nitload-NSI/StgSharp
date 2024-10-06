@@ -33,21 +33,24 @@ using System.Xml.Serialization;
 
 namespace StgSharp
 {
+    public class Counter<T>
+        where T: struct, IConvertible, IFormattable, IComparable
+    #if NET8_OR_GREATER
+        ,INumber
+    #endif
 
-    public class Counter<T> where T : struct, IConvertible, IFormattable, IComparable
     {
+
+        internal dynamic _value;
 
         internal readonly T _defualtAddValue;
         internal readonly T _defualtSubValue;
         internal readonly T _defualtValue;
 
-        internal dynamic _value;
-
-        public Counter(T defualtValue, T defualtAddValue, T defualtSubValue)
+        public Counter( T defualtValue, T defualtAddValue, T defualtSubValue )
         {
-            var type = Type.GetTypeCode(defualtValue.GetType());
-            switch (type)
-            {
+            TypeCode type = Type.GetTypeCode( defualtValue.GetType() );
+            switch( type ) {
                 case TypeCode.Byte:
                     break;
 
@@ -79,7 +82,8 @@ namespace StgSharp
                     break;
 
                 default:
-                    throw new ArgumentException("Input is not number value type");
+                    throw new ArgumentException(
+                        "Input is not number value type" );
                     break;
             }
             _value = defualtValue;
@@ -100,7 +104,7 @@ namespace StgSharp
             set => _value = value;
         }
 
-        public void Add(T value)
+        public void Add( T value )
         {
             _value += value;
         }
@@ -120,7 +124,7 @@ namespace StgSharp
             _value = _defualtValue;
         }
 
-        public void Sub(T value)
+        public void Sub( T value )
         {
             _value -= value;
         }
@@ -130,19 +134,19 @@ namespace StgSharp
             return Value.ToString();
         }
 
-        public static Counter<T> operator --(Counter<T> counter)
+        public static Counter<T> operator --( Counter<T> counter )
         {
             counter.QuickSub();
             return counter;
         }
 
-        public static Counter<T> operator ++(Counter<T> counter)
+        public static Counter<T> operator ++( Counter<T> counter )
         {
             counter.QuickAdd();
             return counter;
         }
 
-        public static implicit operator T(Counter<T> counter)
+        public static implicit operator T( Counter<T> counter )
         {
             return counter.Value;
         }

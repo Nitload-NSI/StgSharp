@@ -29,13 +29,14 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Graphics;
-using StgSharp.Logic;
 using StgSharp.Math;
 using StgSharp.MVVM.ViewModel;
+using StgSharp.Timing;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -48,10 +49,12 @@ using System.Threading;
 namespace StgSharp.MVVM.View
 {
     /// <summary>
-    /// ViewBase is the base type for all view types, providing context binding and control element binding.
-    /// A complete view should contain one complete <see cref="ViewDesigner{T}"/>, <see cref="ViewRender{TView}"/>, and <see cref="ViewResponder"/>,
-    /// which provide layout descriptions of control elements, user responses, and rendering implementations in the view.
-    /// Data between instances of <see cref="ViewDesigner{T}"/>, <see cref="ViewRender{TView}"/>, and <see cref="ViewResponder{T}"/> is shared through <see cref="ViewBase"/>.
+    /// ViewBase is the base type for all view types, providing context binding and control element
+    /// binding. A complete view should contain one complete <see cref="ViewDesigner{T}" />, <see
+    /// cref="ViewRender{TView}" />, and <see cref="ViewResponder" />, which provide layout
+    /// descriptions of control elements, user responses, and rendering implementations in the view.
+    /// Data between instances of <see cref="ViewDesigner{T}" />, <see cref="ViewRender{TView}" />,
+    /// and <see cref="ViewResponder{T}" /> is shared through <see cref="ViewBase" />.
     /// </summary>
 
     public abstract unsafe partial class ViewBase
@@ -61,7 +64,7 @@ namespace StgSharp.MVVM.View
 
         private GetDataBindingEntryDelegate getDataBindingEntry;
 
-        private int usedFrame = 0;
+        private int usedFrame;
         private IViewDesigner<ViewBase> _design;
         private IViewRender<ViewBase> _render;
         private IViewResponder<ViewBase> _responder;
@@ -69,18 +72,18 @@ namespace StgSharp.MVVM.View
 
         private ViewPort context;
 
-        private delegate bool GetDataBindingEntryDelegate(string name, out DataBindingEntry entry);
+        private delegate bool GetDataBindingEntryDelegate(
+            string name,
+            out DataBindingEntry entry );
 
-        public DataBindingEntry this[string name]
+        public DataBindingEntry this[ string name ]
         {
             get
             {
-                if (TryGetObjectReference(name, out DataBindingEntry entry))
-                {
+                if( getDataBindingEntry( name, out DataBindingEntry entry ) ) {
                     return entry;
                 }
-                if (getDataBindingEntry(name, out entry))
-                {
+                if( TryGetObjectReference( name, out entry ) ) {
                     return entry;
                 }
                 throw new KeyNotFoundException();
@@ -92,18 +95,20 @@ namespace StgSharp.MVVM.View
             get => unitCubeSize;
         }
 
-        public bool Activated { get; internal set; }
+        public bool Activated
+        {
+            get;
+            internal set;
+        }
 
         public int Height
         {
             get => context.Height;
-            private set { context.Height = value; }
         }
 
         public int Width
         {
             get => context.Width;
-            private set { context.Width = value; }
         }
 
         public IntPtr Monitor => context.Monitor;
@@ -118,7 +123,11 @@ namespace StgSharp.MVVM.View
 
         public string ContextName => context.Name;
 
-        public string SelfName { get; set; }
+        public string SelfName
+        {
+            get;
+            set;
+        }
 
         public ViewPort Port
         {
@@ -130,7 +139,7 @@ namespace StgSharp.MVVM.View
             get => time;
         }
 
-        protected IViewRender<ViewBase> Render
+        protected internal IViewRender<ViewBase> Render
         {
             get => _render;
             set => _render = value;
@@ -142,20 +151,24 @@ namespace StgSharp.MVVM.View
             set => _responder = value;
         }
 
-        public abstract void CustomizedInitialize(ViewModelBase viewModelBinding);
+        public abstract void CustomizedInitialize(
+            [NotNull]ViewModelBase viewModelBinding );
 
         /// <summary>
         /// Get the status of a certain key on the keyboard.
         /// </summary>
         /// <param name="key"></param>
-        /// <returns><see cref="KeyStatus"/> representing if a key is pressed or released.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public KeyStatus GetKeyStatus(KeyboardKey key)
+        /// <returns><see cref="KeyStatus" /> representing if a key is pressed or released. </returns>
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public KeyStatus GetKeyStatus( KeyboardKey key )
         {
-            return InternalIO.glfwGetKey(context.ViewPortID, (int)key);
+            return InternalIO.glfwGetKey( context.ViewPortID, ( int )key );
         }
 
-        public void InternalInitialize(string name,(int,int,int) cubeSize, ViewModelBase viewModelBinding)
+        public void InternalInitialize(
+            string name,
+            (int, int, int) cubeSize,
+            [NotNull]ViewModelBase viewModelBinding )
         {
             SelfName = name;
             unitCubeSize = cubeSize;
@@ -163,32 +176,33 @@ namespace StgSharp.MVVM.View
             context = viewModelBinding.ViewPortBinding;
             time = viewModelBinding.frameTimeProvider;
 
-            CustomizedInitialize(viewModelBinding);
+            CustomizedInitialize( viewModelBinding );
         }
 
-        public abstract bool TryGetObjectReference(string name, out DataBindingEntry entry);
+        public abstract bool TryGetObjectReference(
+            string name,
+            out DataBindingEntry entry );
 
         public void Use()
         {
-            if (usedFrame == 0)
-            {
-                if (!ValidateInitialization())
-                {
-                    throw new InvalidOperationException("This view is not correctly initialized before rendering.");
-                } 
+            if( usedFrame == 0 ) {
+                if( !ValidateInitialization() ) {
+                    throw new InvalidOperationException(
+                        "This view is not correctly initialized before rendering." );
+                }
             }
             Show();
+            usedFrame++;
         }
 
         public bool ValidateInitialization()
         {
-            return (_design != null) && (_render != null) && (getDataBindingEntry != null) && (_responder != null)
-                && (_design.ValidateInitializing()) && (_responder.ValidateInitializing()) && (_render.ValidateInitializing())
-                ;
+            return ( _design != null ) && ( _render != null ) && ( getDataBindingEntry != null ) && ( _responder != null ) && _design.ValidateInitializing(
+                ) && _responder.ValidateInitializing() && _render.ValidateInitializing(
+                );
         }
 
         protected internal abstract void Show();
 
     }
-
 }

@@ -337,7 +337,6 @@ namespace StgSharp.Graphics.OpenGL
 
         #region glad
 
-
         public const int _1PASS_EXT = 0x80A1;
         public const int _1PASS_SGIS = 0x80A1;
         public const int _2PASS_0_EXT = 0x80A2;
@@ -4839,32 +4838,25 @@ namespace StgSharp.Graphics.OpenGL
         public const int ZERO_TO_ONE = 0x935F;
         public const int Z_EXT = 0x87D7;
 
-
-
-
-
         #endregion
-
     }
 
     public static class glAttachment
     {
-        private static int colorRange =
-            GlFunction.CurrentGL.GetMaskInteger((uint)GLconst.MAX_COLOR_ATTACHMENTS);
-
-        public static uint Color(int i)
-        {
-#if DEBUG
-            if (i>colorRange||i<0)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-#endif
-            return (uint)(GLconst.COLOR_ATTACHMENT0 + i);
-        }
 
         public const uint Depth = GLconst.DEPTH_ATTACHMENT;
-        public const uint Stencil = GLconst.STENCIL_ATTACHMENT;
         public const uint DepthAndStencil = GLconst.DEPTH_STENCIL_ATTACHMENT;
+        public const uint Stencil = GLconst.STENCIL_ATTACHMENT;
+
+        public static uint Color( int i )
+        {
+            #if DEBUG
+            if( ( i > OpenGLFunction.CurrentGL.AttachmentColorRange ) || ( i < 0 ) ) {
+                throw new ArgumentOutOfRangeException();
+            }
+            #endif
+            return ( uint )( GLconst.COLOR_ATTACHMENT0 + i );
+        }
+
     }
 }

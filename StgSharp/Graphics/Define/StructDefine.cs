@@ -45,25 +45,12 @@ namespace StgSharp.Graphics
 
     #region GLFW3 struct
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWcontext
     {
 
-        private int client;
-        private IntPtr destroy;
         private delegate*<byte*> extensionSupported;
-        private GLFWbool forward, debug, noerror;
-
-        //PFNGLGETINTEGERVPROC GetIntegerv;
-        private IntPtr GetIntegerv;
         private delegate*<delegate*<void>, void> getProcAddress;
-
-        //PFNGLGETSTRINGPROC GetString;
-        private IntPtr GetString;
-
-        //PFNGLGETSTRINGIPROC GetStringi;
-        private IntPtr GetStringi;
-        private int major, minor, revision;
 
         /*
         void (* makeCurrent) (glfwWindow*);
@@ -75,12 +62,26 @@ namespace StgSharp.Graphics
         */
 
         private delegate*<glfwWindow*> makeCurrent;
+        private delegate*<glfwWindow*> swapBuffer;
+        private delegate*<int> swapInterval;
+        private GLFWbool forward, debug, noerror;
+
+        private int client;
+        private int major, minor, revision;
         private int profile;
         private int release;
         private int robustness;
         private int source;
-        private delegate*<glfwWindow*> swapBuffer;
-        private delegate*<int> swapInterval;
+        private IntPtr destroy;
+
+        //PFNGLGETINTEGERVPROC GetIntegerv;
+        private IntPtr GetIntegerv;
+
+        //PFNGLGETSTRINGPROC GetString;
+        private IntPtr GetString;
+
+        //PFNGLGETSTRINGIPROC GetStringi;
+        private IntPtr GetStringi;
 
         internal struct egl
         {
@@ -115,12 +116,12 @@ namespace StgSharp.Graphics
         //GLFW_PLATFORM_CONTEXT_STATE
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct glfwVideomode
     {
-
         /*! The refresh rate, in Hz, of the video mode.
          */
+
         private int refreshRate;
         /*! The bit depth of the blue channel of the video mode.
          */
@@ -141,12 +142,12 @@ namespace StgSharp.Graphics
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct glfwGammaramp
     {
-
         /*! An array of value describing the response of the blue channel.
          */
+
         private ushort* blue;
         /*! An array of value describing the response of the green channel.
          */
@@ -161,9 +162,13 @@ namespace StgSharp.Graphics
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWimage
     {
+        /*! The pixel _data of this image, arranged left-to-right, top-to-bottom.
+         */
+
+        private byte* pixels;
 
         /*! The height, in pixels, of this image.
          */
@@ -171,32 +176,30 @@ namespace StgSharp.Graphics
         /*! The width, in pixels, of this image.
          */
         private int width;
-        /*! The pixel data of this image, arranged left-to-right, top-to-bottom.
-         */
-        private byte* pixels;
-
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWgamepadstate
     {
+        /*! The states of each [gamepad button](@ref gamepad_buttons), `GLFW_PRESS`
+         *  or `GLFW_RELEASE`.
+         */
+
+        public fixed byte buttons[ 15 ];
 
         /*! The states of each [gamepad axis](@ref gamepad_axes), in the range -1.0
          *  to 1.0 inclusive.
          */
-        public fixed float axes[6];
-
-        /*! The states of each [gamepad button](@ref gamepad_buttons), `GLFW_PRESS`
-         *  or `GLFW_RELEASE`.
-         */
-        public fixed byte buttons[15];
+        public fixed float axes[ 6 ];
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWallocator
     {
+
+        private void* user;
 
         //GLFWallocatefun allocate;
         private IntPtr allocate;
@@ -207,113 +210,109 @@ namespace StgSharp.Graphics
         //GLFWreallocatefun reallocate;
         private IntPtr reallocate;
 
-        private void* user;
-
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct glfwMonitor
     {
 
-        private fixed byte name[128];
-        private IntPtr userPointer;
-
-        private int width, height;
+        private glfwVideomode* modes;
 
         private glfwWindow* window;
 
-        private glfwVideomode* modes;
-        private int modeCount;
-        private glfwVideomode currentMode;
-
-        private glfwGammaramp originalRamp;
+        private fixed byte name[ 128 ];
         private glfwGammaramp currentRamp;
 
-        public glfwMonitor()
-        { }
+        private glfwGammaramp originalRamp;
+        private glfwVideomode currentMode;
+        private int modeCount;
+
+        private int width, height;
+        private IntPtr userPointer;
+
+        public glfwMonitor() { }
 
         public unsafe string Name
         {
-            get 
+            get
             {
-                fixed (byte* cptr = name)
-                {
-                    return Marshal.PtrToStringAnsi((IntPtr)cptr);
+                fixed( byte* cptr = name ) {
+                    return Marshal.PtrToStringAnsi( ( IntPtr )cptr );
                 }
             }
         }
+
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    unsafe struct glfwWindow
+    [StructLayout( LayoutKind.Sequential )]
+    internal unsafe struct glfwWindow
     {
-        glfwWindow* next;
 
-        // Window settings and state
-        int resizable;
-        int decorated;
-        int autoIconify;
-        int floating;
-        int focusOnShow;
-        int mousePassthrough;
-        int shouldClose;
-        void* userPointer;
-        int doublebuffer;
-        // glfwVideomode videoMode; // 根据GLFWvidmode的定义转换
-        IntPtr monitor; // _GLFWmonitor* monitor;
-        IntPtr cursor; // _GLFWcursor* cursor;
-
-        int minwidth, minheight;
-        int maxwidth, maxheight;
-        int numer, denom;
-
-        int stickyKeys;
-        int stickyMouseButtons;
-        int lockKeyMods;
-        int cursorMode;
-        public fixed byte mouseButtons[GLconst.GLFW_MOUSE_BUTTON_LAST + 1];
-        public fixed byte keys[GLconst.GLFW_KEY_LAST + 1];
+        private glfwWindow* next;
+        private void* userPointer;
+        private bool rawMouseMotion;
+        private Callbacks callbacks;
 
         // Virtual cursor position when cursor is disabled
-        double virtualCursorPosX, virtualCursorPosY;
-        bool rawMouseMotion;
+        private double virtualCursorPosX, virtualCursorPosY;
+        private int autoIconify;
+        private int cursorMode;
+        private int decorated;
+        private int doublebuffer;
+        private int floating;
+        private int focusOnShow;
+        private int lockKeyMods;
+        private int maxwidth, maxheight;
+
+        private int minwidth, minheight;
+        private int mousePassthrough;
+        private int numer, denom;
+
+        // Window settings and state
+        private int resizable;
+        private int shouldClose;
+
+        private int stickyKeys;
+        private int stickyMouseButtons;
+        private IntPtr cursor; // _GLFWcursor* cursor;
+        // glfwVideomode videoMode; // 根据GLFWvidmode的定义转换
+        private IntPtr monitor; // _GLFWmonitor* monitor;
+        public fixed byte keys[ GLconst.GLFW_KEY_LAST + 1 ];
+        public fixed byte mouseButtons[ GLconst.GLFW_MOUSE_BUTTON_LAST + 1 ];
 
         // _GLFWcontext viewPortDisplay; // 根据_GLFWcontext的定义转换
 
         // Callbacks are represented as IntPtr since we don't need the actual function pointers in C#
         internal struct Callbacks
         {
-            internal IntPtr pos;
-            internal IntPtr size;
-            internal IntPtr close;
-            internal IntPtr refresh;
-            internal IntPtr focus;
-            internal IntPtr iconify;
-            internal IntPtr maximize;
-            internal IntPtr fbsize;
-            internal IntPtr scale;
-            internal IntPtr mouseButton;
-            internal IntPtr cursorPos;
-            internal IntPtr cursorEnter;
-            internal IntPtr scroll;
-            internal IntPtr key;
+
             internal IntPtr character;
             internal IntPtr charmods;
+            internal IntPtr close;
+            internal IntPtr cursorEnter;
+            internal IntPtr cursorPos;
             internal IntPtr drop;
+            internal IntPtr fbsize;
+            internal IntPtr focus;
+            internal IntPtr iconify;
+            internal IntPtr key;
+            internal IntPtr maximize;
+            internal IntPtr mouseButton;
+            internal IntPtr pos;
+            internal IntPtr refresh;
+            internal IntPtr scale;
+            internal IntPtr scroll;
+            internal IntPtr size;
+
         }
-        Callbacks callbacks;
 
-    // GLFW_PLATFORM_WINDOW_STATE platformWindowState; 
-}
-
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct GLFWwindowCallback
-    {
-
+        // GLFW_PLATFORM_WINDOW_STATE platformWindowState; 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
+    public struct GLFWwindowCallback { }
+
+    [StructLayout( LayoutKind.Sequential )]
     public struct GLFWcursor
     {
 
@@ -341,13 +340,13 @@ namespace StgSharp.Graphics
     }
     */
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWinitconfig
     {
 
-        private int angleType;
-
         private GLFWbool hatButtons;
+
+        private int angleType;
         private int platformID;
 
         //PFN_vkGetInstanceProcAddr vulkanLoader;
@@ -355,9 +354,11 @@ namespace StgSharp.Graphics
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWwndconfig
     {
+
+        private byte* title;
 
         private GLFWbool autoIconify;
         private GLFWbool centerCursor;
@@ -365,13 +366,12 @@ namespace StgSharp.Graphics
         private GLFWbool floating;
         private GLFWbool focused;
         private GLFWbool focusOnShow;
-        private int height;
         private GLFWbool maximized;
         private GLFWbool mousePassthrough;
         private GLFWbool resizable;
         private GLFWbool scaleToMonitor;
-        private byte* title;
         private GLFWbool visible;
+        private int height;
         private int width;
 
         private int xpos;
@@ -385,31 +385,25 @@ namespace StgSharp.Graphics
 
         internal X11 x11 = new X11();
 
-        public GLFWwndconfig()
-        {
-        }
+        public GLFWwndconfig() { }
 
         internal struct Ns
         {
 
             private GLFWbool retina = false;
-            public fixed byte frameName[256];
+            public fixed byte frameName[ 256 ];
 
-            public Ns()
-            {
-            }
+            public Ns() { }
 
         }
 
         internal struct X11
         {
 
-            public fixed byte className[256];
-            public fixed byte instanceName[256];
+            public fixed byte className[ 256 ];
+            public fixed byte instanceName[ 256 ];
 
-            public X11()
-            {
-            }
+            public X11() { }
 
         }
 
@@ -423,39 +417,36 @@ namespace StgSharp.Graphics
         internal struct Wl
         {
 
-            public fixed byte appId[256];
+            public fixed byte appId[ 256 ];
 
-            public Wl()
-            {
-            }
+            public Wl() { }
 
         }
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWctxconfig
     {
 
-        private int client;
         private GLFWbool debug;
         private GLFWbool forward;
+        private GLFWbool noerror;
+
+        private int client;
         private int major;
         private int minor;
-        private GLFWbool noerror;
         private int profile;
         private int release;
         private int robustness;
+        private int source;
 
         //glfwWindow* share;
         private IntPtr share;
-        private int source;
 
         internal Nsgl nsgl = new Nsgl();
 
-        public GLFWctxconfig()
-        {
-        }
+        public GLFWctxconfig() { }
 
         internal struct Nsgl
         {
@@ -466,9 +457,14 @@ namespace StgSharp.Graphics
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWfbconfig
     {
+
+        private GLFWbool doublebuffer;
+        private GLFWbool sRGB;
+        private GLFWbool stereo;
+        private GLFWbool transparent;
 
         private int accumAlphaBits;
         private int accumBlueBits;
@@ -478,53 +474,51 @@ namespace StgSharp.Graphics
         private int auxBuffers;
         private int blueBits;
         private int depthBits;
-        private GLFWbool doublebuffer;
         private int greenBits;
-        private uintptr_t handle;
 
         private int redBits;
         private int samples;
-        private GLFWbool sRGB;
         private int stencilBits;
-        private GLFWbool stereo;
-        private GLFWbool transparent;
+        private uintptr_t handle;
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     internal unsafe struct GLFWlibrary
     {
 
+        [MarshalAs(
+            UnmanagedType.ByValArray,
+            SizeConst = GLconst.GLFW_JOYSTICK_LAST + 1 )]
+        private GLFWjoystick[] joysticks = new GLFWjoystick[GLconst.GLFW_JOYSTICK_LAST + 1];
+
         private GLFWallocator allocator;
+
+        private GLFWbool initialized;
+
+        private GLFWbool joysticksInitialized;
         private GLFWls contextSlot;
+
+        private GLFWls errorSlot;
+        private GLFWmutex errorLock;
+
+        private GLFWplatform platform;
+
+        private int mappingCount;
+
+        private int monitorCount;
 
         //GLFWcursor* cursorListHead;
         private IntPtr cursorListHead;
 
         //GLFWerror* errorListHead;
         private IntPtr errorListHead;
-        private GLFWmutex errorLock;
-
-        private GLFWls errorSlot;
-
-        private GLFWbool initialized;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = GLconst.GLFW_JOYSTICK_LAST + 1)]
-        private GLFWjoystick[] joysticks = new GLFWjoystick[GLconst.GLFW_JOYSTICK_LAST + 1];
-
-        private GLFWbool joysticksInitialized;
-
-        private int mappingCount;
 
         //GLFWmapping* mappings;
         private IntPtr mappings;
 
-        private int monitorCount;
-
         //GLFWmonitor** monitors;
         private IntPtr monitors;
-
-        private GLFWplatform platform;
 
         //glfwWindow* windowListHead;
         private IntPtr windowListHead;
@@ -537,9 +531,7 @@ namespace StgSharp.Graphics
 
         internal Osmesa osmesa = new Osmesa();
 
-        public GLFWlibrary()
-        {
-        }
+        public GLFWlibrary() { }
 
         internal unsafe struct Hints
         {
@@ -548,8 +540,8 @@ namespace StgSharp.Graphics
             private GLFWfbconfig framebuffer;
 
             private GLFWinitconfig init;
-            private int refreshRate;
             private GLFWwndconfig window;
+            private int refreshRate;
 
         }
 
@@ -557,6 +549,7 @@ namespace StgSharp.Graphics
         {
 
             private ulong offset;
+
             // This is defined in platform.h
 
             //not transformed function defination
@@ -566,23 +559,36 @@ namespace StgSharp.Graphics
         internal unsafe struct Egl
         {
 
+            internal void* display;
+
+            internal void* handle;
+
             internal bool ANGLE_platform_angle;
             internal bool ANGLE_platform_angle_d3d;
             internal bool ANGLE_platform_angle_metal;
             internal bool ANGLE_platform_angle_opengl;
             internal bool ANGLE_platform_angle_vulkan;
+            internal bool EXT_client_extensions;
+            internal bool EXT_platform_base;
+            internal bool EXT_platform_wayland;
+            internal bool EXT_platform_x11;
+            internal bool EXT_present_opaque;
+            internal bool KHR_colorSpace;
+            internal bool KHR_context_flush_control;
+
+            internal bool KHR_create_context;
+            internal bool KHR_create_context_no_error;
+            internal bool KHR_get_all_proc_addresses;
+            internal bool prefix;
+            internal int major, minor;
+
+            internal int platform;
             internal IntPtr BindAPI;
             internal IntPtr CreateContext;
             internal IntPtr CreatePlatformWindowSurfaceEXT;
             internal IntPtr CreateWindowSurface;
             internal IntPtr DestroyContext;
             internal IntPtr DestroySurface;
-            internal void* display;
-            internal bool EXT_client_extensions;
-            internal bool EXT_platform_base;
-            internal bool EXT_platform_wayland;
-            internal bool EXT_platform_x11;
-            internal bool EXT_present_opaque;
 
             internal IntPtr GetConfigAttrib;
             internal IntPtr GetConfigs;
@@ -591,20 +597,8 @@ namespace StgSharp.Graphics
 
             internal IntPtr GetPlatformDisplayEXT;
             internal IntPtr GetProcAddress;
-
-            internal void* handle;
             internal IntPtr Initialize;
-            internal bool KHR_colorSpace;
-            internal bool KHR_context_flush_control;
-
-            internal bool KHR_create_context;
-            internal bool KHR_create_context_no_error;
-            internal bool KHR_get_all_proc_addresses;
-            internal int major, minor;
             internal IntPtr MakeCurrent;
-
-            internal int platform;
-            internal bool prefix;
             internal IntPtr QueryString;
             internal IntPtr SwapBuffers;
             internal IntPtr SwapInterval;
@@ -615,6 +609,8 @@ namespace StgSharp.Graphics
         internal unsafe struct Osmesa
         {
 
+            private void* handle;
+
             private IntPtr CreateContextAttribs;
 
             private IntPtr CreateContextExt;
@@ -622,8 +618,6 @@ namespace StgSharp.Graphics
             private IntPtr GetColorBuffer;
             private IntPtr GetDepthBuffer;
             private IntPtr GetProcAddress;
-
-            private void* handle;
             private IntPtr MakeCurrent;
 
         }
@@ -631,21 +625,20 @@ namespace StgSharp.Graphics
         internal unsafe struct vk
         {
 
+            private void* handle;
+
             private GLFWbool available;
             private GLFWbool EXT_metal_surface;
-            private fixed ulong extensions[2];
-            private IntPtr GetInstanceProcAddr;
-            private void* handle;
             private GLFWbool KHR_surface;
             private GLFWbool KHR_wayland_surface;
             private GLFWbool KHR_win32_surface;
             private GLFWbool KHR_xcb_surface;
             private GLFWbool KHR_xlib_surface;
             private GLFWbool MVK_macos_surface;
+            private IntPtr GetInstanceProcAddr;
+            private fixed ulong extensions[ 2 ];
 
-            public vk()
-            {
-            }
+            public vk() { }
 
         }
 
@@ -660,81 +653,82 @@ namespace StgSharp.Graphics
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWmapelement
     {
 
-        private sbyte axisOffset;
-        private sbyte axisScale;
         private byte index;
 
         private byte type;
 
+        private sbyte axisOffset;
+        private sbyte axisScale;
+
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWmapping
     {
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
+        [MarshalAs( UnmanagedType.ByValArray, SizeConst = 6 )]
         private GLFWmapelement[] axes = new GLFWmapelement[6];
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 15)]
+        [MarshalAs( UnmanagedType.ByValArray, SizeConst = 15 )]
         private GLFWmapelement[] buttons = new GLFWmapelement[15];
-        private fixed byte guid[33];
+        private fixed byte guid[ 33 ];
 
-        private fixed byte name[128];
+        private fixed byte name[ 128 ];
 
-        public GLFWmapping()
-        { }
+        public GLFWmapping() { }
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWjoystick
     {
 
-        private GLFWbool allocated;
         private float* axes;
+        private byte* buttons;
+        private byte* hats;
+        private void* userPointer;
+        private fixed byte guid[ 33 ];
+        private fixed byte name[ 128 ];
+
+        private GLFWbool allocated;
+        private GLFWbool connected;
         private int axisCount;
         private int buttonCount;
-        private byte* buttons;
-        private GLFWbool connected;
-        private fixed byte guid[33];
         private int hatCount;
-        private byte* hats;
 
         //GLFWmapping* mapping;
         private IntPtr mapping;
-        private fixed byte name[128];
-        private void* userPointer;
 
         // This is defined in platform.h
         // not completed in transforming
         // GLFW_PLATFORM_JOYSTICK_STATE;
 
-        public GLFWjoystick()
-        { }
+        public GLFWjoystick() { }
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWls
     {
+
         // This is defined in platform.h
 
         //GLFW_PLATFORM_TLS_STATE
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWplatform
     {
+
+        private int platformID;
 
         // init
         //GLFWbool(*init)(void);
         private IntPtr init;
-
-        private int platformID;
 
         //void (* terminate) (void);
         private IntPtr terminate;
@@ -799,6 +793,7 @@ namespace StgSharp.Graphics
         internal IntPtr setCursorMode;
 
         #region input
+
         /* void (* getCursorPos) (glfwWindow*, double*, double*);
         void (* setCursorPos) (glfwWindow*, double, double);
         void (* setCursorMode) (glfwWindow*, int);
@@ -865,6 +860,7 @@ namespace StgSharp.Graphics
         void (* waitEventsTimeout) (double);
         void (* postEmptyEvent) (void);
         */
+
         #endregion
 
         internal IntPtr setCursorPos;
@@ -897,25 +893,24 @@ namespace StgSharp.Graphics
 
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public unsafe struct GLFWmutex
     {
+
         // This is defined in platform.h
         //GLFW_PLATFORM_MUTEX_STATE
     }
 
     //public unsafe struct VkAllocationCallbacks { }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     internal unsafe struct VkExtensionProperties
     {
 
-        private fixed byte extensionName[256];
+        private fixed byte extensionName[ 256 ];
         private uint specVersion;
 
-        public VkExtensionProperties()
-        {
-        }
+        public VkExtensionProperties() { }
 
     }
 
@@ -934,14 +929,14 @@ namespace StgSharp.Graphics
     }
     */
 
-    [StructLayout(LayoutKind.Explicit, Size = 16)]
+    [StructLayout( LayoutKind.Explicit, Size = 16 )]
     public struct uintptr_t
     {
 
-        [FieldOffset(0)]
+        [FieldOffset( 0 )]
         private long part1;
 
-        [FieldOffset(8)]
+        [FieldOffset( 8 )]
         private long part2;
 
     }
@@ -950,10 +945,12 @@ namespace StgSharp.Graphics
 
     #region glad struct
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     internal struct GLsync
     {
+
         public IntPtr Handle;
+
     }
 
     #endregion glad struct

@@ -41,42 +41,50 @@ using System.Text;
 namespace StgSharp.Graphics.OpenGL
 {
     /// <summary>
-    /// A collection of handle to Element Buffer Object in OpenglFunc.
-    /// Each <see langword="uint"/> value indexed from instance of this class this
-    /// is the only handle to one Element Buffer Object.
+    /// A collection of handle to Element Buffer Object in OpenglFunc. Each <see langword="uint" />
+    /// value indexed from instance of this class this is the only handle to one Element Buffer
+    /// Object.
     /// </summary>
-    public unsafe class ElementBuffer : GlBufferObjectBase
+    public sealed unsafe class ElementBuffer : GlBufferObjectBase
     {
 
-        internal ElementBuffer(int n, glRenderStream binding):base(binding)
+        internal ElementBuffer( int n, glRender binding )
+            : base( binding )
         {
-            _bufferHandle = GL.GenBuffers(n);
+            _bufferHandle = GL.GenBuffers( n );
         }
 
-        public override sealed void Bind(int index)
+        public override sealed void Bind( int index )
         {
-            GL.BindBuffer(BufferType.ElementArrayBuffer, _bufferHandle[index]);
+            GL.BindBuffer(
+                BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
         }
 
-        public void SetValue<T>(int index, T[] bufferArray, BufferUsage usage)
-            where T : struct, IConvertible
+        public void SetValue<T>( int index, T[] bufferArray, BufferUsage usage )
+            where T: struct, IConvertible
         {
-            GL.BindBuffer(BufferType.ElementArrayBuffer, _bufferHandle[index]);
-            GL.SetBufferData(BufferType.ElementArrayBuffer, bufferArray, usage);
+            GL.BindBuffer(
+                BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
+            GL.SetBufferData(
+                BufferType.ElementArrayBuffer, bufferArray, usage );
         }
 
-        public void SetValue<T>(int index, ReadOnlySpan<T> bufferSpan, BufferUsage usage)
-            where T : struct, IConvertible
+        public void SetValue<T>(
+            int index,
+            ReadOnlySpan<T> bufferSpan,
+            BufferUsage usage )
+            where T: struct, IConvertible
         {
-            GL.BindBuffer(BufferType.ElementArrayBuffer, _bufferHandle[index]);
-            GL.SetBufferData(BufferType.ElementArrayBuffer, bufferSpan, usage);
+            GL.BindBuffer(
+                BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
+            GL.SetBufferData( BufferType.ElementArrayBuffer, bufferSpan,
+                              usage );
         }
 
-        protected override sealed void Dispose(bool disposing)
+        protected override sealed void Dispose( bool disposing )
         {
-            if (disposing)
-            {
-                GL.DeleteBuffers(_bufferHandle);
+            if( disposing ) {
+                GL.DeleteBuffers( _bufferHandle );
             }
         }
 

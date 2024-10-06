@@ -41,15 +41,18 @@ namespace StgSharp.MVVM.ViewModel
 {
     public partial class ViewModelBase
     {
+
         private Dictionary<string, ViewBase> allView;
 
-        public T CreateAndBindView<T>(string name, (int x, int y, int z) unitCubeSize)
-            where T : ViewBase, new()
+        public T CreateAndBindView<T>(
+            string name,
+            (int x, int y, int z) unitCubeSize )
+            where T: ViewBase, new()
         {
             T ret = new T();
             ret.SelfName = name;
-            ret.InternalInitialize(name,unitCubeSize,this);
-            allView.Add(name, ret);
+            ret.InternalInitialize( name, unitCubeSize, this );
+            allView.Add( name, ret );
             return ret;
         }
 

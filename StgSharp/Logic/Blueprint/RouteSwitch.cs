@@ -35,34 +35,34 @@ using System.Reflection.Emit;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace StgSharp.Logic
+namespace StgSharp.BluePrint
 {
     public class RouteSwitch : BlueprintNode
     {
+
         private protected Dictionary<string, (BlueprintPipeline pipeline, Func<bool> openingRule)> outputDictionary;
 
-        public RouteSwitch(string name, bool isNative, string inputPorts) :
-            base(name, isNative, [inputPorts], [string.Empty])
+        public RouteSwitch( string name, bool isNative, string inputPorts )
+            : base( name, isNative, [inputPorts], [string.Empty] )
         {
-            outputDictionary = new Dictionary<string, (BlueprintPipeline pipeline, Func<bool> openingRule)>();
+            outputDictionary = new Dictionary<string, (BlueprintPipeline pipeline, Func<bool> openingRule)>(
+                );
         }
 
         public new int Level
         {
             get
             {
-                if (levelAvailable)
-                {
+                if( levelAvailable ) {
                     return _level;
                 }
                 _level = 0;
-                KeyValuePair<string, BlueprintPipeline> item = _inputInterfaces.First();
-                if (item.Value == null)
-                {
+                KeyValuePair<string, BlueprintPipeline> item = _inputInterfaces.First(
+                    );
+                if( item.Value == null ) {
                     throw new InvalidOperationException();
                 }
-                if (_level <= item.Value.Level)
-                {
+                if( _level <= item.Value.Level ) {
                     _level = item.Value.Level;
                 }
                 return _level;
@@ -72,43 +72,40 @@ namespace StgSharp.Logic
         public new void AddBefore(
             BlueprintNode after,
             string thisOutputPortName,
-            string afterInputPortName)
+            string afterInputPortName )
         {
-            this.AppendNode(after, afterInputPortName, () => true);
+            this.AppendNode( after, afterInputPortName, () => true );
         }
 
-        public void AppendNode(BlueprintNode node, string portName, Func<bool> openningRule)
+        public void AppendNode(
+            BlueprintNode node,
+            string portName,
+            Func<bool> openningRule )
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node));
+            if( node == null ) {
+                throw new ArgumentNullException( nameof( node ) );
             }
             string indexName = $"{node.Name}.{portName}";
-            BlueprintPipeline p = new BlueprintPipeline(this, node);
-            node.InputInterfaces[portName] = p;
-            outputDictionary.Add(indexName, (p, openningRule));
+            BlueprintPipeline p = new BlueprintPipeline( this, node );
+            node.InputInterfaces[ portName ] = p;
+            outputDictionary.Add( indexName, (p, openningRule) );
         }
 
         public new void Run()
         {
-            try
-            {
+            try {
                 BlueprintPipeline input = InputInterfaces.First().Value;
                 input.WaitForStart();
-                foreach (KeyValuePair<string, (BlueprintPipeline pipeline, Func<bool> openingRule)> item in outputDictionary)
-                {
-                    if (item.Value.openingRule())
-                    {
-                        item.Value.pipeline.CompleteAndWriteData(input.Args);
+                foreach( KeyValuePair<string, (BlueprintPipeline pipeline, Func<bool> openingRule)> item in outputDictionary ) {
+                    if( item.Value.openingRule() ) {
+                        item.Value.pipeline.CompleteAndWriteData( input.Args );
                     }
                 }
             }
-            catch (Exception)
-            {
+            catch( Exception ) {
                 throw;
             }
         }
 
     }
-
 }
