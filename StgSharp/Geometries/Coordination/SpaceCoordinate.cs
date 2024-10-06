@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Class1.cs"
+//     file="SpaceCoordinate.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -38,11 +38,14 @@ namespace StgSharp.Geometries
 {
     public class SpaceCoordinate : CoordinationBase
     {
+
         public SpaceCoordinate(
-            CoordinationBase localCoordination, Point origin,
-            vec3d xAxis, vec3d yAxis, vec3d zAxis
-            ) : base(localCoordination)
-        {
-        }
+            CoordinationBase localCoordination,
+            Point origin,
+            Vec3 xAxis,
+            Vec3 yAxis,
+            Vec3 zAxis )
+            : base( localCoordination ) { }
+
     }
 }

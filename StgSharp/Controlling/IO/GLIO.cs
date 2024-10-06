@@ -40,31 +40,55 @@ namespace StgSharp
 {
     internal static partial class InternalIO
     {
+
         #region ssgc api define
 
-        [DllImport(SSC_libName, EntryPoint = "initGL",
-            CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void InternalInitGL(int majorVersion, int minorVersion);
+        [DllImport(
+            SSC_libName,
+            EntryPoint = "initGL",
+            CallingConvention = CallingConvention.Cdecl )]
+        internal static extern void InternalInitGL(
+            int majorVersion,
+            int minorVersion );
 
-        [DllImport(SSC_libName, EntryPoint = "loadGlfuncDefault",
-            CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        internal static extern IntPtr InternalLoadGlfuncDefault(string name);
+        [DllImport(
+            SSC_libName,
+            EntryPoint = "loadGlfuncDefault",
+            CallingConvention = CallingConvention.Cdecl,
+            CharSet = CharSet.Ansi )]
+        internal static extern IntPtr InternalLoadGlfuncDefault( string name );
 
-        [DllImport(SSC_libName, EntryPoint = "linkShaderProgram",
-            CallingConvention = CallingConvention.Cdecl)]
-        internal static extern unsafe uint InternalLinkShaderProgram(OpenglContext* context, uint shaderProgram);
+        [DllImport(
+            SSC_libName,
+            EntryPoint = "linkShaderProgram",
+            CallingConvention = CallingConvention.Cdecl )]
+        internal static extern unsafe uint InternalLinkShaderProgram(
+            OpenglContext* context,
+            uint shaderProgram );
 
-        [DllImport(SSC_libName, EntryPoint = "readLog",
-            CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(
+            SSC_libName,
+            EntryPoint = "readLog",
+            CallingConvention = CallingConvention.Cdecl )]
         internal static extern unsafe IntPtr InternalReadSSCLog();
 
-        [DllImport(SSC_libName, EntryPoint = "loadImageData",
-            CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        internal static extern unsafe void InternalLoadImage(string fileName, ImageInfo* output, ImageLoader loader);
+        [DllImport(
+            SSC_libName,
+            EntryPoint = "loadImageData",
+            CallingConvention = CallingConvention.Cdecl,
+            CharSet = CharSet.Ansi )]
+        internal static extern unsafe void InternalLoadImage(
+            string fileName,
+            ImageInfo* output,
+            ImageLoader loader );
 
-        [DllImport(SSC_libName, EntryPoint = "unloadImageData",
-            CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        internal static extern unsafe void InternalUnloadImage(ImageInfo* output);
+        [DllImport(
+            SSC_libName,
+            EntryPoint = "unloadImageData",
+            CallingConvention = CallingConvention.Cdecl,
+            CharSet = CharSet.Ansi )]
+        internal static extern unsafe void InternalUnloadImage(
+            ImageInfo* output );
 
         #endregion ssgc api define
     }
@@ -72,12 +96,44 @@ namespace StgSharp
 
 namespace StgSharp.Graphics
 {
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate IntPtr ImageLoader(string name, ref int width, ref int height, ref int definedChannel, int desiredChannel);
+[UnmanagedFunctionPointer( CallingConvention.Cdecl, CharSet = CharSet.Ansi )]
+    public delegate IntPtr ImageLoader(
+        string name,
+        ref int width,
+        ref int height,
+        ref int definedChannel,
+        int desiredChannel );
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public struct OpenglContext
     {
+
+        public override bool Equals( object obj )
+        {
+            return false;
+        }
+
+        public override unsafe int GetHashCode()
+        {
+            fixed( OpenglContext* sptr = &this ) {
+                return sptr->GetHashCode();
+            }
+        }
+
+        public static bool operator !=(
+            OpenglContext left,
+            OpenglContext right )
+        {
+            return !( left == right );
+        }
+
+        public static bool operator ==(
+            OpenglContext left,
+            OpenglContext right )
+        {
+            return left.Equals( right );
+        }
+
         #region glapi
 
         internal unsafe delegate*<uint, GLfixed, void> glAccumxOES;
@@ -220,7 +276,7 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<uint, IntPtr, UIntPtr, uint, ulong, bool, void> glBufferPageCommitmentMemNV;
         internal unsafe delegate*<uint, uint, int, void> glBufferParameteriAPPLE;
         internal unsafe delegate*<uint, UIntPtr, void*, uint, void> glBufferStorage;
-        [Obsolete("Param type uncertain", true)] internal unsafe delegate*<uint, IntPtr, UIntPtr, int, uint, void> glBufferStorageExternalEXT;
+        [Obsolete( "Param type uncertain", true )] internal unsafe delegate*<uint, IntPtr, UIntPtr, int, uint, void> glBufferStorageExternalEXT;
         internal unsafe delegate*<uint, UIntPtr, uint, ulong, void> glBufferStorageMemEXT;
         internal unsafe delegate*<uint, IntPtr, UIntPtr, void*, void> glBufferSubData;
         internal unsafe delegate*<uint, IntPtr, UIntPtr, void*, void> glBufferSubDataARB;
@@ -1401,7 +1457,7 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<uint, IntPtr, UIntPtr, uint, ulong, bool, void> glNamedBufferPageCommitmentMemNV;
         internal unsafe delegate*<uint, UIntPtr, void*, uint, void> glNamedBufferStorage;
         internal unsafe delegate*<uint, UIntPtr, void*, uint, void> glNamedBufferStorageEXT;
-        [Obsolete("Param type uncertain", true)] internal unsafe delegate*<uint, IntPtr, UIntPtr, int, uint, void> glNamedBufferStorageExternalEXT;
+        [Obsolete( "Param type uncertain", true )] internal unsafe delegate*<uint, IntPtr, UIntPtr, int, uint, void> glNamedBufferStorageExternalEXT;
         internal unsafe delegate*<uint, UIntPtr, uint, ulong, void> glNamedBufferStorageMemEXT;
         internal unsafe delegate*<uint, IntPtr, UIntPtr, void*, void> glNamedBufferSubData;
         internal unsafe delegate*<uint, IntPtr, UIntPtr, void*, void> glNamedBufferSubDataEXT;
@@ -2079,7 +2135,7 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<int, uint, double*, void> glUniform1dv;
         internal unsafe delegate*<int, float, void> glUniform1f;
         internal unsafe delegate*<int, float, void> glUniform1fARB;
-        internal unsafe delegate*<int, uint, vec4d*, void> glUniform1fv;
+        internal unsafe delegate*<int, uint, Vec4*, void> glUniform1fv;
         internal unsafe delegate*<int, uint, float*, void> glUniform1fvARB;
         internal unsafe delegate*<int, int, void> glUniform1i;
         internal unsafe delegate*<int, long, void> glUniform1i64ARB;
@@ -2613,29 +2669,6 @@ namespace StgSharp.Graphics
         internal unsafe delegate*<uint, uint, int*, void> glWindowRectanglesEXT;
         internal unsafe delegate*<uint, uint, uint, uint, uint, uint, void> glWriteMaskEXT;
 
-        #endregion glapi
-
-        public override bool Equals(object obj)
-        {
-            return false; 
-        }
-
-        public unsafe override int GetHashCode()
-        {
-            fixed (OpenglContext* sptr = &this)
-            {
-                return sptr->GetHashCode();
-            }
-        }
-
-        public static bool operator ==(OpenglContext left, OpenglContext right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(OpenglContext left, OpenglContext right)
-        {
-            return !(left == right);
-        }
+    #endregion glapi
     }
 }

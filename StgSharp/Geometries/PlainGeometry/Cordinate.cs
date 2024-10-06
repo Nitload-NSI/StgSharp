@@ -40,7 +40,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Geometries
 {
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout( LayoutKind.Sequential )]
     public struct PartialPlainCoordinate
     {
 
@@ -49,40 +49,36 @@ namespace StgSharp.Geometries
         /// <summary>
         /// The origin of this coordinate.
         /// </summary>
-        public vec3d origin;
+        public Vec3 origin;
 
-        public PartialPlainCoordinate
-            (
-            vec3d origin,
-            vec3d horiziontial,
-            vec3d vertical
-            )
+        public PartialPlainCoordinate(
+            Vec3 origin,
+            Vec3 horiziontial,
+            Vec3 vertical )
         {
             this.origin = origin;
             axis = new Matrix32();
-#if NET5_0_OR_GREATER
-            Unsafe.SkipInit(out axis.mat);
-#endif
+            #if NET5_0_OR_GREATER
+            Unsafe.SkipInit( out axis.mat );
+            #endif
             axis.colum0 = horiziontial;
             axis.colum1 = vertical;
         }
 
         /// <summary>
-        /// The horizontial axis of the coordinate.
-        /// Point to the right direction.
+        /// The horizontial axis of the coordinate. Point to the right direction.
         /// </summary>
-        public vec3d axis_H => axis.colum0;
+        public Vec3 axis_H => axis.colum0;
 
         /// <summary>
-        /// The vertical axis of the coordinate.
-        /// Point to the top direction.
+        /// The vertical axis of the coordinate. Point to the top direction.
         /// </summary>
-        public vec3d axis_V => axis.colum1;
+        public Vec3 axis_V => axis.colum1;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public vec3d GetRealLocate(vec2d raletiveLocation)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public Vec3 GetRealLocate( Vec2 raletiveLocation )
         {
-            return origin + axis.VerticalVecMultiply(raletiveLocation);
+            return origin + axis.VerticalVecMultiply( raletiveLocation );
         }
 
     }

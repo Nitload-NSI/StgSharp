@@ -41,53 +41,50 @@ namespace StgSharp
 {
     public static unsafe partial class StgSharp
     {
-        private static int _mainThreadID = -1;
 
-        static byte[] _currentHash;
-
-        private static bool _inited;
         internal const int ssdSegmentLength = 16;
 
-        public static int MainThreadID
-        {
-            get => _mainThreadID == -1 ? 
-                throw new InvalidOperationException("StgSharp environment is not inited. " +
-                    "Main thread id is not available") :_mainThreadID;
-        }
+        private static byte[] _currentHash;
+
+        private static bool _inited;
+        private static int _mainThreadID = -1;
 
         public static byte[] CurrentAssemblyHash
         {
             get
             {
-                if (_currentHash == null)
-                {
+                if( _currentHash == null ) {
                     string route = Assembly.GetExecutingAssembly().Location;
                     string time = DateTime.UtcNow.ToString();
-                    using (SHA256 sh = SHA256.Create())
-                    {
-                        byte[] bytes = Encoding.UTF8.GetBytes(route);
-                        _currentHash = sh.ComputeHash(bytes);
+                    using( SHA256 sh = SHA256.Create() ) {
+                        byte[] bytes = Encoding.UTF8.GetBytes( route );
+                        _currentHash = sh.ComputeHash( bytes );
                     }
                 }
                 return _currentHash;
             }
         }
 
-        /// <summary>
-        /// CustomizeInit an instance of OpenGL program,
-        /// This method should be called before any other StgSharp api.
-        /// </summary>
-        public static void InitGL(int majorVersion, int minorVersion)
+        public static int MainThreadID
         {
-            if (API == default)
-            {
+            get => ( _mainThreadID == -1 ) ?
+            throw new InvalidOperationException(
+                "StgSharp environment is not inited. " + "Main thread id is not available" ) : _mainThreadID;
+        }
+
+        /// <summary>
+        /// CustomizeInit an instance of OpenGL program, This method should be called before any
+        /// other StgSharp api.
+        /// </summary>
+        public static void InitGL( int majorVersion, int minorVersion )
+        {
+            if( API == default ) {
                 API = GraphicAPI.GL;
             }
-            if (API != GraphicAPI.GL)
-            {
+            if( API != GraphicAPI.GL ) {
                 return;
             }
-            InternalIO.InternalInitGL(majorVersion, minorVersion);
+            InternalIO.InternalInitGL( majorVersion, minorVersion );
         }
 
         public static class GlobalSetting
@@ -100,10 +97,12 @@ namespace StgSharp
                 get => vsyncActivated;
                 set
                 {
-                    InternalIO.glfwSwapInterval(value ? 1 : 0);
+                    InternalIO.glfwSwapInterval( value ? 1 : 0 );
                     vsyncActivated = value;
                 }
             }
+
         }
+
     }//-------------------------------------- End of Class ---------------------------------------//
 }

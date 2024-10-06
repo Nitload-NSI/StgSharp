@@ -33,17 +33,18 @@ using StgSharp.Math;
 
 namespace StgSharp
 {
-    public class Launcher<T> where T : IEntity
+    public class Launcher<T> where T: IEntity
     {
+
+        internal uint[] launchtick;     //发射子弹的内部计时
+        internal Counter<int> _internalParameter;       //发射器的内部计时器
 
         internal EntityPartical _bulletSample;        //发射的子弹类型
         /*
          *用于发射其他的实体，主要是子弹 和 掉落物
          */
 
-        internal vec2d _center;     //发射器的参考位置，运动轨迹的方程应当基于这个参考点构建
-        internal Counter<int> _internalParameter;       //发射器的内部计时器
-        internal uint[] launchtick;     //发射子弹的内部计时
+        internal Vec2 _center;     //发射器的参考位置，运动轨迹的方程应当基于这个参考点构建
 
         public EntityPartical Bullet
         {
@@ -51,12 +52,7 @@ namespace StgSharp
             set => _bulletSample = value;
         }
 
-        internal virtual void Launch()
-        {
-
-        }
-
-
+        internal virtual void Launch() { }
 
     }
 }

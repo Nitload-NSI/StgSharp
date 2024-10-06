@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IInstancing.cs"
+//     file="ParticleOnPlain.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -43,18 +43,17 @@ namespace StgSharp.Geometries
     public class ParticleOnPlain : IInstancing, IPlainEntity
     {
 
-        public ParticleOnPlain(PlainInstancingBuffer<ParticleOnPlain> buffer)
+        public ParticleOnPlain( PlainInstancingBuffer<ParticleOnPlain> buffer )
         {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException(paramName: nameof(buffer));
+            if( buffer == null ) {
+                throw new ArgumentNullException( paramName: nameof( buffer ) );
             }
             GlobalBuffer = buffer;
             BufferId = buffer.CreateInstanceID();
-            ((IInstancingBuffer)buffer).InstanceList.Add(this);
+            ( ( IInstancingBuffer )buffer ).InstanceList.Add( this );
         }
 
-        public int BufferId
+        public GeometryMotion Motion
         {
             get;
             set;
@@ -65,28 +64,29 @@ namespace StgSharp.Geometries
             get;
             set;
         }
-        public GeometryMotion Motion 
-        { 
-            get; 
-            set;
-        }
 
-        vec3d IInstancing.CenterPositionGlobal
+        public int BufferId
         {
             get;
             set;
         }
 
-        vec2d IPlainEntity.CenterPosition 
+        Vec3 IInstancing.CenterPositionGlobal
         {
-            get => GlobalBuffer.CoordAndRotationList[BufferId].XY;
-            set => throw new NotImplementedException(); 
+            get;
+            set;
         }
 
-
-        bool IPlainEntity.CollideWith(IPlainEntity entity)
+        bool IPlainEntity.CollideWith( IPlainEntity entity )
         {
             throw new NotImplementedException();
         }
+
+        Vec2 IPlainEntity.CenterPosition
+        {
+            get => GlobalBuffer.CoordAndRotationList[ BufferId ].XY;
+            set => throw new NotImplementedException();
+        }
+
     }
 }

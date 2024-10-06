@@ -40,28 +40,25 @@ namespace StgSharp.Math
     public static unsafe partial class Scaler
     {
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe int SignOf(float x)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static unsafe int SignOf( float x )
         {
-            if (x == 0)
-            {
+            if( x == 0 ) {
                 return 0;
             }
-            if (x > 0)
-            {
+            if( x > 0 ) {
                 return 1;
             }
             return -1;
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe int SignOf(int x)
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static unsafe int SignOf( int x )
         {
-            if (x == 0)
-            {
+            if( x == 0 ) {
                 return 0;
             }
-            if (x > 0)
-            {
+            if( x > 0 ) {
                 return 1;
             }
             return -1;

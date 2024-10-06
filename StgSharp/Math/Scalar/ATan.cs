@@ -36,10 +36,10 @@ namespace StgSharp.Math
     public static unsafe partial class Scaler
     {
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe float ATan(float x)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static unsafe float ATan( float x )
         {
-            return MathF.Atan(x);
+            return MathF.Atan( x );
             /*
             float sign = 1, angle = 0;
             if (x < 0)
