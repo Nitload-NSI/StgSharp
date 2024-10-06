@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Data.Intrinsic;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,52 +40,44 @@ using System.Text;
 
 namespace StgSharp.Data
 {
-
-    [StructLayout(LayoutKind.Explicit, Size = 16)]
+    [StructLayout( LayoutKind.Explicit, Size = 16 )]
     public struct SSDSegmentHead
     {
 
-        [FieldOffset(0)] internal M128 data;
+        [FieldOffset( 12 )] internal byte size;
 
-        [FieldOffset(0)] public int globalID;
-        [FieldOffset(4)] public int nextID;
-        [FieldOffset(8)] public int previousHash;
+        [FieldOffset( 0 )] internal M128 data;
+        [FieldOffset( 13 )] public byte selfDefine_1;
+        [FieldOffset( 14 )] public byte selfDefine_2;
+        [FieldOffset( 15 )] public byte selfDefine_3;
 
-
-        [FieldOffset(12)] internal byte size;
-        [FieldOffset(13)] public byte selfDefine_1;
-        [FieldOffset(14)] public byte selfDefine_2;
-        [FieldOffset(15)] public byte selfDefine_3;
-
+        [FieldOffset( 0 )] public int globalID;
+        [FieldOffset( 4 )] public int nextID;
+        [FieldOffset( 8 )] public int previousHash;
 
         public int Size
         {
-            get => ((int)size) + 1;
+            get => ( ( int )size ) + 1;
             set
             {
-                if ((value > 256) || (value < 0))
-                {
+                if( ( value > 256 ) || ( value < 0 ) ) {
                     throw new ArgumentOutOfRangeException();
                 }
-                size = (byte)(value - 1);
+                size = ( byte )( value - 1 );
             }
         }
 
         public unsafe byte[] GetBytes()
         {
             byte[] ret = new byte[16];
-            fixed (Vector4* vptr = &data.vec)
-            {
-                byte* bptr = (byte*)vptr;
-                for (int i = 0; i < 15; i++)
-                {
-                    ret[i] = *bptr;
+            fixed( Vector4* vptr = &data.vec ) {
+                byte* bptr = ( byte* )vptr;
+                for( int i = 0; i < 15; i++ ) {
+                    ret[ i ] = *bptr;
                 }
             }
             return ret;
         }
 
     }
-
-
 }

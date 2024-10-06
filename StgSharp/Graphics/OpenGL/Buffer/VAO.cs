@@ -29,7 +29,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -37,40 +36,44 @@ using System.Text;
 
 namespace StgSharp.Graphics.OpenGL
 {
-    public unsafe class VertexArray : GlBufferObjectBase
+    public sealed unsafe class VertexArray : GlBufferObjectBase
     {
 
-        internal VertexArray(int n, glRenderStream binding):base(binding)
+        internal VertexArray( int n, glRender binding )
+            : base( binding )
         {
-            _bufferHandle = GL.GenVertexArrays(n);
+            _bufferHandle = GL.GenVertexArrays( n );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override sealed void Bind(int index)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public override sealed void Bind( int index )
         {
-            GL.BindVertexArray(_bufferHandle[index]);
+            GL.BindVertexArray( _bufferHandle[ index ] );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static void BindNull()
         {
-            GlFunction.CurrentGL.BindVertexArray(GlHandle.Zero);
+            OpenGLFunction.CurrentGL.BindVertexArray( GlHandle.Zero );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetVertexAttribute(uint index, int vertexLength, TypeCode dataType, bool isNomalized, uint stride, int pointer)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetVertexAttribute(
+            uint index,
+            int vertexLength,
+            TypeCode dataType,
+            bool isNomalized,
+            uint stride,
+            int pointer )
         {
             GL.SetVertexAttribute(
-                index, vertexLength, dataType,
-                isNomalized,
-                stride, pointer);
+                index, vertexLength, dataType, isNomalized, stride, pointer );
         }
 
-        protected override sealed void Dispose(bool disposing)
+        protected override sealed void Dispose( bool disposing )
         {
-            if (disposing)
-            {
-                GL.DeleteVertexArrays(_bufferHandle);
+            if( disposing ) {
+                GL.DeleteVertexArrays( _bufferHandle );
             }
         }
 

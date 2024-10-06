@@ -37,58 +37,68 @@
         <Optimize>True</Optimize>
         <DebugType>embedded</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|x64'">
         <Optimize>True</Optimize>
         <DebugType>embedded</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Toollist|x64'">
         <Optimize>True</Optimize>
         <DebugType>embedded</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RealDebug|x64'">
         <Optimize>True</Optimize>
         <DebugType>embedded</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <DebugType>embedded</DebugType>
         <Optimize>True</Optimize>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|AnyCPU'">
         <DebugType>embedded</DebugType>
         <Optimize>True</Optimize>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Toollist|AnyCPU'">
         <DebugType>embedded</DebugType>
         <Optimize>True</Optimize>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RealDebug|AnyCPU'">
         <DebugType>embedded</DebugType>
         <Optimize>True</Optimize>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DebugType>none</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
         <DebugType>none</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -127,13 +137,22 @@
     <PropertyGroup>
         <MySymbol>$(ColiisionTextureVertexShader)</MySymbol>
         <MySymbol>$(ColiisionTextureFragmentShader)</MySymbol>
+        <SignAssembly>False</SignAssembly>
+        <ErrorReport>send</ErrorReport>
+        <PackageProjectUrl>https://github.com/Nitload-NSI/StgSharp</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Nitload-NSI/StgSharp.git</RepositoryUrl>
     </PropertyGroup>
 
-    <!-- 在编译前读取文件内容 -->
-    <Target Name="BeforeBuild">
-        <ReadLinesFromFile File="Data\InternalEssentialData\CollisionTextureFS.frag">
-            <Output TaskParameter="Lines" PropertyName="MySymbolValue" />
-        </ReadLinesFromFile>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NoOps|AnyCPU'">
+      <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NoOps|x64'">
+      <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="copy $(SolutionDir)StgSharpC.dll $(OutDir)StgSharpC.dll" />
     </Target>
     
 </Project>

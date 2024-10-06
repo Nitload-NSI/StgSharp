@@ -38,34 +38,26 @@ namespace StgSharp.Gaming
 {
     public abstract class Bullet : IInstancing, IPlainEntity
     {
-        protected Bullet
-            (
+
+        protected Bullet(
             PlainInstancingBuffer<Bullet> buffer,
             GeometryMotion movement,
-            vec2d beginPosition,
+            Vec2 beginPosition,
             float angle,
-            float scale
-            )
+            float scale )
         {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
+            if( buffer == null ) {
+                throw new ArgumentNullException( nameof( buffer ) );
             }
             GlobalBuffer = buffer;
             BufferId = buffer.CreateInstanceID();
-            ((IInstancing)this).Scale = scale;
-            ((IInstancing)this).Coord = new vec3d( beginPosition,0);
-            ((IInstancing)this).Rotation = angle;
+            ( ( IInstancing )this ).Scale = scale;
+            ( ( IInstancing )this ).Coord = new Vec3( beginPosition, 0 );
+            ( ( IInstancing )this ).Rotation = angle;
             Motion = movement;
         }
 
-        public int BufferId
-        {
-            get;
-            set;
-        }
-
-        public vec2d CenterPosition
+        public GeometryMotion Motion
         {
             get;
             set;
@@ -77,21 +69,27 @@ namespace StgSharp.Gaming
             set;
         }
 
-        public GeometryMotion Motion 
+        public int BufferId
         {
-            get; 
-            set; 
-        }
-
-        vec3d IInstancing.CenterPositionGlobal 
-        { 
             get;
             set;
         }
 
-        public bool CollideWith(IPlainEntity entity)
+        public Vec2 CenterPosition
+        {
+            get;
+            set;
+        }
+
+        public bool CollideWith( IPlainEntity entity )
         {
             throw new System.NotImplementedException();
+        }
+
+        Vec3 IInstancing.CenterPositionGlobal
+        {
+            get;
+            set;
         }
 
     }

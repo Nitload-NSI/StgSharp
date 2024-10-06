@@ -34,6 +34,8 @@ using StgSharp.Graphics.OpenGL;
 using StgSharp.Math;
 using StgSharp.MVVM.View;
 using StgSharp.MVVM.ViewModel;
+using StgSharp.Threading;
+using StgSharp.Timing;
 
 using System;
 using System.Collections.Generic;
@@ -50,6 +52,7 @@ namespace StgSharp.MVVM.ViewModel
     public abstract partial class ViewModelBase
     {
 
+        private FrameBufferSizeHandler _resizeCallback;
         private int _frameCount;
         private int _frameSpeed;
         private ViewPort viewPortDisplay;
@@ -60,109 +63,72 @@ namespace StgSharp.MVVM.ViewModel
         internal TimeSpanProvider frameTimeProvider;
         internal Vector4 backgroundColor;
 
-        protected ViewModelBase(int frameSpeed)
+        protected ViewModelBase( int frameSpeed )
         {
             viewPortDisplay = new ViewPort();
             allView = new();
-            fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
+            fpsCountProvider = new TimeSpanProvider(
+                1.0, TimeSpanProvider.DefaultProvider );
             _frameSpeed = 0;
             _frameCount = 0;
-            fpsCountProvider.SpanRefreshCallback = CountFps;
-            long frameLength = (FrameSpeed > 0) ? ((1000L * 1000L) / FrameSpeed) : 0;
+            long frameLength = ( FrameSpeed > 0 ) ?
+            ( ( 1000L * 1000L ) / FrameSpeed ) : 0;
             frameTimeProvider = new TimeSpanProvider(
-                frameLength, TimeSpanProvider.DefaultProvider
-                );
-            frameTimeProvider.SpanRefreshCallback =
-                () =>
-                {
-                };
+                frameLength, TimeSpanProvider.DefaultProvider );
+            FrameSizeCallback = DefaultFrameRewsizeCallback;
         }
 
-        protected ViewModelBase(float frameLength)
+        protected ViewModelBase( float frameLength )
         {
             viewPortDisplay = new ViewPort();
             allView = new();
-            fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
+            fpsCountProvider = new TimeSpanProvider(
+                1.0, TimeSpanProvider.DefaultProvider );
             _frameSpeed = 0;
             _frameCount = 0;
-            fpsCountProvider.SpanRefreshCallback = CountFps;
-            long _frameLength = (FrameSpeed > 0) ? ((long)(1000 * frameLength)) : 0;
+            long _frameLength = ( FrameSpeed > 0 ) ?
+            ( ( long )( 1000 * frameLength ) ) : 0;
             frameTimeProvider = new TimeSpanProvider(
-                _frameLength, TimeSpanProvider.DefaultProvider
-                );
-            frameTimeProvider.SpanRefreshCallback =
-                () =>
-                {
-                };
+                _frameLength, TimeSpanProvider.DefaultProvider );
+            FrameSizeCallback = DefaultFrameRewsizeCallback;
         }
 
-        public ViewModelBase(ViewPort vbinding, int framespeed)
+        public ViewModelBase( ViewPort vBinding, int frameSpeed )
         {
-            viewPortDisplay = vbinding;
+            viewPortDisplay = vBinding;
             allView = new();
-            fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
+            fpsCountProvider = new TimeSpanProvider(
+                1.0, TimeSpanProvider.DefaultProvider );
             _frameSpeed = 0;
             _frameCount = 0;
-            fpsCountProvider.SpanRefreshCallback = CountFps;
-            long frameLength = (framespeed > 0) ? ((1000L * 1000L) / framespeed) : 0;
+            long frameLength = ( frameSpeed > 0 ) ?
+            ( ( 1000L * 1000L ) / frameSpeed ) : 0;
             frameTimeProvider = new TimeSpanProvider(
-                frameLength, TimeSpanProvider.DefaultProvider
-                );
-            frameTimeProvider.SpanRefreshCallback =
-                () =>
-                {
-                };
-            viewPortDisplay.FrameSizeCallback = (handle, width, height)
-                =>
-            {
-                InternalIO.glfwMakeContextCurrent(viewPortDisplay.ViewPortID);
-                GlFunction.CurrentGL.Viewport(0, 0, width, height);
-                PrivateShow();
-            };
-            viewPortDisplay.FramePostionCallback = (handle, xpos, ypos)
-                =>
-            {
-                PrivateShow();
-            };
+                frameLength, TimeSpanProvider.DefaultProvider );
+            FrameSizeCallback = DefaultFrameRewsizeCallback;
         }
 
-        public ViewModelBase(ViewPort vbinding, float frameLength)
+        public ViewModelBase( ViewPort vBinding, float frameLength )
         {
-            viewPortDisplay = vbinding;
+            viewPortDisplay = vBinding;
             allView = new();
-            fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
+            fpsCountProvider = new TimeSpanProvider(
+                1.0, TimeSpanProvider.DefaultProvider );
             _frameSpeed = 0;
             _frameCount = 0;
-            fpsCountProvider.SpanRefreshCallback = CountFps;
-            long _frameLength = (frameLength > 0) ? ((long)(1000 * frameLength)) : 0;
+            long _frameLength = ( frameLength > 0 ) ?
+            ( ( long )( 1000 * frameLength ) ) : 0;
             frameTimeProvider = new TimeSpanProvider(
-                _frameLength, TimeSpanProvider.DefaultProvider
-                );
-            frameTimeProvider.SpanRefreshCallback =
-                () =>
-                {
-                };
-
-            viewPortDisplay.FrameSizeCallback = (handle, width, height)
-                =>
-            {
-                InternalIO.glfwMakeContextCurrent(viewPortDisplay.ViewPortID);
-                GlFunction.CurrentGL.Viewport(0, 0, width, height);
-                PrivateShow();
-            };
-            viewPortDisplay.FramePostionCallback = (handle, xpos, ypos)
-                =>
-            {
-                PrivateShow();
-            };
+                _frameLength, TimeSpanProvider.DefaultProvider );
+            FrameSizeCallback = DefaultFrameRewsizeCallback;
         }
 
-        public DataBindingEntry this[string name]
+        public DataBindingEntry this[ string name ]
         {
             get
             {
-                if (this.TryGetObjectReference(name, out DataBindingEntry entry))
-                {
+                if( this.TryGetObjectReference(
+                    name, out DataBindingEntry entry ) ) {
                     return entry;
                 }
                 throw new KeyNotFoundException();
@@ -171,8 +137,10 @@ namespace StgSharp.MVVM.ViewModel
 
         public bool ShouldClose
         {
-            get => InternalIO.glfwWindowShouldClose(viewPortDisplay.ViewPortID) != 0;
-            set => InternalIO.glfwSetWindowShouldClose(viewPortDisplay.ViewPortID, value ? 1 : 0);
+            get => InternalIO.glfwWindowShouldClose(
+                viewPortDisplay.ViewPortID ) != 0;
+            set => InternalIO.glfwSetWindowShouldClose(
+                viewPortDisplay.ViewPortID, value ? 1 : 0 );
         }
 
         public int CurrentFrameCount => frameTimeProvider.CurrentSpan;
@@ -180,28 +148,19 @@ namespace StgSharp.MVVM.ViewModel
         public int FrameSpeed => _frameSpeed;
 
         /// <summary>
-        /// Height of this form, represent in <see cref="int"/>
+        /// Height of this form, represent in <see cref="int" />
         /// </summary>
         public int Height
         {
             get => viewPortDisplay.Height;
-            set { viewPortDisplay.Height = value; }
         }
 
         /// <summary>
-        /// Width of this form, represent in <see cref="int"/>
+        /// Width of this form, represent in <see cref="int" />
         /// </summary>
         public int Width
         {
             get => viewPortDisplay.Width;
-            set
-            {
-                viewPortDisplay.Width = value;
-                if (WindowID != IntPtr.Zero)
-                {
-                    InternalIO.glfwSetWindowSize(viewPortDisplay.ViewPortID, Width, Height);
-                }
-            }
         }
 
         public unsafe IntPtr WindowID
@@ -215,20 +174,11 @@ namespace StgSharp.MVVM.ViewModel
         }
 
         /// <summary>
-        /// Width of this form, represent in <see cref="int"/>
+        /// Width of this form, represent in <see cref="int" />
         /// </summary>
-        public vec2d Size
+        public Vec2 Size
         {
-            get => new vec2d(Width, Height);
-            set
-            {
-                Width = (int)value.X;
-                Height = (int)value.Y;
-                if (WindowID != IntPtr.Zero)
-                {
-                    InternalIO.glfwSetWindowSize(viewPortDisplay.ViewPortID, Width, Height);
-                }
-            }
+            get => new Vec2( Width, Height );
         }
 
         public ViewPort ViewPortBinding
@@ -236,85 +186,74 @@ namespace StgSharp.MVVM.ViewModel
             get => viewPortDisplay;
         }
 
-#pragma warning disable CA1044
+        #pragma warning disable CA1044
         protected FrameBufferSizeHandler FrameSizeCallback
         {
             set
             {
-                IntPtr handlerPtr = Marshal.GetFunctionPointerForDelegate(value);
-                InternalIO.glfwSetFramebufferSizeCallback(viewPortDisplay.ViewPortID, handlerPtr);
+                _resizeCallback = value;
+                IntPtr handlerPtr = Marshal.GetFunctionPointerForDelegate(
+                    value );
+                InternalIO.glfwSetFramebufferSizeCallback(
+                    viewPortDisplay.ViewPortID, handlerPtr );
             }
         }
-#pragma warning restore CA1044
-
+        #pragma warning restore CA1044
 
         public abstract void CustomizeInitialize();
-
-        public Action MethodLookup(string methodName)
-        {
-            MethodInfo method = GetType().GetMethod(methodName);
-            return (method != null) ? ((Action)Delegate.CreateDelegate(typeof(Action), this, method)) : null;
-        }
-
-        /// <summary>
-        /// Resize the current form
-        /// </summary>
-        /// <param name="size">
-        /// A <see cref="vec2d"/> (width,height) representing the new size of current form
-        /// </param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetSize(vec2d size)
-        {
-            this.Size = size;
-            InternalIO.glfwSetWindowSize(this.viewPortDisplay.ViewPortID, (int)size.X, (int)size.Y);
-        }
 
         /// <summary>
         /// Set the size limit of current form
         /// </summary>
         /// <param name="minSize">
-        /// Minimum size of current form. In form of a <see cref="vec2d"/> of (width,height)
+        /// Minimum size of current form. In form of a <see cref="Vec2" /> of (width,height)
         /// </param>
         /// <param name="maxSize">
-        /// Maximum size of current form. In form of a <see cref="vec2d"/> of (width,height)
+        /// Maximum size of current form. In form of a <see cref="Vec2" /> of (width,height)
         /// </param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetSizeLimit(vec2d minSize, vec2d maxSize)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetSizeLimit( Vec2 minSize, Vec2 maxSize )
         {
+            ThreadHelper.MainThreadAssert();
             InternalIO.glfwSetWindowSizeLimits(
-                this.viewPortDisplay.ViewPortID,
-                (int)minSize.X,
-                (int)minSize.Y,
-                (int)maxSize.X,
-                (int)maxSize.Y);
+                this.viewPortDisplay.ViewPortID, ( int )minSize.X,
+                ( int )minSize.Y, ( int )maxSize.X, ( int )maxSize.Y );
         }
 
         /// <summary>
         /// Set the size limit of current form
         /// </summary>
-        /// <param name="minWidth">Minimum width of current form</param>
-        /// <param name="minHeight">Minimum height of current form</param>
-        /// <param name="maxWidth">Maximum width of current form</param>
-        /// <param name="maxHeight">Maximum height of current form</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight)
+        /// <param name="minWidth"> Minimum width of current form </param>
+        /// <param name="minHeight"> Minimum height of current form </param>
+        /// <param name="maxWidth"> Maximum width of current form </param>
+        /// <param name="maxHeight"> Maximum height of current form </param>
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetSizeLimit(
+            int minWidth,
+            int minHeight,
+            int maxWidth,
+            int maxHeight )
         {
-            //TODO 重做form的尺寸极限控制
-            InternalIO.glfwSetWindowSizeLimits(this.viewPortDisplay.ViewPortID, minWidth, minHeight, maxWidth, maxHeight);
+            ThreadHelper.MainThreadAssert();
+            InternalIO.glfwSetWindowSizeLimits(
+                this.viewPortDisplay.ViewPortID, minWidth, minHeight, maxWidth,
+                maxHeight );
         }
 
-        public abstract bool TryGetObjectReference(string name, out DataBindingEntry entry);
+        public abstract bool TryGetObjectReference(
+            string name,
+            out DataBindingEntry entry );
 
-        private void CountFps()
+        private void DefaultFrameRewsizeCallback(
+            IntPtr windowHandle,
+            int width,
+            int height )
         {
-            /**/
-            Console.Clear();
-            Console.WriteLine(FrameSpeed);
-            /**/
-            Interlocked.Exchange(ref _frameSpeed, _frameCount);
-            Interlocked.Exchange(ref _frameCount, 0);
+            ViewPort.GetExistedViewPort( windowHandle, out ViewPort vp );
+            vp.RequestFlushSizeInNextFrame( width, height );
+
+            //Console.WriteLine($"{width}   {height}");
         }
 
     }
-
 }

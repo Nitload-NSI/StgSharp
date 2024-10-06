@@ -29,14 +29,16 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Graphics.OpenGL;
-using StgSharp.Logic;
 using StgSharp.Math;
+
 using StgSharp.MVVM;
 using StgSharp.MVVM.View;
+using StgSharp.Timing;
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -45,34 +47,32 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Graphics
 {
-    public abstract class RenderStream 
+    public abstract class RenderStream
     {
+
         private protected (int x, int y, int z) _coordStretch;
-        private Camera nativeCamera;
         private protected ViewPort primeArgs;
+        private Camera nativeCamera;
         internal TimeSpanProvider _timeProvider;
-        
+
         public (int width, int height) Size
         {
             get => (Width, Height);
-            internal set
-            {
-                primeArgs.Height = value.width;
-                primeArgs.Width = value.height;
-                InternalIO.glfwSetWindowSize(this.CanvasHandle, Width, Height);
-            }
+        }
+
+        public abstract bool IsContextSharable
+        {
+            get;
         }
 
         public int Height
         {
             get => primeArgs.Height;
-            internal set { primeArgs.Height = value; }
         }
 
         public int Width
         {
             get => primeArgs.Width;
-            internal set { primeArgs.Width = value; }
         }
 
         public IntPtr Monitor
@@ -81,25 +81,23 @@ namespace StgSharp.Graphics
             internal set => primeArgs.Monitor = value;
         }
 
-        public abstract bool IsContextSharable
-        {
-            get;
-        }
-
         public string Name
         {
             get => primeArgs.Name;
         }
 
-        public vec2d GlobalCoordSize => ((Width * 1.0f) / _coordStretch.x, (Height * 1.0f) / _coordStretch.y);
+        public Vec2 GlobalCoordSize => (( Width * 1.0f ) / _coordStretch.x, ( Height * 1.0f ) / _coordStretch.y);
 
-        public ViewPort Port
+        public ViewPort BindedViewPortContext
         {
             get => primeArgs;
             internal set => primeArgs = value;
         }
-        internal IntPtr CanvasHandle { get => primeArgs.ViewPortID; }
 
+        internal IntPtr CanvasHandle
+        {
+            get => primeArgs.ViewPortID;
+        }
 
         internal IntPtr ContextHandle
         {
@@ -113,6 +111,11 @@ namespace StgSharp.Graphics
             internal set => nativeCamera = value;
         }
 
+        protected float FramePassed
+        {
+            get => _timeProvider.CurrentSpan;
+        }
+
         protected int PassedFrames
         {
             get => _timeProvider.CurrentSpan;
@@ -123,11 +126,6 @@ namespace StgSharp.Graphics
             get => _timeProvider.CurrentSecond;
         }
 
-        protected float FramePassed
-        {
-            get => _timeProvider.CurrentSpan;
-        }
-
         protected TimeSpanProvider TimeProvider
         {
             get => _timeProvider;
@@ -136,59 +134,81 @@ namespace StgSharp.Graphics
         /// <summary>
         /// Set the size limit of current form
         /// </summary>
-        /// <param name="minWidth">Minimum width of current form</param>
-        /// <param name="minHeight">Minimum height of current form</param>
-        /// <param name="maxWidth">Maximum width of current form</param>
-        /// <param name="maxHeight">Maximum height of current form</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight);
+        /// <param name="minWidth"> Minimum width of current form </param>
+        /// <param name="minHeight"> Minimum height of current form </param>
+        /// <param name="maxWidth"> Maximum width of current form </param>
+        /// <param name="maxHeight"> Maximum height of current form </param>
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public abstract void SetSizeLimit(
+            int minWidth,
+            int minHeight,
+            int maxWidth,
+            int maxHeight );
 
-        public static TTarget ShareContextFrom<TSource, TTarget>(TSource source)
-            where TSource : RenderStream
-            where TTarget : RenderStream, new()
+        public static TTarget ShareContextFrom<TSource, TTarget>(
+            [NotNull]TSource source )
+            where TSource: RenderStream
+            where TTarget: RenderStream, new()
         {
             TTarget target = new TTarget();
-            target.Initialize(source.Port,source._coordStretch,source._timeProvider);
+            target.Initialize(
+                source.BindedViewPortContext, source._coordStretch,
+                source._timeProvider );
             return target;
         }
 
-        internal protected static void PollEvents()
+        /**/
+        protected internal static void PollEvents()
         {
             InternalIO.glfwPollEvents();
         }
 
-        internal protected void SwapBuffers()
+        private protected void SwapBuffers()
         {
-            InternalIO.glfwSwapBuffers(CanvasHandle);
+            InternalIO.glfwSwapBuffers( CanvasHandle );
         }
 
+        /**/
+
         #region native camera operation
-        protected abstract void NativeCameraViewRange(Radius fieldOfRange, vec2d offset, (float frontDepth, float backDepth) viewDepth);
-        protected abstract void NativeCameraViewTarget(vec3d position, vec3d direction, vec3d up);
+
+        protected abstract void NativeCameraViewRange(
+            Radius fieldOfRange,
+            Vec2 offset,
+            (float frontDepth, float backDepth) viewDepth );
+
+        protected abstract void NativeCameraViewTarget(
+            Vec3 position,
+            Vec3 direction,
+            Vec3 up );
 
         /// <summary>
-        /// Get <see cref="Uniform{T}"/>(TView is <see cref="Matrix44"/>) uniform from a shader.
-        /// This uniform will be used as projection matrix of this camera.
-        /// Additionally, for multi-shader rendering, each shader requires a uniform, 
-        /// so do not ignore return value of this method.
+        /// Get <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) uniform from a shader.
+        /// This uniform will be used as projection matrix of this camera. Additionally, for multi-
+        /// shader rendering, each shader requires a uniform,  so do not ignore return value of this
+        /// method.
         /// </summary>
-        /// <param name="source">Shader using this camera</param>
-        /// <param name="name">ContextName of projection camera named in shader</param>
+        /// <param name="source"> Shader using this camera </param>
+        /// <param name="name"> ContextName of projection camera named in shader </param>
         /// <returns>
-        /// <see cref="Uniform{T}"/>(TView is <see cref="Matrix44"/>) representing 
-        /// projection matrix in shader program.
+        /// <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) representing  projection
+        /// matrix in shader program.
         /// </returns>
-        protected abstract Uniform<Matrix44> NativeCameraUniform(ShaderProgram source, string name);
+        protected abstract Uniform<Matrix44> NativeCameraUniform(
+            ShaderProgram source,
+            string name );
+
         #endregion
 
         #region internal operation
-        internal abstract void Draw();
 
-        public void Initialize(ViewPort v, (int, int, int) unitCubeSize, TimeSpanProvider timeProvider)
+        public void Initialize(
+            ViewPort v,
+            (int, int, int) unitCubeSize,
+            TimeSpanProvider timeProvider )
         {
-            if (v == null)
-            {
-                throw new ArgumentNullException(nameof(v));
+            if( v == null ) {
+                throw new ArgumentNullException( nameof( v ) );
             }
             primeArgs = v;
             this._timeProvider = timeProvider;
@@ -196,27 +216,42 @@ namespace StgSharp.Graphics
             nativeCamera = new Camera();
             PlatformSpecifiedInitialize();
             CustomizeInit();
+            InternalIO.glfwMakeContextCurrent( IntPtr.Zero );
         }
 
         internal abstract void PlatformSpecifiedInitialize();
 
         internal abstract void Terminate();
+
         #endregion
 
         #region public operation
+
         protected abstract void CustomizeDeinit();
+
         protected abstract void CustomizeInit();
-        protected abstract void Main();
+
+        /// <summary>
+        /// Marking the start of current render operations,  and set this renser context as current.
+        /// </summary>
+        public abstract void RenderStart();
+
+        /// <summary>
+        /// Marking the end of current render operations,  and release the binding of this renser
+        /// context to current,  making it available for another thread as current.
+        /// </summary>
+        public abstract void RenderEnd();
 
         #endregion
 
         #region public resource generator
 
-        protected abstract Shader CreateShaderSegment(ShaderType type, int count);
+        protected abstract Shader CreateShaderSegment(
+            ShaderType type,
+            int count );
+
         protected abstract ShaderProgram CreateShaderProgram();
 
-        #endregion
-
+    #endregion
     }
-
 }

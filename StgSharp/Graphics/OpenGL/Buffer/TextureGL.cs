@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="texture.cs"
+//     file="TextureGL.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,104 +28,244 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Data.Intrinsic;
 using StgSharp.Math;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.Graphics.OpenGL
 {
-    public unsafe class TextureGL
+    public sealed unsafe class TextureGL
     {
-        private GlFunction GL;
-        internal static bool[] unitActivated = new bool[16];
+
+        private int currentEditingTextureIndex;
+
+        private OpenGLFunction _gl;
         internal GlHandle[] _textureHandle;
-        internal Image[] sourceList;
 
-        public GlHandle this[int index]
+        internal TextureGL( int count, glRender binding )
         {
-            get => _textureHandle[index];
+            //sourceList = new Image[count];
+            this._gl = binding.GL;
+            _textureHandle = _gl.GenTextures( count );
         }
 
-        internal TextureGL(int n, glRenderStream binding)
+        public GlHandle this[ int index ]
         {
-            sourceList = new Image[n];
-            this.GL = binding.GL;
-            _textureHandle = GL.GenTextures(n);
+            get => _textureHandle[ index ];
         }
 
-        public void ActivateAs(TextureUnit unit)
+        public int Count
         {
-            GL.ActiveTexture((uint)unit);
+            get => _textureHandle.Length;
         }
 
-        public void Bind2D(int index)
+        //internal Image[] sourceList;
+
+        public int IndexOfCurrentTexture
         {
-            GL.BindTexture(GLconst.TEXTURE_2D, _textureHandle[index]);
+            get => currentEditingTextureIndex;
+        }
+
+        internal OpenGLFunction GL => _gl;
+
+        public void ActivateAs( TextureUnit unit )
+        {
+            _gl.ActiveTextureUnit( ( uint )unit );
+        }
+
+        public void Bind2D( int index )
+        {
+            currentEditingTextureIndex = index;
+            _gl.BindTexture( GLconst.TEXTURE_2D, _textureHandle[ index ] );
         }
 
         /// <summary>
-        /// Load an <see cref="Image"/> to certain texture.
+        /// Load an <see cref="Image" /> to certain texture.
         /// </summary>
         /// <param name="index"> </param>
         /// <param name="i"> </param>
-        public unsafe void LoadTexture(int index, Image i)
+        public unsafe void LoadTexture( int index, Image i )
         {
-            sourceList[index] = i;
-            var handle = sourceList[index].PixelBuffer;
-            GL.TextureImage2d(
-                Texture2DTarget.Texture2D, 0, (uint)i.Channel,
-                (uint)sourceList[index].Width, (uint)sourceList[index].Height,
-                (uint)i.Channel, i.PixelLayout,
-                pixels: handle
-                );
-            GL.GenerateMipmap(Texture2DTarget.Texture2D);
+            byte[] handle = i.PixelBuffer;
+            _gl.TextureImage2d(
+                Texture2DTarget.Texture2D, 0, i.Channel, ( uint )i.Width,
+                ( uint )i.Height, i.Channel, i.PixelLayout, pixels: handle );
+            _gl.GenerateMipmap( Texture2DTarget.Texture2D );
         }
-
-
 
         #region texture setting
 
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void Set2dFilterProperty(
-            Filter onMinify, Filter onMagnify)
+            int index,
+            TextureFilter onMinify,
+            TextureFilter onMagnify )
         {
-            GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_MIN_FILTER, (int)onMinify);
-            GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_MAG_FILTER, (int)onMagnify);
+            #if DEBUG
+            if( index != currentEditingTextureIndex ) {
+                throw new InvalidOperationException(
+                    "Texture to be editted is not the one being activated." );
+            }
+            #endif
+            _gl.TextureParameter(
+                GLconst.TEXTURE_2D, GLconst.TEXTURE_MIN_FILTER,
+                ( int )onMinify );
+            _gl.TextureParameter(
+                GLconst.TEXTURE_2D, GLconst.TEXTURE_MAG_FILTER,
+                ( int )onMagnify );
         }
 
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void Set2dWrapProperty(
-            Wrap onHorizontial, Wrap onVertical)
+            int index,
+            TextureWrap onHorizontial,
+            TextureWrap onVertical )
         {
-            GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_WRAP_S, (int)onHorizontial);
-            GL.TextureParameter(GLconst.TEXTURE_2D, GLconst.TEXTURE_WRAP_T, (int)onVertical);
+            #if DEBUG
+            if( index != currentEditingTextureIndex ) {
+                throw new InvalidOperationException(
+                    "Texture to be editted is not the one being activated." );
+            }
+            #endif
+            _gl.TextureParameter(
+                GLconst.TEXTURE_2D, GLconst.TEXTURE_WRAP_S,
+                ( int )onHorizontial );
+            _gl.TextureParameter(
+                GLconst.TEXTURE_2D, GLconst.TEXTURE_WRAP_T, ( int )onVertical );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void Set2dProperty( int index, TextureProperty property )
+        {
+            Set2dFilterProperty(
+                index, property.FilterOnMinify, property.FilterOnMagnify );
+            Set2dWrapProperty(
+                index, property.WrapOnHorizontial, property.WrapOnVertical );
         }
 
         #endregion texture setting
+    }
 
+    [StructLayout( LayoutKind.Explicit )]
+    public struct TextureProperty
+    {
+
+        [FieldOffset( 0 )] private M128 mask;
+        [FieldOffset( 0 )] private TextureFilter mag;
+        [FieldOffset( 4 )] private TextureFilter min;
+
+        [FieldOffset( 8 )] private  TextureWrap hori;
+        [FieldOffset( 12 )] private TextureWrap vert;
+
+        public TextureProperty(
+            TextureFilter onMagnify,
+            TextureFilter onMinify,
+            TextureWrap onHorizontial,
+            TextureWrap onVertical )
+        {
+            FilterOnMagnify = onMagnify;
+            FilterOnMinify = onMinify;
+            WrapOnHorizontial = onHorizontial;
+            WrapOnVertical = onVertical;
+        }
+
+        public TextureFilter FilterOnMagnify
+        {
+            get => mag;
+            set => mag = value;
+        }
+
+        public TextureFilter FilterOnMinify
+        {
+            get => min;
+            set => min = value;
+        }
+
+        public TextureWrap WrapOnHorizontial
+        {
+            get => hori;
+            set => hori = value;
+        }
+
+        public TextureWrap WrapOnVertical
+        {
+            get => vert;
+            set => vert = value;
+        }
+
+        public override bool Equals( [NotNullWhen( true )] object obj )
+        {
+            return base.Equals( obj );
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                FilterOnMagnify, FilterOnMagnify, WrapOnHorizontial,
+                WrapOnVertical );
+        }
+
+        public override string ToString()
+        {
+            return $"FilterOnMagnify:{FilterOnMagnify}, " + $"FilterOnMagnify:{FilterOnMagnify}, " + $"WrapOnHorizontial:{WrapOnHorizontial}, " + $"WrapOnVertical:{WrapOnVertical}";
+        }
+
+        public static bool operator !=(
+            TextureProperty left,
+            TextureProperty right )
+        {
+            return left.mask != right.mask;
+        }
+
+        public static bool operator ==(
+            TextureProperty left,
+            TextureProperty right )
+        {
+            return left.mask == right.mask;
+        }
+
+        public static implicit operator TextureProperty(
+            (
+            TextureFilter onMagnify, TextureFilter onMinify,
+            TextureWrap onHorizontial, TextureWrap onVertical
+            ) propertyValueTuple )
+        {
+            return new TextureProperty(
+                propertyValueTuple.onMagnify, propertyValueTuple.onMinify,
+                propertyValueTuple.onHorizontial,
+                propertyValueTuple.onVertical );
+        }
 
     }
 
-#pragma warning disable CA1008
-    public enum Filter
-#pragma warning restore CA1008
+    #pragma warning disable CA1008
+    public enum TextureFilter
+    #pragma warning restore CA1008
     {
+
         Nearest = GLconst.NEAREST,
         Linear = GLconst.LINEAR,
         NearestLinearMipmap = GLconst.NEAREST_MIPMAP_LINEAR,
         LinearLinearMipmap = GLconst.LINEAR_MIPMAP_LINEAR,
         NearestNearestMipmap = GLconst.NEAREST_MIPMAP_NEAREST,
         LinearNearestMipmap = GLconst.LINEAR_MIPMAP_NEAREST,
+
     }
 
-#pragma warning disable CA1008
+    #pragma warning disable CA1008
     public enum TextureUnit
-#pragma warning restore CA1008
+    #pragma warning restore CA1008
     {
+
         Unit0 = GLconst.TEXTURE0,
         Unit1 = GLconst.TEXTURE1,
         Unit2 = GLconst.TEXTURE2,
@@ -142,15 +282,18 @@ namespace StgSharp.Graphics.OpenGL
         Unit13 = GLconst.TEXTURE13,
         Unit14 = GLconst.TEXTURE14,
         Unit15 = GLconst.TEXTURE15,
+
     }
 
-#pragma warning disable CA1008 
-    public enum Wrap
-#pragma warning restore CA1008 
+    #pragma warning disable CA1008 
+    public enum TextureWrap
+    #pragma warning restore CA1008 
     {
+
         Repeat = GLconst.REPEAT,
         MirroredRepeat = GLconst.MIRRORED_REPEAT,
         ClampToEdge = GLconst.CLAMP_TO_EDGE,
         ClampToBorder = GLconst.CLAMP_TO_BORDER,
+
     }
 }

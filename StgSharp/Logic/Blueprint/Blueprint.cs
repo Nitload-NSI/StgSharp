@@ -29,7 +29,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp;
-using StgSharp.Logic;
 
 using System;
 using System.Collections.Generic;
@@ -43,12 +42,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace StgSharp.Logic
+namespace StgSharp.BluePrint
 {
     /// <summary>
-    /// A sets of complex logic designed for running in multi threads environment.
-    /// Warning: do not run a <see cref="Blueprint"/> instance in multi threads more than once.
-    /// 
+    /// A sets of complex logic designed for running in multi threads environment. Warning: do not
+    /// run a <see cref="Blueprint" /> instance in multi threads more than once.
     /// </summary>
     public partial class Blueprint : IConvertableToBlueprintNode
     {
@@ -71,18 +69,14 @@ namespace StgSharp.Logic
             allNode = new Dictionary<string, BlueprintNode>();
             globalNodeList = new List<BlueprintNode>();
             nativeNodeList = new List<BlueprintNode>();
-            runningStat = new SemaphoreSlim(1, 1);
-            beginNode = new BeginningNode(this);
-            endNode = new EndingNode(this);
+            runningStat = new SemaphoreSlim( 1, 1 );
+            beginNode = new BeginningNode( this );
+            endNode = new EndingNode( this );
         }
 
         public BlueprintNode BeginLayer => beginNode;
-        public BlueprintNode EndLayer => endNode;
 
-        internal SemaphoreSlim RunningStat
-        {
-            get => runningStat;
-        }
+        public BlueprintNode EndLayer => endNode;
 
         public bool IsRunning
         {
@@ -95,22 +89,28 @@ namespace StgSharp.Logic
             get => terminate;
             set => terminate = value;
         }
+
+        internal SemaphoreSlim RunningStat
+        {
+            get => runningStat;
+        }
         /**/
 
-        public void AddNode(BlueprintNode node, bool isNative)
+        public void AddNode( BlueprintNode node, bool isNative )
         {
-            _ = node ?? throw new ArgumentNullException(nameof(node));
+            _ = node ?? throw new ArgumentNullException( nameof( node ) );
             node.IsNative = isNative;
-            allNode.Add(node.Name, node);
+            allNode.Add( node.Name, node );
         }
 
-        public void ExecuteMain(in Dictionary<string, BlueprintPipeline> input,
-                    in Dictionary<string, BlueprintPipeline> output)
+        public void ExecuteMain(
+            in Dictionary<string, BlueprintPipeline> input,
+            in Dictionary<string, BlueprintPipeline> output )
         {
-            BlueprintRunner.Run(this, () => true);
+            BlueprintRunner.Run( this, () => true );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public (string name, BlueprintPipelineArgs arg)[] GetOutput()
         {
             return endNode.OutputData;
@@ -118,52 +118,46 @@ namespace StgSharp.Logic
 
         public void Init()
         {
-            foreach (KeyValuePair<string, BlueprintNode> item in allNode)
-            {
-                if (item.Value.IsNative)
-                {
-                    nativeNodeList.Add(item.Value);
-                }
-                else
-                {
-                    globalNodeList.Add(item.Value);
+            foreach( KeyValuePair<string, BlueprintNode> item in allNode ) {
+                if( item.Value.IsNative ) {
+                    nativeNodeList.Add( item.Value );
+                } else {
+                    globalNodeList.Add( item.Value );
                 }
             }
             nativeNodeList.Sort();
             globalNodeList.Sort();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetInput(params (string name, BlueprintPipelineArgs arg)[] parameters)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void SetInput(
+            params (string name, BlueprintPipelineArgs arg)[] parameters )
         {
             beginNode.InputData = parameters;
         }
 
         public void Terminate()
         {
-            Interlocked.Exchange(ref currentGlobalNodeIndex, int.MaxValue);
-            Interlocked.Exchange(ref currentNativeNodeIndex, int.MaxValue);
+            Interlocked.Exchange( ref currentGlobalNodeIndex, int.MaxValue );
+            Interlocked.Exchange( ref currentNativeNodeIndex, int.MaxValue );
         }
 
-        internal bool RequestNexGlobalNode(out BlueprintNode node)
+        internal bool RequestNexGlobalNode( out BlueprintNode node )
         {
-            if (currentGlobalNodeIndex < globalNodeList.Count)
-            {
-                node = globalNodeList[currentGlobalNodeIndex];
-                Interlocked.Increment(ref currentGlobalNodeIndex);
+            if( currentGlobalNodeIndex < globalNodeList.Count ) {
+                node = globalNodeList[ currentGlobalNodeIndex ];
+                Interlocked.Increment( ref currentGlobalNodeIndex );
                 return true;
             }
             node = default!;
             return false;
         }
 
-        internal bool RequestNextNativeNode(out BlueprintNode node)
+        internal bool RequestNextNativeNode( out BlueprintNode node )
         {
-
-            if (currentNativeNodeIndex < nativeNodeList.Count)
-            {
-                node = nativeNodeList[currentNativeNodeIndex];
-                Interlocked.Increment(ref currentNativeNodeIndex);
+            if( currentNativeNodeIndex < nativeNodeList.Count ) {
+                node = nativeNodeList[ currentNativeNodeIndex ];
+                Interlocked.Increment( ref currentNativeNodeIndex );
                 return true;
             }
             node = default!;
@@ -172,14 +166,17 @@ namespace StgSharp.Logic
 
         string[] IConvertableToBlueprintNode.InputInterfacesName
         {
-            get { return beginNode.OutputInterfaces.Select(p => p.Key).ToArray(); }
+            get { return beginNode.OutputInterfaces
+                      .Select( p => p.Key )
+                      .ToArray(); }
         }
 
         string[] IConvertableToBlueprintNode.OutputInterfacesName
         {
-            get { return beginNode.OutputInterfaces.Select(p => p.Key).ToArray(); }
+            get { return beginNode.OutputInterfaces
+                      .Select( p => p.Key )
+                      .ToArray(); }
         }
 
     }
-
 }

@@ -38,28 +38,27 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Logic
+namespace StgSharp.BluePrint
 {
-
     public class BlueprintPipeline
     {
+
         private BlueprintNode after;
         private BlueprintNode former;
         private BlueprintPipelineArgs args;
         private SemaphoreSlim formerCompleteSemaphore;
 
-        public BlueprintPipeline(BlueprintNode former, BlueprintNode after)
+        public BlueprintPipeline( BlueprintNode former, BlueprintNode after )
         {
             this.former = former;
             this.after = after;
-            formerCompleteSemaphore = new SemaphoreSlim(initialCount: 0, maxCount: 1);
+            formerCompleteSemaphore = new SemaphoreSlim(
+                initialCount: 0, maxCount: 1 );
         }
 
         public BlueprintNode After => after;
 
         public BlueprintNode Former => former;
-
-        public int Level => former.Level;
 
         public BlueprintPipelineArgs Args
         {
@@ -67,49 +66,29 @@ namespace StgSharp.Logic
             set => args = value;
         }
 
-        #region pipline op
+        public int Level => former.Level;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CompleteAndSkip()
+        public static void SkipAll(
+            Dictionary<string, BlueprintPipeline> ports )
         {
-            //Console.WriteLine($"Complete\t{former.Name}\t->\t{after.Name}");
-            formerCompleteSemaphore.Release();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CompleteAndWriteData(BlueprintPipelineArgs args)
-        {
-            this.args = args;
-            CompleteAndSkip();
-        }
-
-        #endregion
-
-        public static void SkipAll(Dictionary<string, BlueprintPipeline> ports)
-        {
-            if (ports == null)
-            {
-                throw new ArgumentNullException(nameof(ports));
+            if( ports == null ) {
+                throw new ArgumentNullException( nameof( ports ) );
             }
-            foreach (var item in ports)
-            {
-                if (item.Value!=null)
-                {
+            foreach( KeyValuePair<string, BlueprintPipeline> item in ports ) {
+                if( item.Value != null ) {
                     item.Value.CompleteAndSkip();
                 }
             }
         }
 
-        public static void WaitAll(Dictionary<string, BlueprintPipeline> ports)
+        public static void WaitAll(
+            Dictionary<string, BlueprintPipeline> ports )
         {
-            if (ports == null)
-            {
-                throw new ArgumentNullException(nameof(ports));
+            if( ports == null ) {
+                throw new ArgumentNullException( nameof( ports ) );
             }
-            foreach (var item in ports)
-            {
-                if (item.Value!=null)
-                {
+            foreach( KeyValuePair<string, BlueprintPipeline> item in ports ) {
+                if( item.Value != null ) {
                     item.Value.WaitForStart();
                 }
             }
@@ -126,12 +105,33 @@ namespace StgSharp.Logic
             formerCompleteSemaphore.Dispose();
         }
 
+        #region pipline op
 
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void CompleteAndSkip()
+        {
+            //Console.WriteLine($"Complete\t{former.Name}\t->\t{after.Name}");
+            formerCompleteSemaphore.Release();
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void CompleteAndWriteData( BlueprintPipelineArgs args )
+        {
+            this.args = args;
+            CompleteAndSkip();
+        }
+
+        #endregion
     }
 
     public abstract class BlueprintPipelineArgs
     {
-        public object? Value { get; set; }
+
+        public object? Value
+        {
+            get;
+            set;
+        }
 
     }
 }

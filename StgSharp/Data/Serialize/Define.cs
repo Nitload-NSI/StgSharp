@@ -34,13 +34,8 @@ using System.Text;
 
 namespace StgSharp.Data
 {
-
     /// <summary>
     /// A class contains a sets of methods to serialize several types
     /// </summary>
-    public static partial class Serializer
-    {
-
-
-    }
+    public static partial class Serializer { }
 }

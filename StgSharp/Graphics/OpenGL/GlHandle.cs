@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="GLhandle.cs"
+//     file="glHandle.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,10 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-#if Windows
-using Microsoft.Win32.SafeHandles;
-#endif
-
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -46,29 +42,29 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Graphics.OpenGL
 {
-    [StructLayout(LayoutKind.Explicit, Size = 4)]
+    [StructLayout( LayoutKind.Explicit, Size = 4 )]
     public struct GlHandle
     {
-        [FieldOffset(0)] public uint Value;
-        [FieldOffset(0)] public int SignedValue;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static GlHandle Alloc(uint value)
-        {
-            return new GlHandle() { Value = value };
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static GlHandle SignedAlloc(int value)
-        {
-            return new GlHandle() { SignedValue = value };
-        }
+        [FieldOffset( 0 )] public int SignedValue;
+        [FieldOffset( 0 )] public uint Value;
 
         public static GlHandle Zero
         {
-            get => new GlHandle() { Value = 0 };
+            get => new GlHandle { Value = 0 };
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static GlHandle Alloc( uint value )
+        {
+            return new GlHandle { Value = value };
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static GlHandle SignedAlloc( int value )
+        {
+            return new GlHandle { SignedValue = value };
         }
 
     }
-
 }

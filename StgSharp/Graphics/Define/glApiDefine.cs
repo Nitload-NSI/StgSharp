@@ -28,14 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-/*
- * This file is created to link functions in OpenGL to version in C#
- * The name of delegates and organization to init all these delegates 
- * are refferd from GLAD1 in agreement of MIT license generated from 
- * https://glad.dav1d.de/
- */
-
-
 using StgSharp.Math;
 
 using System;
@@ -44,29 +36,62 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.Graphics
 {
-    #region StgSharpDele
-
-    public unsafe delegate void FrameBufferSizeHandler(IntPtr window, uint width, uint height);
-
-    public unsafe delegate void FramePositionHandler(IntPtr window, float width, float height);
-
-    #endregion
-
     /// <summary>
     /// Function handler to load an opengl function by searching its name.
     /// </summary>
-    /// <param name="name">the name of the Opengl function</param>
-    /// <returns>An Intptr value representing the pointer to the function</returns>
-    public delegate IntPtr glLoader(string name);
+    /// <param name="name"> the name of the Opengl function </param>
+    /// <returns> An Intptr value representing the pointer to the function </returns>
+    public delegate IntPtr glLoader( string name );
 
-    #region glDEBUG
+    #region StgSharpDele
 
-    internal unsafe delegate void GLDEBUGPROC(int source, int type, uint id, int severity, int length, sbyte* message, void* userParam);
-    internal unsafe delegate void GLDEBUGPROCARB(int source, int type, uint id, int severity, int length, sbyte* message, void* userParam);
-    internal unsafe delegate void GLDEBUGPROCKHR(int source, int type, uint id, int severity, int length, sbyte* message, void* userParam);
-    internal unsafe delegate void GLDEBUGPROCAMD(uint id, int category, int severity, int length, sbyte* message, void* userParam);
+    public unsafe delegate void FrameBufferSizeHandler(
+        IntPtr window,
+        int width,
+        int height );
+
+    public unsafe delegate void FramePositionHandler(
+        IntPtr window,
+        float width,
+        float height );
 
     #endregion
 
+
+    #region glDEBUG
+
+    internal unsafe delegate void GLDEBUGPROC(
+        int source,
+        int type,
+        uint id,
+        int severity,
+        int length,
+        sbyte* message,
+        void* userParam );
+    internal unsafe delegate void GLDEBUGPROCARB(
+        int source,
+        int type,
+        uint id,
+        int severity,
+        int length,
+        sbyte* message,
+        void* userParam );
+    internal unsafe delegate void GLDEBUGPROCKHR(
+        int source,
+        int type,
+        uint id,
+        int severity,
+        int length,
+        sbyte* message,
+        void* userParam );
+    internal unsafe delegate void GLDEBUGPROCAMD(
+        uint id,
+        int category,
+        int severity,
+        int length,
+        sbyte* message,
+        void* userParam );
+
+#endregion
 
 }

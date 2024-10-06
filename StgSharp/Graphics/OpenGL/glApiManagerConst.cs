@@ -36,6 +36,7 @@ namespace StgSharp.Graphics.OpenGL
 {
     public static partial class glManager
     {
+
         #region coreVersion
 
         private static bool core10 = false;
@@ -682,8 +683,6 @@ namespace StgSharp.Graphics.OpenGL
         private static bool WIN_phong_shading;
         private static bool WIN_specular_fog;
 
-
         #endregion
-
     }
 }
