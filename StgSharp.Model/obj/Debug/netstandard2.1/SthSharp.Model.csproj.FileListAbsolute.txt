@@ -1,0 +1,14 @@
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\bin\Debug\netstandard2.1\SthSharp.Model.deps.json
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\bin\Debug\netstandard2.1\SthSharp.Model.dll
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\bin\Debug\netstandard2.1\SthSharp.Model.pdb
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\bin\Debug\netstandard2.1\StgSharp.Commom.dll
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\bin\Debug\netstandard2.1\StgSharp.Commom.xml
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\obj\Debug\netstandard2.1\SthSharp.Model.csproj.AssemblyReference.cache
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\obj\Debug\netstandard2.1\SthSharp.Model.GeneratedMSBuildEditorConfig.editorconfig
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\obj\Debug\netstandard2.1\SthSharp.Model.AssemblyInfoInputs.cache
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\obj\Debug\netstandard2.1\SthSharp.Model.AssemblyInfo.cs
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\obj\Debug\netstandard2.1\SthSharp.Model.csproj.CoreCompileInputs.cache
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\obj\Debug\netstandard2.1\SthSharp.Model.sourcelink.json
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\obj\Debug\netstandard2.1\SthSharp.79155A86.Up2Date
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\obj\Debug\netstandard2.1\SthSharp.Model.dll
+D:\NitloadIndustry\研究项目\1-Flagship\TH2020\ProjectFile\内核源代码\SthSharp.Model\obj\Debug\netstandard2.1\SthSharp.Model.pdb

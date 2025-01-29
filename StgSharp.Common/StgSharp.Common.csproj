@@ -1,0 +1,113 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <LangVersion>Preview</LangVersion>
+        <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <Platforms>AnyCPU;x64</Platforms>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression> MIT</PackageLicenseExpression>
+        <EnableNETAnalyzers>True</EnableNETAnalyzers>
+        <AnalysisLevel>preview-all</AnalysisLevel>
+        <OutputType>Library</OutputType>
+        <Nullable>enable</Nullable>
+        <Configurations>Debug;Release;NoOps;RealDebug;Benchmark;Toollist</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <Optimize>True</Optimize>
+        <DebugType>embedded</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|x64'">
+        <Optimize>True</Optimize>
+        <DebugType>embedded</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DebugType>embedded</DebugType>
+        <Optimize>True</Optimize>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <DebugType>none</DebugType>
+        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+        <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
+        <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
+        <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(IsWindows)'=='true'">
+        <DefineConstants>WINDOWS</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(IsOSX)'=='true'">
+        <DefineConstants>OSX</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(IsLinux)'=='true'">
+        <DefineConstants>LINUX</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="..\StgSharpGraphic">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Internal\glLoader\" />
+    </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+
+    </Target>
+
+    <PropertyGroup>
+        <MySymbol>$(ColiisionTextureVertexShader)</MySymbol>
+        <MySymbol>$(ColiisionTextureFragmentShader)</MySymbol>
+        <SignAssembly>False</SignAssembly>
+        <ErrorReport>send</ErrorReport>
+        <PackageProjectUrl>https://github.com/Nitload-NSI/StgSharp</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Nitload-NSI/StgSharp.git</RepositoryUrl>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NoOps|AnyCPU'">
+      <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NoOps|x64'">
+      <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="xcopy  /E /I /Y  $(SolutionDir)build $(OutDir)" />
+    </Target>
+    
+</Project>

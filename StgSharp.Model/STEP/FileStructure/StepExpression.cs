@@ -1,0 +1,135 @@
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="StepExpression.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using StgSharp;
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace StgSharp.Modeling.STEP
+{
+    public abstract class StepExpressionBase 
+    {
+        public abstract List<StepExpressionBase> ParameterList { get; set; }
+
+        public int ID { get; internal set; }
+    }
+
+    public abstract class StepExpressionParameter : StepExpressionBase
+    {
+        public abstract object Value { get; set; }
+    }
+
+    public class StepObjectConstructor
+    {
+
+        private static Regex regex = new Regex(
+            @"(?<param1>.+?(\)|'\s?\)|'))\s?(?<sepcomma>,)\s?(?<other>(.|\(|\(\s?').+)",
+            RegexOptions.Compiled );
+
+        private readonly int _id;
+        private readonly List<string> _paramList;
+        private string _caller;
+
+        public StepObjectConstructor( int id, string caller, string parameters )
+        {
+            _caller = caller;
+            _paramList = new List<string>();
+            SplitParameter( parameters );
+        }
+
+        public string this[ int paramIndex ]
+        {
+            get => _paramList[ paramIndex ];
+        }
+
+        public ReadOnlyCollection<string> ParamList
+        {
+            get => _paramList.AsReadOnly();
+        }
+
+        public static string TempCallerName
+        {
+            get => "TEMPCALLER";
+        }
+
+        public string Caller
+        {
+            get => _caller;
+            internal set => _caller = value;
+        }
+
+        public static StepObjectConstructor CreateTempExpression( int id )
+        {
+            return new StepObjectConstructor( id, "TEMPCALLER", string.Empty );
+        }
+
+        private void SplitParameter( string parameters )
+        {
+            if( string.IsNullOrEmpty( parameters ) || string.IsNullOrWhiteSpace(
+                parameters ) ) {
+                return;
+            }
+            Match match = regex.Match( parameters );
+            while( match.Success ) {
+                _paramList.Add( match.Groups[ "param1" ].Value );
+                parameters = match.Groups[ "other" ].Value;
+                match = regex.Match( parameters );
+            }
+            _paramList.Add( parameters );
+        }
+
+    }
+
+    public record class StepCodeLine
+    {
+        public StepCodeLine( int id, string codeLine )
+        {
+            ID = id;
+            CodeLine = codeLine;
+        }
+
+        public　int ID
+        {
+            get;
+            set;
+        }
+
+        public string CodeLine
+        {
+            get;
+            set;
+        }
+    }
+}
