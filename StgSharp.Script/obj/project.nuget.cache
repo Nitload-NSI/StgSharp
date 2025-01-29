@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "1y5lTtAbIXo=",
+  "success": true,
+  "projectFilePath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp.Script\\StgSharp.Script.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Youmu\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\Youmu\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
+    "C:\\Users\\Youmu\\.nuget\\packages\\system.collections.immutable\\8.0.0\\system.collections.immutable.8.0.0.nupkg.sha512",
+    "C:\\Users\\Youmu\\.nuget\\packages\\system.memory\\4.5.5\\system.memory.4.5.5.nupkg.sha512",
+    "C:\\Users\\Youmu\\.nuget\\packages\\system.numerics.vectors\\4.4.0\\system.numerics.vectors.4.4.0.nupkg.sha512",
+    "C:\\Users\\Youmu\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.1.0\\system.runtime.compilerservices.unsafe.6.1.0.nupkg.sha512"
+  ],
+  "logs": []
+}

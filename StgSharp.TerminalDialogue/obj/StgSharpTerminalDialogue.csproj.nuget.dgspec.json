@@ -1,0 +1,75 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp.TerminalDialogue\\StgSharpTerminalDialogue.csproj": {}
+  },
+  "projects": {
+    "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp.TerminalDialogue\\StgSharpTerminalDialogue.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp.TerminalDialogue\\StgSharpTerminalDialogue.csproj",
+        "projectName": "StgSharpTerminalDialogue",
+        "projectPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp.TerminalDialogue\\StgSharpTerminalDialogue.csproj",
+        "packagesPath": "C:\\Users\\Youmu\\.nuget\\packages\\",
+        "outputPath": "D:\\NitloadIndustry\\研究项目\\1-Flagship\\TH2020\\内核开源发布\\StgSharp.TerminalDialogue\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Youmu\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "D:\\Programmer\\NugetLocal": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Terminal.Gui": {
+              "target": "Package",
+              "version": "[2.0.0-v2-develop.2329, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
