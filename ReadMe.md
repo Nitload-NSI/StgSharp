@@ -21,7 +21,7 @@ Most of the basic graphic functions are contained in the project called "StgShar
 
 StgSharp provides full support of all OpenGL APIs and features, and provides a cross platform viewport manager based on [GLFW](https://www.glfw.org/). 
 
-As well, we provide support to [EXPRESS language](https://www.expresslang.org/) or [ISO 1303-11](https://www.iso.org/standard/38047.html). You can use it to build a blueprint or other structured data.
+As well, we provide support to [EXPRESS language](https://www.expresslang.org/) (or [ISO 1303-11](https://www.iso.org/standard/38047.html)). You can use it to build a blueprint or other structured data.
 
 ## Install ##
 
@@ -38,6 +38,8 @@ We are planning to including Skia (based on [SkiaSharp](https://github.com/mono/
 StgSharp will also bew available on different OS platforms, listed in Version History. It is needed to be informed that we removed the plan on OS X series and HarmonyOS from recent plans.
 
 ## Version History *
+
+A brief introduction to all main versions are listed bellow, for more detailed info, please read our [release blog](https://github.com/Nitload-NSI/StgSharp/blob/main/UpdateBlog.md).
 
 | Version | Description                                        | Windows    | Linux      | Android    |
 |---------|----------------------------------------------------|------------|------------|------------|
