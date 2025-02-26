@@ -33,6 +33,7 @@ using StgSharp.Math;
 using System;
 using System.Collections.Generic;
 using System.Net.Security;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -64,9 +65,9 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Set _data to current vertex buffer object
+        /// Set _data to current vertex Buffer object
         /// </summary>
-        /// <typeparam _name="T"> Type of bufferData </typeparam>
+        /// <typeparam _name="TItem"> Type of bufferData </typeparam>
         /// <param _name="index"> Index to find certain VBO in this instance </param>
         /// <param _name="bufferData"> Data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>
@@ -81,9 +82,9 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Set _data to current vertex buffer object
+        /// Set _data to current vertex Buffer object
         /// </summary>
-        /// <typeparam _name="T"> Type of bufferData </typeparam>
+        /// <typeparam _name="TItem"> Type of bufferData </typeparam>
         /// <param _name="index"> Index to find certain VBO in this instance </param>
         /// <param _name="bufferArray"> Data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>
@@ -91,21 +92,16 @@ namespace StgSharp.Graphics.OpenGL
             int index,
             T[] bufferArray,
             BufferUsage usage )
-            where T: struct,
-#if NET8_0_OR_GREATER
-            INumber
-#else
-            IConvertible
-        #endif
+            where T: struct, INumber<T>
         {
             GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
             GL.SetBufferData( BufferType.ArrayBuffer, bufferArray, usage );
         }
 
         /// <summary>
-        /// Set _data to current vertex buffer object
+        /// Set _data to current vertex Buffer object
         /// </summary>
-        /// <typeparam _name="T"> Type of bufferData </typeparam>
+        /// <typeparam _name="TItem"> Type of bufferData </typeparam>
         /// <param _name="index"> Index to find certain VBO in this instance </param>
         /// <param _name="scalerSpan"> A <see cref="Span{T}" /> of _data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>
@@ -113,21 +109,16 @@ namespace StgSharp.Graphics.OpenGL
             int index,
             ReadOnlySpan<T> scalerSpan,
             BufferUsage usage )
-            where T: struct,
-#if NET8_0_OR_GREATER
-            INumber
-#else
-            IConvertible
-        #endif
+            where T: struct,INumber<T>
         {
             GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
             GL.SetBufferData( BufferType.ArrayBuffer, scalerSpan, usage );
         }
 
         /// <summary>
-        /// Set _data to current vertex buffer object
+        /// Set _data to current vertex Buffer object
         /// </summary>
-        /// <typeparam _name="T"> Type of bufferData </typeparam>
+        /// <typeparam _name="TItem"> Type of bufferData </typeparam>
         /// <param _name="index"> Index to find certain VBO in this instance </param>
         /// <param _name="vectorSpan"> A <see cref="Span{T}" /> of _data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>
@@ -142,9 +133,9 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Set _data to current vertex buffer object
+        /// Set _data to current vertex Buffer object
         /// </summary>
-        /// <typeparam _name="T"> Type of bufferData </typeparam>
+        /// <typeparam _name="TItem"> Type of bufferData </typeparam>
         /// <param _name="index"> Index to find certain VBO in this instance </param>
         /// <param _name="vectorArray"> A array of _data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>

@@ -32,6 +32,7 @@ using StgSharp.Internal.Intrinsic;
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace StgSharp.Internal
@@ -66,12 +67,10 @@ namespace StgSharp.Internal
             }
         }
 
-        [DllImport(
-                SSC_libName,
-                CallingConvention = CallingConvention.Cdecl,
-                EntryPoint = "load_intrinsic_function" )]
-        private static extern int LoadIntrinsicFunction(
-                                          IntrinsicContext* context );
+        [LibraryImport( SSC_libName, EntryPoint = "load_intrinsic_function" )]
+        [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
+        private static partial int LoadIntrinsicFunction(
+                                           IntrinsicContext* context );
 
     }
 }

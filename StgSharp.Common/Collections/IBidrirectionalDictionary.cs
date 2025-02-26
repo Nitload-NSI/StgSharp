@@ -38,7 +38,7 @@ namespace StgSharp.Commom.Collections
     public interface IBidirectionalDictionary<TFirst, TSecond> : IDictionary<TFirst, TSecond>
     {
 
-        public TFirst this[TSecond key]
+        public TFirst this[ TSecond key ]
         {
             get;
             set;
@@ -73,7 +73,7 @@ namespace StgSharp.Commom.Collections
         /// true if the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains an element
         /// with the specified key; otherwise, false.
         /// </returns>
-        public bool Contains(TSecond key);
+        public bool Contains( TSecond key );
 
         /// <summary>
         /// Determines whether the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains
@@ -84,17 +84,17 @@ namespace StgSharp.Commom.Collections
         /// true if the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains an element
         /// with the specified key; otherwise, false.
         /// </returns>
-        public bool Contains(TFirst key);
+        public bool Contains( TFirst key );
 
-        public bool TryGetValue(TSecond key, out TFirst value);
+        public bool TryGetValue( TSecond key, out TFirst value );
 
-#pragma warning disable CA1033
+        #pragma warning disable CA1033
         ICollection<TFirst> IDictionary<TFirst, TSecond>.Keys => FirstIndex;
 
         ICollection<TSecond> IDictionary<TFirst, TSecond>.Values => SecondIndex;
 
-        bool IDictionary<TFirst, TSecond>.ContainsKey(TFirst key) => Contains(
-            key);
+        bool IDictionary<TFirst, TSecond>.ContainsKey( TFirst key ) => Contains(
+            key );
 #pragma warning restore CA1033 
     }
 }

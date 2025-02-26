@@ -1,11 +1,11 @@
 ﻿#include "StgSharpC.h"
 #include "gl.h"
 #include "glfw3.h"
-#include "ssc_framework.h"
 #include <stdio.h>
+#include <string.h>
 
 GladGLContext *currentContext;
-extern char infolog[512] = { 0 };
+extern char infolog[512];
 
 SSCAPI int SSCDECL glCheckShaderStat(GladGLContext *context, uint64_t shaderHandle, int key,
                                      char **logRef)
@@ -31,12 +31,12 @@ SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char *procName)
 {
         void *ret = glfwGetProcAddress(procName);
         // printf("%llu\n", (uint64_t)ret);
-        if (ret = NULL) {
-                *infolog = "Failed to load OpenGL api:";
+        if (ret == NULL) {
+                strcpy_s(infolog,30, "Failed to load OpenGL api:");
                 for (size_t i = 0; i < sizeof(procName); i++) {
                         infolog[30 + i] = procName[i];
                 }
-                printf("%s\n", infolog);
+                //printf("%s\n", infolog);
         }
         return (GLFWglproc)ret;
 }
@@ -68,8 +68,8 @@ SSCAPI void SSCDECL unloadImageData(Image *out)
         free(out->pixelPtr);
 }
 
-char *_cdecl readLog()
+char *SSCDECL readLog()
 {
         infolog[511] = '\0';
-        return &infolog;
+        return infolog;
 }

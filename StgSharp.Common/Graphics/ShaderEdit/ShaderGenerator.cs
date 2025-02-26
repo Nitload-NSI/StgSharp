@@ -82,15 +82,15 @@ namespace StgSharp.Graphics.ShaderEdit
                     "Provided parameters does not match function's parameter list." );
             }
             if( !ShaderParameter.IsSameType( outPut, function.outPut ) ) {
-                // Type of returning value not qual
-                throw new Exception(
+                // Type of returning value not equal
+                throw new ArgumentException(
                     "Provided parameters does not match function's parameter list." );
             }
             for( int i = 0; i < inputParams.Length; i++ ) {
                 if( !ShaderParameter.IsSameType(
                     function.inputList[ i ], inputParams[ i ] ) ) {
                     // Input type not match
-                    throw new Exception(
+                    throw new InvalidCastException(
                         "Provided parameters does not match function's parameter list." );
                 }
             }

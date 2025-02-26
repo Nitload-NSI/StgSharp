@@ -50,7 +50,7 @@ namespace StgSharp.Internal
             "SS_errorlog.log";
 
         internal const string SSC_libName =
-            "StgSharpC";
+            "StgSharp.C";
 
         internal static Dictionary<TypeCode, uint> GLtype =
             new Dictionary<TypeCode, uint>();
@@ -94,10 +94,11 @@ namespace StgSharp.Internal
                 IntPtr procPtr =
 #if WINDOWS
                     IntPtr.Zero;
-#elif LINUX
+                #elif LINUX
 
-#else
+                #else
                     IntPtr.Zero;
+
                 #endif
                 return procPtr;
             }
@@ -128,8 +129,8 @@ namespace StgSharp.Internal
                                      LogType logType )
         {
             logSyncSemaphore.Wait();
-            if( !File.Exists( InternalIO.SS_errorLog ) ) {
-                FileStream stream = File.Create( InternalIO.SS_errorLog );
+            if( !File.Exists( SS_errorLog ) ) {
+                FileStream stream = File.Create( SS_errorLog );
                 stream.Close();
             }
 

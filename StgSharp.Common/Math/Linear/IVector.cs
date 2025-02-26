@@ -40,9 +40,9 @@ namespace StgSharp.Math
     public interface IVector
     {
         /*
-        public static T Create<T>(Vector4 source) where T : IVector
+        public static TItem Create<TItem>(Vector4 source) where TItem : IVector
         {
-            return T
+            return TItem
         }
         /**/
 

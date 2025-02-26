@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
         <LangVersion>Preview</LangVersion>
         <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
@@ -14,7 +14,7 @@
         <AnalysisLevel>preview-all</AnalysisLevel>
         <OutputType>Library</OutputType>
         <Nullable>enable</Nullable>
-        <Configurations>Debug;Release;NoOps;RealDebug;Benchmark;Toollist</Configurations>
+        <Configurations>Debug;Release;</Configurations>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -22,8 +22,8 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-        <Optimize>True</Optimize>
-        <DebugType>embedded</DebugType>
+        <Optimize>False</Optimize>
+        <DebugType>portable</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
         <Deterministic>False</Deterministic>
     </PropertyGroup>
@@ -36,8 +36,8 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DebugType>embedded</DebugType>
-        <Optimize>True</Optimize>
+        <DebugType>portable</DebugType>
+        <Optimize>False</Optimize>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
         <Deterministic>False</Deterministic>
     </PropertyGroup>
@@ -46,12 +46,14 @@
         <DebugType>none</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
         <Deterministic>False</Deterministic>
+        <Optimize>True</Optimize>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
         <DebugType>none</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
         <Deterministic>False</Deterministic>
+        <Optimize>True</Optimize>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -81,10 +83,6 @@
         </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Internal\glLoader\" />
-    </ItemGroup>
-
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
 
     </Target>
@@ -107,7 +105,7 @@
     </PropertyGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="xcopy  /E /I /Y  $(SolutionDir)build $(OutDir)" />
+      <Exec Command="xcopy  /E /I /Y $(OutDir) $(SolutionDir)build" />
     </Target>
     
 </Project>

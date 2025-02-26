@@ -39,7 +39,7 @@ using System.Threading.Tasks;
 namespace StgSharp.Graphics
 {
     /// <summary>
-    /// Interface of all kinds OpenGL buffer objects
+    /// Interface of all kinds OpenGL Buffer objects
     /// </summary>
     public abstract class BufferObjectBase : IDisposable
     {
@@ -55,7 +55,7 @@ namespace StgSharp.Graphics
         public GlHandle this[ int index ] => _bufferHandle[ index ];
 
         /// <summary>
-        /// Bind a buffer instance to OpenGL
+        /// Bind a Buffer instance to OpenGL
         /// </summary>
         /// <param _name="index"> Index of handle of the object in this instance to be bind </param>
         public abstract void Bind( int index );

@@ -50,10 +50,13 @@
     <ClCompile Include="intrinsic.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="quick_hash.c">
+    <ClCompile Include="hash.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="vector_dot.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="string.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -65,9 +68,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="khrplatform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ssc_framework.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ssc_internal.h">

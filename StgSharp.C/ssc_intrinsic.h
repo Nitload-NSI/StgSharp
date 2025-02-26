@@ -7,6 +7,7 @@
 
 #include "StgSharpC.h"
 #include <immintrin.h>
+#include <smmintrin.h>
 
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -15,6 +16,7 @@
 
 #define LASTTWO(x) (x & 3)
 #define LAST(x) (x & 3)
+#define get_align_begin(x) ((x + 15) & (~15))
 
 #define SSE_INSERT(source, target, reset3, reset2, reset1, reset0)                      \
         (LASTTWO(source - 1) << 6) | (LASTTWO(target - 1) << 4) | (LAST(reset3) << 3) | \
@@ -24,6 +26,11 @@
 
 #define zero_vec _mm_setzero_ps()
 #define zero_vec_256 _mm256_setzero_ps()
+
+typedef union uint64_u {
+        uint64_t u64;
+        uint32_t u32[2];
+}uint64_u;
 
 typedef union column_2 {
         __m256 stream;
@@ -96,9 +103,10 @@ INTERNAL void SSCDECL dot_43_512(__4_columnset *transpose, __m128 *vector, __m12
 
 #pragma endregion
 
-#pragma region quick_hash
+#pragma region string
 
-INTERNAL int quick_string_hash(byte *str, int length);
+INTERNAL int SSCDECL city_hash_simplify_sse(byte const *str, int length);
+INTERNAL int SSCDECL index_pair_sse(short const *str, uint32_t target, int length);
 
 #pragma endregion
 
@@ -106,6 +114,7 @@ typedef struct ssc_intrinsic {
         MATARITHMETIC add_m2;
         MATARITHMETIC add_m3;
         MATARITHMETIC add_m4;
+        int (*city_hash_simplify)(byte *str, int length);
         MATRIXDETPROC det_matrix33;
         MATRIXDETPROC det_matrix44;
         DOTPROC dot_31;
@@ -113,8 +122,8 @@ typedef struct ssc_intrinsic {
         DOTPROC dot_41;
         DOTPROC dot_42;
         DOTPROC dot_43;
+        int (*index_pair)(short const *str, uint32_t target, int length);
         VECTORNORMALIZEPROC normalize_3;
-        int (*string_quick_hash)(char *str, int length);
         MATRIXTRANSPOSEPROC transpose_23;
         MATRIXTRANSPOSEPROC transpose_24;
         MATRIXTRANSPOSEPROC transpose_32;

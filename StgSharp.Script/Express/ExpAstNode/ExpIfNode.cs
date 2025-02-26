@@ -1,0 +1,78 @@
+﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+//     file="ExpIfNode.cs"
+//     Project: StgSharp
+//     AuthorGroup: Nitload Space
+//     Copyright (c) Nitload Space. All rights reserved.
+//     
+//     Permission is hereby granted, free of charge, to any person 
+//     obtaining a copy of this software and associated documentation 
+//     files (the “Software”), to deal in the Software without restriction, 
+//     including without limitation the rights to use, copy, modify, merge,
+//     publish, distribute, sublicense, and/or sell copies of the Software, 
+//     and to permit persons to whom the Software is furnished to do so, 
+//     subject to the following conditions:
+//     
+//     The above copyright notice and 
+//     this permission notice shall be included in all copies 
+//     or substantial portions of the Software.
+//     
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
+//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
+//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//     
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+using StgSharp.Script.Express;
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace StgSharp.Script.Express
+{
+    public sealed class ExpIfNode : ExpBaseNode
+    {
+
+        private ExpBaseNode _falseOpBegin;
+        private ExpBaseNode _rule;
+        private ExpBaseNode  _trueOpBegin ;
+
+        public ExpIfNode(
+                       string name,
+                       ExpSchema context,
+                       ExpBaseNode rule,
+                       ExpBaseNode rootOperationIfTrue,
+                       ExpBaseNode rootOperationIfFalse )
+            : base( name, context )
+        {
+            _rule = rule;
+            _trueOpBegin = rootOperationIfFalse;
+            _falseOpBegin = rootOperationIfFalse;
+        }
+
+        public override ExpBaseNode Left => _trueOpBegin;
+
+        public override ExpBaseNode Right => _falseOpBegin;
+
+        public override IExpElementSource EqualityTypeConvert => null!;
+
+        public void AppendFalseOperation( ExpBaseNode expressionRoot )
+        {
+            AssertSchemaInclude( expressionRoot );
+            _falseOpBegin.AppendNode( expressionRoot );
+        }
+
+        public void AppendTrueOperation( ExpBaseNode expressionRoot )
+        {
+            AssertSchemaInclude( expressionRoot );
+            _trueOpBegin.AppendNode( expressionRoot );
+        }
+
+    }
+}

@@ -28,7 +28,10 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.HighPerformance;
+using StgSharp.HighPerformance;
 using StgSharp.Internal.Intrinsic;
+
 using StgSharp.Math;
 
 using System;
@@ -89,7 +92,7 @@ namespace StgSharp.Internal
                 return;
             }
             for( int i = begin; i < 255; i++ ) {
-                Data[ i ] = Scaler.Random<byte>(); //TODO: 使用STGSHARP内部随机数工具处理它
+                Data[ i ] = Scaler.Random<byte>();
             }
         }
 
@@ -135,7 +138,7 @@ namespace StgSharp.Internal
                 }
             }
             M128 m = new M128( v );
-            DataHash = m.vec.GetHashCode();
+            DataHash = m.Vec.GetHashCode();
             return DataHash;
         }
 

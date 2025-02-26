@@ -28,18 +28,15 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Internal.Intrinsic;
+using StgSharp.HighPerformance;
 
 using System;
 using System.IO;
-using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
-using System.Transactions;
-using System.Xml;
 using System.Xml.Serialization;
 
-namespace StgSharp.Internal
+namespace StgSharp.Data
 {
     public class RandomGenerator
     {

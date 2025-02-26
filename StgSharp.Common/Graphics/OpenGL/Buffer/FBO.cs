@@ -63,7 +63,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Bind the frame buffer object with _name frame buffer to the frame buffer target specified
+        /// Bind the frame Buffer object with _name frame Buffer to the frame Buffer target specified
         /// by target. <see langword="FrameBufferTarget.All" /> will be set as default target.
         /// </summary>
         /// <param _name="index"> Index of object to be binded in handle set </param>
@@ -74,10 +74,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Bind the frame buffer object with _name frame buffer to the frame buffer target specified
-        /// by target. Target of this frame buffer should be set manually.
+        /// Bind the frame Buffer object with _name frame Buffer to the frame Buffer target specified
+        /// by target. Target of this frame Buffer should be set manually.
         /// </summary>
-        /// <param _name="target"> The frame buffer target of the binding operation. </param>
+        /// <param _name="target"> The frame Buffer target of the binding operation. </param>
         /// <param _name="index"> Index of object to be binded in handle set </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void Bind( FrameBufferTarget target, int index )

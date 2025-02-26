@@ -35,6 +35,7 @@ using StgSharp.Math;
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -62,11 +63,11 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         public void SetValue<T>( int index, T[] bufferArray, BufferUsage usage )
-            where T: struct, IConvertible
+            where T: struct, INumber<T>
         {
             GL.BindBuffer(
                 BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
-            GL.SetBufferData(
+            GL.SetBufferData<T>(
                 BufferType.ElementArrayBuffer, bufferArray, usage );
         }
 
@@ -74,11 +75,11 @@ namespace StgSharp.Graphics.OpenGL
             int index,
             ReadOnlySpan<T> bufferSpan,
             BufferUsage usage )
-            where T: struct, IConvertible
+            where T: struct, INumber<T>
         {
             GL.BindBuffer(
                 BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
-            GL.SetBufferData( BufferType.ElementArrayBuffer, bufferSpan,
+            GL.SetBufferData<T>( BufferType.ElementArrayBuffer, bufferSpan,
                               usage );
         }
 

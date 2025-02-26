@@ -5,7 +5,6 @@
 #ifndef SSC
 #define SSC
 
-#include "ssc_framework.h"
 #include "ssc_internal.h"
 
 #define STBIDEF SSCAPI
@@ -36,6 +35,7 @@ extern "C" {
 #endif
 
 #define byte char
+#define cs_char uint16_t
 #define ssc_null_assert(ptr) assert(ptr != NULL)
 
 #define ALIGN(simdVec) _mm_loadu_ps(&simdVec)

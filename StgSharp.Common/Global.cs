@@ -8,7 +8,6 @@ global using StgSharp.Internal.Intrinsic;
 global using StgSharp.Internal.OpenGL;
 
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 
 [assembly: SuppressMessage("Design", "CA1008:枚举应具有零值", Justification = "<挂起>", Scope = "type", Target = "~T:StgSharp.Graphics.OpenGL.ShaderStatus")]
 [assembly: SuppressMessage("Naming", "CA1715:标识符应具有正确的前缀", Justification = "<挂起>", Scope = "member", Target = "~M:StgSharp.Graphics.OpenGL.ShaderProgram.GetUniform``2(System.String)~StgSharp.Graphics.OpenGL.Uniform{``0,``1}")]
