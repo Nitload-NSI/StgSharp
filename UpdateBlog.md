@@ -1,4 +1,8 @@
-## Update Pre220204
+## Update Sec240227
+
+From 0.6.0 Version, we start to sign to this repository.
+
+## Update Pre240204
 
 ### Upgrade to .Net 8!
 
