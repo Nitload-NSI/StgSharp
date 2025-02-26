@@ -28,21 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Internal;
+
 using StgSharp.Graphics;
 
-using StgSharp.Math;
-using StgSharp.MVVM.ViewModel;
+using StgSharp.HighPerformance;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace StgSharp.MVVM.View
 {
@@ -81,8 +74,8 @@ namespace StgSharp.MVVM.View
             public RenderStream this[ DataLabel renderName ]
             {
                 get => _render.TryGetValue(
-                    renderName, out RenderStream stream ) ?
-                stream : ( null! );
+                            renderName, out RenderStream stream ) ?
+                        stream : ( null! );
                 protected set
                 {
                     if( _render.ContainsKey( renderName ) ) {
@@ -106,12 +99,10 @@ namespace StgSharp.MVVM.View
 
             protected ViewResponder<TView> Responder => ( _binding.Responder as ViewResponder<TView> )!;
 
-            public T CreateRenderStream<T>()
-                where T: RenderStream, new()
+            public T CreateRenderStream<T>() where T: RenderStream, new()
             {
                 T ret = new T();
-                ret.Initialize(
-                    _binding.context, Binding.TimeProvider );
+                ret.Initialize( _binding.context, Binding.TimeProvider );
                 return ret;
             }
 
@@ -119,7 +110,7 @@ namespace StgSharp.MVVM.View
                 where T: RenderStream, new()
             {
                 T ret = new T();
-                ret.Initialize( vp,  Binding.TimeProvider );
+                ret.Initialize( vp, Binding.TimeProvider );
                 return ret;
             }
 

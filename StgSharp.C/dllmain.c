@@ -1,8 +1,4 @@
 ﻿
-#ifdef _WIN32
-#include "ssc_framework.h"
-#endif // __
-
 #include "StgSharpC.h"
 
 #ifdef _WIN32

@@ -53,22 +53,10 @@ namespace StgSharp.Collections
 
             public int Count => _values.Count;
 
-            void ICollection<TValue>.Add( TValue item )
-            {
-                return;
-            }
-
-            void ICollection<TValue>.Clear()
-            {
-                return;
-            }
-
             public bool Contains( TValue item )
             {
-                foreach (var kvp in _values) 
-                {
-                    if (kvp.Value != null && kvp.Value.Equals(item))
-                    {
+                foreach( KeyValuePair<TKey, TValue> kvp in _values ) {
+                    if( kvp.Value != null && kvp.Value.Equals( item ) ) {
                         return true;
                     }
                 }
@@ -77,19 +65,27 @@ namespace StgSharp.Collections
 
             public void CopyTo( TValue[] array, int arrayIndex )
             {
-                foreach (var kvp in _values)
-                {
-                    array[arrayIndex] = kvp.Value;
+                foreach( KeyValuePair<TKey, TValue> kvp in _values ) {
+                    array[ arrayIndex ] = kvp.Value;
                     arrayIndex++;
                 }
             }
 
             public IEnumerator<TValue> GetEnumerator()
             {
-                foreach (var key in _values._keys)
-                {
-                    yield return _values._source[key];
+                foreach( TKey key in _values._keys ) {
+                    yield return _values._source[ key ];
                 }
+            }
+
+            void ICollection<TValue>.Add( TValue item )
+            {
+                return;
+            }
+
+            void ICollection<TValue>.Clear()
+            {
+                return;
             }
 
             bool ICollection<TValue>.Remove( TValue item )

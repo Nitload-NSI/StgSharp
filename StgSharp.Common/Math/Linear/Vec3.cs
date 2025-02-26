@@ -29,12 +29,11 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
-using StgSharp.Internal.Intrinsic;
+using StgSharp.HighPerformance;
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.AccessControl;
 
 namespace StgSharp.Math
 {
@@ -216,7 +215,7 @@ namespace StgSharp.Math
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static unsafe implicit operator Vec3(
-            (float, float, float) tuple )
+                                                       (float, float, float) tuple )
         {
             Vec3 v = *( Vec3* )&tuple;
             v.vec.W = 0.0f;

@@ -28,19 +28,13 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Internal.Intrinsic;
-using StgSharp.Internal.OpenGL;
-using StgSharp.Math;
+using StgSharp.HighPerformance;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StgSharp.Graphics.OpenGL
 {
@@ -107,9 +101,9 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void Set2dFilterProperty(
-            int index,
-            TextureFilter onMinify,
-            TextureFilter onMagnify )
+                            int index,
+                            TextureFilter onMinify,
+                            TextureFilter onMagnify )
         {
             #if DEBUG
             if( index != currentEditingTextureIndex ) {
@@ -127,9 +121,9 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void Set2dWrapProperty(
-            int index,
-            TextureWrap onHorizontial,
-            TextureWrap onVertical )
+                            int index,
+                            TextureWrap onHorizontial,
+                            TextureWrap onVertical )
         {
             #if DEBUG
             if( index != currentEditingTextureIndex ) {
@@ -168,10 +162,10 @@ namespace StgSharp.Graphics.OpenGL
         [FieldOffset( 12 )] private TextureWrap vert;
 
         public TextureProperty(
-            TextureFilter onMagnify,
-            TextureFilter onMinify,
-            TextureWrap onHorizontial,
-            TextureWrap onVertical )
+                       TextureFilter onMagnify,
+                       TextureFilter onMinify,
+                       TextureWrap onHorizontial,
+                       TextureWrap onVertical )
         {
             FilterOnMagnify = onMagnify;
             FilterOnMinify = onMinify;
@@ -221,21 +215,21 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         public static bool operator !=(
-            TextureProperty left,
-            TextureProperty right )
+                                            TextureProperty left,
+                                            TextureProperty right )
         {
             return left.mask != right.mask;
         }
 
         public static bool operator ==(
-            TextureProperty left,
-            TextureProperty right )
+                                            TextureProperty left,
+                                            TextureProperty right )
         {
             return left.mask == right.mask;
         }
 
         public static implicit operator TextureProperty(
-            (
+                                                (
             TextureFilter onMagnify, TextureFilter onMinify,
             TextureWrap onHorizontial, TextureWrap onVertical
             ) propertyValueTuple )

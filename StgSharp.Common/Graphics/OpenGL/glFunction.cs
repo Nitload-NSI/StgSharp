@@ -36,6 +36,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
@@ -125,11 +126,11 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Bind a frame buffer to a frame buffer target Same function as <see
+        /// Bind a frame Buffer to a frame Buffer target Same function as <see
         /// href="https://docs._gl/gl3/glBindFramebuffer">glBindFramebuffer</see>.
         /// </summary>
-        /// <param _name="target"> The frame buffer target of the binding operation. </param>
-        /// <param _name="handle"> The handle of the frame buffer object to bind. </param>
+        /// <param _name="target"> The frame Buffer target of the binding operation. </param>
+        /// <param _name="handle"> The handle of the frame Buffer object to bind. </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void BindFrameBuffer( FrameBufferTarget target, GlHandle handle )
         {
@@ -274,11 +275,11 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Delete a render buffer object Very simlilar function as <see
+        /// Delete a render Buffer object Very simlilar function as <see
         /// href="https://docs.gl/gl3/glDeleteRenderbuffers">glDeleteRenderbuffers</see>. The only
         /// deifference is that this mehtod can only delete one renderbuffer at the same time.
         /// </summary>
-        /// <param _name="bufferHandle"> Handle to buffer to delete. </param>
+        /// <param _name="bufferHandle"> Handle to Buffer to delete. </param>
         public unsafe void DeleteRenderBuffer( GlHandle bufferHandle )
         {
             Context.glDeleteRenderbuffers( 1, &bufferHandle.Value );
@@ -347,7 +348,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void Enable( GLOperation operation )
+        public void Enable( glOperation operation )
         {
             Context.glEnable( ( uint )operation );
         }
@@ -451,12 +452,7 @@ namespace StgSharp.Graphics.OpenGL
             ImageChannel channel,
             PixelChannelLayout channelLayout,
             T[] dataStream )
-            where T: struct,
-#if NET8_0_OR_GREATER
-            INumber
-#else
-            IConvertible
-        #endif
+            where T: struct,INumber<T>
         {
             #pragma warning disable CS8500
             fixed( T* tptr = dataStream ) {
@@ -509,6 +505,18 @@ namespace StgSharp.Graphics.OpenGL
             fixed( byte* streamPtr = codeStream ) {
                 Context.glShaderSource(
                     shaderHandle.Value, 1, &streamPtr, ( void* )0 );
+            }
+        }
+
+        public unsafe void LoadShaderSource(
+            GlHandle shaderHandle,
+            ReadOnlySpan<char> codeStream)
+        {
+            fixed (char* streamPtr = codeStream)
+            {
+                byte* bptr = (byte*)streamPtr;
+                Context.glShaderSource(
+                    shaderHandle.Value, 1, &bptr, (void*)0);
             }
         }
 
@@ -566,12 +574,7 @@ namespace StgSharp.Graphics.OpenGL
             BufferType bufferType,
             T[] bufferArray,
             BufferUsage usage )
-            where T: struct,
-#if NET8_0_OR_GREATER
-            INumber
-#else
-            IConvertible
-        #endif
+            where T: struct,INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
             if( bufferArray == null ) {
@@ -579,8 +582,8 @@ namespace StgSharp.Graphics.OpenGL
             }
             #pragma warning disable CS8500
             fixed( void* bufferPtr = bufferArray )
- #pragma warning restore CS8500
- {
+            #pragma warning restore CS8500
+            {
                 Context.glBufferData(
                     ( uint )bufferType, ( IntPtr )size, ( IntPtr )bufferPtr,
                     ( uint )usage );
@@ -592,12 +595,7 @@ namespace StgSharp.Graphics.OpenGL
             BufferType bufferType,
             ReadOnlySpan<T> bufferArray,
             BufferUsage usage )
-            where T: struct,
-#if NET8_0_OR_GREATER
-            INumber
-#else
-            IConvertible
-        #endif
+            where T: struct,INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
             if( bufferArray == null ) {
@@ -618,12 +616,7 @@ namespace StgSharp.Graphics.OpenGL
             BufferType bufferType,
             Span<T> bufferArray,
             BufferUsage usage )
-            where T: struct,
-#if NET8_0_OR_GREATER
-            INumber
-#else
-            IConvertible
-        #endif
+            where T: struct, INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
             if( bufferArray == null ) {
@@ -728,12 +721,7 @@ namespace StgSharp.Graphics.OpenGL
             ImageChannel targetChannel,
             PixelChannelLayout type,
             T[] pixels )
-            where T: struct,
-#if NET8_0_OR_GREATER
-            INumber
-#else
-            IConvertible
-        #endif
+            where T: struct, INumber<T>
         {
             #pragma warning disable CS8500
             fixed( T* tptr = pixels ) {
@@ -756,20 +744,15 @@ namespace StgSharp.Graphics.OpenGL
             ImageChannel targetChannel,
             PixelChannelLayout type,
             Span<T> pixelSpan )
-            where T: struct,
-#if NET8_0_OR_GREATER
-            INumber 
-#else
-            IConvertible
-        #endif
+            where T: struct, INumber<T>
         {
-            #pragma warning disable CS8500
+#pragma warning disable CS8500
             fixed( T* tptr = pixelSpan ) {
                 Context.glTexImage2D(
                     ( uint )target, level, ( uint )sourceChannel, width, height,
                     0, ( uint )targetChannel, ( uint )type, tptr );
             }
-            #pragma warning restore CS8500
+#pragma warning restore CS8500
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]

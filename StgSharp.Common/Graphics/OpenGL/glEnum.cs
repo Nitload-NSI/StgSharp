@@ -29,15 +29,12 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
-using StgSharp.Graphics.OpenGL;
-
 using System.Runtime.CompilerServices;
 
 namespace StgSharp.Graphics.OpenGL
 {
     public enum PixelChannelLayout
     {
-
         UByte = glConst.UNSIGNED_BYTE,
         Byte = glConst.BYTE,
         UShort = glConst.UNSIGNED_SHORT,
@@ -57,12 +54,8 @@ namespace StgSharp.Graphics.OpenGL
         UInt8888Rev = glConst.UNSIGNED_INT_8_8_8_8_REV,
         UInt1010102 = glConst.UNSIGNED_INT_10_10_10_2,
         UInt2101010Rev = glConst.UNSIGNED_INT_2_10_10_10_REV
-
     }
-}
 
-namespace StgSharp.Internal.OpenGL
-{
     public enum FrameBufferStatus
     {
 
@@ -74,19 +67,6 @@ namespace StgSharp.Internal.OpenGL
         Unsupported = glConst.FRAMEBUFFER_UNSUPPORTED, // GL_FRAMEBUFFER_UNSUPPORTED
         IncompleteMultisample = glConst.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, // GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE
         IncompleteLayerTargets = glConst.FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS // GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS
-
-    }
-
-    internal enum VkStructureType : uint
-    {
-
-        VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR = 1000004000,
-        VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR = 1000005000,
-        VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR = 1000006000,
-        VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR = 1000009000,
-        VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK = 1000123000,
-        VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT = 1000217000,
-        VK_STRUCTURE_TYPE_MAX_ENUM = 0x7FFFFFFF
 
     }
 
@@ -143,41 +123,9 @@ namespace StgSharp.Internal.OpenGL
 
     }
 
-    public enum GLOperation : uint
+    public enum glOperation : uint
     {
-
         StencilTest = glConst.STENCIL_TEST,
-
-    }
-
-    internal enum VkResult
-    {
-
-        VK_SUCCESS = 0,
-        VK_NOT_READY = 1,
-        VK_TIMEOUT = 2,
-        VK_EVENT_SET = 3,
-        VK_EVENT_RESET = 4,
-        VK_INCOMPLETE = 5,
-        VK_ERROR_OUT_OF_HOST_MEMORY = -1,
-        VK_ERROR_OUT_OF_DEVICE_MEMORY = -2,
-        VK_ERROR_INITIALIZATION_FAILED = -3,
-        VK_ERROR_DEVICE_LOST = -4,
-        VK_ERROR_MEMORY_MAP_FAILED = -5,
-        VK_ERROR_LAYER_NOT_PRESENT = -6,
-        VK_ERROR_EXTENSION_NOT_PRESENT = -7,
-        VK_ERROR_FEATURE_NOT_PRESENT = -8,
-        VK_ERROR_INCOMPATIBLE_DRIVER = -9,
-        VK_ERROR_TOO_MANY_OBJECTS = -10,
-        VK_ERROR_FORMAT_NOT_SUPPORTED = -11,
-        VK_ERROR_SURFACE_LOST_KHR = -1000000000,
-        VK_SUBOPTIMAL_KHR = 1000001003,
-        VK_ERROR_OUT_OF_DATE_KHR = -1000001004,
-        VK_ERROR_INCOMPATIBLE_DISPLAY_KHR = -1000003001,
-        VK_ERROR_NATIVE_WINDOW_IN_USE_KHR = -1000000001,
-        VK_ERROR_VALIDATION_FAILED_EXT = -1000011001,
-        VK_RESULT_MAX_ENUM = 0x7FFFFFFF
-
     }
 
 #pragma warning disable CA1008
@@ -200,14 +148,14 @@ namespace StgSharp.Internal.OpenGL
         ArrayBuffer = glConst.ARRAY_BUFFER,
         ElementArrayBuffer = glConst.ELEMENT_ARRAY_BUFFER,
         AtomicCounterBuffer = glConst.ATOMIC_COUNTER_BUFFER,
-        COPY_READ_BUFFER = glConst.COPY_READ_BUFFER,
+        CopyHeadBuffer = glConst.COPY_READ_BUFFER,
         COPY_WRITE_BUFFER = glConst.COPY_WRITE_BUFFER,
         DISPATCH_INDIRECT_BUFFER = glConst.DISPATCH_INDIRECT_BUFFER,
         DRAW_INDIRECT_BUFFER = glConst.DRAW_INDIRECT_BUFFER,
         PIXEL_PACK_BUFFER = glConst.PIXEL_PACK_BUFFER,
         PIXEL_UNPACK_BUFFER = glConst.PIXEL_UNPACK_BUFFER,
         QUERY_BUFFER = glConst.QUERY_BUFFER,
-        SHADER_STORAGE_BUFFER = glConst.SHADER_STORAGE_BUFFER,
+        ShaderStorageBuffer = glConst.SHADER_STORAGE_BUFFER,
         TEXTURE_BUFFER = glConst.TEXTURE_BUFFER,
         TRANSFORM_FEEDBACK_BUFFER = glConst.TRANSFORM_FEEDBACK_BUFFER,
         UNIFORM_BUFFER = glConst.UNIFORM_BUFFER,

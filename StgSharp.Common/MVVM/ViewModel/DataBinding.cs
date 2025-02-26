@@ -28,23 +28,19 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Internal.Intrinsic;
+using StgSharp.HighPerformance;
+
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StgSharp.MVVM.ViewModel
 {
 #nullable enable
 
-[UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
+    [UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
     public delegate ref object BindingDataGetter();
 [UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
     public delegate void BindingDataSetter( ref object value );

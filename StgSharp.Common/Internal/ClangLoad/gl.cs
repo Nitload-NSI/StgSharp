@@ -34,6 +34,7 @@ using StgSharp.Internal.OpenGL;
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -42,67 +43,56 @@ namespace StgSharp.Internal
     internal partial class InternalIO
     {
 
-        [DllImport(
-                SSC_libName,
-                EntryPoint = "glCheckShaderStat",
-                CallingConvention = CallingConvention.Cdecl )]
+        [LibraryImport( SSC_libName, EntryPoint = "glCheckShaderStat" )]
+        [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
         #pragma warning disable CA5392
-        internal static extern int glCheckShaderStatus(
-                                           ref OpenglContext context,
-                                           uint shaderHandle,
-                                           int key,
-                                           ref IntPtr logPtr );
+        internal static partial int glCheckShaderStatus(
+                                            ref OpenglContext context,
+                                            uint shaderHandle,
+                                            int key,
+                                            ref IntPtr logPtr );
         #pragma warning restore CA5392
 
 
         #region ssgc api define
 
-        [DllImport(
-                SSC_libName,
-                EntryPoint = "initGL",
-                CallingConvention = CallingConvention.Cdecl )]
-        internal static extern void InternalInitGL(
-                                            int majorVersion,
-                                            int minorVersion );
+        [LibraryImport( SSC_libName, EntryPoint = "initGL" )]
+        [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
+        internal static partial void InternalInitGL(
+                                             int majorVersion,
+                                             int minorVersion );
 
-        [DllImport(
+        [LibraryImport(
                 SSC_libName,
                 EntryPoint = "loadGlfuncDefault",
-                CallingConvention = CallingConvention.Cdecl,
-                CharSet = CharSet.Ansi )]
-        internal static extern IntPtr InternalLoadGlfuncDefault( string name );
+                StringMarshalling = StringMarshalling.Utf8 )]
+        [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
+        internal static partial IntPtr InternalLoadGlfuncDefault( string name );
 
-        [DllImport(
-                SSC_libName,
-                EntryPoint = "linkShaderProgram",
-                CallingConvention = CallingConvention.Cdecl )]
-        internal static extern unsafe uint InternalLinkShaderProgram(
-                                                   OpenglContext* context,
-                                                   uint shaderProgram );
+        [LibraryImport( SSC_libName, EntryPoint = "linkShaderProgram" )]
+        [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
+        internal static unsafe partial uint InternalLinkShaderProgram(
+                                                    OpenglContext* context,
+                                                    uint shaderProgram );
 
-        [DllImport(
-                SSC_libName,
-                EntryPoint = "readLog",
-                CallingConvention = CallingConvention.Cdecl )]
-        internal static extern unsafe IntPtr InternalReadSSCLog();
+        [LibraryImport( SSC_libName, EntryPoint = "readLog" )]
+        [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
+        internal static unsafe partial IntPtr InternalReadSSCLog();
 
-        [DllImport(
+        [LibraryImport(
                 SSC_libName,
                 EntryPoint = "loadImageData",
-                CallingConvention = CallingConvention.Cdecl,
-                CharSet = CharSet.Ansi )]
-        internal static extern unsafe void InternalLoadImage(
-                                                   string fileName,
-                                                   ImageInfo* output,
-                                                   ImageLoader loader );
+                StringMarshalling = StringMarshalling.Utf8 )]
+        [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
+        internal static unsafe partial void InternalLoadImage(
+                                                    string fileName,
+                                                    ImageInfo* output,
+                                                    ImageLoader loader );
 
-        [DllImport(
-                SSC_libName,
-                EntryPoint = "unloadImageData",
-                CallingConvention = CallingConvention.Cdecl,
-                CharSet = CharSet.Ansi )]
-        internal static extern unsafe void InternalUnloadImage(
-                                                   ImageInfo* output );
+        [LibraryImport( SSC_libName, EntryPoint = "unloadImageData" )]
+        [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
+        internal static unsafe partial void InternalUnloadImage(
+                                                    ImageInfo* output );
 
     #endregion ssgc api define
     }

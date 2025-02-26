@@ -29,6 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
+using StgSharp.HighPerformance;
 using StgSharp.Internal;
 using StgSharp.Internal.Intrinsic;
 

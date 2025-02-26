@@ -34,6 +34,7 @@ using StgSharp.Math;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -86,10 +87,7 @@ namespace StgSharp.Math
         /// </summary>
         /// <returns></returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static T Random<T>() where T: struct, IConvertible
-        #if NET8_0_OR_GREATER
-            ,INumber
-        #endif
+        public static T Random<T>() where T: struct, IConvertible, INumber<T>
 
         {
             if( randomSeed == null ) {

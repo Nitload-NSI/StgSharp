@@ -33,40 +33,28 @@ using StgSharp.Collections;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Schema;
 
 namespace StgSharp.Script
 {
-    public class AbstractSyntaxTree<TToken> where TToken: IExpressionToken
+    public sealed class AbstractSyntaxTree<TNode, TType>
+        where TNode: IASTNode<TNode, TType>
+        where TType: ITypeSource<TType>
     {
 
-        private bool _cacheAvailable;
-        private HashSet<TToken> _allToken = new();
-        private TToken _root;
+        private List<TNode> _allToken = new();
+        private TNode _root;
 
         public int Count
         {
-            get
-            {
-                if( !_cacheAvailable ) {
-                    MakeCache();
-                }
-                return _allToken.Count;
-            }
+            get { return _allToken.Count; }
         }
 
-        public TToken Root => _root;
+        public TNode Root => _root;
 
-        public bool Contains( TToken node )
+        public bool Contains( TNode node )
         {
-            if( !_cacheAvailable ) {
-                MakeCache();
-            }
             return _allToken.Contains( node );
-        }
-
-        public void MakeCache()
-        {
-            foreach( TToken node in Root.NextLevel ) { }
         }
 
     }

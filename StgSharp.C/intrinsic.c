@@ -1,6 +1,6 @@
 #include "StgSharpC.h"
 #include "ssc_intrinsic.h"
-#include <stdio.h>
+
 
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -82,7 +82,8 @@ void load_intrinsic_sse(ssc_intrinsic *context)
         context->dot_41 = dot_41_sse;
         context->dot_42 = dot_42_sse;
         context->dot_43 = dot_43_sse;
-        context->string_quick_hash = quick_string_hash;
+        context->city_hash_simplify = city_hash_simplify_sse;
+        context->index_pair = index_pair_sse;
 }
 
 void load_intrinsic_avx(ssc_intrinsic *context)
@@ -106,7 +107,8 @@ void load_intrinsic_avx(ssc_intrinsic *context)
         context->dot_41 = dot_41_avx;
         context->dot_42 = dot_42_avx;
         context->dot_43 = dot_43_avx;
-        context->string_quick_hash = quick_string_hash;
+        context->city_hash_simplify = city_hash_simplify_sse;
+        context->index_pair = index_pair_sse;
 }
 
 void load_intrinsic_512(ssc_intrinsic *context)
@@ -130,5 +132,6 @@ void load_intrinsic_512(ssc_intrinsic *context)
         context->dot_41 = dot_41_avx;
         context->dot_42 = dot_42_avx;
         context->dot_43 = dot_43_avx;
-        context->string_quick_hash = quick_string_hash;
+        context->city_hash_simplify = city_hash_simplify_sse;
+        context->index_pair = index_pair_sse;
 }

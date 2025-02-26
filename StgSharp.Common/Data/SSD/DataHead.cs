@@ -28,15 +28,11 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Internal.Intrinsic;
+using StgSharp.HighPerformance;
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace StgSharp.Internal
 {
@@ -70,7 +66,7 @@ namespace StgSharp.Internal
         public unsafe byte[] GetBytes()
         {
             byte[] ret = new byte[16];
-            fixed( Vector4* vptr = &data.vec ) {
+            fixed( Vector4* vptr = &data.Vec ) {
                 byte* bptr = ( byte* )vptr;
                 for( int i = 0; i < 15; i++ ) {
                     ret[ i ] = *bptr;

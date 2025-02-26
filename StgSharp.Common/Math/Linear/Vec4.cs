@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.HighPerformance;
 using StgSharp.Internal.Intrinsic;
 using StgSharp.Math;
 
@@ -159,11 +160,6 @@ namespace StgSharp.Math
         public static bool operator ==( Vec4 left, Vec4 right )
         {
             return left.vec == right.vec;
-        }
-
-        public static implicit operator M128( Vec4 vec )
-        {
-            return vec.reg;
         }
 
         bool IEquatable<Vec4>.Equals( Vec4 other )

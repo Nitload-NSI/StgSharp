@@ -120,7 +120,7 @@ namespace StgSharp.Graphics.OpenGL
                 throw new ArgumentNullException( nameof( codeStream ) );
             }
             GL.LoadShaderSource(
-                handle[ index ], Encoding.ASCII.GetBytes( codeStream ) );
+                handle[ index ], codeStream.AsSpan() );
             GL.CompileShader( handle[ index ] );
             CheckStatus( index, ShaderStatus.CompileStatus );
         }

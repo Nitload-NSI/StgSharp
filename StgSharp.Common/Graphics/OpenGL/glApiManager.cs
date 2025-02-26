@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.HighPerformance;
 using StgSharp.Math;
 using StgSharp.MVVM;
 using StgSharp.MVVM.View;

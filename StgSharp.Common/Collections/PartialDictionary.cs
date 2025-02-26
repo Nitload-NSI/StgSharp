@@ -31,14 +31,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace StgSharp.Collections
 {
     public partial class PartialDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
-
         private readonly Dictionary<TKey, TValue> _source;
         private readonly HashSet<TKey> _keys;
         private readonly PartialDictionaryValues _values;
@@ -69,6 +70,23 @@ namespace StgSharp.Collections
                 }
             }
             _values = new PartialDictionaryValues( this );
+        }
+
+        public PartialDictionary(
+                Dictionary<TKey, TValue> source,
+                TKey[] index, IHashMultiplexer<TKey> multiplexer
+            )
+        {
+            _source = source;
+            _keys = new HashSet<TKey>(index);
+            foreach (TKey item in _keys)
+            {
+                if (!_source.ContainsKey(item))
+                {
+                    _source.Add(item, default!);
+                }
+            }
+            _values = new PartialDictionaryValues(this);
         }
 
         public TValue this[ TKey key ]
@@ -113,7 +131,8 @@ namespace StgSharp.Collections
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             foreach( TKey item in _keys ) {
-                yield return new KeyValuePair<TKey, TValue>(item, _source[item]);
+                yield return new KeyValuePair<TKey, TValue>(
+                    item, _source[ item ] );
             }
         }
 
@@ -138,13 +157,13 @@ namespace StgSharp.Collections
             throw new NotSupportedException();
         }
 
-        bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly => true;
-
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(
                                                              KeyValuePair<TKey, TValue> item )
         {
             throw new NotSupportedException();
         }
+
+        bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly => true;
 
         void IDictionary<TKey, TValue>.Add( TKey key, TValue value )
         {

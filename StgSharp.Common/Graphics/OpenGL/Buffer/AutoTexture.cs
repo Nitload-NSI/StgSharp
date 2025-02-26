@@ -43,7 +43,7 @@ namespace StgSharp.Graphics.OpenGL
 {
     /// <summary>
     /// A collection of a sets of OpenGL textures. The collection can automatically select one of
-    /// the  texture with minimum costs to upgrade pixels to buffer. Usually <see
+    /// the  texture with minimum costs to upgrade pixels to Buffer. Usually <see
     /// cref="AutoTextureGL" /> is used for <see cref="IImageProvider" /> loading, but not for
     /// target of  <see cref="OpenGLFunction.FrameBufferTexture2d(FrameBufferTarget, uint,
     /// Texture2DTarget, GlHandle, int)" />.

@@ -10542,7 +10542,7 @@ typedef struct GladGLContext {
         PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC DrawElementsInstancedBaseInstance;
         PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC DrawElementsInstancedBaseVertex;
         PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEPROC
-                DrawElementsInstancedBaseVertexBaseInstance;
+        DrawElementsInstancedBaseVertexBaseInstance;
         PFNGLDRAWELEMENTSINSTANCEDEXTPROC DrawElementsInstancedEXT;
         PFNGLDRAWMESHARRAYSSUNPROC DrawMeshArraysSUN;
         PFNGLDRAWMESHTASKSINDIRECTNVPROC DrawMeshTasksIndirectNV;
@@ -10868,7 +10868,7 @@ typedef struct GladGLContext {
         PFNGLGETNAMEDBUFFERSUBDATAEXTPROC GetNamedBufferSubDataEXT;
         PFNGLGETNAMEDFRAMEBUFFERATTACHMENTPARAMETERIVPROC GetNamedFramebufferAttachmentParameteriv;
         PFNGLGETNAMEDFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC
-                GetNamedFramebufferAttachmentParameterivEXT;
+        GetNamedFramebufferAttachmentParameterivEXT;
         PFNGLGETNAMEDFRAMEBUFFERPARAMETERFVAMDPROC GetNamedFramebufferParameterfvAMD;
         PFNGLGETNAMEDFRAMEBUFFERPARAMETERIVPROC GetNamedFramebufferParameteriv;
         PFNGLGETNAMEDFRAMEBUFFERPARAMETERIVEXTPROC GetNamedFramebufferParameterivEXT;
@@ -11467,9 +11467,9 @@ typedef struct GladGLContext {
         PFNGLNAMEDRENDERBUFFERSTORAGEEXTPROC NamedRenderbufferStorageEXT;
         PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEPROC NamedRenderbufferStorageMultisample;
         PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEADVANCEDAMDPROC
-                NamedRenderbufferStorageMultisampleAdvancedAMD;
+        NamedRenderbufferStorageMultisampleAdvancedAMD;
         PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLECOVERAGEEXTPROC
-                NamedRenderbufferStorageMultisampleCoverageEXT;
+        NamedRenderbufferStorageMultisampleCoverageEXT;
         PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC NamedRenderbufferStorageMultisampleEXT;
         PFNGLNAMEDSTRINGARBPROC NamedStringARB;
         PFNGLNEWOBJECTBUFFERATIPROC NewObjectBufferATI;
@@ -11796,22 +11796,22 @@ typedef struct GladGLContext {
         PFNGLREPLACEMENTCODEUICOLOR3FVERTEX3FSUNPROC ReplacementCodeuiColor3fVertex3fSUN;
         PFNGLREPLACEMENTCODEUICOLOR3FVERTEX3FVSUNPROC ReplacementCodeuiColor3fVertex3fvSUN;
         PFNGLREPLACEMENTCODEUICOLOR4FNORMAL3FVERTEX3FSUNPROC
-                ReplacementCodeuiColor4fNormal3fVertex3fSUN;
+        ReplacementCodeuiColor4fNormal3fVertex3fSUN;
         PFNGLREPLACEMENTCODEUICOLOR4FNORMAL3FVERTEX3FVSUNPROC
-                ReplacementCodeuiColor4fNormal3fVertex3fvSUN;
+        ReplacementCodeuiColor4fNormal3fVertex3fvSUN;
         PFNGLREPLACEMENTCODEUICOLOR4UBVERTEX3FSUNPROC ReplacementCodeuiColor4ubVertex3fSUN;
         PFNGLREPLACEMENTCODEUICOLOR4UBVERTEX3FVSUNPROC ReplacementCodeuiColor4ubVertex3fvSUN;
         PFNGLREPLACEMENTCODEUINORMAL3FVERTEX3FSUNPROC ReplacementCodeuiNormal3fVertex3fSUN;
         PFNGLREPLACEMENTCODEUINORMAL3FVERTEX3FVSUNPROC ReplacementCodeuiNormal3fVertex3fvSUN;
         PFNGLREPLACEMENTCODEUISUNPROC ReplacementCodeuiSUN;
         PFNGLREPLACEMENTCODEUITEXCOORD2FCOLOR4FNORMAL3FVERTEX3FSUNPROC
-                ReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fSUN;
+        ReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fSUN;
         PFNGLREPLACEMENTCODEUITEXCOORD2FCOLOR4FNORMAL3FVERTEX3FVSUNPROC
-                ReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN;
+        ReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN;
         PFNGLREPLACEMENTCODEUITEXCOORD2FNORMAL3FVERTEX3FSUNPROC
-                ReplacementCodeuiTexCoord2fNormal3fVertex3fSUN;
+        ReplacementCodeuiTexCoord2fNormal3fVertex3fSUN;
         PFNGLREPLACEMENTCODEUITEXCOORD2FNORMAL3FVERTEX3FVSUNPROC
-                ReplacementCodeuiTexCoord2fNormal3fVertex3fvSUN;
+        ReplacementCodeuiTexCoord2fNormal3fVertex3fvSUN;
         PFNGLREPLACEMENTCODEUITEXCOORD2FVERTEX3FSUNPROC ReplacementCodeuiTexCoord2fVertex3fSUN;
         PFNGLREPLACEMENTCODEUITEXCOORD2FVERTEX3FVSUNPROC ReplacementCodeuiTexCoord2fVertex3fvSUN;
         PFNGLREPLACEMENTCODEUIVERTEX3FSUNPROC ReplacementCodeuiVertex3fSUN;
@@ -12249,7 +12249,7 @@ typedef struct GladGLContext {
         PFNGLVDPAUREGISTEROUTPUTSURFACENVPROC VDPAURegisterOutputSurfaceNV;
         PFNGLVDPAUREGISTERVIDEOSURFACENVPROC VDPAURegisterVideoSurfaceNV;
         PFNGLVDPAUREGISTERVIDEOSURFACEWITHPICTURESTRUCTURENVPROC
-                VDPAURegisterVideoSurfaceWithPictureStructureNV;
+        VDPAURegisterVideoSurfaceWithPictureStructureNV;
         PFNGLVDPAUSURFACEACCESSNVPROC VDPAUSurfaceAccessNV;
         PFNGLVDPAUUNMAPSURFACESNVPROC VDPAUUnmapSurfacesNV;
         PFNGLVDPAUUNREGISTERSURFACENVPROC VDPAUUnregisterSurfaceNV;

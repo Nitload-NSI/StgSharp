@@ -29,11 +29,12 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp;
-
+using StgSharp.HighPerformance;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,6 +48,7 @@ namespace StgSharp.Internal.Intrinsic
         public delegate* unmanaged[Cdecl]<ColumnSet2*, ColumnSet2*, ColumnSet2*, void> add_mat_2;
         public delegate* unmanaged[Cdecl]<ColumnSet3*, ColumnSet3*, ColumnSet3*, void> add_mat_3;
         public delegate* unmanaged[Cdecl]<ColumnSet4*, ColumnSet4*, ColumnSet4*, void> add_mat_4;
+        public delegate* unmanaged[Cdecl]<char*, int, int> city_hash_simplify;
         public delegate* unmanaged[Cdecl]<ColumnSet3*, ColumnSet3*, float> det_mat_3;
         public delegate* unmanaged[Cdecl]<ColumnSet4*, ColumnSet4*, float> det_mat_4;
         public delegate* unmanaged[Cdecl]<ColumnSet3*, Vector4*, Vector4*, void> dot_31;
@@ -54,8 +56,8 @@ namespace StgSharp.Internal.Intrinsic
         public delegate* unmanaged[Cdecl]<ColumnSet4*, Vector4*, Vector4*, void> dot_41;
         public delegate* unmanaged[Cdecl]<ColumnSet4*, Vector4*, Vector4*, void> dot_42;
         public delegate* unmanaged[Cdecl]<ColumnSet4*, Vector4*, Vector4*, void> dot_43;
-        public delegate* unmanaged[Cdecl]<M128*, M128*, void> normalize_v3;
-        public delegate* unmanaged[Cdecl]<char*, int, int> string_quickHash;
+        public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;
+        public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> normalize_v3;
         public delegate* unmanaged[Cdecl]<ColumnSet2*, ColumnSet3*, void> transpose23;
         public delegate* unmanaged[Cdecl]<ColumnSet2*, ColumnSet4*, void> transpose24;
         public delegate* unmanaged[Cdecl]<ColumnSet3*, ColumnSet2*, void> transpose32;
