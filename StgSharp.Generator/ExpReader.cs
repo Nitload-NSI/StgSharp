@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpBuiltinType.cs"
+//     file="ExpReader.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,31 +28,62 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Data;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Text;
 
-namespace StgSharp.Script.Express
+namespace StgSgharp.Generator.Expression
 {
-    public sealed class ExpBuiltinType : ExpTypeSource
+    internal class ExpFileReader:IDisposable
     {
+        private FileStream _expFileStream;
+        private MemoryMappedFile _expMemoryMappedFile;
+        private bool disposedValue;
 
-        private Type _marshalType;
-
-        internal ExpBuiltinType( string name, Type origin )
-            : base( name, ScriptSourceTransmitter.Empty )
+        public ExpFileReader( string path )
         {
-            _marshalType = origin;
+            if( !File.Exists( path ) ) {
+                throw new FileNotFoundException();
+            }
+            _expFileStream = new FileStream(
+                path, FileMode.Open, FileAccess.Read );
+            _expMemoryMappedFile = MemoryMappedFile.CreateFromFile(
+                _expFileStream, null, 0, MemoryMappedFileAccess.Read,
+                HandleInheritability.None, true );
         }
 
-        public override void Analyse()
+        protected virtual void Dispose(bool disposing)
         {
-            return;
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _expFileStream.Dispose();
+                    _expMemoryMappedFile.Dispose();
+                }
+
+                disposedValue = true;
+            }
         }
 
-        //A method convert value to CLR type
-        //Used for direct running rather than compiling to C# code.
+        // ~ExpFileReader()
+        // {
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        public MemoryMappedViewStream CreateMemoryStram()
+        {
+            return _expMemoryMappedFile.CreateViewStream();
+        }
     }
 }

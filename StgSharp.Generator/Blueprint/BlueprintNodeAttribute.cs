@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpBuiltinType.cs"
+//     file="BlueprintNodeAttribute.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,31 +28,12 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Data;
-
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace StgSharp.Script.Express
+namespace StgSharp.Blueprint
 {
-    public sealed class ExpBuiltinType : ExpTypeSource
-    {
-
-        private Type _marshalType;
-
-        internal ExpBuiltinType( string name, Type origin )
-            : base( name, ScriptSourceTransmitter.Empty )
-        {
-            _marshalType = origin;
-        }
-
-        public override void Analyse()
-        {
-            return;
-        }
-
-        //A method convert value to CLR type
-        //Used for direct running rather than compiling to C# code.
-    }
+    [AttributeUsage( AttributeTargets.Method, AllowMultiple = false )]
+    public class BlueprintNodeExecutionAttribute : Attribute { }
 }

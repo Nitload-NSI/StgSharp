@@ -57,11 +57,25 @@ namespace StgSharp.Script.Express
 
         private ScriptSourceTransmitter _transmitter;
         private string _name;
+        protected bool _isBuiltinType;
+
+        protected ExpTypeSource( string name )
+        {
+            _name = name;
+            _transmitter = ScriptSourceTransmitter.Empty;
+            _isBuiltinType = true;
+        }
 
         public ExpTypeSource( string name, ScriptSourceTransmitter transmitter )
         {
             _name = name;
             _transmitter = transmitter;
+            _isBuiltinType = false;
+        }
+
+        public bool IsLanguageBuiltinType
+        {
+            get => _isBuiltinType;
         }
 
         public ExpElementType ElementType => ExpElementType.Type;

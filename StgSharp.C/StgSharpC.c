@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-GladGLContext *currentContext;
+extern GladGLContext *currentContext;
 extern char infolog[512];
 
 SSCAPI int SSCDECL glCheckShaderStat(GladGLContext *context, uint64_t shaderHandle, int key,

@@ -82,7 +82,6 @@ namespace StgSharp.Script.Express
             _compileStringCache = new StringPool();
             _multiplexer = new ConcurrentStringHashMultiplexer();
 
-
             PoolKeywords();
             InitPrecedence();
 
@@ -115,22 +114,6 @@ namespace StgSharp.Script.Express
         public static string PoolString( ReadOnlySpan<char> str )
         {
             return _compileStringCache.GetOrAdd( str );
-        }
-
-        public static void SkipComment( IScriptSourceProvider source ) { }
-
-        public static bool TryGetBuiltinConst(
-                                   string constName,
-                                   out ExpElementInstanceBase source )
-        {
-            return _builtinConst.TryGetValue( constName, out source );
-        }
-
-        public static bool TryGetBuiltinType(
-                                   string typename,
-                                   out ExpTypeSource typeSource )
-        {
-            return _builtinType.TryGetValue( typename, out typeSource );
         }
 
     }
