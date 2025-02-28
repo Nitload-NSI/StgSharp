@@ -60,6 +60,11 @@ namespace StgSharp.Script.Express
             get;
         }
 
+        public static ExpBaseNode Empty
+        {
+            get => ExpEmptyNode._only;
+        }
+
         public ExpBaseNode Next
         {
             get;
@@ -130,6 +135,23 @@ namespace StgSharp.Script.Express
                 throw new ExpInvalidSchemaIncludeException(
                     NameSpace, expressionRoot.NameSpace );
             }
+        }
+
+        private class ExpEmptyNode : ExpBaseNode
+        {
+
+            internal static readonly ExpEmptyNode _only = new();
+
+            public ExpEmptyNode()
+                : base( string.Empty, ExpSchema.BuiltinSchema ) { }
+
+            public override ExpBaseNode Left => _only;
+
+            public override ExpBaseNode Right => _only;
+
+            public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
+                );
+
         }
 
     }

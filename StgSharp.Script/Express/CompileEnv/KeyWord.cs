@@ -46,12 +46,9 @@ namespace StgSharp.Script.Express
                 BindingFlags.Public );
             ParallelLoopResult result = Parallel.ForEach(
                 fields, static( field ) => {
-                    if( field.FieldType == typeof( string ) ) {
-                        string? str =
-                            field.GetValue( null ) as string;
-                        if( str != null ) {
-                            _compileStringCache.GetOrAdd( str );
-                        }
+                    if( field.FieldType == typeof( string ) && field.GetValue(
+                        null ) is string str ) {
+                        _compileStringCache.GetOrAdd( str );
                     }
                 } );
             while( !result.IsCompleted ) { }

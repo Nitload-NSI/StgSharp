@@ -56,32 +56,34 @@ namespace StgSharp.Script.Express
             _value = value;
             switch( value ) {
                 case float f:
-                    ExpCompile.TryGetBuiltinType(
-                        ExpCompile.KeyWord.Real, out ExpTypeSource? type );
+                    ExpSchema.BuiltinSchema
+                            .TryGetType(
+                                ExpCompile.KeyWord.Real,
+                                out ExpTypeSource? type );
                     _type = ( type as ExpBuiltinType )!;
                     _nodeFlag = ExpNodeFlag.BuiltinType_Float | ExpNodeFlag.Element_Const;
                     break;
                 case int i:
-                    ExpCompile.TryGetBuiltinType(
-                        ExpCompile.KeyWord.Int, out type );
+                    ExpSchema.BuiltinSchema
+                            .TryGetType( ExpCompile.KeyWord.Int, out type );
                     _type = ( type as ExpBuiltinType )!;
                     _nodeFlag = ExpNodeFlag.BuiltinType_Int | ExpNodeFlag.Element_Const;
                     break;
                 case BitArray b:
-                    ExpCompile.TryGetBuiltinType(
-                        ExpCompile.KeyWord.Binary, out type );
+                    ExpSchema.BuiltinSchema
+                            .TryGetType( ExpCompile.KeyWord.Binary, out type );
                     _type = ( type as ExpBuiltinType )!;
                     _nodeFlag = ExpNodeFlag.BuiltinType_Binary | ExpNodeFlag.Element_Const;
                     break;
                 case string s:
-                    ExpCompile.TryGetBuiltinType(
-                        ExpCompile.KeyWord.String, out type );
+                    ExpSchema.BuiltinSchema
+                            .TryGetType( ExpCompile.KeyWord.String, out type );
                     _type = ( type as ExpBuiltinType )!;
                     _nodeFlag = ExpNodeFlag.BuiltinType_Int | ExpNodeFlag.Element_Const;
                     break;
                 case ExpLogic l:
-                    ExpCompile.TryGetBuiltinType(
-                        ExpCompile.KeyWord.Logic, out type );
+                    ExpSchema.BuiltinSchema
+                            .TryGetType( ExpCompile.KeyWord.Logic, out type );
                     _type = ( type as ExpBuiltinType )!;
                     _nodeFlag = ExpNodeFlag.BuiltinType_Int | ExpNodeFlag.Element_Const;
                     break;
@@ -91,7 +93,7 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public override ExpBaseNode Left => throw new NotImplementedException();
+        public override ExpBaseNode Left => ExpBaseNode;
 
         public override ExpBaseNode Right => throw new NotImplementedException();
 

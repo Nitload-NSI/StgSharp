@@ -138,7 +138,7 @@ namespace StgSharp.Script.Express
                     0;
             return new ExpBinaryOperatorNode( ExpCompile.KeyWord.SUB )
             {
-                _returnType = isFloat ? null : null,
+                _returnType = isFloat ?  : null,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} - {1}",
             };

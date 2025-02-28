@@ -41,8 +41,6 @@ using static StgSharp.Script.Express.ExpCompile;
 
 namespace StgSharp.Script.Express
 {
-    public interface IExpBuiltin { }
-
     internal partial class ExpSchema_Nitload : ExpSchema
     {
 
@@ -87,7 +85,7 @@ namespace StgSharp.Script.Express
 
         public override bool TryGetRule( string name, out ExpRuleSource r )
         {
-            r = null;
+            r = null!;
             return false;
         }
 
@@ -95,7 +93,7 @@ namespace StgSharp.Script.Express
                                      string name,
                                      out ExpSchema include )
         {
-            include = null;
+            include = null!;
             return false;
         }
 
@@ -104,7 +102,7 @@ namespace StgSharp.Script.Express
             return TypeDict.TryGetValue( name, out t );
         }
 
-        private void Init()
+        internal void Init()
         {
             IEnumerable<KeyValuePair<string, ExpTypeSource>> builtinTypeSource = [
                 new KeyValuePair<string, ExpTypeSource>(
@@ -138,22 +136,6 @@ namespace StgSharp.Script.Express
                 { PoolString( "E" ), new ExpBuiltinConstant<float>(
                     PoolString( "E" ), MathF.E ) },
             }.ToFrozenDictionary();
-
-
-            /*
-            Operator = new Dictionary<string, ExpBinaryOperatorNode>(
-                Multiplexer )
-            {
-                { PoolString( KeyWord.ADD ), new ExpBinaryOperatorNode(
-                    KeyWord.ADD ) },
-                { PoolString( KeyWord.SUB ), new ExpBinaryOperatorNode(
-                    KeyWord.SUB ) },
-                { PoolString( KeyWord.MUL ), new ExpBinaryOperatorNode(
-                    KeyWord.MUL ) },
-                { PoolString( KeyWord.DIV ), new ExpBinaryOperatorNode(
-                    KeyWord.DIV ) },
-            }.ToFrozenDictionary();
-            /**/
         }
 
     }

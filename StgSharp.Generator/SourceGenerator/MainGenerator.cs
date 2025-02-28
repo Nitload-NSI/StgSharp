@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpBuiltinType.cs"
+//     file="ExpCodeGenerator.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,31 +28,25 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Data;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace StgSharp.Script.Express
+namespace StgSharp.Generator
 {
-    public sealed class ExpBuiltinType : ExpTypeSource
+    [Generator]
+    public partial class MainGenerator : IIncrementalGenerator
     {
-
-        private Type _marshalType;
-
-        internal ExpBuiltinType( string name, Type origin )
-            : base( name, ScriptSourceTransmitter.Empty )
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            _marshalType = origin;
-        }
+            var declaration =
+                context.SyntaxProvider.CreateSyntaxProvider(
+                    predicate: static (s,_) => s is MethodDeclarationSyntax,
+                    transform: static (cds,_) => (MethodDeclarationSyntax)cds.Node
+                    ).Where(static m=>m!=null);
 
-        public override void Analyse()
-        {
-            return;
+            context.RegisterSourceOutput(declaration, BpNodeSyntaxReceiver.BuildNode);
         }
-
-        //A method convert value to CLR type
-        //Used for direct running rather than compiling to C# code.
     }
 }
