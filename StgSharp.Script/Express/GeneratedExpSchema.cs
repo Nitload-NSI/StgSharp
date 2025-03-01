@@ -51,8 +51,7 @@ namespace StgSharp.Script.Express
 
         public ExpTypeSource GetExpType( string typeName )
         {
-            if( ExpCompile.TryGetBuiltinType( typeName,
-                                              out ExpTypeSource? ret ) ) {
+            if( BuiltinSchema.TryGetType( typeName, out ExpTypeSource? ret ) ) {
                 return ret;
             }
             if( TypeDict.TryGetValue( typeName, out ret ) ) {

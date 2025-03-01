@@ -73,7 +73,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpBaseNode CreateInstanceToken()
+        public override ExpBaseNode CreateInstanceNode()
         {
             throw new NotImplementedException();
         }

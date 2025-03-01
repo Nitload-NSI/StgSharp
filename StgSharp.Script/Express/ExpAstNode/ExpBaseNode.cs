@@ -116,6 +116,11 @@ namespace StgSharp.Script.Express
             return new ExpNodeNextEnumerator( this );
         }
 
+        public static bool IsNullOrEmpty( ExpBaseNode node )
+        {
+            return  node == ExpEmptyNode._only || node == null;
+        }
+
         public static bool VerifyTypeConvertable(
                                    ExpBaseNode left,
                                    ExpBaseNode right )
@@ -149,8 +154,7 @@ namespace StgSharp.Script.Express
 
             public override ExpBaseNode Right => _only;
 
-            public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
-                );
+            public override ExpInstantiableElementBase EqualityTypeConvert => ExpInstantiableElementBase.Void;
 
         }
 

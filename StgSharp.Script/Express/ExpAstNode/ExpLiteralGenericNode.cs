@@ -93,7 +93,7 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public override ExpBaseNode Left => ExpBaseNode;
+        public override ExpBaseNode Left => Empty;
 
         public override ExpBaseNode Right => throw new NotImplementedException();
 

@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpType.cs"
+//     file="ExpTypeInstance.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -35,17 +35,17 @@ using System.Collections.Generic;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpType : ExpElementInstanceBase
+    public class ExpTypeInstance : ExpElementInstanceBase
     {
 
-        public ExpType( string name, ExpSchema context )
+        public ExpTypeInstance( string name, ExpSchema context )
             : base( name, context ) { }
 
         public override ExpBaseNode Left => throw new NotImplementedException();
 
         public override ExpBaseNode Right => throw new NotImplementedException();
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
             );
 
         public override string TypeName => throw new NotImplementedException();
@@ -80,6 +80,11 @@ namespace StgSharp.Script.Express
 
         public ExpElementType ElementType => ExpElementType.Type;
 
+        public ExpTypeSource Void
+        {
+            get => ExpVoidType.Only;
+        }
+
         public IScriptSourceProvider SourceProvider => _transmitter;
 
         public string Name => _name;
@@ -92,6 +97,31 @@ namespace StgSharp.Script.Express
         public bool IsConvertable( IExpElementSource targetType )
         {
             throw new NotImplementedException();
+        }
+
+        public static bool IsNullOrVoid( IExpElementSource type )
+        {
+            return type == null || type == ExpVoidType.Only;
+        }
+
+        private class ExpVoidType : ExpTypeSource
+        {
+
+            private static readonly ExpVoidType _onlyInstance = new ExpVoidType(
+                );
+
+            private ExpVoidType() : base( string.Empty ) { }
+
+            public static ExpVoidType Only
+            {
+                get => _onlyInstance;
+            }
+
+            public override void Analyse()
+            {
+                return;
+            }
+
         }
 
     }

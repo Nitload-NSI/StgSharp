@@ -40,15 +40,16 @@ namespace StgSharp.Script.Express
     public enum ExpElementType : int
     {
 
-        Const = 0,
-        Entity = 1,
-        Type = 2,
-        Function = 4,
-        Section = 8,
-        Expression = 16,
-        Rule = 32,
-        Procedure = 64,
-        Collection = 128 | Type,
+        Void = 0,
+        Const = 1,
+        Entity = 2,
+        Type = 4,
+        Function = 8,
+        Section = 16,
+        Expression = 32,
+        Rule = 64,
+        Procedure = 128,
+        Collection = 256,
 
     }
 

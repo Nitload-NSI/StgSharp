@@ -31,7 +31,9 @@
 using StgSharp.Collections;
 
 using System;
+using System.Collections;
 using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace StgSharp.Script.Express
@@ -76,6 +78,8 @@ namespace StgSharp.Script.Express
             get;
             set;
         }
+
+        public IEnumerable<ExpSchema> IncludedSchema => IncludedSchema;
 
         protected FrozenDictionary<string, ExpEntitySource> EntityDict
         {

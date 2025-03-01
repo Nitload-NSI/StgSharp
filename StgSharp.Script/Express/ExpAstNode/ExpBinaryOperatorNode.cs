@@ -42,7 +42,7 @@ namespace StgSharp.Script.Express
 
         private ExpBaseNode _left;
         private ExpBaseNode _right;
-        private ExpTypeSource _returnType;
+        private ExpInstantiableElementBase _returnType;
 
         public ExpBinaryOperatorNode( string name ) : base( name, null! ) { }
 
@@ -66,7 +66,7 @@ namespace StgSharp.Script.Express
 
         public override ExpBaseNode Right => _right;
 
-        public override IExpElementSource EqualityTypeConvert => _returnType;
+        public override ExpInstantiableElementBase EqualityTypeConvert => _returnType;
 
         public static ExpBinaryOperatorNode Add(
                                                     ExpBaseNode left,
@@ -84,6 +84,23 @@ namespace StgSharp.Script.Express
                 _returnType = isFloat ? null : null,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} + {1}",
+            };
+        }
+
+        public static ExpBinaryOperatorNode Assign(
+                                                    ExpBaseNode left,
+                                                    ExpBaseNode right )
+        {
+            if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
+                throw new ExpInvalidTypeException(
+                    left.EqualityTypeConvert.Name,
+                    right.EqualityTypeConvert.Name );
+            }
+            return new ExpBinaryOperatorNode( ExpCompile.KeyWord.Assignment )
+            {
+                _returnType = ExpTypeSource.,
+                _nodeFlag = ExpNodeFlag.Operator_Binary | left._nodeFlag,
+                CodeConvertTemplate = "{0} & {1}",
             };
         }
 

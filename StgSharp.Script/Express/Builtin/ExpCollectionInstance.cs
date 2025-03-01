@@ -76,7 +76,7 @@ namespace StgSharp.Script.Express
 
         public override ExpCollectionBase CollectionValue => _collection;
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
             );
 
     }
@@ -94,7 +94,7 @@ namespace StgSharp.Script.Express
 
         public override ExpCollectionBase CollectionValue => _collection;
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
             );
 
     }
@@ -112,7 +112,7 @@ namespace StgSharp.Script.Express
 
         public override ExpCollectionBase CollectionValue => _collection;
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
             );
 
     }
@@ -133,7 +133,7 @@ namespace StgSharp.Script.Express
 
         public override ExpCollectionBase CollectionValue => _collection;
 
-        public override IExpElementSource EqualityTypeConvert => _collection;
+        public override ExpInstantiableElementBase EqualityTypeConvert => _collection;
 
     }
 }
