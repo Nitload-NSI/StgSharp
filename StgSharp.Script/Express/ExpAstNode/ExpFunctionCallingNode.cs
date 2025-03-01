@@ -52,7 +52,7 @@ namespace StgSharp.Script.Express
         {
             _parameter = firstParameter;
             if( !context.TryGetFunction( functionName, out _function ) ) {
-                foreach( var item in context. ) { }
+                foreach( var item in context.  ) { }
             }
         }
 
@@ -60,7 +60,7 @@ namespace StgSharp.Script.Express
 
         public override ExpBaseNode Right => _parameter;
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
             );
 
     }

@@ -37,7 +37,7 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public abstract class ExpCollectionBase : IExpElementSource, IEnumerable<ExpElementInstanceBase>
+    public abstract class ExpCollectionBase : ExpInstantiableElementBase, IEnumerable<ExpElementInstanceBase>
     {
 
         protected internal string _accurateType;
@@ -47,38 +47,37 @@ namespace StgSharp.Script.Express
             _accurateType = accurateType;
         }
 
-        public ExpElementType ElementType => ExpElementType.Collection;
+        public override ExpElementType ElementType => ExpElementType.Collection;
 
         public abstract int Count
         {
             get;
         }
 
+        public override sealed IScriptSourceProvider SourceProvider => ScriptSourceTransmitter.Empty;
+
         public string MemberType
         {
             get => _accurateType;
         }
 
-        public abstract string Name
-        {
-            get;
-        }
-
-        public void Analyse()
+        public override void Analyse()
         {
             return;
         }
 
         public abstract IEnumerator<ExpElementInstanceBase> GetEnumerator();
 
-        public abstract bool IsConvertable( IExpElementSource targetType );
+        public override sealed bool IsConvertable(
+                                            ExpInstantiableElementBase targetType )
+        {
+            return false;
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
-
-        IScriptSourceProvider IExpElementSource.SourceProvider => null!;
 
     }
 
@@ -106,15 +105,15 @@ namespace StgSharp.Script.Express
 
         public override string Name => ExpCompile.PoolString( "ARRAY" );
 
+        public override ExpBaseNode CreateInstanceNode()
+        {
+            throw new NotImplementedException();
+        }
+
         public override IEnumerator<ExpElementInstanceBase> GetEnumerator()
         {
             return ( ( IEnumerable<ExpElementInstanceBase> )_collection )
                 .GetEnumerator();
-        }
-
-        public override bool IsConvertable( IExpElementSource targetType )
-        {
-            throw new NotImplementedException();
         }
 
     }
@@ -131,14 +130,14 @@ namespace StgSharp.Script.Express
 
         public override string Name => ExpCompile.PoolString( "BAG" );
 
+        public override ExpBaseNode CreateInstanceNode()
+        {
+            throw new NotImplementedException();
+        }
+
         public override IEnumerator<ExpElementInstanceBase> GetEnumerator()
         {
             return _collection.GetEnumerator();
-        }
-
-        public override bool IsConvertable( IExpElementSource targetType )
-        {
-            throw new NotImplementedException();
         }
 
     }
@@ -155,14 +154,14 @@ namespace StgSharp.Script.Express
 
         public override string Name => ExpCompile.PoolString( "LIST" );
 
+        public override ExpBaseNode CreateInstanceNode()
+        {
+            throw new NotImplementedException();
+        }
+
         public override IEnumerator<ExpElementInstanceBase> GetEnumerator()
         {
             return _collection.GetEnumerator();
-        }
-
-        public override bool IsConvertable( IExpElementSource targetType )
-        {
-            throw new NotImplementedException();
         }
 
     }
@@ -187,16 +186,16 @@ namespace StgSharp.Script.Express
             _collection.Add( token );
         }
 
+        public override ExpBaseNode CreateInstanceNode()
+        {
+            throw new NotImplementedException();
+        }
+
         public override sealed IEnumerator<ExpElementInstanceBase> GetEnumerator(
                                                                            )
         {
             return ( ( IEnumerable<ExpElementInstanceBase> )_collection )
                 .GetEnumerator();
-        }
-
-        public override bool IsConvertable( IExpElementSource targetType )
-        {
-            throw new NotImplementedException();
         }
 
     }

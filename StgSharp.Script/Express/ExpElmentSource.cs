@@ -66,6 +66,11 @@ namespace StgSharp.Script.Express
             get;
         }
 
+        public static ExpInstantiableElementBase Void
+        {
+            get => ExpVoidElement.Only;
+        }
+
         public abstract IScriptSourceProvider SourceProvider
         {
             get;
@@ -78,9 +83,41 @@ namespace StgSharp.Script.Express
 
         public abstract void Analyse();
 
-        public abstract ExpBaseNode CreateInstanceToken();
+        public abstract ExpBaseNode CreateInstanceNode();
 
-        public abstract bool IsConvertable( IExpElementSource targetType );
+        public abstract bool IsConvertable(
+                                     ExpInstantiableElementBase targetType );
+
+        private sealed class ExpVoidElement : ExpInstantiableElementBase
+        {
+
+            private static readonly ExpVoidElement _only = new ExpVoidElement();
+
+            public override ExpElementType ElementType => ExpElementType.Void;
+
+            public static ExpVoidElement Only => _only;
+
+            public override IScriptSourceProvider SourceProvider => ScriptSourceTransmitter.Empty;
+
+            public override string Name => "void";
+
+            public override void Analyse()
+            {
+                return;
+            }
+
+            public override ExpBaseNode CreateInstanceNode()
+            {
+                return default!;
+            }
+
+            public override bool IsConvertable(
+                                         ExpInstantiableElementBase targetType )
+            {
+                return false;
+            }
+
+        }
 
     }
 

@@ -52,7 +52,7 @@ namespace StgSharp.Script.Express
 
         public ExpElementType ElementType => ExpElementType.Function;
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
             );
 
         public void CallThisFunction( params ExpBaseNode[] parameters ) { }

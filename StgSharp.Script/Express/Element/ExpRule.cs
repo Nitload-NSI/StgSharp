@@ -50,7 +50,7 @@ namespace StgSharp.Script.Express
 
         public override ExpBaseNode Right => throw new NotImplementedException();
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
             );
 
         public override string TypeName => _source.Name;
