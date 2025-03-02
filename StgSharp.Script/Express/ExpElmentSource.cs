@@ -58,15 +58,19 @@ namespace StgSharp.Script.Express
 
     }
 
-    public abstract class ExpInstantiableElementBase : IExpElementSource
+    public abstract class ExpInstantiableElement : IExpElementSource
     {
+
+        private List<ExpInstantiableElement> _baseList = new List<ExpInstantiableElement>(
+            ),
+            _derivationList = new List<ExpInstantiableElement>();
 
         public abstract ExpElementType ElementType
         {
             get;
         }
 
-        public static ExpInstantiableElementBase Void
+        public static ExpInstantiableElement Void
         {
             get => ExpVoidElement.Only;
         }
@@ -83,12 +87,22 @@ namespace StgSharp.Script.Express
 
         public abstract void Analyse();
 
-        public abstract ExpBaseNode CreateInstanceNode();
+        public abstract ExpNode CreateInstanceNode();
 
-        public abstract bool IsConvertable(
-                                     ExpInstantiableElementBase targetType );
+        public bool IsConvertable( IExpElementSource targetType )
+        {
+            if( targetType == null ) {
+                return false;
+            }
+            throw new NotImplementedException();
+        }
 
-        private sealed class ExpVoidElement : ExpInstantiableElementBase
+        public static bool IsNullOrVoid( ExpInstantiableElement element )
+        {
+            return element == null || element == ExpVoidElement.Only;
+        }
+
+        private sealed class ExpVoidElement : ExpInstantiableElement
         {
 
             private static readonly ExpVoidElement _only = new ExpVoidElement();
@@ -106,22 +120,16 @@ namespace StgSharp.Script.Express
                 return;
             }
 
-            public override ExpBaseNode CreateInstanceNode()
+            public override ExpNode CreateInstanceNode()
             {
                 return default!;
-            }
-
-            public override bool IsConvertable(
-                                         ExpInstantiableElementBase targetType )
-            {
-                return false;
             }
 
         }
 
     }
 
-    public abstract class ExpImmutableElementBase : IExpElementSource
+    public abstract class ExpImmutableElement : IExpElementSource
     {
 
         public abstract ExpElementType ElementType
@@ -146,7 +154,7 @@ namespace StgSharp.Script.Express
             return false;
         }
 
-        public abstract ExpBaseNode MakeReference( params object[] options );
+        public abstract ExpNode MakeReference( params object[] options );
 
     }
 }

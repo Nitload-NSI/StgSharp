@@ -30,20 +30,14 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpCompileNotInitializedException : InvalidOperationException
-    {
-
-        public ExpCompileNotInitializedException()
-            : base(
-            "Attempt to compile an EXPRESS script before the init of compiler." ) { }
-
-    }
-
     public class ExpInvalidCharException : Exception
     {
 
@@ -52,6 +46,9 @@ namespace StgSharp.Script.Express
 
     }
 
+    /// <summary>
+    /// Exception when cannot reading a token from a line.
+    /// </summary>
     public class ExpInvalidTokenException : Exception
     {
 
@@ -60,10 +57,10 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpInvalidTypeDeclareEndingExceptions : Exception
+    public class ExpInvalidElementDeclareEndingExceptions : Exception
     {
 
-        public ExpInvalidTypeDeclareEndingExceptions(
+        public ExpInvalidElementDeclareEndingExceptions(
                        string declaredName,
                        string endedName )
             : base(
@@ -91,6 +88,15 @@ namespace StgSharp.Script.Express
 
     }
 
+    public class ExpCaseNotFoundException : ArgumentOutOfRangeException
+    {
+
+        public ExpCaseNotFoundException( ExpSwitchNode token, ExpNode label )
+            : base(
+            $"Attempt to read or write the label {label.Name} not exist in SWITCH expression {token.Name}" ) { }
+
+    }
+
     public class ExpInvalidCollectionMemberTypeException : InvalidCastException
     {
 
@@ -109,27 +115,25 @@ namespace StgSharp.Script.Express
                        ExpSchema context,
                        ExpSchema source )
             : base(
-            $"Attempted to reference an EXPRESS language expression in the current schema context '{context.Name}', " + $"but this expression comes from another schema '{source.Name}' that has not been included." ) { }
+            $"Attempted to refer to an EXPRESS language expression in the current schema context '{context.Name}', but this expression comes from another schema '{source.Name}' that has not been included." ) { }
 
     }
 
-    public class ExpCaseNotFoundException : ArgumentOutOfRangeException
+    public class ExpElementLoadException : TypeLoadException
     {
 
-        public ExpCaseNotFoundException(
-                       ExpSwitchNode token,
-                       ExpBaseNode label )
+        public ExpElementLoadException( string typeName, ExpSchema context )
             : base(
-            $"Attempt to read or write the label {label.Name} not exist in SWITCH expression {token.Name}" ) { }
+            $"Cannot find the element {typeName} in schema {context.Name} and its included schemas" ) { }
 
     }
 
-    public class ExpTypeNotFoundException : Exception
+    public class ExpCompileNotInitializedException : InvalidOperationException
     {
 
-        public ExpTypeNotFoundException( string typeName, ExpSchema context )
+        public ExpCompileNotInitializedException()
             : base(
-            $"Cannot find the type {typeName} in schema {context.Name} and its included schemas" ) { }
+            "Attempt to compile an EXPRESS script before the init of compiler." ) { }
 
     }
 }

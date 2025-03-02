@@ -37,13 +37,13 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpNodeNextEnumerator : IEnumerator<ExpBaseNode>
+    public class ExpNodeNextEnumerator : IEnumerator<ExpNode>
     {
 
-        private ExpBaseNode _begin;
-        private ExpBaseNode _current;
+        private ExpNode _begin;
+        private ExpNode _current;
 
-        public ExpNodeNextEnumerator( ExpBaseNode token )
+        public ExpNodeNextEnumerator( ExpNode token )
         {
             _begin = token;
             _current = token;
@@ -56,7 +56,7 @@ namespace StgSharp.Script.Express
 
         bool IEnumerator.MoveNext()
         {
-            ExpBaseNode next = _current.Next;
+            ExpNode next = _current.Next;
             if( ReferenceEquals( next, _begin ) || next == null ) {
                 return false;
             }
@@ -71,7 +71,7 @@ namespace StgSharp.Script.Express
 
         object IEnumerator.Current => throw new NotImplementedException();
 
-        ExpBaseNode IEnumerator<ExpBaseNode>.Current => throw new NotImplementedException(
+        ExpNode IEnumerator<ExpNode>.Current => throw new NotImplementedException(
             );
 
     }

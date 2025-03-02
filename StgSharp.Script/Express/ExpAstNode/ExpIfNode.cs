@@ -36,41 +36,46 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public sealed class ExpIfNode : ExpBaseNode
+    public sealed class ExpIfNode : ExpNode
     {
 
-        private ExpBaseNode _falseOpBegin;
-        private ExpBaseNode _rule;
-        private ExpBaseNode  _trueOpBegin ;
+        private ExpNode _falseOpBegin;
+        private ExpNode _rule;
+        private ExpNode  _trueOpBegin ;
 
         public ExpIfNode(
                        string name,
                        ExpSchema context,
-                       ExpBaseNode rule,
-                       ExpBaseNode rootOperationIfTrue,
-                       ExpBaseNode rootOperationIfFalse )
-            : base( name, context )
+                       ExpNode rule,
+                       ExpNode rootOperationIfTrue,
+                       ExpNode rootOperationIfFalse )
+            : base( name )
         {
             _rule = rule;
             _trueOpBegin = rootOperationIfFalse;
             _falseOpBegin = rootOperationIfFalse;
+            CodeConvertTemplate = """
+                if( {0} ) {
+                    {1}
+                } else {
+                    {2}
+                }
+                """;
         }
 
-        public override ExpBaseNode Left => _trueOpBegin;
+        public override ExpNode Left => _trueOpBegin;
 
-        public override ExpBaseNode Right => _falseOpBegin;
+        public override ExpNode Right => _falseOpBegin;
 
         public override IExpElementSource EqualityTypeConvert => null!;
 
-        public void AppendFalseOperation( ExpBaseNode expressionRoot )
+        public void AppendFalseOperation( ExpNode expressionRoot )
         {
-            AssertSchemaInclude( expressionRoot );
             _falseOpBegin.AppendNode( expressionRoot );
         }
 
-        public void AppendTrueOperation( ExpBaseNode expressionRoot )
+        public void AppendTrueOperation( ExpNode expressionRoot )
         {
-            AssertSchemaInclude( expressionRoot );
             _trueOpBegin.AppendNode( expressionRoot );
         }
 

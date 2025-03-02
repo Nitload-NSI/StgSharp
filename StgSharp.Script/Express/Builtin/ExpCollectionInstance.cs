@@ -34,18 +34,14 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public abstract class ExpCollectionInstanceBase : ExpBaseNode
+    public abstract class ExpCollectionInstanceBase : ExpNode
     {
 
         protected internal (int min, int max) _range;
         protected internal ExpElementType _memberType;
 
         protected ExpCollectionInstanceBase( string name, ExpSchema context )
-            : base( name, context ) { }
-
-        public override ExpBaseNode Left => null!;
-
-        public override ExpBaseNode Right => null!;
+            : base( name ) { }
 
         public abstract ExpCollectionBase CollectionValue
         {
@@ -56,6 +52,10 @@ namespace StgSharp.Script.Express
         {
             get => _memberType;
         }
+
+        public override ExpNode Left => null!;
+
+        public override ExpNode Right => null!;
 
         public int MinCapacity => _range.min;
 
@@ -69,14 +69,14 @@ namespace StgSharp.Script.Express
         private ExpSet _collection;
 
         public ExpSetInstance( string name, ExpSet set, ExpSchema context )
-            : base( name, context )
+            : base( name )
         {
             _collection = set;
         }
 
         public override ExpCollectionBase CollectionValue => _collection;
 
-        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
             );
 
     }
@@ -87,14 +87,14 @@ namespace StgSharp.Script.Express
         private ExpBag _collection;
 
         public ExpBagInstance( string name, ExpBag bag, ExpSchema context )
-            : base( name, context )
+            : base( name )
         {
             _collection = bag;
         }
 
         public override ExpCollectionBase CollectionValue => _collection;
 
-        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
             );
 
     }
@@ -105,14 +105,14 @@ namespace StgSharp.Script.Express
         private ExpList _collection;
 
         public ExpListInstance( string name, ExpList list, ExpSchema context )
-            : base( name, context )
+            : base( name )
         {
             _collection = list;
         }
 
         public override ExpCollectionBase CollectionValue => _collection;
 
-        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
             );
 
     }
@@ -126,14 +126,14 @@ namespace StgSharp.Script.Express
                        string name,
                        ExpArray array,
                        ExpSchema context )
-            : base( name, context )
+            : base( name )
         {
             _collection = array;
         }
 
         public override ExpCollectionBase CollectionValue => _collection;
 
-        public override ExpInstantiableElementBase EqualityTypeConvert => _collection;
+        public override ExpInstantiableElement EqualityTypeConvert => _collection;
 
     }
 }

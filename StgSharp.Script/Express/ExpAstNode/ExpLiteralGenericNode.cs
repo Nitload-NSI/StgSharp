@@ -51,7 +51,7 @@ namespace StgSharp.Script.Express
         private readonly T _value;
 
         public ExpLiteralGenericNode( string name, ExpSchema context, T value )
-            : base( name, context )
+            : base( name )
         {
             _value = value;
             switch( value ) {
@@ -93,9 +93,9 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public override ExpBaseNode Left => Empty;
+        public override ExpNode Left => Empty;
 
-        public override ExpBaseNode Right => throw new NotImplementedException();
+        public override ExpNode Right => throw new NotImplementedException();
 
         public override IExpElementSource EqualityTypeConvert => _type;
 

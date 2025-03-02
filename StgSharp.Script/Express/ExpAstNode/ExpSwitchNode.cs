@@ -34,25 +34,25 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpSwitchNode : ExpBaseNode
+    public class ExpSwitchNode : ExpNode
     {
 
-        private Dictionary<ExpBaseNode, ExpBaseNode> _cases;
-        private ExpBaseNode _default;
-        private ExpBaseNode _target;
+        private Dictionary<ExpNode, ExpNode> _cases;
+        private ExpNode _default;
+        private ExpNode _target;
 
         public ExpSwitchNode(
                        string name,
                        ExpSchema context,
-                       ExpBaseNode target,
-                       ExpBaseNode defaultCase,
-                       params (ExpBaseNode label, ExpBaseNode op)[] cases )
-            : base( name, context )
+                       ExpNode target,
+                       ExpNode defaultCase,
+                       params (ExpNode label, ExpNode op)[] cases )
+            : base( name )
         {
             _target = target;
             _default = defaultCase;
-            _cases = new Dictionary<ExpBaseNode, ExpBaseNode>();
-            foreach( (ExpBaseNode label, ExpBaseNode op ) item in cases ) {
+            _cases = new Dictionary<ExpNode, ExpNode>();
+            foreach( (ExpNode label, ExpNode op ) item in cases ) {
                 if( item.op == null ) {
                     _cases.Add( item.label, null! );
                 } else {
@@ -61,24 +61,24 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public ExpBaseNode this[ ExpBaseNode index ]
+        public ExpNode this[ ExpNode index ]
         {
             get
             {
-                if( _cases.TryGetValue( index, out ExpBaseNode? ret ) ) {
+                if( _cases.TryGetValue( index, out ExpNode? ret ) ) {
                     return ret;
                 }
                 return _default;
             }
         }
 
-        public override ExpBaseNode Left => throw new NotImplementedException();
+        public override ExpNode Left => throw new NotImplementedException();
 
-        public override ExpBaseNode Right => throw new NotImplementedException();
+        public override ExpNode Right => throw new NotImplementedException();
 
         public override IExpElementSource EqualityTypeConvert => null!;
 
-        public void AddOperationToDefault( ExpBaseNode expressionRoot )
+        public void AddOperationToDefault( ExpNode expressionRoot )
         {
             if( expressionRoot != null ) {
                 _default.AppendNode( expressionRoot );
@@ -93,18 +93,17 @@ namespace StgSharp.Script.Express
         /// <param name="expressionRoot"> Root token of the expression to be added. </param>
         /// <exception cref="ExpCaseNotFoundException"> Cannot fine the case label in current witch expression. </exception>
         public void AppendOperationToCase(
-                            ExpBaseNode label,
-                            ExpBaseNode expressionRoot )
+                            ExpNode label,
+                            ExpNode expressionRoot )
         {
-            AssertSchemaInclude( expressionRoot );
-            if( _cases.TryGetValue( label, out ExpBaseNode? op ) ) {
+            if( _cases.TryGetValue( label, out ExpNode? op ) ) {
                 op.AppendNode( expressionRoot );
             } else {
                 throw new ExpCaseNotFoundException( this, label );
             }
         }
 
-        public bool ContainsCase( ExpBaseNode token )
+        public bool ContainsCase( ExpNode token )
         {
             return _cases.ContainsKey( token );
         }

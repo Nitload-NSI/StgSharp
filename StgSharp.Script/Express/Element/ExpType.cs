@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpTypeInstance.cs"
+//     file="ExpType.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -38,15 +38,14 @@ namespace StgSharp.Script.Express
     public class ExpTypeInstance : ExpElementInstanceBase
     {
 
-        public ExpTypeInstance( string name, ExpSchema context )
-            : base( name, context ) { }
+        public ExpTypeInstance( string name ) : base( name ) { }
 
-        public override ExpBaseNode Left => throw new NotImplementedException();
-
-        public override ExpBaseNode Right => throw new NotImplementedException();
-
-        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
             );
+
+        public override ExpNode Left => throw new NotImplementedException();
+
+        public override ExpNode Right => throw new NotImplementedException();
 
         public override string TypeName => throw new NotImplementedException();
 

@@ -53,11 +53,10 @@ namespace StgSharp.Script.Express
 
     }
 
-    public abstract class ExpElementInstanceBase : ExpBaseNode
+    public abstract class ExpElementInstanceBase : ExpNode
     {
 
-        protected ExpElementInstanceBase( string name, ExpSchema context )
-            : base( name, context ) { }
+        protected ExpElementInstanceBase( string name ) : base( name ) { }
 
         public ExpElementType ElementType
         {

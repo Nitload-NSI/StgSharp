@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpBaseNode.cs"
+//     file="_ExpNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -36,16 +36,15 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public abstract class ExpBaseNode : IASTNode<ExpBaseNode, IExpElementSource>
+    public abstract class ExpNode : IASTNode<ExpNode, IExpElementSource>
     {
 
         protected internal ExpNodeFlag _nodeFlag;
         protected internal string _name;
 
-        protected ExpBaseNode( string name, ExpSchema context )
+        protected ExpNode( string name )
         {
             _name = name;
-            NameSpace = context;
             Next = this;
             Previous = this;
         }
@@ -55,37 +54,31 @@ namespace StgSharp.Script.Express
             get { return ( _nodeFlag | ExpNodeFlag.BuiltinType_Number ) != 0; }
         }
 
-        public abstract ExpBaseNode Left
+        public abstract ExpNode Left
         {
             get;
         }
 
-        public static ExpBaseNode Empty
+        public static ExpNode Empty
         {
             get => ExpEmptyNode._only;
         }
 
-        public ExpBaseNode Next
+        public ExpNode Next
         {
             get;
             set;
         }
 
-        public abstract ExpBaseNode Right
+        public abstract ExpNode Right
         {
             get;
         }
 
-        public ExpBaseNode Previous
+        public ExpNode Previous
         {
             get;
             set;
-        }
-
-        public ExpSchema NameSpace
-        {
-            get;
-            private set;
         }
 
         public abstract IExpElementSource EqualityTypeConvert
@@ -98,12 +91,12 @@ namespace StgSharp.Script.Express
         public string CodeConvertTemplate
         {
             get;
-            internal set;
+            init;
         }
 
         public string Name => _name;
 
-        public virtual void AppendNode( ExpBaseNode nextToken )
+        public virtual void AppendNode( ExpNode nextToken )
         {
             Next.Previous = nextToken;
             nextToken.Next = Next;
@@ -116,14 +109,12 @@ namespace StgSharp.Script.Express
             return new ExpNodeNextEnumerator( this );
         }
 
-        public static bool IsNullOrEmpty( ExpBaseNode node )
+        public static bool IsNullOrEmpty( ExpNode node )
         {
             return  node == ExpEmptyNode._only || node == null;
         }
 
-        public static bool VerifyTypeConvertable(
-                                   ExpBaseNode left,
-                                   ExpBaseNode right )
+        public static bool VerifyTypeConvertable( ExpNode left, ExpNode right )
         {
             IExpElementSource tLeft = left.EqualityTypeConvert,
                 tRight = right.EqualityTypeConvert;
@@ -133,28 +124,18 @@ namespace StgSharp.Script.Express
             return tLeft.IsConvertable( tRight );
         }
 
-        protected void AssertSchemaInclude( ExpBaseNode expressionRoot )
-        {
-            if( expressionRoot.NameSpace != NameSpace && NameSpace.TryGetSchemaInclude(
-                expressionRoot.NameSpace.Name, out _ ) ) {
-                throw new ExpInvalidSchemaIncludeException(
-                    NameSpace, expressionRoot.NameSpace );
-            }
-        }
-
-        private class ExpEmptyNode : ExpBaseNode
+        private class ExpEmptyNode : ExpNode
         {
 
             internal static readonly ExpEmptyNode _only = new();
 
-            public ExpEmptyNode()
-                : base( string.Empty, ExpSchema.BuiltinSchema ) { }
+            public ExpEmptyNode() : base( string.Empty ) { }
 
-            public override ExpBaseNode Left => _only;
+            public override ExpInstantiableElement EqualityTypeConvert => ExpInstantiableElement.Void;
 
-            public override ExpBaseNode Right => _only;
+            public override ExpNode Left => _only;
 
-            public override ExpInstantiableElementBase EqualityTypeConvert => ExpInstantiableElementBase.Void;
+            public override ExpNode Right => _only;
 
         }
 

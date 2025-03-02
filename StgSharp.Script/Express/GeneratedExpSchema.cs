@@ -62,7 +62,7 @@ namespace StgSharp.Script.Express
                     return ret;
                 }
             }
-            throw new ExpTypeNotFoundException( typeName, this );
+            throw new ExpElementLoadException( typeName, this );
         }
 
         public bool HasSchemaInclude( GeneratedExpSchema schema )
