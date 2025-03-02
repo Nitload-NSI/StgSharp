@@ -38,7 +38,7 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public sealed class ExpConstantCollectionSource : ExpImmutableElementBase
+    public sealed class ExpConstantCollectionSource : ExpImmutableElement
     {
 
         private Dictionary<string, ExpElementInstanceBase> _constants;
@@ -66,7 +66,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpBaseNode MakeReference( params object[] options )
+        public override ExpNode MakeReference( params object[] options )
         {
             if( options.Length == 0 || options[ 0 ] is not string str ) {
                 return null!;

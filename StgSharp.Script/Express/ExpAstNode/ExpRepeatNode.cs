@@ -36,22 +36,24 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpRepeatToken : ExpBaseNode
+    public class ExpRepeatToken : ExpNode
     {
 
-        private ExpBaseNode _operationBegin;
+        //TODO: Current code cannot represent full functionality defined in ISO10303, need rewrite.
 
         private ExpElementInstanceBase _variable, _begin, _end, _increment;
+
+        private ExpNode _operationBegin;
 
         public ExpRepeatToken(
                        string name,
                        ExpSchema context,
-                       ExpBaseNode operationBegin,
+                       ExpNode operationBegin,
                        ExpElementInstanceBase variable,
                        ExpElementInstanceBase begin,
                        ExpElementInstanceBase end,
                        ExpElementInstanceBase increment )
-            : base( name, context )
+            : base( name )
         {
             if( variable.NodeFlag != begin.NodeFlag || begin.NodeFlag !=
                 end.NodeFlag || ( increment != null && end.NodeFlag !=
@@ -81,13 +83,13 @@ namespace StgSharp.Script.Express
             _operationBegin = operationBegin;
         }
 
-        public override ExpBaseNode Left => throw new NotImplementedException();
+        public override ExpNode Left => throw new NotImplementedException();
 
-        public override ExpBaseNode Right => _operationBegin;
+        public override ExpNode Right => _operationBegin;
 
         public override IExpElementSource EqualityTypeConvert => null!;
 
-        public void AppendRepeatedOperation( ExpBaseNode node )
+        public void AppendRepeatedOperation( ExpNode node )
         {
             _operationBegin.AppendNode( node );
         }

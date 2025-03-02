@@ -243,7 +243,7 @@ namespace StgSharp.Script.Express
                 }
                 string endedName = match.Groups[ "TypeName" ].ToString();
                 if( !string.Equals( endedName, _source.Name ) ) {
-                    throw new ExpInvalidTypeDeclareEndingExceptions(
+                    throw new ExpInvalidElementDeclareEndingExceptions(
                         _source.Name, endedName );
                 }
                 transmitter.WriteLine( "END_ENTITY" );
@@ -275,7 +275,7 @@ namespace StgSharp.Script.Express
                 }
                 string endedName = match.Groups[ "FunctionName" ].ToString();
                 if( !string.Equals( endedName, _source.Name ) ) {
-                    throw new ExpInvalidTypeDeclareEndingExceptions(
+                    throw new ExpInvalidElementDeclareEndingExceptions(
                         _source.Name, endedName );
                 }
                 transmitter.WriteLine( "END_FUNCTION" );
@@ -310,7 +310,7 @@ namespace StgSharp.Script.Express
                 }
                 string endedName = match.Groups[ "RuleName" ].ToString();
                 if( !string.Equals( endedName, _source.Name ) ) {
-                    throw new ExpInvalidTypeDeclareEndingExceptions(
+                    throw new ExpInvalidElementDeclareEndingExceptions(
                         _source.Name, endedName );
                 }
                 transmitter.WriteLine( "END_RULE" );
@@ -342,7 +342,7 @@ namespace StgSharp.Script.Express
                 }
                 string endedName = match.Groups[ "TypeName" ].ToString();
                 if( !string.Equals( endedName, _source.Name ) ) {
-                    throw new ExpInvalidTypeDeclareEndingExceptions(
+                    throw new ExpInvalidElementDeclareEndingExceptions(
                         _source.Name, endedName );
                 }
                 transmitter.WriteLine( "END_ENTITY" );

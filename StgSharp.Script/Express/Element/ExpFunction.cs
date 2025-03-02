@@ -34,32 +34,31 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpFunction : ExpBaseNode
+    public class ExpFunction : ExpNode
     {
 
-        private readonly ExpBaseNode _return;
-
         private ExpFunctionSource _source;
-        private readonly List<KeyValuePair<string, ExpBaseNode>> _parameterList 
-            = new List<KeyValuePair<string, ExpBaseNode>>();
 
-        public ExpFunction( string name, ExpSchema context )
-            : base( name, context ) { }
+        private readonly ExpNode _return;
+        private readonly List<KeyValuePair<string, ExpNode>> _parameterList 
+            = new List<KeyValuePair<string, ExpNode>>();
 
-        public override ExpBaseNode Left => throw new NotImplementedException();
-
-        public override ExpBaseNode Right => throw new NotImplementedException();
+        public ExpFunction( string name, ExpSchema context ) : base( name ) { }
 
         public ExpElementType ElementType => ExpElementType.Function;
 
-        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
             );
 
-        public void CallThisFunction( params ExpBaseNode[] parameters ) { }
+        public override ExpNode Left => throw new NotImplementedException();
+
+        public override ExpNode Right => throw new NotImplementedException();
+
+        public void CallThisFunction( params ExpNode[] parameters ) { }
 
     }
 
-    public class ExpFunctionSource : ExpImmutableElementBase
+    public class ExpFunctionSource : ExpImmutableElement
     {
 
         private ScriptSourceTransmitter _transmitter;
@@ -95,7 +94,7 @@ namespace StgSharp.Script.Express
              */
         }
 
-        public override ExpBaseNode MakeReference( params object[] options )
+        public override ExpNode MakeReference( params object[] options )
         {
             throw new NotImplementedException();
         }

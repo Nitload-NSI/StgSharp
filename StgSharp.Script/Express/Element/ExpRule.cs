@@ -41,23 +41,22 @@ namespace StgSharp.Script.Express
 
         private ExpRuleSource _source;
 
-        public ExpRule( string name, ExpSchema context )
-            : base( name, context ) { }
+        public ExpRule( string name, ExpSchema context ) : base( name ) { }
 
         public object? value => throw new NotImplementedException();
 
-        public override ExpBaseNode Left => throw new NotImplementedException();
-
-        public override ExpBaseNode Right => throw new NotImplementedException();
-
-        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
             );
+
+        public override ExpNode Left => throw new NotImplementedException();
+
+        public override ExpNode Right => throw new NotImplementedException();
 
         public override string TypeName => _source.Name;
 
     }
 
-    public class ExpRuleSource : ExpImmutableElementBase
+    public class ExpRuleSource : ExpImmutableElement
     {
 
         private ScriptSourceTransmitter _transmitter;
@@ -80,7 +79,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpBaseNode MakeReference( params object[] options )
+        public override ExpNode MakeReference( params object[] options )
         {
             throw new NotImplementedException();
         }

@@ -46,12 +46,12 @@ namespace StgSharp.Script.Express
         private const int TokenGenerated = 0;
         private const int TokenTypeNotMatch = -1;
 
-        private ExpBaseNode _lastStatement;
+        private ExpNode _lastStatement;
 
         private GeneratedExpSchema _context;
         private IExpElementSource _local;
-        private List<ExpBaseNode> _cache;
-        private Stack<ExpBaseNode> _operandsNode;
+        private List<ExpNode> _cache;
+        private Stack<ExpNode> _operandsNode;
         private Stack<Token> _operandsToken;
         private Stack<Token> _operators;
 
@@ -90,21 +90,21 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public void CacheNextOperandNode( ExpBaseNode node )
+        public void CacheNextOperandNode( ExpNode node )
         {
             _operandsNode.Push( node );
         }
 
-        public AbstractSyntaxTree<ExpBaseNode, IExpElementSource> CloseAndDispose(
+        public AbstractSyntaxTree<ExpNode, IExpElementSource> CloseAndDispose(
                                                                           )
         {
             if( _operandsToken.Count != 0 ) {
                 // convert rest to AST
             }
-            return new AbstractSyntaxTree<ExpBaseNode, IExpElementSource>();
+            return new AbstractSyntaxTree<ExpNode, IExpElementSource>();
         }
 
-        public ExpBaseNode GenerateNode( Token t )
+        public ExpNode GenerateNode( Token t )
         {
             switch( t.Flag ) {
                 case TokenFlag.Symbol_Unary:
@@ -134,7 +134,7 @@ namespace StgSharp.Script.Express
 
         public int GetNextOperandCache(
                            out Token? token,
-                           out ExpBaseNode? node )
+                           out ExpNode? node )
         {
             if( _operandsNode.Count != 0 ) {
                 node = _operandsNode.Pop();

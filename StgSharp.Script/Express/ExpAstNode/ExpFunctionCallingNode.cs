@@ -36,32 +36,33 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    internal class ExpFunctionCallingNode : ExpBaseNode
+    internal class ExpFunctionCallingNode : ExpNode
     {
 
-        private ExpBaseNode _parameter;
         private ExpFunctionSource _function;
 
+        private ExpNode _parameter;
+
         public ExpFunctionCallingNode(
-                       string functionName,
-                       int line,
-                       int column,
-                       ExpSchema context,
-                       ExpBaseNode firstParameter )
-            : base( $"{functionName}_{line}_{column}", context )
+                       ExpFunctionSource function,
+                       ExpNode firstParameter )
+            : base( $"{function.Name}_call" )
         {
+            _function = function;
             _parameter = firstParameter;
-            if( !context.TryGetFunction( functionName, out _function ) ) {
-                foreach( var item in context.  ) { }
-            }
         }
 
-        public override ExpBaseNode Left => throw new NotImplementedException();
-
-        public override ExpBaseNode Right => _parameter;
-
-        public override ExpInstantiableElementBase EqualityTypeConvert => throw new NotImplementedException(
+        public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
             );
+
+        public override ExpNode Left => Empty;
+
+        public override ExpNode Right => _parameter;
+
+        public void AppendParameter( ExpNode parameter )
+        {
+            _parameter.AppendNode( parameter );
+        }
 
     }
 }

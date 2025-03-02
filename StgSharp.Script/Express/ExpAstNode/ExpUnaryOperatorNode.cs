@@ -36,25 +36,42 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpUnaryOperatorNode : ExpBaseNode
+    public class ExpUnaryOperatorNode : ExpNode
     {
 
-        private ExpBaseNode _operand;
+        private ExpNode _operand;
+
+        private ExpUnaryOperatorNode( string name ) : base( name ) { }
 
         public ExpUnaryOperatorNode(
                        string name,
-                       ExpBaseNode operand,
+                       ExpNode operand,
                        ExpSchema context )
-            : base( name, context )
+            : base( name )
         {
             _operand = operand;
         }
 
-        public override ExpBaseNode Left => null!;
+        public override ExpNode Left => null!;
 
-        public override ExpBaseNode Right => _operand;
+        public override ExpNode Right => _operand;
 
         public override IExpElementSource EqualityTypeConvert => _operand.EqualityTypeConvert;
+
+        public static ExpUnaryOperatorNode UnaryNotNegation( ExpNode operand )
+        {
+            if( !operand.IsNumber ) {
+                throw new ExpInvalidTypeException(
+                    "Number", operand.EqualityTypeConvert.Name );
+            }
+            bool isFloat =
+                    ( operand._nodeFlag | ExpNodeFlag.BuiltinType_Float ) == 0;
+            return new ExpUnaryOperatorNode( ExpCompile.KeyWord.SUB )
+            {
+                _nodeFlag = ExpNodeFlag.Operator_Unary | ExpNodeFlag.BuiltinType_Number,
+                CodeConvertTemplate = "- {0}",
+            };
+        }
 
     }
 }

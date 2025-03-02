@@ -37,40 +37,23 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpBinaryOperatorNode : ExpBaseNode
+    public class ExpBinaryOperatorNode : ExpNode
     {
 
-        private ExpBaseNode _left;
-        private ExpBaseNode _right;
-        private ExpInstantiableElementBase _returnType;
+        private ExpInstantiableElement _returnType;
 
-        public ExpBinaryOperatorNode( string name ) : base( name, null! ) { }
+        private ExpNode _left;
+        private ExpNode _right;
 
-        public ExpBinaryOperatorNode(
-                       string source,
-                       ExpSchema context,
-                       ExpBaseNode left,
-                       ExpBaseNode right )
-            : base( source, context )
-        {
-            if( !left.EqualityTypeConvert
-                    .IsConvertable( right.EqualityTypeConvert ) ) {
-                throw new InvalidCastException(
-                    $"Cannot convert element {left.EqualityTypeConvert} to {right.EqualityTypeConvert}" );
-            }
-            _left = left;
-            _right = right;
-        }
+        private ExpBinaryOperatorNode( string name ) : base( name ) { }
 
-        public override ExpBaseNode Left => _left;
+        public override ExpInstantiableElement EqualityTypeConvert => _returnType;
 
-        public override ExpBaseNode Right => _right;
+        public override ExpNode Left => _left;
 
-        public override ExpInstantiableElementBase EqualityTypeConvert => _returnType;
+        public override ExpNode Right => _right;
 
-        public static ExpBinaryOperatorNode Add(
-                                                    ExpBaseNode left,
-                                                    ExpBaseNode right )
+        public static ExpBinaryOperatorNode Add( ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException(
@@ -88,8 +71,8 @@ namespace StgSharp.Script.Express
         }
 
         public static ExpBinaryOperatorNode Assign(
-                                                    ExpBaseNode left,
-                                                    ExpBaseNode right )
+                                                    ExpNode left,
+                                                    ExpNode right )
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
@@ -98,15 +81,13 @@ namespace StgSharp.Script.Express
             }
             return new ExpBinaryOperatorNode( ExpCompile.KeyWord.Assignment )
             {
-                _returnType = ExpTypeSource.,
+                _returnType = ExpInstantiableElement.Void,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | left._nodeFlag,
                 CodeConvertTemplate = "{0} & {1}",
             };
         }
 
-        public static ExpBinaryOperatorNode Div(
-                                                    ExpBaseNode left,
-                                                    ExpBaseNode right )
+        public static ExpBinaryOperatorNode Div( ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException(
@@ -123,9 +104,7 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode Mul(
-                                                    ExpBaseNode left,
-                                                    ExpBaseNode right )
+        public static ExpBinaryOperatorNode Mul( ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException(
@@ -142,9 +121,7 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode Sub(
-                                                    ExpBaseNode left,
-                                                    ExpBaseNode right )
+        public static ExpBinaryOperatorNode Sub( ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException(

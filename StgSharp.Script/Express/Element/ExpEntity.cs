@@ -34,25 +34,24 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpEntity : ExpBaseNode
+    public class ExpEntity : ExpNode
     {
 
-        public ExpEntity( string name, ExpSchema context )
-            : base( name, context ) { }
+        public ExpEntity( string name, ExpSchema context ) : base( name ) { }
 
-        public override ExpBaseNode Left => throw new NotImplementedException();
+        public override ExpNode Left => throw new NotImplementedException();
 
-        public override ExpBaseNode Right => throw new NotImplementedException();
+        public override ExpNode Right => throw new NotImplementedException();
 
         public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
             );
 
     }
 
-    public class ExpEntitySource : ExpInstantiableElementBase
+    public class ExpEntitySource : ExpInstantiableElement
     {
 
-        private AbstractSyntaxTree<ExpBaseNode, IExpElementSource> _expressionTree;
+        private AbstractSyntaxTree<ExpNode, IExpElementSource> _expressionTree;
         private ScriptSourceTransmitter _source;
         private string _name;
 
@@ -73,12 +72,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpBaseNode CreateInstanceNode()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool IsConvertable( IExpElementSource targetType )
+        public override ExpNode CreateInstanceNode()
         {
             throw new NotImplementedException();
         }

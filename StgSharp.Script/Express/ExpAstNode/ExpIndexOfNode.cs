@@ -36,29 +36,29 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpIndexOfNode : ExpBaseNode
+    public class ExpIndexOfNode : ExpNode
     {
 
-        private ExpBaseNode _indexExpression;
-
         private ExpCollectionInstanceBase _collection;
+
+        private ExpNode _indexExpression;
 
         public ExpIndexOfNode(
                        ExpSchema context,
                        ExpCollectionInstanceBase instance,
-                       ExpBaseNode indexExpression )
-            : base( ExpCompile.PoolString( "[" ), context )
+                       ExpNode indexExpression )
+            : base( ExpCompile.PoolString( "[" ) )
         {
             _collection = instance;
             _indexExpression = indexExpression;
+            CodeConvertTemplate = @"{0}[{1}]";
         }
 
-        public override ExpBaseNode Left => _collection;
+        public override ExpNode Left => _collection;
 
-        public override ExpBaseNode Right => throw new NotImplementedException();
+        public override ExpNode Right => _indexExpression;
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
-            );
+        public override IExpElementSource EqualityTypeConvert => _collection.EqualityTypeConvert;
 
     }
 }

@@ -39,7 +39,7 @@ namespace StgSharp.Script.Express
     public partial class ExpNodeGenerator
     {
 
-        public ExpBaseNode GenerateUnaryToken( Token t )
+        public ExpNode GenerateUnaryToken( Token t )
         {
             switch( t.Value ) {
                 case ExpCompile.KeyWord.UnaryAdd:
