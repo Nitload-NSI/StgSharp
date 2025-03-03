@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IConvertableToBlueprintNode.cs"
+//     file="ExpElementInstanceNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,57 +30,30 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.Script.Express
 {
-    public delegate void BlueprintNodeOperation(
-                                 in Dictionary<string, BlueprintPipeline> input,
-                                 in Dictionary<string, BlueprintPipeline> output );
-
-    public interface IConvertableToBlueprintNode
+    public class ExpElementInstanceNode : ExpNode
     {
 
-        BlueprintNodeOperation Operation
+        private ExpInstantiableElement _element;
+
+        public ExpElementInstanceNode(
+                       string varName,
+                       ExpInstantiableElement element )
+            : base( varName )
         {
-            get;
+            _element = element;
         }
 
-        public IEnumerable<string> InputInterfacesName
-        {
-            get;
-        }
+        public override ExpInstantiableElement EqualityTypeConvert => _element;
 
-        public IEnumerable<string> OutputInterfacesName
-        {
-            get;
-        }
+        public override ExpNode Left => Empty;
 
-    }
-
-    internal class DefaultConvertableToBlueprintNode : IConvertableToBlueprintNode
-    {
-
-        private string[] _input;
-        private string[] _output;
-        private BlueprintNodeOperation _execution;
-
-        public DefaultConvertableToBlueprintNode(
-                       BlueprintNodeOperation execution,
-                       string[] input,
-                       string[] output )
-        {
-            _input = input;
-            _output = output;
-            _execution = execution;
-        }
-
-        public BlueprintNodeOperation Operation => _execution;
-
-        public IEnumerable<string> InputInterfacesName => _input;
-
-        public IEnumerable<string> OutputInterfacesName => _output;
+        public override ExpNode Right => Empty;
 
     }
 }

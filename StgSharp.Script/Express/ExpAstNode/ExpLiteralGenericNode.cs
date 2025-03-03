@@ -50,7 +50,7 @@ namespace StgSharp.Script.Express
         private readonly ExpBuiltinType _type;
         private readonly T _value;
 
-        public ExpLiteralGenericNode( string name, ExpSchema context, T value )
+        public ExpLiteralGenericNode( string name, T value )
             : base( name )
         {
             _value = value;

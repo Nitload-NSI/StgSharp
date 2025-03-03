@@ -32,11 +32,20 @@ using System;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpBuiltinConstant<T> : ExpLiteralGenericNode<T>
+    internal partial class ExpSchema_Nitload
     {
 
-        internal ExpBuiltinConstant( string name, T value )
-            : base( name, null!, value ) { }
+        public ExpTypeSource IntType
+        {
+            get;
+            private set;
+        }
+
+        public ExpTypeSource FloatType
+        {
+            get;
+            private set;
+        }
 
     }
 }

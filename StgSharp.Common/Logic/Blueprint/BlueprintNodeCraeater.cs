@@ -34,7 +34,7 @@ using System.Text;
 
 namespace StgSharp.Blueprint
 {
-    public partial class BlueprintSchedueler
+    public partial class BlueprintScheduler
     {
 
         public BlueprintNode CreateBlueprintNode(

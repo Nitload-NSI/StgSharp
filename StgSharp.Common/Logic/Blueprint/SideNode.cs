@@ -42,10 +42,12 @@ namespace StgSharp.Blueprint
     internal sealed class BeginningNode : BlueprintNode
     {
 
-        private BlueprintSchedueler _bp;
+        private BlueprintScheduler _bp;
 
-        public BeginningNode( BlueprintSchedueler bp )
-            : base(DefaultOperation, name: "BeginningNode", true, ["default"], ["default"] )
+        public BeginningNode( BlueprintScheduler bp )
+            : base(
+            DefaultOperation, name: "BeginningNode", true, ["default"],
+            ["default"] )
         {
             _bp = bp;
         }
@@ -70,8 +72,8 @@ namespace StgSharp.Blueprint
         }
 
         public new void SetCertainOutputPort(
-            string name,
-            BlueprintPipeline pipeline )
+                                string name,
+                                BlueprintPipeline pipeline )
         {
             if( _outputInterfaces.ContainsKey( name ) ) {
                 _outputInterfaces[ name ] = pipeline;
@@ -84,10 +86,12 @@ namespace StgSharp.Blueprint
     internal sealed class EndingNode : BlueprintNode
     {
 
-        private BlueprintSchedueler _bp;
+        private BlueprintScheduler _bp;
 
-        public EndingNode( BlueprintSchedueler bp )
-            : base(DefaultOperation, name: "EndingNode", true, ["default"], ["default"] )
+        public EndingNode( BlueprintScheduler bp )
+            : base(
+            DefaultOperation, name: "EndingNode", true, ["default"],
+            ["default"] )
         {
             _bp = bp;
         }
@@ -96,7 +100,7 @@ namespace StgSharp.Blueprint
         {
             get { return InputInterfaces.Select(
                       key => (key.Key, key.Value.Args) )
-                      .ToArray(); }
+                          .ToArray(); }
         }
 
         public override void Run()
@@ -108,8 +112,8 @@ namespace StgSharp.Blueprint
         }
 
         public new void SetCertainInputPort(
-            string name,
-            BlueprintPipeline pipeline )
+                                string name,
+                                BlueprintPipeline pipeline )
         {
             if( _inputInterfaces.ContainsKey( name ) ) {
                 _inputInterfaces[ name ] = pipeline;

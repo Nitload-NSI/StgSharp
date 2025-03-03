@@ -47,32 +47,28 @@ namespace StgSharp.Blueprint
     public static class BlueprintRunner
     {
 
-        private static NodeRunner[] allAvailableTask = CreateBlueprintRunnerArray();
-        private static CancellationTokenSource cts = new CancellationTokenSource();
-        private static ConcurrentStack<BlueprintSchedueler> blueprintInWaiting 
-            = new ConcurrentStack<BlueprintSchedueler>();
+        private static NodeRunner[] allAvailableTask = CreateBlueprintRunnerArray(
+            );
+        private static CancellationTokenSource cts = new CancellationTokenSource(
+            );
+        private static ConcurrentStack<BlueprintScheduler> blueprintInWaiting 
+            = new ConcurrentStack<BlueprintScheduler>();
         private static int _callingThread;
         private static SemaphoreSlim bpLock = new SemaphoreSlim( 0, 1 );
 
-        private static NodeRunner[] CreateBlueprintRunnerArray()
-        {
-            int count = Environment.ProcessorCount;
-            return new NodeRunner[ count < 2 ? count : count - 2];
-        }
-
         /// <summary>
-        /// Only the fallowing occasions of calling are valid:
-        /// 1. no bp is running or the only bp is quitting.
-        /// 2. calling from the main thread and the current running bp.
+        /// Only the fallowing occasions of calling are valid: 1. no bp is running or the only bp is
+        /// quitting. 2. calling from the main thread and the current running bp.
         /// </summary>
         internal static bool IsValidCalling
         {
             get
             {
                 if( ( NodeRunner.CurrentBlueprint == null ) || //no bp running at all
-                    ( ( blueprintInWaiting.IsEmpty ) && ( NodeRunner.CurrentBlueprint.IsRunning == false ) ) )  
-                    // a bp is quiting
-                {
+                    ( ( blueprintInWaiting.IsEmpty ) && ( NodeRunner.CurrentBlueprint.IsRunning ==
+                                                          false ) ) )
+ // a bp is quiting
+ {
                     //in case no bp is running
                     return true;
                 }
@@ -91,7 +87,7 @@ namespace StgSharp.Blueprint
             }
         }
 
-        public static void Run(BlueprintSchedueler blueprint)
+        public static void Run( BlueprintScheduler blueprint )
         {
             //Console.WriteLine();
             if( blueprint == null ) {
@@ -104,14 +100,13 @@ namespace StgSharp.Blueprint
             if( IsValidCalling ) {
                 //Console.WriteLine("valid and run");
                 if( InterruptAndRunNewBp( blueprint ) ) {
-                    while (InterruptAndRunNewBp(
-                        NodeRunner.CurrentBlueprint )){ };
+                    while( InterruptAndRunNewBp( NodeRunner.CurrentBlueprint ) ) { }
+                    ;
                 }
             } else {
                 bpLock.Wait();
                 if( InterruptAndRunNewBp( blueprint ) ) {
-                    while (InterruptAndRunNewBp(
-                        NodeRunner.CurrentBlueprint)) { }
+                    while( InterruptAndRunNewBp( NodeRunner.CurrentBlueprint ) ) { }
                 }
 
                 bpLock.Release();
@@ -141,16 +136,17 @@ namespace StgSharp.Blueprint
             foreach( NodeRunner task in allAvailableTask ) {
                 task.Cts.Cancel();
             }
-            foreach( BlueprintSchedueler bp in blueprintInWaiting ) {
+            foreach( BlueprintScheduler bp in blueprintInWaiting ) {
                 bp.Terminate();
             }
             blueprintInWaiting.Clear();
         }
 
-        internal static bool InterruptAndRunNewBp( BlueprintSchedueler newBp )
+        internal static bool InterruptAndRunNewBp( BlueprintScheduler newBp )
         {
             Debug.Assert( newBp != null );
-            if( ( newBp != NodeRunner.CurrentBlueprint ) && ( NodeRunner.CurrentBlueprint != null ) ) {
+            if( ( newBp != NodeRunner.CurrentBlueprint ) && ( NodeRunner.CurrentBlueprint !=
+                                                              null ) ) {
                 //if a running bp exists
                 blueprintInWaiting.Push( NodeRunner.CurrentBlueprint );
             }
@@ -162,7 +158,8 @@ namespace StgSharp.Blueprint
 
             //run beginning node to init it first.
             if( !NodeRunner.CurrentBlueprint.IsRunning ) {
-                ( NodeRunner.CurrentBlueprint.BeginLayer as BeginningNode )!.Run();
+                ( NodeRunner.CurrentBlueprint.BeginLayer as BeginningNode )!.Run(
+                    );
             }
 
             //refresh all tasks
@@ -174,7 +171,7 @@ namespace StgSharp.Blueprint
             }
             BlueprintNode node;
             while( !cts.Token.IsCancellationRequested && NodeRunner.CurrentBlueprint
-                .RequestNextNativeNode( out node ) ) {
+                    .RequestNextNativeNode( out node ) ) {
                 node.Run();
                 if( !NodeRunner.CurrentBlueprint.IsRunning ) {
                     break;
@@ -184,12 +181,18 @@ namespace StgSharp.Blueprint
             return blueprintInWaiting.TryPeek( out NodeRunner.CurrentBlueprint );
         }
 
+        private static NodeRunner[] CreateBlueprintRunnerArray()
+        {
+            int count = Environment.ProcessorCount;
+            return new NodeRunner[ count < 2 ? count : count - 2];
+        }
+
     }
 
     internal class NodeRunner : CancellableTask
     {
 
-        private static BlueprintSchedueler _current;
+        private static BlueprintScheduler _current;
 
         internal NodeRunner()
             : base()
@@ -197,7 +200,7 @@ namespace StgSharp.Blueprint
             _startup = InternalRun;
         }
 
-        internal static ref BlueprintSchedueler CurrentBlueprint
+        internal static ref BlueprintScheduler CurrentBlueprint
         {
             get => ref _current;
         }

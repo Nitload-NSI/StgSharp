@@ -68,12 +68,6 @@ namespace StgSharp.Script.Express
 
         public abstract IEnumerator<ExpElementInstanceBase> GetEnumerator();
 
-        public override sealed bool IsConvertable(
-                                            ExpInstantiableElement targetType )
-        {
-            return false;
-        }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

@@ -33,9 +33,6 @@ using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 using static StgSharp.Script.Express.ExpCompile;
 
@@ -80,7 +77,7 @@ namespace StgSharp.Script.Express
                                      string name,
                                      out ExpFunctionSource f )
         {
-            throw new NotImplementedException();
+            return FunctionDict.TryGetValue( name, out f! );
         }
 
         public override bool TryGetRule( string name, out ExpRuleSource r )
@@ -131,9 +128,9 @@ namespace StgSharp.Script.Express
 
             ConstDict = new Dictionary<string, ExpElementInstanceBase>(
                 Multiplexer ) {
-                { PoolString( "PI" ), new ExpBuiltinConstant<float>(
+                { PoolString( "PI" ), new ExpLiteralGenericNode<float>(
                     PoolString( "PI" ), MathF.PI ) },
-                { PoolString( "E" ), new ExpBuiltinConstant<float>(
+                { PoolString( "E" ), new ExpLiteralGenericNode<float>(
                     PoolString( "E" ), MathF.E ) },
             }.ToFrozenDictionary();
         }

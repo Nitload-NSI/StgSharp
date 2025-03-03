@@ -34,40 +34,84 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public enum ExpLogic
+    public enum ExpLogicValue
     {
 
-        Unknown = 0,
-        False = 1,
-        True = 2,
+        True,
+        False,
+        Unknown
 
     }
 
-    public static class LogicConverter
+    public struct ExpLogic
     {
-        public static bool? AsNullableBool(this ExpLogic l)
+
+        public static readonly ExpLogic False = new ExpLogic(
+            ExpLogicValue.False );
+
+        public static readonly ExpLogic True = new ExpLogic(
+            ExpLogicValue.True );
+        public static readonly ExpLogic Unknown = new ExpLogic(
+            ExpLogicValue.Unknown );
+
+        private readonly ExpLogicValue _value;
+
+        public ExpLogic( ExpLogicValue value )
         {
-            switch (l)
-            {
-                case ExpLogic.Unknown:
-                    return null;
-                case ExpLogic.False:
-                    return false;
-                case ExpLogic.True:
-                    return true;
-                default:
-                    throw new ArgumentException();
-            }
+            _value = value;
         }
 
-        public static ExpLogic AsNullableInt(this bool? b) 
+        public bool IsTrue => _value == ExpLogicValue.True;
+
+        public bool IsFalse => _value == ExpLogicValue.False;
+
+        public bool IsUnknown => _value == ExpLogicValue.Unknown;
+
+        public override string ToString() => _value.ToString();
+
+        // NOT !
+        public static ExpLogic operator !( ExpLogic a )
         {
-            return b switch
-            {
-                null => ExpLogic.Unknown,
-                true => ExpLogic.True,
-                false => ExpLogic.False,
-            };
+            return a.IsTrue ? False : a.IsFalse ? True : Unknown;
         }
+
+        // AND &
+        public static ExpLogic operator &( ExpLogic a, ExpLogic b )
+        {
+            if( a.IsFalse || b.IsFalse ) {
+                return False;
+            }
+
+            if( a.IsUnknown || b.IsUnknown ) {
+                return Unknown;
+            }
+
+            return True;
+        }
+
+        // XOR ^
+        public static ExpLogic operator ^( ExpLogic a, ExpLogic b )
+        {
+            if( a.IsUnknown || b.IsUnknown ) {
+                return Unknown;
+            }
+
+            return ( a.IsTrue ^ b.IsTrue ) ? True : False;
+        }
+
+        // OR |
+        public static ExpLogic operator |( ExpLogic a, ExpLogic b )
+        {
+            if( a.IsTrue || b.IsTrue ) {
+                return True;
+            }
+
+            if( a.IsUnknown || b.IsUnknown ) {
+                return Unknown;
+            }
+
+            return False;
+        }
+
     }
 }
