@@ -38,7 +38,7 @@ namespace StgSharp.Script.Express
 {
     public partial class ExpNodeGenerator
     {
-
+        /*
         public ExpNode GenerateUnaryToken( Token t )
         {
             switch( t.Value ) {
@@ -52,6 +52,7 @@ namespace StgSharp.Script.Express
                     break;
             }
         }
+        /**/
 
     }
 }

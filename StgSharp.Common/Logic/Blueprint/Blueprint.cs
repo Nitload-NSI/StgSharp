@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="BlueprintSchedueler.cs"
+//     file="Blueprint.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,27 +28,19 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace StgSharp.Blueprint
 {
     /// <summary>
     /// A sets of complex logic designed for running in multi threads environment. Warning: do not
-    /// run a <see cref="BlueprintSchedueler" /> instance in multi threads more than once.
+    /// run a <see cref="BlueprintScheduler" /> instance in multi threads more than once.
     /// </summary>
-    public partial class BlueprintSchedueler : IConvertableToBlueprintNode
+    public partial class BlueprintScheduler : IConvertableToBlueprintNode
     {
 
         private BeginningNode beginNode;
@@ -64,7 +56,7 @@ namespace StgSharp.Blueprint
         internal int currentGlobalNodeIndex;
         internal int currentNativeNodeIndex;
 
-        public BlueprintSchedueler()
+        public BlueprintScheduler()
         {
             allNode = new Dictionary<string, BlueprintNode>();
             globalNodeList = new List<BlueprintNode>();
@@ -78,23 +70,24 @@ namespace StgSharp.Blueprint
 
         public BlueprintNode EndLayer => endNode;
 
+        public BlueprintNodeOperation Operation
+        {
+            get => ExecuteMain;
+        }
+
         public bool IsRunning
         {
             get => runningStat.CurrentCount == 0;
         }
 
-        public ReadOnlySpan<string> InputInterfacesName
+        public IEnumerable<string> InputInterfacesName
         {
-            get { return beginNode.OutputInterfaces
-                          .Select( p => p.Key )
-                          .ToArray(); }
+            get { return beginNode.OutputInterfaces.Keys; }
         }
 
-        public ReadOnlySpan<string> OutputInterfacesName
+        public IEnumerable<string> OutputInterfacesName
         {
-            get { return beginNode.OutputInterfaces
-                          .Select( p => p.Key )
-                          .ToArray(); }
+            get { return beginNode.OutputInterfaces.Keys; }
         }
 
         /**/
@@ -112,17 +105,11 @@ namespace StgSharp.Blueprint
             allNode.Add( node.Name, node );
         }
 
-
         public void ExecuteMain(
                             in Dictionary<string, BlueprintPipeline> input,
                             in Dictionary<string, BlueprintPipeline> output )
         {
             BlueprintRunner.Run( this );
-        }
-
-        public BlueprintNodeOperation Operation
-        {
-            get => ExecuteMain;
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -179,7 +166,7 @@ namespace StgSharp.Blueprint
             return false;
         }
 
-        ~BlueprintSchedueler()
+        ~BlueprintScheduler()
         {
             runningStat.Dispose();
         }

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="STEP.cs"
+//     file="StepModel.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -38,31 +38,27 @@ namespace StgSharp.Modeling.STEP
 {
     public class StepModel
     {
+
+        private BlueprintScheduler _builder;
         private Dictionary<int, IStepObject> _node 
-            = new Dictionary<int, IStepObject>( );
-        private BlueprintSchedueler _builder;
+            = new Dictionary<int, IStepObject>();
         private StepInfo _header;
 
         internal StepModel(
-            StepInfo header,
-            Dictionary<int, IStepObject> nodeSource)
+                         StepInfo header,
+                         Dictionary<int, IStepObject> nodeSource )
         {
             _header = header;
             _node = nodeSource;
-            _builder = new BlueprintSchedueler();
+            _builder = new BlueprintScheduler();
         }
+
+        public void BuildGeometry() { }
 
         public void OrganizeNode()
         {
-            foreach (var node in _node)
-            {
-
-            }
+            foreach( KeyValuePair<int, IStepObject> node in _node ) { }
         }
 
-        public void BuildGeometry() 
-        {
-
-        }
     }
 }

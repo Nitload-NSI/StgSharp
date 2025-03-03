@@ -58,7 +58,7 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => _operand.EqualityTypeConvert;
 
-        public static ExpUnaryOperatorNode UnaryNotNegation( ExpNode operand )
+        public static ExpUnaryOperatorNode UnaryNegation( ExpNode operand )
         {
             if( !operand.IsNumber ) {
                 throw new ExpInvalidTypeException(
@@ -70,6 +70,20 @@ namespace StgSharp.Script.Express
             {
                 _nodeFlag = ExpNodeFlag.Operator_Unary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "- {0}",
+            };
+        }
+
+        public static ExpUnaryOperatorNode UnaryNot( ExpNode operand )
+        {
+            if( ( operand._nodeFlag | ( ExpNodeFlag.BuiltinType_Logic | ExpNodeFlag.BuiltinType_Logic ) ) ==
+                0 ) {
+                throw new ExpInvalidTypeException(
+                    "Bool or Logic", operand.EqualityTypeConvert.Name );
+            }
+            return new ExpUnaryOperatorNode( ExpCompile.KeyWord.NOT )
+            {
+                _nodeFlag = ExpNodeFlag.Operator_Unary | ExpNodeFlag.BuiltinType_Logic,
+                CodeConvertTemplate = "! {0}",
             };
         }
 

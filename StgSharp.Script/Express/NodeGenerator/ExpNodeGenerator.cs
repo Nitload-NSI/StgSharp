@@ -95,15 +95,14 @@ namespace StgSharp.Script.Express
             _operandsNode.Push( node );
         }
 
-        public AbstractSyntaxTree<ExpNode, IExpElementSource> CloseAndDispose(
-                                                                          )
+        public AbstractSyntaxTree<ExpNode, IExpElementSource> CloseAndDispose()
         {
             if( _operandsToken.Count != 0 ) {
                 // convert rest to AST
             }
             return new AbstractSyntaxTree<ExpNode, IExpElementSource>();
         }
-
+        /*
         public ExpNode GenerateNode( Token t )
         {
             switch( t.Flag ) {
@@ -131,10 +130,9 @@ namespace StgSharp.Script.Express
                     break;
             }
         }
+        /**/
 
-        public int GetNextOperandCache(
-                           out Token? token,
-                           out ExpNode? node )
+        public int GetNextOperandCache( out Token? token, out ExpNode? node )
         {
             if( _operandsNode.Count != 0 ) {
                 node = _operandsNode.Pop();

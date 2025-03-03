@@ -40,16 +40,19 @@ namespace StgSharp.Blueprint
 {
     public class CrossFrameOperation : IConvertableToBlueprintNode
     {
+
+        private static string[] _inputName = ["TaskIn"];
+        private static string[] _outputName = ["TaskOut"];
+        private Action _mainExecution;
         private int currentCount;
         private readonly int cycleCount;
-        private Action _mainExecution;
 
         public CrossFrameOperation( Action startup, int cycleCount )
         {
             MainExecution = startup;
             this.cycleCount = ( cycleCount > 1 ) ?
-            cycleCount : throw new ArgumentException(
-                $"{$"The {typeof(CrossFrameOperation).Name} crosses only one cycle, "}{$"please use a {typeof(BlueprintNode).Name} instead."}" );
+                    cycleCount : throw new ArgumentException(
+                        $"{$"The {typeof(CrossFrameOperation).Name} crosses only one cycle, "}{$"please use a {typeof(BlueprintNode).Name} instead."}" );
             this.cycleCount = cycleCount;
             currentCount = cycleCount;
         }
@@ -60,17 +63,18 @@ namespace StgSharp.Blueprint
             private protected set => _mainExecution = value;
         }
 
-        private static string[] _inputName = ["TaskIn"];
-        private static string[] _outputName = ["TaskOut"];
-
         public BlueprintNodeOperation Operation
         {
             get => ExecuteMain;
         }
 
+        public IEnumerable<string> InputInterfacesName => _inputName;
+
+        public IEnumerable<string> OutputInterfacesName => _outputName;
+
         public void ExecuteMain(
-            in Dictionary<string, BlueprintPipeline> input,
-            in Dictionary<string, BlueprintPipeline> output )
+                            in Dictionary<string, BlueprintPipeline> input,
+                            in Dictionary<string, BlueprintPipeline> output )
         {
             if( currentCount < cycleCount ) {
                 Interlocked.Increment( ref currentCount );
@@ -82,10 +86,6 @@ namespace StgSharp.Blueprint
             //Console.WriteLine(currentCount);
             BlueprintPipeline.SkipAll( output );
         }
-
-        public ReadOnlySpan<string> InputInterfacesName => _inputName;
-
-        public ReadOnlySpan<string> OutputInterfacesName => _outputName;
 
     }
 }

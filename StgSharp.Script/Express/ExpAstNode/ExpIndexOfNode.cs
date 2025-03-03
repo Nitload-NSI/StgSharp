@@ -43,10 +43,9 @@ namespace StgSharp.Script.Express
 
         private ExpNode _indexExpression;
 
-        public ExpIndexOfNode(
-                       ExpSchema context,
-                       ExpCollectionInstanceBase instance,
-                       ExpNode indexExpression )
+        private ExpIndexOfNode(
+                        ExpCollectionInstanceBase instance,
+                        ExpNode indexExpression )
             : base( ExpCompile.PoolString( "[" ) )
         {
             _collection = instance;
@@ -59,6 +58,17 @@ namespace StgSharp.Script.Express
         public override ExpNode Right => _indexExpression;
 
         public override IExpElementSource EqualityTypeConvert => _collection.EqualityTypeConvert;
+
+        public static ExpIndexOfNode Create(
+                                             ExpCollectionInstanceBase instance,
+                                             ExpNode indexExpression )
+        {
+            if( !indexExpression.IsNumber ) {
+                throw new ExpInvalidTypeException(
+                    "Number", indexExpression.EqualityTypeConvert.Name );
+            }
+            return new ExpIndexOfNode( instance, indexExpression );
+        }
 
     }
 }

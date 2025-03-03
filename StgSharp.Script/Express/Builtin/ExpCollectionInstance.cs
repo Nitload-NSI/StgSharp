@@ -40,8 +40,7 @@ namespace StgSharp.Script.Express
         protected internal (int min, int max) _range;
         protected internal ExpElementType _memberType;
 
-        protected ExpCollectionInstanceBase( string name, ExpSchema context )
-            : base( name ) { }
+        protected ExpCollectionInstanceBase( string name ) : base( name ) { }
 
         public abstract ExpCollectionBase CollectionValue
         {
