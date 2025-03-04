@@ -66,87 +66,54 @@ namespace StgSharp.Script.Express
         /// meets separators or operators.
         /// </summary>
         /// <param name="expToken"></param>
-        public void AppendToken( Token expToken )
+        public ExpNode AppendToken( Token expToken )
         {
             switch( expToken.Flag ) {
                 case TokenFlag.Symbol_Unary or TokenFlag.Symbol_Binary:
-
                     _operandsToken.Push( expToken );
                     break;
                 case TokenFlag.Number or  TokenFlag.String or TokenFlag.Member:
                     break;
-                case TokenFlag.Separator_Single:
+                case TokenFlag.Separator_Single:         // a , ; found
                     break;
-                case TokenFlag.Separator_Left:
+                case TokenFlag.Separator_Left:           //a ( [ { found
                     break;
-                case TokenFlag.Separator_Right:
+                case TokenFlag.Separator_Right:          //a } ] ) found
                     break;
-                case TokenFlag.Index_Left:
+                case TokenFlag.Index_Left:               // a [ found
                     break;
-                case TokenFlag.Index_Right:
+                case TokenFlag.Index_Right:              // a ] found
                     break;
                 default:
                     break;
             }
         }
 
-        public void CacheNextOperandNode( ExpNode node )
+        public ExpNode GetNextOperandCache()
         {
-            _operandsNode.Push( node );
+            if( _operandsNode.Count != 0 ) {
+                return _operandsNode.Pop();
+            }
+            if( _operandsToken.Count != 0 ) {
+                Token token = _operandsToken.Pop();
+            }
+            return ExpNode.Empty;
         }
 
-        public AbstractSyntaxTree<ExpNode, IExpElementSource> CloseAndDispose()
+        //ConvertOneOperator not finish
+        private void ConvertOneOperator()
         {
-            if( _operandsToken.Count != 0 ) {
-                // convert rest to AST
-            }
-            return new AbstractSyntaxTree<ExpNode, IExpElementSource>();
-        }
-        /*
-        public ExpNode GenerateNode( Token t )
-        {
-            switch( t.Flag ) {
+            Token @operator = _operators.Pop();
+            switch( @operator.Flag ) {
                 case TokenFlag.Symbol_Unary:
                     break;
                 case TokenFlag.Symbol_Binary:
                     break;
-                case TokenFlag.Number:
-                    break;
-                case TokenFlag.String:
-                    break;
-                case TokenFlag.Member:
-                    break;
-                case TokenFlag.Separator_Single:
-                    break;
-                case TokenFlag.Separator_Left:
-                    break;
-                case TokenFlag.Separator_Right:
-                    break;
                 case TokenFlag.Index_Left:
-                    break;
-                case TokenFlag.Index_Right:
                     break;
                 default:
                     break;
             }
-        }
-        /**/
-
-        public int GetNextOperandCache( out Token? token, out ExpNode? node )
-        {
-            if( _operandsNode.Count != 0 ) {
-                node = _operandsNode.Pop();
-                token = null!;
-                return 2;
-            }
-            if( _operandsToken.Count != 0 ) {
-                token = _operandsToken.Pop();
-                node = null!;
-                return 1;
-            }
-            token = null;
-            node = null!;
-            return 0;
         }
 
     }

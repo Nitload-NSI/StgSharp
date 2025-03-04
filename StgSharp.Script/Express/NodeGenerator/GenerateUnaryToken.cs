@@ -38,21 +38,48 @@ namespace StgSharp.Script.Express
 {
     public partial class ExpNodeGenerator
     {
-        /*
-        public ExpNode GenerateUnaryToken( Token t )
+
+        public bool TryGenerateBinaryNode( Token t, out ExpNode node )
         {
+            ExpNode left = GetNextOperandCache();
+            ExpNode right = GetNextOperandCache();
             switch( t.Value ) {
-                case ExpCompile.KeyWord.UnaryAdd:
-                    break;
-                case ExpCompile.KeyWord.UnarySub:
-                    break;
-                case ExpCompile.KeyWord.NOT:
-                    break;
+                case ExpCompile.KeyWord.ADD:
+                    node = ExpBinaryOperatorNode.Add( left, right );
+                    return true;
+                case ExpCompile.KeyWord.SUB:
+                    node = ExpBinaryOperatorNode.Sub( left, right );
+                    return true;
+                case ExpCompile.KeyWord.MUL:
+                    node = ExpBinaryOperatorNode.Mul( left, right );
+                    return true;
+                case ExpCompile.KeyWord.DIV:
+                    node = ExpBinaryOperatorNode.Div( left, right );
+                    return true;
                 default:
-                    break;
+                    node = ExpNode.Empty;
+                    return false;
             }
         }
-        /**/
+
+        public bool TryGenerateUnaryNode( Token t, out ExpNode node )
+        {
+            ExpNode operand = GetNextOperandCache();
+            switch( t.Value ) {
+                case ExpCompile.KeyWord.UnaryPlus:
+                    node = ExpUnaryOperatorNode.UnaryPlus( operand );
+                    return true;
+                case ExpCompile.KeyWord.UnaryMinus:
+                    node = ExpUnaryOperatorNode.UnaryMinus( operand );
+                    return true;
+                case ExpCompile.KeyWord.NOT:
+                    node = ExpUnaryOperatorNode.UnaryNot( operand );
+                    return true;
+                default:
+                    node = ExpNode.Empty;
+                    return false;
+            }
+        }
 
     }
 }

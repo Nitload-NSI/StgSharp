@@ -58,7 +58,7 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => _operand.EqualityTypeConvert;
 
-        public static ExpUnaryOperatorNode UnaryNegation( ExpNode operand )
+        public static ExpUnaryOperatorNode UnaryMinus( ExpNode operand )
         {
             if( !operand.IsNumber ) {
                 throw new ExpInvalidTypeException(
@@ -84,6 +84,21 @@ namespace StgSharp.Script.Express
             {
                 _nodeFlag = ExpNodeFlag.Operator_Unary | ExpNodeFlag.BuiltinType_Logic,
                 CodeConvertTemplate = "! {0}",
+            };
+        }
+
+        public static ExpUnaryOperatorNode UnaryPlus( ExpNode operand )
+        {
+            if( !operand.IsNumber ) {
+                throw new ExpInvalidTypeException(
+                    "Number", operand.EqualityTypeConvert.Name );
+            }
+            bool isFloat =
+                    ( operand._nodeFlag | ExpNodeFlag.BuiltinType_Float ) == 0;
+            return new ExpUnaryOperatorNode( ExpCompile.KeyWord.SUB )
+            {
+                _nodeFlag = ExpNodeFlag.Operator_Unary | ExpNodeFlag.BuiltinType_Number,
+                CodeConvertTemplate = "+ {0}",
             };
         }
 
