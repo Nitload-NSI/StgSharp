@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="KeyWord.cs"
+//     file="FunctionCallingGenerator.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -31,62 +31,43 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
+using static StgSharp.Script.Express.ExpCompile;
+
 namespace StgSharp.Script.Express
 {
-    public static partial class ExpCompile
+    public partial class ExpNodeGenerator
     {
 
-        private static void PoolKeywords()
+        private bool _isCallingFunction = false;
+        private Stack<int> _callDepth = new Stack<int>();
+
+        private void EnterFunctionCalling( Token funcNameToken )
         {
-            FieldInfo[] fields = typeof( KeyWord ).GetFields(
-                BindingFlags.Public );
-            ParallelLoopResult result = Parallel.ForEach(
-                fields, static( field ) => {
-                    if( field.FieldType == typeof( string ) && field.GetValue(
-                        null ) is string str ) {
-                        _compileStringCache.GetOrAdd( str );
-                    }
-                } );
-            while( !result.IsCompleted ) { }
+            _isCallingFunction = true;
+            _callDepth.Push( _operandsToken.Count );
         }
 
-        public static class KeyWord
+        private void ExitFunctionCalling()
         {
+            _callDepth.Pop();
+            if( _callDepth.Count == 0 ) {
+                _isCallingFunction = false;
+            }
+        }
 
-            public const string Int = "INTAGER",
-                Real = "REAL",
-                Bool = "BOOLEAN",
-                String = "STRING",
-                Logic = "LOGIC",
-                Binary = "BINARY",
-                Constant = "CONSTANT",
-                AND = "AND",
-                OR = "OR",
-                XOR = "XOR",
-                ADD = "+",
-                SUB = "-",
-                MUL = "*",
-                DIV = "/",
-                NOT = "NOT",
-                Assignment = ":=",
-                Equal = "=",
-                Mod = "MOD",
-                Self = "SELF",
-                Pi = "PI",
-                True = "TRUE",
-                False = "FALSE",
-                Insert = "INSERT",
-                Remove = "REMOVE",
-                ANDOR = "ANDOR",
-                GetIndex = "[",
-                UnaryPlus = "+",
-                UnaryMinus = "-",
-                Exp = "**";
-
+        //TODO cannot process occasion of void input or null at first
+        private void MergeFunctionCallingParameter()
+        {
+            if( _callDepth.Peek() == _operandsToken.Count ) {
+                _operandsNode.Peek()
+                        .PrependNode(
+                            ExpNode.NonOperation( PoolString( "FuncParam" ) ) );
+            } else {
+                //TODO compile the param expression
+            }
         }
 
     }

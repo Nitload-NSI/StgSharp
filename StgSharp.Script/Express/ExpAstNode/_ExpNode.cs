@@ -32,6 +32,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace StgSharp.Script.Express
@@ -96,11 +97,11 @@ namespace StgSharp.Script.Express
 
         public string Name => _name;
 
-        public virtual void AppendNode( ExpNode nextToken )
+        public void AppendNode( ExpNode nextNode )
         {
-            Next.Previous = nextToken;
-            nextToken.Next = Next;
-            Next = nextToken;
+            Next.Previous = nextNode;
+            nextNode.Next = Next;
+            Next = nextNode;
             Next.Previous = this;
         }
 
@@ -112,6 +113,20 @@ namespace StgSharp.Script.Express
         public static bool IsNullOrEmpty( ExpNode node )
         {
             return  node == ExpEmptyNode._only || node == null;
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static ExpNode NonOperation( string name )
+        {
+            return new ExpEmptyNode( name );
+        }
+
+        public void PrependNode( ExpNode previousNode )
+        {
+            Previous.Next = previousNode;
+            previousNode.Previous = Previous;
+            Previous = previousNode;
+            previousNode.Next = this;
         }
 
         public static bool VerifyTypeConvertable( ExpNode left, ExpNode right )
@@ -130,6 +145,8 @@ namespace StgSharp.Script.Express
             internal static readonly ExpEmptyNode _only = new();
 
             public ExpEmptyNode() : base( string.Empty ) { }
+
+            public ExpEmptyNode( string name ) : base( name ) { }
 
             public override ExpInstantiableElement EqualityTypeConvert => ExpInstantiableElement.Void;
 

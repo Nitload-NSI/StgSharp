@@ -86,5 +86,7 @@ namespace StgSharp.Script
 
         void AppendNode( TNode nextToken );
 
+        void PrependNode( TNode previusNode );
+
     }
 }
