@@ -64,11 +64,11 @@ namespace StgSharp.Script.Express
                 switch( ( ExpNodeFlag )variable.NodeFlag | ExpNodeFlag.BuiltinType_Any ) {
                     case ExpNodeFlag.BuiltinType_Float:
                         increment = new ExpLiteralGenericNode<float>(
-                            $"{name}_defaultIncrement", context, 1.0f );
+                            $"{name}_defaultIncrement", 1.0f );
                         break;
                     case ExpNodeFlag.BuiltinType_Int:
                         increment = new ExpLiteralGenericNode<int>(
-                            $"{name}_defaultIncrement", context, 1 );
+                            $"{name}_defaultIncrement", 1 );
                         break;
                     default:
                         throw new ExpInvalidTypeException(

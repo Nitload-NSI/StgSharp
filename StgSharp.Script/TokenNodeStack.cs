@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="GenerateUnaryToken.cs"
+//     file="TokenNodeStack.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,55 +30,69 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Script.Express
+namespace StgSharp.Script
 {
-    public partial class ExpNodeGenerator
+    public class TokenNodeStack<TNode, TType>
+        where TNode: IASTNode<TNode, TType>
+        where TType: ITypeSource<TType>
     {
 
-        public bool TryGenerateBinaryNode( Token t, out ExpNode node )
+        private Stack<bool> _isNode;
+
+        private Stack<TNode> _nodes;
+        private Stack<Token> _tokens;
+
+        public TokenNodeStack()
         {
-            ExpNode left = GetNextOperandCache();
-            ExpNode right = GetNextOperandCache();
-            switch( t.Value ) {
-                case ExpCompile.KeyWord.ADD:
-                    node = ExpBinaryOperatorNode.Add( left, right );
-                    return true;
-                case ExpCompile.KeyWord.SUB:
-                    node = ExpBinaryOperatorNode.Sub( left, right );
-                    return true;
-                case ExpCompile.KeyWord.MUL:
-                    node = ExpBinaryOperatorNode.Mul( left, right );
-                    return true;
-                case ExpCompile.KeyWord.DIV:
-                    node = ExpBinaryOperatorNode.Div( left, right );
-                    return true;
-                default:
-                    node = ExpNode.Empty;
-                    return false;
+            _nodes = new Stack<TNode>( 4 );
+            _tokens = new Stack<Token>( 4 );
+            _isNode = new Stack<bool>( 8 );
+        }
+
+        public int Count => _isNode.Count;
+
+        public bool Peek( out Token t, TNode n )
+        {
+            if( _isNode.Peek() ) {
+                n = _nodes.Peek();
+                t = Token.Empty;
+                return true;
+            } else {
+                t = _tokens.Peek();
+                n = TNode.Empty;
+                return false;
             }
         }
 
-        public bool TryGenerateUnaryNode( Token t, out ExpNode node )
+        public bool Pop( out Token t, out TNode n )
         {
-            ExpNode operand = GetNextOperandCache();
-            switch( t.Value ) {
-                case ExpCompile.KeyWord.UnaryPlus:
-                    node = ExpUnaryOperatorNode.UnaryPlus( operand );
-                    return true;
-                case ExpCompile.KeyWord.UnaryMinus:
-                    node = ExpUnaryOperatorNode.UnaryMinus( operand );
-                    return true;
-                case ExpCompile.KeyWord.NOT:
-                    node = ExpUnaryOperatorNode.UnaryNot( operand );
-                    return true;
-                default:
-                    node = ExpNode.Empty;
-                    return false;
+            if( _isNode.Pop() ) {
+                n = _nodes.Pop();
+                t = Token.Empty;
+                return true;
+            } else {
+                t = _tokens.Pop();
+                n = TNode.Empty;
+                return false;
             }
+        }
+
+        public void Push( TNode node )
+        {
+            _nodes.Push( node );
+            _isNode.Push( true );
+        }
+
+        public void Push( Token token )
+        {
+            _tokens.Push( token );
+            _isNode.Push( false );
         }
 
     }

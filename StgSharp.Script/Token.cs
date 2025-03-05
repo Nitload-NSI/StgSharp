@@ -39,6 +39,8 @@ namespace StgSharp.Script
     public readonly struct Token
     {
 
+        private static Token EmptyToken = new Token();
+
         public readonly int Column;
         public readonly int Line;
         public readonly string Value;
@@ -55,6 +57,8 @@ namespace StgSharp.Script
             Column = columnNumber;
             Flag = flag;
         }
+
+        public static Token Empty => EmptyToken;
 
     }
 

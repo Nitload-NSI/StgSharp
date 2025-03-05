@@ -51,6 +51,7 @@ namespace StgSharp.Script.Express
         private GeneratedExpSchema _context;
         private IExpElementSource _local;
         private List<ExpNode> _cache;
+        private Stack<TokenNodeStack<ExpNode, IExpElementSource>> _operands;
         private Stack<ExpNode> _operandsNode;
         private Stack<Token> _operandsToken;
         private Stack<Token> _operators;
@@ -58,25 +59,64 @@ namespace StgSharp.Script.Express
         public ExpNodeGenerator()
         {
             _operators = new Stack<Token>();
-            _operandsToken = new Stack<Token>();
+            _operands = new Stack<TokenNodeStack<ExpNode, IExpElementSource>>();
         }
+
+        private TokenNodeStack<ExpNode, IExpElementSource> CurrentOperands => _operands.Peek(
+            );
 
         /// <summary>
         /// Append a token to top of cache. This method will automatically convert token to node if
         /// meets separators or operators.
         /// </summary>
-        /// <param name="expToken"></param>
-        public ExpNode AppendToken( Token expToken )
+        public void AppendToken( Token expToken )
         {
             switch( expToken.Flag ) {
                 case TokenFlag.Symbol_Unary or TokenFlag.Symbol_Binary:
-                    _operandsToken.Push( expToken );
+                    int cmp = -1;
+                    processPrecedence:
+                    Token tmp = _operators.Peek();
+                    cmp = CompareOperatorPrecedence( expToken, tmp );
+                    if( cmp <= 0 ) {
+                        ConvertOneOperator();
+                        goto processPrecedence;
+                    }
+                    CurrentOperands.Push( expToken );
                     break;
-                case TokenFlag.Number or  TokenFlag.String or TokenFlag.Member:
+                case TokenFlag.Number or TokenFlag.String or TokenFlag.Member:
+                    CurrentOperands.Push( expToken );
                     break;
-                case TokenFlag.Separator_Single:         // a , ; found
+                case TokenFlag.Separator_Single:         //a , ; found
+                    //if operator stack is not empty, convert all operators to node until meet a separator
+                    Token t;
+                    ExpNode n = _operandsNode.Peek();
+                    int count = 0;
+                    processSection:
+                    t = _operators.Peek();
+                    bool isEnd = expToken.Value switch
+                    {
+                        "," => ",[(".IndexOf( t.Value[ 0 ] ) != -1,
+                        ";" => ";{".IndexOf( t.Value[ 0 ] ) != -1,
+                        _ => false
+                    };
+                    if( isEnd ) {
+                        if( count == 0 ) {
+                            ExpNode newNode = ExpNode.NonOperation(
+                                string.Empty );
+                            newNode.AppendNode( n );
+                        } else {
+                            ExpNode newNode = _operandsNode.Pop();
+                            newNode.AppendNode( n );
+                            CurrentOperands.Push( newNode );
+                        }
+                    } else {
+                        count++;
+                        ConvertOneOperator();
+                        goto processSection;
+                    }
                     break;
                 case TokenFlag.Separator_Left:           //a ( [ { found
+                    _operators.Push( expToken );
                     break;
                 case TokenFlag.Separator_Right:          //a } ] ) found
                     break;
@@ -91,29 +131,42 @@ namespace StgSharp.Script.Express
 
         public ExpNode GetNextOperandCache()
         {
-            if( _operandsNode.Count != 0 ) {
-                return _operandsNode.Pop();
+            if( CurrentOperands.Pop( out Token t, out ExpNode? n ) ) {
+                return n;
+            } else {
+                //TODO convert token to a node
             }
-            if( _operandsToken.Count != 0 ) {
-                Token token = _operandsToken.Pop();
-            }
-            return ExpNode.Empty;
         }
 
-        //ConvertOneOperator not finish
+        /// <summary>
+        /// WARNING: This method cannot process INDEXOF, FUNCTION CALLING, LOOP and any ENDING
+        /// SYMBOLS.
+        /// </summary>
         private void ConvertOneOperator()
         {
             Token @operator = _operators.Pop();
             switch( @operator.Flag ) {
                 case TokenFlag.Symbol_Unary:
+                    TryGenerateUnaryNode( @operator, out ExpNode? node );
+                    CurrentOperands.Push( node );
                     break;
                 case TokenFlag.Symbol_Binary:
-                    break;
-                case TokenFlag.Index_Left:
+                    TryGenerateBinaryNode( @operator, out node );
+                    CurrentOperands.Push( node );
                     break;
                 default:
                     break;
             }
+        }
+
+        private void DecreaseOperandsStackDepth()
+        {
+            _operands.Pop();
+        }
+
+        private void IncreaseOperandsStackDepth()
+        {
+            _operands.Push( new TokenNodeStack<ExpNode, IExpElementSource>() );
         }
 
     }
