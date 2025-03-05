@@ -34,6 +34,7 @@ using StgSharp.Script.Express;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace StgSharp.Script
@@ -75,6 +76,11 @@ namespace StgSharp.Script
         }
 
         TNode Right
+        {
+            get;
+        }
+
+        static abstract TNode Empty
         {
             get;
         }
