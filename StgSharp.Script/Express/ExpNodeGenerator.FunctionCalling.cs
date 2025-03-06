@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="FunctionCallingGenerator.cs"
+//     file="ExpNodeGenerator.FunctionCalling.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -59,16 +59,19 @@ namespace StgSharp.Script.Express
         }
 
         //TODO cannot process occasion of void input or null at first
+        //put one of param to tail of function calling pram expression node
         private void MergeFunctionCallingParameter()
         {
-            if( _callDepth.Peek() == _operandsToken.Count ) {
-                _operandsNode.Peek()
-                        .PrependNode(
-                            ExpNode.NonOperation( PoolString( "FuncParam" ) ) );
+            if( _cache.OperandAheadOfDepth == 1 ) {
+                if( _cache.PopOperand( out Token t, out ExpNode? n ) ) {
+                    n!.PrependNode(
+                        ExpNode.NonOperation( PoolString( "FuncParam" ) ) );
+                } else { }
             } else {
                 //TODO compile the param expression
             }
         }
 
     }
+}
 }

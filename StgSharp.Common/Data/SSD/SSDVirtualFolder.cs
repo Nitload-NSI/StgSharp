@@ -70,7 +70,7 @@ namespace StgSharp.Internal
             throw new NotImplementedException();
         }
 
-        //TODO 虚拟文件夹的GetBytes好难写
+        //TODO TOUGH TO Get Bytes from virtual folders
         public byte[] GetBytes()
         {
             throw new NotImplementedException();
