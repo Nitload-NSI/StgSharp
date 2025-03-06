@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="TokenNodeStack.cs"
+//     file="ExpNodeGenerator.StateManage.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -29,70 +29,49 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Script
+namespace StgSharp.Script.Express
 {
-    public class TokenNodeStack<TNode, TType>
-        where TNode: IASTNode<TNode, TType>
-        where TType: ITypeSource<TType>
+    public partial class ExpNodeGenerator
     {
 
-        private Stack<bool> _isNode;
+        private CompileState _state = CompileState.Common;
+        private int _lbToken = 0;                           // [ count
+        private int _lcbCount = 0;                          // { count
+        private int _lpCount = 0;                           // ( count
 
-        private Stack<TNode> _nodes;
-        private Stack<Token> _tokens;
-
-        public TokenNodeStack()
+        private void ProcessLeftSeparator( Token t )
         {
-            _nodes = new Stack<TNode>( 4 );
-            _tokens = new Stack<Token>( 4 );
-            _isNode = new Stack<bool>( 8 );
-        }
-
-        public int Count => _isNode.Count;
-
-        public bool Peek( out Token t, TNode n )
-        {
-            if( _isNode.Peek() ) {
-                n = _nodes.Peek();
-                t = Token.Empty;
-                return true;
-            } else {
-                t = _tokens.Peek();
-                n = TNode.Empty;
-                return false;
+            switch( t.Value ) {
+                case "[":
+                    _lbToken++;
+                    break;
+                case "{":
+                    _lcbCount++;
+                    break;
+                case "(":
+                    _lpCount++;
+                    break;
+                default:
+                    break;
             }
         }
 
-        public bool Pop( out Token t, out TNode n )
+        private enum CompileState
         {
-            if( _isNode.Pop() ) {
-                n = _nodes.Pop();
-                t = Token.Empty;
-                return true;
-            } else {
-                t = _tokens.Pop();
-                n = TNode.Empty;
-                return false;
-            }
-        }
 
-        public void Push( TNode node )
-        {
-            _nodes.Push( node );
-            _isNode.Push( true );
-        }
+            Common,
+            FunctionCalling,
+            Branch,
+            Loop,
 
-        public void Push( Token token )
-        {
-            _tokens.Push( token );
-            _isNode.Push( false );
         }
 
     }

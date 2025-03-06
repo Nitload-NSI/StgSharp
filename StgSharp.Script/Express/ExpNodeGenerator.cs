@@ -46,24 +46,17 @@ namespace StgSharp.Script.Express
         private const int TokenGenerated = 0;
         private const int TokenTypeNotMatch = -1;
 
+        private CompileStack<ExpNode, IExpElementSource> _cache;
+
         private ExpNode _lastStatement;
 
         private GeneratedExpSchema _context;
         private IExpElementSource _local;
-        private List<ExpNode> _cache;
-        private Stack<TokenNodeStack<ExpNode, IExpElementSource>> _operands;
-        private Stack<ExpNode> _operandsNode;
-        private Stack<Token> _operandsToken;
-        private Stack<Token> _operators;
 
         public ExpNodeGenerator()
         {
-            _operators = new Stack<Token>();
-            _operands = new Stack<TokenNodeStack<ExpNode, IExpElementSource>>();
+            _cache = new CompileStack<ExpNode, IExpElementSource>();
         }
-
-        private TokenNodeStack<ExpNode, IExpElementSource> CurrentOperands => _operands.Peek(
-            );
 
         /// <summary>
         /// Append a token to top of cache. This method will automatically convert token to node if
@@ -75,48 +68,22 @@ namespace StgSharp.Script.Express
                 case TokenFlag.Symbol_Unary or TokenFlag.Symbol_Binary:
                     int cmp = -1;
                     processPrecedence:
-                    Token tmp = _operators.Peek();
+                    Token tmp = _cache.PeekOperator();
                     cmp = CompareOperatorPrecedence( expToken, tmp );
                     if( cmp <= 0 ) {
                         ConvertOneOperator();
                         goto processPrecedence;
                     }
-                    CurrentOperands.Push( expToken );
+                    _cache.PushOperand( expToken );
                     break;
                 case TokenFlag.Number or TokenFlag.String or TokenFlag.Member:
-                    CurrentOperands.Push( expToken );
+                    _cache.PushOperand( expToken );
                     break;
                 case TokenFlag.Separator_Single:         //a , ; found
                     //if operator stack is not empty, convert all operators to node until meet a separator
-                    Token t;
-                    ExpNode n = _operandsNode.Peek();
-                    int count = 0;
-                    processSection:
-                    t = _operators.Peek();
-                    bool isEnd = expToken.Value switch
-                    {
-                        "," => ",[(".IndexOf( t.Value[ 0 ] ) != -1,
-                        ";" => ";{".IndexOf( t.Value[ 0 ] ) != -1,
-                        _ => false
-                    };
-                    if( isEnd ) {
-                        if( count == 0 ) {
-                            ExpNode newNode = ExpNode.NonOperation(
-                                string.Empty );
-                            newNode.AppendNode( n );
-                        } else {
-                            ExpNode newNode = _operandsNode.Pop();
-                            newNode.AppendNode( n );
-                            CurrentOperands.Push( newNode );
-                        }
-                    } else {
-                        count++;
-                        ConvertOneOperator();
-                        goto processSection;
-                    }
                     break;
                 case TokenFlag.Separator_Left:           //a ( [ { found
-                    _operators.Push( expToken );
+                    _cache.PushOperator( expToken );
                     break;
                 case TokenFlag.Separator_Right:          //a } ] ) found
                     break;
@@ -131,11 +98,9 @@ namespace StgSharp.Script.Express
 
         public ExpNode GetNextOperandCache()
         {
-            if( CurrentOperands.Pop( out Token t, out ExpNode? n ) ) {
+            if( _cache.PopOperand( out Token t, out ExpNode? n ) ) {
                 return n;
-            } else {
-                //TODO convert token to a node
-            }
+            } else { }
         }
 
         /// <summary>
@@ -144,29 +109,19 @@ namespace StgSharp.Script.Express
         /// </summary>
         private void ConvertOneOperator()
         {
-            Token @operator = _operators.Pop();
+            Token @operator = _cache.PopOperator();
             switch( @operator.Flag ) {
                 case TokenFlag.Symbol_Unary:
                     TryGenerateUnaryNode( @operator, out ExpNode? node );
-                    CurrentOperands.Push( node );
+                    _cache.PushOperand( node );
                     break;
                 case TokenFlag.Symbol_Binary:
                     TryGenerateBinaryNode( @operator, out node );
-                    CurrentOperands.Push( node );
+                    _cache.PushOperand( node );
                     break;
                 default:
                     break;
             }
-        }
-
-        private void DecreaseOperandsStackDepth()
-        {
-            _operands.Pop();
-        }
-
-        private void IncreaseOperandsStackDepth()
-        {
-            _operands.Push( new TokenNodeStack<ExpNode, IExpElementSource>() );
         }
 
     }

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="LeftSperatorProcess.cs"
+//     file="ExpElementMemberNameNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -29,37 +29,32 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Script.Express
+namespace StgSharp.Script.Express.ExpAstNode
 {
-    public partial class ExpNodeGenerator
+    public class ExpElementMemberNameNode : ExpNode
     {
 
-        private int _lbToken = 0;                           // [ count
-        private int _lcbCount = 0;                          // { count
-        private int _lpCount = 0;                           // ( count
+        public ExpElementMemberNameNode( string memberName )
+            : base( memberName ) { }
 
-        private void ProcessLeftSeparator( Token t )
+        public override ExpNode Left => Empty;
+
+        public override ExpNode Right => Empty;
+
+        public override IExpElementSource EqualityTypeConvert
         {
-            switch( t.Value ) {
-                case "[":
-                    _lbToken++;
-                    break;
-                case "{":
-                    _lcbCount++;
-                    break;
-                case "(":
-                    _lpCount++;
-                    break;
-                default:
-                    break;
+            get
+            {
+                ExpSchema.BuiltinSchema
+                        .TryGetType(
+                            ExpCompile.KeyWord.String,
+                            out ExpTypeSource? strType );
+                return strType;
             }
         }
 
