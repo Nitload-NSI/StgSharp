@@ -42,36 +42,65 @@ namespace StgSharp.Script.Express
     {
 
         private bool _isCallingFunction = false;
-        private Stack<int> _callDepth = new Stack<int>();
+        private List<CompileDepthMark> _funcCallDepthCount = new List<CompileDepthMark>(
+            );
 
-        private void EnterFunctionCalling( Token funcNameToken )
+        private void EnterFunctionCalling()
         {
             _isCallingFunction = true;
-            _callDepth.Push( _operandsToken.Count );
+            CompileDepthMark mark = _cache.IncreaseDepth();
+            _funcCallDepthCount.Add( mark );
         }
 
         private void ExitFunctionCalling()
         {
-            _callDepth.Pop();
-            if( _callDepth.Count == 0 ) {
+            CompileDepthMark mark = _funcCallDepthCount.Last();
+            if( _funcCallDepthCount.Count == 0 ) {
                 _isCallingFunction = false;
             }
         }
 
-        //TODO cannot process occasion of void input or null at first
+        //checking _operandAheadOfDepth can be used to check if the function calling has no param.
         //put one of param to tail of function calling pram expression node
+        /// <summary>
+        /// Compile a parameter expression and add it to head of function parameter node list.
+        /// </summary>
         private void MergeFunctionCallingParameter()
         {
             if( _cache.OperandAheadOfDepth == 1 ) {
                 if( _cache.PopOperand( out Token t, out ExpNode? n ) ) {
                     n!.PrependNode(
                         ExpNode.NonOperation( PoolString( "FuncParam" ) ) );
-                } else { }
+                } else {
+                    switch( t.Flag ) {
+                        case TokenFlag.Number:
+                            if( int.TryParse( t.Value, out int intVal ) ) {
+                                n = new ExpLiteralGenericNode<int>(
+                                    t.Value, intVal );
+                            } else if( float.TryParse(
+                                       t.Value, out float floatVal ) ) {
+                                n = new ExpLiteralGenericNode<float>(
+                                    t.Value, floatVal );
+                            }
+                            break;
+                        case TokenFlag.String:
+                            n = new ExpLiteralGenericNode<string>(
+                                t.Value, t.Value );
+                            break;
+                        case TokenFlag.Member:
+
+                            // case1: name of a instance, make ref copy
+                            // case2: name of a function, make a function call
+                            // case3: unknown, make a instance member node, check while link
+                            break;
+                        default:
+                            break;
+                    }
+                }
             } else {
                 //TODO compile the param expression
             }
         }
 
     }
-}
 }

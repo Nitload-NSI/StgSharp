@@ -110,6 +110,7 @@ namespace StgSharp.Script.Express
         private void ConvertOneOperator()
         {
             Token @operator = _cache.PopOperator();
+
             switch( @operator.Flag ) {
                 case TokenFlag.Symbol_Unary:
                     TryGenerateUnaryNode( @operator, out ExpNode? node );
