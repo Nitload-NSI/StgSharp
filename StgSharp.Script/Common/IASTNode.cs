@@ -43,12 +43,17 @@ namespace StgSharp.Script
         where TType: ITypeSource<TType>
     {
 
-        long NodeFlag
+        int Line
         {
             get;
         }
 
-        string Name
+        int Column
+        {
+            get;
+        }
+
+        long NodeFlag
         {
             get;
         }

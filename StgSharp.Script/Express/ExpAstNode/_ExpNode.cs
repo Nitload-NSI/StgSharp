@@ -95,8 +95,6 @@ namespace StgSharp.Script.Express
             init;
         }
 
-        public string Name => _name;
-
         public void AppendNode( ExpNode nextNode )
         {
             Next.Previous = nextNode;

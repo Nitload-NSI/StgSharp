@@ -74,14 +74,16 @@ namespace StgSharp.Script
             CompileDepthMark mark = _depthStack.Pop();
         }
 
-        public void IncreaseDepth()
+        public CompileDepthMark IncreaseDepth()
         {
-            _depthStack.Push(
+            CompileDepthMark mark =
                 new CompileDepthMark
-                {
-                    OperandBegin = OperandCount,
-                    OperatorBegin = OperatorCount
-                } );
+            {
+                OperandBegin = OperandCount,
+                OperatorBegin = OperatorCount
+            };
+            _depthStack.Push( mark );
+            return mark;
         }
 
         public bool PeekOperand( out Token t, out TNode n )
@@ -112,6 +114,11 @@ namespace StgSharp.Script
 
         public bool PopOperand( out Token t, out TNode n )
         {
+            if( OperandAheadOfDepth <= 0 ) {
+                t = Token.Empty;
+                n = TNode.Empty;
+                return false;
+            }
             if( _isNode.Pop() ) {
                 t = Token.Empty;
                 n = _nodeArray[ --_nodeCount ];
@@ -125,8 +132,11 @@ namespace StgSharp.Script
 
         public Token PopOperator()
         {
-            _operatorCount--;
-            return _operatorArray[ _operatorCount ];
+            if( OperatorAheadOfDepth > 0 ) {
+                _operatorCount--;
+                return _operatorArray[ _operatorCount ];
+            }
+            return Token.Empty;
         }
 
         public void PushOperand( TNode node )
@@ -159,13 +169,53 @@ namespace StgSharp.Script
             _isNode.Push( false );
         }
 
+        public bool TryPopOperand( out bool isNode, out Token t, out TNode n )
+        {
+            if( OperandAheadOfDepth <= 0 ) {
+                t = Token.Empty;
+                n = TNode.Empty;
+                isNode = false;
+                return false;
+            }
+            if( _isNode.Pop() ) {
+                t = Token.Empty;
+                n = _nodeArray[ --_nodeCount ];
+                isNode = true;
+                return true;
+            } else {
+                t = _tokenArray[ --_tokenCount ];
+                n = TNode.Empty;
+                isNode = false;
+                return false;
+            }
+        }
+
+        public bool TryPopOperator( out Token op )
+        {
+            if( OperatorAheadOfDepth > 0 ) {
+                op = _operatorArray[ --_operatorCount ];
+                return true;
+            }
+            op = Token.Empty;
+            return false;
+        }
+
     }
 
-    public struct CompileDepthMark
+    public class CompileDepthMark
     {
 
-        public int OperandBegin;
-        public int OperatorBegin;
+        public int OperandBegin
+        {
+            get;
+            set;
+        }
+
+        public int OperatorBegin
+        {
+            get;
+            set;
+        }
 
     }
 }
