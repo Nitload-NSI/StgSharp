@@ -40,7 +40,7 @@ namespace StgSharp.Script.Express
         protected internal (int min, int max) _range;
         protected internal ExpElementType _memberType;
 
-        protected ExpCollectionInstanceBase( string name ) : base( name ) { }
+        protected ExpCollectionInstanceBase( Token source ) : base( source ) { }
 
         public abstract ExpCollectionBase CollectionValue
         {
@@ -67,8 +67,8 @@ namespace StgSharp.Script.Express
 
         private ExpSet _collection;
 
-        public ExpSetInstance( string name, ExpSet set, ExpSchema context )
-            : base( name )
+        public ExpSetInstance( Token source, ExpSet set )
+            : base( source )
         {
             _collection = set;
         }
@@ -85,8 +85,8 @@ namespace StgSharp.Script.Express
 
         private ExpBag _collection;
 
-        public ExpBagInstance( string name, ExpBag bag, ExpSchema context )
-            : base( name )
+        public ExpBagInstance( Token source, ExpBag bag )
+            : base( source )
         {
             _collection = bag;
         }
@@ -103,8 +103,8 @@ namespace StgSharp.Script.Express
 
         private ExpList _collection;
 
-        public ExpListInstance( string name, ExpList list, ExpSchema context )
-            : base( name )
+        public ExpListInstance( Token source, ExpList list )
+            : base( source )
         {
             _collection = list;
         }
@@ -121,11 +121,8 @@ namespace StgSharp.Script.Express
 
         private ExpArray _collection;
 
-        public ExpArrayInstance(
-                       string name,
-                       ExpArray array,
-                       ExpSchema context )
-            : base( name )
+        public ExpArrayInstance( Token source, ExpArray array )
+            : base( source )
         {
             _collection = array;
         }

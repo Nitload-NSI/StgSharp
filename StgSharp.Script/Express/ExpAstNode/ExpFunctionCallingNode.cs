@@ -44,9 +44,10 @@ namespace StgSharp.Script.Express
         private ExpNode _parameter;
 
         public ExpFunctionCallingNode(
+                       Token source,
                        ExpFunctionSource function,
                        ExpNode firstParameter )
-            : base( $"{function.Name}_call" )
+            : base( source )
         {
             _function = function;
             _parameter = firstParameter;

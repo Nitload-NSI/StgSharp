@@ -42,12 +42,11 @@ namespace StgSharp.Script.Express
         private ExpNode _target;
 
         public ExpSwitchNode(
-                       string name,
-                       ExpSchema context,
+                       Token source,
                        ExpNode target,
                        ExpNode defaultCase,
                        params (ExpNode label, ExpNode op)[] cases )
-            : base( name )
+            : base( source )
         {
             _target = target;
             _default = defaultCase;

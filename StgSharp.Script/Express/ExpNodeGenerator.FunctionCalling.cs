@@ -65,27 +65,23 @@ namespace StgSharp.Script.Express
         /// <summary>
         /// Compile a parameter expression and add it to head of function parameter node list.
         /// </summary>
-        private void MergeFunctionCallingParameter()
+        private void MergeFunctionCallingParameter( Token currentSeparator )
         {
             if( _cache.OperandAheadOfDepth == 1 ) {
                 if( _cache.PopOperand( out Token t, out ExpNode? n ) ) {
-                    n!.PrependNode(
-                        ExpNode.NonOperation( PoolString( "FuncParam" ) ) );
+                    n!.PrependNode( ExpNode.NonOperation( currentSeparator ) );
                 } else {
                     switch( t.Flag ) {
                         case TokenFlag.Number:
                             if( int.TryParse( t.Value, out int intVal ) ) {
-                                n = new ExpLiteralGenericNode<int>(
-                                    t.Value, intVal );
+                                n = new ExpIntNode( t, intVal );
                             } else if( float.TryParse(
                                        t.Value, out float floatVal ) ) {
-                                n = new ExpLiteralGenericNode<float>(
-                                    t.Value, floatVal );
+                                n = new ExpRealNumberNode( t, floatVal );
                             }
                             break;
                         case TokenFlag.String:
-                            n = new ExpLiteralGenericNode<string>(
-                                t.Value, t.Value );
+                            n = new ExpStringNode( t, t.Value );
                             break;
                         case TokenFlag.Member:
 

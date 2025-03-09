@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpFunction.cs"
+//     file="BuiltinType.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,49 +30,25 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpFunctionSource : ExpImmutableElement
+    public static partial class ExpCompile
     {
 
-        private ScriptSourceTransmitter _transmitter;
-        private string _name;
-
-        public ExpFunctionSource(
-                       string name,
-                       ScriptSourceTransmitter transmitter )
-        {
-            _name = name;
-            _transmitter = transmitter;
-        }
-
-        public override ExpElementType ElementType => ExpElementType.Function;
-
-        public override IScriptSourceProvider SourceProvider => _transmitter;
-
-        public override string Name => _name;
-
-        public string CallingFormat
+        public static ExpTypeSource ExpInt
         {
             get;
             private set;
         }
 
-        public override void Analyse()
+        public static ExpTypeSource ExpReal
         {
-            throw new NotImplementedException();
-            /*
-             * generate parameter list,
-             * generate C# code
-             * generate calling syntax
-             */
-        }
-
-        public override ExpNode MakeReference( params object[] options )
-        {
-            throw new NotImplementedException();
+            get;
+            private set;
         }
 
     }

@@ -34,13 +34,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Script.Express.ExpAstNode
+namespace StgSharp.Script.Express
 {
     public class ExpElementMemberNameNode : ExpNode
     {
 
-        public ExpElementMemberNameNode( string memberName )
-            : base( memberName ) { }
+        public ExpElementMemberNameNode( Token source ) : base( source ) { }
 
         public override ExpNode Left => Empty;
 

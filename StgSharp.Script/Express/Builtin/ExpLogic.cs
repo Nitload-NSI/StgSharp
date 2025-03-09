@@ -69,6 +69,18 @@ namespace StgSharp.Script.Express
 
         public override string ToString() => _value.ToString();
 
+        public static bool TryParse(
+                                   ReadOnlySpan<char> value,
+                                   out ExpLogic result )
+        {
+            if( Enum.TryParse<ExpLogicValue>( value, out ExpLogicValue e ) ) {
+                result = new ExpLogic( e );
+                return true;
+            }
+            result = default;
+            return false;
+        }
+
         // NOT !
         public static ExpLogic operator !( ExpLogic a )
         {

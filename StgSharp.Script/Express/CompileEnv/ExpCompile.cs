@@ -82,6 +82,8 @@ namespace StgSharp.Script.Express
             _compileStringCache = new StringPool();
             _multiplexer = new ConcurrentStringHashMultiplexer();
 
+            ExpSchema_Nitload.Only.Init();
+
             PoolKeywords();
             InitPrecedence();
 
@@ -96,6 +98,17 @@ namespace StgSharp.Script.Express
                 KeyWord.ANDOR,
                 KeyWord.NOT,
                 ];
+
+            ExpSchema_Nitload.Only
+                    .TryGetType(
+                        PoolString( KeyWord.Int ), out ExpTypeSource? _expInt );
+            ExpInt = _expInt;
+
+            ExpSchema_Nitload.Only
+                    .TryGetType(
+                        PoolString( KeyWord.Real ),
+                        out ExpTypeSource? _expReal );
+            ExpReal = _expReal;
         }
 
         public static bool LetterIsOperator( string str )

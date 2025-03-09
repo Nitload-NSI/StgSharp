@@ -46,14 +46,13 @@ namespace StgSharp.Script.Express
         private ExpNode _operationBegin;
 
         public ExpRepeatToken(
-                       string name,
-                       ExpSchema context,
+                       Token source,
                        ExpNode operationBegin,
                        ExpElementInstanceBase variable,
                        ExpElementInstanceBase begin,
                        ExpElementInstanceBase end,
                        ExpElementInstanceBase increment )
-            : base( name )
+            : base( source )
         {
             if( variable.NodeFlag != begin.NodeFlag || begin.NodeFlag !=
                 end.NodeFlag || ( increment != null && end.NodeFlag !=
@@ -62,13 +61,19 @@ namespace StgSharp.Script.Express
             }
             if( increment == null ) {
                 switch( ( ExpNodeFlag )variable.NodeFlag | ExpNodeFlag.BuiltinType_Any ) {
-                    case ExpNodeFlag.BuiltinType_Float:
+                    case ExpNodeFlag.BuiltinType_Real:
                         increment = new ExpLiteralGenericNode<float>(
-                            $"{name}_defaultIncrement", 1.0f );
+                            new Token(
+                                ExpCompile.PoolString( "1.0f" ), source.Line,
+                                -1, TokenFlag.Number ),
+                            1.0f );
                         break;
                     case ExpNodeFlag.BuiltinType_Int:
                         increment = new ExpLiteralGenericNode<int>(
-                            $"{name}_defaultIncrement", 1 );
+                            new Token(
+                                ExpCompile.PoolString( "1" ), source.Line, -1,
+                                TokenFlag.Number ),
+                            1 );
                         break;
                     default:
                         throw new ExpInvalidTypeException(

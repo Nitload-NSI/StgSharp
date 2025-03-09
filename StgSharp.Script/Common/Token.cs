@@ -65,6 +65,7 @@ namespace StgSharp.Script
     public enum TokenFlag : int
     {
 
+        None = 0,
         Symbol_Unary = 1,
         Symbol_Binary = 2,
         Number = 3,

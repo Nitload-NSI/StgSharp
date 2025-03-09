@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="GenerateOperatorToken.cs"
+//     file="ExpNodeGenerator.Operator.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -54,16 +54,16 @@ namespace StgSharp.Script.Express
             ExpNode right = GetNextOperandCache();
             switch( t.Value ) {
                 case ExpCompile.KeyWord.ADD:
-                    node = ExpBinaryOperatorNode.Add( left, right );
+                    node = ExpBinaryOperatorNode.Add( t, left, right );
                     return true;
                 case ExpCompile.KeyWord.SUB:
-                    node = ExpBinaryOperatorNode.Sub( left, right );
+                    node = ExpBinaryOperatorNode.Sub( t, left, right );
                     return true;
                 case ExpCompile.KeyWord.MUL:
-                    node = ExpBinaryOperatorNode.Mul( left, right );
+                    node = ExpBinaryOperatorNode.Mul( t, left, right );
                     return true;
                 case ExpCompile.KeyWord.DIV:
-                    node = ExpBinaryOperatorNode.Div( left, right );
+                    node = ExpBinaryOperatorNode.Div( t, left, right );
                     return true;
                 default:
                     node = ExpNode.Empty;
@@ -76,13 +76,13 @@ namespace StgSharp.Script.Express
             ExpNode operand = GetNextOperandCache();
             switch( t.Value ) {
                 case ExpCompile.KeyWord.UnaryPlus:
-                    node = ExpUnaryOperatorNode.UnaryPlus( operand );
+                    node = ExpUnaryOperatorNode.UnaryPlus( t, operand );
                     return true;
                 case ExpCompile.KeyWord.UnaryMinus:
-                    node = ExpUnaryOperatorNode.UnaryMinus( operand );
+                    node = ExpUnaryOperatorNode.UnaryMinus( t, operand );
                     return true;
                 case ExpCompile.KeyWord.NOT:
-                    node = ExpUnaryOperatorNode.UnaryNot( operand );
+                    node = ExpUnaryOperatorNode.UnaryNot( t, operand );
                     return true;
                 default:
                     node = ExpNode.Empty;

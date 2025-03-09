@@ -34,20 +34,6 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpEntity : ExpNode
-    {
-
-        public ExpEntity( string name, ExpSchema context ) : base( name ) { }
-
-        public override ExpNode Left => throw new NotImplementedException();
-
-        public override ExpNode Right => throw new NotImplementedException();
-
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
-            );
-
-    }
-
     public class ExpEntitySource : ExpInstantiableElement
     {
 

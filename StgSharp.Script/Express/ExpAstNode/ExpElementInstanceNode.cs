@@ -42,9 +42,9 @@ namespace StgSharp.Script.Express
         private ExpInstantiableElement _element;
 
         public ExpElementInstanceNode(
-                       string varName,
+                       Token source,
                        ExpInstantiableElement element )
-            : base( varName )
+            : base( source )
         {
             _element = element;
         }
