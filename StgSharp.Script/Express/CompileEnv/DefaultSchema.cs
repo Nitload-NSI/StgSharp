@@ -50,7 +50,7 @@ namespace StgSharp.Script.Express
             Name = "Nitload";
         }
 
-        public static ExpSchema Only
+        internal static ExpSchema_Nitload Only
         {
             get => _onlyInstance;
         }
@@ -128,10 +128,12 @@ namespace StgSharp.Script.Express
 
             ConstDict = new Dictionary<string, ExpElementInstanceBase>(
                 Multiplexer ) {
-                { PoolString( "PI" ), new ExpLiteralGenericNode<float>(
-                    PoolString( "PI" ), MathF.PI ) },
-                { PoolString( "E" ), new ExpLiteralGenericNode<float>(
-                    PoolString( "E" ), MathF.E ) },
+                { PoolString( "PI" ), new ExpRealNumberNode(
+                    new Token( PoolString( "PI" ), -1, -1, TokenFlag.Number ),
+                    MathF.PI ) },
+                { PoolString( "E" ), new ExpRealNumberNode(
+                    new Token( PoolString( "E" ), -1, -1, TokenFlag.Number ),
+                    MathF.E ) },
             }.ToFrozenDictionary();
         }
 

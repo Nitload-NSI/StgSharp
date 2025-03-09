@@ -56,16 +56,35 @@ namespace StgSharp.Script.Express
     public abstract class ExpElementInstanceBase : ExpNode
     {
 
-        protected ExpElementInstanceBase( string name ) : base( name ) { }
+        protected ExpElementInstanceBase( Token source ) : base( source ) { }
 
         public ExpElementType ElementType
         {
             get;
         }
 
+        public override ExpNode Left => Empty;
+
+        public override ExpNode Right => Empty;
+
         public abstract string TypeName
         {
             get;
+        }
+
+        public static ExpElementInstanceBase CreateLiteral( Token t )
+        {
+            if( int.TryParse( t.Value, out int _int ) ) {
+                return new ExpIntNode( t, _int );
+            } else if( float.TryParse( t.Value, out float _float ) ) {
+                return new ExpRealNumberNode( t, _float );
+            } else if( bool.TryParse( t.Value, out bool _bool ) ) {
+                return new ExpBoolNode( t, _bool );
+            } else if( ExpLogic.TryParse( t.Value, out ExpLogic _logic ) ) {
+                return new ExpLogicValueNode( t, _logic );
+            } else {
+                return new ExpStringNode( t, t.Value );
+            }
         }
 
     }

@@ -41,11 +41,11 @@ namespace StgSharp.Script.Express
     {
 
         protected internal ExpNodeFlag _nodeFlag;
-        protected internal string _name;
+        protected internal Token _source;
 
-        protected ExpNode( string name )
+        protected ExpNode( Token source )
         {
-            _name = name;
+            _source = source;
             Next = this;
             Previous = this;
         }
@@ -87,6 +87,10 @@ namespace StgSharp.Script.Express
             get;
         }
 
+        public int Line => _source.Line;
+
+        public int Column => _source.Column;
+
         public long NodeFlag => ( long )_nodeFlag;
 
         public string CodeConvertTemplate
@@ -114,9 +118,15 @@ namespace StgSharp.Script.Express
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static ExpNode NonOperation( string name )
+        public static ExpNode NonOperation( Token source )
         {
-            return new ExpEmptyNode( name );
+            return new ExpEmptyNode( source.Line, source.Column );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static ExpNode NonOperation( int line, int column )
+        {
+            return new ExpEmptyNode( line, column );
         }
 
         public void PrependNode( ExpNode previousNode )
@@ -146,9 +156,11 @@ namespace StgSharp.Script.Express
 
             internal static readonly ExpEmptyNode _only = new();
 
-            public ExpEmptyNode() : base( string.Empty ) { }
+            public ExpEmptyNode() : base( Token.Empty ) { }
 
-            public ExpEmptyNode( string name ) : base( name ) { }
+            public ExpEmptyNode( int line, int column )
+                : base(
+                new Token( string.Empty, line, column, TokenFlag.None ) ) { }
 
             public override ExpInstantiableElement EqualityTypeConvert => ExpInstantiableElement.Void;
 

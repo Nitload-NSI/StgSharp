@@ -41,13 +41,13 @@ namespace StgSharp.Script.Express
 
         private ExpNode _operand;
 
-        private ExpUnaryOperatorNode( string name ) : base( name ) { }
+        private ExpUnaryOperatorNode( Token source ) : base( source ) { }
 
         public ExpUnaryOperatorNode(
-                       string name,
+                       Token source,
                        ExpNode operand,
                        ExpSchema context )
-            : base( name )
+            : base( source )
         {
             _operand = operand;
         }
@@ -58,44 +58,50 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => _operand.EqualityTypeConvert;
 
-        public static ExpUnaryOperatorNode UnaryMinus( ExpNode operand )
+        public static ExpUnaryOperatorNode UnaryMinus(
+                                                   Token source,
+                                                   ExpNode operand )
         {
             if( !operand.IsNumber ) {
                 throw new ExpInvalidTypeException(
                     "Number", operand.EqualityTypeConvert.Name );
             }
             bool isFloat =
-                    ( operand._nodeFlag | ExpNodeFlag.BuiltinType_Float ) == 0;
-            return new ExpUnaryOperatorNode( ExpCompile.KeyWord.SUB )
+                    ( operand._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0;
+            return new ExpUnaryOperatorNode( source )
             {
                 _nodeFlag = ExpNodeFlag.Operator_Unary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "- {0}",
             };
         }
 
-        public static ExpUnaryOperatorNode UnaryNot( ExpNode operand )
+        public static ExpUnaryOperatorNode UnaryNot(
+                                                   Token source,
+                                                   ExpNode operand )
         {
             if( ( operand._nodeFlag | ( ExpNodeFlag.BuiltinType_Logic | ExpNodeFlag.BuiltinType_Logic ) ) ==
                 0 ) {
                 throw new ExpInvalidTypeException(
                     "Bool or Logic", operand.EqualityTypeConvert.Name );
             }
-            return new ExpUnaryOperatorNode( ExpCompile.KeyWord.NOT )
+            return new ExpUnaryOperatorNode( source )
             {
                 _nodeFlag = ExpNodeFlag.Operator_Unary | ExpNodeFlag.BuiltinType_Logic,
                 CodeConvertTemplate = "! {0}",
             };
         }
 
-        public static ExpUnaryOperatorNode UnaryPlus( ExpNode operand )
+        public static ExpUnaryOperatorNode UnaryPlus(
+                                                   Token source,
+                                                   ExpNode operand )
         {
             if( !operand.IsNumber ) {
                 throw new ExpInvalidTypeException(
                     "Number", operand.EqualityTypeConvert.Name );
             }
             bool isFloat =
-                    ( operand._nodeFlag | ExpNodeFlag.BuiltinType_Float ) == 0;
-            return new ExpUnaryOperatorNode( ExpCompile.KeyWord.SUB )
+                    ( operand._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0;
+            return new ExpUnaryOperatorNode( source )
             {
                 _nodeFlag = ExpNodeFlag.Operator_Unary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "+ {0}",

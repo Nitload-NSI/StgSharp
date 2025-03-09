@@ -93,7 +93,7 @@ namespace StgSharp.Script.Express
 
         public ExpCaseNotFoundException( ExpSwitchNode token, ExpNode label )
             : base(
-            $"Attempt to read or write the label {label.Name} not exist in SWITCH expression {token.Name}" ) { }
+            $"Attempt to read or write the label at ({token.Line},{token.Column}), that does not exist in SWITCH expression at ({token.Line},{token.Column})" ) { }
 
     }
 

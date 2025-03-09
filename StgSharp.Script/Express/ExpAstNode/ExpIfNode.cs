@@ -44,12 +44,12 @@ namespace StgSharp.Script.Express
         private ExpNode  _trueOpBegin ;
 
         public ExpIfNode(
-                       string name,
+                       Token source,
                        ExpSchema context,
                        ExpNode rule,
                        ExpNode rootOperationIfTrue,
                        ExpNode rootOperationIfFalse )
-            : base( name )
+            : base( source )
         {
             _rule = rule;
             _trueOpBegin = rootOperationIfFalse;

@@ -80,7 +80,8 @@ namespace StgSharp.Script.Express
                     _cache.PushOperand( expToken );
                     break;
                 case TokenFlag.Separator_Single:         //a , ; found
-                    //if operator stack is not empty, convert all operators to node until meet a separator
+                    // if operator stack is not empty, convert all operators to node until meet a same separator
+                    // or OperandAheadOfSeparator property is less than certain value
                     break;
                 case TokenFlag.Separator_Left:           //a ( [ { found
                     _cache.PushOperator( expToken );

@@ -41,7 +41,7 @@ namespace StgSharp.Script.Express
 
         private ExpRuleSource _source;
 
-        public ExpRule( string name, ExpSchema context ) : base( name ) { }
+        public ExpRule( Token source ) : base( source ) { }
 
         public object? value => throw new NotImplementedException();
 

@@ -66,13 +66,13 @@ namespace StgSharp.Script.Express
 
         //variable is one of these builtin type
         BuiltinType_Int = 16384,
-        BuiltinType_Float = 32768,
+        BuiltinType_Real = 32768,
         BuiltinType_String = 65536,
         BuiltinType_Boolean = 0x2000,
         BuiltinType_Binary = 0x4000,
         BuiltinType_Logic = 0x8000,
-        BuiltinType_Number = BuiltinType_Float | BuiltinType_Int,
-        BuiltinType_Any = BuiltinType_Int | BuiltinType_Float | BuiltinType_String | BuiltinType_Boolean | BuiltinType_Binary | BuiltinType_Logic,
+        BuiltinType_Number = BuiltinType_Real | BuiltinType_Int,
+        BuiltinType_Any = BuiltinType_Int | BuiltinType_Real | BuiltinType_String | BuiltinType_Boolean | BuiltinType_Binary | BuiltinType_Logic,
 
         //the token is root of a branch
         Branch_If = 0x1_000,

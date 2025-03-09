@@ -35,23 +35,7 @@ using System.Collections.Generic;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpTypeInstance : ExpElementInstanceBase
-    {
-
-        public ExpTypeInstance( string name ) : base( name ) { }
-
-        public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
-            );
-
-        public override ExpNode Left => throw new NotImplementedException();
-
-        public override ExpNode Right => throw new NotImplementedException();
-
-        public override string TypeName => throw new NotImplementedException();
-
-    }
-
-    public class ExpTypeSource : IExpElementSource
+    public class ExpTypeSource : ExpInstantiableElement
     {
 
         private ScriptSourceTransmitter _transmitter;
@@ -77,23 +61,23 @@ namespace StgSharp.Script.Express
             get => _isBuiltinType;
         }
 
-        public ExpElementType ElementType => ExpElementType.Type;
+        public override ExpElementType ElementType => ExpElementType.Type;
 
         public ExpTypeSource Void
         {
             get => ExpVoidType.Only;
         }
 
-        public IScriptSourceProvider SourceProvider => _transmitter;
+        public override IScriptSourceProvider SourceProvider => _transmitter;
 
-        public string Name => _name;
+        public override string Name => _name;
 
-        public virtual void Analyse()
+        public override void Analyse()
         {
             throw new NotImplementedException();
         }
 
-        public bool IsConvertable( IExpElementSource targetType )
+        public override ExpNode CreateInstanceNode()
         {
             throw new NotImplementedException();
         }

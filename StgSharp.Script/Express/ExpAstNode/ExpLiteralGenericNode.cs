@@ -37,71 +37,121 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpLiteralNode
+    public class ExpIntNode : ExpElementInstanceBase
     {
 
-        private readonly IValueBox box;
+        private int _value;
+
+        public ExpIntNode( Token source, int value )
+            : base( source )
+        {
+            _value = value;
+            _nodeFlag = ExpNodeFlag.BuiltinType_Int | ExpNodeFlag.Element_Type;
+        }
+
+        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
+                        .TryGetType(
+                            ExpCompile.KeyWord.Int, out ExpTypeSource? type ) ?
+                type : throw new ExpCompileNotInitializedException();
+
+        public int Value => _value;
+
+        public override string TypeName => ExpCompile.KeyWord.Int;
 
     }
 
-    public class ExpLiteralGenericNode<T> : ExpElementInstanceBase
+    public class ExpStringNode : ExpElementInstanceBase
     {
 
-        private readonly ExpBuiltinType _type;
-        private readonly T _value;
+        private readonly string _value;
 
-        public ExpLiteralGenericNode( string name, T value )
-            : base( name )
+        public ExpStringNode( Token source, string value )
+            : base( source )
         {
             _value = value;
-            switch( value ) {
-                case float f:
-                    ExpSchema.BuiltinSchema
-                            .TryGetType(
-                                ExpCompile.KeyWord.Real,
-                                out ExpTypeSource? type );
-                    _type = ( type as ExpBuiltinType )!;
-                    _nodeFlag = ExpNodeFlag.BuiltinType_Float | ExpNodeFlag.Element_Const;
-                    break;
-                case int i:
-                    ExpSchema.BuiltinSchema
-                            .TryGetType( ExpCompile.KeyWord.Int, out type );
-                    _type = ( type as ExpBuiltinType )!;
-                    _nodeFlag = ExpNodeFlag.BuiltinType_Int | ExpNodeFlag.Element_Const;
-                    break;
-                case BitArray b:
-                    ExpSchema.BuiltinSchema
-                            .TryGetType( ExpCompile.KeyWord.Binary, out type );
-                    _type = ( type as ExpBuiltinType )!;
-                    _nodeFlag = ExpNodeFlag.BuiltinType_Binary | ExpNodeFlag.Element_Const;
-                    break;
-                case string s:
-                    ExpSchema.BuiltinSchema
-                            .TryGetType( ExpCompile.KeyWord.String, out type );
-                    _type = ( type as ExpBuiltinType )!;
-                    _nodeFlag = ExpNodeFlag.BuiltinType_Int | ExpNodeFlag.Element_Const;
-                    break;
-                case ExpLogic l:
-                    ExpSchema.BuiltinSchema
-                            .TryGetType( ExpCompile.KeyWord.Logic, out type );
-                    _type = ( type as ExpBuiltinType )!;
-                    _nodeFlag = ExpNodeFlag.BuiltinType_Int | ExpNodeFlag.Element_Const;
-                    break;
-                default:
-                    throw new ExpInvalidTypeException(
-                        "Builtin Type", value!.GetType().Name );
-            }
+            _nodeFlag = ExpNodeFlag.BuiltinType_String | ExpNodeFlag.Element_Type;
         }
 
-        public override ExpNode Left => Empty;
+        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
+                        .TryGetType(
+                            ExpCompile.KeyWord.String,
+                            out ExpTypeSource? type ) ?
+                type : throw new ExpCompileNotInitializedException();
 
-        public override ExpNode Right => throw new NotImplementedException();
+        public override string TypeName => EqualityTypeConvert.Name;
 
-        public override IExpElementSource EqualityTypeConvert => _type;
+        public string Value => _value;
 
-        public override string TypeName => _type.Name;
+    }
 
-        public T value => _value;
+    public class ExpBoolNode : ExpElementInstanceBase
+    {
+
+        private readonly bool _value;
+
+        public ExpBoolNode( Token source, bool value )
+            : base( source )
+        {
+            _value = value;
+            _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Element_Type;
+        }
+
+        public bool Value => _value;
+
+        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
+                        .TryGetType(
+                            ExpCompile.KeyWord.Bool, out ExpTypeSource? type ) ?
+                type : throw new ExpCompileNotInitializedException();
+
+        public override string TypeName => EqualityTypeConvert.Name;
+
+    }
+
+    public class ExpRealNumberNode : ExpElementInstanceBase
+    {
+
+        private readonly float _value;
+
+        public ExpRealNumberNode( Token source, float value )
+            : base( source )
+        {
+            _value = value;
+            _nodeFlag = ExpNodeFlag.BuiltinType_Real | ExpNodeFlag.Element_Type;
+        }
+
+        public float Value => _value;
+
+        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
+                        .TryGetType(
+                            ExpCompile.KeyWord.String,
+                            out ExpTypeSource? type ) ?
+                type : throw new ExpCompileNotInitializedException();
+
+        public override string TypeName => EqualityTypeConvert.Name;
+
+    }
+
+    public class ExpLogicValueNode : ExpElementInstanceBase
+    {
+
+        private readonly ExpLogic _value;
+
+        public ExpLogicValueNode( Token source, ExpLogic value )
+            : base( source )
+        {
+            _value = value;
+            _nodeFlag = ExpNodeFlag.BuiltinType_Logic | ExpNodeFlag.Element_Type;
+        }
+
+        public ExpLogic Value => _value;
+
+        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
+                        .TryGetType(
+                            ExpCompile.KeyWord.Logic,
+                            out ExpTypeSource? type ) ?
+                type : throw new ExpCompileNotInitializedException();
+
+        public override string TypeName => EqualityTypeConvert.Name;
 
     }
 }
