@@ -112,6 +112,41 @@ namespace StgSharp.Script.Express
             };
         }
 
+        public static ExpBinaryOperatorNode EqualTo(
+                                                    Token source,
+                                                    ExpNode left,
+                                                    ExpNode right )
+        {
+            if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
+                throw new ExpInvalidTypeException(
+                    left.EqualityTypeConvert.Name,
+                    right.EqualityTypeConvert.Name );
+            }
+            return new ExpBinaryOperatorNode( source )
+            {
+                _returnType = ExpCompile.ExpBool,
+                _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
+                CodeConvertTemplate = "{0} == {1}",
+            };
+        }
+
+        public static ExpBinaryOperatorNode GreaterThan(
+                                                    Token source,
+                                                    ExpNode left,
+                                                    ExpNode right )
+        {
+            if( !left.IsNumber && !right.IsNumber ) {
+                throw new ExpInvalidTypeException(
+                    "Number", left.EqualityTypeConvert.Name );
+            }
+            return new ExpBinaryOperatorNode( source )
+            {
+                _returnType = ExpCompile.ExpBool,
+                _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
+                CodeConvertTemplate = "{0} > {1}",
+            };
+        }
+
         public static ExpBinaryOperatorNode Mul(
                                                     Token source,
                                                     ExpNode left,
@@ -129,6 +164,41 @@ namespace StgSharp.Script.Express
                 _returnType = isFloat ? ExpCompile.ExpReal : ExpCompile.ExpInt,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} * {1}",
+            };
+        }
+
+        public static ExpBinaryOperatorNode NotEqualTo(
+                                                    Token source,
+                                                    ExpNode left,
+                                                    ExpNode right )
+        {
+            if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
+                throw new ExpInvalidTypeException(
+                    left.EqualityTypeConvert.Name,
+                    right.EqualityTypeConvert.Name );
+            }
+            return new ExpBinaryOperatorNode( source )
+            {
+                _returnType = ExpCompile.ExpBool,
+                _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
+                CodeConvertTemplate = "{0} != {1}",
+            };
+        }
+
+        public static ExpBinaryOperatorNode SmallerThan(
+                                                    Token source,
+                                                    ExpNode left,
+                                                    ExpNode right )
+        {
+            if( !left.IsNumber && !right.IsNumber ) {
+                throw new ExpInvalidTypeException(
+                    "Number", left.EqualityTypeConvert.Name );
+            }
+            return new ExpBinaryOperatorNode( source )
+            {
+                _returnType = ExpCompile.ExpBool,
+                _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
+                CodeConvertTemplate = "{0} < {1}",
             };
         }
 

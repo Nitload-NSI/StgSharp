@@ -76,17 +76,25 @@ namespace StgSharp.Script.Express
                     }
                     _cache.PushOperand( expToken );
                     break;
-                case TokenFlag.Number or TokenFlag.String or TokenFlag.Member:
+                case TokenFlag.Number or TokenFlag.String:
                     _cache.PushOperand( expToken );
+                    break;
+                case TokenFlag.Member:
+                    if( _context.TryGetFunction( expToken.Value, out _ ) ) {
+                        _cache.PushOperator( expToken );
+                    } else { }
                     break;
                 case TokenFlag.Separator_Single:         //a , ; found
                     // if operator stack is not empty, convert all operators to node until meet a same separator
                     // or OperandAheadOfSeparator property is less than certain value
                     break;
                 case TokenFlag.Separator_Left:           //a ( [ { found
+                    // check if the last token is a function name, loop block or branch
+                    // then increase depth
                     _cache.PushOperator( expToken );
                     break;
                 case TokenFlag.Separator_Right:          //a } ] ) found
+                    //Close current depth and cache call node in this depth as a partial AST
                     break;
                 case TokenFlag.Index_Left:               // a [ found
                     break;

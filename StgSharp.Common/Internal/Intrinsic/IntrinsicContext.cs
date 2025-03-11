@@ -58,6 +58,9 @@ namespace StgSharp.Internal.Intrinsic
         public delegate* unmanaged[Cdecl]<ColumnSet4*, Vector4*, Vector4*, void> dot_43;
         public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;
         public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> normalize_v3;
+        public delegate* unmanaged[Cdecl]<ColumnSet2*, ColumnSet2*, ColumnSet2*, void> sub_mat_2;
+        public delegate* unmanaged[Cdecl]<ColumnSet3*, ColumnSet3*, ColumnSet3*, void> sub_mat_3;
+        public delegate* unmanaged[Cdecl]<ColumnSet4*, ColumnSet4*, ColumnSet4*, void> sub_mat_4;
         public delegate* unmanaged[Cdecl]<ColumnSet2*, ColumnSet3*, void> transpose23;
         public delegate* unmanaged[Cdecl]<ColumnSet2*, ColumnSet4*, void> transpose24;
         public delegate* unmanaged[Cdecl]<ColumnSet3*, ColumnSet2*, void> transpose32;

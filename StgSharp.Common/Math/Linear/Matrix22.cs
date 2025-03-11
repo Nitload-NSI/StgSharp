@@ -37,11 +37,12 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(
-        LayoutKind.Explicit,
-        Size = ( 2 * 2 * 4 * sizeof( float ) ) + sizeof( bool ),
-        Pack = 16 )]
+            LayoutKind.Explicit,
+            Size = ( 2 * 2 * 4 * sizeof( float ) ) + sizeof( bool ),
+            Pack = 16 )]
     public struct Matrix22 : IMat
     {
+
         [FieldOffset( 2 * 2 * 4 * sizeof( float ) )]
         internal bool isTransposed = false;
 
@@ -50,12 +51,6 @@ namespace StgSharp.Math
         [FieldOffset( 2 * 4 * sizeof( float ) )]
         internal ColumnSet2 _transpose;
 
-        public Matrix22()
-        {
-            Unsafe.SkipInit( out this );
-            isTransposed = false;
-        }
-
         internal Matrix22( ColumnSet2 mat )
         {
             this._mat = mat;
@@ -63,15 +58,21 @@ namespace StgSharp.Math
 
         internal Matrix22( Vector4 c0, Vector4 c1 )
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             _mat.colum0 = c0;
             _mat.colum1 = c1;
         }
 
+        public Matrix22()
+        {
+            Unsafe.SkipInit( out this );
+            isTransposed = false;
+        }
+
         public Matrix22( float a00, float a01, float a10, float a11 )
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             _mat.colum0 = new Vector4( a00, a10, 0, 0 );
             _mat.colum1 = new Vector4( a01, a11, 0, 0 );
@@ -105,20 +106,15 @@ namespace StgSharp.Math
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Matrix22 operator +(Matrix22 left, Matrix22 right)
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static unsafe Matrix22 operator -(
+                                                       Matrix22 left,
+                                                       Matrix22 right )
         {
             Matrix22 ret = new Matrix22();
-            InternalIO.Intrinsic.add_mat_2( &left._mat, &right._mat, &ret._mat );
+            InternalIO.Intrinsic.sub_mat_2( &left._mat, &right._mat,
+                                            &ret._mat );
             return ret;
-        }
-
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static Matrix22 operator -( Matrix22 left, Matrix22 right )
-        {
-            return new Matrix22(
-                left._mat.colum0 + right._mat.colum0,
-                left._mat.colum1 + right._mat.colum1 );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -137,7 +133,7 @@ namespace StgSharp.Math
                 Vector4.Dot( left._transpose.colum0, right._mat.colum1 ),
 
                 Vector4.Dot( left._transpose.colum1, right._mat.colum0 ),
-                Vector4.Dot( left._transpose.colum1, right._mat.colum1 ));
+                Vector4.Dot( left._transpose.colum1, right._mat.colum1 ) );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -167,7 +163,7 @@ namespace StgSharp.Math
                 Vector4.Dot( left._transpose.colum1, right.mat.colum0 ),
                 Vector4.Dot( left._transpose.colum1, right.mat.colum1 ),
                 Vector4.Dot( left._transpose.colum1, right.mat.colum2 ),
-                Vector4.Dot( left._transpose.colum1, right.mat.colum3 ));
+                Vector4.Dot( left._transpose.colum1, right.mat.colum3 ) );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -175,6 +171,17 @@ namespace StgSharp.Math
         {
             return new Matrix22(
                 mat._mat.colum0 / value, mat._mat.colum1 / value );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static unsafe Matrix22 operator +(
+                                                       Matrix22 left,
+                                                       Matrix22 right )
+        {
+            Matrix22 ret = new Matrix22();
+            InternalIO.Intrinsic.add_mat_2( &left._mat, &right._mat,
+                                            &ret._mat );
+            return ret;
         }
 
     }

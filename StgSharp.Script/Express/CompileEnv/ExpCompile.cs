@@ -109,6 +109,11 @@ namespace StgSharp.Script.Express
                         PoolString( KeyWord.Real ),
                         out ExpTypeSource? _expReal );
             ExpReal = _expReal;
+            ExpSchema_Nitload.Only
+                    .TryGetType(
+                        PoolString( KeyWord.Bool ),
+                        out ExpTypeSource? _expBool );
+            ExpBool = _expBool;
         }
 
         public static bool LetterIsOperator( string str )

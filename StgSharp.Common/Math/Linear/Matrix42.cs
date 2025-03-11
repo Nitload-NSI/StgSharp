@@ -38,9 +38,9 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(
-        LayoutKind.Explicit,
-        Size = ( ( 16 + 8 ) * sizeof( float ) ) + sizeof( bool ),
-        Pack = 16 )]
+            LayoutKind.Explicit,
+            Size = ( ( 16 + 8 ) * sizeof( float ) ) + sizeof( bool ),
+            Pack = 16 )]
     public struct Matrix42 : IMat
     {
 
@@ -49,38 +49,38 @@ namespace StgSharp.Math
         [FieldOffset( 0 )] internal ColumnSet2 mat;
         [FieldOffset( 8 * sizeof( float ) )] internal ColumnSet4 transpose;
 
-        public Matrix42()
-        {
-            Unsafe.SkipInit(out this);
-            isTransposed = false;
-        }
-
         internal Matrix42( ColumnSet2 mat )
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             this.mat = mat;
         }
 
         internal Matrix42( Vector4 c0, Vector4 c1 )
         {
-            Unsafe.SkipInit(out this);
-            isTransposed= false;
+            Unsafe.SkipInit( out this );
+            isTransposed = false;
             mat.colum0 = c0;
             mat.colum1 = c1;
         }
 
-        public Matrix42(
-            float a00,
-            float a01,
-            float a10,
-            float a11,
-            float a20,
-            float a21,
-            float a30,
-            float a31 )
+        public Matrix42()
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
+            isTransposed = false;
+        }
+
+        public Matrix42(
+                       float a00,
+                       float a01,
+                       float a10,
+                       float a11,
+                       float a20,
+                       float a21,
+                       float a30,
+                       float a31 )
+        {
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             mat.colum0 = new Vector4( a00, a10, a20, a30 );
             mat.colum1 = new Vector4( a01, a11, a21, a31 );
@@ -141,12 +141,12 @@ namespace StgSharp.Math
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static unsafe Matrix42 operator -(
-            Matrix42 left,
-            Matrix42 right )
+                                                       Matrix42 left,
+                                                       Matrix42 right )
         {
-            return new Matrix42(
-                left.mat.colum0 - right.mat.colum0,
-                left.mat.colum0 - right.mat.colum0 );
+            Matrix42 ret = new Matrix42();
+            InternalIO.Intrinsic.sub_mat_2( &left.mat, &right.mat, &ret.mat );
+            return ret;
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -231,12 +231,12 @@ namespace StgSharp.Math
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static unsafe Matrix42 operator +(
-            Matrix42 left,
-            Matrix42 right )
+                                                       Matrix42 left,
+                                                       Matrix42 right )
         {
-            return new Matrix42(
-                left.mat.colum0 + right.mat.colum0,
-                left.mat.colum0 + right.mat.colum0 );
+            Matrix42 ret = new Matrix42();
+            InternalIO.Intrinsic.add_mat_2( &left.mat, &right.mat, &ret.mat );
+            return ret;
         }
 
     }

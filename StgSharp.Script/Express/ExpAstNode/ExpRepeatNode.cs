@@ -62,14 +62,14 @@ namespace StgSharp.Script.Express
             if( increment == null ) {
                 switch( ( ExpNodeFlag )variable.NodeFlag | ExpNodeFlag.BuiltinType_Any ) {
                     case ExpNodeFlag.BuiltinType_Real:
-                        increment = new ExpLiteralGenericNode<float>(
+                        increment = new ExpRealNumberNode(
                             new Token(
                                 ExpCompile.PoolString( "1.0f" ), source.Line,
                                 -1, TokenFlag.Number ),
                             1.0f );
                         break;
                     case ExpNodeFlag.BuiltinType_Int:
-                        increment = new ExpLiteralGenericNode<int>(
+                        increment = new ExpIntNode(
                             new Token(
                                 ExpCompile.PoolString( "1" ), source.Line, -1,
                                 TokenFlag.Number ),

@@ -38,9 +38,9 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(
-        LayoutKind.Explicit,
-        Size = ( 5 * 4 * sizeof( float ) ) + sizeof( bool ),
-        Pack = 16 )]
+            LayoutKind.Explicit,
+            Size = ( 5 * 4 * sizeof( float ) ) + sizeof( bool ),
+            Pack = 16 )]
     public struct Matrix32 : IMat
     {
 
@@ -52,29 +52,29 @@ namespace StgSharp.Math
         [FieldOffset( 0 )] internal Vec3 colum0;
         [FieldOffset( 4 * 4 )] internal Vec3 colum1;
 
-        public Matrix32()
-        {
-            Unsafe.SkipInit(out this);
-            isTransposed = false;
-        }
-
         internal Matrix32( Vector4 c0, Vector4 c1 )
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             mat.colum0 = c0;
             mat.colum1 = c1;
         }
 
-        public unsafe Matrix32(
-            float a00,
-            float a01,
-            float a10,
-            float a11,
-            float a20,
-            float a21 )
+        public Matrix32()
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
+            isTransposed = false;
+        }
+
+        public unsafe Matrix32(
+                              float a00,
+                              float a01,
+                              float a10,
+                              float a11,
+                              float a20,
+                              float a21 )
+        {
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             mat.colum0 = new Vector4( a00, a10, a20, 0 );
             mat.colum1 = new Vector4( a01, a11, a21, 0 );
@@ -209,10 +209,12 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix32 operator +( Matrix32 left, Matrix32 right )
+        public static unsafe Matrix32 operator +(
+                                                       Matrix32 left,
+                                                       Matrix32 right )
         {
             Matrix32 ret = new Matrix32();
-            InternalIO.Intrinsic.add_mat_2(&left.mat, &right.mat, &ret.mat);
+            InternalIO.Intrinsic.add_mat_2( &left.mat, &right.mat, &ret.mat );
             return ret;
         }
 

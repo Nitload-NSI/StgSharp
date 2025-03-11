@@ -101,4 +101,30 @@ INTERNAL void __cdecl addmatrix3_512(__3_columnset *left, __3_columnset *right, 
         _mm512_mask_store_ps(ans, 0x0fff, temp);
 }
 
+INTERNAL void __cdecl submatrix3_sse(__3_columnset *left, __3_columnset *right, __3_columnset *ans)
+{
+        __m128 temp0 = _mm_sub_ps(ALIGN(left->column[0]), ALIGN(right->column[0]));
+        __m128 temp1 = _mm_sub_ps(ALIGN(left->column[1]), ALIGN(right->column[1]));
+        __m128 temp2 = _mm_sub_ps(ALIGN(left->column[2]), ALIGN(right->column[2]));
+
+        _mm_storeu_ps(&ans->m[0][0], temp0);
+        _mm_storeu_ps(&ans->m[0][1], temp1);
+        _mm_storeu_ps(&ans->m[0][2], temp2);
+}
+
+INTERNAL void __cdecl submatrix3_avx(__3_columnset *left, __3_columnset *right, __3_columnset *ans)
+{
+        __m256 temp0 = _mm256_sub_ps(ALIGN256(left->part), ALIGN256(right->part));
+        __m128 temp1 = _mm_sub_ps(ALIGN(left->column[2]), ALIGN(right->column[2]));
+
+        _mm256_storeu_ps(&ans->m[0][0], temp0);
+        _mm_storeu_ps(&ans->m[0][2], temp1);
+}
+
+INTERNAL void __cdecl submatrix3_512(__3_columnset *left, __3_columnset *right, __3_columnset *ans)
+{
+        __m512 temp = _mm512_sub_ps(_mm512_loadu_ps(left), _mm512_loadu_ps(right));
+        _mm512_mask_store_ps(ans, 0x0fff, temp);
+}
+
 #pragma endregion
