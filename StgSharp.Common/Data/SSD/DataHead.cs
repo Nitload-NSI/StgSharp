@@ -66,7 +66,7 @@ namespace StgSharp.Internal
         public unsafe byte[] GetBytes()
         {
             byte[] ret = new byte[16];
-            fixed( Vector4* vptr = &data.Vec ) {
+            fixed( M128* vptr = &data ) {
                 byte* bptr = ( byte* )vptr;
                 for( int i = 0; i < 15; i++ ) {
                     ret[ i ] = *bptr;

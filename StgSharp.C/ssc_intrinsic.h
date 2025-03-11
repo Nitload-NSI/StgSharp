@@ -30,7 +30,7 @@
 typedef union uint64_u {
         uint64_t u64;
         uint32_t u32[2];
-}uint64_u;
+} uint64_u;
 
 typedef union column_2 {
         __m256 stream;
@@ -64,12 +64,17 @@ INTERNAL void normalize(__m128 *source, __m128 *target);
 
 INTERNAL void SSCDECL addmatrix2_sse(__2_columnset *left, __2_columnset *right, __2_columnset *ans);
 INTERNAL void SSCDECL addmatrix2_avx(__2_columnset *left, __2_columnset *right, __2_columnset *ans);
+INTERNAL void SSCDECL submatrix2_sse(__2_columnset *left, __2_columnset *right, __2_columnset *ans);
+INTERNAL void SSCDECL addmatrix2_avx(__2_columnset *left, __2_columnset *right, __2_columnset *ans);
 INTERNAL void SSCDECL transpose23(__2_columnset const *source, __3_columnset *target);
 INTERNAL void SSCDECL transpose24(__2_columnset const *source, __4_columnset *target);
 
 INTERNAL void SSCDECL addmatrix3_sse(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
 INTERNAL void SSCDECL addmatrix3_avx(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
 INTERNAL void SSCDECL addmatrix3_512(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
+INTERNAL void SSCDECL submatrix3_sse(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
+INTERNAL void SSCDECL submatrix3_avx(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
+INTERNAL void SSCDECL submatrix3_512(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
 INTERNAL void SSCDECL transpose32(__3_columnset const *source, __2_columnset *target);
 INTERNAL void SSCDECL transpose33(__3_columnset const *source, __3_columnset *target);
 INTERNAL void SSCDECL transpose34(__3_columnset const *source, __4_columnset *target);
@@ -78,6 +83,9 @@ INTERNAL float SSCDECL det_mat3(__3_columnset *matrix, __3_columnset *tranpose);
 INTERNAL void SSCDECL addmatrix4_sse(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
 INTERNAL void SSCDECL addmatrix4_avx(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
 INTERNAL void SSCDECL addmatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
+INTERNAL void SSCDECL submatrix4_sse(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
+INTERNAL void SSCDECL submatrix4_avx(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
+INTERNAL void SSCDECL submatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
 INTERNAL void SSCDECL transpose42(__4_columnset const *source, __2_columnset *target);
 INTERNAL void SSCDECL transpose43(__4_columnset const *source, __3_columnset *target);
 INTERNAL void SSCDECL transpose44(__4_columnset const *source, __4_columnset *target);
@@ -99,7 +107,7 @@ INTERNAL void SSCDECL dot_42_avx(__4_columnset *transpose, __m128 *vector, __m12
 
 INTERNAL void SSCDECL dot_43_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans);
 INTERNAL void SSCDECL dot_43_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans);
-INTERNAL void SSCDECL dot_43_512(__4_columnset *transpose, __m128 *vector, __m128 *ans);
+//INTERNAL void SSCDECL dot_43_512(__4_columnset *transpose, __m128 *vector, __m128 *ans);
 
 #pragma endregion
 
@@ -124,6 +132,9 @@ typedef struct ssc_intrinsic {
         DOTPROC dot_43;
         int (*index_pair)(short const *str, uint32_t target, int length);
         VECTORNORMALIZEPROC normalize_3;
+        MATARITHMETIC sub_m2;
+        MATARITHMETIC sub_m3;
+        MATARITHMETIC sub_m4;
         MATRIXTRANSPOSEPROC transpose_23;
         MATRIXTRANSPOSEPROC transpose_24;
         MATRIXTRANSPOSEPROC transpose_32;

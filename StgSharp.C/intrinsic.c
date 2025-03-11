@@ -84,6 +84,10 @@ void load_intrinsic_sse(ssc_intrinsic *context)
         context->dot_43 = dot_43_sse;
         context->city_hash_simplify = city_hash_simplify_sse;
         context->index_pair = index_pair_sse;
+        context->sub_m2 = submatrix2_sse;
+        context->sub_m3 = submatrix3_sse;
+        context->sub_m4 = submatrix4_sse;
+
 }
 
 void load_intrinsic_avx(ssc_intrinsic *context)

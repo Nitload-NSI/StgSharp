@@ -82,3 +82,22 @@ INTERNAL void SSCDECL addmatrix4_512(__4_columnset *left, __4_columnset *right, 
 {
         ans->stream = _mm512_add_ps(ALIGN512(left->stream), ALIGN512(right->stream));
 }
+
+INTERNAL void SSCDECL submatrix4_sse(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
+{
+        ans->column[0] = _mm_sub_ps(ALIGN(left->column[0]), ALIGN(right->column[0]));
+        ans->column[1] = _mm_sub_ps(ALIGN(left->column[1]), ALIGN(right->column[1]));
+        ans->column[2] = _mm_sub_ps(ALIGN(left->column[2]), ALIGN(right->column[2]));
+        ans->column[3] = _mm_sub_ps(ALIGN(left->column[3]), ALIGN(right->column[3]));
+}
+
+INTERNAL void SSCDECL submatrix4_avx(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
+{
+        ans->half[0] = _mm256_sub_ps(ALIGN256(left->half[0]), ALIGN256(right->half[0]));
+        ans->half[1] = _mm256_sub_ps(ALIGN256(left->half[1]), ALIGN256(right->half[1]));
+}
+
+INTERNAL void SSCDECL submatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
+{
+        ans->stream = _mm512_sub_ps(ALIGN512(left->stream), ALIGN512(right->stream));
+}

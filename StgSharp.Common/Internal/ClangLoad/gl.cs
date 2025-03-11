@@ -30,7 +30,6 @@
 //-----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
-using StgSharp.Internal.OpenGL;
 
 using System;
 using System.Collections.Generic;

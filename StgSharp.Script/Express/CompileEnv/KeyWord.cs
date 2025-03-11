@@ -72,6 +72,7 @@ namespace StgSharp.Script.Express
                 MUL = "*",
                 DIV = "/",
                 NOT = "NOT",
+                NotEqual = "<>",
                 Assignment = ":=",
                 Equal = "=",
                 Mod = "MOD",

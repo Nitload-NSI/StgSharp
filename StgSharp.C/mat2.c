@@ -40,3 +40,18 @@ INTERNAL void __cdecl addmatrix2_avx(__2_columnset *left, __2_columnset *right, 
         __m256 temp = _mm256_add_ps(ALIGN256(left->column[0]), ALIGN256(right->column[0]));
         _mm256_storeu_ps(&ans->m[0][0], temp);
 }
+
+INTERNAL void __cdecl submatrix2_sse(__2_columnset *left, __2_columnset *right, __2_columnset *ans)
+{
+        __m128 temp0 = _mm_sub_ps(ALIGN(left->column[0]), ALIGN(right->column[0]));
+        __m128 temp1 = _mm_sub_ps(ALIGN(left->column[1]), ALIGN(right->column[1]));
+
+        _mm_storeu_ps(&ans->m[0][0], temp0);
+        _mm_storeu_ps(&ans->m[0][1], temp1);
+}
+
+INTERNAL void __cdecl submatrix2_avx(__2_columnset *left, __2_columnset *right, __2_columnset *ans)
+{
+        __m256 temp = _mm256_sub_ps(ALIGN256(left->column[0]), ALIGN256(right->column[0]));
+        _mm256_storeu_ps(&ans->m[0][0], temp);
+}

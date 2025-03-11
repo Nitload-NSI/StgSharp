@@ -51,5 +51,11 @@ namespace StgSharp.Script.Express
             private set;
         }
 
+        public static ExpTypeSource ExpBool
+        {
+            get;
+            private set;
+        }
+
     }
 }

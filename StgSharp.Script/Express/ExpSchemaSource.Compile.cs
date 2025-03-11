@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Token.cs"
+//     file="ExpSchemaSource.Compile.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -31,58 +31,42 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Script
+namespace StgSharp.Script.Express
 {
-    public readonly struct Token
+    public enum ExpressCompileOption
     {
 
-        private static Token EmptyToken = new Token();
-
-        public readonly int Column;
-        public readonly int Line;
-        public readonly string Value;
-        public readonly TokenFlag Flag;
-
-        public Token(
-                       string chars,
-                       int lineNumber,
-                       int columnNumber,
-                       TokenFlag flag )
-        {
-            Value = chars;
-            Line = lineNumber;
-            Column = columnNumber;
-            Flag = flag;
-        }
-
-        public static Token Empty => EmptyToken;
-
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public Token ReLocate( int line, int column )
-        {
-            return new Token( Value, line, column, Flag );
-        }
+        Default = 0,
+        Translate = 1,
+        Compile = 2,
 
     }
 
-    public enum TokenFlag : int
+    public partial class ExpSchemaSource
     {
 
-        None = 0,
-        Symbol_Unary = 1,
-        Symbol_Binary = 2,
-        Number = 3,
-        String = 4,
-        Member = 5,
-        Separator_Single = 6,
-        Separator_Left = 7,
-        Separator_Right = 8,
-        Index_Left = 9,
-        Index_Right = 10,
+        public ExpSchema Compile( ExpressCompileOption option )
+        {
+            switch( option ) {
+                case ExpressCompileOption.Default:
+                    return Compile_Translate( option );
+                case ExpressCompileOption.Translate:
+                    return Compile_Translate( option );
+                case ExpressCompileOption.Compile:
+                    throw new NotImplementedException();
+                default:
+                    throw new ArgumentException();
+            }
+        }
+
+        internal GeneratedExpSchema Compile_Translate(
+                                            ExpressCompileOption option )
+        {
+            throw new NotImplementedException();
+        }
 
     }
 }

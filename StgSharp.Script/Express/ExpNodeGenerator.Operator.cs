@@ -65,6 +65,13 @@ namespace StgSharp.Script.Express
                 case ExpCompile.KeyWord.DIV:
                     node = ExpBinaryOperatorNode.Div( t, left, right );
                     return true;
+                case ExpCompile.KeyWord.Equal:
+                    node = ExpBinaryOperatorNode.EqualTo( t, left, right );
+                    return true;
+                case ExpCompile.KeyWord.NotEqual:
+                    node = ExpBinaryOperatorNode.NotEqualTo( t, left, right );
+                    return true;
+
                 default:
                     node = ExpNode.Empty;
                     return false;

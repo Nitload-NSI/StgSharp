@@ -38,21 +38,15 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(
-        LayoutKind.Explicit,
-        Size = ( ( 3 + 2 ) * 4 * sizeof( float ) ) + sizeof( bool ),
-        Pack = 16 )]
+            LayoutKind.Explicit,
+            Size = ( ( 3 + 2 ) * 4 * sizeof( float ) ) + sizeof( bool ),
+            Pack = 16 )]
     public struct Matrix23 : IMat
     {
 
         [FieldOffset( 5 * 4 * sizeof( float ) )] internal bool isTransposed = false;
         [FieldOffset( 3 * 4 * sizeof( float ) )] internal ColumnSet2 _transpose;
         [FieldOffset( 0 )] internal ColumnSet3 _mat;
-
-        public Matrix23()
-        {
-            Unsafe.SkipInit( out _mat);
-            Unsafe.SkipInit(out _transpose);
-        }
 
         internal Matrix23( Vector4 c0, Vector4 c1, Vector4 c2 )
         {
@@ -61,13 +55,19 @@ namespace StgSharp.Math
             _mat.colum2 = c2;
         }
 
+        public Matrix23()
+        {
+            Unsafe.SkipInit( out _mat );
+            Unsafe.SkipInit( out _transpose );
+        }
+
         public Matrix23(
-            float a00,
-            float a01,
-            float a02,
-            float a10,
-            float a11,
-            float a12 )
+                       float a00,
+                       float a01,
+                       float a02,
+                       float a10,
+                       float a11,
+                       float a12 )
         {
             _mat.colum0 = new Vector4( a00, a10, 0, 0 );
             _mat.colum1 = new Vector4( a01, a11, 0, 0 );
@@ -122,12 +122,14 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static Matrix23 operator -( Matrix23 left, Matrix23 right )
+        public static unsafe Matrix23 operator -(
+                                                       Matrix23 left,
+                                                       Matrix23 right )
         {
-            return new Matrix23(
-                left._mat.colum0 - right._mat.colum0,
-                left._mat.colum1 - right._mat.colum1,
-                left._mat.colum2 - right._mat.colum2 );
+            Matrix23 ret = new Matrix23();
+            InternalIO.Intrinsic.sub_mat_3( &left._mat, &right._mat,
+                                            &ret._mat );
+            return ret;
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -189,10 +191,13 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix23 operator +( Matrix23 left, Matrix23 right )
+        public static unsafe Matrix23 operator +(
+                                                       Matrix23 left,
+                                                       Matrix23 right )
         {
             Matrix23 ret = new Matrix23();
-            InternalIO.Intrinsic.add_mat_3(&left._mat, &right._mat, &ret._mat);
+            InternalIO.Intrinsic.add_mat_3( &left._mat, &right._mat,
+                                            &ret._mat );
             return ret;
         }
 
