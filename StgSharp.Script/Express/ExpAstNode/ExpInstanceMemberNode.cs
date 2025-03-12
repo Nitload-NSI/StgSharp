@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpEntity.cs"
+//     file="ExpInstanceMemberNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,45 +28,40 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using CommunityToolkit.HighPerformance.Helpers;
+
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpEntitySource : ExpInstantiableElement
+    public class ExpInstanceMemberNode : ExpNode
     {
 
-        private AbstractSyntaxTree<ExpNode, IExpElementSource> _expressionTree;
-        private ScriptSourceTransmitter _source;
-        private string _name;
+        private ExpElementInstanceBase _instance;
+        private ExpElementMemberNameNode _memberName;
+        private ExpNode _member;
 
-        public ExpEntitySource( string name, ScriptSourceTransmitter provider )
+        public ExpInstanceMemberNode(
+                       Token source,
+                       ExpElementInstanceBase instance,
+                       ExpElementMemberNameNode memberName )
+            : base( source )
         {
-            _name = name;
-            _source = provider;
+            _instance = instance;
+            _memberName = memberName;
+            _instance.TryGetMember(
+                memberName.CodeConvertTemplate, out _member );
         }
 
-        public override ExpElementType ElementType => ExpElementType.Entity;
+        public override ExpNode Left => _instance;
 
-        public override IScriptSourceProvider SourceProvider => _source;
+        public override ExpNode Right => _memberName;
 
-        public override string Name => _name;
-
-        public override void Analyse()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override ExpNode CreateInstanceNode()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool TryGetMember( string name, out ExpNode memberNode )
-        {
-            throw new NotImplementedException();
-        }
+        public override IExpElementSource EqualityTypeConvert => _member.EqualityTypeConvert;
 
     }
 }

@@ -33,6 +33,7 @@ using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -86,6 +87,17 @@ namespace StgSharp.Script.Express
                             out ExpElementInstanceBase instance )
         {
             return _constants.TryGetValue( name, out instance );
+        }
+
+        public override bool TryGetMember( string name, out ExpNode memberNode )
+        {
+            if( _constants.TryGetValue( name,
+                                        out ExpElementInstanceBase? node ) ) {
+                memberNode = node;
+                return true;
+            }
+            memberNode = ExpNode.Empty;
+            return false;
         }
 
         internal void AddConstant( string name, ExpElementInstanceBase value )

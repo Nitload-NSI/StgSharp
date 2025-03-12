@@ -77,7 +77,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpNode CreateInstanceNode()
+        public override ExpElementInstanceNode CreateInstanceNode()
         {
             throw new NotImplementedException();
         }
@@ -85,6 +85,12 @@ namespace StgSharp.Script.Express
         public static bool IsNullOrVoid( IExpElementSource type )
         {
             return type == null || type == ExpVoidType.Only;
+        }
+
+        public override bool TryGetMember( string name, out ExpNode memberNode )
+        {
+            memberNode = ExpNode.Empty;
+            return false;
         }
 
         private class ExpVoidType : ExpTypeSource

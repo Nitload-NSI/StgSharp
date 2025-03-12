@@ -56,7 +56,7 @@ namespace StgSharp.Script.Express
                 case ExpressCompileOption.Translate:
                     return Compile_Translate( option );
                 case ExpressCompileOption.Compile:
-                    throw new NotImplementedException();
+                    throw new NotSupportedException();
                 default:
                     throw new ArgumentException();
             }

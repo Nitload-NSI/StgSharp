@@ -39,7 +39,12 @@ namespace StgSharp.Script.Express
     public class ExpElementMemberNameNode : ExpNode
     {
 
-        public ExpElementMemberNameNode( Token source ) : base( source ) { }
+        public ExpElementMemberNameNode( Token source )
+            : base( source )
+        {
+            _nodeFlag = ExpNodeFlag.Name_Operator;
+            CodeConvertTemplate = source.Value;
+        }
 
         public override ExpNode Left => Empty;
 
