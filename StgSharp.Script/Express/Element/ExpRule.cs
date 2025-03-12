@@ -84,5 +84,11 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
+        public override bool TryGetMember( string name, out ExpNode memberNode )
+        {
+            memberNode = ExpNode.Empty;
+            return false;
+        }
+
     }
 }

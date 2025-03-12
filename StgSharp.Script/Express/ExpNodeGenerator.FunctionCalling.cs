@@ -85,9 +85,9 @@ namespace StgSharp.Script.Express
                             break;
                         case TokenFlag.Member:
 
-                            // case1: name of a instance, make ref copy
+                            // case1: name of a _instance, make ref copy
                             // case2: name of a function, make a function call
-                            // case3: unknown, make a instance member node, check while link
+                            // case3: unknown, make a _instance member node, check while link
                             break;
                         default:
                             break;

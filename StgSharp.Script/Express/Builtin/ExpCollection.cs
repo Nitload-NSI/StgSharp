@@ -68,6 +68,12 @@ namespace StgSharp.Script.Express
 
         public abstract IEnumerator<ExpElementInstanceBase> GetEnumerator();
 
+        public override bool TryGetMember( string name, out ExpNode memberNode )
+        {
+            memberNode = ExpNode.Empty;
+            return false;
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

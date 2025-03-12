@@ -98,8 +98,7 @@ namespace StgSharp
 
 
             Dialogue.LoadDialogue();
-            if (Dialogue.NeedShowWhenStartup)
-            {
+            if( Dialogue.NeedShowWhenStartup ) {
                 Dialogue.CreateDialogueProcessIfNotExist();
             }
 
@@ -135,19 +134,20 @@ namespace StgSharp
             }
         }
 
-        public static void Terminate()
+        public static void Terminate( int exitCode )
         {
             MainTimeProvider.StopProvidingTime();
             InternalIO.glfwTerminate();
+            Environment.Exit( exitCode );
         }
 
         public static void Track(
-                               object target,
-                               string message,
-                               bool isConsole,
-                               [CallerFilePath] string filePath = "",
-                               [CallerMemberName] string callerName = "",
-                               [CallerLineNumber] int lineNumber = 0 )
+                                   object target,
+                                   string message,
+                                   bool isConsole,
+                                   [CallerFilePath] string filePath = "",
+                                   [CallerMemberName] string callerName = "",
+                                   [CallerLineNumber] int lineNumber = 0 )
         {
             Type t = target.GetType();
             string log = $"Tracked object: {nameof(target)}\t\tType:{t.Name}\n";

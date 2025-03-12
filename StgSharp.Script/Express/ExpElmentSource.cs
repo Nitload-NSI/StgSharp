@@ -56,6 +56,8 @@ namespace StgSharp.Script.Express
 
         public void Analyse();
 
+        public bool TryGetMember( string name, out ExpNode memberNode );
+
     }
 
     public abstract class ExpInstantiableElement : IExpElementSource
@@ -102,6 +104,8 @@ namespace StgSharp.Script.Express
             return element == null || element == ExpVoidElement.Only;
         }
 
+        public abstract bool TryGetMember( string name, out ExpNode memberNode );
+
         private sealed class ExpVoidElement : ExpInstantiableElement
         {
 
@@ -123,6 +127,14 @@ namespace StgSharp.Script.Express
             public override ExpNode CreateInstanceNode()
             {
                 return default!;
+            }
+
+            public override bool TryGetMember(
+                                         string name,
+                                         out ExpNode memberNode )
+            {
+                memberNode = ExpNode.Empty;
+                return false;
             }
 
         }
@@ -155,6 +167,8 @@ namespace StgSharp.Script.Express
         }
 
         public abstract ExpNode MakeReference( params object[] options );
+
+        public abstract bool TryGetMember( string name, out ExpNode memberNode );
 
     }
 }

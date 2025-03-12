@@ -87,5 +87,15 @@ namespace StgSharp.Script.Express
             }
         }
 
+        public ExpInstanceReferenceNode MakeReference( Token t )
+        {
+            return new ExpInstanceReferenceNode( t, this );
+        }
+
+        public bool TryGetMember( string name, out ExpNode node )
+        {
+            return EqualityTypeConvert.TryGetMember( name, out node );
+        }
+
     }
 }

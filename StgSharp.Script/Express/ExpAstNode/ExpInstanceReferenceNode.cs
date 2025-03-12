@@ -39,12 +39,22 @@ namespace StgSharp.Script.Express
     public class ExpInstanceReferenceNode : ExpNode
     {
 
-        public override ExpNode Left => throw new NotImplementedException();
+        private ExpElementInstanceBase _instance;
 
-        public override ExpNode Right => throw new NotImplementedException();
+        public ExpInstanceReferenceNode(
+                       Token source,
+                       ExpElementInstanceBase instance )
+            : base( source )
+        {
+            _instance = instance;
+            _nodeFlag = ( _instance._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
+        }
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException(
-            );
+        public override ExpNode Left => Empty;
+
+        public override ExpNode Right => Empty;
+
+        public override IExpElementSource EqualityTypeConvert => _instance.EqualityTypeConvert;
 
     }
 }
