@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpLiteralGenericNode.cs"
+//     file="ExpLiteralNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -51,12 +51,13 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
                         .TryGetType(
-                            ExpCompile.KeyWord.Int, out ExpTypeSource? type ) ?
+                            ExpCompile.KeyWord.Integer,
+                            out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
         public int Value => _value;
 
-        public override string TypeName => ExpCompile.KeyWord.Int;
+        public override string TypeName => ExpCompile.KeyWord.Integer;
 
     }
 
@@ -100,7 +101,8 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
                         .TryGetType(
-                            ExpCompile.KeyWord.Bool, out ExpTypeSource? type ) ?
+                            ExpCompile.KeyWord.Boolean,
+                            out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
         public override string TypeName => EqualityTypeConvert.Name;
@@ -147,7 +149,7 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
                         .TryGetType(
-                            ExpCompile.KeyWord.Logic,
+                            ExpCompile.KeyWord.Logical,
                             out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 

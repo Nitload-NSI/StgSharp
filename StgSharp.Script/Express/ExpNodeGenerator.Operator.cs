@@ -53,16 +53,16 @@ namespace StgSharp.Script.Express
             ExpNode left = GetNextOperandCache();
             ExpNode right = GetNextOperandCache();
             switch( t.Value ) {
-                case ExpCompile.KeyWord.ADD:
+                case ExpCompile.KeyWord.Add:
                     node = ExpBinaryOperatorNode.Add( t, left, right );
                     return true;
-                case ExpCompile.KeyWord.SUB:
+                case ExpCompile.KeyWord.Sub:
                     node = ExpBinaryOperatorNode.Sub( t, left, right );
                     return true;
-                case ExpCompile.KeyWord.MUL:
+                case ExpCompile.KeyWord.Mul:
                     node = ExpBinaryOperatorNode.Mul( t, left, right );
                     return true;
-                case ExpCompile.KeyWord.DIV:
+                case ExpCompile.KeyWord.Div:
                     node = ExpBinaryOperatorNode.Div( t, left, right );
                     return true;
                 case ExpCompile.KeyWord.Equal:
@@ -88,7 +88,7 @@ namespace StgSharp.Script.Express
                 case ExpCompile.KeyWord.UnaryMinus:
                     node = ExpUnaryOperatorNode.UnaryMinus( t, operand );
                     return true;
-                case ExpCompile.KeyWord.NOT:
+                case ExpCompile.KeyWord.Not:
                     node = ExpUnaryOperatorNode.UnaryNot( t, operand );
                     return true;
                 default:

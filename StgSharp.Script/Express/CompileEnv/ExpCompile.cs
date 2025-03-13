@@ -50,7 +50,7 @@ namespace StgSharp.Script.Express
         private static FrozenDictionary<string, ExpElementInstanceBase> _builtinConst;
         private static FrozenDictionary<string, ExpTypeSource> _builtinType;
         private static FrozenDictionary<string, ExpBinaryOperatorNode> _operators;
-        private static StringPool _compileStringCache;
+        private static StringPool _compileStringCache,_emptyCache;
 
         internal static ConcurrentStringHashMultiplexer Multiplexer
         {
@@ -88,20 +88,21 @@ namespace StgSharp.Script.Express
             InitPrecedence();
 
             _operatorsWithLetter = [
-                KeyWord.ADD,
-                KeyWord.SUB,
-                KeyWord.MUL,
-                KeyWord.DIV,
-                KeyWord.AND,
-                KeyWord.OR,
-                KeyWord.XOR,
-                KeyWord.ANDOR,
-                KeyWord.NOT,
+                KeyWord.Add,
+                KeyWord.Sub,
+                KeyWord.Mul,
+                KeyWord.Div,
+                KeyWord.And,
+                KeyWord.Or,
+                KeyWord.Xor,
+                KeyWord.AndOr,
+                KeyWord.Not,
                 ];
 
             ExpSchema_Nitload.Only
                     .TryGetType(
-                        PoolString( KeyWord.Int ), out ExpTypeSource? _expInt );
+                        PoolString( KeyWord.Integer ),
+                        out ExpTypeSource? _expInt );
             ExpInt = _expInt;
 
             ExpSchema_Nitload.Only
@@ -111,9 +112,24 @@ namespace StgSharp.Script.Express
             ExpReal = _expReal;
             ExpSchema_Nitload.Only
                     .TryGetType(
-                        PoolString( KeyWord.Bool ),
+                        PoolString( KeyWord.Boolean ),
                         out ExpTypeSource? _expBool );
             ExpBool = _expBool;
+
+            _emptyCache = new StringPool();
+            /*
+            foreach( string str in _compileStringCache ) {
+                _emptyCache.Add( str );
+            }
+            /**/
+        }
+
+        public static bool LetterIsKeyword( string str )
+        {
+            if( char.IsLetter( str[ 0 ] ) ) {
+                return _keywordSet.Contains( str );
+            }
+            return true;
         }
 
         public static bool LetterIsOperator( string str )

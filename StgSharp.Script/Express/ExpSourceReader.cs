@@ -77,10 +77,10 @@ namespace StgSharp.Script.Express
         }
 
         /// <summary>
-        /// <para> Read code until end of a line. Lines in multi-line comment will be ignored. Line
+        /// <para>Read code until end of a line. Lines in multi-line comment will be ignored. Line
         /// begins with part of multi-line comment will automatically remove the  comment part, but
-        /// beginning with a full multi-line comment will not causing removing. </para> <para>(*Just
-        /// Like The Comment Here*) Will Not Be Removed</para>
+        /// beginning with a full multi-line comment will not causing removing.</para> <para> (*Just
+        /// Like The Comment Here*) Will Not Be Removed </para>
         /// </summary>
         /// <returns></returns>
         public unsafe ReadOnlySpan<char> ReadLine()
@@ -267,7 +267,7 @@ namespace StgSharp.Script.Express
                     string str = ExpCompile.PoolString(
                         source[ ..( end - begin ) ] );
                     TokenFlag flag;
-                    if( ReferenceEquals( str, ExpCompile.KeyWord.NOT ) ) {
+                    if( ReferenceEquals( str, ExpCompile.KeyWord.Not ) ) {
                         flag = TokenFlag.Symbol_Unary;
                     } else {
                         flag = ExpCompile.LetterIsOperator( str ) ?

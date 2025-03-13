@@ -103,17 +103,17 @@ namespace StgSharp.Script.Express
         {
             IEnumerable<KeyValuePair<string, ExpTypeSource>> builtinTypeSource = [
                 new KeyValuePair<string, ExpTypeSource>(
-                PoolString( KeyWord.Int ),
-                new ExpBuiltinType( KeyWord.Int, typeof( int ) ) ),
+                PoolString( KeyWord.Integer ),
+                new ExpBuiltinType( KeyWord.Integer, typeof( int ) ) ),
                 new KeyValuePair<string, ExpTypeSource>(
                 PoolString( KeyWord.Real ),
                 new ExpBuiltinType( KeyWord.Real, typeof( float ) ) ),
                 new KeyValuePair<string, ExpTypeSource>(
-                PoolString( KeyWord.Bool ),
-                new ExpBuiltinType( KeyWord.Bool, typeof( bool ) ) ),
+                PoolString( KeyWord.Boolean ),
+                new ExpBuiltinType( KeyWord.Boolean, typeof( bool ) ) ),
                 new KeyValuePair<string, ExpTypeSource>(
-                PoolString( KeyWord.Logic ),
-                new ExpBuiltinType( KeyWord.Logic, typeof( ExpLogic ) ) ),
+                PoolString( KeyWord.Logical ),
+                new ExpBuiltinType( KeyWord.Logical, typeof( ExpLogic ) ) ),
                 new KeyValuePair<string, ExpTypeSource>(
                 PoolString( KeyWord.String ),
                 new ExpBuiltinType( KeyWord.String, typeof( string ) ) ),

@@ -169,10 +169,7 @@ namespace StgSharp.Script.Express
             } else if( t.Value == ExpKeyWord.False ) {
                 _cache.PushOperand( new ExpBoolNode( t, false ) );
                 return true;
-            } else if( true ) {
-                throw new NotImplementedException();
-            }
-            return false;
+            } else if( ExpCompile.LetterIsKeyword( t.Value ) ) { }
         }
 
         /**/

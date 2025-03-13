@@ -21,7 +21,7 @@ Most of the basic graphic functions are contained in the project called "StgShar
 
 StgSharp provides full support of all OpenGL APIs and features, and provides a cross platform viewport manager based on [GLFW](https://www.glfw.org/). 
 
-As well, we provide support to [EXPRESS language](https://www.expresslang.org/) (or [ISO 1303-11](https://www.iso.org/standard/38047.html)). You can use it to build a blueprint or other structured data.
+As well, we provide support to [EXPRESS language](https://www.expresslang.org/) (or [ISO 1303-11](https://www.iso.org/standard/38047.html)). You can use it to build a blueprint or other structured data. One thing to be noticed is that our support to EXPRESS lang is not fully implemented, some of the keywords and language feature is not available, due to complexity in C#.
 
 ## Install ##
 
