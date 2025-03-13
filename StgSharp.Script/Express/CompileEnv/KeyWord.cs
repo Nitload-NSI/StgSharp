@@ -40,8 +40,12 @@ namespace StgSharp.Script.Express
     public static partial class ExpCompile
     {
 
+        private static HashSet<string> _keywordSet;
+
         private static void PoolKeywords()
         {
+            _keywordSet = new();
+
             FieldInfo[] fields = typeof( KeyWord ).GetFields(
                 BindingFlags.Public );
             ParallelLoopResult result = Parallel.ForEach(
@@ -49,6 +53,7 @@ namespace StgSharp.Script.Express
                     if( field.FieldType == typeof( string ) && field.GetValue(
                         null ) is string str ) {
                         _compileStringCache.GetOrAdd( str );
+                        _keywordSet.Add( str );
                     }
                 } );
             while( !result.IsCompleted ) { }
@@ -57,36 +62,294 @@ namespace StgSharp.Script.Express
         public static class KeyWord
         {
 
-            public const string Int = "INTAGER",
-                Real = "REAL",
-                Bool = "BOOLEAN",
-                String = "STRING",
-                Logic = "LOGIC",
-                Binary = "BINARY",
-                Constant = "CONSTANT",
-                AND = "AND",
-                OR = "OR",
-                XOR = "XOR",
-                ADD = "+",
-                SUB = "-",
-                MUL = "*",
-                DIV = "/",
-                NOT = "NOT",
-                NotEqual = "<>",
-                Assignment = ":=",
-                Equal = "=",
-                Mod = "MOD",
-                Self = "SELF",
-                Pi = "PI",
-                True = "TRUE",
-                False = "FALSE",
-                Insert = "INSERT",
-                Remove = "REMOVE",
-                ANDOR = "ANDOR",
-                GetIndex = "[",
-                UnaryPlus = "+",
-                UnaryMinus = "-",
-                Exp = "**";
+            public static readonly HashSet<string> ScopeBlock = new HashSet<string> {
+                EndAlias, EndCase, EndConstant, EndEntity, EndFunction, EndIf, EndLocal, EndProcedure, EndRepeat, EndRule, EndSchema, EndSubtypeConstraint, EndType
+            };
+
+            public static readonly HashSet<string> Symbols = [
+                Dot, Comma, Semicolon, Colon, Percent, Apostrophe,
+                Backslash, IndexOf, RightBracket, LeftBrace,
+                RightBrace, Pipe, LeftParen, RightParen, LeftAsterisk,
+                Assignment, DoublePipe, ExpSymbole, CommentSingleLine,
+                CommentStart, CommentEnd, ColonEqualColon, ColonNotEqualColon
+            ];
+
+            #region Basic Data Type
+
+            public const string Array = "ARRAY";
+            public const string Bag = "BAG";
+            public const string Binary = "BINARY";
+            public const string Boolean = "BOOLEAN";
+            public const string Enumeration = "ENUMERATION";
+            public const string Integer = "INTEGER";
+            public const string List = "LIST";
+            public const string Logical = "LOGICAL";
+            public const string Number = "NUMBER";
+            public const string Of = "OF";
+            public const string Real = "REAL";
+            public const string Set = "SET";
+            public const string String = "STRING";
+
+            #endregion
+
+            #region Flow Control
+
+            public const string Begin = "BEGIN";
+            public const string Case = "CASE";
+            public const string Else = "ELSE";
+            public const string End = "END";
+            public const string For = "FOR";
+            public const string If = "IF";
+            public const string Otherwise = "OTHERWISE";
+            public const string Repeat = "REPEAT";
+            public const string Return = "RETURN";
+            public const string Skip = "SKIP";
+            public const string Then = "THEN";
+            public const string To = "TO";
+            public const string Until = "UNTIL";
+            public const string While = "WHILE";
+
+            #endregion
+
+            #region Declarations
+
+            public const string Constant = "CONSTANT";
+            public const string Derive = "DERIVE";
+            public const string Entity = "ENTITY";
+            public const string Extensible = "EXTENSIBLE";
+            public const string Fixed = "FIXED";
+            public const string Function = "FUNCTION";
+            public const string Generic = "GENERIC";
+            public const string GenericEntity = "GENERIC_ENTITY";
+            public const string Inverse = "INVERSE";
+            public const string Local = "LOCAL";
+            public const string Procedure = "PROCEDURE";
+            public const string Rule = "RULE";
+            public const string Schema = "SCHEMA";
+            public const string Type = "TYPE";
+            public const string Var = "VAR";
+
+            #endregion
+
+            #region Constraints Inheritance
+
+            public const string Oneof = "ONEOF";
+            public const string Optional = "OPTIONAL";
+            public const string Subtype = "SUBTYPE";
+            public const string SubtypeConstraint = "SUBTYPE CONSTRAINT";
+            public const string Supertype = "SUPERTYPE";
+            public const string TotalOver = "TOTAL OVER";
+            public const string Unique = "UNIQUE";
+            public const string Where = "WHERE";
+
+            #endregion
+
+            #region Scope
+
+            public const string EndAlias = "END_ALIAS";
+            public const string EndCase = "END_CASE";
+            public const string EndConstant = "END_CONSTANT";
+            public const string EndEntity = "END_ENTITY";
+            public const string EndFunction = "END_FUNCTION";
+            public const string EndIf = "END_IF";
+            public const string EndLocal = "END_LOCAL";
+            public const string EndProcedure = "END_PROCEDURE";
+            public const string EndRepeat = "END_REPEAT";
+            public const string EndRule = "END_RULE";
+            public const string EndSchema = "END_SCHEMA";
+            public const string EndSubtypeConstraint = "END_SUBTYPE CONSTRAINT";
+            public const string EndType = "END_TYPE";
+
+            #endregion
+
+            #region Index and Ref
+
+            public const string Query = "QUERY";
+            public const string Reference = "REFERENCE";
+            public const string Select = "SELECT";
+
+            #endregion
+
+            #region Modifiers Attributes
+
+            public const string Abstract = "ABSTRACT";
+            public const string Aggregate = "AGGREGATE";
+            public const string As = "AS";
+            public const string BasedOn = "BASED ON";
+            public const string By = "BY";
+            public const string Escape = "ESCAPE";
+            public const string From = "FROM";
+            public const string Use = "USE";
+            public const string With = "WITH";
+
+            #endregion
+
+            #region Aliasing
+
+            public const string Alias = "ALIAS";
+            public const string Renamed = "RENAMED";
+
+            #endregion
+
+
+            #region Operator
+
+            public const string And = "AND";
+            public const string AndOr = "ANDOR";
+            public const string Div = "DIV";
+            public const string In = "IN";
+            public const string Like = "LIKE";
+            public const string Mod = "MOD";
+            public const string Not = "NOT";
+            public const string Or = "OR";
+            public const string Xor = "XOR";
+
+            #endregion
+
+            #region Constants
+
+            public const string QuestionMark = "?";
+            public const string Self = "SELF";
+            public const string Const = "CONST";
+            public const string E = "E";
+            public const string Pi = "PI";
+            public const string False = "FALSE";
+            public const string True = "TRUE";
+            public const string Unknown = "UNKNOWN";
+
+            #endregion
+
+            #region Functions
+
+            public const string Abs = "ABS";
+            public const string Acos = "ACOS";
+            public const string Asin = "ASIN";
+            public const string Atan = "ATAN";
+            public const string Blength = "BLENGTH";
+            public const string Cos = "COS";
+            public const string Exists = "EXISTS";
+            public const string Exp = "EXP";
+            public const string Format = "FORMAT";
+            public const string Hibound = "HIBOUND";
+            public const string Hiindex = "HIINDEX";
+            public const string Length = "LENGTH";
+            public const string Lobound = "LObound";
+            public const string Log = "LOG";
+            public const string Log2 = "LOG2";
+            public const string Log10 = "LOG10";
+            public const string Loindex = "LOINDEX";
+            public const string Nvl = "NVL";
+            public const string Odd = "ODD";
+            public const string Rolesof = "ROLESOF";
+            public const string Sin = "SIN";
+            public const string Sizeof = "SIZEOF";
+            public const string Sqrt = "SQRT";
+            public const string Tan = "TAN";
+            public const string Typeof = "TYPEOF";
+            public const string Usedin = "USEDIN";
+            public const string Value = "VALUE";
+            public const string ValueIn = "VALUE IN";
+            public const string ValueUnique = "VALUE UNIQUE";
+
+            #endregion
+
+            #region Procedure
+
+            public const string Insert = "INSERT";
+            public const string Remove = "REMOVE";
+
+            #endregion
+
+            #region Symbols
+
+            public const string Dot = ".";
+            public const string Comma = ",";
+            public const string Semicolon = ";";
+            public const string Colon = ":";
+            public const string Mul = "*";
+            public const string Add = "+";
+            public const string UnaryPlus = "+";
+            public const string Sub = "-";
+            public const string UnaryMinus = "-";
+            public const string Equal = "=";
+            public const string Percent = "%";
+            public const string Apostrophe = "'";
+            public const string Backslash = "\\";
+            public const string Slash = "/";
+            public const string LessThan = "<";
+            public const string GreaterThan = ">";
+            public const string IndexOf = "[";
+            public const string RightBracket = "]";
+            public const string LeftBrace = "{";
+            public const string RightBrace = "}";
+            public const string Pipe = "|";
+            public const string EConstant = "E";
+            public const string LeftParen = "(";
+            public const string RightParen = ")";
+            public const string LessThanOrEqual = "<=";
+            public const string NotEqual = "<>";
+            public const string GreaterThanOrEqual = ">=";
+            public const string LeftAsterisk = "<*";
+            public const string Assignment = ":=";
+            public const string DoublePipe = "||";
+            public const string ExpSymbole = "**";
+            public const string CommentSingleLine = "--";
+            public const string CommentStart = "(*";
+            public const string CommentEnd = "*)";
+            public const string ColonEqualColon = ":=:";
+            public const string ColonNotEqualColon = ":<>:";
+
+            #endregion
+
+            public static readonly HashSet<string> DataTypes = [
+                Array, Bag, Binary, Boolean, Enumeration, Integer, List, Logical, Number, Of, Real, Set, String
+            ];
+
+            public static readonly HashSet<string> FlowControl = [
+                Begin, Case, Else, End, For, If, Otherwise, Repeat, Return, Skip, Then, To, Until, While
+            ];
+
+            public static readonly HashSet<string> Declarations = [
+                Constant, Derive, Entity, Extensible, Fixed, Function, Generic, 
+                GenericEntity, Inverse, Local, Procedure, Rule, Schema, Type, Var
+            ];
+
+            public static readonly HashSet<string> ConstraintsInheritance = [
+                Oneof, Optional, Subtype, SubtypeConstraint, Supertype, TotalOver, Unique, Where
+            ];
+
+            public static readonly HashSet<string> QueryReference = [
+                Query, Reference, Select
+            ];
+
+            public static readonly HashSet<string> ModifiersAttributes = [
+                Abstract, Aggregate, As, BasedOn, By, Escape, Fixed, From, Use, With
+            ];
+
+            public static readonly HashSet<string> Aliasing = [
+                Alias, Renamed
+            ];
+            public static readonly HashSet<string> Operators = [
+                And, AndOr, Div, In, Like, Mod, Not, Or, Xor,
+                Add, Sub, Mul, Slash, Equal, NotEqual,
+                LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual
+            ];
+
+            public static readonly HashSet<string> Literals = [
+                QuestionMark, Self, Const, E, Pi, False, True, Unknown
+            ];
+
+            public static readonly HashSet<string> InternalFunctions = [
+                Abs, Acos, Asin, Atan, Blength, Cos, Exists, Exp,
+                Format, Hibound, Hiindex, Length, Lobound, Log,
+                Log2, Log10, Loindex, Nvl, Odd, Rolesof, Sin,
+                Sizeof, Sqrt, Tan, Typeof, Usedin, Value,
+                ValueIn, ValueUnique
+            ];
+
+            public static readonly HashSet<string> InternalProcess = [
+                Insert, Remove
+            ];
 
         }
 

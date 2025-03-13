@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpIndexOfNode.cs"
+//     file="ExpCollectionIndexNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -36,14 +36,14 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpIndexOfNode : ExpNode
+    public class ExpCollectionIndexNode : ExpNode
     {
 
         private ExpCollectionInstanceBase _collection;
 
         private ExpNode _indexExpression;
 
-        private ExpIndexOfNode(
+        private ExpCollectionIndexNode(
                         Token source,
                         ExpCollectionInstanceBase instance,
                         ExpNode indexExpression )
@@ -60,16 +60,17 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => _collection.EqualityTypeConvert;
 
-        public static ExpIndexOfNode Create(
-                                             Token source,
-                                             ExpCollectionInstanceBase instance,
-                                             ExpNode indexExpression )
+        public static ExpCollectionIndexNode Create(
+                                                     Token source,
+                                                     ExpCollectionInstanceBase instance,
+                                                     ExpNode indexExpression )
         {
             if( !indexExpression.IsNumber ) {
                 throw new ExpInvalidTypeException(
                     "Number", indexExpression.EqualityTypeConvert.Name );
             }
-            return new ExpIndexOfNode( source, instance, indexExpression );
+            return new ExpCollectionIndexNode(
+                source, instance, indexExpression );
         }
 
     }
