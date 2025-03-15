@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeGenerator.FunctionCalling.cs"
+//     file="ExpNodeGenerator.StateFunctionCalling.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -48,7 +48,8 @@ namespace StgSharp.Script.Express
         private void EnterFunctionCalling()
         {
             _isCallingFunction = true;
-            CompileDepthMark mark = _cache.IncreaseDepth();
+            CompileDepthMark mark = _cache.IncreaseDepth(
+                ( int )StateCode.FunctionCalling );
             _funcCallDepthCount.Add( mark );
         }
 

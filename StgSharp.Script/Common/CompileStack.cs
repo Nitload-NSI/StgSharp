@@ -53,6 +53,11 @@ namespace StgSharp.Script
 
         private Stack<bool> _isNode = new Stack<bool>();
 
+        public CompileDepthMark CurrentDepthMark
+        {
+            get => _depthStack.Peek();
+        }
+
         public int Depth => _depthStack.Count;
 
         public int OperandCount => _isNode.Count;
@@ -74,13 +79,14 @@ namespace StgSharp.Script
             CompileDepthMark mark = _depthStack.Pop();
         }
 
-        public CompileDepthMark IncreaseDepth()
+        public CompileDepthMark IncreaseDepth( int usage )
         {
             CompileDepthMark mark =
                 new CompileDepthMark
             {
                 OperandBegin = OperandCount,
-                OperatorBegin = OperatorCount
+                OperatorBegin = OperatorCount,
+                State = usage
             };
             _depthStack.Push( mark );
             return mark;
@@ -208,13 +214,19 @@ namespace StgSharp.Script
         public int OperandBegin
         {
             get;
-            set;
+            internal set;
         }
 
         public int OperatorBegin
         {
             get;
-            set;
+            internal set;
+        }
+
+        public int State
+        {
+            get;
+            internal set;
         }
 
     }

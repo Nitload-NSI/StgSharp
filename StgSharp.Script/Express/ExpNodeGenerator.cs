@@ -68,63 +68,7 @@ namespace StgSharp.Script.Express
         /// </summary>
         public void AppendToken( Token expToken )
         {
-            switch( expToken.Flag ) {
-                // operand, check precedence and push
-                case TokenFlag.Symbol_Unary or TokenFlag.Symbol_Binary:
-                    int cmp = -1;
-                    processPrecedence:
-                    Token tmp = _cache.PeekOperator();
-                    cmp = CompareOperatorPrecedence( expToken, tmp );
-                    if( cmp <= 0 ) {
-                        ConvertOneOperator();
-                        goto processPrecedence;
-                    }
-                    _cache.PushOperand( expToken );
-                    break;
-
-                // literal, construxt and ppush
-                case TokenFlag.Number or TokenFlag.String:
-                    _cache.PushOperand( expToken );
-                    break;
-
-                // instance ref, make ref and push
-                // function call, push as operator
-                // keyword, call TryParseKeyWord method to process
-                // name of member in instance, parse as MemberNameNode
-                case TokenFlag.Member:
-                    if( _context.TryGetFunction( expToken.Value, out _ ) ) {
-                        _cache.PushOperator( expToken );
-                    } else if( _local.TryGetMember(
-                               expToken.Value, out ExpNode? node ) ) {
-                        if( node is ExpElementInstanceBase instance ) {
-                            _cache.PushOperand(
-                                instance.MakeReference( expToken ) );
-                            return;                                             // ref of an instance
-                        }
-                    } else if( TryParseKeyWord( expToken ) ) {
-                        return;
-                    } else {
-                        _cache.PushOperand(
-                            new ExpElementMemberNameNode( expToken ) );
-                    }
-                    break;
-                case TokenFlag.Separator_Single:         //a , ; found
-                    // if operator stack is not empty, convert all operators to node until meet a same separator
-                    // or OperandAheadOfSeparator property is less than certain value
-                    _cache.PushOperator( expToken );
-                    break;
-                case TokenFlag.Separator_Left:           //a ( [ { found
-                    // check if the last token is a function name, loop block or branch
-                    // then increase depth
-                    _cache.PushOperator( expToken );
-                    break;
-                case TokenFlag.Separator_Right:          //a } ] ) found
-                    //Close current depth and cache call node in this depth as a partial AST
-                    break;
-                case TokenFlag.Index_Left:               // a [ found
-                    break;
-                case TokenFlag.Index_Right:              // a ] found
-                    break;
+            switch( _cache.CurrentDepthMark.State ) {
                 default:
                     break;
             }
@@ -161,17 +105,20 @@ namespace StgSharp.Script.Express
             }
         }
 
-        private bool TryParseKeyWord( Token t )
+        /**/
+
+        public enum StateCode
         {
-            if( t.Value == ExpKeyWord.True ) {
-                _cache.PushOperand( new ExpBoolNode( t, true ) );
-                return true;
-            } else if( t.Value == ExpKeyWord.False ) {
-                _cache.PushOperand( new ExpBoolNode( t, false ) );
-                return true;
-            } else if( ExpCompile.LetterIsKeyword( t.Value ) ) { }
+
+            Common,
+            FunctionCalling,
+            ForLoop,
+            RepeatLoop,
+            UntilLoop,
+            IfBranch,
+            CaseBranch,
+
         }
 
-        /**/
     }
 }
