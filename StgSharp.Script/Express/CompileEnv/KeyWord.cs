@@ -62,16 +62,100 @@ namespace StgSharp.Script.Express
         public static class KeyWord
         {
 
-            public static readonly HashSet<string> ScopeBlock = new HashSet<string> {
+            public static HashSet<string> ScopeBlock = new HashSet<string> {
                 EndAlias, EndCase, EndConstant, EndEntity, EndFunction, EndIf, EndLocal, EndProcedure, EndRepeat, EndRule, EndSchema, EndSubtypeConstraint, EndType
             };
 
-            public static readonly HashSet<string> Symbols = [
+            public static HashSet<string> Symbols = [
                 Dot, Comma, Semicolon, Colon, Percent, Apostrophe,
                 Backslash, IndexOf, RightBracket, LeftBrace,
                 RightBrace, Pipe, LeftParen, RightParen, LeftAsterisk,
                 Assignment, DoublePipe, ExpSymbole, CommentSingleLine,
                 CommentStart, CommentEnd, ColonEqualColon, ColonNotEqualColon
+            ];
+
+            public static HashSet<string> DataTypes
+            {
+                get;
+            } = [
+                Array, Bag, Binary, Boolean, Enumeration, Integer, List, Logical, Number, Of, Real, Set, String
+            ];
+
+            public static HashSet<string> InternalProcess
+            {
+                get;
+            } = [
+                Insert, Remove
+            ];
+
+            public static HashSet<string> BuiltinFunctions
+            {
+                get;
+            } = [
+                Abs, Acos, Asin, Atan, Blength, Cos, Exists, Exp,
+                Format, Hibound, Hiindex, Length, Lobound, Log,
+                Log2, Log10, Loindex, Nvl, Odd, Rolesof, Sin,
+                Sizeof, Sqrt, Tan, Typeof, Usedin, Value,
+                ValueIn, ValueUnique
+            ];
+
+            public static HashSet<string> Literals
+            {
+                get;
+            } = [
+                QuestionMark, Self, Const, E, Pi, False, True, Unknown
+            ];
+
+            public static HashSet<string> Operators
+            {
+                get;
+            } = [
+                And, AndOr, Div, In, Like, Mod, Not, Or, Xor,
+                Add, Sub, Mul, Slash, Equal, NotEqual,
+                LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual
+            ];
+
+            public static HashSet<string> Aliasing
+            {
+                get;
+            } = [
+                Alias, Renamed
+            ];
+
+            public static HashSet<string> ModifiersAttributes
+            {
+                get;
+            } = [
+                Abstract, Aggregate, As, BasedOn, By, Escape, Fixed, From, Use, With
+            ];
+
+            public static HashSet<string> QueryReference
+            {
+                get;
+            } = [
+                Query, Reference, Select
+            ];
+
+            public static HashSet<string> ConstraintsInheritance
+            {
+                get;
+            } = [
+                Oneof, Optional, Subtype, SubtypeConstraint, Supertype, TotalOver, Unique, Where
+            ];
+
+            public static HashSet<string> Declarations
+            {
+                get;
+            } = [
+                Constant, Derive, Entity, Extensible, Fixed, Function, Generic, 
+                GenericEntity, Inverse, Local, Procedure, Rule, Schema, Type, Var
+            ];
+
+            public static HashSet<string> FlowControl
+            {
+                get;
+            } = [
+                Begin, Case, Else, End, For, If, Otherwise, Repeat, Return, Skip, Then, To, Until, While
             ];
 
             #region Basic Data Type
@@ -279,6 +363,7 @@ namespace StgSharp.Script.Express
             public const string LessThan = "<";
             public const string GreaterThan = ">";
             public const string IndexOf = "[";
+            public const string LeftBracket = "[";
             public const string RightBracket = "]";
             public const string LeftBrace = "{";
             public const string RightBrace = "}";
@@ -299,58 +384,7 @@ namespace StgSharp.Script.Express
             public const string ColonEqualColon = ":=:";
             public const string ColonNotEqualColon = ":<>:";
 
-            #endregion
-
-            public static readonly HashSet<string> DataTypes = [
-                Array, Bag, Binary, Boolean, Enumeration, Integer, List, Logical, Number, Of, Real, Set, String
-            ];
-
-            public static readonly HashSet<string> FlowControl = [
-                Begin, Case, Else, End, For, If, Otherwise, Repeat, Return, Skip, Then, To, Until, While
-            ];
-
-            public static readonly HashSet<string> Declarations = [
-                Constant, Derive, Entity, Extensible, Fixed, Function, Generic, 
-                GenericEntity, Inverse, Local, Procedure, Rule, Schema, Type, Var
-            ];
-
-            public static readonly HashSet<string> ConstraintsInheritance = [
-                Oneof, Optional, Subtype, SubtypeConstraint, Supertype, TotalOver, Unique, Where
-            ];
-
-            public static readonly HashSet<string> QueryReference = [
-                Query, Reference, Select
-            ];
-
-            public static readonly HashSet<string> ModifiersAttributes = [
-                Abstract, Aggregate, As, BasedOn, By, Escape, Fixed, From, Use, With
-            ];
-
-            public static readonly HashSet<string> Aliasing = [
-                Alias, Renamed
-            ];
-            public static readonly HashSet<string> Operators = [
-                And, AndOr, Div, In, Like, Mod, Not, Or, Xor,
-                Add, Sub, Mul, Slash, Equal, NotEqual,
-                LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual
-            ];
-
-            public static readonly HashSet<string> Literals = [
-                QuestionMark, Self, Const, E, Pi, False, True, Unknown
-            ];
-
-            public static readonly HashSet<string> InternalFunctions = [
-                Abs, Acos, Asin, Atan, Blength, Cos, Exists, Exp,
-                Format, Hibound, Hiindex, Length, Lobound, Log,
-                Log2, Log10, Loindex, Nvl, Odd, Rolesof, Sin,
-                Sizeof, Sqrt, Tan, Typeof, Usedin, Value,
-                ValueIn, ValueUnique
-            ];
-
-            public static readonly HashSet<string> InternalProcess = [
-                Insert, Remove
-            ];
-
+        #endregion
         }
 
     }
