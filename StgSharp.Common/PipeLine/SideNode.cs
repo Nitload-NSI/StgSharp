@@ -37,9 +37,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.PipeLine
 {
-    internal sealed class BeginningNode : BlueprintNode
+    internal sealed class BeginningNode : PipeLineNode
     {
 
         private BlueprintScheduler _bp;
@@ -52,14 +52,14 @@ namespace StgSharp.Blueprint
             _bp = bp;
         }
 
-        internal (string name, BlueprintPipelineArgs arg)[] InputData
+        internal (string name, PipeLineConnectorArgs arg)[] InputData
         {
             set
             {
                 if( value == null ) {
                     return;
                 }
-                foreach( (string name, BlueprintPipelineArgs arg) parameter in value ) {
+                foreach( (string name, PipeLineConnectorArgs arg) parameter in value ) {
                     OutputInterfaces[ parameter.name ].Args = parameter.arg;
                 }
             }
@@ -68,12 +68,12 @@ namespace StgSharp.Blueprint
         public override void Run()
         {
             _bp.RunningStat.Wait();
-            BlueprintPipeline.SkipAll( _outputInterfaces );
+            PipelineConnector.SkipAll( _outputInterfaces );
         }
 
         public new void SetCertainOutputPort(
                                 string name,
-                                BlueprintPipeline pipeline )
+                                PipelineConnector pipeline )
         {
             if( _outputInterfaces.ContainsKey( name ) ) {
                 _outputInterfaces[ name ] = pipeline;
@@ -83,7 +83,7 @@ namespace StgSharp.Blueprint
 
     }
 
-    internal sealed class EndingNode : BlueprintNode
+    internal sealed class EndingNode : PipeLineNode
     {
 
         private BlueprintScheduler _bp;
@@ -96,7 +96,7 @@ namespace StgSharp.Blueprint
             _bp = bp;
         }
 
-        internal (string name, BlueprintPipelineArgs arg)[] OutputData
+        internal (string name, PipeLineConnectorArgs arg)[] OutputData
         {
             get { return InputInterfaces.Select(
                       key => (key.Key, key.Value.Args) )
@@ -105,7 +105,7 @@ namespace StgSharp.Blueprint
 
         public override void Run()
         {
-            BlueprintPipeline.WaitAll( _inputInterfaces );
+            PipelineConnector.WaitAll( _inputInterfaces );
             Interlocked.Exchange( ref _bp.currentGlobalNodeIndex, 0 );
             Interlocked.Exchange( ref _bp.currentNativeNodeIndex, 0 );
             _bp.RunningStat.Release();
@@ -113,7 +113,7 @@ namespace StgSharp.Blueprint
 
         public new void SetCertainInputPort(
                                 string name,
-                                BlueprintPipeline pipeline )
+                                PipelineConnector pipeline )
         {
             if( _inputInterfaces.ContainsKey( name ) ) {
                 _inputInterfaces[ name ] = pipeline;

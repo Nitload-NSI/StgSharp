@@ -111,12 +111,13 @@ namespace StgSharp.Graphics
         /// </param>
         /// <exception cref="ArgumentException"></exception>
         public unsafe void GainAllUniforms(
-            ShaderProgram source,
-            params string[] uniformName )
+                                   ShaderProgram source,
+                                   params string[] uniformName )
         {
-            if( uniformName.Length != 1 ) {
+            if( uniformName is null || uniformName.Length != 1 ) {
                 throw new ArgumentException(
-                    "Camera needs only one uniform.", nameof( uniformName ) );
+                    "Camera needs exactly one uniform.",
+                    nameof( uniformName ) );
             }
             convertedUniform = source.GetUniform<Matrix44>( uniformName[ 0 ] );
         }
@@ -143,13 +144,14 @@ namespace StgSharp.Graphics
         {
             //Console.WriteLine(Projection * ViewBase);
             OpenGL.OpenGLFunction.CurrentGL
-                .SetUniformValue( convertedUniform, Projection * View );
+                    .SetUniformValue( convertedUniform, Projection * View );
         }
 
         public void SetViewDirection( Vec3 position, Vec3 target, Vec3 up )
         {
             Vec3 direction = position - target;
-            if( ( position.vec == cameraAtt.colum3.vec ) && ( this.up == up ) && ( cameraAtt.colum2.vec == direction.vec ) ) {
+            if( ( position.reg == cameraAtt.colum3.reg ) && ( this.up == up ) && ( cameraAtt.colum2.reg ==
+                                                                                   direction.reg ) ) {
                 //no difference with precious value
                 return;
             }
@@ -169,10 +171,10 @@ namespace StgSharp.Graphics
 
             Vec3 right = Linear.Orthogonalize( Linear.Cross( up, direction ) );
 
-            cameraAtt.colum0.vec = right.vec;
-            cameraAtt.colum1.vec = up.vec;
-            cameraAtt.colum2.vec = direction.vec;
-            cameraAtt.colum3.vec = position.vec;
+            cameraAtt.colum0.reg = right.    reg;
+            cameraAtt.colum1.reg = up.reg;
+            cameraAtt.colum2.reg = direction.reg;
+            cameraAtt.colum3.reg = position. reg;
 
             InternalPitch();
             InternalRow();
@@ -180,10 +182,10 @@ namespace StgSharp.Graphics
         }
 
         public void SetViewRange(
-            Radius fovRadius,
-            Vec2 size,
-            Vec2 offset,
-            (float front, float back) dephRange )
+                            Radius fovRadius,
+                            Vec2 size,
+                            Vec2 offset,
+                            (float front, float back) dephRange )
         {
             float
                 distance = _target.GetLength(),
@@ -264,8 +266,8 @@ namespace StgSharp.Graphics
                 Scaler.Cos( angle ) );
 
             partialCoord *= rotation;
-            rotationAtt.colum1.vec = partialCoord.colum0.vec;
-            rotationAtt.colum2.vec = partialCoord.colum1.vec;
+            rotationAtt.colum1.reg = partialCoord.colum0.reg;
+            rotationAtt.colum2.reg = partialCoord.colum1.reg;
             rotationAtt.isTransposed = false;
         }
 
@@ -282,8 +284,8 @@ namespace StgSharp.Graphics
                 Scaler.Cos( angle ) );
 
             partialCoord *= rotation;
-            rotationAtt.colum0.vec = partialCoord.colum0.vec;
-            rotationAtt.colum1.vec = partialCoord.colum1.vec;
+            rotationAtt.colum0.reg = partialCoord.colum0.reg;
+            rotationAtt.colum1.reg = partialCoord.colum1.reg;
             rotationAtt.isTransposed = false;
         }
 
@@ -299,8 +301,8 @@ namespace StgSharp.Graphics
                 Scaler.Cos( angle ) );
 
             partialCoord *= rotation;
-            rotationAtt.colum0.vec = partialCoord.colum0.vec;
-            rotationAtt.colum2.vec = partialCoord.colum1.vec;
+            rotationAtt.colum0.reg = partialCoord.colum0.reg;
+            rotationAtt.colum2.reg = partialCoord.colum1.reg;
             rotationAtt.isTransposed = false;
         }
 

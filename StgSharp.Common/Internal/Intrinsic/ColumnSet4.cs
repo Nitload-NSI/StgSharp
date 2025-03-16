@@ -39,7 +39,7 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Internal.Intrinsic
 {
     [StructLayout( LayoutKind.Explicit, Size = 16 * sizeof( float ) )]
-    internal struct ColumnSet4 : IEquatable<ColumnSet4>, IMat
+    internal struct ColumnSet4 : IEquatable<ColumnSet4>
     {
 
         [FieldOffset( 0 )]  internal Vector4 colum0;

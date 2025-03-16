@@ -41,7 +41,7 @@ namespace StgSharp.Math
             LayoutKind.Explicit,
             Size = ( 5 * 4 * sizeof( float ) ) + sizeof( bool ),
             Pack = 16 )]
-    public struct Matrix32 : IMat
+    public struct Matrix32 : IMatrix<Matrix32>
     {
 
         [FieldOffset( 5 * 4 * sizeof( float ) )] internal bool isTransposed;

@@ -38,26 +38,26 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout( LayoutKind.Explicit, Size = 16, Pack = 16 )]
-    public struct Vec3 : IEquatable<Vec3>, IVector
+    public struct Vec3 : IEquatable<Vec3>, IVector<Vec3>
     {
 
         [FieldOffset( 0 )] internal unsafe fixed float num[ 3 ];
-        [FieldOffset( 0 )]
-        internal M128 reg;
+        [FieldOffset( 0 )] internal M128 reg;
 
-        [FieldOffset( 0 )]
-        internal Vector3 v;
-
-        [FieldOffset( 0 )]
-        internal Vector4 vec;
+        [FieldOffset( 0 )] internal Vector3 v;
 
         [FieldOffset( 0 )] public float X;
         [FieldOffset( 4 )] public float Y;
         [FieldOffset( 8 )] public float Z;
 
-        internal Vec3( Vector4 vector )
+        internal Vec3( M128 vector )
         {
-            vec = vector;
+            Unsafe.SkipInit( out X );
+            Unsafe.SkipInit( out Y );
+            Unsafe.SkipInit( out Z );
+            Unsafe.SkipInit( out v );
+            reg = vector;
+            reg.Write<uint>( 3, 0 );
         }
 
         internal Vec3( Vector3 vector )
@@ -67,21 +67,26 @@ namespace StgSharp.Math
 
         public Vec3( Vec2 xy, float z )
         {
-            vec = xy.vec;
+            Unsafe.SkipInit( out X );
+            Unsafe.SkipInit( out Y );
+            Unsafe.SkipInit( out Z );
+            Unsafe.SkipInit( out v );
+            reg = xy.reg;
             Z = z;
         }
 
         public Vec3( float x, float y, float z )
         {
-            #if NET5_0_OR_GREATER
-            Unsafe.SkipInit( out vec );
-            #endif
+            Unsafe.SkipInit( out reg );
+            Unsafe.SkipInit( out X );
+            Unsafe.SkipInit( out Y );
+            Unsafe.SkipInit( out Z );
             v = new Vector3( x, y, z );
         }
 
         public unsafe Vec2 XY
         {
-            get => new Vec2( this.vec );
+            get => new Vec2( this.reg );
             set
             {
                 fixed( Vector3* vptr = &v ) {
@@ -93,6 +98,7 @@ namespace StgSharp.Math
         public Vec3 XYZ
         {
             get { return new Vec3( v ); }
+            set { this = value; }
         }
 
         public static Vec3 Zero
@@ -122,7 +128,7 @@ namespace StgSharp.Math
 
         public bool Equals( Vec3 other )
         {
-            return this.vec == other.vec;
+            return this.reg == other.reg;
         }
 
         public override bool Equals( object obj )
@@ -168,7 +174,7 @@ namespace StgSharp.Math
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static Vec3 operator -( Vec3 vec )
         {
-            return new Vec3( -vec.vec );
+            return new Vec3( -vec.v );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -204,7 +210,7 @@ namespace StgSharp.Math
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static Vec3 operator +( Vec3 left, Vec3 right )
         {
-            return new Vec3( left.vec + right.vec );
+            return new Vec3( left.v + right.v );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -217,9 +223,8 @@ namespace StgSharp.Math
         public static unsafe implicit operator Vec3(
                                                        (float, float, float) tuple )
         {
-            Vec3 v = *( Vec3* )&tuple;
-            v.vec.W = 0.0f;
-            return v;
+            Vec3 vec = new Vec3( *( Vector3* )&tuple );
+            return vec;
         }
 
     }

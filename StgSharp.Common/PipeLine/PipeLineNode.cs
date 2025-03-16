@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="BlueprintNode.cs"
+//     file="PipeLineNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Entities;
 
 using System;
@@ -42,7 +41,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.PipeLine
 {
     /// <summary>
     ///
@@ -52,22 +51,22 @@ namespace StgSharp.Blueprint
     /// port on the other node cannot get the change.
     /// </risk>
 #pragma warning disable CA1036
-    public class BlueprintNode : IComparable<BlueprintNode>
+    public class PipeLineNode : IComparable<PipeLineNode>
     #pragma warning restore CA1036
     {
 
-        private static BlueprintNode _emptyNode = new BlueprintNode(
-            string.Empty, null!, false );
+        private static Dictionary<string, PipelineConnector> _emptyLayer = new();
 
-        private static Dictionary<string, BlueprintPipeline> _emptyLayer = new();
-        private protected bool _levelAvailable, _nativeRequested;
-        private protected Dictionary<string, BlueprintPipeline> _inputInterfaces;
-        private protected Dictionary<string, BlueprintPipeline> _outputInterfaces;
-        private protected int _level;
+        private static PipeLineNode _emptyNode = new PipeLineNode(
+            string.Empty, null!, false );
         private IConvertableToBlueprintNode _mainOperation;
         private string _name;
+        private protected bool _levelAvailable, _nativeRequested;
+        private protected Dictionary<string, PipelineConnector> _inputInterfaces;
+        private protected Dictionary<string, PipelineConnector> _outputInterfaces;
+        private protected int _level;
 
-        internal BlueprintNode(
+        internal PipeLineNode(
                          string name,
                          IConvertableToBlueprintNode node,
                          bool isNative )
@@ -76,8 +75,8 @@ namespace StgSharp.Blueprint
             _name = name;
             _nativeRequested = isNative;
             _mainOperation = node;
-            _inputInterfaces = new Dictionary<string, BlueprintPipeline>();
-            _outputInterfaces = new Dictionary<string, BlueprintPipeline>();
+            _inputInterfaces = new Dictionary<string, PipelineConnector>();
+            _outputInterfaces = new Dictionary<string, PipelineConnector>();
             foreach( string portName in node.InputInterfacesName ) {
                 _inputInterfaces.Add( portName, null! );
             }
@@ -88,7 +87,7 @@ namespace StgSharp.Blueprint
         }
 
         #pragma warning disable CS8618
-        internal BlueprintNode(
+        internal PipeLineNode(
                          BlueprintNodeOperation operation,
                          string name,
                          bool isNative,
@@ -107,11 +106,9 @@ namespace StgSharp.Blueprint
             _nativeRequested = isNative;
             operation = operation ?? DefaultOperation;
             _mainOperation = new DefaultConvertableToBlueprintNode(
-                operation,
-                inputPorts,
-                outputPorts);
-            _inputInterfaces = new Dictionary<string, BlueprintPipeline>();
-            _outputInterfaces = new Dictionary<string, BlueprintPipeline>();
+                operation, inputPorts, outputPorts );
+            _inputInterfaces = new Dictionary<string, PipelineConnector>();
+            _outputInterfaces = new Dictionary<string, PipelineConnector>();
             foreach( string portName in inputPorts ) {
                 _inputInterfaces.Add(
                     portName,
@@ -122,25 +119,13 @@ namespace StgSharp.Blueprint
             }
         }
 
-        protected static void DefaultOperation(
-            in Dictionary<string, BlueprintPipeline> input,
-            in Dictionary<string, BlueprintPipeline> output)
-        {
-            BlueprintPipeline.SkipAll(output);
-        }
-
-        public static BlueprintNode Empty
-        {
-            get => _emptyNode;
-        }
-
         public bool IsNative
         {
             get => _nativeRequested;
             internal set => _nativeRequested = value;
         }
 
-        public static Dictionary<string, BlueprintPipeline> EmptyPortLayer
+        public static Dictionary<string, PipelineConnector> EmptyPortLayer
         {
             get => _emptyLayer;
         }
@@ -153,7 +138,7 @@ namespace StgSharp.Blueprint
                     return _level;
                 }
                 _level = 0;
-                foreach( KeyValuePair<string, BlueprintPipeline> item in _inputInterfaces ) {
+                foreach( KeyValuePair<string, PipelineConnector> item in _inputInterfaces ) {
                     if( item.Value == null ) {
                         continue;
                     }
@@ -167,11 +152,16 @@ namespace StgSharp.Blueprint
             }
         }
 
+        public static PipeLineNode Empty
+        {
+            get => _emptyNode;
+        }
+
         public string Name => _name;
 
-        internal Dictionary<string, BlueprintPipeline> InputInterfaces => _inputInterfaces;
+        internal Dictionary<string, PipelineConnector> InputInterfaces => _inputInterfaces;
 
-        internal Dictionary<string, BlueprintPipeline> OutputInterfaces => _outputInterfaces;
+        internal Dictionary<string, PipelineConnector> OutputInterfaces => _outputInterfaces;
 
         internal IConvertableToBlueprintNode Value
         {
@@ -179,12 +169,12 @@ namespace StgSharp.Blueprint
         }
 
         public void Append(
-                            [NotNull] BlueprintNode next,
+                            [NotNull] PipeLineNode next,
                             string thisOutputPortName,
                             string afterInputPortName )
         {
             this._levelAvailable = false;
-            BlueprintPipeline pipeline = new BlueprintPipeline( this, next );
+            PipelineConnector pipeline = new PipelineConnector( this, next );
             if( next is EndingNode enode ) {
                 enode.SetCertainInputPort( afterInputPortName, pipeline );
             } else {
@@ -193,7 +183,7 @@ namespace StgSharp.Blueprint
             SetCertainOutputPort( thisOutputPortName, pipeline );
         }
 
-        public int CompareTo( BlueprintNode other )
+        public int CompareTo( PipeLineNode other )
         {
             if( null == other ) {
                 throw new ArgumentNullException( nameof( other ) );
@@ -203,12 +193,12 @@ namespace StgSharp.Blueprint
         }
 
         public void Prepend(
-                            [NotNull] BlueprintNode former,
+                            [NotNull] PipeLineNode former,
                             string formerOutputPortName,
                             string thisInputPortName )
         {
             this._levelAvailable = false;
-            BlueprintPipeline pipeline = new BlueprintPipeline( former, this );
+            PipelineConnector pipeline = new PipelineConnector( former, this );
             if( former is BeginningNode bnode ) {
                 bnode.SetCertainOutputPort( formerOutputPortName, pipeline );
             } else {
@@ -221,7 +211,7 @@ namespace StgSharp.Blueprint
         {
             try {
                 //Console.WriteLine(_name);
-                BlueprintPipeline.WaitAll( _inputInterfaces );
+                PipelineConnector.WaitAll( _inputInterfaces );
                 if( _mainOperation != null ) {
                     _mainOperation.Operation(
                         in _inputInterfaces, in _outputInterfaces );
@@ -232,11 +222,18 @@ namespace StgSharp.Blueprint
             }
         }
 
+        protected static void DefaultOperation(
+                                      in Dictionary<string, PipelineConnector> input,
+                                      in Dictionary<string, PipelineConnector> output )
+        {
+            PipelineConnector.SkipAll( output );
+        }
+
         #region port operation
 
-        public BlueprintPipeline GetInputPort( string name )
+        public PipelineConnector GetInputPort( string name )
         {
-            BlueprintPipeline ret;
+            PipelineConnector ret;
             if( !_inputInterfaces.TryGetValue( name, out ret ) ) {
                 throw new ArgumentOutOfRangeException(
                     $"Cannot find the interface named {name} in node {Name}." );
@@ -244,9 +241,9 @@ namespace StgSharp.Blueprint
             return ret;
         }
 
-        public BlueprintPipeline GetOutputPort( string name )
+        public PipelineConnector GetOutputPort( string name )
         {
-            BlueprintPipeline ret;
+            PipelineConnector ret;
             if( !_outputInterfaces.TryGetValue( name, out ret ) ) {
                 throw new ArgumentOutOfRangeException(
                     $"Cannot find the interface named {name} in node {Name}." );
@@ -256,7 +253,7 @@ namespace StgSharp.Blueprint
 
         public void SetCertainInputPort(
                             string name,
-                            BlueprintPipeline pipeline )
+                            PipelineConnector pipeline )
         {
             if( !_inputInterfaces.ContainsKey( name ) ) {
                 throw new ArgumentException(
@@ -267,7 +264,7 @@ namespace StgSharp.Blueprint
 
         public void SetCertainOutputPort(
                             string name,
-                            BlueprintPipeline pipeline )
+                            PipelineConnector pipeline )
         {
             if( !_outputInterfaces.ContainsKey( name ) ) {
                 throw new ArgumentOutOfRangeException(

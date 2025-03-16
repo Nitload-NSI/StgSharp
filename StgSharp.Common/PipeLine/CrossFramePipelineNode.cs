@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="CrossFrameBlueprintNode.cs"
+//     file="CrossFramePipelineNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Blueprint;
+using StgSharp.PipeLine;
 
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.PipeLine
 {
     public class CrossFrameOperation : IConvertableToBlueprintNode
     {
@@ -52,7 +52,7 @@ namespace StgSharp.Blueprint
             MainExecution = startup;
             this.cycleCount = ( cycleCount > 1 ) ?
                     cycleCount : throw new ArgumentException(
-                        $"{$"The {typeof(CrossFrameOperation).Name} crosses only one cycle, "}{$"please use a {typeof(BlueprintNode).Name} instead."}" );
+                        $"{$"The {typeof(CrossFrameOperation).Name} crosses only one cycle, "}{$"please use a {typeof(PipeLineNode).Name} instead."}" );
             this.cycleCount = cycleCount;
             currentCount = cycleCount;
         }
@@ -73,8 +73,8 @@ namespace StgSharp.Blueprint
         public IEnumerable<string> OutputInterfacesName => _outputName;
 
         public void ExecuteMain(
-                            in Dictionary<string, BlueprintPipeline> input,
-                            in Dictionary<string, BlueprintPipeline> output )
+                            in Dictionary<string, PipelineConnector> input,
+                            in Dictionary<string, PipelineConnector> output )
         {
             if( currentCount < cycleCount ) {
                 Interlocked.Increment( ref currentCount );
@@ -84,7 +84,7 @@ namespace StgSharp.Blueprint
             }
 
             //Console.WriteLine(currentCount);
-            BlueprintPipeline.SkipAll( output );
+            PipelineConnector.SkipAll( output );
         }
 
     }

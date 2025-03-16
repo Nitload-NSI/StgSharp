@@ -29,40 +29,24 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using System;
+using System.Numerics;
 
 namespace StgSharp
 {
-    public class Counter<T>
-        where T: struct, IConvertible, IFormattable, IComparable
-    #if NET8_OR_GREATER
-        ,INumber
-    #endif
+    public class Counter<T> where T: struct, INumber<T>
     {
+
         internal dynamic _value;
+        internal readonly T _defaultValue;
+        internal readonly T _defualtDecreament;
 
         internal readonly T _defualtIncreament;
-        internal readonly T _defualtDecreament;
-        internal readonly T _defaultValue;
 
-        public Counter( T defualtValue, T defualtIncreament, T defualtDecreament )
+        public Counter(
+                       T defualtValue,
+                       T defualtIncreament,
+                       T defualtDecreament )
         {
-            Type tType = typeof( T );
-            if (
-                tType != typeof(byte) &&
-                tType != typeof(short) &&
-                tType != typeof(int) &&
-                tType != typeof(long) &&
-                tType != typeof(sbyte) &&
-                tType != typeof(ushort) &&
-                tType != typeof(uint) &&
-                tType != typeof(ulong) &&
-                tType != typeof(float) &&
-                tType != typeof(double))
-            {
-                throw new ArgumentException(
-                    "Input is not number value type");
-            }
-
             _value = defualtValue;
             _defaultValue = defualtValue;
             _defualtIncreament = defualtIncreament;
@@ -106,10 +90,7 @@ namespace StgSharp
             _value -= value;
         }
 
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
+        public override string ToString() => Value.ToString();
 
         public static Counter<T> operator --( Counter<T> counter )
         {
@@ -125,7 +106,12 @@ namespace StgSharp
 
         public static implicit operator T( Counter<T> counter )
         {
-            return counter.Value;
+            return counter switch
+            {
+                null => T.Zero,
+                _ => counter.Value
+            };
         }
+
     }
 }

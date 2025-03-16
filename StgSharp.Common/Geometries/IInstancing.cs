@@ -88,7 +88,7 @@ namespace StgSharp.Geometries
         {
             get { return GlobalBuffer.CoordAndRotationList[ BufferId ].XYZ; }
             set { GlobalBuffer.CoordAndRotationList[ BufferId ] = new Vec4(
-                      value.vec ); }
+                      value.reg ); }
         }
 
         public void Move()

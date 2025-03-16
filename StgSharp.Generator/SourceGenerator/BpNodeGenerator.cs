@@ -33,7 +33,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-using StgSharp.Blueprint;
+using StgSharp.PipeLine;
 
 using System;
 using System.Collections.Generic;
@@ -44,76 +44,83 @@ namespace StgSharp.Generator
 {
     internal class BpNodeSyntaxReceiver : ISyntaxReceiver
     {
+
+        private static BpNodeSyntaxReceiver receiver = new BpNodeSyntaxReceiver(
+            );
         private static readonly string _indexTypeName = typeof( PartialDictionary<string, object> ).Name;
-        private static BpNodeSyntaxReceiver receiver = new BpNodeSyntaxReceiver();
 
-        public List<MethodDeclarationSyntax> ValidMethod { get; private set; } = new List<MethodDeclarationSyntax>();
-        public List<MethodDeclarationSyntax> InvalidMethod { get; private set; } = new List<MethodDeclarationSyntax>();
+        public BpNodeSyntaxReceiver() { }
 
-        public BpNodeSyntaxReceiver()
+        public BpNodeSyntaxReceiver( SyntaxNode node )
         {
-            
+            OnVisitSyntaxNode( node );
         }
 
-        public BpNodeSyntaxReceiver(SyntaxNode node)
+        public List<MethodDeclarationSyntax> ValidMethod
         {
-            OnVisitSyntaxNode(node);
-        }
+            get;
+            private set;
+        } = new List<MethodDeclarationSyntax>();
 
-        public void OnVisitSyntaxNode( SyntaxNode syntaxNode )
+        public List<MethodDeclarationSyntax> InvalidMethod
         {
-            if( syntaxNode is MethodDeclarationSyntax mds && mds.AttributeLists
+            get;
+            private set;
+        } = new List<MethodDeclarationSyntax>();
+
+        public static void BuildNode(
+                                   SourceProductionContext context,
+                                   MethodDeclarationSyntax mds )
+        {
+            if( mds.AttributeLists
                     .SelectMany( list => list.Attributes )
-                    .Any( syntax => syntax.Name.ToString() ==
+                    .Any(
+                        syntax => syntax.Name.ToString() ==
                                   typeof( BlueprintNodeExecutionAttribute ).Name ) ) {
                 SeparatedSyntaxList<ParameterSyntax> paramList = mds.ParameterList.Parameters;
                 if( mds.Modifiers.Any( SyntaxKind.StaticKeyword ) && paramList.Count ==
                     2 && paramList[ 0 ].Type!.ToString() == _indexTypeName && paramList[
                     1 ].Type!.ToString() ==
                     _indexTypeName ) {
-                    ValidMethod.Add(mds);
-                }
-                else
-                {
-                    InvalidMethod.Add(mds);
-                }
-            }
-        }
-
-        public static void BuildNode(SourceProductionContext context, MethodDeclarationSyntax mds)
-        {
-            if (mds.AttributeLists
-                    .SelectMany(list => list.Attributes)
-                    .Any(syntax => syntax.Name.ToString() ==
-                                  typeof(BlueprintNodeExecutionAttribute).Name))
-            {
-                SeparatedSyntaxList<ParameterSyntax> paramList = mds.ParameterList.Parameters;
-                if (mds.Modifiers.Any(SyntaxKind.StaticKeyword) && paramList.Count ==
-                    2 && paramList[0].Type!.ToString() == _indexTypeName && paramList[
-                    1].Type!.ToString() ==
-                    _indexTypeName)
-                {
-                    var methodName = mds.Identifier.Text;
-                    var sourceText = SourceText.From( """
-                        
-                        """,encoding:Encoding.UTF8);
-                    context.AddSource("GeneratedBlueprintNode.cs", sourceText);
-                }
-                else
-                {
-                    var diagnostic = Diagnostic.Create(
+                    string methodName = mds.Identifier.Text;
+                    SourceText sourceText = SourceText.From(
+                        string.Empty, encoding: Encoding.UTF8 );
+                    context.AddSource( "GeneratedBlueprintNode.cs",
+                                       sourceText );
+                } else {
+                    Diagnostic diagnostic = Diagnostic.Create(
                         new DiagnosticDescriptor(
-                            id:"SSE0001",
+                            id: "SSE0001",
                             title: "Invalid Blueprint Node Method",
                             messageFormat: "Blueprint Node Method must be static and have two parameters of type PartialDictionary<string, object>",
                             category: "Blueprint Node",
                             DiagnosticSeverity.Error,
-                            isEnabledByDefault: true),
-                        mds.GetLocation(),mds.Identifier.Text);
-                    
-                    context.ReportDiagnostic(diagnostic);
+                            isEnabledByDefault: true ),
+                        mds.GetLocation(), mds.Identifier.Text );
+
+                    context.ReportDiagnostic( diagnostic );
                 }
             }
         }
+
+        public void OnVisitSyntaxNode( SyntaxNode syntaxNode )
+        {
+            if( syntaxNode is MethodDeclarationSyntax mds && mds.AttributeLists
+                    .SelectMany( list => list.Attributes )
+                    .Any(
+                        syntax => syntax.Name.ToString() ==
+                                  typeof( BlueprintNodeExecutionAttribute ).Name ) ) {
+                SeparatedSyntaxList<ParameterSyntax> paramList = mds.ParameterList.Parameters;
+                if( mds.Modifiers.Any( SyntaxKind.StaticKeyword ) && paramList.Count ==
+                    2 && paramList[ 0 ].Type!.ToString() == _indexTypeName && paramList[
+                    1 ].Type!.ToString() ==
+                    _indexTypeName ) {
+                    ValidMethod.Add( mds );
+                } else {
+                    InvalidMethod.Add( mds );
+                }
+            }
+        }
+
     }
 }

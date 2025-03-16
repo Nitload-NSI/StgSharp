@@ -40,10 +40,10 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout(
-        LayoutKind.Explicit,
-        Size = ( 2 * 16 * sizeof( float ) ) + sizeof( bool ),
-        Pack = 16 )]
-    public unsafe struct Matrix44 : IEquatable<Matrix44>, IMat
+            LayoutKind.Explicit,
+            Size = ( 2 * 16 * sizeof( float ) ) + sizeof( bool ),
+            Pack = 16 )]
+    public unsafe struct Matrix44 : IEquatable<Matrix44>, IMatrix<Matrix44>
     {
 
         [FieldOffset( 2 * 64 * sizeof( float ) )] internal bool isTransposed;
@@ -55,26 +55,20 @@ namespace StgSharp.Math
         [FieldOffset( 8 * sizeof( float ) )] internal Vec4 colum2;
         [FieldOffset( 12 * sizeof( float ) )] internal Vec4 colum3;
 
-        public Matrix44()
-        {
-            Unsafe.SkipInit(out this);
-            isTransposed = false;
-        }
-
         internal Matrix44( ColumnSet4 mat )
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             this.mat = mat;
         }
 
         internal Matrix44(
-            Vector4 vec0,
-            Vector4 vec1,
-            Vector4 vec2,
-            Vector4 vec3 )
+                         Vector4 vec0,
+                         Vector4 vec1,
+                         Vector4 vec2,
+                         Vector4 vec3 )
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             mat.colum0 = vec0;
             mat.colum1 = vec1;
@@ -82,25 +76,31 @@ namespace StgSharp.Math
             mat.colum3 = vec3;
         }
 
-        public unsafe Matrix44(
-            float a00,
-            float a01,
-            float a02,
-            float a03,
-            float a10,
-            float a11,
-            float a12,
-            float a13,
-            float a20,
-            float a21,
-            float a22,
-            float a23,
-            float a30,
-            float a31,
-            float a32,
-            float a33 )
+        public Matrix44()
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
+            isTransposed = false;
+        }
+
+        public unsafe Matrix44(
+                              float a00,
+                              float a01,
+                              float a02,
+                              float a03,
+                              float a10,
+                              float a11,
+                              float a12,
+                              float a13,
+                              float a20,
+                              float a21,
+                              float a22,
+                              float a23,
+                              float a30,
+                              float a31,
+                              float a32,
+                              float a33 )
+        {
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             mat.colum0 = new Vector4( a00, a10, a20, a30 );
             mat.colum1 = new Vector4( a01, a11, a21, a31 );
@@ -195,6 +195,35 @@ namespace StgSharp.Math
                 mat.colum2.GetHashCode(), mat.colum3.GetHashCode() );
         }
 
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public unsafe Matrix42 Multiple( in Matrix42 right )
+        {
+            InternalTranspose();
+            Matrix42 ans = new Matrix42();
+            fixed( ColumnSet4* lptr = &transpose ) {
+                fixed( Vector4* rptr = &right.mat.colum0 ) {
+                    InternalIO.Intrinsic.dot_42( lptr, rptr, &ans.mat.colum0 );
+                }
+            }
+
+            return ans;
+        }
+
+        public unsafe Matrix43 Multiple( in Matrix43 right )
+        {
+            InternalTranspose();
+
+            Matrix43 ans = new Matrix43();
+
+            fixed( Vector4* rptr = &right.mat.colum0 ) {
+                fixed( ColumnSet4* lptr = &transpose ) {
+                    InternalIO.Intrinsic.dot_43( lptr, rptr, &ans.mat.colum0 );
+                }
+            }
+
+            return ans;
+        }
+
         public override string ToString()
         {
             InternalTranspose();
@@ -214,8 +243,8 @@ namespace StgSharp.Math
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static unsafe Matrix44 operator -(
-            Matrix44 left,
-            Matrix44 right )
+                                                       Matrix44 left,
+                                                       Matrix44 right )
         {
             return new Matrix44(
                 right.mat.colum0 - left.mat.colum0,
@@ -237,49 +266,25 @@ namespace StgSharp.Math
                 mat.mat.colum2 * value, mat.mat.colum3 * value );
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Matrix42 Multiple(in Matrix42 right)
-        {
-            InternalTranspose();
-            Matrix42 ans = new Matrix42();
-            fixed (ColumnSet4* lptr = &transpose)
-            fixed (Vector4* rptr = &right.mat.colum0)
-            {
-                InternalIO.Intrinsic.dot_42(lptr,rptr, &ans.mat.colum0);
-            }
-            return ans;
-        }
-
-        [Obsolete("The operand may cause performance loss, use Matrix.Multiple() method instead.",false)]
+        [Obsolete(
+                "The operand may cause performance loss, use Matrix.Multiple() method instead.",
+                false )]
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static unsafe Matrix42 operator *(
-            Matrix44 left,
-            Matrix42 right )
+                                                       Matrix44 left,
+                                                       Matrix42 right )
         {
-            return left.Multiple(right);
+            return left.Multiple( right );
         }
 
-        public unsafe Matrix43 Multiple(in Matrix43 right)
-        {
-            InternalTranspose();
-
-            Matrix43 ans = new Matrix43();
-
-            fixed(Vector4* rptr = &right.mat.colum0)
-            fixed (ColumnSet4* lptr = &transpose)
-            {
-                InternalIO.Intrinsic.dot_43(lptr,rptr,&ans.mat.colum0);
-            }
-            return ans;
-        }
-
-        [Obsolete("The operand may cause performance loss, use Matrix.Multiple() method instead.", false)]
+        [Obsolete(
+                "The operand may cause performance loss, use Matrix.Multiple() method instead.",
+                false )]
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static Matrix43 operator *( Matrix44 left, Matrix43 right )
         {
-            return left.Multiple(in right);
+            return left.Multiple( in right );
         }
-
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static Matrix44 operator *( Matrix44 left, Matrix44 right )
@@ -308,10 +313,12 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix44 operator +(Matrix44 left, Matrix44 right )
+        public static unsafe Matrix44 operator +(
+                                                       Matrix44 left,
+                                                       Matrix44 right )
         {
             Matrix44 ret = new Matrix44();
-            InternalIO.Intrinsic.add_mat_4(&left.mat, &right.mat, &ret.mat);
+            InternalIO.Intrinsic.add_mat_4( &left.mat, &right.mat, &ret.mat );
             return ret;
         }
 

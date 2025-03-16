@@ -39,8 +39,9 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Internal.Intrinsic
 {
     [StructLayout( LayoutKind.Explicit, Size = 12 * sizeof( float ), Pack = 16 )]
-    internal struct ColumnSet3 : IEquatable<ColumnSet3>, IMat
+    internal struct ColumnSet3 : IEquatable<ColumnSet3>
     {
+
         [FieldOffset( 0 * sizeof( float ) )] internal float m00;
         [FieldOffset( 4 * sizeof( float ) )] internal float m01;
         [FieldOffset( 8 * sizeof( float ) )] internal float m02;

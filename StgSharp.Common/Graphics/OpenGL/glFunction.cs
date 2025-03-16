@@ -157,7 +157,7 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public FrameBufferStatus CheckFrameBufferStatus(
-            FrameBufferTarget target )
+                                         FrameBufferTarget target )
         {
             return ( FrameBufferStatus )Context.glCheckFramebufferStatus(
                 ( uint )target );
@@ -201,8 +201,8 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void CombineFrameBufferRenderBuffer(
-            FrameBufferAttachment attachment,
-            GlHandle rboHandle )
+                            FrameBufferAttachment attachment,
+                            GlHandle rboHandle )
         {
             Context.glFramebufferRenderbuffer(
                 glConst.FRAMEBUFFER, ( uint )attachment, glConst.RENDERBUFFER,
@@ -298,10 +298,10 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void DrawElements(
-            GeometryType mode,
-            uint count,
-            TypeCode type,
-            IntPtr ptr )
+                                   GeometryType mode,
+                                   uint count,
+                                   TypeCode type,
+                                   IntPtr ptr )
         {
             uint a;
             a = type switch
@@ -317,11 +317,11 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void DrawElementsInstanced(
-            GeometryType mode,
-            uint count,
-            TypeCode type,
-            IntPtr ptr,
-            uint amount )
+                            GeometryType mode,
+                            uint count,
+                            TypeCode type,
+                            IntPtr ptr,
+                            uint amount )
         {
             uint a;
             switch( type ) {
@@ -355,11 +355,11 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void FrameBufferTexture2d(
-            FrameBufferTarget target,
-            uint attachment,
-            Texture2DTarget texTarget,
-            GlHandle textureHandle,
-            int level )
+                            FrameBufferTarget target,
+                            uint attachment,
+                            Texture2DTarget texTarget,
+                            GlHandle textureHandle,
+                            int level )
         {
             Context.glFramebufferTexture2D(
                 ( uint )target, attachment, ( uint )texTarget,
@@ -439,7 +439,8 @@ namespace StgSharp.Graphics.OpenGL
         {
             IntPtr sptr = IntPtr.Zero;
             if( InternalIO.glCheckShaderStatus(
-                ref Context, s.handle[ index ].Value, key, ref sptr ) == 0 ) {
+                ref Context, s.handle[ index ].Value, key, ref sptr ) ==
+                0 ) {
                 return Marshal.PtrToStringAnsi( sptr );
             }
             return string.Empty;
@@ -447,11 +448,11 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void GetTextureImage<T>(
-            Texture2DTarget target,
-            int level,
-            ImageChannel channel,
-            PixelChannelLayout channelLayout,
-            T[] dataStream )
+                                   Texture2DTarget target,
+                                   int level,
+                                   ImageChannel channel,
+                                   PixelChannelLayout channelLayout,
+                                   T[] dataStream )
             where T: struct,INumber<T>
         {
             #pragma warning disable CS8500
@@ -465,10 +466,10 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void GetTextureLevelProperty(
-            uint textureTypeMask,
-            int level,
-            uint propertyMask,
-            out int propertyValue )
+                            uint textureTypeMask,
+                            int level,
+                            uint propertyMask,
+                            out int propertyValue )
         {
             fixed( int* iptr = &propertyValue ) {
                 Context.glGetTexLevelParameteriv(
@@ -478,14 +479,15 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe GlHandle GetUniformLocation(
-            GlHandle program,
-            string name )
+                                       GlHandle program,
+                                       string name )
         {
             byte[] code = Encoding.UTF8.GetBytes( name );
             fixed( byte* ptr = code ) {
                 int ret = Context.glGetUniformLocation( program.Value, ptr );
                 #if DEBUG
-                if( ( ret == glConst.INVALID_OPERATION ) || ( ret == glConst.INVALID_VALUE ) ) {
+                if( ( ret == glConst.INVALID_OPERATION ) || ( ret ==
+                                                              glConst.INVALID_VALUE ) ) {
                     throw new InvalidOperationException();
                 }
                 if( ret == -1 ) {
@@ -499,8 +501,8 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void LoadShaderSource(
-            GlHandle shaderHandle,
-            byte[] codeStream )
+                                   GlHandle shaderHandle,
+                                   byte[] codeStream )
         {
             fixed( byte* streamPtr = codeStream ) {
                 Context.glShaderSource(
@@ -509,24 +511,23 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         public unsafe void LoadShaderSource(
-            GlHandle shaderHandle,
-            ReadOnlySpan<char> codeStream)
+                                   GlHandle shaderHandle,
+                                   ReadOnlySpan<char> codeStream )
         {
-            fixed (char* streamPtr = codeStream)
-            {
-                byte* bptr = (byte*)streamPtr;
+            fixed( char* streamPtr = codeStream ) {
+                byte* bptr = ( byte* )streamPtr;
                 Context.glShaderSource(
-                    shaderHandle.Value, 1, &bptr, (void*)0);
+                    shaderHandle.Value, 1, &bptr, ( void* )0 );
             }
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void ReadPixels(
-            (int X, int Y) beginPosition,
-            (int width, int height) size,
-            FrameBufferChannel format,
-            PixelChannelLayout dataType,
-            ref byte[] stream )
+                            (int X, int Y) beginPosition,
+                            (int width, int height) size,
+                            FrameBufferChannel format,
+                            PixelChannelLayout dataType,
+                            ref byte[] stream )
         {
             fixed( byte* bptr = stream ) {
                 Context.glReadPixels(
@@ -536,10 +537,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         public void RereadImage(
-            in Image i,
-            (int X, int Y) beginPosition,
-            FrameBufferChannel format,
-            PixelChannelLayout dataType )
+                            in Image i,
+                            (int X, int Y) beginPosition,
+                            FrameBufferChannel format,
+                            PixelChannelLayout dataType )
         {
             byte[] pixels = i.PixelBuffer;
             if( !pixels.CheckArrayFormat( dataType ) ) {
@@ -555,9 +556,9 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void SetBufferData<T>(
-            BufferType bufferType,
-            T bufferData,
-            BufferUsage usage )
+                                   BufferType bufferType,
+                                   T bufferData,
+                                   BufferUsage usage )
             where T: struct
         {
             int size = Marshal.SizeOf<T>();
@@ -571,30 +572,9 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void SetBufferData<T>(
-            BufferType bufferType,
-            T[] bufferArray,
-            BufferUsage usage )
-            where T: struct,INumber<T>
-        {
-            int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
-            if( bufferArray == null ) {
-                return;
-            }
-            #pragma warning disable CS8500
-            fixed( void* bufferPtr = bufferArray )
-            #pragma warning restore CS8500
-            {
-                Context.glBufferData(
-                    ( uint )bufferType, ( IntPtr )size, ( IntPtr )bufferPtr,
-                    ( uint )usage );
-            }
-        }
-
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public unsafe void SetBufferData<T>(
-            BufferType bufferType,
-            ReadOnlySpan<T> bufferArray,
-            BufferUsage usage )
+                                   BufferType bufferType,
+                                   T[] bufferArray,
+                                   BufferUsage usage )
             where T: struct,INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
@@ -613,9 +593,30 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void SetBufferData<T>(
-            BufferType bufferType,
-            Span<T> bufferArray,
-            BufferUsage usage )
+                                   BufferType bufferType,
+                                   ReadOnlySpan<T> bufferArray,
+                                   BufferUsage usage )
+            where T: struct,INumber<T>
+        {
+            int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
+            if( bufferArray == null ) {
+                return;
+            }
+            #pragma warning disable CS8500
+            fixed( void* bufferPtr = bufferArray )
+ #pragma warning restore CS8500
+ {
+                Context.glBufferData(
+                    ( uint )bufferType, ( IntPtr )size, ( IntPtr )bufferPtr,
+                    ( uint )usage );
+            }
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public unsafe void SetBufferData<T>(
+                                   BufferType bufferType,
+                                   Span<T> bufferArray,
+                                   BufferUsage usage )
             where T: struct, INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
@@ -635,10 +636,10 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void SetBufferVectorData<T>(
-            BufferType bufferType,
-            ReadOnlySpan<T> bufferArray,
-            BufferUsage usage )
-            where T: struct, IVector
+                                   BufferType bufferType,
+                                   ReadOnlySpan<T> bufferArray,
+                                   BufferUsage usage )
+            where T: struct, IVector<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
             if( bufferArray == null ) {
@@ -656,10 +657,10 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void SetBufferVectorData<T>(
-            BufferType bufferType,
-            T[] bufferArray,
-            BufferUsage usage )
-            where T: struct, IVector
+                                   BufferType bufferType,
+                                   T[] bufferArray,
+                                   BufferUsage usage )
+            where T: struct, IVector<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
             if( bufferArray == null ) {
@@ -677,8 +678,8 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void SetRenderBufferStorage(
-            RenderBufferInternalFormat internalFormat,
-            (int width, int height) size )
+                                   RenderBufferInternalFormat internalFormat,
+                                   (int width, int height) size )
         {
             Context.glRenderbufferStorage(
                 glConst.RENDERBUFFER, ( uint )internalFormat, size.width,
@@ -687,8 +688,8 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void SetRenderBufferStorage(
-            RenderBufferInternalFormat internalFormat,
-            (uint width, uint height) size )
+                                   RenderBufferInternalFormat internalFormat,
+                                   (uint width, uint height) size )
         {
             Context.glRenderbufferStorage(
                 glConst.RENDERBUFFER, ( uint )internalFormat, ( int )size.width,
@@ -697,12 +698,12 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void SetVertexAttribute(
-            uint index,
-            int size,
-            TypeCode t,
-            bool normalized,
-            uint stride,
-            int pointer )
+                            uint index,
+                            int size,
+                            TypeCode t,
+                            bool normalized,
+                            uint stride,
+                            int pointer )
         {
             uint type = InternalIO.GLtype[ t ];
             Context.glVertexAttribPointer(
@@ -713,20 +714,20 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void TextureImage2d<T>(
-            Texture2DTarget target,
-            int level,
-            ImageChannel sourceChannel,
-            uint width,
-            uint height,
-            ImageChannel targetChannel,
-            PixelChannelLayout type,
-            T[] pixels )
+                            Texture2DTarget target,
+                            int level,
+                            ImageChannel sourceChannel,
+                            uint width,
+                            uint height,
+                            ImageChannel targetChannel,
+                            PixelChannelLayout type,
+                            T[] pixels )
             where T: struct, INumber<T>
         {
             #pragma warning disable CS8500
             fixed( T* tptr = pixels ) {
                 T* ptr = ( ( pixels == null ) || ( pixels.Length == 0 ) ) ?
-                ( T* )IntPtr.Zero : tptr;
+                        ( T* )IntPtr.Zero : tptr;
                 Context.glTexImage2D(
                     ( uint )target, level, ( uint )sourceChannel, width, height,
                     0, ( uint )targetChannel, ( uint )type, tptr );
@@ -736,23 +737,23 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void TextureImage2d<T>(
-            Texture2DTarget target,
-            int level,
-            ImageChannel sourceChannel,
-            uint width,
-            uint height,
-            ImageChannel targetChannel,
-            PixelChannelLayout type,
-            Span<T> pixelSpan )
+                            Texture2DTarget target,
+                            int level,
+                            ImageChannel sourceChannel,
+                            uint width,
+                            uint height,
+                            ImageChannel targetChannel,
+                            PixelChannelLayout type,
+                            Span<T> pixelSpan )
             where T: struct, INumber<T>
         {
-#pragma warning disable CS8500
+            #pragma warning disable CS8500
             fixed( T* tptr = pixelSpan ) {
                 Context.glTexImage2D(
                     ( uint )target, level, ( uint )sourceChannel, width, height,
                     0, ( uint )targetChannel, ( uint )type, tptr );
             }
-#pragma warning restore CS8500
+            #pragma warning restore CS8500
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -762,8 +763,8 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         public static bool TryGetFunctionPackage(
-            IntPtr handle,
-            out OpenGLFunction functionPackage )
+                                   IntPtr handle,
+                                   out OpenGLFunction functionPackage )
         {
             return contextToGLMap.TryGetValue( handle, out functionPackage );
         }

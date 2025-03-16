@@ -83,6 +83,10 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Logic\" />
+    </ItemGroup>
+
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
 
     </Target>

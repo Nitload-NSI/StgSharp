@@ -75,7 +75,7 @@ namespace StgSharp.Data
 
     /// <summary>
     /// A class attempt to reduce cost of boxing, though still a bit slower than direct access to
-    /// origin value type instance.
+    /// _origin value type instance.
     /// </summary>
     /// <typeparam name="T"> Type of instance to be boxed. </typeparam>
     public class ValueBox<T> : IValueBox, IValueBox<T> where T: struct

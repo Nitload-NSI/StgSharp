@@ -35,17 +35,18 @@ using System.Reflection.Emit;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.PipeLine
 {
-    public class RouteSwitch : BlueprintNode
+    public class RouteSwitch : PipeLineNode
     {
 
-        private protected Dictionary<string, (BlueprintPipeline pipeline, Func<bool> openingRule)> outputDictionary;
+        private protected Dictionary<string, (PipelineConnector pipeline, Func<bool> openingRule)> outputDictionary;
 
         public RouteSwitch( string name, bool isNative, string inputPorts )
-            : base(DefaultOperation, name, isNative, [inputPorts], [string.Empty] )
+            : base(
+            DefaultOperation, name, isNative, [inputPorts], [string.Empty] )
         {
-            outputDictionary = new Dictionary<string, (BlueprintPipeline pipeline, Func<bool> openingRule)>(
+            outputDictionary = new Dictionary<string, (PipelineConnector pipeline, Func<bool> openingRule)>(
                 );
         }
 
@@ -57,7 +58,7 @@ namespace StgSharp.Blueprint
                     return _level;
                 }
                 _level = 0;
-                KeyValuePair<string, BlueprintPipeline> item = _inputInterfaces.First(
+                KeyValuePair<string, PipelineConnector> item = _inputInterfaces.First(
                     );
                 if( item.Value == null ) {
                     throw new InvalidOperationException();
@@ -70,23 +71,23 @@ namespace StgSharp.Blueprint
         }
 
         public new void AddBefore(
-            BlueprintNode after,
-            string thisOutputPortName,
-            string afterInputPortName )
+                                PipeLineNode after,
+                                string thisOutputPortName,
+                                string afterInputPortName )
         {
             this.AppendNode( after, afterInputPortName, () => true );
         }
 
         public void AppendNode(
-            BlueprintNode node,
-            string portName,
-            Func<bool> openningRule )
+                            PipeLineNode node,
+                            string portName,
+                            Func<bool> openningRule )
         {
             if( node == null ) {
                 throw new ArgumentNullException( nameof( node ) );
             }
             string indexName = $"{node.Name}.{portName}";
-            BlueprintPipeline p = new BlueprintPipeline( this, node );
+            PipelineConnector p = new PipelineConnector( this, node );
             node.InputInterfaces[ portName ] = p;
             outputDictionary.Add( indexName, (p, openningRule) );
         }
@@ -94,9 +95,9 @@ namespace StgSharp.Blueprint
         public new void Run()
         {
             try {
-                BlueprintPipeline input = InputInterfaces.First().Value;
+                PipelineConnector input = InputInterfaces.First().Value;
                 input.WaitForStart();
-                foreach( KeyValuePair<string, (BlueprintPipeline pipeline, Func<bool> openingRule)> item in outputDictionary ) {
+                foreach( KeyValuePair<string, (PipelineConnector pipeline, Func<bool> openingRule)> item in outputDictionary ) {
                     if( item.Value.openingRule() ) {
                         item.Value.pipeline.CompleteAndWriteData( input.Args );
                     }

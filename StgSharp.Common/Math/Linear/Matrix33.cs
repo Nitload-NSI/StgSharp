@@ -41,7 +41,7 @@ namespace StgSharp.Math
             LayoutKind.Explicit,
             Size = ( 6 * 4 * sizeof( float ) ) + sizeof( bool ),
             Pack = 16 )]
-    public struct Matrix33 : IMat
+    public struct Matrix33 : IMatrix<Matrix33>
     {
 
         [FieldOffset( 6 * 4 * sizeof( float ) )] internal bool isTransposed;
@@ -162,9 +162,9 @@ namespace StgSharp.Math
         {
             left.InternalTranspose();
             return new Vec3(
-                Vector4.Dot( left.transpose.colum0, right.vec ),
-                Vector4.Dot( left.transpose.colum1, right.vec ),
-                Vector4.Dot( left.transpose.colum2, right.vec ) );
+                Vector4.Dot( left.transpose.colum0, right.reg.AsVector4() ),
+                Vector4.Dot( left.transpose.colum1, right.reg.AsVector4() ),
+                Vector4.Dot( left.transpose.colum2, right.reg.AsVector4() ) );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]

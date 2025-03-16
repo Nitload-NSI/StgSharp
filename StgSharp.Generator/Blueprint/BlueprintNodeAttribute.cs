@@ -32,7 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.PipeLine
 {
     [AttributeUsage( AttributeTargets.Method, AllowMultiple = false )]
     public class BlueprintNodeExecutionAttribute : Attribute { }

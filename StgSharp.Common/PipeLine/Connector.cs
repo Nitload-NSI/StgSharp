@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="PipeLine.cs"
+//     file="Connector.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -38,17 +38,17 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.PipeLine
 {
-    public class BlueprintPipeline
+    public class PipelineConnector
     {
 
-        private protected BlueprintNode after;
-        private protected BlueprintNode former;
-        private protected BlueprintPipelineArgs args;
+        private protected PipeLineNode after;
+        private protected PipeLineNode former;
+        private protected PipeLineConnectorArgs args;
         private protected SemaphoreSlim formerCompleteSemaphore;
 
-        public BlueprintPipeline( BlueprintNode former, BlueprintNode after )
+        public PipelineConnector( PipeLineNode former, PipeLineNode after )
         {
             this.former = former;
             this.after = after;
@@ -56,11 +56,11 @@ namespace StgSharp.Blueprint
                 initialCount: 0, maxCount: 1 );
         }
 
-        public BlueprintNode After => after;
+        public PipeLineNode After => after;
 
-        public BlueprintNode Former => former;
+        public PipeLineNode Former => former;
 
-        public BlueprintPipelineArgs Args
+        public PipeLineConnectorArgs Args
         {
             get => args;
             set => args = value;
@@ -69,12 +69,12 @@ namespace StgSharp.Blueprint
         public int Level => former.Level;
 
         public static void SkipAll(
-            Dictionary<string, BlueprintPipeline> ports )
+                                   Dictionary<string, PipelineConnector> ports )
         {
             if( ports == null ) {
                 return;
             }
-            foreach( KeyValuePair<string, BlueprintPipeline> item in ports ) {
+            foreach( KeyValuePair<string, PipelineConnector> item in ports ) {
                 if( item.Value != null ) {
                     item.Value.CompleteAndSkip();
                 }
@@ -82,12 +82,12 @@ namespace StgSharp.Blueprint
         }
 
         public static void WaitAll(
-            Dictionary<string, BlueprintPipeline> ports )
+                                   Dictionary<string, PipelineConnector> ports )
         {
             if( ports == null ) {
                 return;
             }
-            foreach( KeyValuePair<string, BlueprintPipeline> item in ports ) {
+            foreach( KeyValuePair<string, PipelineConnector> item in ports ) {
                 if( item.Value != null ) {
                     item.Value.WaitForStart();
                 }
@@ -100,7 +100,7 @@ namespace StgSharp.Blueprint
             formerCompleteSemaphore.Wait();
         }
 
-        ~BlueprintPipeline()
+        ~PipelineConnector()
         {
             formerCompleteSemaphore.Dispose();
         }
@@ -115,7 +115,7 @@ namespace StgSharp.Blueprint
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void CompleteAndWriteData( BlueprintPipelineArgs args )
+        public void CompleteAndWriteData( PipeLineConnectorArgs args )
         {
             this.args = args;
             CompleteAndSkip();
@@ -124,8 +124,9 @@ namespace StgSharp.Blueprint
         #endregion
     }
 
-    public abstract class BlueprintPipelineArgs
+    public abstract class PipeLineConnectorArgs
     {
+
         public object? Value
         {
             get;
@@ -136,29 +137,32 @@ namespace StgSharp.Blueprint
         {
             get;
         }
+
     }
 
-    public sealed class SealedBlueprintPiipeline:BlueprintPipeline
+    public sealed class SealedBlueprintPiipeline : PipelineConnector
     {
-        internal SealedBlueprintPiipeline(BlueprintNode former, BlueprintNode after):
-            base(former, after)
+
+        internal SealedBlueprintPiipeline(
+                         PipeLineNode former,
+                         PipeLineNode after )
+            : base( former, after ) { }
+
+        public static SealedBlueprintPiipeline SealInput(
+                                                       PipeLineNode node,
+                                                       string portName )
         {
-            
+            return new SealedBlueprintPiipeline( PipeLineNode.Empty, node );
         }
 
-        public static SealedBlueprintPiipeline SealOutput(BlueprintNode node, string portName)
+        public static SealedBlueprintPiipeline SealOutput(
+                                                       PipeLineNode node,
+                                                       string portName )
         {
-            return new SealedBlueprintPiipeline(node, BlueprintNode.Empty);
+            return new SealedBlueprintPiipeline( node, PipeLineNode.Empty );
         }
 
-        public static SealedBlueprintPiipeline SealInput(BlueprintNode node, string portName)
-        {
-            return new SealedBlueprintPiipeline(BlueprintNode.Empty, node);
-        }
+        public override sealed void WaitForStart() { }
 
-        public sealed override void WaitForStart()
-        {
-
-        }
     }
 }

@@ -70,11 +70,36 @@ namespace StgSharp.Graphics
     }
 
     [StructLayout( LayoutKind.Explicit, Size = 32 )]
-    public unsafe struct Pixel32
+    public unsafe struct Pixel32RGBA : IPixel
     {
+
         [FieldOffset( 0 )] private unsafe fixed byte data[ 4 ];
 
-        internal int Size => 4;
+        public int Size => 4;
+
+        float IPixel.Alpha
+        {
+            get => data[ 3 ] / 256                    ;
+            set => data[ 3 ] = ( byte )( value * 256 );
+        }
+
+        float IPixel.Blue
+        {
+            get => data[ 2 ] / 256                    ;
+            set => data[ 2 ] = ( byte )( value * 256 );
+        }
+
+        float IPixel.Green
+        {
+            get => data[ 1 ] / 256                    ;
+            set => data[ 1 ] = ( byte )( value * 256 );
+        }
+
+        float IPixel.Red
+        {
+            get => data[ 0 ] / 256                    ;
+            set => data[ 0 ] = ( byte )( value * 256 );
+        }
 
     }
 }

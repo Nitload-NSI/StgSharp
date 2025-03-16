@@ -68,7 +68,7 @@ namespace StgSharp.Math
                 throw new ArgumentException();
             }
 
-            float r, s, u, v = 0.0f;
+            float r, s, u, vec = 0.0f;
             bool transform = (y >= 0.5f);
 
             if (transform)
@@ -101,14 +101,14 @@ namespace StgSharp.Math
                 c = (r - s1 * s1) / (s + s1);
                 p = 2.0F * s * u - (piby2_tail - 2.0F * c);
                 q = hpiby2_head - 2.0F * s1;
-                v = hpiby2_head - (p - q);
+                vec = hpiby2_head - (p - q);
             }
             else
             {
-                v = y + y * u;
+                vec = y + y * u;
             }/*
 
-            return sign * v;
+            return sign * vec;
             */
         }
 

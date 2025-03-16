@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IConvertableToBlueprintNode.cs"
+//     file="IMatrix.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,59 +28,13 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Graphics;
+
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.Math
 {
-    public delegate void BlueprintNodeOperation(
-                                 in Dictionary<string, BlueprintPipeline> input,
-                                 in Dictionary<string, BlueprintPipeline> output );
-
-    public interface IConvertableToBlueprintNode
-    {
-
-        BlueprintNodeOperation Operation
-        {
-            get;
-        }
-
-        public IEnumerable<string> InputInterfacesName
-        {
-            get;
-        }
-
-        public IEnumerable<string> OutputInterfacesName
-        {
-            get;
-        }
-
-    }
-
-    internal class DefaultConvertableToBlueprintNode : IConvertableToBlueprintNode
-    {
-
-        private string[] _input;
-        private string[] _output;
-        private BlueprintNodeOperation _execution;
-
-        public DefaultConvertableToBlueprintNode(
-                       BlueprintNodeOperation execution,
-                       string[] input,
-                       string[] output )
-        {
-            _input = input;
-            _output = output;
-            _execution = execution;
-        }
-
-        public BlueprintNodeOperation Operation => _execution;
-
-        public IEnumerable<string> InputInterfacesName => _input;
-
-        public IEnumerable<string> OutputInterfacesName => _output;
-
-    }
+    public interface IMatrix<TSelf> where TSelf: IMatrix<TSelf> { }
 }

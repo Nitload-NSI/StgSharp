@@ -40,10 +40,10 @@ using System.Security.AccessControl;
 namespace StgSharp.Math
 {
     [StructLayout(
-        layoutKind: LayoutKind.Explicit,
-        Size = ( 7 * 4 * sizeof( float ) ) + sizeof( bool ),
-        Pack = 16 )]
-    public struct Matrix43 : IEquatable<Matrix43>, IMat
+            layoutKind: LayoutKind.Explicit,
+            Size = ( 7 * 4 * sizeof( float ) ) + sizeof( bool ),
+            Pack = 16 )]
+    public struct Matrix43 : IEquatable<Matrix43>, IMatrix<Matrix43>
     {
 
         [FieldOffset( 7 * 4 * sizeof( float ) )]
@@ -54,36 +54,36 @@ namespace StgSharp.Math
         [FieldOffset( 3 * 4 * sizeof( float ) )]
         internal ColumnSet4 transpose;
 
-        public Matrix43()
-        {
-            Unsafe.SkipInit(out this);
-            isTransposed = false;
-        }
-
         internal Matrix43( Vector4 c0, Vector4 c1, Vector4 c2 )
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             mat.colum0 = c0;
             mat.colum1 = c1;
             mat.colum2 = c2;
         }
 
-        public Matrix43(
-            float a00,
-            float a01,
-            float a02,
-            float a10,
-            float a11,
-            float a12,
-            float a20,
-            float a21,
-            float a22,
-            float a30,
-            float a31,
-            float a32 )
+        public Matrix43()
         {
-            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit( out this );
+            isTransposed = false;
+        }
+
+        public Matrix43(
+                       float a00,
+                       float a01,
+                       float a02,
+                       float a10,
+                       float a11,
+                       float a12,
+                       float a20,
+                       float a21,
+                       float a22,
+                       float a30,
+                       float a31,
+                       float a32 )
+        {
+            Unsafe.SkipInit( out this );
             isTransposed = false;
             mat.colum0 = new Vector4( a00, a10, a20, a30 );
             mat.colum1 = new Vector4( a01, a11, a21, a31 );
@@ -145,10 +145,12 @@ namespace StgSharp.Math
         internal unsafe void InternalTranspose()
         {
             if( !isTransposed ) {
-                fixed( ColumnSet3* source = &this.mat )
-                fixed( ColumnSet4* target = &this.transpose ) {
-                    InternalIO.Intrinsic.transpose34( source, target );
+                fixed( ColumnSet3* source = &this.mat ) {
+                    fixed( ColumnSet4* target = &this.transpose ) {
+                        InternalIO.Intrinsic.transpose34( source, target );
+                    }
                 }
+
                 isTransposed = true;
             }
         }
@@ -250,10 +252,12 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix43 operator +( Matrix43 left, Matrix43 right )
+        public static unsafe Matrix43 operator +(
+                                                       Matrix43 left,
+                                                       Matrix43 right )
         {
             Matrix43 ret = new Matrix43();
-            InternalIO.Intrinsic.add_mat_3(&left.mat, &right.mat, &ret.mat);
+            InternalIO.Intrinsic.add_mat_3( &left.mat, &right.mat, &ret.mat );
             return ret;
         }
 

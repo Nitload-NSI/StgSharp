@@ -34,10 +34,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-#if NET5_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-#endif
 
 using System.Text;
 
@@ -48,16 +46,22 @@ namespace StgSharp.HighPerformance
     {
 
         [FieldOffset( 0 )] internal fixed byte Buffer[ 16 ];
-        [FieldOffset( 0 )] internal Vector128<byte> Vec;
+        [FieldOffset( 0 )] internal Vector128<float> Vec;
 
         internal M128( Vector4 v )
         {
-            Vec = v.AsVector128().AsByte();
+            Vec = v.AsVector128();
         }
 
         public ref T AsRef<T>() where T: struct, INumber<T>
         {
             return ref Unsafe.As<byte, T>( ref Buffer[ 0 ] );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public Vector4 AsVector4()
+        {
+            return Vec.As<float, float>().AsVector4();
         }
 
         public override bool Equals( [NotNullWhen( true )] object obj )
@@ -123,61 +127,61 @@ namespace StgSharp.HighPerformance
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<byte>( M128 m )
         {
-            return m.Vec.As<byte, byte>();
+            return m.Vec.As<float, byte>();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<double>( M128 m )
         {
-            return m.Vec.As<byte, double>();
+            return m.Vec.As<float, double>();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<float>( M128 m )
         {
-            return m.Vec.As<byte, float>();
+            return m.Vec.As<float, float>();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<int>( M128 m )
         {
-            return m.Vec.As<byte, int>();
+            return m.Vec.As<float, int>();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<long>( M128 m )
         {
-            return m.Vec.As<byte, long>();
+            return m.Vec.As<float, long>();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<sbyte>( M128 m )
         {
-            return m.Vec.As<byte, sbyte>();
+            return m.Vec.As<float, sbyte>();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<short>( M128 m )
         {
-            return m.Vec.As<byte, short>();
+            return m.Vec.As<float, short>();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<uint>( M128 m )
         {
-            return m.Vec.As<byte, uint>();
+            return m.Vec.As<float, uint>();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<ulong>( M128 m )
         {
-            return m.Vec.As<byte, ulong>();
+            return m.Vec.As<float, ulong>();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static explicit operator Vector128<ushort>( M128 m )
         {
-            return m.Vec.As<byte, ushort>();
+            return m.Vec.As<float, ushort>();
         }
 
     }

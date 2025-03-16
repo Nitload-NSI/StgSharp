@@ -29,7 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
-using StgSharp.Blueprint;
+using StgSharp.PipeLine;
 
 using System;
 using System.Collections.Generic;
@@ -39,7 +39,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Graphics
 {
-    public class TexturePipeline : BlueprintPipelineArgs
+    public class TexturePipeline : PipeLineConnectorArgs
     {
 
         private Image _value;

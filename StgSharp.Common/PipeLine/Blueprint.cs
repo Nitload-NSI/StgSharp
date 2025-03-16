@@ -34,7 +34,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.PipeLine
 {
     /// <summary>
     /// A sets of complex logic designed for running in multi threads environment. Warning: do not
@@ -43,13 +43,15 @@ namespace StgSharp.Blueprint
     public partial class BlueprintScheduler : IConvertableToBlueprintNode
     {
 
+        private List<PipeLineNode>[] _concurrentNodes, _mainThreadNodes;
+
         private BeginningNode beginNode;
-        private Dictionary<string, BlueprintNode> allNode;
+        private Dictionary<string, PipeLineNode> allNode;
         private EndingNode endNode;
 
         private Func<bool> terminate;
-        private List<BlueprintNode> globalNodeList;
-        private List<BlueprintNode> nativeNodeList;
+        private List<PipeLineNode> globalNodeList;
+        private List<PipeLineNode> mainThreadNodeList;
 
         private SemaphoreSlim runningStat;
 
@@ -58,17 +60,13 @@ namespace StgSharp.Blueprint
 
         public BlueprintScheduler()
         {
-            allNode = new Dictionary<string, BlueprintNode>();
-            globalNodeList = new List<BlueprintNode>();
-            nativeNodeList = new List<BlueprintNode>();
+            allNode = new Dictionary<string, PipeLineNode>();
+            globalNodeList = new List<PipeLineNode>();
+            mainThreadNodeList = new List<PipeLineNode>();
             runningStat = new SemaphoreSlim( 1, 1 );
             beginNode = new BeginningNode( this );
             endNode = new EndingNode( this );
         }
-
-        public BlueprintNode BeginLayer => beginNode;
-
-        public BlueprintNode EndLayer => endNode;
 
         public BlueprintNodeOperation Operation
         {
@@ -90,6 +88,10 @@ namespace StgSharp.Blueprint
             get { return beginNode.OutputInterfaces.Keys; }
         }
 
+        public PipeLineNode BeginLayer => beginNode;
+
+        public PipeLineNode EndLayer => endNode;
+
         /**/
 
         internal SemaphoreSlim RunningStat
@@ -98,7 +100,7 @@ namespace StgSharp.Blueprint
         }
         /**/
 
-        public void AddNode( BlueprintNode node, bool isNative )
+        public void AddNode( PipeLineNode node, bool isNative )
         {
             _ = node ?? throw new ArgumentNullException( nameof( node ) );
             node.IsNative = isNative;
@@ -106,34 +108,34 @@ namespace StgSharp.Blueprint
         }
 
         public void ExecuteMain(
-                            in Dictionary<string, BlueprintPipeline> input,
-                            in Dictionary<string, BlueprintPipeline> output )
+                            in Dictionary<string, PipelineConnector> input,
+                            in Dictionary<string, PipelineConnector> output )
         {
-            BlueprintRunner.Run( this );
+            PipeLineRunner.Run( this );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public (string name, BlueprintPipelineArgs arg)[] GetOutput()
+        public (string name, PipeLineConnectorArgs arg)[] GetOutput()
         {
             return endNode.OutputData;
         }
 
         public void Init()
         {
-            foreach( KeyValuePair<string, BlueprintNode> item in allNode ) {
+            foreach( KeyValuePair<string, PipeLineNode> item in allNode ) {
                 if( item.Value.IsNative ) {
-                    nativeNodeList.Add( item.Value );
+                    mainThreadNodeList.Add( item.Value );
                 } else {
                     globalNodeList.Add( item.Value );
                 }
             }
-            nativeNodeList.Sort();
+            mainThreadNodeList.Sort();
             globalNodeList.Sort();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void SetInput(
-                            params (string name, BlueprintPipelineArgs arg)[] parameters )
+                            params (string name, PipeLineConnectorArgs arg)[] parameters )
         {
             beginNode.InputData = parameters;
         }
@@ -144,7 +146,7 @@ namespace StgSharp.Blueprint
             Interlocked.Exchange( ref currentNativeNodeIndex, int.MaxValue );
         }
 
-        internal bool RequestNexGlobalNode( out BlueprintNode node )
+        internal bool RequestNexGlobalNode( out PipeLineNode node )
         {
             if( currentGlobalNodeIndex < globalNodeList.Count ) {
                 node = globalNodeList[ currentGlobalNodeIndex ];
@@ -155,10 +157,10 @@ namespace StgSharp.Blueprint
             return false;
         }
 
-        internal bool RequestNextNativeNode( out BlueprintNode node )
+        internal bool RequestNextNativeNode( out PipeLineNode node )
         {
-            if( currentNativeNodeIndex < nativeNodeList.Count ) {
-                node = nativeNodeList[ currentNativeNodeIndex ];
+            if( currentNativeNodeIndex < mainThreadNodeList.Count ) {
+                node = mainThreadNodeList[ currentNativeNodeIndex ];
                 Interlocked.Increment( ref currentNativeNodeIndex );
                 return true;
             }

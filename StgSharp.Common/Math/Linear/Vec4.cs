@@ -41,7 +41,7 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     [StructLayout( LayoutKind.Explicit, Size = 16, Pack = 16 )]
-    public struct Vec4 : IEquatable<Vec4>, IVector
+    public struct Vec4 : IEquatable<Vec4>, IVector<Vec4>
     {
 
         [FieldOffset( 0 )] internal unsafe fixed float num[ 4 ];
@@ -57,12 +57,33 @@ namespace StgSharp.Math
 
         internal Vec4( Vector4 v )
         {
+            Unsafe.SkipInit( out X );
+            Unsafe.SkipInit( out Y );
+            Unsafe.SkipInit( out Z );
+            Unsafe.SkipInit( out W );
+            Unsafe.SkipInit( out reg );
+
             vec = v;
         }
 
-        public Vec4( Vec3 v, float w )
+        internal Vec4( M128 v )
         {
-            vec = v.vec;
+            Unsafe.SkipInit( out X );
+            Unsafe.SkipInit( out Y );
+            Unsafe.SkipInit( out Z );
+            Unsafe.SkipInit( out W );
+            Unsafe.SkipInit( out vec );
+
+            reg = v;
+        }
+
+        public Vec4( Vec3 v3, float w )
+        {
+            Unsafe.SkipInit( out X );
+            Unsafe.SkipInit( out Y );
+            Unsafe.SkipInit( out Z );
+            Unsafe.SkipInit( out W );
+            reg = v3.reg;
             W = w;
         }
 
@@ -73,7 +94,7 @@ namespace StgSharp.Math
 
         public unsafe Vec2 XY
         {
-            get => new Vec2( vec );
+            get => new Vec2( reg );
             set
             {
                 X = value.X;
@@ -83,23 +104,23 @@ namespace StgSharp.Math
 
         public unsafe Vec3 XYZ
         {
-            get => new Vec3( vec );
+            get => new Vec3( reg );
             set
             {
                 float w = W;
-                vec = value.vec;
+                reg = value.reg;
                 W = w;
             }
         }
 
         public static Vec4 One
         {
-            get => new Vec4( Vector4.One );
+            get => new Vec4( 1, 1, 1, 1 );
         }
 
         public static Vec4 Zero
         {
-            get => new Vec4( Vector4.Zero );
+            get => new Vec4( 0, 0, 0, 0 );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]

@@ -28,6 +28,9 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.HighPerformance;
+
+using System.Net.Http.Headers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -35,20 +38,20 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     /// <summary>
-    /// A two dimension vector defined by two elements. Vec2Ds in StgSharp are default used as colum
+    /// A two dimension vector defined by two elements. Vec2 in StgSharp are default used as colum
     /// vector.
     /// </summary>
     [StructLayout( LayoutKind.Explicit, Size = 16, Pack = 16 )]
-    public struct Vec2 : IVector
+    public struct Vec2 : IVector<Vec2>
     {
 
         [FieldOffset( 0 )] internal unsafe fixed float num[ 2 ];
 
         [FieldOffset( 0 )]
-        internal Vector2 v;
+        internal M128 reg;
 
         [FieldOffset( 0 )]
-        internal Vector4 vec;
+        internal Vector2 v;
 
         [FieldOffset( 0 )]
         public float X;
@@ -57,12 +60,19 @@ namespace StgSharp.Math
 
         internal Vec2( Vector2 vec )
         {
+            Unsafe.SkipInit( out reg );
+            Unsafe.SkipInit( out X );
+            Unsafe.SkipInit( out Y );
             v = vec;
         }
 
-        internal Vec2( Vector4 vec )
+        internal Vec2( M128 vec )
         {
-            this.vec = vec;
+            Unsafe.SkipInit( out reg );
+            Unsafe.SkipInit( out X );
+            Unsafe.SkipInit( out Y );
+            reg = vec;
+            reg.Write<ulong>( 1, 0 );
         }
 
         public Vec2( float x, float y )
@@ -73,6 +83,27 @@ namespace StgSharp.Math
         public static Vec2 Unit => new Vec2( 1, 1 );
 
         public static Vec2 Zero => new Vec2( 0, 0 );
+
+        public static Vec2 One
+        {
+            get => new Vec2( 1, 1 );
+        }
+
+        public Vec2 XY
+        {
+            get => this;
+            set => this = value;
+        }
+
+        public Vec3 XYZ
+        {
+            get => new Vec3( reg );
+            set
+            {
+                reg = value.reg;
+                reg.Write<ulong>( 1, 0 );
+            }
+        }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public float Cross( Vec2 right )

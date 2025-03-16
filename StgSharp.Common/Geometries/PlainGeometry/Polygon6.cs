@@ -48,24 +48,24 @@ namespace StgSharp.Geometries
         }
 
         public Polygon6(
-            PlainCoordinate coordination,
-            Vec2 vert0,
-            Vec2 vert1,
-            Vec2 vert2,
-            Vec2 vert3,
-            Vec2 vert4,
-            Vec2 vert5,
-            Vec2 vert6 )
+                       PlainCoordinate coordination,
+                       Vec2 vert0,
+                       Vec2 vert1,
+                       Vec2 vert2,
+                       Vec2 vert3,
+                       Vec2 vert4,
+                       Vec2 vert5,
+                       Vec2 vert6 )
             : base( coordination )
         {
             vertexMat = new Vec4[6];
-            vertexMat[ 0 ].vec = vert0.vec;
-            vertexMat[ 1 ].vec = vert1.vec;
-            vertexMat[ 2 ].vec = vert2.vec;
-            vertexMat[ 3 ].vec = vert3.vec;
-            vertexMat[ 4 ].vec = vert4.vec;
-            vertexMat[ 5 ].vec = vert5.vec;
-            vertexMat[ 6 ].vec = vert6.vec;
+            vertexMat[ 0 ].reg = vert0.reg;
+            vertexMat[ 1 ].reg = vert1.reg;
+            vertexMat[ 2 ].reg = vert2.reg;
+            vertexMat[ 3 ].reg = vert3.reg;
+            vertexMat[ 4 ].reg = vert4.reg;
+            vertexMat[ 5 ].reg = vert5.reg;
+            vertexMat[ 6 ].reg = vert6.reg;
         }
 
         public override ReadOnlySpan<int> VertexIndices => Indices;

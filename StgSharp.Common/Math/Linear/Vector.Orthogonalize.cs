@@ -55,8 +55,8 @@ namespace StgSharp.Math
         }
 
         public static unsafe void Orthogonalize(
-            ref Vec4 source,
-            ref Vec4 target )
+                                          ref Vec4 source,
+                                          ref Vec4 target )
         {
             Vector4 s = source.vec;
             Vector4 t = target.vec;
@@ -79,8 +79,8 @@ namespace StgSharp.Math
         /// <param _name="source"></param>
         /// <param _name="target"></param>
         public static unsafe void Orthogonalize(
-            ref Vec3 source,
-            ref Vec3 target )
+                                          ref Vec3 source,
+                                          ref Vec3 target )
         {
             Vector3 s = source.v;
             Vector3 t = target.v;

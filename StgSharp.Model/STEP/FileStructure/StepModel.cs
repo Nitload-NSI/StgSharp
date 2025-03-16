@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Blueprint;
+using StgSharp.PipeLine;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="BlueprintRunner.cs"
+//     file="PipeLineRunner.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Threading;
 
 using System;
@@ -42,9 +41,9 @@ using System.Threading;
 
 using System.Threading.Tasks;
 
-namespace StgSharp.Blueprint
+namespace StgSharp.PipeLine
 {
-    public static class BlueprintRunner
+    public static class PipeLineRunner
     {
 
         private static NodeRunner[] allAvailableTask = CreateBlueprintRunnerArray(
@@ -57,8 +56,9 @@ namespace StgSharp.Blueprint
         private static SemaphoreSlim bpLock = new SemaphoreSlim( 0, 1 );
 
         /// <summary>
-        /// Only the fallowing occasions of calling are valid: 1. no bp is running or the only bp is
-        /// quitting. 2. calling from the main thread and the current running bp.
+        /// <para> Only the following occasions of calling are valid: </para> <para> 1. no bp is
+        /// running or the only bp is quitting. </para><para> 2. calling from the main thread or a
+        /// thread the current bp is running on.</para>
         /// </summary>
         internal static bool IsValidCalling
         {
@@ -66,9 +66,8 @@ namespace StgSharp.Blueprint
             {
                 if( ( NodeRunner.CurrentBlueprint == null ) || //no bp running at all
                     ( ( blueprintInWaiting.IsEmpty ) && ( NodeRunner.CurrentBlueprint.IsRunning ==
-                                                          false ) ) )
- // a bp is quiting
- {
+                                                          false ) ) ) {
+                    // a bp is quitting
                     //in case no bp is running
                     return true;
                 }
@@ -169,7 +168,7 @@ namespace StgSharp.Blueprint
                     allAvailableTask[ i ] = NodeRunner.Run();
                 }
             }
-            BlueprintNode node;
+            PipeLineNode node;
             while( !cts.Token.IsCancellationRequested && NodeRunner.CurrentBlueprint
                     .RequestNextNativeNode( out node ) ) {
                 node.Run();
@@ -215,7 +214,7 @@ namespace StgSharp.Blueprint
         private static void InternalRun( CancellationToken token )
         {
             //Console.WriteLine("Task Begin");
-            BlueprintNode item;
+            PipeLineNode item;
             while( ( CurrentBlueprint != null ) && CurrentBlueprint.IsRunning && !token.IsCancellationRequested && CurrentBlueprint.RequestNexGlobalNode(
                 out item ) ) {
                 //Console.WriteLine($"Get node of {item.Name}, going to run.");

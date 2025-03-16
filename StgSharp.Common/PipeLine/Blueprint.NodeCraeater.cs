@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IGraphicAPIs.cs"
+//     file="PipeLine.NodeCraeater.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -32,14 +32,26 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace StgSharp.Graphics
+namespace StgSharp.PipeLine
 {
-    public interface IGraphicAPIs
+    public partial class BlueprintScheduler
     {
 
-        public IntPtr GraphicApiPackageHandle
+        public PipeLineNode CreateBlueprintNode(
+                                     string name,
+                                     BlueprintNodeOperation operation,
+                                     string[] inputPort,
+                                     string[] outputPort,
+                                     bool isNative )
         {
-            get;
+            PipeLineNode node = new PipeLineNode(
+                operation, name, isNative, inputPort, outputPort );
+            if( isNative ) {
+                mainThreadNodeList.Add( node );
+            } else {
+                globalNodeList.Add( node );
+            }
+            return node;
         }
 
     }

@@ -40,7 +40,7 @@ namespace StgSharp.Math
             LayoutKind.Explicit,
             Size = ( 2 * 2 * 4 * sizeof( float ) ) + sizeof( bool ),
             Pack = 16 )]
-    public struct Matrix22 : IMat
+    public struct Matrix22 : IMatrix<Matrix22>
     {
 
         [FieldOffset( 2 * 2 * 4 * sizeof( float ) )]
@@ -101,7 +101,6 @@ namespace StgSharp.Math
                 float cache = _transpose.m10;
                 _transpose.m10 = _transpose.m01;
                 _transpose.m01 = cache;
-
                 isTransposed = true;
             }
         }

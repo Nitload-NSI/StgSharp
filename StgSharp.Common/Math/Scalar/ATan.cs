@@ -63,11 +63,11 @@ namespace StgSharp.Math
                 angle = 0.7853981634f;
             }
 
-            float v = 0.7853981634f * x + x * (1 - x) * (0.2447f + 0.0663f * x);
-            v += angle;
-            v *= sign;
+            float vec = 0.7853981634f * x + x * (1 - x) * (0.2447f + 0.0663f * x);
+            vec += angle;
+            vec *= sign;
 
-            return v;
+            return vec;
 
 
         }
@@ -105,13 +105,13 @@ namespace StgSharp.Math
                 angle2 = 0.7853981634f;
             }
 
-            float v = 0.7853981634f * z + z * (1 - z) * (0.2447f + 0.0663f * z);
-            v *= 57.29577951f;
-            v += angle2;
-            v += angle;
-            v *= sign;
+            float vec = 0.7853981634f * z + z * (1 - z) * (0.2447f + 0.0663f * z);
+            vec *= 57.29577951f;
+            vec += angle2;
+            vec += angle;
+            vec *= sign;
 
-            return v;
+            return vec;
             */
         }
 

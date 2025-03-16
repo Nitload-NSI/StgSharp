@@ -38,30 +38,22 @@ namespace StgSharp.Geometries
     {
 
         internal readonly float d = -1;
-        internal Vec3 origin;
+        internal Vec3 _origin;
 
         internal Vec3 plainParameter;
         internal Vec3 vec1;
         internal Vec3 vec2;
 
-        internal Plain( Vector4 origin, Vector4 p1, Vector4 p2 )
-        {
-            this.origin = new Vec3( origin );
-
-            vec1 = new Vec3( p1 - origin );
-            vec2 = new Vec3( p2 - origin );
-        }
-
         public Plain( Vec3 o, Vec3 v1, Vec3 v2 )
         {
-            this.origin = o;
-            this.vec1 = v1 - ( v2 * ( v1.Y / v2.Y ) );   //计算平面在xz平面上的方向投影
-            this.vec2 = v2 - ( vec1 * ( v2.X / v1.X ) ); //计算平面在yz平面上的方向投影
+            this._origin = o;
+            this.vec1 = v1 - ( v2 * ( v1.Y / v2.Y ) );   //xz
+            this.vec2 = v2 - ( vec1 * ( v2.X / v1.X ) ); //yz
 
-            //|origin|-k1*|vec1|-k2*|vec2|计算plainParameter.Z；
-            plainParameter.Z = origin.Z - ( vec1.Z * ( origin.X / vec1.X ) ) - ( vec2.Z * ( origin.Y / vec2.Y ) );
+            //|_origin|-k1*|vec1|-k2*|vec2| --> plainParameter.Z；
+            plainParameter.Z = _origin.Z - ( vec1.Z * ( _origin.X / vec1.X ) ) - ( vec2.Z * ( _origin.Y / vec2.Y ) );
 
-            //根据plainParameter.Z和对应的方向矢量计算plainParameter.X和plainParameter.Y
+            //plainParameter.Z -> plainParameter.X, plainParameter.Y
             plainParameter.X = vec1.X * ( vec1.Z / plainParameter.Z );
             plainParameter.Y = vec2.Y * ( vec2.Z / plainParameter.Z );
 
@@ -77,13 +69,13 @@ namespace StgSharp.Geometries
             Vec3 v2 = p3.Coord - origin;
 
 
-            vec1 = v1 - ( v2 * ( v1.Y / v2.Y ) );   //计算平面在xz平面上的方向投影
-            vec2 = v2 - ( vec1 * ( v2.X / v1.X ) ); //计算平面在yz平面上的方向投影
+            vec1 = v1 - ( v2 * ( v1.Y / v2.Y ) );   //xz
+            vec2 = v2 - ( vec1 * ( v2.X / v1.X ) ); //yz
 
-            //|origin|-k1*|vec1|-k2*|vec2|计算plainParameter.Z；
+            //|_origin|-k1*|vec1|-k2*|vec2| --> plainParameter.Z；
             plainParameter.Z = origin.Z - ( vec1.Z * ( origin.X / vec1.X ) ) - ( vec2.Z * ( origin.Y / vec2.Y ) );
 
-            //根据plainParameter.Z和对应的方向矢量计算plainParameter.X和plainParameter.Y
+            //plainParameter.Z --> plainParameter.X, plainParameter.Y
             plainParameter.X = vec1.X * ( vec1.Z / plainParameter.Z );
             plainParameter.Y = vec2.Y * ( vec2.Z / plainParameter.Z );
 

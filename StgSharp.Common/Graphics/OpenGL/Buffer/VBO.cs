@@ -72,10 +72,10 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _name="bufferData"> Data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>
         public void WriteMatrixData<T>(
-            int index,
-            T bufferData,
-            BufferUsage usage )
-            where T: struct, IMat
+                            int index,
+                            T bufferData,
+                            BufferUsage usage )
+            where T: struct, IMatrix<T>
         {
             GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
             GL.SetBufferData( BufferType.ArrayBuffer, bufferData, usage );
@@ -89,9 +89,9 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _name="bufferArray"> Data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>
         public void WriteScalerData<T>(
-            int index,
-            T[] bufferArray,
-            BufferUsage usage )
+                            int index,
+                            T[] bufferArray,
+                            BufferUsage usage )
             where T: struct, INumber<T>
         {
             GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
@@ -106,9 +106,9 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _name="scalerSpan"> A <see cref="Span{T}" /> of _data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>
         public void WriteScalerData<T>(
-            int index,
-            ReadOnlySpan<T> scalerSpan,
-            BufferUsage usage )
+                            int index,
+                            ReadOnlySpan<T> scalerSpan,
+                            BufferUsage usage )
             where T: struct,INumber<T>
         {
             GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
@@ -123,10 +123,10 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _name="vectorSpan"> A <see cref="Span{T}" /> of _data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>
         public void WriteVectorData<T>(
-            int index,
-            ReadOnlySpan<T> vectorSpan,
-            BufferUsage usage )
-            where T: struct, IVector
+                            int index,
+                            ReadOnlySpan<T> vectorSpan,
+                            BufferUsage usage )
+            where T: struct, IVector<T>
         {
             GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
             GL.SetBufferVectorData( BufferType.ArrayBuffer, vectorSpan, usage );
@@ -140,10 +140,10 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _name="vectorArray"> A array of _data to write in </param>
         /// <param _name="usage"> How OpenGL use these _data, defined by <see cref="BufferUsage" /></param>
         public void WriteVectorData<T>(
-            int index,
-            T[] vectorArray,
-            BufferUsage usage )
-            where T: struct, IVector
+                            int index,
+                            T[] vectorArray,
+                            BufferUsage usage )
+            where T: struct, IVector<T>
         {
             GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
             GL.SetBufferVectorData( BufferType.ArrayBuffer, vectorArray,

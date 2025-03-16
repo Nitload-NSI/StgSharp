@@ -50,8 +50,7 @@ namespace StgSharp.Threading
         {
             if( isNotMainThread.Value ) {
                 throw new InvalidOperationException(
-                    $"Attempt to call sensitive operation which can be only called from main thread " 
-                    + $"from thread {Environment.CurrentManagedThreadId}." );
+                    $"Attempt to call sensitive operation which can be only called from main thread " + $"from thread {Environment.CurrentManagedThreadId}." );
             }
         }
 
