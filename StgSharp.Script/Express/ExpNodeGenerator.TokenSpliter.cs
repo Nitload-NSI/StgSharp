@@ -151,7 +151,14 @@ namespace StgSharp.Script.Express
             return true;
         }
 
-        private bool TryAppendPrefixSeparator( Token t ) { }
+        private bool TryAppendPrefixSeparator( Token t )
+        {
+            if( t.Flag != TokenFlag.Separator_Left ) {
+                return false;
+            }
+            _cache.IncreaseDepth( ( int )ExpCompileStateCode.PrefixSeparator );
+            return true;
+        }
 
         private bool TryAppendSymbol( Token t )
         {

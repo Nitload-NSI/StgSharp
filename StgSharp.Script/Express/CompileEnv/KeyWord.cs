@@ -92,9 +92,9 @@ namespace StgSharp.Script.Express
             {
                 get;
             } = [
-                Abs, Acos, Asin, Atan, Blength, Cos, Exists, Exp,
-                Format, Hibound, Hiindex, Length, Lobound, Log,
-                Log2, Log10, Loindex, Nvl, Odd, Rolesof, Sin,
+                Abs, Acos, Asin, Atan, BLength, Cos, Exists, Exp,
+                Format, HiBound, HiIndex, Length, LoBound, Log,
+                Log2, Log10, LoIndex, Nvl, Odd, Rolesof, Sin,
                 Sizeof, Sqrt, Tan, Typeof, Usedin, Value,
                 ValueIn, ValueUnique
             ];
@@ -275,7 +275,6 @@ namespace StgSharp.Script.Express
 
             #endregion
 
-
             #region Operator
 
             public const string And = "AND";
@@ -309,19 +308,19 @@ namespace StgSharp.Script.Express
             public const string Acos = "ACOS";
             public const string Asin = "ASIN";
             public const string Atan = "ATAN";
-            public const string Blength = "BLENGTH";
+            public const string BLength = "BLENGTH";
             public const string Cos = "COS";
             public const string Exists = "EXISTS";
             public const string Exp = "EXP";
             public const string Format = "FORMAT";
-            public const string Hibound = "HIBOUND";
-            public const string Hiindex = "HIINDEX";
+            public const string HiBound = "HIBOUND";
+            public const string HiIndex = "HIINDEX";
             public const string Length = "LENGTH";
-            public const string Lobound = "LObound";
+            public const string LoBound = "LObound";
             public const string Log = "LOG";
             public const string Log2 = "LOG2";
             public const string Log10 = "LOG10";
-            public const string Loindex = "LOINDEX";
+            public const string LoIndex = "LOINDEX";
             public const string Nvl = "NVL";
             public const string Odd = "ODD";
             public const string Rolesof = "ROLESOF";
