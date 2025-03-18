@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeGenerator.Operator.cs"
+//     file="ExpNodeGenerator.OperatorParser.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -34,6 +34,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using ExpKeyWord = StgSharp.Script.Express.ExpCompile.KeyWord;
+
 namespace StgSharp.Script.Express
 {
     public partial class ExpNodeGenerator
@@ -53,25 +55,30 @@ namespace StgSharp.Script.Express
             ExpNode left = GetNextOperandCache();
             ExpNode right = GetNextOperandCache();
             switch( t.Value ) {
-                case ExpCompile.KeyWord.Add:
+                case ExpKeyWord.Add:
                     node = ExpBinaryOperatorNode.Add( t, left, right );
                     return true;
-                case ExpCompile.KeyWord.Sub:
+                case ExpKeyWord.Sub:
                     node = ExpBinaryOperatorNode.Sub( t, left, right );
                     return true;
-                case ExpCompile.KeyWord.Mul:
+                case ExpKeyWord.Mul:
                     node = ExpBinaryOperatorNode.Mul( t, left, right );
                     return true;
-                case ExpCompile.KeyWord.Div:
+                case ExpKeyWord.Div:
                     node = ExpBinaryOperatorNode.Div( t, left, right );
                     return true;
-                case ExpCompile.KeyWord.Equal:
+                case ExpKeyWord.Equal:
                     node = ExpBinaryOperatorNode.EqualTo( t, left, right );
                     return true;
-                case ExpCompile.KeyWord.NotEqual:
+                case ExpKeyWord.NotEqual:
                     node = ExpBinaryOperatorNode.NotEqualTo( t, left, right );
                     return true;
-
+                case ExpKeyWord.GreaterThan:
+                    node = ExpBinaryOperatorNode.GreaterThan( t, left, right );
+                    return true;
+                case ExpKeyWord.LessThan:
+                    node = ExpBinaryOperatorNode.LessThan( t, left, right );
+                    return true;
                 default:
                     node = ExpNode.Empty;
                     return false;
@@ -82,13 +89,13 @@ namespace StgSharp.Script.Express
         {
             ExpNode operand = GetNextOperandCache();
             switch( t.Value ) {
-                case ExpCompile.KeyWord.UnaryPlus:
+                case ExpKeyWord.UnaryPlus:
                     node = ExpUnaryOperatorNode.UnaryPlus( t, operand );
                     return true;
-                case ExpCompile.KeyWord.UnaryMinus:
+                case ExpKeyWord.UnaryMinus:
                     node = ExpUnaryOperatorNode.UnaryMinus( t, operand );
                     return true;
-                case ExpCompile.KeyWord.Not:
+                case ExpKeyWord.Not:
                     node = ExpUnaryOperatorNode.UnaryNot( t, operand );
                     return true;
                 default:

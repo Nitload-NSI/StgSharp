@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeGenerator.StateCommon.cs"
+//     file="ExpNodeGenerator.TokenSpliter.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -44,24 +44,6 @@ namespace StgSharp.Script.Express
         private void AppendToken_Common( Token t )
         {
             switch( t.Flag ) {
-                // operand, check precedence and push
-                case TokenFlag.Symbol_Unary or TokenFlag.Symbol_Binary:
-                    int cmp = -1;
-                    processPrecedence:
-                    Token tmp = _cache.PeekOperator();
-                    cmp = CompareOperatorPrecedence( t, tmp );
-                    if( cmp <= 0 ) {
-                        ConvertOneOperator();
-                        goto processPrecedence;
-                    }
-                    _cache.PushOperand( t );
-                    break;
-
-                // literal, construct and push
-                case TokenFlag.Number or TokenFlag.String:
-                    _cache.PushOperand( t );
-                    break;
-
                 // instance ref, make ref and push
                 // function call, push as operator
                 // keyword, call TryParseConstant method to process
@@ -138,22 +120,56 @@ namespace StgSharp.Script.Express
             };
         }
 
-        private bool TryParseBranch( Token t )
+        private bool TryAppendMember( Token t )
         {
-            if( t.Value == ExpKeyWord.Case ) {
-                _cache.PushOperator( t );
-                _cache.IncreaseDepth( ( int )StateCode.CaseBranch );
-                return true;
-            } else if( t.Value == ExpKeyWord.If ) {
-                _cache.PushOperator( t );
-                _cache.IncreaseDepth( ( int )StateCode.IfBranch );
-                return true;
-            } else if( t.Value == ExpKeyWord.Repeat ) {
-                _cache.PushOperator( t );
-                _cache.IncreaseDepth( ( int )StateCode.RepeatLoop );
+            if( t.Flag != TokenFlag.Member ) {
+                return false;
+            }
+            if( TryParseConstant( t ) ) {
                 return true;
             }
-            return false;
+            if( TryParseFunction( t ) ) {
+                return true;
+            }
+            if( TryParseInstance( t ) ) {
+                return true;
+            }
+
+            //Many thing miss here
+
+            _cache.PushOperand( ExpElementMemberNameNode.Create( t ) );
+
+            return true;
+        }
+
+        private bool TryAppendNumAndStrLiteral( Token t )
+        {
+            if( ( t.Flag & ( TokenFlag.String | TokenFlag.Number ) ) == 0 ) {
+                return false;
+            }
+            _cache.PushOperand( ExpElementInstanceBase.CreateLiteral( t ) );
+            return true;
+        }
+
+        private bool TryAppendPrefixSeparator( Token t ) { }
+
+        private bool TryAppendSymbol( Token t )
+        {
+            if( ( t.Flag & ( TokenFlag.Symbol_Unary | TokenFlag.Symbol_Binary ) ) ==
+                0 ) {
+                return false;
+            }
+
+            int cmp = -1;
+            processPrecedence:
+            Token tmp = _cache.PeekOperator();
+            cmp = CompareOperatorPrecedence( t, tmp );
+            if( cmp <= 0 ) {
+                ConvertOneOperator();
+                goto processPrecedence;
+            }
+            _cache.PushOperand( t );
+            return true;
         }
 
         private bool TryParseConstant( Token t )
@@ -172,12 +188,21 @@ namespace StgSharp.Script.Express
         {
             if( ExpKeyWord.BuiltinFunctions.Contains( t.Value ) ) {
                 _cache.PushOperator( t );
-                _cache.IncreaseDepth( ( int )StateCode.FunctionCalling );
                 return true;
             } else if( _context.TryGetFunction(
                        t.Value, out ExpFunctionSource? f ) ) {
                 _cache.PushOperand( t );
-                _cache.IncreaseDepth( ( int )StateCode.FunctionCalling );
+                return true;
+            }
+            return false;
+        }
+
+        private bool TryParseInstance( Token t )
+        {
+            if( _local.TryGetMember( t.Value,
+                                     out ExpNode? node ) && node is ExpElementInstanceNode instance ) {
+                _cache.PushOperand(
+                    ExpInstanceReferenceNode.Create( t, instance ) );
                 return true;
             }
             return false;

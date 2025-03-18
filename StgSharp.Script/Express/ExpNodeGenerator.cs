@@ -107,16 +107,17 @@ namespace StgSharp.Script.Express
 
         /**/
 
-        public enum StateCode
+        public enum ExpCompileStateCode
         {
 
             Common,
-            FunctionCalling,
             ForLoop,
             RepeatLoop,
             UntilLoop,
             IfBranch,
             CaseBranch,
+            PrefixSeparator,
+            MiddleSeparator,
 
         }
 

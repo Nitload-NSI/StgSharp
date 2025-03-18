@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpElementMemberNameNode.cs"
+//     file="ExpNodeGenerator.BranchParser.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -34,37 +34,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using ExpKeyWord = StgSharp.Script.Express.ExpCompile.KeyWord;
+
 namespace StgSharp.Script.Express
 {
-    public class ExpElementMemberNameNode : ExpNode
+    public partial class ExpNodeGenerator
     {
 
-        internal ExpElementMemberNameNode( Token source )
-            : base( source )
+        private bool TryParseBranch( Token t )
         {
-            _nodeFlag = ExpNodeFlag.Name_Operator;
-            CodeConvertTemplate = source.Value;
-        }
-
-        public override ExpNode Left => Empty;
-
-        public override ExpNode Right => Empty;
-
-        public override IExpElementSource EqualityTypeConvert
-        {
-            get
-            {
-                ExpSchema.BuiltinSchema
-                        .TryGetType(
-                            ExpCompile.KeyWord.String,
-                            out ExpTypeSource? strType );
-                return strType;
+            if( t.Value == ExpKeyWord.Case ) {
+                _cache.PushOperator( t );
+                _cache.IncreaseDepth( ( int )ExpCompileStateCode.CaseBranch );
+                return true;
+            } else if( t.Value == ExpKeyWord.If ) {
+                _cache.PushOperator( t );
+                _cache.IncreaseDepth( ( int )ExpCompileStateCode.IfBranch );
+                return true;
+            } else if( t.Value == ExpKeyWord.Repeat ) {
+                _cache.PushOperator( t );
+                _cache.IncreaseDepth( ( int )ExpCompileStateCode.RepeatLoop );
+                return true;
             }
-        }
-
-        public static ExpElementMemberNameNode Create( Token t )
-        {
-            return new ExpElementMemberNameNode( t );
+            return false;
         }
 
     }

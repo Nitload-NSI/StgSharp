@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,11 +40,11 @@ namespace StgSharp.Script.Express
     public class ExpInstanceReferenceNode : ExpNode
     {
 
-        private ExpElementInstanceBase _instance;
+        private ExpElementInstanceNode _instance;
 
-        public ExpInstanceReferenceNode(
-                       Token source,
-                       ExpElementInstanceBase instance )
+        internal ExpInstanceReferenceNode(
+                         Token source,
+                         ExpElementInstanceNode instance )
             : base( source )
         {
             _instance = instance;
@@ -55,6 +56,14 @@ namespace StgSharp.Script.Express
         public override ExpNode Right => Empty;
 
         public override IExpElementSource EqualityTypeConvert => _instance.EqualityTypeConvert;
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static ExpInstanceReferenceNode Create(
+                                                       Token source,
+                                                       ExpElementInstanceNode instance )
+        {
+            return new ExpInstanceReferenceNode( source, instance );
+        }
 
     }
 }

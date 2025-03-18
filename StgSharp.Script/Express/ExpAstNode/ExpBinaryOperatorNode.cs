@@ -147,6 +147,23 @@ namespace StgSharp.Script.Express
             };
         }
 
+        public static ExpBinaryOperatorNode LessThan(
+                                                    Token source,
+                                                    ExpNode left,
+                                                    ExpNode right )
+        {
+            if( !left.IsNumber && !right.IsNumber ) {
+                throw new ExpInvalidTypeException(
+                    "Number", left.EqualityTypeConvert.Name );
+            }
+            return new ExpBinaryOperatorNode( source )
+            {
+                _returnType = ExpCompile.ExpBool,
+                _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
+                CodeConvertTemplate = "{0} < {1}",
+            };
+        }
+
         public static ExpBinaryOperatorNode Mul(
                                                     Token source,
                                                     ExpNode left,
