@@ -51,7 +51,7 @@ namespace StgSharp.Math
 
         public static Vec3 Orthogonalize( Vec3 vec )
         {
-            return new Vec3 { vec = Vector4.Normalize( vec.vec ) };
+            return new Vec3 { v = Vector3.Normalize( vec.v ) };
         }
 
         public static unsafe void Orthogonalize(

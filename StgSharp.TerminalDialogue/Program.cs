@@ -51,11 +51,11 @@ namespace StgSharpTerminalDialogue
             };
 
             Task renderTask = Task.Factory
-                .StartNew(
-                    () => {
-                        _dv = DialogueView.Single;
-                        Application.Run( view: _dv );
-                    } );
+                    .StartNew(
+                        () => {
+                            _dv = DialogueView.Single;
+                            Application.Run( view: _dv );
+                        } );
 
             /**/
             if( args.Length != 2 ) {
@@ -95,6 +95,7 @@ namespace StgSharpTerminalDialogue
                     }
                 }
             }
-        } 
+        }
+
     }
 }

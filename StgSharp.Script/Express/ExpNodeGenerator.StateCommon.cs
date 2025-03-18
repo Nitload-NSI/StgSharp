@@ -98,14 +98,28 @@ namespace StgSharp.Script.Express
                     //Convert operator until meet a matched separator
                     while( _cache.TryPopOperator( out Token op ) ) {
                         if( IsSeparatorMatch( t, op ) ) {
+                            if( _cache.OperatorAheadOfDepth == 0 ) {
+                                _cache.TryPeekOperand(
+                                    out _, out Token tOperand,
+                                    out ExpNode nOperand );
+
+                                return;
+                            }
+                        } else {
                             return;
-                        } else { }
+                        }
                     }
 
                     break;
+
+
                 case TokenFlag.Index_Left:               // a [ found
-                    break;
+                    _cache.PushOperand( t );
+                    return;
                 case TokenFlag.Index_Right:              // a ] found
+                    while( _cache.TryPopOperator( out Token op ) ) {
+                        if( op.Value == ExpKeyWord.IndexOf ) { } else { }
+                    }
                     break;
                 default:
                     break;

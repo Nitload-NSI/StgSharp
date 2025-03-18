@@ -175,6 +175,37 @@ namespace StgSharp.Script
             _isNode.Push( false );
         }
 
+        public bool TryPeekOperand( out bool isNode, out Token t, out TNode n )
+        {
+            if( OperandAheadOfDepth <= 0 ) {
+                t = Token.Empty;
+                n = TNode.Empty;
+                isNode = false;
+                return false;
+            }
+            if( _isNode.Pop() ) {
+                t = Token.Empty;
+                n = _nodeArray[ _nodeCount - 1 ];
+                isNode = true;
+                return true;
+            } else {
+                t = _tokenArray[ _tokenCount - 1 ];
+                n = TNode.Empty;
+                isNode = false;
+                return false;
+            }
+        }
+
+        public bool TryPeekOperator( out Token op )
+        {
+            if( OperatorAheadOfDepth > 0 ) {
+                op = _operatorArray[ _operatorCount - 1 ];
+                return true;
+            }
+            op = Token.Empty;
+            return false;
+        }
+
         public bool TryPopOperand( out bool isNode, out Token t, out TNode n )
         {
             if( OperandAheadOfDepth <= 0 ) {
