@@ -43,10 +43,10 @@ namespace StgSharp.Script.Express
 
         private ExpNode _parameter;
 
-        public ExpFunctionCallingNode(
-                       Token source,
-                       ExpFunctionSource function,
-                       ExpNode firstParameter )
+        private ExpFunctionCallingNode(
+                        Token source,
+                        ExpFunctionSource function,
+                        ExpNode firstParameter )
             : base( source )
         {
             _function = function;
@@ -63,6 +63,14 @@ namespace StgSharp.Script.Express
         public void AppendParameter( ExpNode parameter )
         {
             _parameter.AppendNode( parameter );
+        }
+
+        public static ExpFunctionCallingNode CallFunction(
+                                                     Token source,
+                                                     ExpFunctionSource function,
+                                                     ExpNode param )
+        {
+            return new ExpFunctionCallingNode( source, function, param );
         }
 
     }

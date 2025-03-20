@@ -28,16 +28,19 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using StgSharp.Threading;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyWord = StgSharp.Script.Express.ExpCompile.KeyWord;
+using ExpKeyword = StgSharp.Script.Express.ExpCompile.KeyWord;
 
 namespace StgSharp.Script.Express
 {
@@ -68,7 +71,28 @@ namespace StgSharp.Script.Express
         /// </summary>
         public void AppendToken( Token expToken )
         {
-            switch( _cache.CurrentDepthMark.State ) {
+            switch( expToken.Flag ) {
+                case TokenFlag.Symbol_Unary or TokenFlag.Symbol_Binary:
+                    TryAppendSymbol( expToken );
+                    break;
+                case TokenFlag.Member:
+                    TryAppendMember( expToken );
+                    break;
+                case TokenFlag.Separator_Left:
+                    TryAppendPrefixSeparator( expToken );
+                    break;
+                case TokenFlag.Separator_Right:
+                    TryAppendPrefixSeparatorEnd( expToken );
+                    break;
+                case TokenFlag.Separator_Middle:
+                    TryAppendMiddleSeparator( expToken );
+                    break;
+                case TokenFlag.Index_Left:
+                    TryAppendIndexLeft( expToken );
+                    break;
+                case TokenFlag.Index_Right:
+                    TryAppendIndexRight( expToken );
+                    break;
                 default:
                     break;
             }
@@ -81,28 +105,6 @@ namespace StgSharp.Script.Express
             } else { }
 
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// WARNING: This method cannot process INDEXOF, FUNCTION CALLING, LOOP and any ENDING
-        /// SYMBOLS.
-        /// </summary>
-        private void ConvertOneOperator()
-        {
-            Token @operator = _cache.PopOperator();
-
-            switch( @operator.Flag ) {
-                case TokenFlag.Symbol_Unary:
-                    TryGenerateUnaryNode( @operator, out ExpNode? node );
-                    _cache.PushOperand( node );
-                    break;
-                case TokenFlag.Symbol_Binary:
-                    TryGenerateBinaryNode( @operator, out node );
-                    _cache.PushOperand( node );
-                    break;
-                default:
-                    break;
-            }
         }
 
         /**/
@@ -118,6 +120,7 @@ namespace StgSharp.Script.Express
             CaseBranch,
             PrefixSeparator,
             MiddleSeparator,
+            CollectionIndex,
 
         }
 

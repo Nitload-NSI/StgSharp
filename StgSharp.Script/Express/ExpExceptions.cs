@@ -34,6 +34,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace StgSharp.Script.Express
@@ -54,6 +55,25 @@ namespace StgSharp.Script.Express
 
         public ExpInvalidTokenException( int index )
             : base( $"Cannot read a token from line at {index}" ) { }
+
+    }
+
+    public class ExpInvalidSyntaxException : Exception
+    {
+
+        public ExpInvalidSyntaxException( string message ) : base( message ) { }
+
+        public static void ThrowNonCollectionIndex( Token t )
+        {
+            throw new ExpInvalidSyntaxException(
+                $"Use a collection indexer to a non-collection variable at line {t.Line} column {t.Column}" );
+        }
+
+        public static void ThrowNoOperator( Token t )
+        {
+            throw new ExpInvalidSyntaxException(
+                $"No operator but more than one operand before line {t.Line} column {t.Column}" );
+        }
 
     }
 
@@ -134,6 +154,15 @@ namespace StgSharp.Script.Express
         public ExpCompileNotInitializedException()
             : base(
             "Attempt to compile an EXPRESS script before the init of compiler." ) { }
+
+    }
+
+    public class  ExpCompileException : Exception
+    {
+
+        public ExpCompileException( Token pos, string message )
+            : base(
+            $"Compiler exception occour when processing token at line {pos.Line}, column {pos.Column}. Detailed message:{Environment.NewLine}{message} " ) { }
 
     }
 }

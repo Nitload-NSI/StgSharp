@@ -34,7 +34,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyWord = StgSharp.Script.Express.ExpCompile.KeyWord;
+using ExpKeyword = StgSharp.Script.Express.ExpCompile.KeyWord;
 
 namespace StgSharp.Script.Express
 {
@@ -55,28 +55,28 @@ namespace StgSharp.Script.Express
             ExpNode left = GetNextOperandCache();
             ExpNode right = GetNextOperandCache();
             switch( t.Value ) {
-                case ExpKeyWord.Add:
+                case ExpKeyword.Add:
                     node = ExpBinaryOperatorNode.Add( t, left, right );
                     return true;
-                case ExpKeyWord.Sub:
+                case ExpKeyword.Sub:
                     node = ExpBinaryOperatorNode.Sub( t, left, right );
                     return true;
-                case ExpKeyWord.Mul:
+                case ExpKeyword.Mul:
                     node = ExpBinaryOperatorNode.Mul( t, left, right );
                     return true;
-                case ExpKeyWord.Div:
+                case ExpKeyword.Div:
                     node = ExpBinaryOperatorNode.Div( t, left, right );
                     return true;
-                case ExpKeyWord.Equal:
+                case ExpKeyword.Equal:
                     node = ExpBinaryOperatorNode.EqualTo( t, left, right );
                     return true;
-                case ExpKeyWord.NotEqual:
+                case ExpKeyword.NotEqual:
                     node = ExpBinaryOperatorNode.NotEqualTo( t, left, right );
                     return true;
-                case ExpKeyWord.GreaterThan:
+                case ExpKeyword.GreaterThan:
                     node = ExpBinaryOperatorNode.GreaterThan( t, left, right );
                     return true;
-                case ExpKeyWord.LessThan:
+                case ExpKeyword.LessThan:
                     node = ExpBinaryOperatorNode.LessThan( t, left, right );
                     return true;
                 default:
@@ -89,18 +89,65 @@ namespace StgSharp.Script.Express
         {
             ExpNode operand = GetNextOperandCache();
             switch( t.Value ) {
-                case ExpKeyWord.UnaryPlus:
+                case ExpKeyword.UnaryPlus:
                     node = ExpUnaryOperatorNode.UnaryPlus( t, operand );
                     return true;
-                case ExpKeyWord.UnaryMinus:
+                case ExpKeyword.UnaryMinus:
                     node = ExpUnaryOperatorNode.UnaryMinus( t, operand );
                     return true;
-                case ExpKeyWord.Not:
+                case ExpKeyword.Not:
                     node = ExpUnaryOperatorNode.UnaryNot( t, operand );
                     return true;
                 default:
                     node = ExpNode.Empty;
                     return false;
+            }
+        }
+
+        /// <summary>
+        /// WARNING: This method cannot process INDEXOF, FUNCTION CALLING, LOOP and any ENDING
+        /// SYMBOLS.
+        /// </summary>
+        private void ConvertOneOperator()
+        {
+            Token @operator = _cache.PopOperator();
+
+            switch( @operator.Flag ) {
+                case TokenFlag.Symbol_Unary:
+                    TryGenerateUnaryNode( @operator, out ExpNode? node );
+                    _cache.PushOperand( node );
+                    break;
+                case TokenFlag.Symbol_Binary:
+                    TryGenerateBinaryNode( @operator, out node );
+                    _cache.PushOperand( node );
+                    break;
+                case TokenFlag.Member:
+                    if( _context.TryGetFunction(
+                        @operator.Value, out ExpFunctionSource? f ) ) {
+                        if( !_cache.PopOperand( out Token t,
+                                                out ExpNode? p ) ) {
+                            ExpFunctionCallingNode.CallFunction(
+                                @operator, f, p );
+                        } else {
+                            throw new ExpCompileException(
+                                t,
+                                "An ExpNode for function calling is needed, but a token was popped" );
+                        }
+                    } else if( ExpSchema.BuiltinSchema
+                                   .TryGetFunction( @operator.Value, out f ) ) {
+                        if( !_cache.PopOperand( out Token t,
+                                                out ExpNode? p ) ) {
+                            ExpFunctionCallingNode.CallFunction(
+                                @operator, f, p );
+                        } else {
+                            throw new ExpCompileException(
+                                t,
+                                "An ExpNode for function calling is needed, but a token was popped" );
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 

@@ -172,7 +172,6 @@ namespace StgSharp.Script
             }
             _operatorArray[ _operatorCount ] = token;
             _operatorCount++;
-            _isNode.Push( false );
         }
 
         public bool TryPeekOperand( out bool isNode, out Token t, out TNode n )
@@ -223,7 +222,7 @@ namespace StgSharp.Script
                 t = _tokenArray[ --_tokenCount ];
                 n = TNode.Empty;
                 isNode = false;
-                return false;
+                return true;
             }
         }
 

@@ -40,14 +40,23 @@ namespace StgSharp.Script.Express
     public class ExpInstanceReferenceNode : ExpNode
     {
 
-        private ExpElementInstanceNode _instance;
+        private ExpElementInstanceBase _instance;
 
         internal ExpInstanceReferenceNode(
                          Token source,
-                         ExpElementInstanceNode instance )
+                         ExpElementInstanceBase instance )
             : base( source )
         {
             _instance = instance;
+            _nodeFlag = ( _instance._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
+        }
+
+        internal ExpInstanceReferenceNode(
+                         Token source,
+                         ExpInstanceReferenceNode reference )
+            : base( source )
+        {
+            _instance = reference._instance;
             _nodeFlag = ( _instance._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
         }
 
@@ -60,7 +69,7 @@ namespace StgSharp.Script.Express
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static ExpInstanceReferenceNode Create(
                                                        Token source,
-                                                       ExpElementInstanceNode instance )
+                                                       ExpElementInstanceBase instance )
         {
             return new ExpInstanceReferenceNode( source, instance );
         }

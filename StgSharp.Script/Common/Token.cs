@@ -78,7 +78,7 @@ namespace StgSharp.Script
         Number = 3,
         String = 4,
         Member = 5,
-        Separator_Single = 6,
+        Separator_Middle = 6,
         Separator_Left = 7,
         Separator_Right = 8,
         Index_Left = 9,
