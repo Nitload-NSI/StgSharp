@@ -50,7 +50,76 @@ namespace StgSharp.Script.Express
             return leftPrecedence - rightPrecedence;
         }
 
-        public bool TryGenerateBinaryNode( Token t, out ExpNode node )
+        public bool TryGenerateUnaryNode( Token t, out ExpNode node )
+        {
+            ExpNode operand = GetNextOperandCache();
+            switch( t.Value ) {
+                case ExpKeyword.UnaryPlus:
+                    node = ExpUnaryOperatorNode.UnaryPlus( t, operand );
+                    return true;
+                case ExpKeyword.UnaryMinus:
+                    node = ExpUnaryOperatorNode.UnaryMinus( t, operand );
+                    return true;
+                case ExpKeyword.Not:
+                    node = ExpUnaryOperatorNode.UnaryNot( t, operand );
+                    return true;
+                default:
+                    node = ExpNode.Empty;
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// WARNING: This method cannot process INDEXOF, FUNCTION CALLING, LOOP and any ENDING
+        /// SYMBOLS.
+        /// </summary>
+        private ExpNode ConvertOneOperator( Token op )
+        {
+            switch( op.Flag ) {
+                case TokenFlag.Symbol_Unary:
+                    TryGenerateUnaryNode( op, out ExpNode? node );
+                    _cache.PushOperand( node );
+                    return node;
+                case TokenFlag.Symbol_Binary:
+                    TryGenerateBinaryNode( op, out node );
+                    _cache.PushOperand( node );
+                    return node;
+                case TokenFlag.Member:
+                    if( _context.TryGetFunction(
+                        op.Value, out ExpFunctionSource? f ) ) {
+                        if( !_cache.PopOperand( out Token t,
+                                                out ExpNode? p ) ) {
+                            node = ExpFunctionCallingNode.CallFunction(
+                                op, f, p );
+                            return node;
+                        } else {
+                            throw new ExpCompileException(
+                                t,
+                                "An ExpNode for function calling is needed, but a token was popped" );
+                        }
+                    } else if( ExpSchema.BuiltinSchema
+                                   .TryGetFunction( op.Value, out f ) ) {
+                        if( !_cache.PopOperand( out Token t,
+                                                out ExpNode? p ) ) {
+                            node = ExpFunctionCallingNode.CallFunction(
+                                op, f, p );
+                            return node;
+                        } else {
+                            throw new ExpCompileException(
+                                t,
+                                "An ExpNode for function calling is needed, but a token was popped" );
+                        }
+                    } else {
+                        throw new NotImplementedException();
+
+                        //uncertain case here
+                    }
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private bool TryGenerateBinaryNode( Token t, out ExpNode node )
         {
             ExpNode left = GetNextOperandCache();
             ExpNode right = GetNextOperandCache();
@@ -82,72 +151,6 @@ namespace StgSharp.Script.Express
                 default:
                     node = ExpNode.Empty;
                     return false;
-            }
-        }
-
-        public bool TryGenerateUnaryNode( Token t, out ExpNode node )
-        {
-            ExpNode operand = GetNextOperandCache();
-            switch( t.Value ) {
-                case ExpKeyword.UnaryPlus:
-                    node = ExpUnaryOperatorNode.UnaryPlus( t, operand );
-                    return true;
-                case ExpKeyword.UnaryMinus:
-                    node = ExpUnaryOperatorNode.UnaryMinus( t, operand );
-                    return true;
-                case ExpKeyword.Not:
-                    node = ExpUnaryOperatorNode.UnaryNot( t, operand );
-                    return true;
-                default:
-                    node = ExpNode.Empty;
-                    return false;
-            }
-        }
-
-        /// <summary>
-        /// WARNING: This method cannot process INDEXOF, FUNCTION CALLING, LOOP and any ENDING
-        /// SYMBOLS.
-        /// </summary>
-        private void ConvertOneOperator()
-        {
-            Token @operator = _cache.PopOperator();
-
-            switch( @operator.Flag ) {
-                case TokenFlag.Symbol_Unary:
-                    TryGenerateUnaryNode( @operator, out ExpNode? node );
-                    _cache.PushOperand( node );
-                    break;
-                case TokenFlag.Symbol_Binary:
-                    TryGenerateBinaryNode( @operator, out node );
-                    _cache.PushOperand( node );
-                    break;
-                case TokenFlag.Member:
-                    if( _context.TryGetFunction(
-                        @operator.Value, out ExpFunctionSource? f ) ) {
-                        if( !_cache.PopOperand( out Token t,
-                                                out ExpNode? p ) ) {
-                            ExpFunctionCallingNode.CallFunction(
-                                @operator, f, p );
-                        } else {
-                            throw new ExpCompileException(
-                                t,
-                                "An ExpNode for function calling is needed, but a token was popped" );
-                        }
-                    } else if( ExpSchema.BuiltinSchema
-                                   .TryGetFunction( @operator.Value, out f ) ) {
-                        if( !_cache.PopOperand( out Token t,
-                                                out ExpNode? p ) ) {
-                            ExpFunctionCallingNode.CallFunction(
-                                @operator, f, p );
-                        } else {
-                            throw new ExpCompileException(
-                                t,
-                                "An ExpNode for function calling is needed, but a token was popped" );
-                        }
-                    }
-                    break;
-                default:
-                    break;
             }
         }
 

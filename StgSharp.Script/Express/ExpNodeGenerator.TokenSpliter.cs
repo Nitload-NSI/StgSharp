@@ -41,14 +41,19 @@ namespace StgSharp.Script.Express
     public partial class ExpNodeGenerator
     {
 
-        private bool IsSeparatorMatch( Token source, Token target )
+        private bool IsSeparatorMatch(
+                             Token leftSperator,
+                             Token rightSeparator )
         {
-            return source.Value switch
+            return leftSperator.Value switch
             {
-                ExpKeyword.LeftBrace => target.Value == ExpKeyword.RightBrace,
-                ExpKeyword.LeftParen => target.Value == ExpKeyword.RightParen,
-                ExpKeyword.Comma => target.Value == ExpKeyword.Comma,
-                ExpKeyword.Semicolon => target.Value == ExpKeyword.Semicolon,
+                ExpKeyword.LeftBrace => rightSeparator.Value ==
+                                        ExpKeyword.RightBrace,
+                ExpKeyword.LeftParen => rightSeparator.Value ==
+                                        ExpKeyword.RightParen,
+                ExpKeyword.Comma => rightSeparator.Value == ExpKeyword.Comma,
+                ExpKeyword.Semicolon => rightSeparator.Value ==
+                                        ExpKeyword.Semicolon,
                 _ => false
             };
         }
@@ -76,9 +81,15 @@ namespace StgSharp.Script.Express
             }
 
             //reverse building
+            ClosePrefixReverse( t );
 
             //make index node
-            _cache.PushOperand( ExpCollectionIndexNode.Create( t ) );
+            _cache.PopOperand( out _, out ExpNode? expNode );
+            if( !_cache.PopOperand(
+                out Token colleToken, out ExpNode? colleNode ) ) { }
+            _cache.PushOperand(
+                ExpCollectionIndexNode.Create(
+                    t, ( colleNode as ExpCollectionInstanceBase )!, expNode ) );
             return true;
         }
 
@@ -128,7 +139,8 @@ namespace StgSharp.Script.Express
                     _cache.PushOperand( t );
                     _cache.PushOperator( t );
                 } else {
-                    ConvertOneOperator();
+                    ExpNode node = ConvertOneOperator( op );
+                    _cache.PushOperand( node );
                     goto processOperator;
                 }
             }
@@ -158,9 +170,7 @@ namespace StgSharp.Script.Express
             if( t.Flag != TokenFlag.Separator_Right ) {
                 return false;
             }
-
-            //convert all operator to node until meet a prefix separator
-
+            ClosePrefixReverse( t );
             return true;
         }
 
@@ -173,11 +183,13 @@ namespace StgSharp.Script.Express
 
             int cmp = -1;
             processPrecedence:
-            Token tmp = _cache.PeekOperator();
-            cmp = CompareOperatorPrecedence( t, tmp );
-            if( cmp <= 0 ) {
-                ConvertOneOperator();
-                goto processPrecedence;
+            if( _cache.TryPopOperator( out Token tmp ) ) {
+                cmp = CompareOperatorPrecedence( t, tmp );
+                if( cmp <= 0 ) {
+                    ExpNode node = ConvertOneOperator( tmp );
+                    _cache.PushOperand( node );
+                    goto processPrecedence;
+                }
             }
             _cache.PushOperand( t );
             return true;
