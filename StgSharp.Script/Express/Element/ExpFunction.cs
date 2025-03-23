@@ -48,6 +48,18 @@ namespace StgSharp.Script.Express
             _transmitter = transmitter;
         }
 
+        public Dictionary<string, ExpElementInstanceBase> FuncParams
+        {
+            get;
+            init;
+        } = new Dictionary<string, ExpElementInstanceBase>();
+
+        public Dictionary<string, ExpElementInstanceBase> LocalVariables
+        {
+            get;
+            init;
+        } = new Dictionary<string, ExpElementInstanceBase>();
+
         public override ExpElementType ElementType => ExpElementType.Function;
 
         public override IScriptSourceProvider SourceProvider => _transmitter;
@@ -77,6 +89,16 @@ namespace StgSharp.Script.Express
 
         public override bool TryGetMember( string name, out ExpNode memberNode )
         {
+            if( FuncParams.TryGetValue(
+                name, out ExpElementInstanceBase? param ) ) {
+                memberNode = param;
+                return true;
+            }
+            if( LocalVariables.TryGetValue(
+                name, out ExpElementInstanceBase? variable ) ) {
+                memberNode = variable;
+                return true;
+            }
             memberNode = ExpNode.Empty;
             return false;
         }

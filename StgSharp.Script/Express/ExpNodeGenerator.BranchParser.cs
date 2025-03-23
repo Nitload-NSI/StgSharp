@@ -34,7 +34,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpCompile.KeyWord;
+using ExpKeyword = StgSharp.Script.Express.ExpressCompile.KeyWord;
 
 namespace StgSharp.Script.Express
 {

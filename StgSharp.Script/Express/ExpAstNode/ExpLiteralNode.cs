@@ -51,13 +51,13 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
                         .TryGetType(
-                            ExpCompile.KeyWord.Integer,
+                            ExpressCompile.KeyWord.Integer,
                             out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
         public int Value => _value;
 
-        public override string TypeName => ExpCompile.KeyWord.Integer;
+        public override string TypeName => ExpressCompile.KeyWord.Integer;
 
     }
 
@@ -75,7 +75,7 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
                         .TryGetType(
-                            ExpCompile.KeyWord.String,
+                            ExpressCompile.KeyWord.String,
                             out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
@@ -101,7 +101,7 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
                         .TryGetType(
-                            ExpCompile.KeyWord.Boolean,
+                            ExpressCompile.KeyWord.Boolean,
                             out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
@@ -125,7 +125,7 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
                         .TryGetType(
-                            ExpCompile.KeyWord.String,
+                            ExpressCompile.KeyWord.String,
                             out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
@@ -149,7 +149,7 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
                         .TryGetType(
-                            ExpCompile.KeyWord.Logical,
+                            ExpressCompile.KeyWord.Logical,
                             out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpCompile.cs"
+//     file="ExpressCompile.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -42,7 +42,7 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public static partial class ExpCompile
+    public static partial class ExpressCompile
     {
 
         private static string[] _operatorsWithLetter;
@@ -82,7 +82,7 @@ namespace StgSharp.Script.Express
             _compileStringCache = new StringPool();
             _multiplexer = new ConcurrentStringHashMultiplexer();
 
-            ExpSchema_Nitload.Only.Init();
+            ExpSchema_Builtin.Only.Init();
 
             PoolKeywords();
             InitPrecedence();
@@ -99,18 +99,18 @@ namespace StgSharp.Script.Express
                 KeyWord.Not,
                 ];
 
-            ExpSchema_Nitload.Only
+            ExpSchema_Builtin.Only
                     .TryGetType(
                         PoolString( KeyWord.Integer ),
                         out ExpTypeSource? _expInt );
             ExpInt = _expInt;
 
-            ExpSchema_Nitload.Only
+            ExpSchema_Builtin.Only
                     .TryGetType(
                         PoolString( KeyWord.Real ),
                         out ExpTypeSource? _expReal );
             ExpReal = _expReal;
-            ExpSchema_Nitload.Only
+            ExpSchema_Builtin.Only
                     .TryGetType(
                         PoolString( KeyWord.Boolean ),
                         out ExpTypeSource? _expBool );

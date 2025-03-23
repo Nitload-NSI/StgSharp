@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public static partial class ExpCompile
+    public static partial class ExpressCompile
     {
 
         public static bool TryGetOperatorPrecedence(

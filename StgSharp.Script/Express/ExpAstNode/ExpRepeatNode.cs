@@ -36,7 +36,7 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpRepeatToken : ExpNode
+    public class ExpRepeatNode : ExpNode
     {
 
         //TODO: Current code cannot represent full functionality defined in ISO10303, need rewrite.
@@ -45,7 +45,7 @@ namespace StgSharp.Script.Express
 
         private ExpNode _operationBegin;
 
-        public ExpRepeatToken(
+        public ExpRepeatNode(
                        Token source,
                        ExpNode operationBegin,
                        ExpElementInstanceBase variable,
@@ -64,14 +64,14 @@ namespace StgSharp.Script.Express
                     case ExpNodeFlag.BuiltinType_Real:
                         increment = new ExpRealNumberNode(
                             new Token(
-                                ExpCompile.PoolString( "1.0f" ), source.Line,
+                                ExpressCompile.PoolString( "1.0f" ), source.Line,
                                 -1, TokenFlag.Number ),
                             1.0f );
                         break;
                     case ExpNodeFlag.BuiltinType_Int:
                         increment = new ExpIntNode(
                             new Token(
-                                ExpCompile.PoolString( "1" ), source.Line, -1,
+                                ExpressCompile.PoolString( "1" ), source.Line, -1,
                                 TokenFlag.Number ),
                             1 );
                         break;

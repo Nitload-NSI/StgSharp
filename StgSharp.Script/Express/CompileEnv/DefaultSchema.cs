@@ -34,23 +34,23 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 
-using static StgSharp.Script.Express.ExpCompile;
+using static StgSharp.Script.Express.ExpressCompile;
 
 namespace StgSharp.Script.Express
 {
-    internal partial class ExpSchema_Nitload : ExpSchema
+    internal partial class ExpSchema_Builtin : ExpSchema
     {
 
-        private static readonly ExpSchema_Nitload _onlyInstance = new ExpSchema_Nitload(
+        private static readonly ExpSchema_Builtin _onlyInstance = new ExpSchema_Builtin(
             );
 
-        private ExpSchema_Nitload()
+        private ExpSchema_Builtin()
             : base()
         {
             Name = "Nitload";
         }
 
-        internal static ExpSchema_Nitload Only
+        internal static ExpSchema_Builtin Only
         {
             get => _onlyInstance;
         }

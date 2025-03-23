@@ -34,7 +34,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpCompile.KeyWord;
+using ExpKeyword = StgSharp.Script.Express.ExpressCompile.KeyWord;
 
 namespace StgSharp.Script.Express
 {
@@ -43,9 +43,9 @@ namespace StgSharp.Script.Express
 
         public int CompareOperatorPrecedence( Token left, Token right )
         {
-            ExpCompile.TryGetOperatorPrecedence(
+            ExpressCompile.TryGetOperatorPrecedence(
                 left.Value, out int leftPrecedence );
-            ExpCompile.TryGetOperatorPrecedence(
+            ExpressCompile.TryGetOperatorPrecedence(
                 right.Value, out int rightPrecedence );
             return leftPrecedence - rightPrecedence;
         }

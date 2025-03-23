@@ -43,7 +43,7 @@ namespace StgSharp.Script.Express
 
         public static ExpSchema BuiltinSchema
         {
-            get => ExpSchema_Nitload.Only;
+            get => ExpSchema_Builtin.Only;
         }
 
         public string Name
@@ -93,7 +93,7 @@ namespace StgSharp.Script.Express
             set;
         }
 
-        protected ConcurrentStringHashMultiplexer StringMultiplexer => ExpCompile.Multiplexer;
+        protected ConcurrentStringHashMultiplexer StringMultiplexer => ExpressCompile.Multiplexer;
 
         protected FrozenDictionary<string, ExpRuleSource> RuleDict
         {

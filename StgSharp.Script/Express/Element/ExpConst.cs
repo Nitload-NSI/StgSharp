@@ -50,7 +50,7 @@ namespace StgSharp.Script.Express
         {
             _sourceProvider = sourceProvider;
             _constants = new Dictionary<string, ExpElementInstanceBase>(
-                ExpCompile.Multiplexer );
+                ExpressCompile.Multiplexer );
         }
 
         public override ExpElementType ElementType => ExpElementType.Const;
@@ -59,7 +59,7 @@ namespace StgSharp.Script.Express
 
         public override string Name
         {
-            get => ExpCompile.KeyWord.Constant;
+            get => ExpressCompile.KeyWord.Constant;
         }
 
         public override void Analyse()

@@ -103,7 +103,7 @@ namespace StgSharp.Script.Express
 
         public override int Count => _collection.Length;
 
-        public override string Name => ExpCompile.PoolString( "ARRAY" );
+        public override string Name => ExpressCompile.PoolString( "ARRAY" );
 
         public override ExpNode CreateInstanceNode()
         {
@@ -128,7 +128,7 @@ namespace StgSharp.Script.Express
 
         public override int Count => _collection.Count;
 
-        public override string Name => ExpCompile.PoolString( "BAG" );
+        public override string Name => ExpressCompile.PoolString( "BAG" );
 
         public override ExpNode CreateInstanceNode()
         {
@@ -152,7 +152,7 @@ namespace StgSharp.Script.Express
 
         public override int Count => _collection.Count;
 
-        public override string Name => ExpCompile.PoolString( "LIST" );
+        public override string Name => ExpressCompile.PoolString( "LIST" );
 
         public override ExpNode CreateInstanceNode()
         {
@@ -175,7 +175,7 @@ namespace StgSharp.Script.Express
 
         public override int Count => _collection.Count;
 
-        public override string Name => ExpCompile.PoolString( "SET" );
+        public override string Name => ExpressCompile.PoolString( "SET" );
 
         public void Add( ExpElementInstanceBase token )
         {

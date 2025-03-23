@@ -40,7 +40,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpCompile.KeyWord;
+using ExpKeyword = StgSharp.Script.Express.ExpressCompile.KeyWord;
 
 namespace StgSharp.Script.Express
 {
@@ -55,12 +55,24 @@ namespace StgSharp.Script.Express
 
         private ExpNode _lastStatement;
 
-        private GeneratedExpSchema _context;
+        private ExpSchema _context;
         private IExpElementSource _local;
 
         public ExpNodeGenerator()
         {
             _cache = new CompileStack<ExpNode, IExpElementSource>();
+        }
+
+        public ExpNodeGenerator( ExpSchema context, IExpElementSource local )
+        {
+            _cache = new CompileStack<ExpNode, IExpElementSource>();
+            ArgumentNullException.ThrowIfNull( context );
+            if( context is not ExpSchema_Builtin ) {
+                _context = context;
+            } else {
+                throw new InvalidCastException( "Not a valid Schema type" );
+            }
+            _local = local;
         }
 
         /**/

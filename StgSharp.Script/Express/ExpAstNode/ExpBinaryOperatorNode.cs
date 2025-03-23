@@ -68,7 +68,8 @@ namespace StgSharp.Script.Express
                     0;
             return new ExpBinaryOperatorNode( source )
             {
-                _returnType = isFloat ? ExpCompile.ExpReal : ExpCompile.ExpInt,
+                _returnType = isFloat ?
+                        ExpressCompile.ExpReal : ExpressCompile.ExpInt,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} + {1}",
             };
@@ -106,7 +107,8 @@ namespace StgSharp.Script.Express
                     0;
             return new ExpBinaryOperatorNode( source )
             {
-                _returnType = isFloat ? ExpCompile.ExpReal : ExpCompile.ExpInt,
+                _returnType = isFloat ?
+                        ExpressCompile.ExpReal : ExpressCompile.ExpInt,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} / {1}",
             };
@@ -124,7 +126,7 @@ namespace StgSharp.Script.Express
             }
             return new ExpBinaryOperatorNode( source )
             {
-                _returnType = ExpCompile.ExpBool,
+                _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
                 CodeConvertTemplate = "{0} == {1}",
             };
@@ -141,7 +143,7 @@ namespace StgSharp.Script.Express
             }
             return new ExpBinaryOperatorNode( source )
             {
-                _returnType = ExpCompile.ExpBool,
+                _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
                 CodeConvertTemplate = "{0} > {1}",
             };
@@ -158,7 +160,7 @@ namespace StgSharp.Script.Express
             }
             return new ExpBinaryOperatorNode( source )
             {
-                _returnType = ExpCompile.ExpBool,
+                _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
                 CodeConvertTemplate = "{0} < {1}",
             };
@@ -178,7 +180,8 @@ namespace StgSharp.Script.Express
                     0;
             return new ExpBinaryOperatorNode( source )
             {
-                _returnType = isFloat ? ExpCompile.ExpReal : ExpCompile.ExpInt,
+                _returnType = isFloat ?
+                        ExpressCompile.ExpReal : ExpressCompile.ExpInt,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} * {1}",
             };
@@ -196,7 +199,7 @@ namespace StgSharp.Script.Express
             }
             return new ExpBinaryOperatorNode( source )
             {
-                _returnType = ExpCompile.ExpBool,
+                _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
                 CodeConvertTemplate = "{0} != {1}",
             };
@@ -213,7 +216,7 @@ namespace StgSharp.Script.Express
             }
             return new ExpBinaryOperatorNode( source )
             {
-                _returnType = ExpCompile.ExpBool,
+                _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
                 CodeConvertTemplate = "{0} < {1}",
             };
@@ -233,7 +236,8 @@ namespace StgSharp.Script.Express
                     0;
             return new ExpBinaryOperatorNode( source )
             {
-                _returnType = isFloat ? ExpCompile.ExpReal : ExpCompile.ExpInt,
+                _returnType = isFloat ?
+                        ExpressCompile.ExpReal : ExpressCompile.ExpInt,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} - {1}",
             };

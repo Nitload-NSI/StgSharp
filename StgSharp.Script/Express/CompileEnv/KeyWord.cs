@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public static partial class ExpCompile
+    public static partial class ExpressCompile
     {
 
         private static HashSet<string> _keywordSet;

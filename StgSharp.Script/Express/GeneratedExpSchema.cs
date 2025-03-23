@@ -46,7 +46,7 @@ namespace StgSharp.Script.Express
 
         public static ExpSchema DefaultSchema
         {
-            get => ExpSchema_Nitload.Only;
+            get => ExpSchema_Builtin.Only;
         }
 
         public ExpTypeSource GetExpType( string typeName )
