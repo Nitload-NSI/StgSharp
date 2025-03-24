@@ -46,12 +46,11 @@ namespace StgSharp.Script.Express
         {
             _keywordSet = new();
 
-            FieldInfo[] fields = typeof( KeyWord ).GetFields(
-                BindingFlags.Public );
+            FieldInfo[] fields = typeof( Keyword ).GetFields( BindingFlags.Public );
             ParallelLoopResult result = Parallel.ForEach(
                 fields, static( field ) => {
-                    if( field.FieldType == typeof( string ) && field.GetValue(
-                        null ) is string str ) {
+                    if( field.FieldType == typeof( string ) && field.GetValue( null ) is string str )
+                    {
                         _compileStringCache.GetOrAdd( str );
                         _keywordSet.Add( str );
                     }
@@ -59,7 +58,7 @@ namespace StgSharp.Script.Express
             while( !result.IsCompleted ) { }
         }
 
-        public static class KeyWord
+        public static class Keyword
         {
 
             public static HashSet<string> ScopeBlock = new HashSet<string> {
@@ -74,24 +73,15 @@ namespace StgSharp.Script.Express
                 CommentStart, CommentEnd, ColonEqualColon, ColonNotEqualColon
             ];
 
-            public static HashSet<string> DataTypes
-            {
-                get;
-            } = [
+            public static HashSet<string> DataTypes { get; } = [
                 Array, Bag, Binary, Boolean, Enumeration, Integer, List, Logical, Number, Of, Real, Set, String
             ];
 
-            public static HashSet<string> InternalProcess
-            {
-                get;
-            } = [
+            public static HashSet<string> InternalProcess { get; } = [
                 Insert, Remove
             ];
 
-            public static HashSet<string> BuiltinFunctions
-            {
-                get;
-            } = [
+            public static HashSet<string> BuiltinFunctions { get; } = [
                 Abs, Acos, Asin, Atan, BLength, Cos, Exists, Exp,
                 Format, HiBound, HiIndex, Length, LoBound, Log,
                 Log2, Log10, LoIndex, Nvl, Odd, Rolesof, Sin,
@@ -99,62 +89,38 @@ namespace StgSharp.Script.Express
                 ValueIn, ValueUnique
             ];
 
-            public static HashSet<string> Literals
-            {
-                get;
-            } = [
+            public static HashSet<string> Literals { get; } = [
                 QuestionMark, Self, Const, E, Pi, False, True, Unknown
             ];
 
-            public static HashSet<string> Operators
-            {
-                get;
-            } = [
+            public static HashSet<string> Operators { get; } = [
                 And, AndOr, Div, In, Like, Mod, Not, Or, Xor,
                 Add, Sub, Mul, Slash, Equal, NotEqual,
                 LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual
             ];
 
-            public static HashSet<string> Aliasing
-            {
-                get;
-            } = [
+            public static HashSet<string> Aliasing { get; } = [
                 Alias, Renamed
             ];
 
-            public static HashSet<string> ModifiersAttributes
-            {
-                get;
-            } = [
+            public static HashSet<string> ModifiersAttributes { get; } = [
                 Abstract, Aggregate, As, BasedOn, By, Escape, Fixed, From, Use, With
             ];
 
-            public static HashSet<string> QueryReference
-            {
-                get;
-            } = [
+            public static HashSet<string> QueryReference { get; } = [
                 Query, Reference, Select
             ];
 
-            public static HashSet<string> ConstraintsInheritance
-            {
-                get;
-            } = [
+            public static HashSet<string> ConstraintsInheritance { get; } = [
                 Oneof, Optional, Subtype, SubtypeConstraint, Supertype, TotalOver, Unique, Where
             ];
 
-            public static HashSet<string> Declarations
-            {
-                get;
-            } = [
+            public static HashSet<string> Declarations { get; } = [
                 Constant, Derive, Entity, Extensible, Fixed, Function, Generic, 
                 GenericEntity, Inverse, Local, Procedure, Rule, Schema, Type, Var
             ];
 
-            public static HashSet<string> FlowControl
-            {
-                get;
-            } = [
+            public static HashSet<string> FlowControl { get; } = [
                 Begin, Case, Else, End, For, If, Otherwise, Repeat, Return, Skip, Then, To, Until, While
             ];
 

@@ -40,7 +40,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpressCompile.KeyWord;
+using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
@@ -67,9 +67,11 @@ namespace StgSharp.Script.Express
         {
             _cache = new CompileStack<ExpNode, IExpElementSource>();
             ArgumentNullException.ThrowIfNull( context );
-            if( context is not ExpSchema_Builtin ) {
+            if( context is not ExpSchema_Builtin )
+            {
                 _context = context;
-            } else {
+            } else
+            {
                 throw new InvalidCastException( "Not a valid Schema type" );
             }
             _local = local;
@@ -78,12 +80,13 @@ namespace StgSharp.Script.Express
         /**/
 
         /// <summary>
-        /// Append a token to top of cache. This method will automatically convert token to node if
-        /// meets separators or operators.
+        ///   Append a token to top of cache. This method will automatically convert token to node
+        ///   if meets separators or operators.
         /// </summary>
         public void AppendToken( Token expToken )
         {
-            switch( expToken.Flag ) {
+            switch( expToken.Flag )
+            {
                 case TokenFlag.Symbol_Unary or TokenFlag.Symbol_Binary:
                     TryAppendSymbol( expToken );
                     break;
@@ -112,7 +115,8 @@ namespace StgSharp.Script.Express
 
         public ExpNode GetNextOperandCache()
         {
-            if( _cache.PopOperand( out Token t, out ExpNode? n ) ) {
+            if( _cache.PopOperand( out Token t, out ExpNode? n ) )
+            {
                 return n;
             } else { }
 

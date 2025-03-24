@@ -42,22 +42,19 @@ namespace StgSharp.Script.Express
 
         private ExpElementInstanceBase _instance;
 
-        internal ExpInstanceReferenceNode(
-                         Token source,
-                         ExpElementInstanceBase instance )
+        internal ExpInstanceReferenceNode( Token source, ExpElementInstanceBase instance )
             : base( source )
         {
             _instance = instance;
             _nodeFlag = ( _instance._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
         }
 
-        internal ExpInstanceReferenceNode(
-                         Token source,
-                         ExpInstanceReferenceNode reference )
+        internal ExpInstanceReferenceNode( Token source, ExpInstanceReferenceNode reference )
             : base( source )
         {
             _instance = reference._instance;
             _nodeFlag = ( _instance._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
+            CodeConvertTemplate = source.Value;
         }
 
         public override ExpNode Left => Empty;
@@ -68,9 +65,14 @@ namespace StgSharp.Script.Express
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static ExpInstanceReferenceNode Create(
-                                                       Token source,
-                                                       ExpElementInstanceBase instance )
+                                               Token source,
+                                               ExpElementInstanceBase instance )
         {
+            /*
+            if( instance.CodeConvertTemplate != source.Value ) {
+                throw new ExpCompileException( source, "Token point at a wrong instance" );
+            }
+            /**/
             return new ExpInstanceReferenceNode( source, instance );
         }
 

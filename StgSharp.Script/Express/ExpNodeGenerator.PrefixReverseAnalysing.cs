@@ -35,7 +35,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpressCompile.KeyWord;
+using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
@@ -45,24 +45,24 @@ namespace StgSharp.Script.Express
         private void ClosePrefixReverse( Token rightSeparator )
         {
             Token op;
-            while( _cache.TryPopOperator( out op ) ) {
-                if( op.Value == ExpKeyword.Comma ) {
-                    if( !_cache.TryPopOperand(
-                        out bool isNode, out Token t1, out ExpNode? n1 ) ) {
-                        throw new ExpCompileException(
-                            op, "No expression before a comma" );
+            while( _cache.TryPopOperator( out op ) )
+            {
+                if( op.Value == ExpKeyword.Comma )
+                {
+                    if( !_cache.TryPopOperand( out bool isNode, out Token t1, out ExpNode? n1 ) ) {
+                        throw new ExpCompileException( op, "No expression before a comma" );
                     }
-                    if( !isNode ) {
+                    if( !isNode )
+                    {
                         //On some occasions, a token may found,
                         //but the processor is not implemented
                         throw new NotImplementedException();
                     }
-                    if( !_cache.TryPopOperand(
-                        out isNode, out Token t2, out ExpNode? n2 ) ) {
-                        throw new ExpCompileException(
-                            op, "No expression before a comma" );
+                    if( !_cache.TryPopOperand( out isNode, out Token t2, out ExpNode? n2 ) ) {
+                        throw new ExpCompileException( op, "No expression before a comma" );
                     }
-                    if( !isNode ) {
+                    if( !isNode )
+                    {
                         //On some occasions, a token may found,
                         //but the processor is not implemented
                         throw new NotImplementedException();
@@ -71,20 +71,20 @@ namespace StgSharp.Script.Express
                     _cache.PushOperand( n1 );
                     continue;
                 }
-                ConvertOneOperator( op );
-
-                ExpNode node = GetNextOperandCache();
-                _cache.PushOperand( node );
+                ConvertAndPushOneOperator( op );
             }
             if( !_cache.TryPopOperand( out _, out _, out ExpNode? root ) ) {
                 _cache.PushOperand( ExpNode.Empty );
             }
             _cache.DecreaseDepth();
-            if( IsSeparatorMatch( _cache.PeekOperator(), rightSeparator ) ) {
+            if( IsSeparatorMatch( _cache.PeekOperator(), rightSeparator ) )
+            {
                 _cache.PopOperator();
-            } else {
-                // some unexpected occasions
-                throw new NotImplementedException();
+                _cache.PushOperand( root );
+            } else
+            {
+                throw new ExpCompileException(
+                    rightSeparator, "Ending of block soes not match its begging" );
             }
         }
 

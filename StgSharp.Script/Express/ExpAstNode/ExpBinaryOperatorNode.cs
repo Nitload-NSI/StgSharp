@@ -46,7 +46,12 @@ namespace StgSharp.Script.Express
         private ExpNode _left;
         private ExpNode _right;
 
-        private ExpBinaryOperatorNode( Token source ) : base( source ) { }
+        private ExpBinaryOperatorNode( Token source, ExpNode left, ExpNode right )
+            : base( source )
+        {
+            _left = left;
+            _right = right;
+        }
 
         public override ExpInstantiableElement EqualityTypeConvert => _returnType;
 
@@ -54,77 +59,59 @@ namespace StgSharp.Script.Express
 
         public override ExpNode Right => _right;
 
-        public static ExpBinaryOperatorNode Add(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode Add( Token source, ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException(
-                    "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
                     0;
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
-                _returnType = isFloat ?
-                        ExpressCompile.ExpReal : ExpressCompile.ExpInt,
+                _returnType = isFloat ? ExpressCompile.ExpReal : ExpressCompile.ExpInt,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} + {1}",
             };
         }
 
-        public static ExpBinaryOperatorNode Assign(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode Assign( Token source, ExpNode left, ExpNode right )
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
-                    left.EqualityTypeConvert.Name,
-                    right.EqualityTypeConvert.Name );
+                    left.EqualityTypeConvert.Name, right.EqualityTypeConvert.Name );
             }
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = ExpInstantiableElement.Void,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | left._nodeFlag,
-                CodeConvertTemplate = "{0} & {1}",
+                CodeConvertTemplate = "{0} = {1}",
             };
         }
 
-        public static ExpBinaryOperatorNode Div(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode Div( Token source, ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException(
-                    "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
                     0;
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
-                _returnType = isFloat ?
-                        ExpressCompile.ExpReal : ExpressCompile.ExpInt,
+                _returnType = isFloat ? ExpressCompile.ExpReal : ExpressCompile.ExpInt,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} / {1}",
             };
         }
 
-        public static ExpBinaryOperatorNode EqualTo(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode EqualTo( Token source, ExpNode left, ExpNode right )
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
-                    left.EqualityTypeConvert.Name,
-                    right.EqualityTypeConvert.Name );
+                    left.EqualityTypeConvert.Name, right.EqualityTypeConvert.Name );
             }
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
@@ -132,16 +119,12 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode GreaterThan(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode GreaterThan( Token source, ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException(
-                    "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
             }
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
@@ -149,16 +132,12 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode LessThan(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode LessThan( Token source, ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException(
-                    "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
             }
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
@@ -166,38 +145,29 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode Mul(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode Mul( Token source, ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException(
-                    "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
                     0;
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
-                _returnType = isFloat ?
-                        ExpressCompile.ExpReal : ExpressCompile.ExpInt,
+                _returnType = isFloat ? ExpressCompile.ExpReal : ExpressCompile.ExpInt,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} * {1}",
             };
         }
 
-        public static ExpBinaryOperatorNode NotEqualTo(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode NotEqualTo( Token source, ExpNode left, ExpNode right )
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
-                    left.EqualityTypeConvert.Name,
-                    right.EqualityTypeConvert.Name );
+                    left.EqualityTypeConvert.Name, right.EqualityTypeConvert.Name );
             }
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
@@ -205,16 +175,12 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode SmallerThan(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode SmallerThan( Token source, ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException(
-                    "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
             }
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
@@ -222,22 +188,17 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode Sub(
-                                                    Token source,
-                                                    ExpNode left,
-                                                    ExpNode right )
+        public static ExpBinaryOperatorNode Sub( Token source, ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException(
-                    "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
                     0;
-            return new ExpBinaryOperatorNode( source )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
-                _returnType = isFloat ?
-                        ExpressCompile.ExpReal : ExpressCompile.ExpInt,
+                _returnType = isFloat ? ExpressCompile.ExpReal : ExpressCompile.ExpInt,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | ExpNodeFlag.BuiltinType_Number,
                 CodeConvertTemplate = "{0} - {1}",
             };

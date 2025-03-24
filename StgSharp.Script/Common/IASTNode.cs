@@ -43,47 +43,23 @@ namespace StgSharp.Script
         where TType: ITypeSource<TType>
     {
 
-        long NodeFlag
-        {
-            get;
-        }
+        long NodeFlag { get; }
 
-        string CodeConvertTemplate
-        {
-            get;
-        }
+        string CodeConvertTemplate { get; }
 
-        TNode Previous
-        {
-            get;
-            set;
-        }
+        TNode Previous { get; set; }
 
-        TNode Next
-        {
-            get;
-            set;
-        }
+        TNode Next { get; set; }
 
-        TNode Left
-        {
-            get;
-        }
+        TNode Left { get; }
 
-        TNode Right
-        {
-            get;
-        }
+        TNode Right { get; }
 
-        static abstract TNode Empty
-        {
-            get;
-        }
+        static abstract TNode Empty { get; }
 
-        TType EqualityTypeConvert
-        {
-            get;
-        }
+        Token Source { get; }
+
+        TType EqualityTypeConvert { get; }
 
         void AppendNode( TNode nextToken );
 

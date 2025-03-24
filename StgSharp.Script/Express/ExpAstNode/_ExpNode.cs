@@ -56,37 +56,20 @@ namespace StgSharp.Script.Express
             get { return ( _nodeFlag | ExpNodeFlag.BuiltinType_Number ) != 0; }
         }
 
-        public abstract ExpNode Left
-        {
-            get;
-        }
+        public abstract ExpNode Left { get; }
 
         public static ExpNode Empty
         {
             get => ExpEmptyNode._only;
         }
 
-        public ExpNode Next
-        {
-            get;
-            set;
-        }
+        public ExpNode Next { get; set; }
 
-        public abstract ExpNode Right
-        {
-            get;
-        }
+        public abstract ExpNode Right { get; }
 
-        public ExpNode Previous
-        {
-            get;
-            set;
-        }
+        public ExpNode Previous { get; set; }
 
-        public abstract IExpElementSource EqualityTypeConvert
-        {
-            get;
-        }
+        public abstract IExpElementSource EqualityTypeConvert { get; }
 
         public int Line => _source.Line;
 
@@ -94,10 +77,11 @@ namespace StgSharp.Script.Express
 
         public long NodeFlag => ( long )_nodeFlag;
 
-        public string CodeConvertTemplate
+        public string CodeConvertTemplate { get; init; }
+
+        public Token Source
         {
-            get;
-            init;
+            get => _source;
         }
 
         public void AppendNode( ExpNode nextNode )
@@ -160,8 +144,7 @@ namespace StgSharp.Script.Express
             public ExpEmptyNode() : base( Token.Empty ) { }
 
             public ExpEmptyNode( int line, int column )
-                : base(
-                new Token( string.Empty, line, column, TokenFlag.None ) ) { }
+                : base( new Token( string.Empty, line, column, TokenFlag.None ) ) { }
 
             public override ExpInstantiableElement EqualityTypeConvert => ExpInstantiableElement.Void;
 

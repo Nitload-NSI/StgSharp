@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpressCompile.cs"
+//     file="ExpCompile.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -88,32 +88,28 @@ namespace StgSharp.Script.Express
             InitPrecedence();
 
             _operatorsWithLetter = [
-                KeyWord.Add,
-                KeyWord.Sub,
-                KeyWord.Mul,
-                KeyWord.Div,
-                KeyWord.And,
-                KeyWord.Or,
-                KeyWord.Xor,
-                KeyWord.AndOr,
-                KeyWord.Not,
+                Keyword.Add,
+                Keyword.Sub,
+                Keyword.Mul,
+                Keyword.Div,
+                Keyword.And,
+                Keyword.Or,
+                Keyword.Xor,
+                Keyword.AndOr,
+                Keyword.Not,
                 ];
 
             ExpSchema_Builtin.Only
-                    .TryGetType(
-                        PoolString( KeyWord.Integer ),
-                        out ExpTypeSource? _expInt );
+                             .TryGetType(
+                                 PoolString( Keyword.Integer ), out ExpTypeSource? _expInt );
             ExpInt = _expInt;
 
             ExpSchema_Builtin.Only
-                    .TryGetType(
-                        PoolString( KeyWord.Real ),
-                        out ExpTypeSource? _expReal );
+                             .TryGetType( PoolString( Keyword.Real ), out ExpTypeSource? _expReal );
             ExpReal = _expReal;
             ExpSchema_Builtin.Only
-                    .TryGetType(
-                        PoolString( KeyWord.Boolean ),
-                        out ExpTypeSource? _expBool );
+                             .TryGetType(
+                                 PoolString( Keyword.Boolean ), out ExpTypeSource? _expBool );
             ExpBool = _expBool;
 
             _emptyCache = new StringPool();

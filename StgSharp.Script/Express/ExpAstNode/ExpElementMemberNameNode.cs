@@ -55,9 +55,7 @@ namespace StgSharp.Script.Express
             get
             {
                 ExpSchema.BuiltinSchema
-                        .TryGetType(
-                            ExpressCompile.KeyWord.String,
-                            out ExpTypeSource? strType );
+                         .TryGetType( ExpressCompile.Keyword.String, out ExpTypeSource? strType );
                 return strType;
             }
         }

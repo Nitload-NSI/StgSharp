@@ -38,8 +38,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script
 {
-    public partial class CompileStack<TNode, TType>
-        where TNode: IASTNode<TNode, TType>
+    public partial class CompileStack<TNode, TType> where TNode: IASTNode<TNode, TType>
         where TType: ITypeSource<TType>
     {
 
@@ -48,10 +47,14 @@ namespace StgSharp.Script
         private Token[] _tokenArray = new Token[4];
 
         private int _nodeCount,_tokenCount, _operatorCount;
-        private Stack<CompileDepthMark> _depthStack = new Stack<CompileDepthMark>(
-            );
+        private Stack<CompileDepthMark> _depthStack = new Stack<CompileDepthMark>();
 
         private Stack<bool> _isNode = new Stack<bool>();
+
+        public CompileStack()
+        {
+            _depthStack.Push( new CompileDepthMark( 0, 0, 0 ) );
+        }
 
         public CompileDepthMark CurrentDepthMark
         {
@@ -82,28 +85,26 @@ namespace StgSharp.Script
         public CompileDepthMark IncreaseDepth( int usage )
         {
             CompileDepthMark mark =
-                new CompileDepthMark
-            {
-                OperandBegin = OperandCount,
-                OperatorBegin = OperatorCount,
-                State = usage
-            };
+                new CompileDepthMark( OperatorCount, OperandCount, usage );
             _depthStack.Push( mark );
             return mark;
         }
 
         public bool PeekOperand( out Token t, out TNode n )
         {
-            if( OperandAheadOfDepth <= 0 ) {
+            if( OperandAheadOfDepth <= 0 )
+            {
                 t = Token.Empty;
                 n = TNode.Empty;
                 return false;
             }
-            if( _isNode.Pop() ) {
+            if( _isNode.Pop() )
+            {
                 t = Token.Empty;
                 n = _nodeArray[ _nodeCount - 1 ];
                 return true;
-            } else {
+            } else
+            {
                 t = _tokenArray[ _tokenCount - 1 ];
                 n = TNode.Empty;
                 return false;
@@ -120,16 +121,19 @@ namespace StgSharp.Script
 
         public bool PopOperand( out Token t, out TNode n )
         {
-            if( OperandAheadOfDepth <= 0 ) {
+            if( OperandAheadOfDepth <= 0 )
+            {
                 t = Token.Empty;
                 n = TNode.Empty;
                 return false;
             }
-            if( _isNode.Pop() ) {
+            if( _isNode.Pop() )
+            {
                 t = Token.Empty;
                 n = _nodeArray[ --_nodeCount ];
                 return true;
-            } else {
+            } else
+            {
                 t = _tokenArray[ --_tokenCount ];
                 n = TNode.Empty;
                 return false;
@@ -138,7 +142,8 @@ namespace StgSharp.Script
 
         public Token PopOperator()
         {
-            if( OperatorAheadOfDepth > 0 ) {
+            if( OperatorAheadOfDepth > 0 )
+            {
                 _operatorCount--;
                 return _operatorArray[ _operatorCount ];
             }
@@ -176,18 +181,21 @@ namespace StgSharp.Script
 
         public bool TryPeekOperand( out bool isNode, out Token t, out TNode n )
         {
-            if( OperandAheadOfDepth <= 0 ) {
+            if( OperandAheadOfDepth <= 0 )
+            {
                 t = Token.Empty;
                 n = TNode.Empty;
                 isNode = false;
                 return false;
             }
-            if( _isNode.Pop() ) {
+            if( _isNode.Pop() )
+            {
                 t = Token.Empty;
                 n = _nodeArray[ _nodeCount - 1 ];
                 isNode = true;
                 return true;
-            } else {
+            } else
+            {
                 t = _tokenArray[ _tokenCount - 1 ];
                 n = TNode.Empty;
                 isNode = false;
@@ -197,7 +205,8 @@ namespace StgSharp.Script
 
         public bool TryPeekOperator( out Token op )
         {
-            if( OperatorAheadOfDepth > 0 ) {
+            if( OperatorAheadOfDepth > 0 )
+            {
                 op = _operatorArray[ _operatorCount - 1 ];
                 return true;
             }
@@ -207,18 +216,21 @@ namespace StgSharp.Script
 
         public bool TryPopOperand( out bool isNode, out Token t, out TNode n )
         {
-            if( OperandAheadOfDepth <= 0 ) {
+            if( OperandAheadOfDepth <= 0 )
+            {
                 t = Token.Empty;
                 n = TNode.Empty;
                 isNode = false;
                 return false;
             }
-            if( _isNode.Pop() ) {
+            if( _isNode.Pop() )
+            {
                 t = Token.Empty;
                 n = _nodeArray[ --_nodeCount ];
                 isNode = true;
                 return true;
-            } else {
+            } else
+            {
                 t = _tokenArray[ --_tokenCount ];
                 n = TNode.Empty;
                 isNode = false;
@@ -228,7 +240,8 @@ namespace StgSharp.Script
 
         public bool TryPopOperator( out Token op )
         {
-            if( OperatorAheadOfDepth > 0 ) {
+            if( OperatorAheadOfDepth > 0 )
+            {
                 op = _operatorArray[ --_operatorCount ];
                 return true;
             }
@@ -241,23 +254,18 @@ namespace StgSharp.Script
     public class CompileDepthMark
     {
 
-        public int OperandBegin
+        public CompileDepthMark( int operatorBegin, int operandBegin, int state )
         {
-            get;
-            internal set;
+            OperatorBegin = operatorBegin;
+            OperandBegin = operandBegin;
+            State = state;
         }
 
-        public int OperatorBegin
-        {
-            get;
-            internal set;
-        }
+        public int OperandBegin { get; internal set; }
 
-        public int State
-        {
-            get;
-            internal set;
-        }
+        public int OperatorBegin { get; internal set; }
+
+        public int State { get; internal set; }
 
     }
 }

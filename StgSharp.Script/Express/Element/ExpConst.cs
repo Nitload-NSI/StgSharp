@@ -45,8 +45,7 @@ namespace StgSharp.Script.Express
         private Dictionary<string, ExpElementInstanceBase> _constants;
         private IScriptSourceProvider _sourceProvider;
 
-        public ExpConstantCollectionSource(
-                       IScriptSourceProvider sourceProvider )
+        public ExpConstantCollectionSource( IScriptSourceProvider sourceProvider )
         {
             _sourceProvider = sourceProvider;
             _constants = new Dictionary<string, ExpElementInstanceBase>(
@@ -59,7 +58,7 @@ namespace StgSharp.Script.Express
 
         public override string Name
         {
-            get => ExpressCompile.KeyWord.Constant;
+            get => ExpressCompile.Keyword.Constant;
         }
 
         public override void Analyse()
@@ -75,24 +74,21 @@ namespace StgSharp.Script.Express
             if( _constants.Count == 0 ) {
                 return null!;
             }
-            if( _constants.TryGetValue( str,
-                                        out ExpElementInstanceBase? token ) ) {
+            if( _constants.TryGetValue( str, out ExpElementInstanceBase? token ) ) {
                 return token;
             }
             return null!;
         }
 
-        public bool TryGetConstant(
-                            string name,
-                            out ExpElementInstanceBase instance )
+        public bool TryGetConstant( string name, out ExpElementInstanceBase instance )
         {
             return _constants.TryGetValue( name, out instance );
         }
 
         public override bool TryGetMember( string name, out ExpNode memberNode )
         {
-            if( _constants.TryGetValue( name,
-                                        out ExpElementInstanceBase? node ) ) {
+            if( _constants.TryGetValue( name, out ExpElementInstanceBase? node ) )
+            {
                 memberNode = node;
                 return true;
             }

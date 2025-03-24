@@ -34,26 +34,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpressCompile.KeyWord;
+using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
     public partial class ExpNodeGenerator
     {
 
-        private bool IsSeparatorMatch(
-                             Token leftSperator,
-                             Token rightSeparator )
+        private bool IsSeparatorMatch( Token leftSperator, Token rightSeparator )
         {
             return leftSperator.Value switch
             {
-                ExpKeyword.LeftBrace => rightSeparator.Value ==
-                                        ExpKeyword.RightBrace,
-                ExpKeyword.LeftParen => rightSeparator.Value ==
-                                        ExpKeyword.RightParen,
+                ExpKeyword.LeftBrace => rightSeparator.Value == ExpKeyword.RightBrace,
+                ExpKeyword.LeftParen => rightSeparator.Value == ExpKeyword.RightParen,
                 ExpKeyword.Comma => rightSeparator.Value == ExpKeyword.Comma,
-                ExpKeyword.Semicolon => rightSeparator.Value ==
-                                        ExpKeyword.Semicolon,
+                ExpKeyword.Semicolon => rightSeparator.Value == ExpKeyword.Semicolon,
                 _ => false
             };
         }
@@ -63,8 +58,8 @@ namespace StgSharp.Script.Express
             if( t.Flag != TokenFlag.Index_Left ) {
                 return false;
             }
-            if( _cache.TryPeekOperand(
-                out bool isNode, out _, out ExpNode? node ) ) {
+            if( _cache.TryPeekOperand( out bool isNode, out _, out ExpNode? node ) )
+            {
                 if( node.EqualityTypeConvert is not ExpCollectionBase ) {
                     ExpInvalidSyntaxException.ThrowNonCollectionIndex( t );
                 }
@@ -85,8 +80,7 @@ namespace StgSharp.Script.Express
 
             //make index node
             _cache.PopOperand( out _, out ExpNode? expNode );
-            if( !_cache.PopOperand(
-                out Token colleToken, out ExpNode? colleNode ) ) { }
+            if( !_cache.PopOperand( out Token colleToken, out ExpNode? colleNode ) ) { }
             _cache.PushOperand(
                 ExpCollectionIndexNode.Create(
                     t, ( colleNode as ExpCollectionInstanceBase )!, expNode ) );
@@ -120,27 +114,32 @@ namespace StgSharp.Script.Express
             if( t.Flag != TokenFlag.Separator_Middle ) {
                 return false;
             }
-            if( _cache.OperatorAheadOfDepth == 0 ) {
-                if( _cache.OperandAheadOfDepth == 1 ) {
+            if( _cache.OperatorAheadOfDepth == 0 )
+            {
+                if( _cache.OperandAheadOfDepth == 1 )
+                {
                     _cache.PushOperand( t );
                     _cache.PushOperator( t );
                     return true;
-                } else {
+                } else
+                {
                     ExpInvalidSyntaxException.ThrowNoOperator( t );
                 }
             }
             Token op;
             processOperator:
-            if( _cache.TryPopOperator( out op ) ) {
-                if( op.Value == t.Value ) {
+            if( _cache.TryPopOperator( out op ) )
+            {
+                if( op.Value == t.Value )
+                {
                     _cache.PopOperand( out _, out ExpNode? node );
 
                     //append node to tail
                     _cache.PushOperand( t );
                     _cache.PushOperator( t );
-                } else {
-                    ExpNode node = ConvertOneOperator( op );
-                    _cache.PushOperand( node );
+                } else
+                {
+                    ExpNode node = ConvertAndPushOneOperator( op );
                     goto processOperator;
                 }
             }
@@ -161,6 +160,7 @@ namespace StgSharp.Script.Express
             if( t.Flag != TokenFlag.Separator_Left ) {
                 return false;
             }
+            _cache.PushOperator( t );
             _cache.IncreaseDepth( ( int )ExpCompileStateCode.PrefixSeparator );
             return true;
         }
@@ -176,31 +176,35 @@ namespace StgSharp.Script.Express
 
         private bool TryAppendSymbol( Token t )
         {
-            if( ( t.Flag & ( TokenFlag.Symbol_Unary | TokenFlag.Symbol_Binary ) ) ==
-                0 ) {
+            if( ( t.Flag & ( TokenFlag.Symbol_Unary | TokenFlag.Symbol_Binary ) ) == 0 ) {
                 return false;
             }
 
             int cmp = -1;
             processPrecedence:
-            if( _cache.TryPopOperator( out Token tmp ) ) {
+            if( _cache.TryPeekOperator( out Token tmp ) )
+            {
                 cmp = CompareOperatorPrecedence( t, tmp );
-                if( cmp <= 0 ) {
-                    ExpNode node = ConvertOneOperator( tmp );
+                if( cmp >= 0 )
+                {
+                    _cache.PopOperator();
+                    ExpNode node = ConvertAndPushOneOperator( tmp );
                     _cache.PushOperand( node );
                     goto processPrecedence;
                 }
             }
-            _cache.PushOperand( t );
+            _cache.PushOperator( t );
             return true;
         }
 
         private bool TryParseConstant( Token t )
         {
-            if( t.Value == ExpKeyword.True ) {
+            if( t.Value == ExpKeyword.True )
+            {
                 _cache.PushOperand( new ExpBoolNode( t, true ) );
                 return true;
-            } else if( t.Value == ExpKeyword.False ) {
+            } else if( t.Value == ExpKeyword.False )
+            {
                 _cache.PushOperand( new ExpBoolNode( t, false ) );
                 return true;
             }
@@ -209,11 +213,12 @@ namespace StgSharp.Script.Express
 
         private bool TryParseFunction( Token t )
         {
-            if( ExpKeyword.BuiltinFunctions.Contains( t.Value ) ) {
+            if( ExpKeyword.BuiltinFunctions.Contains( t.Value ) )
+            {
                 _cache.PushOperator( t );
                 return true;
-            } else if( _context.TryGetFunction(
-                       t.Value, out ExpFunctionSource? f ) ) {
+            } else if( _context.TryGetFunction( t.Value, out ExpFunctionSource? f ) )
+            {
                 _cache.PushOperand( t );
                 return true;
             }
@@ -223,9 +228,9 @@ namespace StgSharp.Script.Express
         private bool TryParseInstance( Token t )
         {
             if( _local.TryGetMember( t.Value,
-                                     out ExpNode? node ) && node is ExpElementInstanceBase instance ) {
-                _cache.PushOperand(
-                    ExpInstanceReferenceNode.Create( t, instance ) );
+                                     out ExpNode? node ) && node is ExpElementInstanceBase instance )
+            {
+                _cache.PushOperand( ExpInstanceReferenceNode.Create( t, instance ) );
                 return true;
             }
             return false;

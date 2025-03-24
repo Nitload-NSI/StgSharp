@@ -189,7 +189,7 @@ namespace StgSharp.Script.Express
                         begin = _current;
                         _current++;
                         _last = new Token(
-                            ExpressCompile.PoolString( ")" ), _lineNum, begin,
+                            ExpressCompile.PoolString( source[ ..1 ] ), _lineNum, begin,
                             TokenFlag.Separator_Right );
                         return  _last;
                     case '-':
@@ -267,13 +267,14 @@ namespace StgSharp.Script.Express
                             begin = _current;
                             _current += 2;
                             return new Token(
-                                ExpressCompile.KeyWord.Assignment, _lineNum, begin,
-                                TokenFlag.Index_Right );
+                                ExpressCompile.Keyword.Assignment, _lineNum, begin,
+                                TokenFlag.Symbol_Binary );
                         }
                         begin = _current;
                         _current++;
                         return new Token(
-                            ExpressCompile.KeyWord.Colon, _lineNum, begin, TokenFlag.Index_Right );
+                            ExpressCompile.Keyword.Colon, _lineNum, begin,
+                            TokenFlag.Separator_Middle );
                     case '+' or '/' or '\\' or '*' or '.':
                         begin = _current;
                         _current++;
@@ -293,16 +294,7 @@ namespace StgSharp.Script.Express
                     rest = match.Groups[ RestMark ].Index;
                     _current = rest;
                     string str = ExpressCompile.PoolString( source[ ..( end - begin ) ] );
-                    TokenFlag flag;
-                    if( ReferenceEquals( str, ExpressCompile.KeyWord.Not ) )
-                    {
-                        flag = TokenFlag.Symbol_Unary;
-                    } else
-                    {
-                        flag = ExpressCompile.LetterIsOperator( str ) ?
-                                TokenFlag.Symbol_Binary : TokenFlag.Member;
-                    }
-                    return new( str, _lineNum, begin, flag );
+                    return new( str, _lineNum, begin, TokenFlag.Number );
                 } else
                 {
                     throw new ExpInvalidTokenException( _current );

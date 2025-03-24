@@ -34,7 +34,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpressCompile.KeyWord;
+using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
@@ -43,15 +43,18 @@ namespace StgSharp.Script.Express
 
         private bool TryParseBranch( Token t )
         {
-            if( t.Value == ExpKeyword.Case ) {
+            if( t.Value == ExpKeyword.Case )
+            {
                 _cache.PushOperator( t );
                 _cache.IncreaseDepth( ( int )ExpCompileStateCode.CaseBranch );
                 return true;
-            } else if( t.Value == ExpKeyword.If ) {
+            } else if( t.Value == ExpKeyword.If )
+            {
                 _cache.PushOperator( t );
                 _cache.IncreaseDepth( ( int )ExpCompileStateCode.IfBranch );
                 return true;
-            } else if( t.Value == ExpKeyword.Repeat ) {
+            } else if( t.Value == ExpKeyword.Repeat )
+            {
                 _cache.PushOperator( t );
                 _cache.IncreaseDepth( ( int )ExpCompileStateCode.RepeatLoop );
                 return true;

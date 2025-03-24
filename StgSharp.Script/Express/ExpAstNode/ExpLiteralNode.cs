@@ -50,14 +50,14 @@ namespace StgSharp.Script.Express
         }
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                        .TryGetType(
-                            ExpressCompile.KeyWord.Integer,
-                            out ExpTypeSource? type ) ?
+                                                                          .TryGetType(
+                                                                              ExpressCompile.Keyword.Integer,
+                                                                              out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
         public int Value => _value;
 
-        public override string TypeName => ExpressCompile.KeyWord.Integer;
+        public override string TypeName => ExpressCompile.Keyword.Integer;
 
     }
 
@@ -74,9 +74,9 @@ namespace StgSharp.Script.Express
         }
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                        .TryGetType(
-                            ExpressCompile.KeyWord.String,
-                            out ExpTypeSource? type ) ?
+                                                                          .TryGetType(
+                                                                              ExpressCompile.Keyword.String,
+                                                                              out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
         public override string TypeName => EqualityTypeConvert.Name;
@@ -100,9 +100,9 @@ namespace StgSharp.Script.Express
         public bool Value => _value;
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                        .TryGetType(
-                            ExpressCompile.KeyWord.Boolean,
-                            out ExpTypeSource? type ) ?
+                                                                          .TryGetType(
+                                                                              ExpressCompile.Keyword.Boolean,
+                                                                              out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
         public override string TypeName => EqualityTypeConvert.Name;
@@ -124,9 +124,9 @@ namespace StgSharp.Script.Express
         public float Value => _value;
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                        .TryGetType(
-                            ExpressCompile.KeyWord.String,
-                            out ExpTypeSource? type ) ?
+                                                                          .TryGetType(
+                                                                              ExpressCompile.Keyword.String,
+                                                                              out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
         public override string TypeName => EqualityTypeConvert.Name;
@@ -148,9 +148,9 @@ namespace StgSharp.Script.Express
         public ExpLogic Value => _value;
 
         public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                        .TryGetType(
-                            ExpressCompile.KeyWord.Logical,
-                            out ExpTypeSource? type ) ?
+                                                                          .TryGetType(
+                                                                              ExpressCompile.Keyword.Logical,
+                                                                              out ExpTypeSource? type ) ?
                 type : throw new ExpCompileNotInitializedException();
 
         public override string TypeName => EqualityTypeConvert.Name;

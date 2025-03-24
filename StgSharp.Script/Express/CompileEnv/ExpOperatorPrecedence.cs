@@ -40,20 +40,16 @@ namespace StgSharp.Script.Express
     public static partial class ExpressCompile
     {
 
-        public static bool TryGetOperatorPrecedence(
-                                   string operatorName,
-                                   out int precedence )
+        public static bool TryGetOperatorPrecedence( string operatorName, out int precedence )
         {
-            return _operatorPrecedence.TryGetValue(
-                operatorName, out precedence );
+            return _operatorPrecedence.TryGetValue( operatorName, out precedence );
         }
 
         public static bool TryGetSuperTypeOperatorPrecedence(
-                                   string operatorName,
-                                   out int precedence )
+                           string operatorName,
+                           out int precedence )
         {
-            return _superTypeOperatorPrecedent.TryGetValue(
-                operatorName, out precedence );
+            return _superTypeOperatorPrecedent.TryGetValue( operatorName, out precedence );
         }
 
         private static void InitPrecedence()
@@ -86,16 +82,18 @@ namespace StgSharp.Script.Express
                 new KeyValuePair<string, int>( PoolString( ":<>:" ), 6 ),
                 new KeyValuePair<string, int>( PoolString( "IN" ), 6 ),
                 new KeyValuePair<string, int>( PoolString( "LIKE" ), 6 ),
+                new KeyValuePair<string, int>( PoolString( Keyword.Assignment ), 7 )
                 ];
-            _operatorPrecedence = new Dictionary<string, int>(
-                source, _multiplexer ).ToFrozenDictionary();
+            _operatorPrecedence = new Dictionary<string, int>( source,
+                                                               _multiplexer ).ToFrozenDictionary();
             source = [
                 new KeyValuePair<string, int>( "ONEOF", 1 ),
                 new KeyValuePair<string, int>( "AND", 2 ),
                 new KeyValuePair<string, int>( "ANDOR", 3 ),
                 ];
-            _superTypeOperatorPrecedent = new Dictionary<string, int>(
-                source, _multiplexer ).ToFrozenDictionary();
+            _superTypeOperatorPrecedent = new Dictionary<string, int>( source,
+                                                                       _multiplexer ).ToFrozenDictionary(
+                );
         }
 
         #pragma warning disable CS8618 

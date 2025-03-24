@@ -41,8 +41,7 @@ namespace StgSharp.Script.Express
     internal partial class ExpSchema_Builtin : ExpSchema
     {
 
-        private static readonly ExpSchema_Builtin _onlyInstance = new ExpSchema_Builtin(
-            );
+        private static readonly ExpSchema_Builtin _onlyInstance = new ExpSchema_Builtin();
 
         private ExpSchema_Builtin()
             : base()
@@ -60,9 +59,7 @@ namespace StgSharp.Script.Express
             return;
         }
 
-        public override bool TryGetConst(
-                                     string name,
-                                     out ExpElementInstanceBase c )
+        public override bool TryGetConst( string name, out ExpElementInstanceBase c )
         {
             return ConstDict.TryGetValue( name, out c );
         }
@@ -73,9 +70,7 @@ namespace StgSharp.Script.Express
             return false;
         }
 
-        public override bool TryGetFunction(
-                                     string name,
-                                     out ExpFunctionSource f )
+        public override bool TryGetFunction( string name, out ExpFunctionSource f )
         {
             return FunctionDict.TryGetValue( name, out f! );
         }
@@ -86,9 +81,7 @@ namespace StgSharp.Script.Express
             return false;
         }
 
-        public override bool TryGetSchemaInclude(
-                                     string name,
-                                     out ExpSchema include )
+        public override bool TryGetSchemaInclude( string name, out ExpSchema include )
         {
             include = null!;
             return false;
@@ -103,37 +96,33 @@ namespace StgSharp.Script.Express
         {
             IEnumerable<KeyValuePair<string, ExpTypeSource>> builtinTypeSource = [
                 new KeyValuePair<string, ExpTypeSource>(
-                PoolString( KeyWord.Integer ),
-                new ExpBuiltinType( KeyWord.Integer, typeof( int ) ) ),
+                PoolString( Keyword.Integer ),
+                new ExpBuiltinType( Keyword.Integer, typeof( int ) ) ),
                 new KeyValuePair<string, ExpTypeSource>(
-                PoolString( KeyWord.Real ),
-                new ExpBuiltinType( KeyWord.Real, typeof( float ) ) ),
+                PoolString( Keyword.Real ), new ExpBuiltinType( Keyword.Real, typeof( float ) ) ),
                 new KeyValuePair<string, ExpTypeSource>(
-                PoolString( KeyWord.Boolean ),
-                new ExpBuiltinType( KeyWord.Boolean, typeof( bool ) ) ),
+                PoolString( Keyword.Boolean ),
+                new ExpBuiltinType( Keyword.Boolean, typeof( bool ) ) ),
                 new KeyValuePair<string, ExpTypeSource>(
-                PoolString( KeyWord.Logical ),
-                new ExpBuiltinType( KeyWord.Logical, typeof( ExpLogic ) ) ),
+                PoolString( Keyword.Logical ),
+                new ExpBuiltinType( Keyword.Logical, typeof( ExpLogic ) ) ),
                 new KeyValuePair<string, ExpTypeSource>(
-                PoolString( KeyWord.String ),
-                new ExpBuiltinType( KeyWord.String, typeof( string ) ) ),
+                PoolString( Keyword.String ),
+                new ExpBuiltinType( Keyword.String, typeof( string ) ) ),
                 new KeyValuePair<string, ExpTypeSource>(
-                PoolString( KeyWord.Binary ),
-                new ExpBuiltinType( KeyWord.Binary, typeof( BitArray ) ) ),
+                PoolString( Keyword.Binary ),
+                new ExpBuiltinType( Keyword.Binary, typeof( BitArray ) ) ),
 
                 ];
-            TypeDict = new Dictionary<string, ExpTypeSource>(
-                builtinTypeSource, Multiplexer ).ToFrozenDictionary();
+            TypeDict = new Dictionary<string, ExpTypeSource>( builtinTypeSource,
+                                                              Multiplexer ).ToFrozenDictionary();
 
 
-            ConstDict = new Dictionary<string, ExpElementInstanceBase>(
-                Multiplexer ) {
+            ConstDict = new Dictionary<string, ExpElementInstanceBase>( Multiplexer ) {
                 { PoolString( "PI" ), new ExpRealNumberNode(
-                    new Token( PoolString( "PI" ), -1, -1, TokenFlag.Number ),
-                    MathF.PI ) },
+                    new Token( PoolString( "PI" ), -1, -1, TokenFlag.Number ), MathF.PI ) },
                 { PoolString( "E" ), new ExpRealNumberNode(
-                    new Token( PoolString( "E" ), -1, -1, TokenFlag.Number ),
-                    MathF.E ) },
+                    new Token( PoolString( "E" ), -1, -1, TokenFlag.Number ), MathF.E ) },
             }.ToFrozenDictionary();
         }
 
