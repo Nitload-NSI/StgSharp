@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpElementInstanceBase.cs"
+//     file="ExpElementInstance.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -53,14 +53,16 @@ namespace StgSharp.Script.Express
 
     }
 
-    public abstract class ExpElementInstanceBase : ExpNode
+    public abstract class ExpElementInstance : ExpNode
     {
 
-        protected ExpElementInstanceBase( Token source )
+        protected ExpElementInstance( Token source )
             : base( source )
         {
             CodeConvertTemplate = source.Value;
         }
+
+        public bool IsLiteral { get; init; }
 
         public ExpElementType ElementType { get; }
 
@@ -70,29 +72,56 @@ namespace StgSharp.Script.Express
 
         public abstract string TypeName { get; }
 
-        public static ExpElementInstanceBase CreateLiteral( Token t )
+        public static ExpElementInstance CreateLiteral( Token t )
         {
             if( int.TryParse( t.Value, out int _int ) )
             {
-                return new ExpIntNode( t, _int );
+                return new ExpIntNode( t, _int, true );
             } else if( float.TryParse( t.Value, out float _float ) )
             {
-                return new ExpRealNumberNode( t, _float );
+                return new ExpRealNumberNode( t, _float, true );
             } else if( bool.TryParse( t.Value, out bool _bool ) )
             {
-                return new ExpBoolNode( t, _bool );
+                return new ExpBoolNode( t, _bool, true );
             } else if( ExpLogic.TryParse( t.Value, out ExpLogic _logic ) )
             {
-                return new ExpLogicValueNode( t, _logic );
+                return new ExpLogicValueNode( t, _logic, true );
             } else
             {
-                return new ExpStringNode( t, t.Value );
+                return new ExpStringNode( t, t.Value, true );
             }
         }
 
         public ExpInstanceReferenceNode MakeReference( Token t )
         {
             return new ExpInstanceReferenceNode( t, this );
+        }
+
+        public static bool TryCreateLiteral( Token t, out ExpElementInstance instance )
+        {
+            if( int.TryParse( t.Value, out int _int ) )
+            {
+                instance = new ExpIntNode( t, _int, true );
+                return true;
+            } else if( float.TryParse( t.Value, out float _float ) )
+            {
+                instance = new ExpRealNumberNode( t, _float, true );
+                return true;
+            } else if( bool.TryParse( t.Value, out bool _bool ) )
+            {
+                instance = new ExpBoolNode( t, _bool, true );
+                return true;
+            } else if( ExpLogic.TryParse( t.Value, out ExpLogic _logic ) )
+            {
+                instance = new ExpLogicValueNode( t, _logic, true );
+                return true;
+            } else if( t.Flag == TokenFlag.String )
+            {
+                instance = new ExpStringNode( t, t.Value, true );
+                return true;
+            }
+            instance = null!;
+            return false;
         }
 
         public bool TryGetMember( string name, out ExpNode node )

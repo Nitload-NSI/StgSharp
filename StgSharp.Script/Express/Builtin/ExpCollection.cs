@@ -37,7 +37,7 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public abstract class ExpCollectionBase : ExpInstantiableElement, IEnumerable<ExpElementInstanceBase>
+    public abstract class ExpCollectionBase : ExpInstantiableElement, IEnumerable<ExpElementInstance>
     {
 
         protected internal string _accurateType;
@@ -49,10 +49,7 @@ namespace StgSharp.Script.Express
 
         public override ExpElementType ElementType => ExpElementType.Collection;
 
-        public abstract int Count
-        {
-            get;
-        }
+        public abstract int Count { get; }
 
         public override sealed IScriptSourceProvider SourceProvider => ScriptSourceTransmitter.Empty;
 
@@ -66,7 +63,7 @@ namespace StgSharp.Script.Express
             return;
         }
 
-        public abstract IEnumerator<ExpElementInstanceBase> GetEnumerator();
+        public abstract IEnumerator<ExpElementInstance> GetEnumerator();
 
         public override bool TryGetMember( string name, out ExpNode memberNode )
         {
@@ -84,18 +81,17 @@ namespace StgSharp.Script.Express
     public class ExpArray : ExpCollectionBase
     {
 
-        private ExpElementInstanceBase[] _collection;
+        private ExpElementInstance[] _collection;
 
         public ExpArray( string accurateType ) : base( accurateType ) { }
 
-        public ExpElementInstanceBase this[ int index ]
+        public ExpElementInstance this[ int index ]
         {
             get { return _collection[ index ]; }
             set
             {
                 if( value.TypeName != MemberType ) {
-                    throw new ExpInvalidCollectionMemberTypeException(
-                        value, this );
+                    throw new ExpInvalidCollectionMemberTypeException( value, this );
                 }
                 _collection[ index ] = value;
             }
@@ -110,9 +106,9 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override IEnumerator<ExpElementInstanceBase> GetEnumerator()
+        public override IEnumerator<ExpElementInstance> GetEnumerator()
         {
-            return ( ( IEnumerable<ExpElementInstanceBase> )_collection )
+            return ( ( IEnumerable<ExpElementInstance> )_collection )
                 .GetEnumerator();
         }
 
@@ -121,7 +117,7 @@ namespace StgSharp.Script.Express
     public class ExpBag : ExpCollectionBase
     {
 
-        private ConcurrentBag<ExpElementInstanceBase> _collection = new ConcurrentBag<ExpElementInstanceBase>(
+        private ConcurrentBag<ExpElementInstance> _collection = new ConcurrentBag<ExpElementInstance>(
             );
 
         public ExpBag( string accurateType ) : base( accurateType ) { }
@@ -135,7 +131,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override IEnumerator<ExpElementInstanceBase> GetEnumerator()
+        public override IEnumerator<ExpElementInstance> GetEnumerator()
         {
             return _collection.GetEnumerator();
         }
@@ -145,8 +141,7 @@ namespace StgSharp.Script.Express
     public sealed class ExpList : ExpCollectionBase
     {
 
-        private List<ExpElementInstanceBase> _collection = new List<ExpElementInstanceBase>(
-            );
+        private List<ExpElementInstance> _collection = new List<ExpElementInstance>();
 
         public ExpList( string accurateType ) : base( accurateType ) { }
 
@@ -159,7 +154,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override IEnumerator<ExpElementInstanceBase> GetEnumerator()
+        public override IEnumerator<ExpElementInstance> GetEnumerator()
         {
             return _collection.GetEnumerator();
         }
@@ -169,7 +164,7 @@ namespace StgSharp.Script.Express
     public class ExpSet : ExpCollectionBase
     {
 
-        private HashSet<ExpElementInstanceBase> _collection = new();
+        private HashSet<ExpElementInstance> _collection = new();
 
         public ExpSet( string accurateType ) : base( accurateType ) { }
 
@@ -177,11 +172,10 @@ namespace StgSharp.Script.Express
 
         public override string Name => ExpressCompile.PoolString( "SET" );
 
-        public void Add( ExpElementInstanceBase token )
+        public void Add( ExpElementInstance token )
         {
             if( token.TypeName != MemberType ) {
-                throw new ExpInvalidCollectionMemberTypeException( token,
-                                                                   this );
+                throw new ExpInvalidCollectionMemberTypeException( token, this );
             }
             _collection.Add( token );
         }
@@ -191,10 +185,9 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override sealed IEnumerator<ExpElementInstanceBase> GetEnumerator(
-                                                                           )
+        public override sealed IEnumerator<ExpElementInstance> GetEnumerator()
         {
-            return ( ( IEnumerable<ExpElementInstanceBase> )_collection )
+            return ( ( IEnumerable<ExpElementInstance> )_collection )
                 .GetEnumerator();
         }
 

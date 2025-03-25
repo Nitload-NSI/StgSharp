@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 
 using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
@@ -114,12 +115,26 @@ namespace StgSharp.Script.Express
             if( t.Flag != TokenFlag.Separator_Middle ) {
                 return false;
             }
+            processOperator:
             if( _cache.OperatorAheadOfDepth == 0 )
             {
                 if( _cache.OperandAheadOfDepth == 1 )
                 {
+                    if( _cache.Depth != 1 )
+                    {
+                        _cache.DecreaseDepth();
+                        if( _cache.PeekOperator().Value == t.Value )
+                        {
+                            _cache.PopOperand( out _, out ExpNode? currentExpression );
+                            _cache.PopOperand( out Token valToken, out _ );
+                            _cache.PopOperand( out _, out ExpNode? previousExpression );
+                            currentExpression.PrependNode( previousExpression );
+                            _cache.PushOperand( previousExpression );
+                        }
+                    }
                     _cache.PushOperand( t );
                     _cache.PushOperator( t );
+                    _cache.IncreaseDepth( ( int )ExpCompileStateCode.Common );
                     return true;
                 } else
                 {
@@ -127,7 +142,6 @@ namespace StgSharp.Script.Express
                 }
             }
             Token op;
-            processOperator:
             if( _cache.TryPopOperator( out op ) )
             {
                 if( op.Value == t.Value )
@@ -151,7 +165,7 @@ namespace StgSharp.Script.Express
             if( ( t.Flag & ( TokenFlag.String | TokenFlag.Number ) ) == 0 ) {
                 return false;
             }
-            _cache.PushOperand( ExpElementInstanceBase.CreateLiteral( t ) );
+            _cache.PushOperand( ExpElementInstance.CreateLiteral( t ) );
             return true;
         }
 
@@ -189,7 +203,6 @@ namespace StgSharp.Script.Express
                 {
                     _cache.PopOperator();
                     ExpNode node = ConvertAndPushOneOperator( tmp );
-                    _cache.PushOperand( node );
                     goto processPrecedence;
                 }
             }
@@ -199,16 +212,22 @@ namespace StgSharp.Script.Express
 
         private bool TryParseConstant( Token t )
         {
-            if( t.Value == ExpKeyword.True )
+            switch( t.Value )
             {
-                _cache.PushOperand( new ExpBoolNode( t, true ) );
-                return true;
-            } else if( t.Value == ExpKeyword.False )
-            {
-                _cache.PushOperand( new ExpBoolNode( t, false ) );
-                return true;
+                case ExpKeyword.E:
+                    _cache.PushOperand( new ExpRealNumberNode( t, MathF.E, true ) );
+                    return true;
+                case ExpKeyword.Pi:
+                    _cache.PushOperand( new ExpRealNumberNode( t, MathF.PI, true ) );
+                    return true;
+                default:
+                    if( ExpElementInstance.TryCreateLiteral( t, out ExpElementInstance? node ) )
+                    {
+                        _cache.PushOperand( node );
+                        return true;
+                    }
+                    return false;
             }
-            return false;
         }
 
         private bool TryParseFunction( Token t )
@@ -228,9 +247,9 @@ namespace StgSharp.Script.Express
         private bool TryParseInstance( Token t )
         {
             if( _local.TryGetMember( t.Value,
-                                     out ExpNode? node ) && node is ExpElementInstanceBase instance )
+                                     out ExpNode? node ) && node is ExpElementInstance instance )
             {
-                _cache.PushOperand( ExpInstanceReferenceNode.Create( t, instance ) );
+                _cache.PushOperand( ExpInstanceReferenceNode.MakeReferenceFrom( t, instance ) );
                 return true;
             }
             return false;

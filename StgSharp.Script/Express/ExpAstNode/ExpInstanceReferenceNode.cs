@@ -40,13 +40,14 @@ namespace StgSharp.Script.Express
     public class ExpInstanceReferenceNode : ExpNode
     {
 
-        private ExpElementInstanceBase _instance;
+        private ExpElementInstance _instance;
 
-        internal ExpInstanceReferenceNode( Token source, ExpElementInstanceBase instance )
+        internal ExpInstanceReferenceNode( Token source, ExpElementInstance instance )
             : base( source )
         {
             _instance = instance;
             _nodeFlag = ( _instance._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
+            CodeConvertTemplate = source.Value;
         }
 
         internal ExpInstanceReferenceNode( Token source, ExpInstanceReferenceNode reference )
@@ -64,11 +65,15 @@ namespace StgSharp.Script.Express
         public override IExpElementSource EqualityTypeConvert => _instance.EqualityTypeConvert;
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static ExpInstanceReferenceNode Create(
+        public static ExpInstanceReferenceNode MakeReferenceFrom(
                                                Token source,
-                                               ExpElementInstanceBase instance )
+                                               ExpElementInstance instance )
         {
-            /*
+            /**/
+            if( instance.IsLiteral )
+            {
+                throw new ExpCompileException( source, "Cannot make reference to a literal." );
+            }
             if( instance.CodeConvertTemplate != source.Value ) {
                 throw new ExpCompileException( source, "Token point at a wrong instance" );
             }

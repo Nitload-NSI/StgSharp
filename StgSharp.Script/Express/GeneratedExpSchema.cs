@@ -57,7 +57,8 @@ namespace StgSharp.Script.Express
             if( TypeDict.TryGetValue( typeName, out ret ) ) {
                 return ret;
             }
-            foreach( GeneratedExpSchema item in SchemaInclude.Values ) {
+            foreach( GeneratedExpSchema item in SchemaInclude.Values )
+            {
                 if( item.TypeDict.TryGetValue( typeName, out ret ) ) {
                     return ret;
                 }
@@ -75,9 +76,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override bool TryGetConst(
-                                     string name,
-                                     out ExpElementInstanceBase c )
+        public override bool TryGetConst( string name, out ExpElementInstance c )
         {
             return ConstDict.TryGetValue( name, out c );
         }
@@ -87,9 +86,7 @@ namespace StgSharp.Script.Express
             return EntityDict.TryGetValue( name, out e );
         }
 
-        public override bool TryGetFunction(
-                                     string name,
-                                     out ExpFunctionSource f )
+        public override bool TryGetFunction( string name, out ExpFunctionSource f )
         {
             return FunctionDict.TryGetValue( name, out f );
         }
@@ -99,16 +96,12 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override bool TryGetSchemaInclude(
-                                     string name,
-                                     out ExpSchema include )
+        public override bool TryGetSchemaInclude( string name, out ExpSchema include )
         {
             throw new NotImplementedException();
         }
 
-        public override bool TryGetType(
-                                     string name,
-                                     out ExpTypeSource element )
+        public override bool TryGetType( string name, out ExpTypeSource element )
         {
             throw new NotImplementedException();
         }

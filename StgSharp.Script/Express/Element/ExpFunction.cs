@@ -40,25 +40,17 @@ namespace StgSharp.Script.Express
         private ScriptSourceTransmitter _transmitter;
         private string _name;
 
-        public ExpFunctionSource(
-                       string name,
-                       ScriptSourceTransmitter transmitter )
+        public ExpFunctionSource( string name, ScriptSourceTransmitter transmitter )
         {
             _name = name;
             _transmitter = transmitter;
         }
 
-        public Dictionary<string, ExpElementInstanceBase> FuncParams
-        {
-            get;
-            init;
-        } = new Dictionary<string, ExpElementInstanceBase>();
+        public Dictionary<string, ExpElementInstance> FuncParams { get; init; } = new Dictionary<string, ExpElementInstance>(
+            );
 
-        public Dictionary<string, ExpElementInstanceBase> LocalVariables
-        {
-            get;
-            init;
-        } = new Dictionary<string, ExpElementInstanceBase>();
+        public Dictionary<string, ExpElementInstance> LocalVariables { get; init; } = new Dictionary<string, ExpElementInstance>(
+            );
 
         public override ExpElementType ElementType => ExpElementType.Function;
 
@@ -66,11 +58,7 @@ namespace StgSharp.Script.Express
 
         public override string Name => _name;
 
-        public string CallingFormat
-        {
-            get;
-            private set;
-        }
+        public string CallingFormat { get; private set; }
 
         public override void Analyse()
         {
@@ -89,13 +77,13 @@ namespace StgSharp.Script.Express
 
         public override bool TryGetMember( string name, out ExpNode memberNode )
         {
-            if( FuncParams.TryGetValue(
-                name, out ExpElementInstanceBase? param ) ) {
+            if( FuncParams.TryGetValue( name, out ExpElementInstance? param ) )
+            {
                 memberNode = param;
                 return true;
             }
-            if( LocalVariables.TryGetValue(
-                name, out ExpElementInstanceBase? variable ) ) {
+            if( LocalVariables.TryGetValue( name, out ExpElementInstance? variable ) )
+            {
                 memberNode = variable;
                 return true;
             }

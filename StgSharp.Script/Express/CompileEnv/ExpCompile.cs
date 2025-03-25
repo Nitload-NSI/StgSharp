@@ -47,7 +47,7 @@ namespace StgSharp.Script.Express
 
         private static string[] _operatorsWithLetter;
         private static ConcurrentStringHashMultiplexer _multiplexer;
-        private static FrozenDictionary<string, ExpElementInstanceBase> _builtinConst;
+        private static FrozenDictionary<string, ExpElementInstance> _builtinConst;
         private static FrozenDictionary<string, ExpTypeSource> _builtinType;
         private static FrozenDictionary<string, ExpBinaryOperatorNode> _operators;
         private static StringPool _compileStringCache,_emptyCache;
@@ -111,6 +111,12 @@ namespace StgSharp.Script.Express
                              .TryGetType(
                                  PoolString( Keyword.Boolean ), out ExpTypeSource? _expBool );
             ExpBool = _expBool;
+
+            ExpSchema_Builtin.Only
+                             .TryGetType(
+                                 PoolString( Keyword.Boolean ), out ExpTypeSource? _expString );
+            ExpString = _expString;
+
 
             _emptyCache = new StringPool();
             /*

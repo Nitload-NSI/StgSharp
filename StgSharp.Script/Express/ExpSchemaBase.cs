@@ -46,72 +46,38 @@ namespace StgSharp.Script.Express
             get => ExpSchema_Builtin.Only;
         }
 
-        public string Name
-        {
-            get;
-            internal set;
-        }
+        public string Name { get; internal set; }
 
         public abstract void LoadFromSource( ExpSchemaSource source );
 
-        public abstract bool TryGetConst(
-                                     string name,
-                                     out ExpElementInstanceBase c );
+        public abstract bool TryGetConst( string name, out ExpElementInstance c );
 
         public abstract bool TryGetEntity( string name, out ExpEntitySource e );
 
-        public abstract bool TryGetFunction(
-                                     string name,
-                                     out ExpFunctionSource f );
+        public abstract bool TryGetFunction( string name, out ExpFunctionSource f );
 
         public abstract bool TryGetRule( string name, out ExpRuleSource r );
 
-        public abstract bool TryGetSchemaInclude(
-                                     string name,
-                                     out ExpSchema include );
+        public abstract bool TryGetSchemaInclude( string name, out ExpSchema include );
 
         public abstract bool TryGetType( string name, out ExpTypeSource t );
 
         #pragma warning disable CS8618
-        protected FrozenDictionary<string, ExpElementInstanceBase> ConstDict
-        {
-            get;
-            set;
-        }
+        protected FrozenDictionary<string, ExpElementInstance> ConstDict { get; set; }
 
         public IEnumerable<ExpSchema> IncludedSchema => IncludedSchema;
 
-        protected FrozenDictionary<string, ExpEntitySource> EntityDict
-        {
-            get;
-            set;
-        }
+        protected FrozenDictionary<string, ExpEntitySource> EntityDict { get; set; }
 
-        protected FrozenDictionary<string, ExpFunctionSource> FunctionDict
-        {
-            get;
-            set;
-        }
+        protected FrozenDictionary<string, ExpFunctionSource> FunctionDict { get; set; }
 
         protected ConcurrentStringHashMultiplexer StringMultiplexer => ExpressCompile.Multiplexer;
 
-        protected FrozenDictionary<string, ExpRuleSource> RuleDict
-        {
-            get;
-            set;
-        }
+        protected FrozenDictionary<string, ExpRuleSource> RuleDict { get; set; }
 
-        protected FrozenDictionary<string, ExpSchema> SchemaInclude
-        {
-            get;
-            set;
-        }
+        protected FrozenDictionary<string, ExpSchema> SchemaInclude { get; set; }
 
-        protected FrozenDictionary<string, ExpTypeSource> TypeDict
-        {
-            get;
-            set;
-        }
+        protected FrozenDictionary<string, ExpTypeSource> TypeDict { get; set; }
 #pragma warning restore CS8618
     }
 }

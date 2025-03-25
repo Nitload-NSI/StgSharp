@@ -42,19 +42,18 @@ namespace StgSharp.Script.Express
     public class ExpInvalidCharException : Exception
     {
 
-        public ExpInvalidCharException( char c )
-            : base( $"An unknown char {c} occurred." ) { }
+        public ExpInvalidCharException( char c ) : base( $"An unknown char {c} occurred." ) { }
+
+        public ExpInvalidCharException( int index )
+            : base( $"Cannot read a token from line at {index}" ) { }
 
     }
 
-    /// <summary>
-    /// Exception when cannot reading a token from a line.
-    /// </summary>
-    public class ExpInvalidTokenException : Exception
+    public class ExpStringNotCloseException : Exception
     {
 
-        public ExpInvalidTokenException( int index )
-            : base( $"Cannot read a token from line at {index}" ) { }
+        public ExpStringNotCloseException( int linenum )
+            : base( $"A string does not closed at end of line {linenum}." ) { }
 
     }
 
@@ -80,9 +79,7 @@ namespace StgSharp.Script.Express
     public class ExpInvalidElementDeclareEndingExceptions : Exception
     {
 
-        public ExpInvalidElementDeclareEndingExceptions(
-                       string declaredName,
-                       string endedName )
+        public ExpInvalidElementDeclareEndingExceptions( string declaredName, string endedName )
             : base(
             $"The datatype is declared with name {declaredName} but ended with {endedName}" ) { }
 
@@ -91,11 +88,8 @@ namespace StgSharp.Script.Express
     public class ExpInvalidElementNameException : Exception
     {
 
-        public ExpInvalidElementNameException(
-                       string elementName,
-                       ExpSchema schema )
-            : base(
-            $"Cannot find any element named {elementName} in {schema.Name}" ) { }
+        public ExpInvalidElementNameException( string elementName, ExpSchema schema )
+            : base( $"Cannot find any element named {elementName} in {schema.Name}" ) { }
 
     }
 
@@ -121,8 +115,8 @@ namespace StgSharp.Script.Express
     {
 
         public ExpInvalidCollectionMemberTypeException(
-                       ExpElementInstanceBase elementInstance,
-                       ExpCollectionBase collection )
+               ExpElementInstance elementInstance,
+               ExpCollectionBase collection )
             : base(
             $"Attempt to add or remove an element of type: {elementInstance.ElementType} from a collection collects {collection.MemberType}" ) { }
 
@@ -131,9 +125,7 @@ namespace StgSharp.Script.Express
     public class ExpInvalidSchemaIncludeException : InvalidOperationException
     {
 
-        public ExpInvalidSchemaIncludeException(
-                       ExpSchema context,
-                       ExpSchema source )
+        public ExpInvalidSchemaIncludeException( ExpSchema context, ExpSchema source )
             : base(
             $"Attempted to refer to an EXPRESS language expression in the current schema context '{context.Name}', but this expression comes from another schema '{source.Name}' that has not been included." ) { }
 
@@ -152,8 +144,7 @@ namespace StgSharp.Script.Express
     {
 
         public ExpCompileNotInitializedException()
-            : base(
-            "Attempt to compile an EXPRESS script before the init of compiler." ) { }
+            : base( "Attempt to compile an EXPRESS script before the init of compiler." ) { }
 
     }
 
@@ -162,7 +153,7 @@ namespace StgSharp.Script.Express
 
         public ExpCompileException( Token pos, string message )
             : base(
-            $"Compiler exception occour when processing token at line {pos.Line}, column {pos.Column}. Detailed message:{Environment.NewLine}{message} " ) { }
+            $"Compiler exception occur when processing token at line {pos.Line}, column {pos.Column}. Detailed message:{Environment.NewLine}{message} " ) { }
 
     }
 }

@@ -36,7 +36,7 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public sealed class ExpBuiltinType : ExpTypeSource
+    internal sealed class ExpBuiltinType : ExpTypeSource
     {
 
         private Type _marshalType;

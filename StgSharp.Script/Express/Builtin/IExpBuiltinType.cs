@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpInstanceMemberNode.cs"
+//     file="IExpBuiltinType.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,8 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using CommunityToolkit.HighPerformance.Helpers;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,29 +36,10 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpInstanceMemberNode : ExpNode
+    public interface IExpBuiltinType<TSelf> where TSelf: ExpElementInstance, IExpBuiltinType<TSelf>
     {
 
-        private ExpElementInstance _instance;
-        private ExpElementMemberNameNode _memberName;
-        private ExpNode _member;
-
-        public ExpInstanceMemberNode(
-               Token source,
-               ExpElementInstance instance,
-               ExpElementMemberNameNode memberName )
-            : base( source )
-        {
-            _instance = instance;
-            _memberName = memberName;
-            _instance.TryGetMember( memberName.CodeConvertTemplate, out _member );
-        }
-
-        public override ExpNode Left => _instance;
-
-        public override ExpNode Right => _memberName;
-
-        public override IExpElementSource EqualityTypeConvert => _member.EqualityTypeConvert;
+        static abstract ExpElementInstance CreateInstance();
 
     }
 }

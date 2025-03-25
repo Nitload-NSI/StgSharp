@@ -42,14 +42,13 @@ namespace StgSharp.Script.Express
     public sealed class ExpConstantCollectionSource : ExpImmutableElement
     {
 
-        private Dictionary<string, ExpElementInstanceBase> _constants;
+        private Dictionary<string, ExpElementInstance> _constants;
         private IScriptSourceProvider _sourceProvider;
 
         public ExpConstantCollectionSource( IScriptSourceProvider sourceProvider )
         {
             _sourceProvider = sourceProvider;
-            _constants = new Dictionary<string, ExpElementInstanceBase>(
-                ExpressCompile.Multiplexer );
+            _constants = new Dictionary<string, ExpElementInstance>( ExpressCompile.Multiplexer );
         }
 
         public override ExpElementType ElementType => ExpElementType.Const;
@@ -74,20 +73,20 @@ namespace StgSharp.Script.Express
             if( _constants.Count == 0 ) {
                 return null!;
             }
-            if( _constants.TryGetValue( str, out ExpElementInstanceBase? token ) ) {
+            if( _constants.TryGetValue( str, out ExpElementInstance? token ) ) {
                 return token;
             }
             return null!;
         }
 
-        public bool TryGetConstant( string name, out ExpElementInstanceBase instance )
+        public bool TryGetConstant( string name, out ExpElementInstance instance )
         {
             return _constants.TryGetValue( name, out instance );
         }
 
         public override bool TryGetMember( string name, out ExpNode memberNode )
         {
-            if( _constants.TryGetValue( name, out ExpElementInstanceBase? node ) )
+            if( _constants.TryGetValue( name, out ExpElementInstance? node ) )
             {
                 memberNode = node;
                 return true;
@@ -96,7 +95,7 @@ namespace StgSharp.Script.Express
             return false;
         }
 
-        internal void AddConstant( string name, ExpElementInstanceBase value )
+        internal void AddConstant( string name, ExpElementInstance value )
         {
             _constants.Add( name, value );
         }

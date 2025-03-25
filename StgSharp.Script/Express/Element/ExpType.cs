@@ -77,7 +77,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpElementInstanceBase CreateInstanceNode()
+        public override ExpElementInstance CreateInstanceNode()
         {
             throw new NotImplementedException();
         }
@@ -96,8 +96,7 @@ namespace StgSharp.Script.Express
         private class ExpVoidType : ExpTypeSource
         {
 
-            private static readonly ExpVoidType _onlyInstance = new ExpVoidType(
-                );
+            private static readonly ExpVoidType _onlyInstance = new ExpVoidType();
 
             private ExpVoidType() : base( string.Empty ) { }
 

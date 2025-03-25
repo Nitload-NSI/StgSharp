@@ -53,6 +53,7 @@ namespace StgSharp.Script.Express
         private Regex _nextWordTokenPattern = GetNextWordTokenPattern(),
             _nextStringLiteralPattern = GetStringLiteralPattern(),
             _nextNumberLiteralPattern = GetNumberLiteralPattern(),
+            _nextStringLiteralPatternWithSingle = GetStringLiteralPatternWithSingle(),
             _skipBlankPattern = GetSkipBlankPattern();
         private string _lineCache;
         private Token _last;
@@ -76,10 +77,10 @@ namespace StgSharp.Script.Express
         }
 
         /// <summary>
-        ///   <para> Read code until end of a line. Lines in multi-line comment will be ignored.
-        ///   Line begins with part of multi-line comment will automatically remove the  comment
-        ///   part, but beginning with a full multi-line comment will not causing removing. </para>
-        ///   <para> (*Just Like The Comment Here*) Will Not Be Removed</para>
+        ///   <para>Read code until end of a line. Lines in multi-line comment will be ignored. Line
+        ///   begins with part of multi-line comment will automatically remove the  comment part,
+        ///   but beginning with a full multi-line comment will not causing removing.</para> <para>
+        ///   (*Just Like The Comment Here*) Will Not Be Removed </para>
         /// </summary>
         /// <returns>
         ///
@@ -130,6 +131,9 @@ namespace StgSharp.Script.Express
                 Match match = _nextWordTokenPattern.Match( _lineCache, _current );
                 if( match.Success )
                 {
+                    if( match.Groups[ EndMark ].Index >= _lineCache.Length ) {
+                        throw new ExpStringNotCloseException( _lineNum );
+                    }
                     begin = match.Groups[ TokenMark ].Index;
                     end = match.Groups[ EndMark ].Index;
                     rest = match.Groups[ RestMark ].Index;
@@ -140,12 +144,14 @@ namespace StgSharp.Script.Express
                     return _last;
                 } else
                 {
-                    throw new ExpInvalidTokenException( _current );
+                    throw new ExpInvalidCharException( _current );
                 }
             } else if( char.IsPunctuation( c ) || char.IsSymbol( c ) )
             {
                 switch( c )
                 {
+                    case '\'':
+
                     case '"':
                         char cNext = source[ 1 ];
                         if( cNext == '\"' )                                     //empty string
@@ -213,7 +219,7 @@ namespace StgSharp.Script.Express
                                     _lineNum, begin, TokenFlag.Number );
                             } else
                             {
-                                throw new ExpInvalidTokenException( _current );
+                                throw new ExpInvalidCharException( _current );
                             }
                         } else if( cNext == '-' )
                         {
@@ -297,7 +303,7 @@ namespace StgSharp.Script.Express
                     return new( str, _lineNum, begin, TokenFlag.Number );
                 } else
                 {
-                    throw new ExpInvalidTokenException( _current );
+                    throw new ExpInvalidCharException( _current );
                 }
             } else if( char.IsWhiteSpace( c ) )
             {
@@ -309,7 +315,7 @@ namespace StgSharp.Script.Express
                     goto readLine;
                 } else
                 {
-                    throw new ExpInvalidTokenException( _current );
+                    throw new ExpInvalidCharException( _current );
                 }
             } else
             {
@@ -342,9 +348,14 @@ namespace StgSharp.Script.Express
         private static partial Regex GetSkipBlankPattern();
 
         [GeneratedRegex(
-                @"(?<token>"")(?:.*?[^\\](?:\\\\)*?)(?<end>"")\s*?(?<rest>\S|$)",
+                @"(?<token>"")(?>\\\\|\\""|(?!')[^""])*(?<end>""|$)\s*?(?<rest>\S|$)",
                 RegexOptions.Singleline )]
         private static partial Regex GetStringLiteralPattern();
+
+        [GeneratedRegex(
+                @"(?<token>')(?>\\\\|\\'|''|(?!')[^'])*(?<end>')\s*?(?<rest>\S|$)",
+                RegexOptions.Singleline )]
+        private static partial Regex GetStringLiteralPatternWithSingle();
 
     }
 }

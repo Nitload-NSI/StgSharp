@@ -59,7 +59,7 @@ namespace StgSharp.Script.Express
             return;
         }
 
-        public override bool TryGetConst( string name, out ExpElementInstanceBase c )
+        public override bool TryGetConst( string name, out ExpElementInstance c )
         {
             return ConstDict.TryGetValue( name, out c );
         }
@@ -118,11 +118,11 @@ namespace StgSharp.Script.Express
                                                               Multiplexer ).ToFrozenDictionary();
 
 
-            ConstDict = new Dictionary<string, ExpElementInstanceBase>( Multiplexer ) {
+            ConstDict = new Dictionary<string, ExpElementInstance>( Multiplexer ) {
                 { PoolString( "PI" ), new ExpRealNumberNode(
-                    new Token( PoolString( "PI" ), -1, -1, TokenFlag.Number ), MathF.PI ) },
+                    new Token( PoolString( "PI" ), -1, -1, TokenFlag.Number ), MathF.PI, true ) },
                 { PoolString( "E" ), new ExpRealNumberNode(
-                    new Token( PoolString( "E" ), -1, -1, TokenFlag.Number ), MathF.E ) },
+                    new Token( PoolString( "E" ), -1, -1, TokenFlag.Number ), MathF.E, true ) },
             }.ToFrozenDictionary();
         }
 

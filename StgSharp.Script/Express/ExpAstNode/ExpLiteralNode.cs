@@ -34,26 +34,28 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpIntNode : ExpElementInstanceBase
+    public class ExpIntNode : ExpElementInstance
     {
 
         private int _value;
 
-        public ExpIntNode( Token source, int value )
+        public ExpIntNode( Token source, int value, bool isLiteral )
             : base( source )
         {
+            this.IsLiteral = isLiteral;
             _value = value;
             _nodeFlag = ExpNodeFlag.BuiltinType_Int | ExpNodeFlag.Element_Type;
+            CodeConvertTemplate = IsLiteral ? value.ToString() : source.Value;
         }
 
-        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                                                                          .TryGetType(
-                                                                              ExpressCompile.Keyword.Integer,
-                                                                              out ExpTypeSource? type ) ?
-                type : throw new ExpCompileNotInitializedException();
+        public override IExpElementSource EqualityTypeConvert
+        {
+            get => ExpressCompile.ExpInt;
+        }
 
         public int Value => _value;
 
@@ -61,23 +63,24 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpStringNode : ExpElementInstanceBase
+    public class ExpStringNode : ExpElementInstance
     {
 
         private readonly string _value;
 
-        public ExpStringNode( Token source, string value )
+        public ExpStringNode( Token source, string value, bool isLiteral )
             : base( source )
         {
+            this.IsLiteral = IsLiteral;
             _value = value;
             _nodeFlag = ExpNodeFlag.BuiltinType_String | ExpNodeFlag.Element_Type;
+            CodeConvertTemplate = IsLiteral ? $"\"{value}\"" : source.Value;
         }
 
-        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                                                                          .TryGetType(
-                                                                              ExpressCompile.Keyword.String,
-                                                                              out ExpTypeSource? type ) ?
-                type : throw new ExpCompileNotInitializedException();
+        public override IExpElementSource EqualityTypeConvert
+        {
+            get => ExpressCompile.ExpString;
+        }
 
         public override string TypeName => EqualityTypeConvert.Name;
 
@@ -85,73 +88,81 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpBoolNode : ExpElementInstanceBase
+    public class ExpBoolNode : ExpElementInstance
     {
 
         private readonly bool _value;
 
-        public ExpBoolNode( Token source, bool value )
+        public ExpBoolNode( Token source, bool value, bool isLiteral )
             : base( source )
         {
+            this.IsLiteral = isLiteral;
             _value = value;
             _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Element_Type;
+            CodeConvertTemplate = IsLiteral ? value.ToString() : source.Value;
         }
 
         public bool Value => _value;
 
-        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                                                                          .TryGetType(
-                                                                              ExpressCompile.Keyword.Boolean,
-                                                                              out ExpTypeSource? type ) ?
-                type : throw new ExpCompileNotInitializedException();
+        public override IExpElementSource EqualityTypeConvert
+        {
+            get => ExpSchema.BuiltinSchema
+                            .TryGetType( ExpressCompile.Keyword.Boolean, out ExpTypeSource? type ) ?
+                    type : throw new ExpCompileNotInitializedException();
+        }
 
         public override string TypeName => EqualityTypeConvert.Name;
 
     }
 
-    public class ExpRealNumberNode : ExpElementInstanceBase
+    public class ExpRealNumberNode : ExpElementInstance
     {
 
         private readonly float _value;
 
-        public ExpRealNumberNode( Token source, float value )
+        public ExpRealNumberNode( Token source, float value, bool isLiteral )
             : base( source )
         {
             _value = value;
             _nodeFlag = ExpNodeFlag.BuiltinType_Real | ExpNodeFlag.Element_Type;
+            CodeConvertTemplate = isLiteral ? $"{value:F8}f" : source.Value;
         }
 
         public float Value => _value;
 
-        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                                                                          .TryGetType(
-                                                                              ExpressCompile.Keyword.String,
-                                                                              out ExpTypeSource? type ) ?
-                type : throw new ExpCompileNotInitializedException();
+        public override IExpElementSource EqualityTypeConvert
+        {
+            get => ExpSchema.BuiltinSchema
+                            .TryGetType( ExpressCompile.Keyword.String, out ExpTypeSource? type ) ?
+                    type : throw new ExpCompileNotInitializedException();
+        }
 
         public override string TypeName => EqualityTypeConvert.Name;
 
     }
 
-    public class ExpLogicValueNode : ExpElementInstanceBase
+    public class ExpLogicValueNode : ExpElementInstance
     {
 
         private readonly ExpLogic _value;
 
-        public ExpLogicValueNode( Token source, ExpLogic value )
+        public ExpLogicValueNode( Token source, ExpLogic value, bool isLiteral )
             : base( source )
         {
+            this.IsLiteral = isLiteral;
             _value = value;
             _nodeFlag = ExpNodeFlag.BuiltinType_Logic | ExpNodeFlag.Element_Type;
+            CodeConvertTemplate = isLiteral ? value.ToString() : source.Value;
         }
 
         public ExpLogic Value => _value;
 
-        public override IExpElementSource EqualityTypeConvert => ExpSchema.BuiltinSchema
-                                                                          .TryGetType(
-                                                                              ExpressCompile.Keyword.Logical,
-                                                                              out ExpTypeSource? type ) ?
-                type : throw new ExpCompileNotInitializedException();
+        public override IExpElementSource EqualityTypeConvert
+        {
+            get => ExpSchema.BuiltinSchema
+                            .TryGetType( ExpressCompile.Keyword.Logical, out ExpTypeSource? type ) ?
+                    type : throw new ExpCompileNotInitializedException();
+        }
 
         public override string TypeName => EqualityTypeConvert.Name;
 

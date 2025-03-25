@@ -36,7 +36,7 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpRule : ExpElementInstanceBase
+    public class ExpRule : ExpElementInstance
     {
 
         private ExpRuleSource _source;

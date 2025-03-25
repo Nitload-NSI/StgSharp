@@ -39,23 +39,13 @@ namespace StgSharp.Script.Express
     public static partial class ExpressCompile
     {
 
-        public static ExpTypeSource ExpInt
-        {
-            get;
-            private set;
-        }
+        public static ExpTypeSource ExpInt { get; private set; }
 
-        public static ExpTypeSource ExpReal
-        {
-            get;
-            private set;
-        }
+        public static ExpTypeSource ExpReal { get; private set; }
 
-        public static ExpTypeSource ExpBool
-        {
-            get;
-            private set;
-        }
+        public static ExpTypeSource ExpBool { get; private set; }
+
+        public static ExpTypeSource ExpString { get; private set; }
 
     }
 }

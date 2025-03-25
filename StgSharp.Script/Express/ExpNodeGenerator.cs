@@ -108,6 +108,10 @@ namespace StgSharp.Script.Express
                 case TokenFlag.Index_Right:
                     TryAppendIndexRight( expToken );
                     break;
+                case TokenFlag.Number or TokenFlag.String:
+                    ExpElementInstance node = ExpElementInstance.CreateLiteral( expToken );
+                    _cache.PushOperand( node );
+                    break;
                 default:
                     break;
             }
