@@ -179,6 +179,11 @@ namespace StgSharp.Script
             _operatorCount++;
         }
 
+        public T StateOfCurrentDepth<T>() where T: class, ICompileDepthState
+        {
+            return ( CurrentDepthMark.StateCache  as T )!;
+        }
+
         public bool TryPeekOperand( out bool isNode, out Token t, out TNode n )
         {
             if( OperandAheadOfDepth <= 0 )
@@ -248,24 +253,6 @@ namespace StgSharp.Script
             op = Token.Empty;
             return false;
         }
-
-    }
-
-    public class CompileDepthMark
-    {
-
-        public CompileDepthMark( int operatorBegin, int operandBegin, int state )
-        {
-            OperatorBegin = operatorBegin;
-            OperandBegin = operandBegin;
-            State = state;
-        }
-
-        public int OperandBegin { get; internal set; }
-
-        public int OperatorBegin { get; internal set; }
-
-        public int State { get; internal set; }
 
     }
 }

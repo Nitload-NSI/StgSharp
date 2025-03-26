@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeGenerator.BranchParser.cs"
+//     file="CompileDepthState.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -34,9 +34,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
-
-namespace StgSharp.Script.Express
+namespace StgSharp.Script
 {
-    public partial class ExpNodeGenerator { }
+    public interface ICompileDepthState { }
+
+    public class CompileDepthMark
+    {
+
+        public CompileDepthMark( int operatorBegin, int operandBegin, int usage )
+        {
+            OperatorBegin = operatorBegin;
+            OperandBegin = operandBegin;
+        }
+
+        public CompileDepthMark(
+               int operatorBegin,
+               int operandBegin,
+               int usage,
+               ICompileDepthState stateCache )
+        {
+            OperatorBegin = operatorBegin;
+            OperandBegin = operandBegin;
+            Usage = usage;
+        }
+
+        public ICompileDepthState StateCache { get; internal set; }
+
+        public int OperandBegin { get; internal set; }
+
+        public int OperatorBegin { get; internal set; }
+
+        public int Usage { get; internal set; }
+
+    }
 }

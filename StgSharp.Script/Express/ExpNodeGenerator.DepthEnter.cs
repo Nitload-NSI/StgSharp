@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeGenerator.BranchParser.cs"
+//     file="ExpNodeGenerator.DepthEnter.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.Diagnostics;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,5 +40,30 @@ using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
-    public partial class ExpNodeGenerator { }
+    public partial class ExpNodeGenerator
+    {
+
+        internal void AttemptEnterNewDepth( Token t )
+        {
+            switch( t.Value )
+            {
+                case ExpKeyword.If:
+                    _cache.IncreaseDepth( ( int )ExpCompileStateCode.IfBranch );
+                    return;
+                case ExpKeyword.Case:
+                    _cache.IncreaseDepth( ( int )ExpCompileStateCode.CaseBranch );
+                    return;
+                case ExpKeyword.Repeat:
+                    _cache.IncreaseDepth( ( int )ExpCompileStateCode.RepeatLoop );
+                    return;
+                case ExpKeyword.While:
+                    _cache.IncreaseDepth( ( int )ExpCompileStateCode.UntilLoop );
+                    return;
+
+                default:
+                    break;
+            }
+        }
+
+    }
 }

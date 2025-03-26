@@ -78,12 +78,23 @@ namespace StgSharp.Script.Express
         }
 
         /**/
+        public void AppendToken( Token expToken )
+        {
+            switch( ( ExpCompileStateCode )_cache.CurrentDepthMark.Usage )
+            {
+                case ExpCompileStateCode.Common:
+                    AppendToken_common( expToken );
+                    break;
+                default:
+                    break;
+            }
+        }
 
         /// <summary>
         ///   Append a token to top of cache. This method will automatically convert token to node
         ///   if meets separators or operators.
         /// </summary>
-        public void AppendToken( Token expToken )
+        public void AppendToken_common( Token expToken )
         {
             switch( expToken.Flag )
             {
@@ -125,6 +136,27 @@ namespace StgSharp.Script.Express
             } else { }
 
             throw new NotImplementedException();
+        }
+
+        private bool TryParseBranch( Token t )
+        {
+            if( t.Value == ExpKeyword.Case )
+            {
+                _cache.PushOperator( t );
+                _cache.IncreaseDepth( ( int )ExpCompileStateCode.CaseBranch );
+                return true;
+            } else if( t.Value == ExpKeyword.If )
+            {
+                _cache.PushOperator( t );
+                _cache.IncreaseDepth( ( int )ExpCompileStateCode.IfBranch );
+                return true;
+            } else if( t.Value == ExpKeyword.Repeat )
+            {
+                _cache.PushOperator( t );
+                _cache.IncreaseDepth( ( int )ExpCompileStateCode.RepeatLoop );
+                return true;
+            }
+            return false;
         }
 
         /**/
