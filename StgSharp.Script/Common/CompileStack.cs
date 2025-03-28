@@ -50,10 +50,12 @@ namespace StgSharp.Script
         private Stack<CompileDepthMark> _depthStack = new Stack<CompileDepthMark>();
 
         private Stack<bool> _isNode = new Stack<bool>();
+        private Stack<Stack<TNode>> _statementCache = new Stack<Stack<TNode>>();
 
         public CompileStack()
         {
-            _depthStack.Push( new CompileDepthMark( 0, 0, 0 ) );
+            _depthStack.Push( new CompileDepthMark( 0, 0, 0, null! ) );
+            _statementCache.Push( new Stack<TNode>() );
         }
 
         public CompileDepthMark CurrentDepthMark
@@ -77,17 +79,37 @@ namespace StgSharp.Script
             get => OperandCount - _depthStack.Peek().OperandBegin;
         }
 
+        public Stack<TNode> StatementsInDepth
+        {
+            get => _statementCache.Peek();
+        }
+
         public void DecreaseDepth()
         {
             CompileDepthMark mark = _depthStack.Pop();
+            Stack<TNode> statementsInDepth = _statementCache.Pop();
         }
 
         public CompileDepthMark IncreaseDepth( int usage )
         {
             CompileDepthMark mark =
                 new CompileDepthMark( OperatorCount, OperandCount, usage );
+
             _depthStack.Push( mark );
+            _statementCache.Push( new Stack<TNode>() );
             return mark;
+        }
+
+        public TNode PackAllStatements()
+        {
+            if( StatementsInDepth.Count == 0 ) {
+                return TNode.Empty;
+            }
+            TNode first = StatementsInDepth.Peek();
+            while( StatementsInDepth.Count > 0 ) {
+                first.PrependNode( StatementsInDepth.Pop() );
+            }
+            return first;
         }
 
         public bool PeekOperand( out Token t, out TNode n )

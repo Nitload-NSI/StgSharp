@@ -30,6 +30,7 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,22 +42,26 @@ namespace StgSharp.Script
     public class CompileDepthMark
     {
 
-        public CompileDepthMark( int operatorBegin, int operandBegin, int usage )
-        {
-            OperatorBegin = operatorBegin;
-            OperandBegin = operandBegin;
-        }
-
-        public CompileDepthMark(
-               int operatorBegin,
-               int operandBegin,
-               int usage,
-               ICompileDepthState stateCache )
+        internal CompileDepthMark( int operatorBegin, int operandBegin, int usage )
         {
             OperatorBegin = operatorBegin;
             OperandBegin = operandBegin;
             Usage = usage;
         }
+
+        internal CompileDepthMark(
+                 int operatorBegin,
+                 int operandBegin,
+                 int usage,
+                 ICompileDepthState stateCache )
+        {
+            OperatorBegin = operatorBegin;
+            OperandBegin = operandBegin;
+            Usage = usage;
+            StateCache = stateCache;
+        }
+
+        public bool IsBeginOfBlock { get; internal set; }
 
         public ICompileDepthState StateCache { get; internal set; }
 

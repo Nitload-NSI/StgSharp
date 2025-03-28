@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeGenerator.cs"
+//     file="ExpSyntaxAnalyzer.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -44,7 +44,7 @@ using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
-    public partial class ExpNodeGenerator
+    public partial class ExpSyntaxAnalyzer
     {
 
         private const int EndLine = 1;
@@ -52,18 +52,17 @@ namespace StgSharp.Script.Express
         private const int TokenTypeNotMatch = -1;
 
         private CompileStack<ExpNode, IExpElementSource> _cache;
-
         private ExpNode _lastStatement;
 
         private ExpSchema _context;
         private IExpElementSource _local;
 
-        public ExpNodeGenerator()
+        public ExpSyntaxAnalyzer()
         {
             _cache = new CompileStack<ExpNode, IExpElementSource>();
         }
 
-        public ExpNodeGenerator( ExpSchema context, IExpElementSource local )
+        public ExpSyntaxAnalyzer( ExpSchema context, IExpElementSource local )
         {
             _cache = new CompileStack<ExpNode, IExpElementSource>();
             ArgumentNullException.ThrowIfNull( context );
@@ -80,12 +79,13 @@ namespace StgSharp.Script.Express
         /**/
         public void AppendToken( Token expToken )
         {
-            switch( ( ExpCompileStateCode )_cache.CurrentDepthMark.Usage )
+            switch( ( ExpCompileStateCode )TryEnterBranch( expToken ).Usage )
             {
-                case ExpCompileStateCode.Common:
-                    AppendToken_common( expToken );
+                case ExpCompileStateCode.IfBranch:
+                    AppendToken_IfBranch( expToken );
                     break;
                 default:
+                    AppendToken_common( expToken );
                     break;
             }
         }
@@ -133,30 +133,30 @@ namespace StgSharp.Script.Express
             if( _cache.PopOperand( out Token t, out ExpNode? n ) )
             {
                 return n;
-            } else { }
+            } else
+            {
+                // process some rare case here
+            }
 
             throw new NotImplementedException();
         }
 
-        private bool TryParseBranch( Token t )
+        private CompileDepthMark TryEnterBranch( Token t )
         {
-            if( t.Value == ExpKeyword.Case )
-            {
-                _cache.PushOperator( t );
-                _cache.IncreaseDepth( ( int )ExpCompileStateCode.CaseBranch );
-                return true;
-            } else if( t.Value == ExpKeyword.If )
-            {
-                _cache.PushOperator( t );
-                _cache.IncreaseDepth( ( int )ExpCompileStateCode.IfBranch );
-                return true;
-            } else if( t.Value == ExpKeyword.Repeat )
-            {
-                _cache.PushOperator( t );
-                _cache.IncreaseDepth( ( int )ExpCompileStateCode.RepeatLoop );
-                return true;
+            if( t.Flag == TokenFlag.String ) {
+                return _cache.CurrentDepthMark;
             }
-            return false;
+            switch( t.Value )
+            {
+                case  ExpKeyword.Case:
+                    return _cache.IncreaseDepth( ( int )ExpCompileStateCode.CaseBranch );
+                case ExpKeyword.If:
+                    return _cache.IncreaseDepth( ( int )ExpCompileStateCode.IfBranch );
+                case ExpKeyword.Repeat:
+                    return _cache.IncreaseDepth( ( int )ExpCompileStateCode.RepeatLoop );
+                default:
+                    return _cache.CurrentDepthMark;
+            }
         }
 
         /**/
@@ -170,8 +170,6 @@ namespace StgSharp.Script.Express
             UntilLoop,
             IfBranch,
             CaseBranch,
-            PrefixSeparator,
-            MiddleSeparator,
             CollectionIndex,
 
         }

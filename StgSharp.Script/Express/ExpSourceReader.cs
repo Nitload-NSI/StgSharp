@@ -54,7 +54,8 @@ namespace StgSharp.Script.Express
             _nextStringLiteralPattern = GetStringLiteralPattern(),
             _nextNumberLiteralPattern = GetNumberLiteralPattern(),
             _nextStringLiteralPatternWithSingle = GetStringLiteralPatternWithSingle(),
-            _skipBlankPattern = GetSkipBlankPattern();
+            _skipBlankPattern = GetSkipBlankPattern(),
+            _nextSymbolPattern = GetSymbolPattern();
         private string _lineCache;
         private Token _last;
 
@@ -76,20 +77,14 @@ namespace StgSharp.Script.Express
             get => _provider.Location;
         }
 
-        /// <summary>
-        ///   <para>Read code until end of a line. Lines in multi-line comment will be ignored. Line
-        ///   begins with part of multi-line comment will automatically remove the  comment part,
-        ///   but beginning with a full multi-line comment will not causing removing.</para> <para>
-        ///   (*Just Like The Comment Here*) Will Not Be Removed </para>
-        /// </summary>
-        /// <returns>
-        ///
-        /// </returns>
         public unsafe ReadOnlySpan<char> ReadLine()
         {
             bool lineOver = string.IsNullOrEmpty( _lineCache ) || _current >= _lineCache.Length;
             while( lineOver || _isReadingMultiLineComment )
             {
+                if( IsEmpty ) {
+                    return ReadOnlySpan<char>.Empty;
+                }
                 if( lineOver )
                 {
                     do
@@ -123,7 +118,10 @@ namespace StgSharp.Script.Express
         {
             int begin, end, rest;
             readLine:
-            ReadOnlySpan<char> source = ReadLine();
+            ReadOnlySpan<char> source;
+            if( !TryReadLine( out source ) ) {
+                return Token.Empty;
+            }
             char c = source[ 0 ];
 
             if( char.IsLetter( c ) )
@@ -131,9 +129,6 @@ namespace StgSharp.Script.Express
                 Match match = _nextWordTokenPattern.Match( _lineCache, _current );
                 if( match.Success )
                 {
-                    if( match.Groups[ EndMark ].Index >= _lineCache.Length ) {
-                        throw new ExpStringNotCloseException( _lineNum );
-                    }
                     begin = match.Groups[ TokenMark ].Index;
                     end = match.Groups[ EndMark ].Index;
                     rest = match.Groups[ RestMark ].Index;
@@ -230,63 +225,83 @@ namespace StgSharp.Script.Express
                         {
                             begin = _current;
                             _current++;
-                            if( _last.Flag != TokenFlag.Member )
-                            {
-                                _last = new(
-                                    ExpressCompile.PoolString( source[ ..1 ] ), _lineNum, begin,
-                                    TokenFlag.Symbol_Unary );
-                            } else
+                            if( _last.Flag == TokenFlag.Member || _last.Flag ==
+                                TokenFlag.Index_Right || _last.Flag == TokenFlag.Separator_Right )
                             {
                                 _last = new(
                                     ExpressCompile.PoolString( source[ ..1 ] ), _lineNum, begin,
                                     TokenFlag.Symbol_Binary );
+                            } else
+                            {
+                                _last = new(
+                                    ExpressCompile.PoolString( source[ ..1 ] ), _lineNum, begin,
+                                    TokenFlag.Symbol_Unary );
                             }
                             return _last;
                         }
                     case '{':
                         begin = _current;
                         _current++;
-                        return new Token(
+                        _last = new Token(
                             ExpressCompile.PoolString( "{" ), _lineNum, begin,
                             TokenFlag.Separator_Left );
+                        return _last;
                     case '[':
                         begin = _current;
                         _current++;
-                        return new Token(
+                        _last = new Token(
                             ExpressCompile.PoolString( "[" ), _lineNum, begin,
                             TokenFlag.Index_Left );
+                        return _last;
                     case ']':
                         begin = _current;
                         _current++;
-                        return new Token(
+                        _last = new Token(
                             ExpressCompile.PoolString( "]" ), _lineNum, begin,
                             TokenFlag.Index_Right );
+                        return _last;
                     case ';' or ',':
                         begin = _current;
                         _current++;
-                        return new Token(
+                        _last = new Token(
                             ExpressCompile.PoolString( source[ ..1 ] ), _lineNum, begin,
                             TokenFlag.Separator_Middle );
+                        return _last;
                     case ':':
-                        if( source[ 1 ] == '=' )
+                        match = _nextSymbolPattern.Match( _lineCache, _current );
+                        begin = match.Groups[ TokenMark ].Index;
+                        end = match.Groups[ EndMark ].Index;
+                        rest = match.Groups[ RestMark ].Index;
+                        _current = rest;
+                        if( end - begin == 1 )
                         {
-                            begin = _current;
-                            _current += 2;
-                            return new Token(
-                                ExpressCompile.Keyword.Assignment, _lineNum, begin,
-                                TokenFlag.Symbol_Binary );
+                            _last = new Token(
+                                ExpressCompile.Keyword.Colon, _lineNum, begin,
+                                TokenFlag.Separator_Middle );
+                        } else
+                        {
+                            _last = new Token(
+                                ExpressCompile.PoolString( source[ ..( end - begin ) ] ), _lineNum,
+                                begin, TokenFlag.Symbol_Binary );
                         }
-                        begin = _current;
-                        _current++;
-                        return new Token(
-                            ExpressCompile.Keyword.Colon, _lineNum, begin,
-                            TokenFlag.Separator_Middle );
+                        return _last;
                     case '+' or '/' or '\\' or '*' or '.':
+                        match = _nextSymbolPattern.Match( _lineCache, _current );
+                        begin = match.Groups[ TokenMark ].Index;
+                        end = match.Groups[ EndMark ].Index;
+                        rest = match.Groups[ RestMark ].Index;
+                        _current = rest;
+                        _last = new Token(
+                            ExpressCompile.PoolString( source[ ..( end - begin ) ] ), _lineNum,
+                            begin, TokenFlag.Symbol_Binary );
+                        return _last;
+                    case '=':
                         begin = _current;
                         _current++;
-                        return new(
-                            ExpressCompile.PoolString( source[ ..1 ] ), _lineNum, begin,
+                        _last = new Token(
+                            ExpressCompile.Keyword.Equal, _lineNum, begin,
                             TokenFlag.Symbol_Binary );
+                        return _last;
                     default:
                         throw new ExpInvalidCharException( c );
                 }
@@ -323,15 +338,16 @@ namespace StgSharp.Script.Express
             }
         }
 
+        public bool TryReadLine( out ReadOnlySpan<char> line )
+        {
+            line = ReadLine();
+            return line != ReadOnlySpan<char>.Empty;
+        }
+
         public bool TryReadToken( out Token t )
         {
-            if( IsEmpty )
-            {
-                t = Token.Empty;
-                return false;
-            }
             t = ReadToken();
-            return true;
+            return !IsEmpty;
         }
 
         [GeneratedRegex(
@@ -356,6 +372,11 @@ namespace StgSharp.Script.Express
                 @"(?<token>')(?>\\\\|\\'|''|(?!')[^'])*(?<end>')\s*?(?<rest>\S|$)",
                 RegexOptions.Singleline )]
         private static partial Regex GetStringLiteralPatternWithSingle();
+
+        [GeneratedRegex(
+                @"(?<token>[:<>=+\-*\/]+)(?<end>\s?)\s*?(?<rest>\S|$)",
+                RegexOptions.Singleline )]
+        private static partial Regex GetSymbolPattern();
 
     }
 }

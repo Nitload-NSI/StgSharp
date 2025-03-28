@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeGenerator.If.cs"
+//     file="ExpSyntaxAnalyzer.If.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -33,15 +33,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
-    public partial class ExpNodeGenerator
+    public partial class ExpSyntaxAnalyzer
     {
 
-        private bool TryParseIfExpression( Token t )
+        private bool AppendToken_IfBranch( Token t )
         {
             switch( t.Value )
             {
@@ -52,7 +53,15 @@ namespace StgSharp.Script.Express
                     return true;
                 case ExpKeyword.Then:
                     state = _cache.StateOfCurrentDepth<IfBranchStateCache>();
-                    if( state.CurrentState == ExpKeyword.If ) { } else
+                    if( state.CurrentState == ExpKeyword.If )
+                    {
+                        while( _cache.TryPopOperator( out Token op ) ) {
+                            ConvertAndPushOneOperator( op );
+                        }
+                        _cache.PopOperand( out _, out ExpNode? node );
+                        state.CurrentState = t.Value;
+                        state.BoolExpression = node;
+                    } else
                     {
                         throw new ExpCompileException(
                             t, $"Keyword {t.Value} should be after keyword {ExpKeyword.Then}" );
@@ -60,26 +69,43 @@ namespace StgSharp.Script.Express
                     return true;
                 case ExpKeyword.Else:
                     state = _cache.StateOfCurrentDepth<IfBranchStateCache>();
-                    if( state.CurrentState == ExpKeyword.Then ) { } else
+                    if( state.CurrentState == ExpKeyword.Then )
+                    {
+                        ExpNode node = _cache.PackAllStatements();
+                        state.CurrentState = t.Value;
+                        state.ExpressionIfTrue = node;
+                    } else
                     {
                         throw new ExpCompileException(
                             t, $"Keyword {t.Value} should be after keyword {ExpKeyword.Then}" );
                     }
                     return true;
+
                 case ExpKeyword.EndIf:
                     state = _cache.StateOfCurrentDepth<IfBranchStateCache>();
                     if( state.CurrentState == ExpKeyword.Then )
                     {
-                        //no else occur
+                        ExpNode trueNode = _cache.PackAllStatements();
+                        state.CurrentState = t.Value;
+                        state.ExpressionIfTrue = trueNode;
+                        state.ExpressionIfFalse = ExpNode.Empty;
                     } else if( state.CurrentState == ExpKeyword.Else )
                     {
-                        // else occur
+                        ExpNode falseNode = _cache.PackAllStatements();
+                        state.CurrentState = t.Value;
+                        state.ExpressionIfFalse = falseNode;
                     } else
                     {
                         throw new ExpCompileException(
                             t,
                             $"Keyword {t.Value} should be after keyword {ExpKeyword.Then} or {ExpKeyword.Else}" );
                     }
+                    ExpIfNode ifNode = new ExpIfNode(
+                        state.Begin, state.BoolExpression, state.ExpressionIfTrue,
+                        state.ExpressionIfFalse );
+                    _cache.DecreaseDepth();
+                    _cache.StatementsInDepth.Push( ifNode );
+                    _cache.PushOperand( ifNode );
                     return true;
                 default:
                     AppendToken_common( t );
@@ -97,6 +123,8 @@ namespace StgSharp.Script.Express
             public ExpNode ExpressionIfFalse { get; set; }
 
             public string CurrentState { get; set; }
+
+            public Token Begin { get; set; }
 
         }
 

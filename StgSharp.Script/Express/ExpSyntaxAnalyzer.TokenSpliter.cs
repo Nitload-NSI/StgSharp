@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeGenerator.TokenSpliter.cs"
+//     file="ExpSyntaxAnalyzer.TokenSpliter.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -39,7 +39,7 @@ using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
-    public partial class ExpNodeGenerator
+    public partial class ExpSyntaxAnalyzer
     {
 
         private bool IsSeparatorMatch( Token leftSperator, Token rightSeparator )
@@ -115,47 +115,26 @@ namespace StgSharp.Script.Express
             if( t.Flag != TokenFlag.Separator_Middle ) {
                 return false;
             }
-            processOperator:
-            if( _cache.OperatorAheadOfDepth == 0 )
+            while( _cache.OperatorAheadOfDepth > 0 )
             {
-                if( _cache.OperandAheadOfDepth == 1 )
-                {
-                    if( _cache.Depth != 1 )
-                    {
-                        _cache.DecreaseDepth();
-                        if( _cache.PeekOperator().Value == t.Value )
-                        {
-                            _cache.PopOperand( out _, out ExpNode? currentExpression );
-                            _cache.PopOperand( out Token valToken, out _ );
-                            _cache.PopOperand( out _, out ExpNode? previousExpression );
-                            currentExpression.PrependNode( previousExpression );
-                            _cache.PushOperand( previousExpression );
-                        }
-                    }
-                    _cache.PushOperand( t );
-                    _cache.PushOperator( t );
-                    _cache.IncreaseDepth( ( int )ExpCompileStateCode.Common );
-                    return true;
-                } else
-                {
-                    ExpInvalidSyntaxException.ThrowNoOperator( t );
-                }
+                _cache.TryPopOperator( out Token op );
+                ExpNode node = ConvertAndPushOneOperator( op );
             }
-            Token op;
-            if( _cache.TryPopOperator( out op ) )
+            switch( _cache.OperandAheadOfDepth )
             {
-                if( op.Value == t.Value )
-                {
-                    _cache.PopOperand( out _, out ExpNode? node );
-
-                    //append node to tail
-                    _cache.PushOperand( t );
-                    _cache.PushOperator( t );
-                } else
-                {
-                    ExpNode node = ConvertAndPushOneOperator( op );
-                    goto processOperator;
-                }
+                case 0:
+                    if( t.Value == ";" ) {
+                        return true;
+                    }
+                    _cache.StatementsInDepth.Push( ExpNode.Empty );
+                    goto case 1;
+                case 1:
+                    _cache.PopOperand( out _, out ExpNode? statement );
+                    _cache.StatementsInDepth.Push( statement );
+                    return true;
+                default:
+                    ExpInvalidSyntaxException.ThrowNoOperator( t );
+                    break;
             }
             return true;
         }
@@ -175,7 +154,7 @@ namespace StgSharp.Script.Express
                 return false;
             }
             _cache.PushOperator( t );
-            _cache.IncreaseDepth( ( int )ExpCompileStateCode.PrefixSeparator );
+            _cache.IncreaseDepth( ( int )ExpCompileStateCode.Common );
             return true;
         }
 

@@ -43,24 +43,39 @@ namespace StgSharp.Script.Express
         private ExpNode _rule;
         private ExpNode  _trueOpBegin ;
 
+        public ExpIfNode( Token source, ExpNode rule, ExpNode trueOpBegin )
+            : base( source )
+        {
+            _rule = rule;
+            _trueOpBegin = trueOpBegin;
+            CodeConvertTemplate = ExpressCompile.PoolString(
+                """
+                if ( {0} )
+                {
+                    {1}
+                }
+                """ );
+        }
+
         public ExpIfNode(
-                       Token source,
-                       ExpSchema context,
-                       ExpNode rule,
-                       ExpNode rootOperationIfTrue,
-                       ExpNode rootOperationIfFalse )
+               Token source,
+               ExpNode rule,
+               ExpNode rootOperationIfTrue,
+               ExpNode rootOperationIfFalse )
             : base( source )
         {
             _rule = rule;
             _trueOpBegin = rootOperationIfFalse;
             _falseOpBegin = rootOperationIfFalse;
-            CodeConvertTemplate = """
-                if( {0} ) {
+            CodeConvertTemplate = ExpressCompile.PoolString(
+                """
+                if( {0} ) 
+                {
                     {1}
                 } else {
                     {2}
                 }
-                """;
+                """ );
         }
 
         public override ExpNode Left => _trueOpBegin;

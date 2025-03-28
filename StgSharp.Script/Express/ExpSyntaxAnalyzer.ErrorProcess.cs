@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpErrorThrow.cs"
+//     file="ExpSyntaxAnalyzer.ErrorProcess.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -36,12 +36,13 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public partial class ExpNodeGenerator
+    public partial class ExpSyntaxAnalyzer
     {
 
         public void ThrowCompileException( int errorCode )
         {
-            switch( errorCode ) {
+            switch( errorCode )
+            {
                 case 0 or 1:
                     return;
                 case TokenTypeNotMatch:

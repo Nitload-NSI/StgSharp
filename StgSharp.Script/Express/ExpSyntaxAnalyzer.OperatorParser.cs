@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeGenerator.OperatorParser.cs"
+//     file="ExpSyntaxAnalyzer.OperatorParser.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -38,7 +38,7 @@ using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
-    public partial class ExpNodeGenerator
+    public partial class ExpSyntaxAnalyzer
     {
 
         public int CompareOperatorPrecedence( Token left, Token right )
