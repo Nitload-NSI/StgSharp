@@ -105,7 +105,6 @@ namespace StgSharp.Script.Express
                         state.ExpressionIfFalse );
                     _cache.DecreaseDepth();
                     _cache.StatementsInDepth.Push( ifNode );
-                    _cache.PushOperand( ifNode );
                     return true;
                 default:
                     AppendToken_common( t );

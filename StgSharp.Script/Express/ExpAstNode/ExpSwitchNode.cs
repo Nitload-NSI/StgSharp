@@ -29,6 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Text;
 
@@ -37,27 +38,75 @@ namespace StgSharp.Script.Express
     public class ExpSwitchNode : ExpNode
     {
 
-        private Dictionary<ExpNode, ExpNode> _cases;
         private ExpNode _default;
         private ExpNode _target;
 
+        private FrozenDictionary<ExpNode, ExpNode> _cases;
+
         public ExpSwitchNode(
-                       Token source,
-                       ExpNode target,
-                       ExpNode defaultCase,
-                       params (ExpNode label, ExpNode op)[] cases )
+               Token source,
+               ExpNode target,
+               ExpNode defaultCase,
+               params (ExpNode label, ExpNode op)[] cases )
             : base( source )
         {
             _target = target;
             _default = defaultCase;
-            _cases = new Dictionary<ExpNode, ExpNode>();
-            foreach( (ExpNode label, ExpNode op ) item in cases ) {
-                if( item.op == null ) {
-                    _cases.Add( item.label, null! );
-                } else {
-                    _cases.Add( item.label, item.op );
+            Dictionary<ExpNode, ExpNode> casesDic = new Dictionary<ExpNode, ExpNode>();
+            foreach( (ExpNode label, ExpNode op ) item in cases )
+            {
+                if( item.op == null )
+                {
+                    casesDic.Add( item.label, null! );
+                } else
+                {
+                    casesDic.Add( item.label, item.op );
                 }
             }
+            _cases = casesDic.ToFrozenDictionary();
+
+
+            string str = @"switch( {0} ){";
+            StringBuilder codeFormatBuilder = new StringBuilder();
+            codeFormatBuilder.AppendLine( str );
+            for( int i = 0; i < casesDic.Count; i++ )
+            {
+                int index = i * 2 + 1;
+                codeFormatBuilder.AppendLine(
+                    $$"""
+                        case {{{index}}}:
+                            {{{index + 1}}}
+                            break;
+                    """ );
+            }
+            CodeConvertTemplate = codeFormatBuilder.ToString();
+        }
+
+        public ExpSwitchNode(
+               Token source,
+               ExpNode target,
+               ExpNode defaultCase,
+               IDictionary<ExpNode, ExpNode> cases )
+            : base( source )
+        {
+            _target = target;
+            _default = defaultCase;
+            _cases = cases.ToFrozenDictionary();
+
+            string str = @"switch( {0} ){";
+            StringBuilder codeFormatBuilder = new StringBuilder();
+            codeFormatBuilder.AppendLine( str );
+            for( int i = 0; i < cases.Count; i++ )
+            {
+                int index = i * 2 + 1;
+                codeFormatBuilder.AppendLine(
+                    $$"""
+                        case {{{index}}}:
+                            {{{index + 1}}}
+                            break;
+                    """ );
+            }
+            CodeConvertTemplate = codeFormatBuilder.ToString();
         }
 
         public ExpNode this[ ExpNode index ]
@@ -71,36 +120,11 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public override ExpNode Left => throw new NotImplementedException();
+        public override ExpNode Left => Empty;
 
-        public override ExpNode Right => throw new NotImplementedException();
+        public override ExpNode Right => Empty;
 
         public override IExpElementSource EqualityTypeConvert => null!;
-
-        public void AddOperationToDefault( ExpNode expressionRoot )
-        {
-            if( expressionRoot != null ) {
-                _default.AppendNode( expressionRoot );
-            }
-        }
-
-        /// <summary>
-        /// Adds an expression to certain <see langword="case" />. The added expression will be run
-        /// at last.
-        /// </summary>
-        /// <param name="label"> Label of case to add operation </param>
-        /// <param name="expressionRoot"> Root token of the expression to be added. </param>
-        /// <exception cref="ExpCaseNotFoundException"> Cannot fine the case label in current witch expression. </exception>
-        public void AppendOperationToCase(
-                            ExpNode label,
-                            ExpNode expressionRoot )
-        {
-            if( _cases.TryGetValue( label, out ExpNode? op ) ) {
-                op.AppendNode( expressionRoot );
-            } else {
-                throw new ExpCaseNotFoundException( this, label );
-            }
-        }
 
         public bool ContainsCase( ExpNode token )
         {

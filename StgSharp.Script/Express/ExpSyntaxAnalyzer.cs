@@ -84,6 +84,9 @@ namespace StgSharp.Script.Express
                 case ExpCompileStateCode.IfBranch:
                     AppendToken_IfBranch( expToken );
                     break;
+                case ExpCompileStateCode.CaseBranch:
+                    AppendToken_CaseOf( expToken );
+                    break;
                 default:
                     AppendToken_common( expToken );
                     break;
