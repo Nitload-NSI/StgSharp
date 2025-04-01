@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpEntity.cs"
+//     file="ExpProcedureControlNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,44 +28,53 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+
+using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpEntitySource : ExpInstantiableElement
+    public class ExpProcedureControlNode : ExpNode
     {
 
-        private AbstractSyntaxTree<ExpNode, IExpElementSource> _expressionTree;
-        private ScriptSourceTransmitter _source;
-        private string _name;
+        private ExpNode _additional;
 
-        public ExpEntitySource( string name, ScriptSourceTransmitter provider )
+        internal ExpProcedureControlNode( Token source ) : base( source ) { }
+
+        public override ExpNode Left => Empty;
+
+        public override ExpNode Right => _additional;
+
+        public override IExpElementSource EqualityTypeConvert => ExpTypeSource.Void;
+
+        public static ExpProcedureControlNode Return( Token t, ExpNode valueToReturn )
         {
-            _name = name;
-            _source = provider;
+            if( t.Value != ExpKeyword.Return ) {
+                throw new InvalidCastException();
+            }
+            ExpProcedureControlNode ret = new ExpProcedureControlNode( t )
+            {
+                _additional = valueToReturn ?? Empty,
+                CodeConvertTemplate = IsNullOrEmpty( valueToReturn! ) ?
+                        ExpKeyword.Return : "return {0}",
+            };
+            return ret;
         }
 
-        public override ExpElementType ElementType => ExpElementType.Entity;
-
-        public override IScriptSourceProvider SourceProvider => _source;
-
-        public override string Name => _name;
-
-        public override void Analyse()
+        public static ExpProcedureControlNode Skip( Token t )
         {
-            throw new NotImplementedException();
-        }
-
-        public override ExpNode CreateInstanceNode( Token t )
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool TryGetMember( string name, out ExpNode memberNode )
-        {
-            throw new NotImplementedException();
+            ExpProcedureControlNode ret = new ExpProcedureControlNode( t )
+            {
+                _additional = Empty,
+                CodeConvertTemplate = "break"
+            };
+            return ret;
         }
 
     }

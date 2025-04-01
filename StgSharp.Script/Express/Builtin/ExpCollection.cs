@@ -101,7 +101,7 @@ namespace StgSharp.Script.Express
 
         public override string Name => ExpressCompile.PoolString( "ARRAY" );
 
-        public override ExpNode CreateInstanceNode()
+        public override ExpNode CreateInstanceNode( Token t )
         {
             throw new NotImplementedException();
         }
@@ -126,7 +126,7 @@ namespace StgSharp.Script.Express
 
         public override string Name => ExpressCompile.PoolString( "BAG" );
 
-        public override ExpNode CreateInstanceNode()
+        public override ExpNode CreateInstanceNode( Token t )
         {
             throw new NotImplementedException();
         }
@@ -149,7 +149,7 @@ namespace StgSharp.Script.Express
 
         public override string Name => ExpressCompile.PoolString( "LIST" );
 
-        public override ExpNode CreateInstanceNode()
+        public override ExpNode CreateInstanceNode( Token t )
         {
             throw new NotImplementedException();
         }
@@ -180,7 +180,7 @@ namespace StgSharp.Script.Express
             _collection.Add( token );
         }
 
-        public override ExpNode CreateInstanceNode()
+        public override ExpNode CreateInstanceNode( Token t )
         {
             throw new NotImplementedException();
         }

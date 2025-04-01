@@ -39,19 +39,16 @@ namespace StgSharp.Script.Express
     public class ExpRepeatNode : ExpNode
     {
 
-        //TODO: Current code cannot represent full functionality defined in ISO10303, need rewrite.
+        private ExpElementInstance _variable;
+        private ExpNode _begin, _end, _increment, _operationBegin,_untilRule,_whileRule;
 
-        private ExpElementInstance _variable, _begin, _end, _increment;
-
-        private ExpNode _operationBegin;
-
-        public ExpRepeatNode(
-               Token source,
-               ExpNode operationBegin,
-               ExpElementInstance variable,
-               ExpElementInstance begin,
-               ExpElementInstance end,
-               ExpElementInstance increment )
+        internal ExpRepeatNode(
+                 Token source,
+                 ExpNode operationBegin,
+                 ExpElementInstance variable,
+                 ExpNode begin,
+                 ExpNode end,
+                 ExpNode increment )
             : base( source )
         {
             if( variable.NodeFlag != begin.NodeFlag || begin.NodeFlag != end.NodeFlag || ( increment !=
@@ -98,6 +95,22 @@ namespace StgSharp.Script.Express
         public void AppendRepeatedOperation( ExpNode node )
         {
             _operationBegin.AppendNode( node );
+        }
+
+        public static ExpRepeatNode Create(
+                                    Token t,
+                                    ExpElementInstance repeatVariable,
+                                    ExpNode _begin,
+                                    ExpNode end,
+                                    ExpNode repeatBody )
+        {
+            ExpRepeatNode ret = new ExpRepeatNode( t,  )
+            {
+                CodeConvertTemplate = $"""
+                    foreach
+                """;
+            };
+            return ret;
         }
 
     }

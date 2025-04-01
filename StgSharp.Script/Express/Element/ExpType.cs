@@ -63,7 +63,7 @@ namespace StgSharp.Script.Express
 
         public override ExpElementType ElementType => ExpElementType.Type;
 
-        public ExpTypeSource Void
+        public static ExpTypeSource Void
         {
             get => ExpVoidType.Only;
         }
@@ -77,7 +77,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpElementInstance CreateInstanceNode()
+        public override ExpElementInstance CreateInstanceNode( Token t )
         {
             throw new NotImplementedException();
         }

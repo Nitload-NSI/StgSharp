@@ -102,6 +102,9 @@ namespace StgSharp.Script.Express
             if( TryParseInstance( t ) ) {
                 return true;
             }
+            if( TryParseKeyword( t ) ) {
+                return true;
+            }
 
             //Many thing miss here
 
@@ -232,6 +235,21 @@ namespace StgSharp.Script.Express
                 return true;
             }
             return false;
+        }
+
+        private bool TryParseKeyword( Token t )
+        {
+            switch( t.Value )
+            {
+                case ExpKeyword.Return:
+                    _cache.PushOperator( t );
+                    return true;
+                case ExpKeyword.Skip:
+                    _cache.PushOperand( ExpProcedureControlNode.Skip( t ) );
+                    return true;
+                default:
+                    return false;
+            }
         }
 
     }

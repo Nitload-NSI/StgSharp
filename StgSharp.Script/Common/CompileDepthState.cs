@@ -37,7 +37,12 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script
 {
-    public interface ICompileDepthState { }
+    public interface ICompileDepthState
+    {
+
+        string CurrentState { get; set; }
+
+    }
 
     public class CompileDepthMark
     {

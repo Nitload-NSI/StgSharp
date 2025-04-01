@@ -39,20 +39,11 @@ namespace StgSharp.Script.Express
     public interface IExpElementSource : ITypeSource<IExpElementSource>
     {
 
-        public ExpElementType ElementType
-        {
-            get;
-        }
+        public ExpElementType ElementType { get; }
 
-        IScriptSourceProvider SourceProvider
-        {
-            get;
-        }
+        IScriptSourceProvider SourceProvider { get; }
 
-        string Name
-        {
-            get;
-        }
+        string Name { get; }
 
         public void Analyse();
 
@@ -63,33 +54,23 @@ namespace StgSharp.Script.Express
     public abstract class ExpInstantiableElement : IExpElementSource
     {
 
-        private List<ExpInstantiableElement> _baseList = new List<ExpInstantiableElement>(
-            ),
+        private List<ExpInstantiableElement> _baseList = new List<ExpInstantiableElement>(),
             _derivationList = new List<ExpInstantiableElement>();
 
-        public abstract ExpElementType ElementType
-        {
-            get;
-        }
+        public abstract ExpElementType ElementType { get; }
 
         public static ExpInstantiableElement Void
         {
             get => ExpVoidElement.Only;
         }
 
-        public abstract IScriptSourceProvider SourceProvider
-        {
-            get;
-        }
+        public abstract IScriptSourceProvider SourceProvider { get; }
 
-        public abstract string Name
-        {
-            get;
-        }
+        public abstract string Name { get; }
 
         public abstract void Analyse();
 
-        public abstract ExpNode CreateInstanceNode();
+        public abstract ExpNode CreateInstanceNode( Token t );
 
         public bool IsConvertable( IExpElementSource targetType )
         {
@@ -124,14 +105,12 @@ namespace StgSharp.Script.Express
                 return;
             }
 
-            public override ExpNode CreateInstanceNode()
+            public override ExpNode CreateInstanceNode( Token t )
             {
-                return default!;
+                return ExpNode.Empty;
             }
 
-            public override bool TryGetMember(
-                                         string name,
-                                         out ExpNode memberNode )
+            public override bool TryGetMember( string name, out ExpNode memberNode )
             {
                 memberNode = ExpNode.Empty;
                 return false;
@@ -144,20 +123,11 @@ namespace StgSharp.Script.Express
     public abstract class ExpImmutableElement : IExpElementSource
     {
 
-        public abstract ExpElementType ElementType
-        {
-            get;
-        }
+        public abstract ExpElementType ElementType { get; }
 
-        public abstract IScriptSourceProvider SourceProvider
-        {
-            get;
-        }
+        public abstract IScriptSourceProvider SourceProvider { get; }
 
-        public abstract string Name
-        {
-            get;
-        }
+        public abstract string Name { get; }
 
         public abstract void Analyse();
 
