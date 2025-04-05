@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -233,6 +235,8 @@ namespace StgSharp.Script.Express
             {
                 _cache.PushOperand( ExpInstanceReferenceNode.MakeReferenceFrom( t, instance ) );
                 return true;
+            } else if( _tempVariableInLoops.TryGetValue( t.Value, out instance ) ) {
+                _cache.PushOperand( ExpInstanceReferenceNode.MakeReferenceFrom( t, instance ) );
             }
             return false;
         }

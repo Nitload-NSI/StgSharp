@@ -47,6 +47,41 @@ namespace StgSharp.Script.Express
                  ExpNode operationBegin,
                  ExpElementInstance variable,
                  ExpNode begin,
+                 ExpNode end )
+            : base( source )
+        {
+            ExpNode increment;
+            switch( ( ExpNodeFlag )variable.NodeFlag | ExpNodeFlag.BuiltinType_Any )
+            {
+                case ExpNodeFlag.BuiltinType_Real:
+                    increment = new ExpRealNumberNode(
+                        new Token(
+                            ExpressCompile.PoolString( "1.0f" ), source.Line, -1,
+                            TokenFlag.Number ),
+                        1.0f, isLiteral: true );
+                    break;
+                case ExpNodeFlag.BuiltinType_Int:
+                    increment = new ExpIntNode(
+                        new Token(
+                            ExpressCompile.PoolString( "1" ), source.Line, -1, TokenFlag.Number ),
+                        1, isLiteral: true );
+                    break;
+                default:
+                    throw new ExpInvalidTypeException( "Int or Real", "otherwise" );
+            }
+            _begin = begin;
+            _variable = variable;
+            _end = end;
+            _increment = increment;
+            _nodeFlag = ExpNodeFlag.Branch_Repeat;
+            _operationBegin = operationBegin;
+        }
+
+        internal ExpRepeatNode(
+                 Token source,
+                 ExpNode operationBegin,
+                 ExpElementInstance variable,
+                 ExpNode begin,
                  ExpNode end,
                  ExpNode increment )
             : base( source )
@@ -56,28 +91,7 @@ namespace StgSharp.Script.Express
                                                                                            increment.NodeFlag ) ) {
                 throw new InvalidCastException();
             }
-            if( increment == null )
-            {
-                switch( ( ExpNodeFlag )variable.NodeFlag | ExpNodeFlag.BuiltinType_Any )
-                {
-                    case ExpNodeFlag.BuiltinType_Real:
-                        increment = new ExpRealNumberNode(
-                            new Token(
-                                ExpressCompile.PoolString( "1.0f" ), source.Line, -1,
-                                TokenFlag.Number ),
-                            1.0f, isLiteral: true );
-                        break;
-                    case ExpNodeFlag.BuiltinType_Int:
-                        increment = new ExpIntNode(
-                            new Token(
-                                ExpressCompile.PoolString( "1" ), source.Line, -1,
-                                TokenFlag.Number ),
-                            1, isLiteral: true );
-                        break;
-                    default:
-                        throw new ExpInvalidTypeException( "Int or Real", "otherwise" );
-                }
-            }
+            ArgumentNullException.ThrowIfNull( increment );
             _begin = begin;
             _variable = variable;
             _end = end;
@@ -100,15 +114,61 @@ namespace StgSharp.Script.Express
         public static ExpRepeatNode Create(
                                     Token t,
                                     ExpElementInstance repeatVariable,
-                                    ExpNode _begin,
+                                    ExpNode begin,
                                     ExpNode end,
                                     ExpNode repeatBody )
         {
-            ExpRepeatNode ret = new ExpRepeatNode( t,  )
+            string typename = repeatVariable.NodeFlag.ToString();
+            ExpRepeatNode ret = new ExpRepeatNode( t, repeatBody, repeatVariable, begin, end, null )
             {
-                CodeConvertTemplate = $"""
-                    foreach
-                """;
+                /*
+                 * 0 increment variable type
+                 * 1: variable name
+                 * 2: beginning value
+                 * 3: ending value
+                 * 4: increment
+                 * 5: body
+                 */
+                CodeConvertTemplate = $$"""
+                for({{0}} {{1}} = {{2}}; {{1}} <= {{3}}; {{1}} += {{4}})
+                {
+                    {{5}}
+                }
+                """
+            };
+            return ret;
+        }
+
+        public static ExpRepeatNode Create(
+                                    Token t,
+                                    ExpElementInstance repeatVariable,
+                                    ExpNode begin,
+                                    ExpNode end,
+                                    ExpNode increment,
+                                    ExpNode whileRule,
+                                    ExpNode untilRule,
+                                    ExpNode body )
+        {
+            ExpRepeatNode ret = new ExpRepeatNode( t, body, repeatVariable, begin, end, increment )
+            {
+                /*
+                 * 0 increment variable type
+                 * 1: variable name
+                 * 2: beginning value
+                 * 3: ending value
+                 * 4: increment
+                 * 5: body
+                 * 6: while
+                 * 7: until
+                 */
+                CodeConvertTemplate = $$"""
+                for({{0}} {{1}} = {{2}}; {{1}} <= {{3}}; {{1}} += {{4}})
+                {
+                    if(!( {{6}} )) break;
+                    {{5}}
+                    if(!( {{7}} )) break;
+                }
+                """
             };
             return ret;
         }

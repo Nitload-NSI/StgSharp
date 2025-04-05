@@ -50,7 +50,8 @@ namespace StgSharp.Script.Express
 
         public ExpSchema Compile( ExpressCompileOption option )
         {
-            switch( option ) {
+            switch( option )
+            {
                 case ExpressCompileOption.Default:
                     return Compile_Translate( option );
                 case ExpressCompileOption.Translate:
@@ -62,8 +63,7 @@ namespace StgSharp.Script.Express
             }
         }
 
-        internal GeneratedExpSchema Compile_Translate(
-                                            ExpressCompileOption option )
+        internal GeneratedExpSchema Compile_Translate( ExpressCompileOption option )
         {
             throw new NotImplementedException();
         }
