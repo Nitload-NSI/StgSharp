@@ -113,6 +113,17 @@ namespace StgSharp.Script.Express
 
         public override string TypeName => EqualityTypeConvert.Name;
 
+        public static ExpBoolNode False( Token? t )
+        {
+            return new( t ?? new Token( "FALSE", 0, -1, TokenFlag.Member ), false,
+                        isLiteral: true );
+        }
+
+        public static ExpBoolNode True( Token? t )
+        {
+            return new( t ?? new Token( "TRUE", 0, -1, TokenFlag.Member ), true, isLiteral: true );
+        }
+
     }
 
     public class ExpRealNumberNode : ExpElementInstance

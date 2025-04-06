@@ -87,9 +87,11 @@ namespace StgSharp.Script.Express
             state.Body = root;
             _cache.DecreaseDepth();
             root = ExpRepeatNode.Create(
-                state.Position, state.Body, state.Begin, state.End, state.IncrementVariable,
-                state.UntilExpression, state.WhileExpression );
+                state.Position, state.IncrementVariable, state.Begin, state.End,
+                state.IncrementVariable, state.Body, state.UntilExpression, state.WhileExpression );
             _cache.StatementsInDepth.Push( root );
+            _tempVariableInLoops.Remove( state.IncrementVariable.CodeConvertTemplate );
+            return true;
         }
 
         private bool TryParseRepeatBeginning( RepeatLoopState state, Token t )
@@ -156,7 +158,7 @@ namespace StgSharp.Script.Express
                 ConvertAndPushOneOperator( op );
             }
             _cache.PopOperand( out _, out ExpNode? root );
-            state.IncrementVariable = root;
+            state.StepIncrement = root;
             return true;
         }
 
@@ -192,6 +194,9 @@ namespace StgSharp.Script.Express
                     return true;
                 case ExpKeyword.Assignment:
                     state.CurrentState = ExpKeyword.Assignment;
+                    _tempVariableInLoops.Add(
+                        state.IncrementVariable.CodeConvertTemplate, state.IncrementVariable );
+
                     return true;
                 default:
                     if( ExpTypeSource.IsNullOrVoid( state.IncrementVariableType ) )
@@ -231,9 +236,13 @@ namespace StgSharp.Script.Express
             public RepeatLoopState( Token t )
             {
                 Position = t;
+                UntilExpression = ExpNode.Empty;
+                WhileExpression = ExpNode.Empty;
             }
 
-            public ExpNode IncrementVariable { get; set; }
+            public ExpElementInstance IncrementVariable { get; set; }
+
+            public ExpNode StepIncrement { get; set; }
 
             public ExpNode Begin { get; set; }
 
