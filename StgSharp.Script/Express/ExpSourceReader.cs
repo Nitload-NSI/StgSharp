@@ -356,7 +356,7 @@ namespace StgSharp.Script.Express
         private static partial Regex GetNextWordTokenPattern();
 
         [GeneratedRegex(
-                @"(?<token>-?\s*?[0-9]+(?:\.[0-9]*)?E?(?:[+-]?[0-9]+))(?<end>\s*?)(?<rest>\S|$)",
+                @"(?<token>-?\s*?[0-9]+(?:\.[0-9]*)?E?(?:[+-]?[0-9]+)?)(?<end>\s*?)(?<rest>\S|$)",
                 RegexOptions.Singleline )]
         private static partial Regex GetNumberLiteralPattern();
 

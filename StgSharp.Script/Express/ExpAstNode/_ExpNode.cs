@@ -32,6 +32,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -97,7 +98,7 @@ namespace StgSharp.Script.Express
             return new ExpNodeNextEnumerator( this );
         }
 
-        public static bool IsNullOrEmpty( ExpNode node )
+        public static bool IsNullOrEmpty( [AllowNull]ExpNode node )
         {
             return  node == ExpEmptyNode._only || node == null;
         }

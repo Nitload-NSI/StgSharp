@@ -68,7 +68,7 @@ SSCAPI void SSCDECL unloadImageData(Image *out)
         free(out->pixelPtr);
 }
 
-char *SSCDECL readLog()
+SSCAPI char *SSCDECL readLog()
 {
         infolog[511] = '\0';
         return infolog;

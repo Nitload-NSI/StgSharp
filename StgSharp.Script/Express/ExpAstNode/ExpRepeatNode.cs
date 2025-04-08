@@ -59,7 +59,7 @@ namespace StgSharp.Script.Express
                                                                                            increment.NodeFlag ) ) {
                 throw new InvalidCastException();
             }
-            if( ExpNode.IsNullOrEmpty( increment ) )
+            if( IsNullOrEmpty( increment ) )
             {
                 switch( ( ExpNodeFlag )variable.NodeFlag | ExpNodeFlag.BuiltinType_Any )
                 {
@@ -84,7 +84,7 @@ namespace StgSharp.Script.Express
             _variable = variable;
             _begin = begin;
             _end = end;
-            _increment = increment;
+            _increment = increment!;
             _operationBegin = operationBegin;
             _untilRule = untilRule;
             _whileRule = whileRule;
@@ -106,52 +106,54 @@ namespace StgSharp.Script.Express
         ///   WHILE and UNTIL regulation.
         /// </summary>
         /// <param name="t">
-        ///   Position of the loop
+        ///   Position of the loop.
         /// </param>
         /// <param name="repeatVariable">
-        ///
+        ///   The variable recording increment by step.
         /// </param>
         /// <param name="begin">
-        ///
+        ///   Beginning value of the loop.
         /// </param>
         /// <param name="end">
-        ///
+        ///   When <see href="repeatVariable" /> reach the value, the loop ends.
         /// </param>
         /// <param name="repeatBody">
-        ///
+        ///   Expressions to operate multiple times.
         /// </param>
         /// <returns>
-        ///
+        ///   A <see cref="ExpRepeatNode" /> representing the repeat expression.
         /// </returns>
         public static ExpRepeatNode Create(
                                     Token t,
-                                    ExpElementInstance repeatVariable,
+                                    ExpInstanceReferenceNode repeatVariable,
                                     ExpNode begin,
                                     ExpNode end,
                                     ExpNode increment,
+                                    ExpNode whileRule,
+                                    ExpNode untilRule,
                                     ExpNode body )
         {
-            ExpNode untilRule = ExpBoolNode.False( null );
-            ExpNode whileRule = ExpBoolNode.True( null );
+            untilRule = ExpBoolNode.False( null );
+            whileRule = ExpBoolNode.True( null );
             ExpRepeatNode ret = new ExpRepeatNode(
-                t, repeatVariable, begin, end, increment, body, whileRule, untilRule )
+                t, repeatVariable.OriginObject, begin, end, increment, body, whileRule, untilRule )
             {
                 /*
-                 * 0 increment variable type
-                 * 1: variable name
-                 * 2: beginning value
-                 * 3: ending value
-                 * 4: increment
-                 * 5: body
-                 * 6: while
-                 * 7: until
+                 * 0: variable name
+                 * 1: beginning value
+                 * 2: ending value
+                 * 3: increment
+                 * 4: body
+                 * 5: while
+                 * 6: until
                  */
+
                 CodeConvertTemplate = $$"""
-                for({{0}} {{1}} = {{2}}; {{1}} <= {{3}}; {{1}} += {{4}})
+                for( {0} = {1}; {0} <= {2}; {0} += {3})
                 {
-                    if(!( {{6}} )) break;
-                    {{5}}
-                    if( {{7}} ) break;
+                    if(!( {5} )) break;
+                    {4}
+                    if( {6} ) break;
                 }
                 """
             };
@@ -174,21 +176,21 @@ namespace StgSharp.Script.Express
                 t, repeatVariable, begin, end, increment, body, whileRule, untilRule )
             {
                 /*
-                 * 0 increment variable type
-                 * 1: variable name
-                 * 2: beginning value
-                 * 3: ending value
-                 * 4: increment
-                 * 5: body
-                 * 6: while
-                 * 7: until
+                 * 0: variable name
+                 * 1: beginning value
+                 * 2: ending value
+                 * 3: increment
+                 * 4: body
+                 * 5: while
+                 * 6: until
                  */
+
                 CodeConvertTemplate = $$"""
-                for({{0}} {{1}} = {{2}}; {{1}} <= {{3}}; {{1}} += {{4}})
+                for({{repeatVariable.TypeName}} {0} = {1}; {0} <= {2}; {0} += {3})
                 {
-                    if(!( {{6}} )) break;
-                    {{5}}
-                    if( {{7}} ) break;
+                    if(!( {5} )) break;
+                    {4}
+                    if( {6} ) break;
                 }
                 """
             };

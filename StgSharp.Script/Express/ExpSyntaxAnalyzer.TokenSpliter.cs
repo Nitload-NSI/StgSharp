@@ -235,8 +235,10 @@ namespace StgSharp.Script.Express
             {
                 _cache.PushOperand( ExpInstanceReferenceNode.MakeReferenceFrom( t, instance ) );
                 return true;
-            } else if( _tempVariableInLoops.TryGetValue( t.Value, out instance ) ) {
+            } else if( _tempVariableInLoops.TryGetValue( t.Value, out instance! ) )
+            {
                 _cache.PushOperand( ExpInstanceReferenceNode.MakeReferenceFrom( t, instance ) );
+                return true;
             }
             return false;
         }

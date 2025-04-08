@@ -39,7 +39,14 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpInvalidCharException : Exception
+    public class ExpException : Exception
+    {
+
+        public ExpException( string message ) : base( message ) { }
+
+    }
+
+    public class ExpInvalidCharException : ExpException
     {
 
         public ExpInvalidCharException( char c ) : base( $"An unknown char {c} occurred." ) { }
@@ -49,7 +56,7 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpStringNotCloseException : Exception
+    public class ExpStringNotCloseException : ExpException
     {
 
         public ExpStringNotCloseException( int linenum )
@@ -57,7 +64,7 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpInvalidSyntaxException : Exception
+    public class ExpInvalidSyntaxException : ExpException
     {
 
         public ExpInvalidSyntaxException( string message ) : base( message ) { }
@@ -76,7 +83,7 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpInvalidElementDeclareEndingExceptions : Exception
+    public class ExpInvalidElementDeclareEndingExceptions : ExpException
     {
 
         public ExpInvalidElementDeclareEndingExceptions( string declaredName, string endedName )
@@ -85,7 +92,7 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpInvalidElementNameException : Exception
+    public class ExpInvalidElementNameException : ExpException
     {
 
         public ExpInvalidElementNameException( string elementName, ExpSchema schema )
@@ -148,7 +155,7 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class  ExpCompileException : Exception
+    public class  ExpCompileException : ExpException
     {
 
         public ExpCompileException( Token pos, string message )

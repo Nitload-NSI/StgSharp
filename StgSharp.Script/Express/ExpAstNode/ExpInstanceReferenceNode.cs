@@ -40,29 +40,29 @@ namespace StgSharp.Script.Express
     public class ExpInstanceReferenceNode : ExpNode
     {
 
-        private ExpElementInstance _instance;
-
         internal ExpInstanceReferenceNode( Token source, ExpElementInstance instance )
             : base( source )
         {
-            _instance = instance;
-            _nodeFlag = ( _instance._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
+            OriginObject = instance;
+            _nodeFlag = ( OriginObject._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
             CodeConvertTemplate = source.Value;
         }
 
         internal ExpInstanceReferenceNode( Token source, ExpInstanceReferenceNode reference )
             : base( source )
         {
-            _instance = reference._instance;
-            _nodeFlag = ( _instance._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
+            OriginObject = reference.OriginObject;
+            _nodeFlag = ( OriginObject._nodeFlag | ( ExpNodeFlag.Name_Any | ExpNodeFlag.Collection_Any ) );
             CodeConvertTemplate = source.Value;
         }
+
+        public ExpElementInstance OriginObject { get ; private set; }
 
         public override ExpNode Left => Empty;
 
         public override ExpNode Right => Empty;
 
-        public override IExpElementSource EqualityTypeConvert => _instance.EqualityTypeConvert;
+        public override IExpElementSource EqualityTypeConvert => OriginObject.EqualityTypeConvert;
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static ExpInstanceReferenceNode MakeReferenceFrom(

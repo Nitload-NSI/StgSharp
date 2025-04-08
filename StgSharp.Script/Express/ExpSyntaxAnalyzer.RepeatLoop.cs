@@ -56,6 +56,7 @@ namespace StgSharp.Script.Express
             {
                 state = new RepeatLoopState( t );
                 _cache.CurrentDepthMark.StateCache = state;
+                state.CurrentState = t.Value;
                 return true;
             }
             switch( state.CurrentState )
@@ -86,9 +87,19 @@ namespace StgSharp.Script.Express
             ExpNode root = _cache.PackAllStatements();
             state.Body = root;
             _cache.DecreaseDepth();
-            root = ExpRepeatNode.Create(
-                state.Position, state.IncrementVariable, state.Begin, state.End,
-                state.IncrementVariable, state.Body, state.UntilExpression, state.WhileExpression );
+            if( ExpTypeSource.IsNullOrVoid( state.IncrementVariableType ) )
+            {
+                root = ExpRepeatNode.Create(
+                    state.Position, state.IncrementVariable, state.Begin, state.End,
+                    state.IncrementVariable, state.Body, state.UntilExpression,
+                    state.WhileExpression );
+            } else
+            {
+                root = ExpRepeatNode.Create(
+                    state.Position, state.IncrementVariable.OriginObject, state.Begin, state.End,
+                    state.IncrementVariable, state.Body, state.UntilExpression,
+                    state.WhileExpression );
+            }
             _cache.StatementsInDepth.Push( root );
             _tempVariableInLoops.Remove( state.IncrementVariable.CodeConvertTemplate );
             return true;
@@ -194,18 +205,29 @@ namespace StgSharp.Script.Express
                     return true;
                 case ExpKeyword.Assignment:
                     state.CurrentState = ExpKeyword.Assignment;
-                    _tempVariableInLoops.Add(
-                        state.IncrementVariable.CodeConvertTemplate, state.IncrementVariable );
-
                     return true;
                 default:
                     if( ExpTypeSource.IsNullOrVoid( state.IncrementVariableType ) )
                     {
-                        throw new ExpInvalidTypeException( "Numerical", t.Value );
+                        if( ( _local.TryGetMember( t.Value,
+                                                   out ExpNode? node ) && node is ExpElementInstance instance ) || _tempVariableInLoops.TryGetValue(
+                            t.Value, out instance ) )
+                        {
+                            state.IncrementVariable = ExpInstanceReferenceNode.MakeReferenceFrom(
+                                t, instance );
+                            return true;
+                        } else
+                        {
+                            throw new ExpInvalidSyntaxException(
+                                $"Variable {t.Value} is not declared or initialized." );
+                        }
                     } else
                     {
-                        state.IncrementVariable = state.IncrementVariableType
-                                                       .CreateInstanceNode( t );
+                        ExpElementInstance variable = state.IncrementVariableType
+                                                           .CreateInstanceNode( t );
+                        _tempVariableInLoops.Add( t.Value, variable );
+                        state.IncrementVariable = ExpInstanceReferenceNode.MakeReferenceFrom(
+                            t, variable );
                         return true;
                     }
             }
@@ -240,7 +262,7 @@ namespace StgSharp.Script.Express
                 WhileExpression = ExpNode.Empty;
             }
 
-            public ExpElementInstance IncrementVariable { get; set; }
+            public ExpInstanceReferenceNode IncrementVariable { get; set; }
 
             public ExpNode StepIncrement { get; set; }
 

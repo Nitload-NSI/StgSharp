@@ -87,6 +87,9 @@ namespace StgSharp.Script.Express
                 case ExpCompileStateCode.CaseBranch:
                     AppendToken_CaseOf( expToken );
                     break;
+                case ExpCompileStateCode.RepeatLoop:
+                    AppendToken_RepeatLoop( expToken );
+                    break;
                 default:
                     AppendToken_common( expToken );
                     break;
