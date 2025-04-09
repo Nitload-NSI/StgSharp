@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpSyntaxAnalyzer.TokenSpliter.cs"
+//     file="ExpSyntaxAnalyzer.Common.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -33,6 +33,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Schema;
@@ -105,6 +106,9 @@ namespace StgSharp.Script.Express
                 return true;
             }
             if( TryParseKeyword( t ) ) {
+                return true;
+            }
+            if( TryParseElementName( t ) ) {
                 return true;
             }
 
@@ -212,6 +216,21 @@ namespace StgSharp.Script.Express
                     }
                     return false;
             }
+        }
+
+        private bool TryParseElementName( Token t )
+        {
+            if( _context.TryGetType( t.Value, out ExpTypeSource? type ) )
+            {
+                _cache.PushOperand( ExpMetaRefNode.RefType( t, type ) );
+                return true;
+            }
+            if( _context.TryGetEntity( t.Value, out ExpEntitySource? entity ) )
+            {
+                _cache.PushOperand( ExpMetaRefNode.RefEntity( t, entity ) );
+                return true;
+            }
+            return false;
         }
 
         private bool TryParseFunction( Token t )

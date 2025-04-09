@@ -89,6 +89,23 @@ namespace StgSharp.Script.Express
             };
         }
 
+        public static ExpBinaryOperatorNode ConvertElement( Token source, ExpNode left, ExpNode right )
+        {
+            if( right is not ExpMetaRefNode metaref ) {
+                throw new ExpInvalidTypeException( "<source of element>", right.EqualityTypeConvert.Name );
+            }
+            return new ExpBinaryOperatorNode( source, left, right )
+            {
+                _returnType = metaref.SourceRef,
+                _nodeFlag = ExpNodeFlag.Operator_Binary,
+                /*
+                 * 0. instance to convert
+                 * 1. target type
+                 */
+                CodeConvertTemplate = @"({0} as {1})"
+            };
+        }
+
         public static ExpBinaryOperatorNode Div( Token source, ExpNode left, ExpNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
