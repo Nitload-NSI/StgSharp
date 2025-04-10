@@ -32,6 +32,7 @@ using StgSharp.Collections;
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +57,8 @@ namespace StgSharp.Script.Express
 
         public abstract bool TryGetFunction( string name, out ExpFunctionSource f );
 
+        public abstract bool TryGetProcedure( string name, out ExpProcedureSource p );
+
         public abstract bool TryGetRule( string name, out ExpRuleSource r );
 
         public abstract bool TryGetSchemaInclude( string name, out ExpSchema include );
@@ -72,6 +75,8 @@ namespace StgSharp.Script.Express
         protected FrozenDictionary<string, ExpFunctionSource> FunctionDict { get; set; }
 
         protected ConcurrentStringHashMultiplexer StringMultiplexer => ExpressCompile.Multiplexer;
+
+        protected ConcurrentDictionary<string, ExpProcedureSource> ProcedureDict { get; set; }
 
         protected FrozenDictionary<string, ExpRuleSource> RuleDict { get; set; }
 

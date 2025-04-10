@@ -75,6 +75,11 @@ namespace StgSharp.Script.Express
             return FunctionDict.TryGetValue( name, out f! );
         }
 
+        public override bool TryGetProcedure( string name, out ExpProcedureSource p )
+        {
+            return ProcedureDict.TryGetValue( name, out p! );
+        }
+
         public override bool TryGetRule( string name, out ExpRuleSource r )
         {
             r = null!;

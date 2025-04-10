@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpProcedure.cs"
+//     file="ExpProcedureCallingNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -31,33 +31,47 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpProcedure : ExpImmutableElement
+    public class ExpProcedureCallingNode : ExpNode
     {
 
-        public override ExpElementType ElementType => ExpElementType.Procedure;
+        private ExpNode _params;
 
-        public override IScriptSourceProvider SourceProvider => throw new NotImplementedException();
-
-        public override string Name => throw new NotImplementedException();
-
-        public override void Analyse()
+        public ExpProcedureCallingNode( Token source, ExpProcedureSource caller, ExpNode param )
+            : base( source )
         {
-            throw new NotImplementedException();
+            _params = param;
+            CalledProcedure = caller;
         }
 
-        public override ExpNode MakeReference( params object[] options )
-        {
-            throw new NotImplementedException();
-        }
+        public override ExpNode Left => Empty;
 
-        public override bool TryGetMember( string name, out ExpNode memberNode )
+        public override ExpNode Right => _params;
+
+        public ExpProcedureSource CalledProcedure { get; init; }
+
+        public override IExpElementSource EqualityTypeConvert => ExpInstantiableElement.Void;
+
+        public static ExpProcedureCallingNode CallProcedure(
+                                              Token postion,
+                                              ExpProcedureSource caller,
+                                              ExpNode input )
         {
-            throw new NotImplementedException();
+            ExpProcedureCallingNode node = new ExpProcedureCallingNode( postion, caller, input )
+            {
+                /*
+                 * 0. parameters
+                 */
+                CodeConvertTemplate = $$"""
+                        {{caller.Name}}( {0} )
+                    """
+            };
+            return node;
         }
 
     }

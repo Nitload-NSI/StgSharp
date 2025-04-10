@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpCallProcedureNode.cs"
+//     file="ExpProcedureSource.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -31,43 +31,33 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpCallProcedureNode : ExpNode
+    public class ExpProcedureSource : ExpImmutableElement
     {
 
-        private ExpNode _params;
+        public override ExpElementType ElementType => ExpElementType.Procedure;
 
-        public ExpCallProcedureNode( Token source, ExpProcedure caller, ExpNode param ) : base( source )
+        public override IScriptSourceProvider SourceProvider => throw new NotImplementedException();
+
+        public override string Name => throw new NotImplementedException();
+
+        public override void Analyse()
         {
-            _params = param;
-            CalledProcedure = caller;
+            throw new NotImplementedException();
         }
 
-        public override ExpNode Left => Empty;
-
-        public override ExpNode Right => _params;
-
-        public ExpProcedure CalledProcedure { get; init; }
-
-        public override IExpElementSource EqualityTypeConvert => ExpInstantiableElement.Void;
-
-        public static ExpCallProcedureNode CallProcedure( Token postion, ExpProcedure caller, ExpNode input )
+        public override ExpNode MakeReference( params object[] options )
         {
-            ExpCallProcedureNode node = new ExpCallProcedureNode( postion, caller, input )
-            {
-                /*
-                 * 0. parameters
-                 */
-                CodeConvertTemplate = $$"""
-                        {{caller.Name}}( {0} )
-                    """
-            };
-            return node;
+            throw new NotImplementedException();
+        }
+
+        public override bool TryGetMember( string name, out ExpNode memberNode )
+        {
+            throw new NotImplementedException();
         }
 
     }

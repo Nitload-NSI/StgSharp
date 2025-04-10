@@ -100,4 +100,4 @@ INTERNAL void SSCDECL submatrix4_avx(__4_columnset *left, __4_columnset *right, 
 INTERNAL void SSCDECL submatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
 {
         ans->stream = _mm512_sub_ps(ALIGN512(left->stream), ALIGN512(right->stream));
-}
+}  

@@ -78,17 +78,22 @@ namespace StgSharp.Script.Express
 
         public override bool TryGetConst( string name, out ExpElementInstance c )
         {
-            return ConstDict.TryGetValue( name, out c );
+            return ConstDict.TryGetValue( name, out c! );
         }
 
         public override bool TryGetEntity( string name, out ExpEntitySource e )
         {
-            return EntityDict.TryGetValue( name, out e );
+            return EntityDict.TryGetValue( name, out e! );
         }
 
         public override bool TryGetFunction( string name, out ExpFunctionSource f )
         {
-            return FunctionDict.TryGetValue( name, out f );
+            return FunctionDict.TryGetValue( name, out f! );
+        }
+
+        public override bool TryGetProcedure( string name, out ExpProcedureSource p )
+        {
+            throw new NotImplementedException();
         }
 
         public override bool TryGetRule( string name, out ExpRuleSource r )

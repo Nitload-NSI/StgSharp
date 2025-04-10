@@ -70,7 +70,7 @@ namespace StgSharp.Script.Express
                 Backslash, IndexOf, RightBracket, LeftBrace,
                 RightBrace, Pipe, LeftParen, RightParen, LeftAsterisk,
                 Assignment, DoublePipe, ExpSymbole, CommentSingleLine,
-                CommentStart, CommentEnd, ColonEqualColon, ColonNotEqualColon
+                CommentStart, CommentEnd, InstanceEqual, InstanceNotEqual
             ];
 
             public static HashSet<string> DataTypes { get; } = [
@@ -346,8 +346,8 @@ namespace StgSharp.Script.Express
             public const string CommentSingleLine = "--";
             public const string CommentStart = "(*";
             public const string CommentEnd = "*)";
-            public const string ColonEqualColon = ":=:";
-            public const string ColonNotEqualColon = ":<>:";
+            public const string InstanceEqual = ":=:";
+            public const string InstanceNotEqual = ":<>:";
 
         #endregion
         }

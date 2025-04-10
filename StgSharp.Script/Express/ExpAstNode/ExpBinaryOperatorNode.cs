@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp;
+
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -89,10 +91,40 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode ConvertElement( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode CompareInstanceEqual(
+                                            Token source,
+                                            ExpNode left,
+                                            ExpNode right )
+        {
+            return new ExpBinaryOperatorNode( source, left, right )
+            {
+                _returnType = ExpressCompile.ExpBool,
+                _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
+                CodeConvertTemplate = "!ReferenceEquals({0}, {1})",
+            };
+        }
+
+        public static ExpBinaryOperatorNode CompareInstanceNotEqual(
+                                            Token nsource,
+                                            ExpNode left,
+                                            ExpNode right )
+        {
+            return new ExpBinaryOperatorNode( nsource, left, right )
+            {
+                _returnType = ExpressCompile.ExpBool,
+                _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
+                CodeConvertTemplate = "ReferenceEquals({0}, {1})",
+            };
+        }
+
+        public static ExpBinaryOperatorNode ConvertElement(
+                                            Token source,
+                                            ExpNode left,
+                                            ExpNode right )
         {
             if( right is not ExpMetaRefNode metaref ) {
-                throw new ExpInvalidTypeException( "<source of element>", right.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException(
+                    "<source of element>", right.EqualityTypeConvert.Name );
             }
             return new ExpBinaryOperatorNode( source, left, right )
             {

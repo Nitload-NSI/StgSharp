@@ -97,11 +97,23 @@ namespace StgSharp.Script.Express
                                 t,
                                 "An ExpNode for function calling is needed, but a token was popped" );
                         }
+                    } else if( _context.TryGetProcedure( op.Value, out ExpProcedureSource? p ) )
+                    {
+                        if( !_cache.PopOperand( out Token t, out ExpNode? param ) )
+                        {
+                            node = ExpProcedureCallingNode.CallProcedure( op, p, param );
+                            return node;
+                        } else
+                        {
+                            throw new ExpCompileException(
+                                t,
+                                "An ExpNode for function calling is needed, but a token was popped" );
+                        }
                     } else if( ExpSchema.BuiltinSchema.TryGetFunction( op.Value, out f ) )
                     {
-                        if( !_cache.PopOperand( out Token t, out ExpNode? p ) )
+                        if( !_cache.PopOperand( out Token t, out ExpNode? param ) )
                         {
-                            node = ExpFunctionCallingNode.CallFunction( op, f, p );
+                            node = ExpFunctionCallingNode.CallFunction( op, f, param );
                             return node;
                         } else
                         {
@@ -152,6 +164,12 @@ namespace StgSharp.Script.Express
                     return true;
                 case ExpKeyword.Assignment:
                     node = ExpBinaryOperatorNode.Assign( t, left, right );
+                    return true;
+                case ExpKeyword.InstanceEqual:
+                    node = ExpBinaryOperatorNode.CompareInstanceEqual( t, left, right );
+                    return true;
+                case ExpKeyword.InstanceNotEqual:
+                    node = ExpBinaryOperatorNode.CompareInstanceNotEqual( t, left, right );
                     return true;
                 default:
                     node = ExpNode.Empty;
