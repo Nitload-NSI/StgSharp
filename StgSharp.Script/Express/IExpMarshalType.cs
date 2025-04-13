@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpReader.cs"
+//     file="IExpMarshalType.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,62 +28,18 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.MemoryMappedFiles;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSgharp.Generator.Expression
+namespace StgSharp.Script.Express
 {
-    internal class ExpFileReader:IDisposable
+    public interface IExpMarshalType<TSelf>
     {
-        private FileStream _expFileStream;
-        private MemoryMappedFile _expMemoryMappedFile;
-        private bool disposedValue;
 
-        public ExpFileReader( string path )
-        {
-            if( !File.Exists( path ) ) {
-                throw new FileNotFoundException();
-            }
-            _expFileStream = new FileStream(
-                path, FileMode.Open, FileAccess.Read );
-            _expMemoryMappedFile = MemoryMappedFile.CreateFromFile(
-                _expFileStream, null, 0, MemoryMappedFileAccess.Read,
-                HandleInheritability.None, true );
-        }
+        static abstract TSelf Create( string name, ExpNode node );
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _expFileStream.Dispose();
-                    _expMemoryMappedFile.Dispose();
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        // ~ExpFileReader()
-        // {
-        //     Dispose(disposing: false);
-        // }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        public MemoryMappedViewStream CreateMemoryStram()
-        {
-            return _expMemoryMappedFile.CreateViewStream();
-        }
     }
 }

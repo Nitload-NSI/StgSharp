@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,13 +42,40 @@ namespace StgSharp.Script.Express
     public class ExpNodeNextEnumerator : IEnumerator<ExpNode>
     {
 
-        private ExpNode _begin;
         private ExpNode _current;
+
+        private List<ExpNode> _begin = new List<ExpNode>();
 
         public ExpNodeNextEnumerator( ExpNode token )
         {
-            _begin = token;
+            _begin[ 0 ] = token;
             _current = token;
+            ExpNode t = token;
+            while( !ReferenceEquals( t.Next, token ) && t.Next != null )
+            {
+                t = t.Next;
+                _begin.Add( t );
+            }
+        }
+
+        public ExpNode this[ int index ]
+        {
+            get
+            {
+                ArgumentOutOfRangeException.ThrowIfNegative( index );
+                ArgumentOutOfRangeException.ThrowIfGreaterThan( index, _begin.Count );
+                return _begin[ index ];
+            }
+        }
+
+        public List<ExpNode> Values => _begin;
+
+        public void AssertEnumeratorCount( int count )
+        {
+            if( _begin.Count != count ) {
+                throw new InvalidOperationException(
+                    $"Enumerator count mismatch. Expected {count}, but got {_begin.Count}." );
+            }
         }
 
         void IDisposable.Dispose()
@@ -66,13 +95,12 @@ namespace StgSharp.Script.Express
 
         void IEnumerator.Reset()
         {
-            _current = _begin;
+            _current = _begin[ 0 ];
         }
 
-        object IEnumerator.Current => throw new NotImplementedException();
+        object IEnumerator.Current => _current;
 
-        ExpNode IEnumerator<ExpNode>.Current => throw new NotImplementedException(
-            );
+        ExpNode IEnumerator<ExpNode>.Current => _current;
 
     }
 }

@@ -42,6 +42,8 @@ namespace StgSharp.Script
         where TType: ITypeSource<TType>
     {
 
+        private Token? _lastToken;
+
         private TNode[] _nodeArray = new TNode[4];
         private Token[] _operatorArray = new Token[4];
         private Token[] _tokenArray = new Token[4];
@@ -51,12 +53,15 @@ namespace StgSharp.Script
 
         private Stack<bool> _isNode = new Stack<bool>();
         private Stack<Stack<TNode>> _statementCache = new Stack<Stack<TNode>>();
+        private TNode _lastNode;
 
         public CompileStack()
         {
             _depthStack.Push( new CompileDepthMark( 0, 0, 0, null! ) );
             _statementCache.Push( new Stack<TNode>() );
         }
+
+        public bool IsLastAddedOperator { get; private set; }
 
         public CompileDepthMark CurrentDepthMark
         {
@@ -180,6 +185,7 @@ namespace StgSharp.Script
             _nodeArray[ _nodeCount ] = node;
             _nodeCount++;
             _isNode.Push( true );
+            IsLastAddedOperator = false;
         }
 
         public void PushOperand( Token token )
@@ -190,6 +196,7 @@ namespace StgSharp.Script
             _tokenArray[ _tokenCount ] = token;
             _tokenCount++;
             _isNode.Push( false );
+            IsLastAddedOperator = false;
         }
 
         public void PushOperator( Token token )
@@ -199,6 +206,7 @@ namespace StgSharp.Script
             }
             _operatorArray[ _operatorCount ] = token;
             _operatorCount++;
+            IsLastAddedOperator = true;
         }
 
         public T StateOfCurrentDepth<T>() where T: class, ICompileDepthState

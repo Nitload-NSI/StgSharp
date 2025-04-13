@@ -32,42 +32,34 @@ using StgSharp.HighPerformance;
 
 using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Serialization;
 
 namespace StgSharp.Data
 {
-    public class RandomGenerator
+    public unsafe class RandomGenerator
     {
 
         private byte[] currentKey;
-
         private readonly byte[] originKey;
         private int cycleCount;
-        private SHA512 hash;
 
         public RandomGenerator() : this( DateTime.UtcNow.ToBinary() ) { }
 
         public RandomGenerator( object source )
         {
-            try {
-                if( source == null ) {
-                    throw new ArgumentNullException( nameof( source ) );
-                }
-                XmlSerializer s = new XmlSerializer( source.GetType() );
-                using( StringWriter sw = new StringWriter() ) {
-                    s.Serialize( sw, source );
-                    string data = sw.ToString();
-                    originKey = Encoding.UTF8.GetBytes( data );
-                }
+            ArgumentNullException.ThrowIfNull( source );
+            XmlSerializer s = new XmlSerializer( source.GetType() );
+            using( StringWriter sw = new StringWriter() )
+            {
+                s.Serialize( sw, source );
+                string data = sw.ToString();
+                originKey = Encoding.Unicode.GetBytes( data );
             }
-            catch( Exception ) {
-                throw;
+            currentKey = [0,0,0,0];
+            fixed( byte* o = originKey, c = currentKey ) {
+                *( int* )c = UnsafeCompute.CityHashSimplify( ( char* )o, 0, originKey.Length / 2 );
             }
-            hash = SHA512.Create();
-            originKey = hash.ComputeHash( originKey );
-            currentKey = originKey;
             cycleCount = 0;
         }
 
@@ -78,53 +70,45 @@ namespace StgSharp.Data
 
         public unsafe int GenRandomInt()
         {
-            M128 source = PrivateRand();
+            uint source = PrivateRand();
             cycleCount++;
-
-            /*
-            float d0 =  MathF.Sin(1 / source.Read<float>(0));
-            float d1 =  MathF.Sin(1 / source.Read<float>(1));
-            float d2 =  MathF.Sin(1 / source.Read<float>(2));
-            float d3 =  MathF.Sin(1 / source.Read<float>(3));
-
-            source.Write<short>(0, *( short*)&d3);
-            source.Write<short>(2, *((short*)&d2+1));
-            source.Write<short>(4, *( short*)&d1);
-            source.Write<short>(6, *((short*)&d0+1));
-
-            /**/
-
-            return source.Read<int>( cycleCount % 4 );
+            M64 m = new M64();
+            m.Write<uint>( 0, source );
+            m.Write<uint>( 1, source );
+            return ( m << ( cycleCount % 32 ) ).Read<int>( 1 );
         }
 
         public byte GenRandomInt8()
         {
             cycleCount++;
-            if( cycleCount % 64 == 0 ) {
+            if( cycleCount % 4 == 0 ) {
                 PrivateRand();
             }
-            return currentKey[ cycleCount % 64 ];
+            return currentKey[ cycleCount % 4 ];
         }
 
         public float GenRandomSingle()
         {
             cycleCount++;
 
-            while( true ) {
-                M128 source = PrivateRand();
-
+            while( true )
+            {
                 uint
-                    temp0 = source.Read<uint>( 0 ),
-                    temp1 = source.Read<uint>( 2 );
+                    temp0 = PrivateRand(),
+                    temp1 = PrivateRand();
 
-                if( temp0 * temp1 != 0 ) {
+                if( temp0 * temp1 != 0 )
+                {
                     float ret = ( ( temp0 % temp1 ) * 1.0f ) / temp1;
-                    if( ret < 0.335f ) {
+                    if( ret < 0.335f )
+                    {
                         ret = ret * ( ( ret * ( -0.7811934f ) ) + 1.4489113f );
-                    } else {
+                    } else
+                    {
                         ret = ( ret * ( ( ret * ( -0.1158368f ) ) + 1.0580600f ) ) + 0.0590584f;
                     }
-                    if( ret > 1 ) {
+                    if( ret > 1 )
+                    {
                         continue;
                     }
                     return ret;
@@ -138,27 +122,14 @@ namespace StgSharp.Data
             cycleCount = 0;
         }
 
-        private unsafe M128 PrivateRand()
+        private unsafe uint PrivateRand()
         {
-            currentKey = hash.ComputeHash( currentKey );
-            M128 ret;
-            fixed( byte* bptr = currentKey ) {
-                switch( ( cycleCount % 16 ) / 4 ) {
-                    case 0:
-                        ret = *( ( ( M128* )bptr ) + 0 );
-                        break;
-                    case 1:
-                        ret = *( ( ( M128* )bptr ) + 1 );
-                        break;
-                    case 2:
-                        ret = *( ( ( M128* )bptr ) + 2 );
-                        break;
-                    case 3:
-                        ret = *( ( ( M128* )bptr ) + 3 );
-                        break;
-                    default:
-                        throw new InvalidOperationException();
-                }
+            uint ret;
+            fixed( byte* bptr = currentKey )
+            {
+                *( int* )bptr = UnsafeCompute.CityHashSimplify(
+                    ( char* )bptr, currentKey.Length / 2 );
+                ret = *( uint* )bptr;
             }
 
             //Console.WriteLine(ret.ToString(16));

@@ -45,6 +45,8 @@ namespace StgSharp.Script.Express
 
         string Name { get; }
 
+        public void AddMember( string name, ExpNode memberNode );
+
         public void Analyse();
 
         public bool TryGetMember( string name, out ExpNode memberNode );

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Point.cs"
+//     file="ExpElementInitializingNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,45 +28,35 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Math;
-
 using System;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.Geometries
+namespace StgSharp.Script.Express
 {
-    [StructLayout( LayoutKind.Explicit, Size = 16 )]
-    public struct Point
+    public class ExpElementInitializingNode : ExpNode
     {
 
-        [FieldOffset( 0 )] private Vec3 coord;
-        [FieldOffset( 0 )] internal Vector4 coordVec;
+        private ExpMetaRefNode _type;
+        private ExpNode _init;
 
-        internal Point( Vec4 vector )
+        public ExpElementInitializingNode(
+               Token source,
+               ExpMetaRefNode type,
+               ExpNode initParameter )
+            : base( source )
         {
-            coordVec = vector.vec;
-            coordVec.W = 1;
+            _type = type;
+            _init = initParameter;
         }
 
-        public Point( Vec3 coord )
-        {
-            Coord = coord;
-            coordVec.W = 1;
-        }
+        public override ExpNode Left => _type;
 
-        public Point( float x, float y, float z )
-        {
-            coordVec = new Vector4( x, y, z, 1 );
-        }
+        public override ExpNode Right => _init;
 
-        public Vec3 Coord
-        {
-            get => coord;
-            set { coord = value; }
-        }
+        public override IExpElementSource EqualityTypeConvert => _type.SourceRef;
 
     }
 }

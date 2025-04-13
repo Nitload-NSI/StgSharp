@@ -1,13 +1,13 @@
-ï»¿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Point.cs"
+//-----------------------------------------------------------------------
+//     file="StepCartesianPoint.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
 //     Permission is hereby granted, free of charge, to any person 
 //     obtaining a copy of this software and associated documentation 
-//     files (the â€œSoftwareâ€), to deal in the Software without restriction, 
+//     files (the ¡°Software¡±), to deal in the Software without restriction, 
 //     including without limitation the rights to use, copy, modify, merge,
 //     publish, distribute, sublicense, and/or sell copies of the Software, 
 //     and to permit persons to whom the Software is furnished to do so, 
@@ -17,7 +17,7 @@
 //     this permission notice shall be included in all copies 
 //     or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED â€œAS ISâ€, 
+//     THE SOFTWARE IS PROVIDED ¡°AS IS¡±, 
 //     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
 //     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
@@ -28,45 +28,29 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Math;
 
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
+using StgSharp.Script;
+using StgSharp.Script.Express;
 
-namespace StgSharp.Geometries
+namespace StgSharp.Modeling.Items
 {
-    [StructLayout( LayoutKind.Explicit, Size = 16 )]
-    public struct Point
+    public class StepCartesianPoint : StepTriple
     {
 
-        [FieldOffset( 0 )] private Vec3 coord;
-        [FieldOffset( 0 )] internal Vector4 coordVec;
+        private StepCartesianPoint() { }
 
-        internal Point( Vec4 vector )
-        {
-            coordVec = vector.vec;
-            coordVec.W = 1;
-        }
+        public StepCartesianPoint( string label, float x, float y, float z )
+            : base( label, x, y, z ) { }
 
-        public Point( Vec3 coord )
-        {
-            Coord = coord;
-            coordVec.W = 1;
-        }
+        public override StepItemType ItemType => StepItemType.CartesianPoint;
 
-        public Point( float x, float y, float z )
-        {
-            coordVec = new Vector4( x, y, z, 1 );
-        }
+        protected override int MinimumValueCount => 1;
 
-        public Vec3 Coord
+        internal static StepCartesianPoint CreateFromSyntaxList( ExpNode syntaxList )
         {
-            get => coord;
-            set { coord = value; }
+            return ( StepCartesianPoint )AssignTo( new StepCartesianPoint(), syntaxList );
         }
 
     }
 }
+

@@ -1,6 +1,6 @@
-﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Point.cs"
+//-----------------------------------------------------------------------
+//     file="StepDirection.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,45 +28,28 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Math;
 
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
+using StgSharp.Script;
+using StgSharp.Script.Express;
 
-namespace StgSharp.Geometries
+namespace StgSharp.Modeling.Items
 {
-    [StructLayout( LayoutKind.Explicit, Size = 16 )]
-    public struct Point
+    public class StepDirection : StepTriple
     {
 
-        [FieldOffset( 0 )] private Vec3 coord;
-        [FieldOffset( 0 )] internal Vector4 coordVec;
+        private StepDirection() { }
 
-        internal Point( Vec4 vector )
-        {
-            coordVec = vector.vec;
-            coordVec.W = 1;
-        }
+        public StepDirection( string name, float x, float y, float z ) : base( name, x, y, z ) { }
 
-        public Point( Vec3 coord )
-        {
-            Coord = coord;
-            coordVec.W = 1;
-        }
+        public override StepItemType ItemType => StepItemType.Direction;
 
-        public Point( float x, float y, float z )
-        {
-            coordVec = new Vector4( x, y, z, 1 );
-        }
+        protected override int MinimumValueCount => 2;
 
-        public Vec3 Coord
+        internal static StepDirection CreateFromSyntaxList( ExpNode syntaxList )
         {
-            get => coord;
-            set { coord = value; }
+            return ( StepDirection )AssignTo( new StepDirection(), syntaxList );
         }
 
     }
 }
+

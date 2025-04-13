@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Point.cs"
+//     file="M64.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,44 +28,83 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Math;
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.Geometries
+namespace StgSharp.HighPerformance
 {
-    [StructLayout( LayoutKind.Explicit, Size = 16 )]
-    public struct Point
+    [StructLayout( LayoutKind.Explicit, Pack = 8 )]
+    public unsafe struct M64 : IRegisterType
     {
 
-        [FieldOffset( 0 )] private Vec3 coord;
-        [FieldOffset( 0 )] internal Vector4 coordVec;
+        [FieldOffset( 0 )] private fixed byte buffer[ 8 ];
+        [FieldOffset( 0 )] private ulong value;
 
-        internal Point( Vec4 vector )
+        public M64()
         {
-            coordVec = vector.vec;
-            coordVec.W = 1;
+            Unsafe.SkipInit( out this );
+            value = 0;
         }
 
-        public Point( Vec3 coord )
+        public ref T AsRef<T>() where T: struct,INumber<T>
         {
-            Coord = coord;
-            coordVec.W = 1;
+            return ref Unsafe.As<byte, T>( ref buffer[ 0 ] );
         }
 
-        public Point( float x, float y, float z )
+        public override bool Equals( object obj )
         {
-            coordVec = new Vector4( x, y, z, 1 );
+            return obj is M64 m64 && this == m64;
         }
 
-        public Vec3 Coord
+        public override int GetHashCode()
         {
-            get => coord;
-            set { coord = value; }
+            return value.GetHashCode();
+        }
+
+        public T Read<T>( int index ) where T: struct, INumber<T>
+        {
+            return Unsafe.As<byte, T>( ref buffer[ index * sizeof( T ) ] );
+        }
+
+        public void Write<T>( int index, T value ) where T: struct, INumber<T>
+        {
+            Unsafe.As<byte, T>( ref buffer[ index * sizeof( T ) ] ) = value;
+        }
+
+        public static bool operator !=( M64 left, M64 right )
+        {
+            return !( left == right );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static M64 operator <<( M64 m, int shift )
+        {
+            return new M64
+            {
+                value = m.value << shift
+            };
+        }
+
+        public static bool operator ==( M64 left, M64 right )
+        {
+            return left.value == right.value;
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static M64 operator >>( M64 m, int shift )
+        {
+            return new M64
+            {
+                value = m.value >> shift
+            };
         }
 
     }

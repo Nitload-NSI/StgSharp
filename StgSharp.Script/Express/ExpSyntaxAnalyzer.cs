@@ -53,7 +53,6 @@ namespace StgSharp.Script.Express
 
         private CompileStack<ExpNode, IExpElementSource> _cache;
         private ExpNode _lastStatement;
-
         private ExpSchema _context;
         private IExpElementSource _local;
 
@@ -107,8 +106,9 @@ namespace StgSharp.Script.Express
                 case TokenFlag.Symbol_Unary or TokenFlag.Symbol_Binary:
                     TryAppendSymbol( expToken );
                     break;
-                case TokenFlag.Member:
-                    TryAppendMember( expToken );
+                case TokenFlag.Number or TokenFlag.String:
+                    ExpElementInstance node = ExpElementInstance.CreateLiteral( expToken );
+                    _cache.PushOperand( node );
                     break;
                 case TokenFlag.Separator_Left:
                     TryAppendPrefixSeparator( expToken );
@@ -125,9 +125,8 @@ namespace StgSharp.Script.Express
                 case TokenFlag.Index_Right:
                     TryAppendIndexRight( expToken );
                     break;
-                case TokenFlag.Number or TokenFlag.String:
-                    ExpElementInstance node = ExpElementInstance.CreateLiteral( expToken );
-                    _cache.PushOperand( node );
+                case TokenFlag.Member:
+                    TryAppendMember( expToken );
                     break;
                 default:
                     break;

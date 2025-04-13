@@ -113,7 +113,6 @@ namespace StgSharp.Script.Express
             }
 
             //Many thing miss here
-
             _cache.PushOperand( ExpElementMemberNameNode.Create( t ) );
 
             return true;
@@ -258,6 +257,17 @@ namespace StgSharp.Script.Express
             {
                 _cache.PushOperand( ExpInstanceReferenceNode.MakeReferenceFrom( t, instance ) );
                 return true;
+            } else if( _cache.IsLastAddedOperator )
+            {
+                if( _cache.PeekOperand( out _,
+                                        out ExpNode? typenode ) && typenode is ExpMetaRefNode typeRef )
+                {
+                    _cache.PopOperand( out _, out _ );
+                    _local.AddMember( t.Value, typeRef.SourceRef.CreateInstanceNode( t ) );
+                } else
+                {
+                    return false;
+                }
             }
             return false;
         }

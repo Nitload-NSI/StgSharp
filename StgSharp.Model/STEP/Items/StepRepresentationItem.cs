@@ -1,13 +1,13 @@
-Ôªø//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Point.cs"
+//-----------------------------------------------------------------------
+//     file="StepRepresentationItem.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
 //     Permission is hereby granted, free of charge, to any person 
 //     obtaining a copy of this software and associated documentation 
-//     files (the ‚ÄúSoftware‚Äù), to deal in the Software without restriction, 
+//     files (the °∞Software°±), to deal in the Software without restriction, 
 //     including without limitation the rights to use, copy, modify, merge,
 //     publish, distribute, sublicense, and/or sell copies of the Software, 
 //     and to permit persons to whom the Software is furnished to do so, 
@@ -17,7 +17,7 @@
 //     this permission notice shall be included in all copies 
 //     or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED ‚ÄúAS IS‚Äù, 
+//     THE SOFTWARE IS PROVIDED °∞AS IS°±, 
 //     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
 //     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
@@ -28,45 +28,31 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Math;
+using StgSharp.Script;
 
-using System;
+using StgSharp.Script.Express;
+
 using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
 
-namespace StgSharp.Geometries
+namespace StgSharp.Modeling.Items
 {
-    [StructLayout( LayoutKind.Explicit, Size = 16 )]
-    public struct Point
+    public abstract partial class StepRepresentationItem
     {
 
-        [FieldOffset( 0 )] private Vec3 coord;
-        [FieldOffset( 0 )] internal Vector4 coordVec;
-
-        internal Point( Vec4 vector )
+        protected StepRepresentationItem( string name )
         {
-            coordVec = vector.vec;
-            coordVec.W = 1;
+            Name = name;
         }
 
-        public Point( Vec3 coord )
-        {
-            Coord = coord;
-            coordVec.W = 1;
-        }
+        public abstract StepItemType ItemType { get; }
 
-        public Point( float x, float y, float z )
-        {
-            coordVec = new Vector4( x, y, z, 1 );
-        }
+        public string Name { get; set; }
 
-        public Vec3 Coord
+        internal virtual IEnumerable<StepRepresentationItem> GetReferencedItems()
         {
-            get => coord;
-            set { coord = value; }
+            yield break;
         }
 
     }
 }
+

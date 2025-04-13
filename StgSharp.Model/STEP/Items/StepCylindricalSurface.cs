@@ -1,13 +1,13 @@
-ï»¿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Point.cs"
+//-----------------------------------------------------------------------
+//     file="StepCylindricalSurface.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
 //     Permission is hereby granted, free of charge, to any person 
 //     obtaining a copy of this software and associated documentation 
-//     files (the â€œSoftwareâ€), to deal in the Software without restriction, 
+//     files (the ¡°Software¡±), to deal in the Software without restriction, 
 //     including without limitation the rights to use, copy, modify, merge,
 //     publish, distribute, sublicense, and/or sell copies of the Software, 
 //     and to permit persons to whom the Software is furnished to do so, 
@@ -17,7 +17,7 @@
 //     this permission notice shall be included in all copies 
 //     or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED â€œAS ISâ€, 
+//     THE SOFTWARE IS PROVIDED ¡°AS IS¡±, 
 //     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
 //     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
@@ -28,45 +28,43 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Math;
+using StgSharp.Script;
 
-using System;
+using StgSharp.Script.Express;
+
 using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
 
-namespace StgSharp.Geometries
+namespace StgSharp.Modeling.Items
 {
-    [StructLayout( LayoutKind.Explicit, Size = 16 )]
-    public struct Point
+    public class StepCylindricalSurface : StepElementarySurface
     {
 
-        [FieldOffset( 0 )] private Vec3 coord;
-        [FieldOffset( 0 )] internal Vector4 coordVec;
+        private StepCylindricalSurface() : base() { }
 
-        internal Point( Vec4 vector )
+        public StepCylindricalSurface( string name, StepAxis2Placement3D position, float radius )
+            : base( name, position )
         {
-            coordVec = vector.vec;
-            coordVec.W = 1;
+            Radius = radius;
         }
 
-        public Point( Vec3 coord )
-        {
-            Coord = coord;
-            coordVec.W = 1;
-        }
+        public float Radius { get; set; }
 
-        public Point( float x, float y, float z )
-        {
-            coordVec = new Vector4( x, y, z, 1 );
-        }
+        public override StepItemType ItemType => StepItemType.CylindricalSurface;
 
-        public Vec3 Coord
+        internal static StepRepresentationItem CreateFromSyntaxList(
+                                               StepBinder binder,
+                                               ExpNode syntaxList )
         {
-            get => coord;
-            set { coord = value; }
+            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            enumerator.AssertEnumeratorCount( 3 );
+            StepCylindricalSurface surface = new StepCylindricalSurface();
+            surface.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            binder.BindValue(
+                enumerator.Values[ 1 ], v => surface.Position = v.AsType<StepAxis2Placement3D>() );
+            surface.Radius = ( enumerator.Values[ 2 ]as ExpRealNumberNode )!.Value;
+            return surface;
         }
 
     }
 }
+

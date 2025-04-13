@@ -43,9 +43,8 @@ namespace StgSharp.Modeling.STEP
 {
     public partial class StepReader
     {
-        private Regex expressionSpilitter = new Regex(
-            @"^#(?<id>[0-9]+)\s*?=\s*?(?<expression>\S.*?)\s*;$",
-            RegexOptions.Compiled );
+
+        private Regex expressionSpilitter = GetExpressionSplitter();
 
         private ThreadLocal<ConcurrentQueue<StepCodeLine>> _codeLineQueue 
             = new ThreadLocal<ConcurrentQueue<StepCodeLine>>();
@@ -57,35 +56,35 @@ namespace StgSharp.Modeling.STEP
 
         public void ReadDataSection()
         {
-            if (_codeLineQueue.Value == null)
-            {
+            if( _codeLineQueue.Value == null ) {
                 _codeLineQueue.Value = new ConcurrentQueue<StepCodeLine>();
             }
-            using (MemoryMappedViewStream ms = _memoryFile.CreateViewStream(
-                0, _size, MemoryMappedFileAccess.Read))
+            using( MemoryMappedViewStream ms = _memoryFile.CreateViewStream(
+                0, _size, MemoryMappedFileAccess.Read ) )
             {
-                using (StreamReader sr = new StreamReader(ms))
+                using( StreamReader sr = new StreamReader( ms ) )
                 {
                     long pos = _headStart;
                     string line;
-                    while (string.IsNullOrEmpty(line = sr.ReadLine()))
+                    while( string.IsNullOrEmpty( line = sr.ReadLine()! ) )
                     {
-                        switch (line)
+                        Match match = expressionSpilitter.Match( line );
+                        if( match.Success )
                         {
-                            default:
-                                break;
-                        }
-                        Match match = expressionSpilitter.Match(line);
-                        if (match.Success)
-                        {   
-                            int id = int.Parse(match.Groups["id"].Value);
-                            string expression = match.Groups["expression"].Value;
-                            StepCodeLine stepExpression = new StepCodeLine(id, expression);
-                            _codeLineQueue.Value.Enqueue(stepExpression);
+                            int id = int.Parse( match.Groups[ "id" ].Value );
+                            string expression = match.Groups[ "expression" ].Value;
+                            StepCodeLine stepExpression = new StepCodeLine( id, expression );
+                            _codeLineQueue.Value.Enqueue( stepExpression );
                         }
                     }
                 }
             }
         }
+
+        [GeneratedRegex(
+                @"^#(?<id>[0-9]+)\s*?=\s*?(?<expression>\S.*?)\s*;$",
+                RegexOptions.Compiled | RegexOptions.Singleline )]
+        private static partial Regex GetExpressionSplitter();
+
     }
 }
