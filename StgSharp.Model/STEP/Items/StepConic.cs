@@ -28,10 +28,10 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
-using StgSharp.Script.Express;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public abstract class StepConic : StepCurve
     {

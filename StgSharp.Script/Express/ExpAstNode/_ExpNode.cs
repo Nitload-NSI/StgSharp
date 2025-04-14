@@ -93,11 +93,6 @@ namespace StgSharp.Script.Express
             Next.Previous = this;
         }
 
-        public ExpNodeNextEnumerator GetEnumerator()
-        {
-            return new ExpNodeNextEnumerator( this );
-        }
-
         public static bool IsNullOrEmpty( [AllowNull]ExpNode node )
         {
             return  node == ExpEmptyNode._only || node == null;

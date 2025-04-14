@@ -28,6 +28,10 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
+using StgSharp.Modeling.Step;
+using StgSharp.Script;
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -39,45 +43,26 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.STEP
+namespace StgSharp.Modeling.Step
 {
     public partial class StepReader
     {
 
-        private Regex expressionSpilitter = GetExpressionSplitter();
-
-        private ThreadLocal<ConcurrentQueue<StepCodeLine>> _codeLineQueue 
-            = new ThreadLocal<ConcurrentQueue<StepCodeLine>>();
-
-        public ConcurrentQueue<StepCodeLine> DataSectionPool
-        {
-            get => _codeLineQueue.Value;
-        }
+        public StepDataSectionTransmitter DataTransmitter { get; } = new StepDataSectionTransmitter(
+            );
 
         public void ReadDataSection()
         {
-            if( _codeLineQueue.Value == null ) {
-                _codeLineQueue.Value = new ConcurrentQueue<StepCodeLine>();
-            }
             using( MemoryMappedViewStream ms = _memoryFile.CreateViewStream(
                 0, _size, MemoryMappedFileAccess.Read ) )
             {
-                using( StreamReader sr = new StreamReader( ms ) )
-                {
-                    long pos = _headStart;
-                    string line;
-                    while( string.IsNullOrEmpty( line = sr.ReadLine()! ) )
-                    {
-                        Match match = expressionSpilitter.Match( line );
-                        if( match.Success )
-                        {
-                            int id = int.Parse( match.Groups[ "id" ].Value );
-                            string expression = match.Groups[ "expression" ].Value;
-                            StepCodeLine stepExpression = new StepCodeLine( id, expression );
-                            _codeLineQueue.Value.Enqueue( stepExpression );
-                        }
-                    }
+                StreamReader sr = new StreamReader( ms );
+                long pos = _headStart;
+                string line;
+                while( string.IsNullOrEmpty( line = sr.ReadLine()! ) ) {
+                    DataTransmitter.WriteLine( line );
                 }
+                sr.Dispose();
             }
         }
 

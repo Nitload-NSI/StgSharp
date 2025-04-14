@@ -28,13 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepOrientedEdge : StepEdge
     {
@@ -73,13 +74,13 @@ namespace StgSharp.Modeling.Items
         public override StepItemType ItemType => StepItemType.OrientedEdge;
 
         internal static StepOrientedEdge CreateFromSyntaxList(
-                                         StepBinder binder,
+                                         StepModel binder,
                                          ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepOrientedEdge orientedEdge = new StepOrientedEdge();
             enumerator.AssertEnumeratorCount( 5 );
-            orientedEdge.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            orientedEdge.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
                 enumerator.Values[ 1 ], v => orientedEdge.EdgeStart = v.AsType<StepVertex>() );
             binder.BindValue(

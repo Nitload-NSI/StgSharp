@@ -70,6 +70,11 @@ namespace StgSharp.Script.Express
 
         public abstract string Name { get; }
 
+        public void AddMember( string name, ExpNode memberNode )
+        {
+            throw new NotImplementedException();
+        }
+
         public abstract void Analyse();
 
         public abstract ExpNode CreateInstanceNode( Token t );
@@ -130,6 +135,11 @@ namespace StgSharp.Script.Express
         public abstract IScriptSourceProvider SourceProvider { get; }
 
         public abstract string Name { get; }
+
+        public void AddMember( string name, ExpNode memberNode )
+        {
+            throw new NotImplementedException();
+        }
 
         public abstract void Analyse();
 

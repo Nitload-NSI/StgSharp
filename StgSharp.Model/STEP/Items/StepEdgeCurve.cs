@@ -28,13 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepEdgeCurve : StepEdge
     {
@@ -72,12 +73,12 @@ namespace StgSharp.Modeling.Items
 
         public override StepItemType ItemType => StepItemType.EdgeCurve;
 
-        internal static StepEdgeCurve CreateFromSyntaxList( StepBinder binder, ExpNode syntaxList )
+        internal static StepEdgeCurve CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepEdgeCurve edgeCurve = new StepEdgeCurve();
             enumerator.AssertEnumeratorCount( 5 );
-            edgeCurve.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            edgeCurve.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
                 enumerator.Values[ 1 ], v => edgeCurve.EdgeStart = v.AsType<StepVertex>() );
             binder.BindValue(

@@ -29,10 +29,11 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepPlane : StepElementarySurface
     {
@@ -43,12 +44,12 @@ namespace StgSharp.Modeling.Items
 
         public override StepItemType ItemType => StepItemType.Plane;
 
-        internal static StepPlane CreateFromSyntaxList( StepBinder binder, ExpNode syntaxList )
+        internal static StepPlane CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepPlane plane = new StepPlane();
             enumerator.AssertEnumeratorCount( 2 );
-            plane.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            plane.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
                 enumerator.Values[ 1 ], v => plane.Position = v.AsType<StepAxis2Placement3D>() );
             return plane;

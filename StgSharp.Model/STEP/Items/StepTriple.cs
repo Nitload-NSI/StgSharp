@@ -30,12 +30,13 @@
 //-----------------------------------------------------------------------
 using StgSharp.Math;
 
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public abstract class StepTriple : StepPoint
     {
@@ -74,7 +75,7 @@ namespace StgSharp.Modeling.Items
 
         public bool Equals( StepTriple other )
         {
-            if( ( object )other == null ) {
+            if( other == null ) {
                 return false;
             }
 
@@ -94,14 +95,14 @@ namespace StgSharp.Modeling.Items
 
         internal static StepTriple AssignTo( StepTriple triple, ExpNode values )
         {
-            ExpNodeNextEnumerator enumerator = values.GetEnumerator();
+            ExpNodeNextEnumerator enumerator = values.AsEnumerator();
             enumerator.AssertEnumeratorCount( 2 );
-            triple.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
-            object pointValues = enumerator.Values[ 1 ].GetValueList();
+            triple.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
+            ExpNodeNextEnumerator pointValues = enumerator.Values[ 1 ].AsEnumerator();
             pointValues.AssertEnumeratorCount( triple.MinimumValueCount, 3 );
-            triple.X = pointValues.GetRealValueOrDefault( 0 );
-            triple.Y = pointValues.GetRealValueOrDefault( 1 );
-            triple.Z = pointValues.GetRealValueOrDefault( 2 );
+            triple.X = ( pointValues.Values[ 0 ]as ExpRealNumberNode )!.Value;
+            triple.Y = ( pointValues.Values[ 1 ]as ExpRealNumberNode )!.Value;
+            triple.Z = ( pointValues.Values[ 2 ]as ExpRealNumberNode )!.Value;
             return triple;
         }
 
@@ -116,7 +117,7 @@ namespace StgSharp.Modeling.Items
                 return true;
             }
 
-            if( ( object )left == null || ( object )right == null ) {
+            if( left == null || right == null ) {
                 return false;
             }
 

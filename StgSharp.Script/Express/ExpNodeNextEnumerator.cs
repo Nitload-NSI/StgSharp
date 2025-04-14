@@ -34,11 +34,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
+    public static class ExpNodeNextEnumeratorExtensions
+    {
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static ExpNodeNextEnumerator AsEnumerator( this ExpNode token )
+        {
+            return new ExpNodeNextEnumerator( token );
+        }
+
+    }
+
     public class ExpNodeNextEnumerator : IEnumerator<ExpNode>
     {
 

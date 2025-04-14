@@ -28,13 +28,15 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Script;
 
+using StgSharp.Modeling.Step;
+
+using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System.Linq;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepAdvancedFace : StepFaceSurface
     {
@@ -46,15 +48,15 @@ namespace StgSharp.Modeling.Items
         public override StepItemType ItemType => StepItemType.AdvancedFace;
 
         internal static StepAdvancedFace CreateFromSyntaxList(
-                                         StepBinder binder,
+                                         StepModel binder,
                                          ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepAdvancedFace face = new StepAdvancedFace();
             enumerator.AssertEnumeratorCount( 4 );
-            face.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            face.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
 
-            object boundsList = enumerator.Values[ 1 ].GetValueList();
+            ExpNodeNextEnumerator boundsList = enumerator.Values[ 1 ].AsEnumerator();
             face.Bounds.Clear();
             face.Bounds
                 .AddRange(

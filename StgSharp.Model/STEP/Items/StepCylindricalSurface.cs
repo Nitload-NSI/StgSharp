@@ -28,13 +28,15 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Script;
 
+using StgSharp.Modeling.Step;
+
+using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepCylindricalSurface : StepElementarySurface
     {
@@ -52,13 +54,13 @@ namespace StgSharp.Modeling.Items
         public override StepItemType ItemType => StepItemType.CylindricalSurface;
 
         internal static StepRepresentationItem CreateFromSyntaxList(
-                                               StepBinder binder,
+                                               StepModel binder,
                                                ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );
             StepCylindricalSurface surface = new StepCylindricalSurface();
-            surface.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            surface.Name = ( enumerator.Values[ 0 ] as ExpStringNode )!.Value;
             binder.BindValue(
                 enumerator.Values[ 1 ], v => surface.Position = v.AsType<StepAxis2Placement3D>() );
             surface.Radius = ( enumerator.Values[ 2 ]as ExpRealNumberNode )!.Value;

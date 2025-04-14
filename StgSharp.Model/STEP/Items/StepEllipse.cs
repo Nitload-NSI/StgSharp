@@ -28,13 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepEllipse : StepConic
     {
@@ -74,12 +75,12 @@ namespace StgSharp.Modeling.Items
 
         public override StepItemType ItemType => StepItemType.Ellipse;
 
-        internal static StepEllipse CreateFromSyntaxList( StepBinder binder, ExpNode syntaxList )
+        internal static StepEllipse CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepEllipse ellipse = new StepEllipse();
             enumerator.AssertEnumeratorCount( 4 );
-            ellipse.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            ellipse.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
                 enumerator.Values[ 1 ], v => ellipse.Position = v.AsType<StepAxis2Placement>() );
             ellipse.SemiAxis1 = ( enumerator.Values[ 2 ] as ExpRealNumberNode )!.Value;

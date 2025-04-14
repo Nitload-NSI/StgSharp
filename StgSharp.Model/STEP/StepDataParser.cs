@@ -35,16 +35,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace StgSharp.Modeling.STEP
+namespace StgSharp.Modeling.Step
 {
-    public static class StepDataParser
+    public static partial class StepDataParser
     {
 
-        private static Regex _stringParser = new Regex(
-            @"(\(\s?'|')\s*(?<value>.+)\s*('\s*\)|')", RegexOptions.Compiled );
-        private static Regex _vectorParser = new Regex(
-            @"^\(\s+(?<x>-?[0-9]+\.[0-9]+),\s+(?<y>-?[0-9]+\.[0-9]+),\s+(?<z>-?[0-9]+\.[0-9]+)\s+\)$",
-            RegexOptions.Compiled );
+        private static Regex _stringParser = GetStringParser();
+        private static Regex _vectorParser = GetVectorParser();
 
         public static DateTime ToDateTime( string source )
         {
@@ -79,9 +76,11 @@ namespace StgSharp.Modeling.STEP
         public static (int, int?) ToVersion( string source )
         {
             Match match = _stringParser.Match( source );
-            if( match.Success ) {
+            if( match.Success )
+            {
                 string data = match.Groups[ "value" ].Value;
-                if( data.Contains( ';' ) ) {
+                if( data.Contains( ';' ) )
+                {
                     string[] subData = data.Split( ';' );
                     return (int.Parse( subData[ 0 ] ), int.Parse( subData[ 1 ] ));
                 }
@@ -89,6 +88,14 @@ namespace StgSharp.Modeling.STEP
             }
             return (-1,-1);
         }
+
+        [GeneratedRegex( @"(\(\s?'|')\s*(?<value>.+)\s*('\s*\)|')", RegexOptions.Singleline )]
+        private static partial Regex GetStringParser();
+
+        [GeneratedRegex(
+                @"^\(\s+(?<x>-?[0-9]+\.[0-9]+),\s+(?<y>-?[0-9]+\.[0-9]+),\s+(?<z>-?[0-9]+\.[0-9]+)\s+\)$",
+                RegexOptions.Singleline )]
+        private static partial Regex GetVectorParser();
 
     }
 }

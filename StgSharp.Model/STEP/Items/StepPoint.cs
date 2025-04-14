@@ -29,9 +29,9 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Script;
-using StgSharp.Script.Express;
+using StgSharp.Modeling.Step;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public abstract class StepPoint : StepGeometricRepresentationItem
     {

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IStepObject.cs"
+//     file="StepModel.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,43 +28,52 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Geometries;
-using StgSharp.Math;
 using StgSharp.PipeLine;
-
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 
-namespace StgSharp.Modeling.STEP
+namespace StgSharp.Modeling.Step
 {
-    public abstract class IStepObject : StepExpressionBase, IGeometry
+    public class StepModel
     {
 
-        public abstract Point this[ int index ]
+        private BlueprintScheduler _builder;
+        private Dictionary<int, StepUncertainEntity> _nodes 
+            = new Dictionary<int, StepUncertainEntity>();
+        private StepInfo _header;
+
+        internal StepModel( StepInfo header )
         {
-            get;
-            set;
+            _header = header;
+            _builder = new BlueprintScheduler();
         }
 
-        public abstract Vec4[] VertexStream
+        public StepUncertainEntity this[ int id ]
         {
-            get;
+            get
+            {
+                if( _nodes.TryGetValue( id, out StepUncertainEntity? node ) ) {
+                    return node;
+                }
+                node = StepUncertainEntity.Create( id );
+                return node;
+            }
         }
 
-        public abstract CoordinationBase Coordination
+        public void AddUncertainEntity( int id, StepUncertainEntity entity )
         {
-            get;
+            if( _nodes.ContainsKey( id ) ) {
+                throw new InvalidOperationException(
+                    "Attempt to add entity with same id more than once" );
+            }
+            _nodes.Add( id, entity );
         }
 
-        public abstract int VertexCount
+        public void OrganizeNode()
         {
-            get;
-        }
-
-        public abstract ReadOnlySpan<int> VertexIndices
-        {
-            get;
+            foreach( KeyValuePair<int, StepUncertainEntity> node in _nodes ) { }
         }
 
     }

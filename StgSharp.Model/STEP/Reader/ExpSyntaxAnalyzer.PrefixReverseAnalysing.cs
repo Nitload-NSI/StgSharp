@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepModel.cs"
+//     file="StepExpSyntaxAnalyzer.PrefixReverseAnalysing.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,36 +28,57 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.PipeLine;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
+using StgSharp.Script;
+using StgSharp.Script.Express;
 
-namespace StgSharp.Modeling.STEP
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
+
+namespace StgSharp.Modeling.Step
 {
-    public class StepModel
+    public partial class StepExpSyntaxAnalyzer
     {
 
-        private BlueprintScheduler _builder;
-        private Dictionary<int, IStepObject> _node 
-            = new Dictionary<int, IStepObject>();
-        private StepInfo _header;
-
-        internal StepModel(
-                         StepInfo header,
-                         Dictionary<int, IStepObject> nodeSource )
+        private void ClosePrefixReverse( Token rightSeparator )
         {
-            _header = header;
-            _node = nodeSource;
-            _builder = new BlueprintScheduler();
-        }
+            Token op;
+            ExpNode root;
+            if( _cache.OperatorAheadOfDepth == 0 )
+            {
+                if( _cache.OperandAheadOfDepth == 1 )
+                {
+                    _cache.PopOperand( out _, out ExpNode? statement );
+                    _cache.StatementsInDepth.Push( statement );
+                } else
+                {
+                    ExpInvalidSyntaxException.ThrowNoOperator( rightSeparator );
+                }
+            } else
+            {
+                while( _cache.TryPopOperator( out op ) ) {
+                    ConvertAndPushOneOperator( op );
+                }
+                _cache.PopOperand( out _, out root );
+                _cache.StatementsInDepth.Push( root );
+            }
 
-        public void BuildGeometry() { }
-
-        public void OrganizeNode()
-        {
-            foreach( KeyValuePair<int, IStepObject> node in _node ) { }
+            root = _cache.PackAllStatements();
+            _cache.DecreaseDepth();
+            if( IsSeparatorMatch( _cache.PeekOperator(), rightSeparator ) )
+            {
+                _cache.PopOperator();
+                _cache.PushOperand( root );
+            } else
+            {
+                throw new ExpCompileException(
+                    rightSeparator, "Ending of block does not match its begging" );
+            }
         }
 
     }

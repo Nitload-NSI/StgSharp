@@ -28,13 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Script;
 
-using StgSharp.Script.Express;
+using StgSharp.Modeling.Step;
+
+using StgSharp.Script;
 
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public abstract partial class StepRepresentationItem
     {

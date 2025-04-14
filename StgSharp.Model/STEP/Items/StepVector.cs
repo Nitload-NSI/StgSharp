@@ -28,13 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepVector : StepGeometricRepresentationItem
     {
@@ -67,12 +68,12 @@ namespace StgSharp.Modeling.Items
 
         public override StepItemType ItemType => StepItemType.Vector;
 
-        internal static StepVector CreateFromSyntaxList( StepBinder binder, ExpNode syntaxList )
+        internal static StepVector CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepVector vector = new StepVector();
             enumerator.AssertEnumeratorCount( 3 );
-            vector.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            vector.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
                 enumerator.Values[ 1 ], v => vector.Direction = v.AsType<StepDirection>() );
             vector.Length = ( enumerator.Values[ 2 ]as ExpRealNumberNode )!.Value;

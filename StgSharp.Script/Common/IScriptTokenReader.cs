@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IExpBuiltinType.cs"
+//     file="IScriptTokenReader.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,18 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StgSharp.Script.Express
+namespace StgSharp.Script
 {
-    public interface IExpBuiltinType<TSelf> where TSelf: ExpElementInstance, IExpBuiltinType<TSelf>
+    public interface IScriptTokenReader
     {
 
-        static abstract ExpElementInstance CreateInstance();
+        Token ReadToken();
+
+        bool TryReadToken( out Token t );
 
     }
 }

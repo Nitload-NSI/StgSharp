@@ -28,13 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public abstract partial class StepRepresentationItem
     {
@@ -42,7 +43,7 @@ namespace StgSharp.Modeling.Items
         internal static HashSet<string> UnsupportedItemTypes { get; } = new HashSet<string>();
 
         internal static StepRepresentationItem FromTypedParameter(
-                                               StepBinder binder,
+                                               StepModel binder,
                                                ExpNode itemSyntax )
         {
             StepRepresentationItem item = null!;

@@ -32,7 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace StgSharp.Modeling.STEP
+namespace StgSharp.Modeling.Step
 {
     /// <summary>
     /// C# implementation of HEADER part in STEP file.

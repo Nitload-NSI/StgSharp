@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepExpression.cs"
+//     file="StepObjectConstructor.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,29 +28,16 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.STEP
+namespace StgSharp.Modeling.Step
 {
-    public abstract class StepExpressionBase 
-    {
-        public abstract List<StepExpressionBase> ParameterList { get; set; }
-
-        public int ID { get; internal set; }
-    }
-
-    public abstract class StepExpressionParameter : StepExpressionBase
-    {
-        public abstract object Value { get; set; }
-    }
-
     public class StepObjectConstructor
     {
 
@@ -97,12 +84,12 @@ namespace StgSharp.Modeling.STEP
 
         private void SplitParameter( string parameters )
         {
-            if( string.IsNullOrEmpty( parameters ) || string.IsNullOrWhiteSpace(
-                parameters ) ) {
+            if( string.IsNullOrEmpty( parameters ) || string.IsNullOrWhiteSpace( parameters ) ) {
                 return;
             }
             Match match = regex.Match( parameters );
-            while( match.Success ) {
+            while( match.Success )
+            {
                 _paramList.Add( match.Groups[ "param1" ].Value );
                 parameters = match.Groups[ "other" ].Value;
                 match = regex.Match( parameters );
@@ -110,26 +97,5 @@ namespace StgSharp.Modeling.STEP
             _paramList.Add( parameters );
         }
 
-    }
-
-    public record class StepCodeLine
-    {
-        public StepCodeLine( int id, string codeLine )
-        {
-            ID = id;
-            CodeLine = codeLine;
-        }
-
-        public　int ID
-        {
-            get;
-            set;
-        }
-
-        public string CodeLine
-        {
-            get;
-            set;
-        }
     }
 }

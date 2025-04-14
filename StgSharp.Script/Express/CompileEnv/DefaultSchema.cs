@@ -38,7 +38,7 @@ using static StgSharp.Script.Express.ExpressCompile;
 
 namespace StgSharp.Script.Express
 {
-    internal partial class ExpSchema_Builtin : ExpSchema
+    public sealed partial class ExpSchema_Builtin : ExpSchema
     {
 
         private static readonly ExpSchema_Builtin _onlyInstance = new ExpSchema_Builtin();

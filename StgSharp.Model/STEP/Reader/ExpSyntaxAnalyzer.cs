@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpSyntaxAnalyzer.cs"
+//     file="StepExpSyntaxAnalyzer.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,6 +30,8 @@
 //-----------------------------------------------------------------------
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+using StgSharp.Script;
+using StgSharp.Script.Express;
 using StgSharp.Threading;
 
 using System;
@@ -42,9 +44,9 @@ using System.Threading.Tasks;
 
 using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
-namespace StgSharp.Script.Express
+namespace StgSharp.Modeling.Step
 {
-    public partial class ExpSyntaxAnalyzer : ISyntaxAnalyzer
+    public partial class StepExpSyntaxAnalyzer : ISyntaxAnalyzer
     {
 
         private const int EndLine = 1;
@@ -56,12 +58,12 @@ namespace StgSharp.Script.Express
         private ExpSchema _context;
         private IExpElementSource _local;
 
-        public ExpSyntaxAnalyzer()
+        public StepExpSyntaxAnalyzer()
         {
             _cache = new CompileStack<ExpNode, IExpElementSource>();
         }
 
-        public ExpSyntaxAnalyzer( ExpSchema context, IExpElementSource local )
+        public StepExpSyntaxAnalyzer( ExpSchema context, IExpElementSource local )
         {
             _cache = new CompileStack<ExpNode, IExpElementSource>();
             ArgumentNullException.ThrowIfNull( context );
@@ -75,44 +77,11 @@ namespace StgSharp.Script.Express
             _local = local;
         }
 
-        /**/
-        public void AppendToken( Token expToken )
-        {
-            switch( ( ExpCompileStateCode )TryEnterBranch( expToken ).Usage )
-            {
-                case ExpCompileStateCode.IfBranch:
-                    AppendToken_IfBranch( expToken );
-                    break;
-                case ExpCompileStateCode.CaseBranch:
-                    AppendToken_CaseOf( expToken );
-                    break;
-                case ExpCompileStateCode.RepeatLoop:
-                    AppendToken_RepeatLoop( expToken );
-                    break;
-                default:
-                    AppendToken_common( expToken );
-                    break;
-            }
-        }
-
-        public ExpNode GetNextOperandCache()
-        {
-            if( _cache.PopOperand( out Token t, out ExpNode? n ) )
-            {
-                return n;
-            } else
-            {
-                // process some rare case here
-            }
-
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         ///   Append a token to top of cache. This method will automatically convert token to node
         ///   if meets separators or operators.
         /// </summary>
-        private void AppendToken_common( Token expToken )
+        public void AppendToken( Token expToken )
         {
             switch( expToken.Flag )
             {
@@ -146,25 +115,18 @@ namespace StgSharp.Script.Express
             }
         }
 
-        private CompileDepthMark TryEnterBranch( Token t )
+        public ExpNode GetNextOperandCache()
         {
-            if( t.Flag == TokenFlag.String ) {
-                return _cache.CurrentDepthMark;
-            }
-            switch( t.Value )
+            if( _cache.PopOperand( out Token t, out ExpNode? n ) )
             {
-                case ExpKeyword.Case:
-                    return _cache.IncreaseDepth( ( int )ExpCompileStateCode.CaseBranch );
-                case ExpKeyword.If:
-                    return _cache.IncreaseDepth( ( int )ExpCompileStateCode.IfBranch );
-                case ExpKeyword.Repeat:
-                    return _cache.IncreaseDepth( ( int )ExpCompileStateCode.RepeatLoop );
-                default:
-                    return _cache.CurrentDepthMark;
+                return n;
+            } else
+            {
+                // process some rare case here
             }
-        }
 
-        /**/
+            throw new NotImplementedException();
+        }
 
         public enum ExpCompileStateCode
         {

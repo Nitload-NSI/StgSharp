@@ -28,13 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepEdgeLoop : StepLoop
     {
@@ -52,14 +53,14 @@ namespace StgSharp.Modeling.Items
 
         public override StepItemType ItemType => StepItemType.EdgeLoop;
 
-        internal static StepEdgeLoop CreateFromSyntaxList( StepBinder binder, ExpNode syntaxList )
+        internal static StepEdgeLoop CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 2 );
-            object edgeSyntaxList = enumerator.Values[ 1 ].GetValueList();
+            ExpNodeNextEnumerator edgeSyntaxList = enumerator.Values[ 1 ].AsEnumerator();
             StepEdgeLoop edgeLoop = new StepEdgeLoop(
                 string.Empty, new StepOrientedEdge[edgeSyntaxList.Values.Count] );
-            edgeLoop.Name = enumerator.Values[ 0 ].GetStringValue();
+            edgeLoop.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             for( int i = 0; i < edgeSyntaxList.Values.Count; i++ )
             {
                 int j = i; // capture to avoid rebinding

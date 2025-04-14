@@ -28,13 +28,15 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Script;
 
+using StgSharp.Modeling.Step;
+
+using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepFaceBound : StepTopologicalRepresentationItem
     {
@@ -54,12 +56,12 @@ namespace StgSharp.Modeling.Items
 
         public StepLoop Bound { get; set; }
 
-        internal static StepFaceBound CreateFromSyntaxList( StepBinder binder, ExpNode syntaxList )
+        internal static StepFaceBound CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );
             StepFaceBound faceBound = new StepFaceBound();
-            faceBound.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            faceBound.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue( enumerator.Values[ 1 ], v => faceBound.Bound = v.AsType<StepLoop>() );
             faceBound.Orientation = ( enumerator.Values[ 2 ]as ExpBoolNode )!.Value;
             return faceBound;

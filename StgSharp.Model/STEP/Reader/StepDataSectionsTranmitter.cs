@@ -1,13 +1,13 @@
+Ôªø//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="StepCircle.cs"
+//     file="StepDataSectionsTranmitter.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
 //     Permission is hereby granted, free of charge, to any person 
 //     obtaining a copy of this software and associated documentation 
-//     files (the °∞Software°±), to deal in the Software without restriction, 
+//     files (the ‚ÄúSoftware‚Äù), to deal in the Software without restriction, 
 //     including without limitation the rights to use, copy, modify, merge,
 //     publish, distribute, sublicense, and/or sell copies of the Software, 
 //     and to permit persons to whom the Software is furnished to do so, 
@@ -17,7 +17,7 @@
 //     this permission notice shall be included in all copies 
 //     or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED °∞AS IS°±, 
+//     THE SOFTWARE IS PROVIDED ‚ÄúAS IS‚Äù, 
 //     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
 //     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
@@ -28,63 +28,68 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
 using StgSharp.Script;
-using StgSharp.Script.Express;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace StgSharp.Modeling.Step
 {
-    public class StepCircle : StepConic
+    public class StepDataSectionTransmitter : IScriptSourceProvider
     {
 
-        private StepAxis2Placement _position;
+        private bool _isEmpty;
+        private ConcurrentQueue<string> _cache = new ConcurrentQueue<string>();
+        private int _line = 0;
 
-        private StepCircle() : base( string.Empty ) { }
+        public bool IsEmpty => _isEmpty;
 
-        public StepCircle( string label, StepAxis2Placement position, float radius )
-            : base( label )
+        public int Location => _line;
+
+        public void EndWriting()
         {
-            Position = position;
-            Radius = radius;
+            _cache.Enqueue( "END_DATA" );
         }
 
-        public float Radius { get; set; }
-
-        public StepAxis2Placement Position
+        public string ReadLine()
         {
-            get { return _position; }
-            set
+            _cache.TryDequeue( out string? line );
+            while( !IsEmpty )
             {
-                if( value == null ) {
-                    throw new ArgumentNullException();
+                if( _cache.TryDequeue( out line ) )
+                {
+                    if( line == "END_DATA" )
+                    {
+                        _isEmpty = true;
+                        return string.Empty;
+                    }
+                    _line++;
+                    return line;
                 }
-
-                _position = value;
             }
+            return string.Empty;
         }
 
-        public override StepItemType ItemType => StepItemType.Circle;
-
-        internal static StepCircle CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
+        public string ReadLine( out int position )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
-            StepCircle circle = new StepCircle();
-            enumerator.AssertEnumeratorCount( 3 );
-            circle.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => circle.Position = v.AsType<StepAxis2Placement>() );
-            circle.Radius = ( enumerator.Values[ 2 ]as ExpRealNumberNode )!.Value;
-            return circle;
+            string ret = ReadLine();
+            position = _line;
+            return ret;
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
+        public void WriteLine( string line )
         {
-            yield return Position;
+            _cache.Enqueue( line );
+        }
+
+        IScriptSourceProvider IScriptSourceProvider.Slice( int location, int count )
+        {
+            throw new NotSupportedException();
         }
 
     }
 }
-

@@ -28,15 +28,15 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
-using StgSharp.Script.Express;
 
 using System;
 
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public enum StepBSplineCurveForm
     {

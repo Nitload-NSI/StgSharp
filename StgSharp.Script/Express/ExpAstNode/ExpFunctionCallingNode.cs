@@ -36,7 +36,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    internal class ExpFunctionCallingNode : ExpNode
+    public class ExpFunctionCallingNode : ExpNode
     {
 
         private ExpFunctionSource _function;
@@ -44,9 +44,9 @@ namespace StgSharp.Script.Express
         private ExpNode _parameter;
 
         private ExpFunctionCallingNode(
-                        Token source,
-                        ExpFunctionSource function,
-                        ExpNode firstParameter )
+                Token source,
+                ExpFunctionSource function,
+                ExpNode firstParameter )
             : base( source )
         {
             _function = function;
@@ -66,9 +66,9 @@ namespace StgSharp.Script.Express
         }
 
         public static ExpFunctionCallingNode CallFunction(
-                                                     Token source,
-                                                     ExpFunctionSource function,
-                                                     ExpNode param )
+                                             Token source,
+                                             ExpFunctionSource function,
+                                             ExpNode param )
         {
             return new ExpFunctionCallingNode( source, function, param );
         }

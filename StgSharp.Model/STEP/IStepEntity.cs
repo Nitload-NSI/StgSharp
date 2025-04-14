@@ -28,9 +28,66 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using StgSharp.Math;
+using StgSharp.Modeling.Step;
 using StgSharp.Script.Express;
 
-namespace StgSharp.Modeling.STEP
+using System;
+using System.Runtime.CompilerServices;
+
+namespace StgSharp.Modeling.Step
 {
-    public interface IStepEntity<TSelf> : IExpMarshalType<TSelf> where TSelf: IStepEntity<TSelf> { }
+    public interface IStepEntity<TSelf> : IExpMarshalType<TSelf> where TSelf: IExpMarshalType<TSelf>
+    {
+
+        int Id { get; }
+
+        string Name { get; }
+
+        public void Init( StepModel model, ExpNode param );
+
+    }
+
+    public class StepUncertainEntity : IStepEntity<StepUncertainEntity>
+    {
+
+        private ExpNode data;
+
+        private int _id;
+        private string _name;
+
+        public StepUncertainEntity( string name, int id )
+        {
+            _name = name;
+            _id = id;
+        }
+
+        public int Id
+        {
+            get => _id;
+        }
+
+        public string Name
+        {
+            get => _name;
+        }
+
+        public static StepUncertainEntity Create( int id )
+        {
+            return new StepUncertainEntity( string.Empty, id );
+        }
+
+        public static StepUncertainEntity Create( string name, ExpNode node )
+        {
+            return new StepUncertainEntity( name, 0 );
+        }
+
+        void IStepEntity<StepUncertainEntity>.Init( StepModel model, ExpNode param )
+        {
+            return;
+        }
+
+    }
 }

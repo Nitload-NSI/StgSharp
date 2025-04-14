@@ -38,7 +38,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace StgSharp.Modeling.STEP
+namespace StgSharp.Modeling.Step
 {
     public partial class StepReader : IDisposable
     {

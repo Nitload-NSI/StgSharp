@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepAxis2Placement2D.cs"
+//     file="ExpressStepUntil.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,54 +28,74 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Modeling.Step;
-
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
+using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace StgSharp.Modeling.Step
 {
-    public class StepAxis2Placement2D : StepAxis2Placement
+    public class ExpressStepUntil : ExpSchema
     {
 
-        private StepAxis2Placement2D() : base( string.Empty ) { }
+        private FrozenDictionary<string, ExpTypeSource> entitiesDefine;
 
-        public StepAxis2Placement2D(
-               string label,
-               StepCartesianPoint location,
-               StepDirection direction )
-            : base( label )
+        public ExpressStepUntil()
         {
-            Location = location;
-            RefDirection = direction;
+            Span<KeyValuePair<string, ExpTypeSource>> source = [
+                new KeyValuePair<string, ExpTypeSource>( StepItemTypeExtensions.AdvancedFaceText,
+                                                          ),
+                ];
+            Dictionary<string, ExpTypeSource> tIndex = new Dictionary<string, ExpTypeSource>();
         }
 
-        public override StepItemType ItemType => StepItemType.AxisPlacement2D;
+        internal StepModel Current { get; set; }
 
-        internal static StepAxis2Placement2D CreateFromSyntaxList(
-                                             StepModel binder,
-                                             ExpNode syntaxList )
+        public override void LoadFromSource( ExpSchemaSource source )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
-            StepAxis2Placement2D axis = new StepAxis2Placement2D();
-            enumerator.AssertEnumeratorCount( 3 );
-            axis.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => axis.Location = v.AsType<StepCartesianPoint>() );
-            binder.BindValue(
-                enumerator.Values[ 2 ], v => axis.RefDirection = v.AsType<StepDirection>() );
-            return axis;
+            return;
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
+        public override bool TryGetConst( string name, out ExpElementInstance c )
         {
-            yield return Location;
-            yield return RefDirection;
+            c = null!;
+            return false;
+        }
+
+        public override bool TryGetEntity( string name, out ExpEntitySource e )
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool TryGetFunction( string name, out ExpFunctionSource f )
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool TryGetProcedure( string name, out ExpProcedureSource p )
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool TryGetRule( string name, out ExpRuleSource r )
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool TryGetSchemaInclude( string name, out ExpSchema include )
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool TryGetType( string name, out ExpTypeSource t )
+        {
+            throw new NotImplementedException();
         }
 
     }
 }
-

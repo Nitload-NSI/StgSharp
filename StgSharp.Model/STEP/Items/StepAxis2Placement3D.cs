@@ -28,13 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepAxis2Placement3D : StepAxis2Placement
     {
@@ -71,13 +72,13 @@ namespace StgSharp.Modeling.Items
         public override StepItemType ItemType => StepItemType.AxisPlacement3D;
 
         internal static StepAxis2Placement3D CreateFromSyntaxList(
-                                             StepBinder binder,
+                                             StepModel binder,
                                              ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepAxis2Placement3D axis = new StepAxis2Placement3D();
             enumerator.AssertEnumeratorCount( 4 );
-            axis.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            axis.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
                 enumerator.Values[ 1 ], v => axis.Location = v.AsType<StepCartesianPoint>() );
             binder.BindValue( syntaxList.Values[ 2 ], v => axis.Axis = v.AsType<StepDirection>() );

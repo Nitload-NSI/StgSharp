@@ -29,13 +29,14 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Math;
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Items
+namespace StgSharp.Modeling.Step
 {
     public class StepLine : StepCurve
     {
@@ -101,12 +102,12 @@ namespace StgSharp.Modeling.Items
             return new StepLine( string.Empty, start, vector );
         }
 
-        internal static StepLine CreateFromSyntaxList( StepBinder binder, ExpNode syntaxList )
+        internal static StepLine CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepLine line = new StepLine();
             enumerator.AssertEnumeratorCount( 3 );
-            line.Name = enumerator.Values[ 0 ].CodeConvertTemplate;
+            line.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
                 enumerator.Values[ 1 ], v => line.Point = v.AsType<StepCartesianPoint>() );
             binder.BindValue( enumerator.Values[ 2 ], v => line.Vector = v.AsType<StepVector>() );
