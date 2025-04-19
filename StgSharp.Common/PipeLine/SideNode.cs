@@ -33,92 +33,59 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace StgSharp.PipeLine
 {
-    internal sealed class BeginningNode : PipeLineNode
+    internal sealed class BeginningNode : PipelineNode
     {
 
-        private BlueprintScheduler _bp;
+        private PipelineScheduler _bp;
 
-        public BeginningNode( BlueprintScheduler bp )
-            : base(
-            DefaultOperation, name: "BeginningNode", true, ["default"],
-            ["default"] )
+        public BeginningNode( PipelineScheduler bp )
+            : base( DefaultOperation, name: "BeginningNode", true, ["default"], ["default"] )
         {
             _bp = bp;
-        }
-
-        internal (string name, PipeLineConnectorArgs arg)[] InputData
-        {
-            set
-            {
-                if( value == null ) {
-                    return;
-                }
-                foreach( (string name, PipeLineConnectorArgs arg) parameter in value ) {
-                    OutputInterfaces[ parameter.name ].Args = parameter.arg;
-                }
-            }
         }
 
         public override void Run()
         {
             _bp.RunningStat.Wait();
-            PipelineConnector.SkipAll( _outputInterfaces );
+            PipelineNodeExport.SkipAll( _output );
         }
 
-        public new void SetCertainOutputPort(
-                                string name,
-                                PipelineConnector pipeline )
+        internal void SetInputData( IEnumerable<(string, IPipeLineConnectionPayload)> data )
         {
-            if( _outputInterfaces.ContainsKey( name ) ) {
-                _outputInterfaces[ name ] = pipeline;
+            if( data is null ) {
+                return;
             }
-            _outputInterfaces.Add( name, pipeline );
+            foreach( (string, IPipeLineConnectionPayload) item in data ) {
+                OutputPorts[ item.Item1 ].TransmitValue( item.Item2 );
+            }
         }
 
     }
 
-    internal sealed class EndingNode : PipeLineNode
+    internal sealed class EndingNode : PipelineNode
     {
 
-        private BlueprintScheduler _bp;
+        private PipelineScheduler _bp;
 
-        public EndingNode( BlueprintScheduler bp )
-            : base(
-            DefaultOperation, name: "EndingNode", true, ["default"],
-            ["default"] )
+        public EndingNode( PipelineScheduler bp )
+            : base( DefaultOperation, name: "EndingNode", true, ["default"], ["default"] )
         {
             _bp = bp;
         }
 
-        internal (string name, PipeLineConnectorArgs arg)[] OutputData
-        {
-            get { return InputInterfaces.Select(
-                      key => (key.Key, key.Value.Args) )
-                          .ToArray(); }
-        }
-
         public override void Run()
         {
-            PipelineConnector.WaitAll( _inputInterfaces );
+            PipelineNodeImport.WaitAll( _input );
             Interlocked.Exchange( ref _bp.currentGlobalNodeIndex, 0 );
             Interlocked.Exchange( ref _bp.currentNativeNodeIndex, 0 );
             _bp.RunningStat.Release();
-        }
-
-        public new void SetCertainInputPort(
-                                string name,
-                                PipelineConnector pipeline )
-        {
-            if( _inputInterfaces.ContainsKey( name ) ) {
-                _inputInterfaces[ name ] = pipeline;
-            }
-            _inputInterfaces.Add( name, pipeline );
         }
 
     }

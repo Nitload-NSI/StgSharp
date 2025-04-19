@@ -1,0 +1,163 @@
+50834f6b89c477b7562798270c7104425df1ec97 - 
+: 2025-04-15 03:15:34 +0800
+Daily update on 20250415-031534 by Nitload Youmu. Additional Message : Add: merge a step specified EXPRESS syntax analyzer and token reader Change: remove nearly all ixmilia interface, abstact class and supporting classes from step entity calsses, the next is to remove Base classes, and use ones defined in StgSharp instead
+
+b814229a2e8cca3a13b7a5e5921260bb8f456d43 - 
+: 2025-04-14 08:34:29 +0800
+Add ixmilix.step to license reference
+
+cbaf13679d0a64f864f0070dfd272729fc56ea68 - 
+: 2025-04-14 00:32:22 +0800
+Daily update on 20250414-003222 by Nitload Youmu. Additional Message : Tech Issue: due to forbidden of multi-inheritance in C#, full ranslate fron EXPRESS to C# code is impossible, the EXPRESS interpreter in StgSharp will become a dialect Add: A group of classes imported from lib https://github.com/ixmilia/step under MIT license, representing all STEP AP203 geometry objects Change: many change to classes from https://github.com/ixmilia/step to link data interfaces to those in StgSharp Freeze: implementation to StgSharp EXPRESS interpreter about collextion operation and element define grammer
+
+364cb95c54647c5881131c0937bda1dd36201d27 - 
+: 2025-04-11 01:40:24 +0800
+Daily update on 20250411-014024 by Nitload Youmu. Additional Message : none
+
+ea62b6a2af1ac3fc0e76c84e060bd4ab6bc81eed - 
+: 2025-04-10 00:03:32 +0800
+Daily update on 20250410-000332 by Nitload Youmu. Additional Message : adding support to type operation, to operate
+
+47e32b9dc8570e11f949c22b0bd84255b46c398f - 
+: 2025-04-08 23:21:25 +0800
+Daily update on 20250408-232125 by Nitload Youmu. Additional Message : REPEAT expression mainly complete, should add support to ELEMENT related operation to common expression like instance creating and type converting
+
+5ba6e4416ca006d8457335ac83a3e14dfbd1da8c - 
+: 2025-04-07 00:06:13 +0800
+Daily update on 20250407-000613 by Nitload Youmu. Additional Message : Repeat block analyzer complete, need unit test. collection processor, builtin function, procedure caller and element source parser will be implemented
+
+f5bb3c7e02834b50fb487e06e05220e98915a22d - 
+: 2025-04-05 23:16:31 +0800
+Daily update on 20250405-231631 by Nitload Youmu. Additional Message : most of repeat block analyzer complete
+
+787e0e49965355f5cef3140ce9dacc9c3a532ebc - 
+: 2025-04-02 06:05:08 +0800
+Daily update on 20250402-060508 by Nitload Youmu. Additional Message : Repeat block analyser in building, main structure is clear, branch and leaves are growing, a rubust tree is in witness
+
+48ec050605ce381f829761d8709ba0671b35b2eb - 
+: 2025-03-30 08:08:12 +0800
+Daily update on 20250330-080812 by Nitload Youmu. Additional Message : CASEOF block in full function, next is Collection operation, relative keywords processing and REPEAT block.
+
+2eadd109f075556c560995cdba0657bca0e00482 - 
+: 2025-03-28 13:16:29 +0800
+Daily update on 20250328-131629 by Nitload Youmu. Additional Message : IF branch can be full functionally compiled. Next will be CASE_OF branch
+
+57d663d072b5c2bb79614ddd67129887331dd88e - 
+: 2025-03-26 14:04:02 +0800
+Daily update on 20250326-140402 by Nitload Youmu. Additional Message : If Branch building
+
+a443388f081f860c707c0103ab2caba087fb6125 - 
+: 2025-03-25 16:47:16 +0800
+Daily update on 20250325-164716 by Nitload Youmu. Additional Message : Lineaar line and multi-linear line compile full function. String literal parsing improve.
+
+6a43ba950ec3ddbe68f14c55d767bcc2e1e5ff9a - 
+: 2025-03-24 10:03:47 +0800
+Daily update on 20250324-100347 by Nitload Youmu. Additional Message : Single line syntax analyzer ok, gonging on unit test of multi line, func call. Then building branch, loop, area syntax analyzer. Some of descriptors not supported.
+
+78f5c7e1a2d246b8d77b303e3f293693f0320ce0 - 
+: 2025-03-23 15:15:08 +0800
+Daily update on 20250323-151508 by Nitload Youmu. Additional Message : none
+
+a1d2f0db87ffbf15f1dc30e8ab85f8f435474de3 - 
+: 2025-03-23 08:02:59 +0800
+Daily update on 20250323-080259 by Nitload Youmu. Additional Message : Unit test(not included in public repo) and syntax reverse analyzer
+
+602deb09c3588e5613021945df3e54cef8f9c280 - 
+: 2025-03-20 08:12:34 +0800
+Daily update on 20250320-081234 by Nitload Youmu. Additional Message : Compiler Framework rebuild compelte, working on reverse converter
+
+996d0f43c0e940905f51b9ca95be4b3246f19574 - 
+: 2025-03-19 07:00:50 +0800
+Daily update on 20250319-070050 by Nitload Youmu. Additional Message : None
+
+1aa0815e3f736299fc58b6c9c47df153bba97faf - 
+: 2025-03-18 20:36:52 +0800
+Daily update on 20250318-203652 by Nitload Youmu. Additional Message : Syntax analyzer rebuilding, a neet and flexible structure introduced
+
+2ea6d1dd05340c2aefe23c52d7f46645b9de401e - 
+: 2025-03-18 08:01:26 +0800
+Daily update on 20250318-080126 by Nitload Youmu. Additional Message : Syntax analyzer reshape
+
+394135df185e91e26388f33e856fc06e017429eb - 
+: 2025-03-16 09:55:56 +0800
+Daily update on 20250316-095556 by Nitload Youmu. Additional Message : Linear math inmprovement
+
+d6e6c4f3def30829201a1003f0ec5983a1fdc432 - 
+: 2025-03-15 09:25:00 +0800
+Daily update on 20250315-092500 by Nitload Youmu. Additional Message : Arraging node generator struct, compile stat added.
+
+5ea2135151a1b30f7a44a485472ac71cb9ac173c - 
+: 2025-03-14 04:43:35 +0800
+Daily update on 20250314-044335 by Nitload Youmu. Additional Message : Change: Import all keywords and group them by application Add: Process Token.Member by its detailed type
+
+b76040a92031bbd1309fab22dadfe3ca8c238f39 - 
+: 2025-03-13 04:49:54 +0800
+Daily update on 20250313-044954 by Nitload Youmu. Additional Message : Parser to TokenFlag.Member, improvement of exiting StgSharp platform
+
+14309689a8d6bcce8ddb567b3721c21ccba9a405 - 
+: 2025-03-12 07:46:58 +0800
+Daily update on 20250312-074658 by Nitload Youmu. Additional Message : Change: Temp not want to compile RULE and PROCEDURE Add: Add factory method to generate more kind of binary operator node Add: more SIMD intrinsic C function
+
+5f76b8e15f4280ebf7706a8c3060da2690ca0619 - 
+: 2025-03-10 06:48:01 +0800
+Daily update on 20250310-064801 by Nitload Youmu. Additional Message : Change: Generic node removed, five non-generic node as replacement Change: Preprocess to token scheduled, less dependency on type prediction, which put to LINK or C# compiling pase Design: the EXPRESS lang feature "FIXED" keyword not supported, builtin type binary not supported, not used in STEP AP203 and much too complex to make a full marshal implementation in C#. Add: Node generating method to generate literal node
+
+e7b3bded7ead9ef8f024517220f4ac148f59bc4a - 
+: 2025-03-09 06:31:52 +0800
+Daily update on 20250309-063152 by Nitload Youmu. Additional Message : Building AST generator, Name property removed from AST Node, Line And Colum property added as replacement.
+
+7fe9aba0a41047a425666165eac37697bcf78b41 - 
+: 2025-03-07 07:12:19 +0800
+Daily update on 20250307-071219 by Nitload Youmu. Additional Message : Rewrite of token and node cache stack
+
+2f34808d82677f353f4ea506a5eeb9d27aba2d31 - 
+: 2025-03-06 06:47:11 +0800
+Daily update on 20250306-064711 by Nitload Youmu. Additional Message : Building AST generator, adding a bi-channel stack as replace of two operand stack
+
+65c59d9b6ef5de65d799035e95d448df1e60c06a - 
+: 2025-03-05 05:25:28 +0800
+Daily update on 20250305-052528 by Nitload Youmu. Additional Message : message
+
+09f4be313fefd968c11242d5105ab8dff3931437 - 
+: 2025-03-04 07:05:50 +0800
+Daily update on 20250304-070550 by Nitload Youmu. Additional Message : None
+
+29f27a17e73f091c4aeef7ff744d018fdd9e493e - 
+: 2025-03-03 04:36:57 +0800
+Daily update on 20250303-043657 by Nitload Youmu. Additional Message : remove node dependency to context, node instance ctor switched to factory mode,
+
+26b4c6d9e6c94f8c3950689dc9a86cd1e2d33354 - 
+: 2025-03-02 04:51:46 +0800
+Daily update on 20250302-045146 by Nitload Youmu.
+
+d0afc10a2da68ceee4a1493a3f5c748d9130268c - 
+: 2025-03-02 04:32:41 +0800
+Daily update on 20250302-043241 by Nitload Youmu.
+
+b7fc996d32102145bffd383b90af048914cc286a - 
+: 2025-03-01 07:22:35 +0800
+Daily update on 20250301-072235 by Nitload Youmu.
+
+6b828d5b1252ba0edb242cb8192ec6c740b2cae4 - 
+: 2025-02-27 00:58:06 +0800
+Sign to all previous commit
+
+ce5f7c83e1458fc5b32f449f7f514ae6c223f3cc - 
+: 2025-02-27 00:45:02 +0800
+Update log update
+
+763897cf1892316aeda4a95d60beaaca070bc6ef - 
+: 2025-02-26 23:45:41 +0800
+Regular updates, keep on developing EXPRESS interpreter
+
+771ac73da5c9408306fff0093db3e777dfb33aa2 - 
+: 2025-02-04 20:57:38 +0800
+update blog
+
+5e6ef86609ce8a374c0db650ca01b6a1ea673e8f - 
+: 2025-01-30 14:36:31 +0800
+New readme
+
+00d15f3c12306eb5425b505df6828f8a8f7d9bae - 
+: 2025-01-29 15:31:04 +0800
+Large arrange to file structure, adding suppoprt to script compile.

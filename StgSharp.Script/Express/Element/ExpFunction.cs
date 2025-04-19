@@ -70,12 +70,12 @@ namespace StgSharp.Script.Express
              */
         }
 
-        public override ExpNode MakeReference( params object[] options )
+        public override ExpSyntaxNode MakeReference( params object[] options )
         {
             throw new NotImplementedException();
         }
 
-        public override bool TryGetMember( string name, out ExpNode memberNode )
+        public override bool TryGetMember( string name, out ExpSyntaxNode memberNode )
         {
             if( FuncParams.TryGetValue( name, out ExpElementInstance? param ) )
             {
@@ -87,7 +87,7 @@ namespace StgSharp.Script.Express
                 memberNode = variable;
                 return true;
             }
-            memberNode = ExpNode.Empty;
+            memberNode = ExpSyntaxNode.Empty;
             return false;
         }
 

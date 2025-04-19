@@ -73,7 +73,7 @@ namespace StgSharp.Modeling.Step
 
         internal static StepAxis2Placement3D CreateFromSyntaxList(
                                              StepModel binder,
-                                             ExpNode syntaxList )
+                                             ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepAxis2Placement3D axis = new StepAxis2Placement3D();
@@ -81,7 +81,7 @@ namespace StgSharp.Modeling.Step
             axis.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
                 enumerator.Values[ 1 ], v => axis.Location = v.AsType<StepCartesianPoint>() );
-            binder.BindValue( syntaxList.Values[ 2 ], v => axis.Axis = v.AsType<StepDirection>() );
+            binder.BindValue( enumerator.Values[ 2 ], v => axis.Axis = v.AsType<StepDirection>() );
             binder.BindValue(
                 enumerator.Values[ 3 ], v => axis.RefDirection = v.AsType<StepDirection>() );
             return axis;

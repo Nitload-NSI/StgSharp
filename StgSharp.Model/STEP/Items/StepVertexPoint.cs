@@ -65,7 +65,9 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.VertexPoint;
 
-        internal static StepVertexPoint CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
+        internal static StepVertexPoint CreateFromSyntaxList(
+                                        StepModel binder,
+                                        ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepVertexPoint vertex = new StepVertexPoint();

@@ -37,21 +37,21 @@ using System.Threading.Channels;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpRepeatNode : ExpNode
+    public class ExpRepeatNode : ExpSyntaxNode
     {
 
         private ExpElementInstance _variable;
-        private ExpNode _begin, _end, _increment, _operationBegin,_untilRule,_whileRule;
+        private ExpSyntaxNode _begin, _end, _increment, _operationBegin,_untilRule,_whileRule;
 
         internal ExpRepeatNode(
                  Token source,
                  ExpElementInstance variable,
-                 ExpNode begin,
-                 ExpNode end,
-                 ExpNode increment,
-                 ExpNode operationBegin,
-                 ExpNode untilRule,
-                 ExpNode whileRule )
+                 ExpSyntaxNode begin,
+                 ExpSyntaxNode end,
+                 ExpSyntaxNode increment,
+                 ExpSyntaxNode operationBegin,
+                 ExpSyntaxNode untilRule,
+                 ExpSyntaxNode whileRule )
             : base( source )
         {
             if( variable.NodeFlag != begin.NodeFlag || begin.NodeFlag != end.NodeFlag || ( increment !=
@@ -90,13 +90,13 @@ namespace StgSharp.Script.Express
             _whileRule = whileRule;
         }
 
-        public override ExpNode Left => throw new NotImplementedException();
+        public override ExpSyntaxNode Left => throw new NotImplementedException();
 
-        public override ExpNode Right => _operationBegin;
+        public override ExpSyntaxNode Right => _operationBegin;
 
         public override IExpElementSource EqualityTypeConvert => null!;
 
-        public void AppendRepeatedOperation( ExpNode node )
+        public void AppendRepeatedOperation( ExpSyntaxNode node )
         {
             _operationBegin.AppendNode( node );
         }
@@ -126,12 +126,12 @@ namespace StgSharp.Script.Express
         public static ExpRepeatNode Create(
                                     Token t,
                                     ExpInstanceReferenceNode repeatVariable,
-                                    ExpNode begin,
-                                    ExpNode end,
-                                    ExpNode increment,
-                                    ExpNode whileRule,
-                                    ExpNode untilRule,
-                                    ExpNode body )
+                                    ExpSyntaxNode begin,
+                                    ExpSyntaxNode end,
+                                    ExpSyntaxNode increment,
+                                    ExpSyntaxNode whileRule,
+                                    ExpSyntaxNode untilRule,
+                                    ExpSyntaxNode body )
         {
             untilRule = ExpBoolNode.False( null );
             whileRule = ExpBoolNode.True( null );
@@ -163,12 +163,12 @@ namespace StgSharp.Script.Express
         public static ExpRepeatNode Create(
                                     Token t,
                                     ExpElementInstance repeatVariable,
-                                    ExpNode begin,
-                                    ExpNode end,
-                                    ExpNode increment,
-                                    ExpNode whileRule,
-                                    ExpNode untilRule,
-                                    ExpNode body )
+                                    ExpSyntaxNode begin,
+                                    ExpSyntaxNode end,
+                                    ExpSyntaxNode increment,
+                                    ExpSyntaxNode whileRule,
+                                    ExpSyntaxNode untilRule,
+                                    ExpSyntaxNode body )
         {
             whileRule = IsNullOrEmpty( whileRule ) ? ExpBoolNode.True( t ) : whileRule;
             untilRule = IsNullOrEmpty( untilRule ) ? ExpBoolNode.False( t ) : untilRule;

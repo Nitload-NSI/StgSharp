@@ -32,33 +32,35 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using StgSharp.Math;
 using StgSharp.Modeling.Step;
+using StgSharp.PipeLine;
 using StgSharp.Script.Express;
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace StgSharp.Modeling.Step
 {
-    public interface IStepEntity<TSelf> : IExpMarshalType<TSelf> where TSelf: IExpMarshalType<TSelf>
+    public interface IStepEntity : IExpMarshalType<StepUninitializedEntity>
     {
 
         int Id { get; }
 
         string Name { get; }
 
-        public void Init( StepModel model, ExpNode param );
+        public void Init( StepModel model, ExpSyntaxNode param );
 
     }
 
-    public class StepUncertainEntity : IStepEntity<StepUncertainEntity>
+    public class StepUninitializedEntity : IStepEntity, IConvertableToBlueprintNode
     {
 
-        private ExpNode data;
-
+        private ExpSyntaxNode data;
         private int _id;
+        private StepModel _model;
         private string _name;
 
-        public StepUncertainEntity( string name, int id )
+        public StepUninitializedEntity( string name, int id )
         {
             _name = name;
             _id = id;
@@ -74,20 +76,48 @@ namespace StgSharp.Modeling.Step
             get => _name;
         }
 
-        public static StepUncertainEntity Create( int id )
+        public static StepUninitializedEntity Create( int id )
         {
-            return new StepUncertainEntity( string.Empty, id );
+            return new StepUninitializedEntity( string.Empty, id );
         }
 
-        public static StepUncertainEntity Create( string name, ExpNode node )
+        public static StepUninitializedEntity Create( string name, ExpSyntaxNode node )
         {
-            return new StepUncertainEntity( name, 0 );
+            return new StepUninitializedEntity( name, 0 );
         }
 
-        void IStepEntity<StepUncertainEntity>.Init( StepModel model, ExpNode param )
+        public void Init( StepModel model, ExpSyntaxNode param )
         {
-            return;
+            if( param is ExpFunctionCallingNode caller )
+            {
+                string entityName = caller.FunctionCaller.Name;
+                ExpSyntaxNode p = caller.Right;
+                ExpNodeNextEnumerator e = p.ToEnumerator();
+            } else
+            {
+                throw new ExpInvalidSyntaxException(
+                    "Assigned syntax node is not a function caller." );
+            }
         }
+
+        public void InitGeometry()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IConvertableToBlueprintNode.NodeMain(
+                                         in Dictionary<string, PipelineNodeImport> input,
+                                         in Dictionary<string, PipelineNodeExport> output )
+        {
+            InitGeometry();
+            PipelineNodeExport.SkipAll( output );
+        }
+
+        IEnumerable<string> IConvertableToBlueprintNode.InputInterfacesName => ["in"];
+
+        PipelineNodeOperation IConvertableToBlueprintNode.Operation => ( this as IConvertableToBlueprintNode ).NodeMain;
+
+        IEnumerable<string> IConvertableToBlueprintNode.OutputInterfacesName => ["out"];
 
     }
 }

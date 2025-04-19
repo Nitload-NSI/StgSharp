@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="PipeLine.NodeCraeater.cs"
+//     file="ISyntaxNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,31 +28,42 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Collections;
+using StgSharp.Script.Express;
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
-namespace StgSharp.PipeLine
+namespace StgSharp.Script
 {
-    public partial class BlueprintScheduler
+    public interface ISyntaxNode<TNode, TType> where TNode: ISyntaxNode<TNode, TType>
+        where TType: ITypeSource<TType>
     {
 
-        public PipeLineNode CreateBlueprintNode(
-                                     string name,
-                                     BlueprintNodeOperation operation,
-                                     string[] inputPort,
-                                     string[] outputPort,
-                                     bool isNative )
-        {
-            PipeLineNode node = new PipeLineNode(
-                operation, name, isNative, inputPort, outputPort );
-            if( isNative ) {
-                mainThreadNodeList.Add( node );
-            } else {
-                globalNodeList.Add( node );
-            }
-            return node;
-        }
+        long NodeFlag { get; }
+
+        string CodeConvertTemplate { get; }
+
+        TNode Previous { get; set; }
+
+        TNode Next { get; set; }
+
+        TNode Left { get; }
+
+        TNode Right { get; }
+
+        static abstract TNode Empty { get; }
+
+        Token Source { get; }
+
+        TType EqualityTypeConvert { get; }
+
+        void AppendNode( TNode nextToken );
+
+        void PrependNode( TNode previusNode );
 
     }
 }

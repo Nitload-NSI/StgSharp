@@ -39,10 +39,7 @@ namespace StgSharp
     public interface IStateMachine<T> where T: Enum
     {
 
-        public T LastStableState
-        {
-            get;
-        }
+        public T LastStableState { get; }
 
         public bool TryEnterState();
 
@@ -56,15 +53,9 @@ namespace StgSharp
         where TState: Enum
     {
 
-        public bool IsInStabelState
-        {
-            get;
-        }
+        public bool IsInStabelState { get; }
 
-        public TState NextStableState
-        {
-            get;
-        }
+        public TState NextStableState { get; }
 
         public bool TrySwitchState();
 

@@ -33,6 +33,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -43,26 +44,40 @@ namespace StgSharp.Script.Express
     public static class ExpNodeNextEnumeratorExtensions
     {
 
+        public static ExpNodeNextEnumerator AsCollectionEnumerator( this ExpSyntaxNode token )
+        {
+            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( token );
+            enumerator.AssertEnumeratorCount( count );
+            IExpElementSource type = token.EqualityTypeConvert;
+            while( enumerator.MoveNext() )
+            {
+                if( enumerator. Current != type ) {
+                    throw new InvalidCastException();
+                }
+            }
+            return enumerator;
+        }
+
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static ExpNodeNextEnumerator AsEnumerator( this ExpNode token )
+        public static ExpNodeNextEnumerator ToEnumerator( this ExpSyntaxNode token )
         {
             return new ExpNodeNextEnumerator( token );
         }
 
     }
 
-    public class ExpNodeNextEnumerator : IEnumerator<ExpNode>
+    public class ExpNodeNextEnumerator : IEnumerator<ExpSyntaxNode>
     {
 
-        private ExpNode _current;
+        private ExpSyntaxNode _current;
 
-        private List<ExpNode> _begin = new List<ExpNode>();
+        private List<ExpSyntaxNode> _begin = new List<ExpSyntaxNode>();
 
-        public ExpNodeNextEnumerator( ExpNode token )
+        public ExpNodeNextEnumerator( ExpSyntaxNode token )
         {
             _begin[ 0 ] = token;
             _current = token;
-            ExpNode t = token;
+            ExpSyntaxNode t = token;
             while( !ReferenceEquals( t.Next, token ) && t.Next != null )
             {
                 t = t.Next;
@@ -70,7 +85,7 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public ExpNode this[ int index ]
+        public ExpSyntaxNode this[ int index ]
         {
             get
             {
@@ -80,7 +95,9 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public List<ExpNode> Values => _begin;
+        public ExpSyntaxNode Current => _current;
+
+        public List<ExpSyntaxNode> Values => _begin;
 
         public void AssertEnumeratorCount( int count )
         {
@@ -90,19 +107,19 @@ namespace StgSharp.Script.Express
             }
         }
 
-        void IDisposable.Dispose()
+        public bool MoveNext()
         {
-            return;
-        }
-
-        bool IEnumerator.MoveNext()
-        {
-            ExpNode next = _current.Next;
+            ExpSyntaxNode next = _current.Next;
             if( ReferenceEquals( next, _begin ) || next == null ) {
                 return false;
             }
             _current = next;
             return true;
+        }
+
+        void IDisposable.Dispose()
+        {
+            return;
         }
 
         void IEnumerator.Reset()
@@ -111,8 +128,6 @@ namespace StgSharp.Script.Express
         }
 
         object IEnumerator.Current => _current;
-
-        ExpNode IEnumerator<ExpNode>.Current => _current;
 
     }
 }

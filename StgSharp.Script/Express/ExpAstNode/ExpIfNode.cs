@@ -36,14 +36,14 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public sealed class ExpIfNode : ExpNode
+    public sealed class ExpIfNode : ExpSyntaxNode
     {
 
-        private ExpNode _falseOpBegin;
-        private ExpNode _rule;
-        private ExpNode  _trueOpBegin ;
+        private ExpSyntaxNode _falseOpBegin;
+        private ExpSyntaxNode _rule;
+        private ExpSyntaxNode  _trueOpBegin ;
 
-        public ExpIfNode( Token source, ExpNode rule, ExpNode trueOpBegin )
+        public ExpIfNode( Token source, ExpSyntaxNode rule, ExpSyntaxNode trueOpBegin )
             : base( source )
         {
             _rule = rule;
@@ -59,9 +59,9 @@ namespace StgSharp.Script.Express
 
         public ExpIfNode(
                Token source,
-               ExpNode rule,
-               ExpNode rootOperationIfTrue,
-               ExpNode rootOperationIfFalse )
+               ExpSyntaxNode rule,
+               ExpSyntaxNode rootOperationIfTrue,
+               ExpSyntaxNode rootOperationIfFalse )
             : base( source )
         {
             _rule = rule;
@@ -78,18 +78,18 @@ namespace StgSharp.Script.Express
                 """ );
         }
 
-        public override ExpNode Left => _trueOpBegin;
+        public override ExpSyntaxNode Left => _trueOpBegin;
 
-        public override ExpNode Right => _falseOpBegin;
+        public override ExpSyntaxNode Right => _falseOpBegin;
 
         public override IExpElementSource EqualityTypeConvert => null!;
 
-        public void AppendFalseOperation( ExpNode expressionRoot )
+        public void AppendFalseOperation( ExpSyntaxNode expressionRoot )
         {
             _falseOpBegin.AppendNode( expressionRoot );
         }
 
-        public void AppendTrueOperation( ExpNode expressionRoot )
+        public void AppendTrueOperation( ExpSyntaxNode expressionRoot )
         {
             _trueOpBegin.AppendNode( expressionRoot );
         }

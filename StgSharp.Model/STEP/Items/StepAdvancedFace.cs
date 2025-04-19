@@ -49,14 +49,14 @@ namespace StgSharp.Modeling.Step
 
         internal static StepAdvancedFace CreateFromSyntaxList(
                                          StepModel binder,
-                                         ExpNode syntaxList )
+                                         ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepAdvancedFace face = new StepAdvancedFace();
             enumerator.AssertEnumeratorCount( 4 );
             face.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
 
-            ExpNodeNextEnumerator boundsList = enumerator.Values[ 1 ].AsEnumerator();
+            ExpNodeNextEnumerator boundsList = enumerator.Values[ 1 ].ToEnumerator();
             face.Bounds.Clear();
             face.Bounds
                 .AddRange(

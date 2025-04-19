@@ -56,7 +56,9 @@ namespace StgSharp.Modeling.Step
 
         public StepLoop Bound { get; set; }
 
-        internal static StepFaceBound CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
+        internal static StepFaceBound CreateFromSyntaxList(
+                                      StepModel binder,
+                                      ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );

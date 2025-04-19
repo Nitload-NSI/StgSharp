@@ -37,6 +37,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace StgSharp.Modeling.Step
@@ -45,6 +46,10 @@ namespace StgSharp.Modeling.Step
     {
 
         private ExpSourceReader _reader;
+
+        private HashSet<string> token1Hash = [
+            "T","F","UNSPECIFIED"
+            ];
         private Queue<Token> _cache = new Queue<Token>();
         private StepDataSectionTransmitter _transmitter;
 
@@ -58,16 +63,15 @@ namespace StgSharp.Modeling.Step
         {
             if( _cache.Count == 0 )
             {
-                if( _reader.TryReadToken( out Token token0 ) && ( token0.Value != "." ) ) {
+                if( _reader.TryReadToken( out Token token0 ) && ( token0.Value == "." ) ) {
                     return token0;
                 }
-                if( _reader.TryReadToken( out Token token1 ) && ( token1.Value != "T" || token1.Value !=
-                                                                  "F" ) )
+                if( _reader.TryReadToken( out Token token1 ) && token1Hash.Contains( token1.Value ) )
                 {
                     _cache.Enqueue( token1 );
                     return token0;
                 }
-                if( _reader.TryReadToken( out Token token2 ) && ( token2.Value != "." ) )
+                if( _reader.TryReadToken( out Token token2 ) && ( token2.Value == "." ) )
                 {
                     _cache.Enqueue( token1 );
                     _cache.Enqueue( token2 );
@@ -80,7 +84,8 @@ namespace StgSharp.Modeling.Step
                     case "F":
                         return new Token( ".F.", token0.Line, token1.Column, TokenFlag.Member );
                     default:
-                        break;
+                        return new Token(
+                            $".{token1.Value}.", token0.Line, token1.Column, TokenFlag.Member );
                 }
             }
             return _cache.Dequeue();
@@ -92,7 +97,7 @@ namespace StgSharp.Modeling.Step
             {
                 if( _reader.TryReadToken( out Token token0 ) )
                 {
-                    if( token0.Value != "." )
+                    if( token0.Value == "." )
                     {
                         t = token0;
                         return true;
@@ -104,7 +109,7 @@ namespace StgSharp.Modeling.Step
                 }
                 if( _reader.TryReadToken( out Token token1 ) )
                 {
-                    if( token1.Value != "T" || token1.Value != "F" )
+                    if( token1Hash.Contains( token1.Value ) )
                     {
                         _cache.Enqueue( token1 );
                         t = token0;
@@ -117,7 +122,7 @@ namespace StgSharp.Modeling.Step
                 }
                 if( _reader.TryReadToken( out Token token2 ) )
                 {
-                    if( token2.Value != "." )
+                    if( token2.Value == "." )
                     {
                         _cache.Enqueue( token1 );
                         _cache.Enqueue( token2 );

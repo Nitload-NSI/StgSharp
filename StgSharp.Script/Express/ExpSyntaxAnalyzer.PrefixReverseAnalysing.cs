@@ -45,12 +45,12 @@ namespace StgSharp.Script.Express
         private void ClosePrefixReverse( Token rightSeparator )
         {
             Token op;
-            ExpNode root;
+            ExpSyntaxNode root;
             if( _cache.OperatorAheadOfDepth == 0 )
             {
                 if( _cache.OperandAheadOfDepth == 1 )
                 {
-                    _cache.PopOperand( out _, out ExpNode? statement );
+                    _cache.PopOperand( out _, out ExpSyntaxNode? statement );
                     _cache.StatementsInDepth.Push( statement );
                 } else
                 {

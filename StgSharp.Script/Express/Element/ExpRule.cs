@@ -48,9 +48,9 @@ namespace StgSharp.Script.Express
         public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
             );
 
-        public override ExpNode Left => throw new NotImplementedException();
+        public override ExpSyntaxNode Left => throw new NotImplementedException();
 
-        public override ExpNode Right => throw new NotImplementedException();
+        public override ExpSyntaxNode Right => throw new NotImplementedException();
 
         public override string TypeName => _source.Name;
 
@@ -79,14 +79,14 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpNode MakeReference( params object[] options )
+        public override ExpSyntaxNode MakeReference( params object[] options )
         {
             throw new NotImplementedException();
         }
 
-        public override bool TryGetMember( string name, out ExpNode memberNode )
+        public override bool TryGetMember( string name, out ExpSyntaxNode memberNode )
         {
-            memberNode = ExpNode.Empty;
+            memberNode = ExpSyntaxNode.Empty;
             return false;
         }
 

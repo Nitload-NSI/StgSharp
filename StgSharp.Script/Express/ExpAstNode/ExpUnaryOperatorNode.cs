@@ -36,35 +36,29 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpUnaryOperatorNode : ExpNode
+    public class ExpUnaryOperatorNode : ExpSyntaxNode
     {
 
-        private ExpNode _operand;
+        private ExpSyntaxNode _operand;
 
         private ExpUnaryOperatorNode( Token source ) : base( source ) { }
 
-        public ExpUnaryOperatorNode(
-                       Token source,
-                       ExpNode operand,
-                       ExpSchema context )
+        public ExpUnaryOperatorNode( Token source, ExpSyntaxNode operand, ExpSchema context )
             : base( source )
         {
             _operand = operand;
         }
 
-        public override ExpNode Left => null!;
+        public override ExpSyntaxNode Left => null!;
 
-        public override ExpNode Right => _operand;
+        public override ExpSyntaxNode Right => _operand;
 
         public override IExpElementSource EqualityTypeConvert => _operand.EqualityTypeConvert;
 
-        public static ExpUnaryOperatorNode UnaryMinus(
-                                                   Token source,
-                                                   ExpNode operand )
+        public static ExpUnaryOperatorNode UnaryMinus( Token source, ExpSyntaxNode operand )
         {
             if( !operand.IsNumber ) {
-                throw new ExpInvalidTypeException(
-                    "Number", operand.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( "Number", operand.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( operand._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0;
@@ -75,9 +69,7 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpUnaryOperatorNode UnaryNot(
-                                                   Token source,
-                                                   ExpNode operand )
+        public static ExpUnaryOperatorNode UnaryNot( Token source, ExpSyntaxNode operand )
         {
             if( ( operand._nodeFlag | ( ExpNodeFlag.BuiltinType_Logic | ExpNodeFlag.BuiltinType_Logic ) ) ==
                 0 ) {
@@ -91,13 +83,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpUnaryOperatorNode UnaryPlus(
-                                                   Token source,
-                                                   ExpNode operand )
+        public static ExpUnaryOperatorNode UnaryPlus( Token source, ExpSyntaxNode operand )
         {
             if( !operand.IsNumber ) {
-                throw new ExpInvalidTypeException(
-                    "Number", operand.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( "Number", operand.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( operand._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0;

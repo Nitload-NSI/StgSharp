@@ -84,7 +84,7 @@ namespace StgSharp.Script.Express
                     AppendToken_common( t );
                     return false;
             }
-            ExpNode root = _cache.PackAllStatements();
+            ExpSyntaxNode root = _cache.PackAllStatements();
             state.Body = root;
             _cache.DecreaseDepth();
             if( ExpTypeSource.IsNullOrVoid( state.IncrementVariableType ) )
@@ -114,7 +114,7 @@ namespace StgSharp.Script.Express
                     while( _cache.TryPopOperator( out Token op ) ) {
                         ConvertAndPushOneOperator( op );
                     }
-                    _cache.PopOperand( out _, out ExpNode? root );
+                    _cache.PopOperand( out _, out ExpSyntaxNode? root );
                     state.Begin = root;
                     return true;
                 default:
@@ -143,7 +143,7 @@ namespace StgSharp.Script.Express
             while( _cache.TryPopOperator( out Token op ) ) {
                 ConvertAndPushOneOperator( op );
             }
-            _cache.PopOperand( out _, out ExpNode? root );
+            _cache.PopOperand( out _, out ExpSyntaxNode? root );
             state.End = root;
             return true;
         }
@@ -168,7 +168,7 @@ namespace StgSharp.Script.Express
             while( _cache.TryPopOperator( out Token op ) ) {
                 ConvertAndPushOneOperator( op );
             }
-            _cache.PopOperand( out _, out ExpNode? root );
+            _cache.PopOperand( out _, out ExpSyntaxNode? root );
             state.StepIncrement = root;
             return true;
         }
@@ -187,7 +187,7 @@ namespace StgSharp.Script.Express
             while( _cache.TryPopOperator( out Token op ) ) {
                 ConvertAndPushOneOperator( op );
             }
-            _cache.PopOperand( out _, out ExpNode? root );
+            _cache.PopOperand( out _, out ExpSyntaxNode? root );
             state.UntilExpression = root;
             return true;
         }
@@ -210,7 +210,7 @@ namespace StgSharp.Script.Express
                     if( ExpTypeSource.IsNullOrVoid( state.IncrementVariableType ) )
                     {
                         if( ( _local.TryGetMember( t.Value,
-                                                   out ExpNode? node ) && node is ExpElementInstance instance ) || _tempVariableInLoops.TryGetValue(
+                                                   out ExpSyntaxNode? node ) && node is ExpElementInstance instance ) || _tempVariableInLoops.TryGetValue(
                             t.Value, out instance ) )
                         {
                             state.IncrementVariable = ExpInstanceReferenceNode.MakeReferenceFrom(
@@ -247,7 +247,7 @@ namespace StgSharp.Script.Express
             while( _cache.TryPopOperator( out Token op ) ) {
                 ConvertAndPushOneOperator( op );
             }
-            _cache.PopOperand( out _, out ExpNode? root );
+            _cache.PopOperand( out _, out ExpSyntaxNode? root );
             state.WhileExpression = root;
             return true;
         }
@@ -258,23 +258,23 @@ namespace StgSharp.Script.Express
             public RepeatLoopState( Token t )
             {
                 Position = t;
-                UntilExpression = ExpNode.Empty;
-                WhileExpression = ExpNode.Empty;
+                UntilExpression = ExpSyntaxNode.Empty;
+                WhileExpression = ExpSyntaxNode.Empty;
             }
 
             public ExpInstanceReferenceNode IncrementVariable { get; set; }
 
-            public ExpNode StepIncrement { get; set; }
+            public ExpSyntaxNode StepIncrement { get; set; }
 
-            public ExpNode Begin { get; set; }
+            public ExpSyntaxNode Begin { get; set; }
 
-            public ExpNode End { get; set; }
+            public ExpSyntaxNode End { get; set; }
 
-            public ExpNode UntilExpression { get; set; }
+            public ExpSyntaxNode UntilExpression { get; set; }
 
-            public ExpNode WhileExpression { get; set; }
+            public ExpSyntaxNode WhileExpression { get; set; }
 
-            public ExpNode Body { get; set; }
+            public ExpSyntaxNode Body { get; set; }
 
             public ExpTypeSource IncrementVariableType { get; set; }
 

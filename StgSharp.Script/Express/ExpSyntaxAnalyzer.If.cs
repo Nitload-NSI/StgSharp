@@ -58,7 +58,7 @@ namespace StgSharp.Script.Express
                         while( _cache.TryPopOperator( out Token op ) ) {
                             ConvertAndPushOneOperator( op );
                         }
-                        _cache.PopOperand( out _, out ExpNode? node );
+                        _cache.PopOperand( out _, out ExpSyntaxNode? node );
                         state.CurrentState = t.Value;
                         state.BoolExpression = node;
                     } else
@@ -71,7 +71,7 @@ namespace StgSharp.Script.Express
                     state = _cache.StateOfCurrentDepth<IfBranchStateCache>();
                     if( state.CurrentState == ExpKeyword.Then )
                     {
-                        ExpNode node = _cache.PackAllStatements();
+                        ExpSyntaxNode node = _cache.PackAllStatements();
                         state.CurrentState = t.Value;
                         state.ExpressionIfTrue = node;
                     } else
@@ -85,13 +85,13 @@ namespace StgSharp.Script.Express
                     state = _cache.StateOfCurrentDepth<IfBranchStateCache>();
                     if( state.CurrentState == ExpKeyword.Then )
                     {
-                        ExpNode trueNode = _cache.PackAllStatements();
+                        ExpSyntaxNode trueNode = _cache.PackAllStatements();
                         state.CurrentState = t.Value;
                         state.ExpressionIfTrue = trueNode;
-                        state.ExpressionIfFalse = ExpNode.Empty;
+                        state.ExpressionIfFalse = ExpSyntaxNode.Empty;
                     } else if( state.CurrentState == ExpKeyword.Else )
                     {
-                        ExpNode falseNode = _cache.PackAllStatements();
+                        ExpSyntaxNode falseNode = _cache.PackAllStatements();
                         state.CurrentState = t.Value;
                         state.ExpressionIfFalse = falseNode;
                     } else
@@ -115,11 +115,11 @@ namespace StgSharp.Script.Express
         private class IfBranchStateCache : ICompileDepthState
         {
 
-            public ExpNode BoolExpression { get; set; }
+            public ExpSyntaxNode BoolExpression { get; set; }
 
-            public ExpNode ExpressionIfTrue { get; set; }
+            public ExpSyntaxNode ExpressionIfTrue { get; set; }
 
-            public ExpNode ExpressionIfFalse { get; set; }
+            public ExpSyntaxNode ExpressionIfFalse { get; set; }
 
             public string CurrentState { get; set; }
 

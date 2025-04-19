@@ -39,7 +39,7 @@ namespace StgSharp.Script.Express
     public interface IExpMarshalType<TSelf>
     {
 
-        static abstract TSelf Create( string name, ExpNode node );
+        static abstract TSelf Create( string name, ExpSyntaxNode node );
 
     }
 }

@@ -44,7 +44,7 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.Plane;
 
-        internal static StepPlane CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
+        internal static StepPlane CreateFromSyntaxList( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepPlane plane = new StepPlane();

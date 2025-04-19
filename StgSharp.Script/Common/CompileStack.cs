@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script
 {
-    public partial class CompileStack<TNode, TType> where TNode: IASTNode<TNode, TType>
+    public partial class CompileStack<TNode, TType> where TNode: ISyntaxNode<TNode, TType>
         where TType: ITypeSource<TType>
     {
 

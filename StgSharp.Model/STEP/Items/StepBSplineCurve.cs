@@ -59,7 +59,6 @@ namespace StgSharp.Modeling.Step
         private const string ELLIPTIC_ARC = "ELLIPTIC_ARC";
         private const string HYPERBOLIC_ARC = "HYPERBOLIC_ARC";
         private const string PARABOLIC_ARC = "PARABOLIC_ARC";
-
         private const string POLYLINE_FORM = "POLYLINE_FORM";
         private const string UNSPECIFIED = "UNSPECIFIED";
 

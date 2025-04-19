@@ -75,7 +75,7 @@ namespace StgSharp.Modeling.Step
 
         internal static StepOrientedEdge CreateFromSyntaxList(
                                          StepModel binder,
-                                         ExpNode syntaxList )
+                                         ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepOrientedEdge orientedEdge = new StepOrientedEdge();

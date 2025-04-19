@@ -51,19 +51,19 @@ namespace StgSharp.Script.Express
         private const int TokenGenerated = 0;
         private const int TokenTypeNotMatch = -1;
 
-        private CompileStack<ExpNode, IExpElementSource> _cache;
-        private ExpNode _lastStatement;
+        private CompileStack<ExpSyntaxNode, IExpElementSource> _cache;
         private ExpSchema _context;
+        private ExpSyntaxNode _lastStatement;
         private IExpElementSource _local;
 
         public ExpSyntaxAnalyzer()
         {
-            _cache = new CompileStack<ExpNode, IExpElementSource>();
+            _cache = new CompileStack<ExpSyntaxNode, IExpElementSource>();
         }
 
         public ExpSyntaxAnalyzer( ExpSchema context, IExpElementSource local )
         {
-            _cache = new CompileStack<ExpNode, IExpElementSource>();
+            _cache = new CompileStack<ExpSyntaxNode, IExpElementSource>();
             ArgumentNullException.ThrowIfNull( context );
             if( context is not ExpSchema_Builtin )
             {
@@ -95,9 +95,9 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public ExpNode GetNextOperandCache()
+        public ExpSyntaxNode GetNextOperandCache()
         {
-            if( _cache.PopOperand( out Token t, out ExpNode? n ) )
+            if( _cache.PopOperand( out Token t, out ExpSyntaxNode? n ) )
             {
                 return n;
             } else

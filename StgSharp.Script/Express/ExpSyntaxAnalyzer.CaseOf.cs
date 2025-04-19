@@ -45,7 +45,7 @@ namespace StgSharp.Script.Express
         private bool AppendToken_CaseOf( Token t )
         {
             Token op;
-            ExpNode root;
+            ExpSyntaxNode root;
             switch( t.Value )
             {
                 case ExpKeyword.Case:
@@ -108,19 +108,20 @@ namespace StgSharp.Script.Express
                 Begin = t;
             }
 
-            public Dictionary<ExpNode, ExpNode> Cases { get; } = new Dictionary<ExpNode, ExpNode>();
+            public Dictionary<ExpSyntaxNode, ExpSyntaxNode> Cases { get; } = new Dictionary<ExpSyntaxNode, ExpSyntaxNode>(
+                );
 
-            public ExpNode CaseExpression { get; set; }
+            public ExpSyntaxNode CaseExpression { get; set; }
 
-            public ExpNode DefaultCase { get; set; }
+            public ExpSyntaxNode DefaultCase { get; set; }
 
-            public ExpNode CurrentCase { get; set; }
+            public ExpSyntaxNode CurrentCase { get; set; }
 
             public string CurrentState { get; set; }
 
             public Token Begin { get; init; }
 
-            public void CloseCurrentCase( ExpNode root )
+            public void CloseCurrentCase( ExpSyntaxNode root )
             {
                 Cases.Add( CurrentCase, root );
             }

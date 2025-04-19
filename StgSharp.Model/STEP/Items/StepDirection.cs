@@ -46,7 +46,7 @@ namespace StgSharp.Modeling.Step
 
         protected override int MinimumValueCount => 2;
 
-        internal static StepDirection CreateFromSyntaxList( ExpNode syntaxList )
+        internal static StepDirection CreateFromSyntaxList( ExpSyntaxNode syntaxList )
         {
             return ( StepDirection )AssignTo( new StepDirection(), syntaxList );
         }

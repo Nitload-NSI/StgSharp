@@ -112,7 +112,7 @@ namespace StgSharp.Script.Express
     public class ExpCaseNotFoundException : ArgumentOutOfRangeException
     {
 
-        public ExpCaseNotFoundException( ExpSwitchNode token, ExpNode label )
+        public ExpCaseNotFoundException( ExpSwitchNode token, ExpSyntaxNode label )
             : base(
             $"Attempt to read or write the label at ({token.Line},{token.Column}), that does not exist in SWITCH expression at ({token.Line},{token.Column})" ) { }
 

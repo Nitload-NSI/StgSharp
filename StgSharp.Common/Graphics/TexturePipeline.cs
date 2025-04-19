@@ -39,7 +39,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Graphics
 {
-    public class TexturePipeline : PipeLineConnectorArgs
+    public class TexturePipeline : IPipeLineConnectionPayload
     {
 
         private Image _value;
@@ -49,11 +49,19 @@ namespace StgSharp.Graphics
             _value = i;
         }
 
-        public new Image Value
+        public object? ValueDefault => null;
+
+        public object Value
         {
             get => _value;
-            set => _value = value ??
-                throw new ArgumentNullException( nameof( value ) );
+            set
+            {
+                ArgumentNullException.ThrowIfNull( value );
+                if( value is not Image image ) {
+                    throw new ArgumentException( "Value must be of type Image" );
+                }
+                _value = image;
+            }
         }
 
     }

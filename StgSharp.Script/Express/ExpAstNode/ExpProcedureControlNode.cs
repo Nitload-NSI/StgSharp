@@ -40,20 +40,20 @@ using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpProcedureControlNode : ExpNode
+    public class ExpProcedureControlNode : ExpSyntaxNode
     {
 
-        private ExpNode _additional;
+        private ExpSyntaxNode _additional;
 
         internal ExpProcedureControlNode( Token source ) : base( source ) { }
 
-        public override ExpNode Left => Empty;
+        public override ExpSyntaxNode Left => Empty;
 
-        public override ExpNode Right => _additional;
+        public override ExpSyntaxNode Right => _additional;
 
         public override IExpElementSource EqualityTypeConvert => ExpTypeSource.Void;
 
-        public static ExpProcedureControlNode Return( Token t, ExpNode valueToReturn )
+        public static ExpProcedureControlNode Return( Token t, ExpSyntaxNode valueToReturn )
         {
             if( t.Value != ExpKeyword.Return ) {
                 throw new InvalidCastException();

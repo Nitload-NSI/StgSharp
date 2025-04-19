@@ -37,30 +37,33 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpProcedureCallingNode : ExpNode
+    public class ExpProcedureCallingNode : ExpSyntaxNode
     {
 
-        private ExpNode _params;
+        private ExpSyntaxNode _params;
 
-        public ExpProcedureCallingNode( Token source, ExpProcedureSource caller, ExpNode param )
+        public ExpProcedureCallingNode(
+               Token source,
+               ExpProcedureSource caller,
+               ExpSyntaxNode param )
             : base( source )
         {
             _params = param;
             CalledProcedure = caller;
         }
 
-        public override ExpNode Left => Empty;
-
-        public override ExpNode Right => _params;
-
         public ExpProcedureSource CalledProcedure { get; init; }
+
+        public override ExpSyntaxNode Left => Empty;
+
+        public override ExpSyntaxNode Right => _params;
 
         public override IExpElementSource EqualityTypeConvert => ExpInstantiableElement.Void;
 
         public static ExpProcedureCallingNode CallProcedure(
                                               Token postion,
                                               ExpProcedureSource caller,
-                                              ExpNode input )
+                                              ExpSyntaxNode input )
         {
             ExpProcedureCallingNode node = new ExpProcedureCallingNode( postion, caller, input )
             {

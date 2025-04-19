@@ -93,12 +93,12 @@ namespace StgSharp.Modeling.Step
             return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode();
         }
 
-        internal static StepTriple AssignTo( StepTriple triple, ExpNode values )
+        internal static StepTriple AssignTo( StepTriple triple, ExpSyntaxNode values )
         {
-            ExpNodeNextEnumerator enumerator = values.AsEnumerator();
+            ExpNodeNextEnumerator enumerator = values.ToEnumerator();
             enumerator.AssertEnumeratorCount( 2 );
             triple.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            ExpNodeNextEnumerator pointValues = enumerator.Values[ 1 ].AsEnumerator();
+            ExpNodeNextEnumerator pointValues = enumerator.Values[ 1 ].ToEnumerator();
             pointValues.AssertEnumeratorCount( triple.MinimumValueCount, 3 );
             triple.X = ( pointValues.Values[ 0 ]as ExpRealNumberNode )!.Value;
             triple.Y = ( pointValues.Values[ 1 ]as ExpRealNumberNode )!.Value;

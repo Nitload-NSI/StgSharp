@@ -36,25 +36,25 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpElementInitializingNode : ExpNode
+    public class ExpElementInitializingNode : ExpSyntaxNode
     {
 
         private ExpMetaRefNode _type;
-        private ExpNode _init;
+        private ExpSyntaxNode _init;
 
         public ExpElementInitializingNode(
                Token source,
                ExpMetaRefNode type,
-               ExpNode initParameter )
+               ExpSyntaxNode initParameter )
             : base( source )
         {
             _type = type;
             _init = initParameter;
         }
 
-        public override ExpNode Left => _type;
+        public override ExpSyntaxNode Left => _type;
 
-        public override ExpNode Right => _init;
+        public override ExpSyntaxNode Right => _init;
 
         public override IExpElementSource EqualityTypeConvert => _type.SourceRef;
 

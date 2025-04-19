@@ -37,8 +37,7 @@ using System.Xml.Schema;
 
 namespace StgSharp.Script
 {
-    public sealed class AbstractSyntaxTree<TNode, TType>
-        where TNode: IASTNode<TNode, TType>
+    public sealed class AbstractSyntaxTree<TNode, TType> where TNode: ISyntaxNode<TNode, TType>
         where TType: ITypeSource<TType>
     {
 

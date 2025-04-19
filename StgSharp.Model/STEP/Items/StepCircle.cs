@@ -68,7 +68,9 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.Circle;
 
-        internal static StepCircle CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
+        internal static StepCircle CreateFromSyntaxList(
+                                   StepModel binder,
+                                   ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepCircle circle = new StepCircle();

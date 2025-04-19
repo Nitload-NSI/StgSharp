@@ -57,7 +57,7 @@ namespace StgSharp.Modeling.Step
 
         internal static StepAxis2Placement2D CreateFromSyntaxList(
                                              StepModel binder,
-                                             ExpNode syntaxList )
+                                             ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepAxis2Placement2D axis = new StepAxis2Placement2D();

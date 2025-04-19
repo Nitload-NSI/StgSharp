@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpSyntaxAnalyzer.PrefixReverseAnalysing.cs"
+//     file="StepEntityInstanceNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,57 +28,36 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
-
 namespace StgSharp.Modeling.Step
 {
-    public partial class StepExpSyntaxAnalyzer
+    public class StepEntityInstanceNode : ExpSyntaxNode
     {
 
-        private void ClosePrefixReverse( Token rightSeparator )
-        {
-            Token op;
-            ExpSyntaxNode root;
-            if( _cache.OperatorAheadOfDepth == 0 )
-            {
-                if( _cache.OperandAheadOfDepth == 1 )
-                {
-                    _cache.PopOperand( out _, out ExpSyntaxNode? statement );
-                    _cache.StatementsInDepth.Push( statement );
-                } else
-                {
-                    ExpInvalidSyntaxException.ThrowNoOperator( rightSeparator );
-                }
-            } else
-            {
-                while( _cache.TryPopOperator( out op ) ) {
-                    ConvertAndPushOneOperator( op );
-                }
-                _cache.PopOperand( out _, out root );
-                _cache.StatementsInDepth.Push( root );
-            }
+        private int id;
+        private StepModel _model;
 
-            root = _cache.PackAllStatements();
-            _cache.DecreaseDepth();
-            if( IsSeparatorMatch( _cache.PeekOperator(), rightSeparator ) )
-            {
-                _cache.PopOperator();
-                _cache.PushOperand( root );
-            } else
-            {
-                throw new ExpCompileException(
-                    rightSeparator, "Ending of block does not match its begging" );
-            }
+        public StepEntityInstanceNode( Token source, StepModel model ) : base( source ) { }
+
+        public override ExpSyntaxNode Left => Empty;
+
+        public override ExpSyntaxNode Right => Empty;
+
+        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException();
+
+        private void GetInstance()
+        {
+            _model 
+
         }
 
     }

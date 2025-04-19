@@ -30,13 +30,25 @@
 //-----------------------------------------------------------------------
 using StgSharp.Modeling.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
+
+using System;
 
 namespace StgSharp.Modeling.Step
 {
-    public abstract class StepTopologicalRepresentationItem : StepRepresentationItem
+    public abstract class StepTopologicalRepresentationItem : StepRepresentationItem, IStepEntity
     {
 
         protected StepTopologicalRepresentationItem( string name ) : base( name ) { }
+
+        public int Id { get; }
+
+        public static StepUninitializedEntity Create( string name, ExpSyntaxNode node )
+        {
+            return new StepUninitializedEntity( name,  );
+        }
+
+        public abstract void Init( StepModel model, ExpSyntaxNode param );
 
     }
 }

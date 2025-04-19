@@ -38,26 +38,29 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpMetaRefNode : ExpNode
+    public class ExpMetaRefNode : ExpSyntaxNode
     {
 
-        internal ExpMetaRefNode( Token source, ExpInstantiableElement element ) : base( source )
+        internal ExpMetaRefNode( Token source, ExpInstantiableElement element )
+            : base( source )
         {
             SourceRef = element;
         }
 
         public ExpInstantiableElement SourceRef { get; init; }
 
-        public override ExpNode Left => Empty;
+        public override ExpSyntaxNode Left => Empty;
 
-        public override ExpNode Right => Empty;
+        public override ExpSyntaxNode Right => Empty;
 
         public override IExpElementSource EqualityTypeConvert => ExpInstantiableElement.Void;
 
         public static ExpMetaRefNode RefEntity( Token position, ExpEntitySource entity )
         {
             if( position.Value != entity.Name ) {
-                throw new ExpCompileException( position, $"Meta data does not match, name of source to match is {entity.Name}, but token is {position.Value}" );
+                throw new ExpCompileException(
+                    position,
+                    $"Meta data does not match, name of source to match is {entity.Name}, but token is {position.Value}" );
             }
             ExpMetaRefNode node = new ExpMetaRefNode( position, entity )
             {
@@ -69,7 +72,9 @@ namespace StgSharp.Script.Express
         public static ExpMetaRefNode RefType( Token position, ExpTypeSource type )
         {
             if( position.Value != type.Name ) {
-                throw new ExpCompileException( position, $"Meta data does not match, name of source to match is {type.Name}, but token is {position.Value}" );
+                throw new ExpCompileException(
+                    position,
+                    $"Meta data does not match, name of source to match is {type.Name}, but token is {position.Value}" );
             }
             ExpMetaRefNode node = new ExpMetaRefNode( position, type )
             {

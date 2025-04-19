@@ -38,12 +38,12 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpInstanceMemberNode : ExpNode
+    public class ExpInstanceMemberNode : ExpSyntaxNode
     {
 
         private ExpElementInstance _instance;
         private ExpElementMemberNameNode _memberName;
-        private ExpNode _member;
+        private ExpSyntaxNode _member;
 
         public ExpInstanceMemberNode(
                Token source,
@@ -56,9 +56,9 @@ namespace StgSharp.Script.Express
             _instance.TryGetMember( memberName.CodeConvertTemplate, out _member );
         }
 
-        public override ExpNode Left => _instance;
+        public override ExpSyntaxNode Left => _instance;
 
-        public override ExpNode Right => _memberName;
+        public override ExpSyntaxNode Right => _memberName;
 
         public override IExpElementSource EqualityTypeConvert => _member.EqualityTypeConvert;
 

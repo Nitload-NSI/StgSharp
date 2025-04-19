@@ -36,17 +36,17 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpCollectionIndexNode : ExpNode
+    public class ExpCollectionIndexNode : ExpSyntaxNode
     {
 
         private ExpCollectionInstanceBase _collection;
 
-        private ExpNode _indexExpression;
+        private ExpSyntaxNode _indexExpression;
 
         private ExpCollectionIndexNode(
-                        Token source,
-                        ExpCollectionInstanceBase instance,
-                        ExpNode indexExpression )
+                Token source,
+                ExpCollectionInstanceBase instance,
+                ExpSyntaxNode indexExpression )
             : base( source )
         {
             _collection = instance;
@@ -54,23 +54,22 @@ namespace StgSharp.Script.Express
             CodeConvertTemplate = @"{0}[{1}]";
         }
 
-        public override ExpNode Left => _collection;
+        public override ExpSyntaxNode Left => _collection;
 
-        public override ExpNode Right => _indexExpression;
+        public override ExpSyntaxNode Right => _indexExpression;
 
         public override IExpElementSource EqualityTypeConvert => _collection.EqualityTypeConvert;
 
         public static ExpCollectionIndexNode Create(
-                                                     Token source,
-                                                     ExpCollectionInstanceBase instance,
-                                                     ExpNode indexExpression )
+                                             Token source,
+                                             ExpCollectionInstanceBase instance,
+                                             ExpSyntaxNode indexExpression )
         {
             if( !indexExpression.IsNumber ) {
                 throw new ExpInvalidTypeException(
                     "Number", indexExpression.EqualityTypeConvert.Name );
             }
-            return new ExpCollectionIndexNode(
-                source, instance, indexExpression );
+            return new ExpCollectionIndexNode( source, instance, indexExpression );
         }
 
     }

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IASTNode.cs"
+//     file="PipelineScheduler.NodeCraeater.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,42 +28,33 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Collections;
-using StgSharp.Script.Express;
-
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 
-namespace StgSharp.Script
+namespace StgSharp.PipeLine
 {
-    public interface IASTNode<TNode, TType> where TNode: IASTNode<TNode, TType>
-        where TType: ITypeSource<TType>
+    public partial class PipelineScheduler
     {
 
-        long NodeFlag { get; }
-
-        string CodeConvertTemplate { get; }
-
-        TNode Previous { get; set; }
-
-        TNode Next { get; set; }
-
-        TNode Left { get; }
-
-        TNode Right { get; }
-
-        static abstract TNode Empty { get; }
-
-        Token Source { get; }
-
-        TType EqualityTypeConvert { get; }
-
-        void AppendNode( TNode nextToken );
-
-        void PrependNode( TNode previusNode );
+        public PipelineNode CreateBlueprintNode(
+                            string name,
+                            PipelineNodeOperation operation,
+                            string[] inputPort,
+                            string[] outputPort,
+                            bool isNative )
+        {
+            PipelineNode node = new PipelineNode( operation, name, isNative, inputPort,
+                                                  outputPort );
+            if( isNative )
+            {
+                mainThreadNodeList.Add( node );
+            } else
+            {
+                globalNodeList.Add( node );
+            }
+            return node;
+        }
 
     }
 }

@@ -65,7 +65,7 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpNode MakeReference( params object[] options )
+        public override ExpSyntaxNode MakeReference( params object[] options )
         {
             if( options.Length == 0 || options[ 0 ] is not string str ) {
                 return null!;
@@ -84,14 +84,14 @@ namespace StgSharp.Script.Express
             return _constants.TryGetValue( name, out instance );
         }
 
-        public override bool TryGetMember( string name, out ExpNode memberNode )
+        public override bool TryGetMember( string name, out ExpSyntaxNode memberNode )
         {
             if( _constants.TryGetValue( name, out ExpElementInstance? node ) )
             {
                 memberNode = node;
                 return true;
             }
-            memberNode = ExpNode.Empty;
+            memberNode = ExpSyntaxNode.Empty;
             return false;
         }
 

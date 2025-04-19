@@ -40,15 +40,15 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpBinaryOperatorNode : ExpNode
+    public class ExpBinaryOperatorNode : ExpSyntaxNode
     {
 
         private ExpInstantiableElement _returnType;
 
-        private ExpNode _left;
-        private ExpNode _right;
+        private ExpSyntaxNode _left;
+        private ExpSyntaxNode _right;
 
-        private ExpBinaryOperatorNode( Token source, ExpNode left, ExpNode right )
+        private ExpBinaryOperatorNode( Token source, ExpSyntaxNode left, ExpSyntaxNode right )
             : base( source )
         {
             _left = left;
@@ -57,11 +57,14 @@ namespace StgSharp.Script.Express
 
         public override ExpInstantiableElement EqualityTypeConvert => _returnType;
 
-        public override ExpNode Left => _left;
+        public override ExpSyntaxNode Left => _left;
 
-        public override ExpNode Right => _right;
+        public override ExpSyntaxNode Right => _right;
 
-        public static ExpBinaryOperatorNode Add( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode Add(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
@@ -77,7 +80,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode Assign( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode Assign(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
@@ -93,8 +99,8 @@ namespace StgSharp.Script.Express
 
         public static ExpBinaryOperatorNode CompareInstanceEqual(
                                             Token source,
-                                            ExpNode left,
-                                            ExpNode right )
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             return new ExpBinaryOperatorNode( source, left, right )
             {
@@ -106,8 +112,8 @@ namespace StgSharp.Script.Express
 
         public static ExpBinaryOperatorNode CompareInstanceNotEqual(
                                             Token nsource,
-                                            ExpNode left,
-                                            ExpNode right )
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             return new ExpBinaryOperatorNode( nsource, left, right )
             {
@@ -119,8 +125,8 @@ namespace StgSharp.Script.Express
 
         public static ExpBinaryOperatorNode ConvertElement(
                                             Token source,
-                                            ExpNode left,
-                                            ExpNode right )
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( right is not ExpMetaRefNode metaref ) {
                 throw new ExpInvalidTypeException(
@@ -138,7 +144,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode Div( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode Div(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
@@ -154,7 +163,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode EqualTo( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode EqualTo(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
@@ -168,7 +180,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode GreaterThan( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode GreaterThan(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
@@ -181,7 +196,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode LessThan( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode LessThan(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
@@ -194,7 +212,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode Mul( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode Mul(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
@@ -210,7 +231,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode NotEqualTo( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode NotEqualTo(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
@@ -224,7 +248,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode SmallerThan( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode SmallerThan(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
@@ -237,7 +264,10 @@ namespace StgSharp.Script.Express
             };
         }
 
-        public static ExpBinaryOperatorNode Sub( Token source, ExpNode left, ExpNode right )
+        public static ExpBinaryOperatorNode Sub(
+                                            Token source,
+                                            ExpSyntaxNode left,
+                                            ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
                 throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );

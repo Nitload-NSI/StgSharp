@@ -45,11 +45,11 @@ namespace StgSharp.Script.Express
 
         string Name { get; }
 
-        public void AddMember( string name, ExpNode memberNode );
+        public void AddMember( string name, ExpSyntaxNode memberNode );
 
         public void Analyse();
 
-        public bool TryGetMember( string name, out ExpNode memberNode );
+        public bool TryGetMember( string name, out ExpSyntaxNode memberNode );
 
     }
 
@@ -70,14 +70,14 @@ namespace StgSharp.Script.Express
 
         public abstract string Name { get; }
 
-        public void AddMember( string name, ExpNode memberNode )
+        public void AddMember( string name, ExpSyntaxNode memberNode )
         {
             throw new NotImplementedException();
         }
 
         public abstract void Analyse();
 
-        public abstract ExpNode CreateInstanceNode( Token t );
+        public abstract ExpSyntaxNode CreateInstanceNode( Token t );
 
         public bool IsConvertable( IExpElementSource targetType )
         {
@@ -92,7 +92,7 @@ namespace StgSharp.Script.Express
             return element == null || element == ExpVoidElement.Only;
         }
 
-        public abstract bool TryGetMember( string name, out ExpNode memberNode );
+        public abstract bool TryGetMember( string name, out ExpSyntaxNode memberNode );
 
         private sealed class ExpVoidElement : ExpInstantiableElement
         {
@@ -112,14 +112,14 @@ namespace StgSharp.Script.Express
                 return;
             }
 
-            public override ExpNode CreateInstanceNode( Token t )
+            public override ExpSyntaxNode CreateInstanceNode( Token t )
             {
-                return ExpNode.Empty;
+                return ExpSyntaxNode.Empty;
             }
 
-            public override bool TryGetMember( string name, out ExpNode memberNode )
+            public override bool TryGetMember( string name, out ExpSyntaxNode memberNode )
             {
-                memberNode = ExpNode.Empty;
+                memberNode = ExpSyntaxNode.Empty;
                 return false;
             }
 
@@ -136,7 +136,7 @@ namespace StgSharp.Script.Express
 
         public abstract string Name { get; }
 
-        public void AddMember( string name, ExpNode memberNode )
+        public void AddMember( string name, ExpSyntaxNode memberNode )
         {
             throw new NotImplementedException();
         }
@@ -148,9 +148,9 @@ namespace StgSharp.Script.Express
             return false;
         }
 
-        public abstract ExpNode MakeReference( params object[] options );
+        public abstract ExpSyntaxNode MakeReference( params object[] options );
 
-        public abstract bool TryGetMember( string name, out ExpNode memberNode );
+        public abstract bool TryGetMember( string name, out ExpSyntaxNode memberNode );
 
     }
 }

@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpInstanceReferenceNode : ExpNode
+    public class ExpInstanceReferenceNode : ExpSyntaxNode
     {
 
         internal ExpInstanceReferenceNode( Token source, ExpElementInstance instance )
@@ -58,9 +58,9 @@ namespace StgSharp.Script.Express
 
         public ExpElementInstance OriginObject { get ; private set; }
 
-        public override ExpNode Left => Empty;
+        public override ExpSyntaxNode Left => Empty;
 
-        public override ExpNode Right => Empty;
+        public override ExpSyntaxNode Right => Empty;
 
         public override IExpElementSource EqualityTypeConvert => OriginObject.EqualityTypeConvert;
 

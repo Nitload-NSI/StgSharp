@@ -37,7 +37,7 @@ namespace StgSharp.Script.Express
     public class ExpEntitySource : ExpInstantiableElement
     {
 
-        private AbstractSyntaxTree<ExpNode, IExpElementSource> _expressionTree;
+        private AbstractSyntaxTree<ExpSyntaxNode, IExpElementSource> _expressionTree;
         private ScriptSourceTransmitter _source;
         private string _name;
 
@@ -58,12 +58,12 @@ namespace StgSharp.Script.Express
             throw new NotImplementedException();
         }
 
-        public override ExpNode CreateInstanceNode( Token t )
+        public override ExpSyntaxNode CreateInstanceNode( Token t )
         {
             throw new NotImplementedException();
         }
 
-        public override bool TryGetMember( string name, out ExpNode memberNode )
+        public override bool TryGetMember( string name, out ExpSyntaxNode memberNode )
         {
             throw new NotImplementedException();
         }

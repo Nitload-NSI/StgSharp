@@ -35,25 +35,26 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpSwitchNode : ExpNode
+    public class ExpSwitchNode : ExpSyntaxNode
     {
 
-        private ExpNode _default;
-        private ExpNode _target;
+        private ExpSyntaxNode _default;
+        private ExpSyntaxNode _target;
 
-        private FrozenDictionary<ExpNode, ExpNode> _cases;
+        private FrozenDictionary<ExpSyntaxNode, ExpSyntaxNode> _cases;
 
         public ExpSwitchNode(
                Token source,
-               ExpNode target,
-               ExpNode defaultCase,
-               params (ExpNode label, ExpNode op)[] cases )
+               ExpSyntaxNode target,
+               ExpSyntaxNode defaultCase,
+               params (ExpSyntaxNode label, ExpSyntaxNode op)[] cases )
             : base( source )
         {
             _target = target;
             _default = defaultCase;
-            Dictionary<ExpNode, ExpNode> casesDic = new Dictionary<ExpNode, ExpNode>();
-            foreach( (ExpNode label, ExpNode op ) item in cases )
+            Dictionary<ExpSyntaxNode, ExpSyntaxNode> casesDic = new Dictionary<ExpSyntaxNode, ExpSyntaxNode>(
+                );
+            foreach( (ExpSyntaxNode label, ExpSyntaxNode op ) item in cases )
             {
                 if( item.op == null )
                 {
@@ -84,9 +85,9 @@ namespace StgSharp.Script.Express
 
         public ExpSwitchNode(
                Token source,
-               ExpNode target,
-               ExpNode defaultCase,
-               IDictionary<ExpNode, ExpNode> cases )
+               ExpSyntaxNode target,
+               ExpSyntaxNode defaultCase,
+               IDictionary<ExpSyntaxNode, ExpSyntaxNode> cases )
             : base( source )
         {
             _target = target;
@@ -109,24 +110,24 @@ namespace StgSharp.Script.Express
             CodeConvertTemplate = codeFormatBuilder.ToString();
         }
 
-        public ExpNode this[ ExpNode index ]
+        public ExpSyntaxNode this[ ExpSyntaxNode index ]
         {
             get
             {
-                if( _cases.TryGetValue( index, out ExpNode? ret ) ) {
+                if( _cases.TryGetValue( index, out ExpSyntaxNode? ret ) ) {
                     return ret;
                 }
                 return _default;
             }
         }
 
-        public override ExpNode Left => Empty;
+        public override ExpSyntaxNode Left => Empty;
 
-        public override ExpNode Right => Empty;
+        public override ExpSyntaxNode Right => Empty;
 
         public override IExpElementSource EqualityTypeConvert => null!;
 
-        public bool ContainsCase( ExpNode token )
+        public bool ContainsCase( ExpSyntaxNode token )
         {
             return _cases.ContainsKey( token );
         }

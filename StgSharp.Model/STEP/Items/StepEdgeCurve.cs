@@ -73,7 +73,9 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.EdgeCurve;
 
-        internal static StepEdgeCurve CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
+        internal static StepEdgeCurve CreateFromSyntaxList(
+                                      StepModel binder,
+                                      ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepEdgeCurve edgeCurve = new StepEdgeCurve();

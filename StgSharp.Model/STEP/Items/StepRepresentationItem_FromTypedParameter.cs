@@ -44,7 +44,7 @@ namespace StgSharp.Modeling.Step
 
         internal static StepRepresentationItem FromTypedParameter(
                                                StepModel binder,
-                                               ExpNode itemSyntax )
+                                               ExpSyntaxNode itemSyntax )
         {
             StepRepresentationItem item = null!;
             if( itemSyntax is ExpElementInitializingNode initNode )

@@ -87,9 +87,9 @@ namespace StgSharp.Script.Express
             return type == null || type == ExpVoidType.Only;
         }
 
-        public override bool TryGetMember( string name, out ExpNode memberNode )
+        public override bool TryGetMember( string name, out ExpSyntaxNode memberNode )
         {
-            memberNode = ExpNode.Empty;
+            memberNode = ExpSyntaxNode.Empty;
             return false;
         }
 

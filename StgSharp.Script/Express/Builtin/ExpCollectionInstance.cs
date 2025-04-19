@@ -34,7 +34,7 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public abstract class ExpCollectionInstanceBase : ExpNode
+    public abstract class ExpCollectionInstanceBase : ExpSyntaxNode
     {
 
         protected internal (int min, int max) _range;
@@ -42,19 +42,16 @@ namespace StgSharp.Script.Express
 
         protected ExpCollectionInstanceBase( Token source ) : base( source ) { }
 
-        public abstract ExpCollectionBase CollectionValue
-        {
-            get;
-        }
+        public abstract ExpCollectionBase CollectionValue { get; }
 
         public ExpElementType MemberType
         {
             get => _memberType;
         }
 
-        public override ExpNode Left => null!;
+        public override ExpSyntaxNode Left => null!;
 
-        public override ExpNode Right => null!;
+        public override ExpSyntaxNode Right => null!;
 
         public int MinCapacity => _range.min;
 

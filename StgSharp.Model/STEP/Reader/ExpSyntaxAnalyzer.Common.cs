@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepExpSyntaxAnalyzer.Common.cs"
+//     file="ExpSyntaxAnalyzer.Common.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -65,7 +65,7 @@ namespace StgSharp.Modeling.Step
             if( t.Flag != TokenFlag.Index_Left ) {
                 return false;
             }
-            if( _cache.TryPeekOperand( out bool isNode, out _, out ExpNode? node ) )
+            if( _cache.TryPeekOperand( out bool isNode, out _, out ExpSyntaxNode? node ) )
             {
                 if( node.EqualityTypeConvert is not ExpCollectionBase ) {
                     ExpInvalidSyntaxException.ThrowNonCollectionIndex( t );
@@ -86,8 +86,8 @@ namespace StgSharp.Modeling.Step
             ClosePrefixReverse( t );
 
             //make index node
-            _cache.PopOperand( out _, out ExpNode? expNode );
-            if( !_cache.PopOperand( out Token colleToken, out ExpNode? colleNode ) ) { }
+            _cache.PopOperand( out _, out ExpSyntaxNode? expNode );
+            if( !_cache.PopOperand( out Token colleToken, out ExpSyntaxNode? colleNode ) ) { }
             _cache.PushOperand(
                 ExpCollectionIndexNode.Create(
                     t, ( colleNode as ExpCollectionInstanceBase )!, expNode ) );
@@ -129,7 +129,7 @@ namespace StgSharp.Modeling.Step
             while( _cache.OperatorAheadOfDepth > 0 )
             {
                 _cache.TryPopOperator( out Token op );
-                ExpNode node = ConvertAndPushOneOperator( op );
+                ExpSyntaxNode node = ConvertAndPushOneOperator( op );
             }
             switch( _cache.OperandAheadOfDepth )
             {
@@ -137,10 +137,10 @@ namespace StgSharp.Modeling.Step
                     if( t.Value == ";" ) {
                         return true;
                     }
-                    _cache.StatementsInDepth.Push( ExpNode.Empty );
+                    _cache.StatementsInDepth.Push( ExpSyntaxNode.Empty );
                     goto case 1;
                 case 1:
-                    _cache.PopOperand( out _, out ExpNode? statement );
+                    _cache.PopOperand( out _, out ExpSyntaxNode? statement );
                     _cache.StatementsInDepth.Push( statement );
                     return true;
                 default:
@@ -192,7 +192,7 @@ namespace StgSharp.Modeling.Step
                 if( cmp >= 0 )
                 {
                     _cache.PopOperator();
-                    ExpNode node = ConvertAndPushOneOperator( tmp );
+                    ExpSyntaxNode node = ConvertAndPushOneOperator( tmp );
                     goto processPrecedence;
                 }
             }
@@ -252,14 +252,14 @@ namespace StgSharp.Modeling.Step
         private bool TryParseInstance( Token t )
         {
             if( _local.TryGetMember( t.Value,
-                                     out ExpNode? node ) && node is ExpElementInstance instance )
+                                     out ExpSyntaxNode? node ) && node is ExpElementInstance instance )
             {
                 _cache.PushOperand( ExpInstanceReferenceNode.MakeReferenceFrom( t, instance ) );
                 return true;
             } else if( _cache.IsLastAddedOperator )
             {
                 if( _cache.PeekOperand( out _,
-                                        out ExpNode? typenode ) && typenode is ExpMetaRefNode typeRef )
+                                        out ExpSyntaxNode? typenode ) && typenode is ExpMetaRefNode typeRef )
                 {
                     _cache.PopOperand( out _, out _ );
                     _local.AddMember( t.Value, typeRef.SourceRef.CreateInstanceNode( t ) );

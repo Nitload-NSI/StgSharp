@@ -53,7 +53,7 @@ namespace StgSharp.Script.Express
 
     }
 
-    public abstract class ExpElementInstance : ExpNode
+    public abstract class ExpElementInstance : ExpSyntaxNode
     {
 
         protected ExpElementInstance( Token source )
@@ -66,9 +66,9 @@ namespace StgSharp.Script.Express
 
         public ExpElementType ElementType { get; }
 
-        public override ExpNode Left => Empty;
+        public override ExpSyntaxNode Left => Empty;
 
-        public override ExpNode Right => Empty;
+        public override ExpSyntaxNode Right => Empty;
 
         public abstract string TypeName { get; }
 
@@ -124,7 +124,7 @@ namespace StgSharp.Script.Express
             return false;
         }
 
-        public bool TryGetMember( string name, out ExpNode node )
+        public bool TryGetMember( string name, out ExpSyntaxNode node )
         {
             return EqualityTypeConvert.TryGetMember( name, out node );
         }

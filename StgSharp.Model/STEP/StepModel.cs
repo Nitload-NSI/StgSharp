@@ -29,6 +29,8 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.PipeLine;
+using StgSharp.Script.Express;
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -39,30 +41,31 @@ namespace StgSharp.Modeling.Step
     public class StepModel
     {
 
-        private BlueprintScheduler _builder;
-        private Dictionary<int, StepUncertainEntity> _nodes 
-            = new Dictionary<int, StepUncertainEntity>();
+        private Dictionary<int, StepUninitializedEntity> _nodes 
+            = new Dictionary<int, StepUninitializedEntity>();
+
+        private PipelineScheduler _builder;
         private StepInfo _header;
 
         internal StepModel( StepInfo header )
         {
             _header = header;
-            _builder = new BlueprintScheduler();
+            _builder = new PipelineScheduler();
         }
 
-        public StepUncertainEntity this[ int id ]
+        public StepUninitializedEntity this[ int id ]
         {
             get
             {
-                if( _nodes.TryGetValue( id, out StepUncertainEntity? node ) ) {
+                if( _nodes.TryGetValue( id, out StepUninitializedEntity? node ) ) {
                     return node;
                 }
-                node = StepUncertainEntity.Create( id );
+                node = StepUninitializedEntity.Create( id );
                 return node;
             }
         }
 
-        public void AddUncertainEntity( int id, StepUncertainEntity entity )
+        public void AddUncertainEntity( int id, StepUninitializedEntity entity )
         {
             if( _nodes.ContainsKey( id ) ) {
                 throw new InvalidOperationException(
@@ -71,9 +74,11 @@ namespace StgSharp.Modeling.Step
             _nodes.Add( id, entity );
         }
 
+        public void BindValue( ExpSyntaxNode node, Action<T> action ) { }
+
         public void OrganizeNode()
         {
-            foreach( KeyValuePair<int, StepUncertainEntity> node in _nodes ) { }
+            foreach( KeyValuePair<int, StepUninitializedEntity> node in _nodes ) { }
         }
 
     }

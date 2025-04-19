@@ -52,7 +52,7 @@ namespace StgSharp.PipeLine
             MainExecution = startup;
             this.cycleCount = ( cycleCount > 1 ) ?
                     cycleCount : throw new ArgumentException(
-                        $"{$"The {typeof(CrossFrameOperation).Name} crosses only one cycle, "}{$"please use a {typeof(PipeLineNode).Name} instead."}" );
+                        $"{$"The {typeof(CrossFrameOperation).Name} crosses only one cycle, "}{$"please use a {typeof(PipelineNode).Name} instead."}" );
             this.cycleCount = cycleCount;
             currentCount = cycleCount;
         }
@@ -63,28 +63,30 @@ namespace StgSharp.PipeLine
             private protected set => _mainExecution = value;
         }
 
-        public BlueprintNodeOperation Operation
-        {
-            get => ExecuteMain;
-        }
-
         public IEnumerable<string> InputInterfacesName => _inputName;
 
         public IEnumerable<string> OutputInterfacesName => _outputName;
 
-        public void ExecuteMain(
-                            in Dictionary<string, PipelineConnector> input,
-                            in Dictionary<string, PipelineConnector> output )
+        public PipelineNodeOperation Operation
         {
-            if( currentCount < cycleCount ) {
+            get => NodeMain;
+        }
+
+        public void NodeMain(
+                    in Dictionary<string, PipelineNodeImport> input,
+                    in Dictionary<string, PipelineNodeExport> output )
+        {
+            if( currentCount < cycleCount )
+            {
                 Interlocked.Increment( ref currentCount );
-            } else {
+            } else
+            {
                 Interlocked.Exchange( ref currentCount, 0 );
                 Task.Run( MainExecution );
             }
 
             //Console.WriteLine(currentCount);
-            PipelineConnector.SkipAll( output );
+            PipelineNodeExport.SkipAll( output );
         }
 
     }

@@ -51,9 +51,9 @@ namespace StgSharp.Modeling.Step
             return leftPrecedence - rightPrecedence;
         }
 
-        public bool TryGenerateUnaryNode( Token t, out ExpNode node )
+        public bool TryGenerateUnaryNode( Token t, out ExpSyntaxNode node )
         {
-            ExpNode operand = GetNextOperandCache();
+            ExpSyntaxNode operand = GetNextOperandCache();
             switch( t.Value )
             {
                 case ExpKeyword.UnaryPlus:
@@ -66,7 +66,7 @@ namespace StgSharp.Modeling.Step
                     node = ExpUnaryOperatorNode.UnaryNot( t, operand );
                     return true;
                 default:
-                    node = ExpNode.Empty;
+                    node = ExpSyntaxNode.Empty;
                     return false;
             }
         }
@@ -75,12 +75,12 @@ namespace StgSharp.Modeling.Step
         ///   WARNING: This method cannot process INDEXOF, FUNCTION CALLING, LOOP and any ENDING
         ///   SYMBOLS.
         /// </summary>
-        private ExpNode ConvertAndPushOneOperator( Token op )
+        private ExpSyntaxNode ConvertAndPushOneOperator( Token op )
         {
             switch( op.Flag )
             {
                 case TokenFlag.Symbol_Unary:
-                    TryGenerateUnaryNode( op, out ExpNode? node );
+                    TryGenerateUnaryNode( op, out ExpSyntaxNode? node );
                     _cache.PushOperand( node );
                     return node;
                 case TokenFlag.Symbol_Binary:
@@ -90,7 +90,7 @@ namespace StgSharp.Modeling.Step
                 case TokenFlag.Member:
                     if( _context.TryGetFunction( op.Value, out ExpFunctionSource? f ) )
                     {
-                        if( !_cache.PopOperand( out Token t, out ExpNode? p ) )
+                        if( !_cache.PopOperand( out Token t, out ExpSyntaxNode? p ) )
                         {
                             node = ExpFunctionCallingNode.CallFunction( op, f, p );
                             return node;
@@ -102,7 +102,7 @@ namespace StgSharp.Modeling.Step
                         }
                     } else if( _context.TryGetProcedure( op.Value, out ExpProcedureSource? p ) )
                     {
-                        if( !_cache.PopOperand( out Token t, out ExpNode? param ) )
+                        if( !_cache.PopOperand( out Token t, out ExpSyntaxNode? param ) )
                         {
                             node = ExpProcedureCallingNode.CallProcedure( op, p, param );
                             return node;
@@ -114,7 +114,7 @@ namespace StgSharp.Modeling.Step
                         }
                     } else if( ExpSchema.BuiltinSchema.TryGetFunction( op.Value, out f ) )
                     {
-                        if( !_cache.PopOperand( out Token t, out ExpNode? param ) )
+                        if( !_cache.PopOperand( out Token t, out ExpSyntaxNode? param ) )
                         {
                             node = ExpFunctionCallingNode.CallFunction( op, f, param );
                             return node;
@@ -135,10 +135,10 @@ namespace StgSharp.Modeling.Step
             }
         }
 
-        private bool TryGenerateBinaryNode( Token t, out ExpNode node )
+        private bool TryGenerateBinaryNode( Token t, out ExpSyntaxNode node )
         {
-            ExpNode right = GetNextOperandCache();
-            ExpNode left = GetNextOperandCache();
+            ExpSyntaxNode right = GetNextOperandCache();
+            ExpSyntaxNode left = GetNextOperandCache();
             switch( t.Value )
             {
                 case ExpKeyword.Add:
@@ -175,7 +175,7 @@ namespace StgSharp.Modeling.Step
                     node = ExpBinaryOperatorNode.CompareInstanceNotEqual( t, left, right );
                     return true;
                 default:
-                    node = ExpNode.Empty;
+                    node = ExpSyntaxNode.Empty;
                     return false;
             }
         }

@@ -35,27 +35,22 @@ using System.Text;
 
 namespace StgSharp.PipeLine
 {
-    public delegate void BlueprintNodeOperation(
-                                 in Dictionary<string, PipelineConnector> input,
-                                 in Dictionary<string, PipelineConnector> output );
+    public delegate void PipelineNodeOperation(
+                         in Dictionary<string, PipelineNodeImport> input,
+                         in Dictionary<string, PipelineNodeExport> output );
 
     public interface IConvertableToBlueprintNode
     {
 
-        BlueprintNodeOperation Operation
-        {
-            get;
-        }
+        PipelineNodeOperation Operation { get; }
 
-        public IEnumerable<string> InputInterfacesName
-        {
-            get;
-        }
+        public IEnumerable<string> InputInterfacesName { get; }
 
-        public IEnumerable<string> OutputInterfacesName
-        {
-            get;
-        }
+        public IEnumerable<string> OutputInterfacesName { get; }
+
+        void NodeMain(
+             in Dictionary<string, PipelineNodeImport> input,
+             in Dictionary<string, PipelineNodeExport> output );
 
     }
 
@@ -64,23 +59,30 @@ namespace StgSharp.PipeLine
 
         private string[] _input;
         private string[] _output;
-        private BlueprintNodeOperation _execution;
+        private PipelineNodeOperation _execution;
 
         public DefaultConvertableToBlueprintNode(
-                       BlueprintNodeOperation execution,
-                       string[] input,
-                       string[] output )
+               PipelineNodeOperation execution,
+               string[] input,
+               string[] output )
         {
             _input = input;
             _output = output;
             _execution = execution;
         }
 
-        public BlueprintNodeOperation Operation => _execution;
+        public PipelineNodeOperation Operation => _execution;
 
         public IEnumerable<string> InputInterfacesName => _input;
 
         public IEnumerable<string> OutputInterfacesName => _output;
+
+        public void NodeMain(
+                    in Dictionary<string, PipelineNodeImport> input,
+                    in Dictionary<string, PipelineNodeExport> output )
+        {
+            _execution.Invoke( input, output );
+        }
 
     }
 }

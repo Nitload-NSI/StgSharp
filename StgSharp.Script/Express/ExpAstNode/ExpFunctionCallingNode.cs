@@ -36,31 +36,33 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpFunctionCallingNode : ExpNode
+    public class ExpFunctionCallingNode : ExpSyntaxNode
     {
 
         private ExpFunctionSource _function;
 
-        private ExpNode _parameter;
+        private ExpSyntaxNode _parameter;
 
         private ExpFunctionCallingNode(
                 Token source,
                 ExpFunctionSource function,
-                ExpNode firstParameter )
+                ExpSyntaxNode firstParameter )
             : base( source )
         {
             _function = function;
             _parameter = firstParameter;
         }
 
+        public ExpFunctionSource FunctionCaller => _function;
+
         public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
             );
 
-        public override ExpNode Left => Empty;
+        public override ExpSyntaxNode Left => Empty;
 
-        public override ExpNode Right => _parameter;
+        public override ExpSyntaxNode Right => _parameter;
 
-        public void AppendParameter( ExpNode parameter )
+        public void AppendParameter( ExpSyntaxNode parameter )
         {
             _parameter.AppendNode( parameter );
         }
@@ -68,7 +70,7 @@ namespace StgSharp.Script.Express
         public static ExpFunctionCallingNode CallFunction(
                                              Token source,
                                              ExpFunctionSource function,
-                                             ExpNode param )
+                                             ExpSyntaxNode param )
         {
             return new ExpFunctionCallingNode( source, function, param );
         }

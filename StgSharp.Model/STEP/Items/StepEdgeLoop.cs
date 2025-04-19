@@ -53,11 +53,13 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.EdgeLoop;
 
-        internal static StepEdgeLoop CreateFromSyntaxList( StepModel binder, ExpNode syntaxList )
+        internal static StepEdgeLoop CreateFromSyntaxList(
+                                     StepModel binder,
+                                     ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 2 );
-            ExpNodeNextEnumerator edgeSyntaxList = enumerator.Values[ 1 ].AsEnumerator();
+            ExpNodeNextEnumerator edgeSyntaxList = enumerator.Values[ 1 ].ToEnumerator();
             StepEdgeLoop edgeLoop = new StepEdgeLoop(
                 string.Empty, new StepOrientedEdge[edgeSyntaxList.Values.Count] );
             edgeLoop.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;

@@ -36,7 +36,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public class ExpElementMemberNameNode : ExpNode
+    public class ExpElementMemberNameNode : ExpSyntaxNode
     {
 
         internal ExpElementMemberNameNode( Token source )
@@ -46,9 +46,9 @@ namespace StgSharp.Script.Express
             CodeConvertTemplate = source.Value;
         }
 
-        public override ExpNode Left => Empty;
+        public override ExpSyntaxNode Left => Empty;
 
-        public override ExpNode Right => Empty;
+        public override ExpSyntaxNode Right => Empty;
 
         public override IExpElementSource EqualityTypeConvert
         {

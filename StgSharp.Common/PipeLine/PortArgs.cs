@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Connector.cs"
+//     file="PortArgs.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -43,60 +43,58 @@ namespace StgSharp.PipeLine
     public class PipelineConnector
     {
 
-        private protected PipeLineNode after;
-        private protected PipeLineNode former;
-        private protected PipeLineConnectorArgs args;
+        private protected IPipeLineConnectionPayload args;
+        private protected PipelineNodeExport input;
+        private protected PipelineNodeImport output;
         private protected SemaphoreSlim formerCompleteSemaphore;
 
-        public PipelineConnector( PipeLineNode former, PipeLineNode after )
+        public PipelineConnector( PipelineNodeExport former, PipelineNodeImport after )
         {
-            this.former = former;
-            this.after = after;
-            formerCompleteSemaphore = new SemaphoreSlim(
-                initialCount: 0, maxCount: 1 );
+            this.input = former;
+            this.output = after;
+            formerCompleteSemaphore = new SemaphoreSlim( initialCount: 0, maxCount: 1 );
         }
 
-        public PipeLineNode After => after;
-
-        public PipeLineNode Former => former;
-
-        public PipeLineConnectorArgs Args
+        public IPipeLineConnectionPayload Args
         {
             get => args;
             set => args = value;
         }
 
-        public int Level => former.Level;
+        public PipelineNodeExport Input => input;
 
-        public static void SkipAll(
-                                   Dictionary<string, PipelineConnector> ports )
+        public PipelineNodeImport Output => output;
+
+        public static void SkipAll( Dictionary<string, PipelineConnector> ports )
         {
             if( ports == null ) {
                 return;
             }
-            foreach( KeyValuePair<string, PipelineConnector> item in ports ) {
+            foreach( KeyValuePair<string, PipelineConnector> item in ports )
+            {
                 if( item.Value != null ) {
                     item.Value.CompleteAndSkip();
                 }
             }
         }
 
-        public static void WaitAll(
-                                   Dictionary<string, PipelineConnector> ports )
+        public static void WaitAll( Dictionary<string, PipelineConnector> ports )
         {
             if( ports == null ) {
                 return;
             }
-            foreach( KeyValuePair<string, PipelineConnector> item in ports ) {
+            foreach( KeyValuePair<string, PipelineConnector> item in ports )
+            {
                 if( item.Value != null ) {
                     item.Value.WaitForStart();
                 }
             }
         }
 
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public virtual void WaitForStart()
         {
-            //Console.WriteLine($"Waiting   \t{former.ContextName}\t->\t{after.ContextName}");
+            //Console.WriteLine($"Waiting   \t{input.ContextName}\t->\t{output.ContextName}");
             formerCompleteSemaphore.Wait();
         }
 
@@ -110,12 +108,12 @@ namespace StgSharp.PipeLine
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void CompleteAndSkip()
         {
-            //Console.WriteLine($"Complete\t{former.Name}\t->\t{after.Name}");
+            //Console.WriteLine($"Complete\t{input.Name}\t->\t{output.Name}");
             formerCompleteSemaphore.Release();
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void CompleteAndWriteData( PipeLineConnectorArgs args )
+        public void CompleteAndWriteData( IPipeLineConnectionPayload args )
         {
             this.args = args;
             CompleteAndSkip();
@@ -124,45 +122,5 @@ namespace StgSharp.PipeLine
         #endregion
     }
 
-    public abstract class PipeLineConnectorArgs
-    {
-
-        public object? Value
-        {
-            get;
-            set;
-        }
-
-        public object? ValueDefault
-        {
-            get;
-        }
-
-    }
-
-    public sealed class SealedBlueprintPiipeline : PipelineConnector
-    {
-
-        internal SealedBlueprintPiipeline(
-                         PipeLineNode former,
-                         PipeLineNode after )
-            : base( former, after ) { }
-
-        public static SealedBlueprintPiipeline SealInput(
-                                                       PipeLineNode node,
-                                                       string portName )
-        {
-            return new SealedBlueprintPiipeline( PipeLineNode.Empty, node );
-        }
-
-        public static SealedBlueprintPiipeline SealOutput(
-                                                       PipeLineNode node,
-                                                       string portName )
-        {
-            return new SealedBlueprintPiipeline( node, PipeLineNode.Empty );
-        }
-
-        public override sealed void WaitForStart() { }
-
-    }
+    public abstract class IPipeLineConnectionPayload { }
 }

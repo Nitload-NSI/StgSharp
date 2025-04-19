@@ -39,13 +39,13 @@ using System.Text;
 
 namespace StgSharp.Script.Express
 {
-    public abstract class ExpNode : IASTNode<ExpNode, IExpElementSource>
+    public abstract class ExpSyntaxNode : ISyntaxNode<ExpSyntaxNode, IExpElementSource>
     {
 
         protected internal ExpNodeFlag _nodeFlag;
         protected internal Token _source;
 
-        protected ExpNode( Token source )
+        protected ExpSyntaxNode( Token source )
         {
             _source = source;
             Next = this;
@@ -57,18 +57,18 @@ namespace StgSharp.Script.Express
             get { return ( _nodeFlag | ExpNodeFlag.BuiltinType_Number ) != 0; }
         }
 
-        public abstract ExpNode Left { get; }
+        public abstract ExpSyntaxNode Left { get; }
 
-        public static ExpNode Empty
+        public static ExpSyntaxNode Empty
         {
             get => ExpEmptyNode._only;
         }
 
-        public ExpNode Next { get; set; }
+        public ExpSyntaxNode Next { get; set; }
 
-        public abstract ExpNode Right { get; }
+        public abstract ExpSyntaxNode Right { get; }
 
-        public ExpNode Previous { get; set; }
+        public ExpSyntaxNode Previous { get; set; }
 
         public abstract IExpElementSource EqualityTypeConvert { get; }
 
@@ -85,7 +85,7 @@ namespace StgSharp.Script.Express
             get => _source;
         }
 
-        public void AppendNode( ExpNode nextNode )
+        public void AppendNode( ExpSyntaxNode nextNode )
         {
             Next.Previous = nextNode;
             nextNode.Next = Next;
@@ -93,24 +93,24 @@ namespace StgSharp.Script.Express
             Next.Previous = this;
         }
 
-        public static bool IsNullOrEmpty( [AllowNull]ExpNode node )
+        public static bool IsNullOrEmpty( [AllowNull]ExpSyntaxNode node )
         {
             return  node == ExpEmptyNode._only || node == null;
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static ExpNode NonOperation( Token source )
+        public static ExpSyntaxNode NonOperation( Token source )
         {
             return new ExpEmptyNode( source.Line, source.Column );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static ExpNode NonOperation( int line, int column )
+        public static ExpSyntaxNode NonOperation( int line, int column )
         {
             return new ExpEmptyNode( line, column );
         }
 
-        public void PrependNode( ExpNode previousNode )
+        public void PrependNode( ExpSyntaxNode previousNode )
         {
             Previous.Next = previousNode;
             previousNode.Previous = Previous;
@@ -118,7 +118,7 @@ namespace StgSharp.Script.Express
             previousNode.Next = this;
         }
 
-        public static bool VerifyTypeConvertable( ExpNode left, ExpNode right )
+        public static bool VerifyTypeConvertable( ExpSyntaxNode left, ExpSyntaxNode right )
         {
             IExpElementSource tLeft = left.EqualityTypeConvert,
                 tRight = right.EqualityTypeConvert;
@@ -132,7 +132,7 @@ namespace StgSharp.Script.Express
             return tLeft.IsConvertable( tRight );
         }
 
-        private class ExpEmptyNode : ExpNode
+        private class ExpEmptyNode : ExpSyntaxNode
         {
 
             internal static readonly ExpEmptyNode _only = new();
@@ -144,9 +144,9 @@ namespace StgSharp.Script.Express
 
             public override ExpInstantiableElement EqualityTypeConvert => ExpInstantiableElement.Void;
 
-            public override ExpNode Left => _only;
+            public override ExpSyntaxNode Left => _only;
 
-            public override ExpNode Right => _only;
+            public override ExpSyntaxNode Right => _only;
 
         }
 
