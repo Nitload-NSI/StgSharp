@@ -69,11 +69,6 @@ namespace StgSharp.Modeling.Step
             return faceBound;
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            yield return Bound;
-        }
-
     }
 }
 

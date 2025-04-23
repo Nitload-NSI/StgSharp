@@ -36,19 +36,10 @@ using System;
 
 namespace StgSharp.Modeling.Step
 {
-    public abstract class StepTopologicalRepresentationItem : StepRepresentationItem, IStepEntity
+    public abstract class StepTopologicalRepresentationItem : StepEntityBase
     {
 
         protected StepTopologicalRepresentationItem( string name ) : base( name ) { }
-
-        public int Id { get; }
-
-        public static StepUninitializedEntity Create( string name, ExpSyntaxNode node )
-        {
-            return new StepUninitializedEntity( name,  );
-        }
-
-        public abstract void Init( StepModel model, ExpSyntaxNode param );
 
     }
 }

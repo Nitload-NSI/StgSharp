@@ -62,11 +62,6 @@ namespace StgSharp.Modeling.Step
             }
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            yield return Position;
-        }
-
     }
 }
 

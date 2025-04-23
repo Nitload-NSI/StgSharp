@@ -46,11 +46,14 @@ namespace StgSharp.Script.Express
         private ExpFunctionCallingNode(
                 Token source,
                 ExpFunctionSource function,
-                ExpSyntaxNode firstParameter )
+                ExpSyntaxNode parameterEnumeration )
             : base( source )
         {
+            if( parameterEnumeration is ExpTupleNode tuple ) {
+                parameterEnumeration = tuple.Right;
+            }
             _function = function;
-            _parameter = firstParameter;
+            _parameter = parameterEnumeration;
         }
 
         public ExpFunctionSource FunctionCaller => _function;

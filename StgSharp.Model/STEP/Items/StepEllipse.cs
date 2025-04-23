@@ -90,11 +90,6 @@ namespace StgSharp.Modeling.Step
             return ellipse;
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            yield return Position;
-        }
-
     }
 }
 

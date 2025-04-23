@@ -75,7 +75,7 @@ namespace StgSharp.Modeling.Step
 
         public bool Equals( StepTriple other )
         {
-            if( other == null ) {
+            if( other is null ) {
                 return false;
             }
 
@@ -117,7 +117,7 @@ namespace StgSharp.Modeling.Step
                 return true;
             }
 
-            if( left == null || right == null ) {
+            if( left is null || right is null ) {
                 return false;
             }
 

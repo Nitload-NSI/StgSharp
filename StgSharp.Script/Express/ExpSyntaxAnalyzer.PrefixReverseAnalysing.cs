@@ -66,6 +66,9 @@ namespace StgSharp.Script.Express
             }
 
             root = _cache.PackAllStatements();
+            if( rightSeparator.Value == ")" ) {
+                root = ExpTupleNode.Pack( root );
+            }
             _cache.DecreaseDepth();
             if( IsSeparatorMatch( _cache.PeekOperator(), rightSeparator ) )
             {

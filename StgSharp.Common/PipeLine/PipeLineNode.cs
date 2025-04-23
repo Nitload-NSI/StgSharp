@@ -57,14 +57,14 @@ namespace StgSharp.PipeLine
 
         private static Dictionary<string, PipelineConnector> _emptyLayer = new();
         private static PipelineNode _emptyNode = new PipelineNode( string.Empty, null!, false );
-        private IConvertableToBlueprintNode _mainOperation;
+        private IConvertableToPipelineNode _mainOperation;
         private string _name;
         private protected bool _levelAvailable, _nativeRequested;
         private protected Dictionary<string, PipelineNodeImport> _input;
         private protected Dictionary<string, PipelineNodeExport> _output;
         private protected int _level;
 
-        internal PipelineNode( string name, IConvertableToBlueprintNode node, bool isNative )
+        internal PipelineNode( string name, IConvertableToPipelineNode node, bool isNative )
         {
             _levelAvailable = false;
             _name = name;
@@ -73,11 +73,11 @@ namespace StgSharp.PipeLine
             InputPorts = new Dictionary<string, PipelineNodeImport>();
             OutputPorts = new Dictionary<string, PipelineNodeExport>();
             foreach( string portName in node.InputInterfacesName ) {
-                InputPorts.Add( portName, null! );
+                InputPorts.Add( portName, new PipelineNodeImport( this, portName ) );
             }
 
             foreach( string portName in node.OutputInterfacesName ) {
-                OutputPorts.Add( portName, null! );
+                OutputPorts.Add( portName, new PipelineNodeExport( this, portName ) );
             }
         }
 
@@ -142,7 +142,7 @@ namespace StgSharp.PipeLine
 
         internal HashSet<PipelineNode> Next { get; } = new HashSet<PipelineNode>();
 
-        internal IConvertableToBlueprintNode Value
+        internal IConvertableToPipelineNode Value
         {
             get => _mainOperation;
         }
@@ -240,16 +240,16 @@ namespace StgSharp.PipeLine
         #endregion
     }//--------------------------------- end of class -----------------------------------
 
-    public class BlueprintNodeRunException : Exception
+    public class PipelineNodeRunException : Exception
     {
 
-        public BlueprintNodeRunException() { }
+        public PipelineNodeRunException() { }
 
-        public BlueprintNodeRunException( Exception ex ) : base( string.Empty, ex ) { }
+        public PipelineNodeRunException( Exception ex ) : base( string.Empty, ex ) { }
 
-        public BlueprintNodeRunException( string message ) : base( message ) { }
+        public PipelineNodeRunException( string message ) : base( message ) { }
 
-        public BlueprintNodeRunException( string message, Exception innerException )
+        public PipelineNodeRunException( string message, Exception innerException )
             : base( message, innerException ) { }
 
     }

@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepRepresentationItem_FromTypedParameter.cs"
+//     file="StepUncertainElement.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,25 +28,81 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp;
+using StgSharp.PipeLine;
 using StgSharp.Script;
+
 using StgSharp.Script.Express;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace StgSharp.Modeling.Step
 {
-    public abstract partial class StepRepresentationItem
+    public class StepUninitializedEntity : StepEntityBase, IConvertableToPipelineNode
     {
+
+        private ExpSyntaxNode data;
+        private int _id;
+        private StepModel _model;
+        private string _name;
+
+        public StepUninitializedEntity( string name, int id )
+            : base( name )
+        {
+            _name = name;
+            _id = id;
+        }
+
+        public int Id
+        {
+            get => _id;
+        }
+
+        public override StepItemType ItemType => StepItemType.Unknown;
+
+        public string Name
+        {
+            get => _name;
+        }
 
         internal static HashSet<string> UnsupportedItemTypes { get; } = new HashSet<string>();
 
-        internal static StepRepresentationItem FromTypedParameter(
-                                               StepModel binder,
-                                               ExpSyntaxNode itemSyntax )
+        public static StepUninitializedEntity Create( int id )
         {
-            StepRepresentationItem item = null!;
+            return new StepUninitializedEntity( string.Empty, id );
+        }
+
+        public static StepUninitializedEntity Create( string name, ExpSyntaxNode node )
+        {
+            return new StepUninitializedEntity( name, 0 );
+        }
+
+        public void Init( StepModel model, ExpSyntaxNode param )
+        {
+            if( param is ExpFunctionCallingNode caller )
+            {
+                string entityName = caller.FunctionCaller.Name;
+                ExpSyntaxNode p = caller.Right;
+                ExpNodeNextEnumerator e = p.ToEnumerator();
+            } else
+            {
+                throw new ExpInvalidSyntaxException(
+                    "Assigned syntax node is not a function caller." );
+            }
+        }
+
+        public void InitGeometry()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static StepEntityBase FromTypedParameter(
+                                       StepModel binder,
+                                       ExpSyntaxNode itemSyntax )
+        {
+            StepEntityBase item = null!;
             if( itemSyntax is ExpElementInitializingNode initNode )
             {
                 string name = initNode.EqualityTypeConvert.Name;
@@ -123,6 +179,19 @@ namespace StgSharp.Modeling.Step
             return item;
         }
 
+        void IConvertableToPipelineNode.NodeMain(
+                                        in Dictionary<string, PipelineNodeImport> input,
+                                        in Dictionary<string, PipelineNodeExport> output )
+        {
+            InitGeometry();
+            PipelineNodeExport.SkipAll( output );
+        }
+
+        IEnumerable<string> IConvertableToPipelineNode.InputInterfacesName => ["in"];
+
+        PipelineNodeOperation IConvertableToPipelineNode.Operation => ( this as IConvertableToPipelineNode ).NodeMain;
+
+        IEnumerable<string> IConvertableToPipelineNode.OutputInterfacesName => ["out"];
+
     }
 }
-

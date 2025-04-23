@@ -38,6 +38,7 @@ namespace StgSharp.Modeling.Step
     public enum StepItemType
     {
 
+        Unknown,
         AdvancedFace,
         AxisPlacement2D,
         AxisPlacement3D,

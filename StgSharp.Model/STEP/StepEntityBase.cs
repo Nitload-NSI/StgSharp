@@ -1,13 +1,13 @@
-Ôªø//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="PipelineScheduler.NodeCraeater.cs"
+//-----------------------------------------------------------------------
+//     file="StepEntityBase.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
 //     Permission is hereby granted, free of charge, to any person 
 //     obtaining a copy of this software and associated documentation 
-//     files (the ‚ÄúSoftware‚Äù), to deal in the Software without restriction, 
+//     files (the °∞Software°±), to deal in the Software without restriction, 
 //     including without limitation the rights to use, copy, modify, merge,
 //     publish, distribute, sublicense, and/or sell copies of the Software, 
 //     and to permit persons to whom the Software is furnished to do so, 
@@ -17,7 +17,7 @@
 //     this permission notice shall be included in all copies 
 //     or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED ‚ÄúAS IS‚Äù, 
+//     THE SOFTWARE IS PROVIDED °∞AS IS°±, 
 //     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
 //     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
@@ -28,32 +28,37 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using StgSharp.Math;
+using StgSharp.Modeling.Step;
+using StgSharp.PipeLine;
+using StgSharp.Script.Express;
+
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
-namespace StgSharp.PipeLine
+namespace StgSharp.Modeling.Step
 {
-    public partial class PipelineScheduler
+    public abstract class StepEntityBase : IExpMarshalType<StepUninitializedEntity>
     {
 
-        public PipelineNode CreateBlueprintNode(
-                            string name,
-                            PipelineNodeOperation operation,
-                            string[] inputPort,
-                            string[] outputPort,
-                            bool isNative )
+        protected StepEntityBase( string name )
         {
-            PipelineNode node = new PipelineNode( operation, name, isNative, inputPort,
-                                                  outputPort );
-            if( isNative )
-            {
-                mainThreadNodeList.Add( node );
-            } else
-            {
-                globalNodeList.Add( node );
-            }
-            return node;
+            Name = name;
+        }
+
+        public int Id { get; protected set; }
+
+        public abstract StepItemType ItemType { get; }
+
+        public string Name { get; protected set; }
+
+        public static StepUninitializedEntity Create( string name, ExpSyntaxNode node )
+        {
+            return new StepUninitializedEntity( name, 0 );
         }
 
     }

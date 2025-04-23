@@ -29,6 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Math;
+using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
@@ -61,14 +62,68 @@ namespace StgSharp.Modeling.Step
             return string.Empty;
         }
 
-        public static Vec3 ToVector3D( string source )
+        public static Vec3 ToVector3D( ExpNodeNextEnumerator enumerator )
         {
-            Match match = _vectorParser.Match( source );
-            if( match.Success ) {
-                return new Vec3(
-                    float.Parse( match.Groups[ "x" ].Value ),
-                    float.Parse( match.Groups[ "y" ].Value ),
-                    float.Parse( match.Groups[ "z" ].Value ) );
+            enumerator.AssertEnumeratorCount( 3 );
+            Vec3 result = new Vec3();
+            ExpSyntaxNode node = enumerator.Current;
+            if( node is ExpRealNumberNode x )
+            {
+                result.X = x.Value;
+                enumerator.MoveNext();
+            } else
+            {
+                throw new InvalidCastException();
+            }
+            if( node is ExpRealNumberNode y )
+            {
+                result.Y = y.Value;
+                enumerator.MoveNext();
+            } else
+            {
+                throw new InvalidCastException();
+            }
+            if( node is ExpRealNumberNode z )
+            {
+                result.Z = z.Value;
+                enumerator.MoveNext();
+            } else
+            {
+                throw new InvalidCastException();
+            }
+            return result;
+        }
+
+        public static Vec3 ToVector3D( ExpSyntaxNode node )
+        {
+            ExpSyntaxNode begin = node;
+            Vec3 result = new Vec3();
+            if( node is ExpRealNumberNode x )
+            {
+                result.X = x.Value;
+                node = node.Next;
+            } else
+            {
+                throw new InvalidCastException();
+            }
+            if( node is ExpRealNumberNode y )
+            {
+                result.Y = y.Value;
+                node = node.Next;
+            } else
+            {
+                throw new InvalidCastException();
+            }
+            if( node is ExpRealNumberNode z )
+            {
+                result.Z = z.Value;
+                node = node.Next;
+            } else
+            {
+                throw new InvalidCastException();
+            }
+            if( ReferenceEquals( node, begin ) ) {
+                return result;
             }
             return Vec3.Zero;
         }

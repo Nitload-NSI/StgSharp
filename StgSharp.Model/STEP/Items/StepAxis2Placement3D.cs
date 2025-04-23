@@ -87,13 +87,6 @@ namespace StgSharp.Modeling.Step
             return axis;
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            yield return Location;
-            yield return Axis;
-            yield return RefDirection;
-        }
-
     }
 }
 

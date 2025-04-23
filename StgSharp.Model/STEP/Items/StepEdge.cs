@@ -53,17 +53,6 @@ namespace StgSharp.Modeling.Step
 
         public StepVertex EdgeEnd { get; set; }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            if( EdgeStart != null ) {
-                yield return EdgeStart;
-            }
-
-            if( EdgeEnd != null ) {
-                yield return EdgeEnd;
-            }
-        }
-
     }
 }
 

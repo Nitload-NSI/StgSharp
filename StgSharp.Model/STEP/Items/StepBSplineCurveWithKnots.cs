@@ -97,7 +97,7 @@ namespace StgSharp.Modeling.Step
                     v => spline.ControlPointsList[ j ] = v.AsType<StepCartesianPoint>() );
             }
 
-            spline.CurveForm = ParseCurveForm( enumerator.Values[ 3 ].AsCollectionEnumerator() );
+            spline.CurveForm = ParseCurveForm( enumerator.Values[ 3 ].CodeConvertTemplate );
             spline.ClosedCurve = ( enumerator.Values[ 4 ] as ExpBoolNode )!.Value;
             spline.SelfIntersect = ( enumerator.Values[ 5 ]as ExpBoolNode )!.Value;
 

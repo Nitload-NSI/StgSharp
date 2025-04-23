@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepModel.cs"
+//     file="ExpTupleNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,66 +28,41 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.PipeLine;
-using StgSharp.Script.Express;
-
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Script.Express
 {
-    public class StepModel
+    public class ExpTupleNode : ExpSyntaxNode
     {
 
-        private Dictionary<int, StepEntityBase> _nodes 
-            = new Dictionary<int, StepEntityBase>();
+        private ExpSyntaxNode node;
 
-        private PipelineScheduler _builder;
-        private StepInfo _header;
-
-        internal StepModel( StepInfo header )
+        private ExpTupleNode( ExpSyntaxNode node )
+            : base( node._source )
         {
-            _header = header;
-            _builder = new PipelineScheduler();
+            this.node = node;
         }
 
-        public StepEntityBase this[ int id ]
+        public override ExpSyntaxNode Left => Empty;
+
+        public override ExpSyntaxNode Right => node;
+
+        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException();
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static ExpTupleNode Pack( ExpSyntaxNode node )
         {
-            get
-            {
-                if( _nodes.TryGetValue( id, out StepEntityBase? node ) ) {
-                    return node;
-                }
-                node = StepUninitializedEntity.Create( id );
-                return node;
-            }
+            return new ExpTupleNode( node );
         }
 
-        public void AddUncertainEntity( int id, StepUninitializedEntity entity )
+        public ExpNodeNextEnumerator TupleAsEnumerator()
         {
-            if( _nodes.ContainsKey( id ) ) {
-                throw new InvalidOperationException(
-                    "Attempt to add entity with same id more than once" );
-            }
-            _nodes.Add( id, entity );
-        }
-
-        public void BindValue( ExpSyntaxNode node, Action<T> action ) { }
-
-        public void OrganizeNode()
-        {
-            PipelineScheduler ps = new PipelineScheduler();
-            foreach( StepEntityBase node in _nodes.Values )
-            {
-                if( node is StepUninitializedEntity uncertain )
-                {
-                    PipelineNode pNode = ps.Create( uncertain, uncertain.Name );
-
-                    //TODO 为新生节点设定依赖关系
-                }
-            }
+            return node.ToEnumerator();
         }
 
     }

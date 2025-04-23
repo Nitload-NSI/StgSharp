@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IConvertableToBlueprintNode.cs"
+//     file="IConvertableToPipelineNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -39,14 +39,14 @@ namespace StgSharp.PipeLine
                          in Dictionary<string, PipelineNodeImport> input,
                          in Dictionary<string, PipelineNodeExport> output );
 
-    public interface IConvertableToBlueprintNode
+    public interface IConvertableToPipelineNode
     {
-
-        PipelineNodeOperation Operation { get; }
 
         public IEnumerable<string> InputInterfacesName { get; }
 
         public IEnumerable<string> OutputInterfacesName { get; }
+
+        PipelineNodeOperation Operation { get; }
 
         void NodeMain(
              in Dictionary<string, PipelineNodeImport> input,
@@ -54,7 +54,7 @@ namespace StgSharp.PipeLine
 
     }
 
-    internal class DefaultConvertableToBlueprintNode : IConvertableToBlueprintNode
+    internal class DefaultConvertableToBlueprintNode : IConvertableToPipelineNode
     {
 
         private string[] _input;
@@ -71,11 +71,11 @@ namespace StgSharp.PipeLine
             _execution = execution;
         }
 
-        public PipelineNodeOperation Operation => _execution;
-
         public IEnumerable<string> InputInterfacesName => _input;
 
         public IEnumerable<string> OutputInterfacesName => _output;
+
+        public PipelineNodeOperation Operation => _execution;
 
         public void NodeMain(
                     in Dictionary<string, PipelineNodeImport> input,

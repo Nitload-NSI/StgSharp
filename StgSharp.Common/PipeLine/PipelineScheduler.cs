@@ -32,6 +32,7 @@ using StgSharp.Stg;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -44,7 +45,7 @@ namespace StgSharp.PipeLine
     ///   A sets of complex logic designed for running in multi threads environment. Warning: do not
     ///   run a <see cref="PipelineScheduler" /> instance in multi threads more than once.
     /// </summary>
-    public partial class PipelineScheduler : IConvertableToBlueprintNode
+    public partial class PipelineScheduler : IConvertableToPipelineNode
     {
 
         private BeginningNode _beginning;
@@ -94,7 +95,7 @@ namespace StgSharp.PipeLine
 
         public PipelineNodeOperation Operation
         {
-            get => ( this as IConvertableToBlueprintNode ).NodeMain;
+            get => ( this as IConvertableToPipelineNode ).NodeMain;
         }
 
         /**/
@@ -161,20 +162,10 @@ namespace StgSharp.PipeLine
             }
         }
 
-        public void Init()
+        public PipelineNode Create( [NotNull]IConvertableToPipelineNode body, string name )
         {
-            foreach( KeyValuePair<string, PipelineNode> item in allNode )
-            {
-                if( item.Value.IsNative )
-                {
-                    mainThreadNodeList.Add( item.Value );
-                } else
-                {
-                    globalNodeList.Add( item.Value );
-                }
-            }
-            mainThreadNodeList.Sort();
-            globalNodeList.Sort();
+            PipelineNode node = new PipelineNode( name, body, false );
+            return node;
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -213,9 +204,9 @@ namespace StgSharp.PipeLine
             return false;
         }
 
-        void IConvertableToBlueprintNode.NodeMain(
-                                         in Dictionary<string, PipelineNodeImport> input,
-                                         in Dictionary<string, PipelineNodeExport> output )
+        void IConvertableToPipelineNode.NodeMain(
+                                        in Dictionary<string, PipelineNodeImport> input,
+                                        in Dictionary<string, PipelineNodeExport> output )
         {
             PipeLineRunner.Run( this );
             PipelineNodeExport.SkipAll( output );

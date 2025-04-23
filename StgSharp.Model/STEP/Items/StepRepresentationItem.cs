@@ -49,11 +49,6 @@ namespace StgSharp.Modeling.Step
 
         public string Name { get; set; }
 
-        internal virtual IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            yield break;
-        }
-
     }
 }
 

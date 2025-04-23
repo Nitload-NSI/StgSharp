@@ -47,7 +47,6 @@ namespace StgSharp.Script.Express
         public static ExpNodeNextEnumerator AsCollectionEnumerator( this ExpSyntaxNode token )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( token );
-            enumerator.AssertEnumeratorCount( count );
             IExpElementSource type = token.EqualityTypeConvert;
             while( enumerator.MoveNext() )
             {
@@ -104,6 +103,14 @@ namespace StgSharp.Script.Express
             if( _begin.Count != count ) {
                 throw new InvalidOperationException(
                     $"Enumerator count mismatch. Expected {count}, but got {_begin.Count}." );
+            }
+        }
+
+        public void AssertEnumeratorCount( int min, int max )
+        {
+            if( _begin.Count < min || _begin.Count > max ) {
+                throw new InvalidOperationException(
+                    $"Enumerator count mismatch. Expected between {min} and {max}, but got {_begin.Count}." );
             }
         }
 

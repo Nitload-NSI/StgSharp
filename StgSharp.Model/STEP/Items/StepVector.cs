@@ -82,11 +82,6 @@ namespace StgSharp.Modeling.Step
             return vector;
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            yield return Direction;
-        }
-
     }
 }
 

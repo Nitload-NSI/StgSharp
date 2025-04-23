@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpSourceReader.cs"
+//     file="ExpTokenReader.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -38,7 +38,27 @@ using System.Text.RegularExpressions;
 
 namespace StgSharp.Script.Express
 {
-    public partial class ExpSourceReader : IScriptTokenReader
+    public abstract class ExpTokenReaderPreProcessor
+    {
+
+        public static ExpTokenReaderPreProcessor Default { get; } = new DefaultProcessor();
+
+        public abstract bool Process( string codeLine, int line, ref int current, out Token t );
+
+        private class DefaultProcessor : ExpTokenReaderPreProcessor
+        {
+
+            public override bool Process( string codeLine, int line, ref int current, out Token t )
+            {
+                t = Token.Empty;
+                return false;
+            }
+
+        }
+
+    }
+
+    public partial class ExpTokenReader : IScriptTokenReader
     {
 
         private const int
@@ -61,7 +81,7 @@ namespace StgSharp.Script.Express
         private string _lineCache;
         private Token _last;
 
-        public ExpSourceReader( IScriptSourceProvider provider )
+        public ExpTokenReader( IScriptSourceProvider provider )
         {
             _provider = provider;
             _current = 0;
@@ -73,6 +93,8 @@ namespace StgSharp.Script.Express
         {
             get => ( ( string.IsNullOrEmpty( _lineCache ) || _current >= _lineCache.Length ) ) && _provider.IsEmpty;
         }
+
+        public ExpTokenReaderPreProcessor TokenReaderPreProcessor { get; set; } = ExpTokenReaderPreProcessor.Default;
 
         public int LineNumber
         {
@@ -124,8 +146,11 @@ namespace StgSharp.Script.Express
             if( !TryReadLine( out source ) ) {
                 return Token.Empty;
             }
+            if( TokenReaderPreProcessor.Process( _lineCache, LineNumber, ref _current,
+                                                 out Token t ) ) {
+                return t;
+            }
             char c = source[ 0 ];
-
             if( char.IsLetter( c ) )
             {
                 Match match = _nextWordTokenPattern.Match( _lineCache, _current );

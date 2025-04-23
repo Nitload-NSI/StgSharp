@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.PipeLine
 {
-    public class CrossFrameOperation : IConvertableToBlueprintNode
+    public class CrossFrameOperation : IConvertableToPipelineNode
     {
 
         private static string[] _inputName = ["TaskIn"];

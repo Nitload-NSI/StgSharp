@@ -50,17 +50,29 @@ namespace StgSharp.Modeling.Step
 
     }
 
-;
+    public static class StepExpEnumValue
+    {
+
+        internal const string CIRCULAR_ARC = "CIRCULAR_ARC";
+        internal const string ELLIPTIC_ARC = "ELLIPTIC_ARC";
+        internal const string HYPERBOLIC_ARC = "HYPERBOLIC_ARC";
+        internal const string PARABOLIC_ARC = "PARABOLIC_ARC";
+        internal const string POLYLINE_FORM = "POLYLINE_FORM";
+        internal const string UNSPECIFIED = "UNSPECIFIED";
+
+        internal static HashSet<string> AllPossibleValue { get; } = [
+                CIRCULAR_ARC,
+                ELLIPTIC_ARC,
+                HYPERBOLIC_ARC,
+                PARABOLIC_ARC,
+                POLYLINE_FORM,
+                UNSPECIFIED,
+            ];
+
+    }
 
     public abstract class StepBSplineCurve : StepBoundedCurve
     {
-
-        private const string CIRCULAR_ARC = "CIRCULAR_ARC";
-        private const string ELLIPTIC_ARC = "ELLIPTIC_ARC";
-        private const string HYPERBOLIC_ARC = "HYPERBOLIC_ARC";
-        private const string PARABOLIC_ARC = "PARABOLIC_ARC";
-        private const string POLYLINE_FORM = "POLYLINE_FORM";
-        private const string UNSPECIFIED = "UNSPECIFIED";
 
         public StepBSplineCurve( string name, IEnumerable<StepCartesianPoint> controlPoints )
             : base( name )
@@ -81,27 +93,22 @@ namespace StgSharp.Modeling.Step
 
         public StepBSplineCurveForm CurveForm { get; set; } = StepBSplineCurveForm.Unspecified;
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            return ControlPointsList;
-        }
-
         protected static string GetCurveFormString( StepBSplineCurveForm form )
         {
             switch( form )
             {
                 case StepBSplineCurveForm.Polyline:
-                    return POLYLINE_FORM;
+                    return StepExpEnumValue.POLYLINE_FORM;
                 case StepBSplineCurveForm.CircularArc:
-                    return CIRCULAR_ARC;
+                    return StepExpEnumValue.CIRCULAR_ARC;
                 case StepBSplineCurveForm.EllipticalArc:
-                    return ELLIPTIC_ARC;
+                    return StepExpEnumValue.ELLIPTIC_ARC;
                 case StepBSplineCurveForm.ParabolicArc:
-                    return PARABOLIC_ARC;
+                    return StepExpEnumValue.PARABOLIC_ARC;
                 case StepBSplineCurveForm.HyperbolicArc:
-                    return HYPERBOLIC_ARC;
+                    return StepExpEnumValue.HYPERBOLIC_ARC;
                 case StepBSplineCurveForm.Unspecified:
-                    return UNSPECIFIED;
+                    return StepExpEnumValue.UNSPECIFIED;
             }
 
             throw new NotImplementedException();
@@ -111,15 +118,15 @@ namespace StgSharp.Modeling.Step
         {
             switch( enumerationValue.ToUpperInvariant() )
             {
-                case POLYLINE_FORM:
+                case StepExpEnumValue.POLYLINE_FORM:
                     return StepBSplineCurveForm.Polyline;
-                case CIRCULAR_ARC:
+                case StepExpEnumValue.CIRCULAR_ARC:
                     return StepBSplineCurveForm.CircularArc;
-                case ELLIPTIC_ARC:
+                case StepExpEnumValue.ELLIPTIC_ARC:
                     return StepBSplineCurveForm.EllipticalArc;
-                case PARABOLIC_ARC:
+                case StepExpEnumValue.PARABOLIC_ARC:
                     return StepBSplineCurveForm.ParabolicArc;
-                case HYPERBOLIC_ARC:
+                case StepExpEnumValue.HYPERBOLIC_ARC:
                     return StepBSplineCurveForm.HyperbolicArc;
                 default:
                     return StepBSplineCurveForm.Unspecified;

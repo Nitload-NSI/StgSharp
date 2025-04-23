@@ -36,10 +36,13 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
-    public interface IExpMarshalType<TSelf>
+    public interface IExpMarshalType<TSelf> where TSelf: class
     {
 
-        static abstract TSelf Create( string name, ExpSyntaxNode node );
+        static virtual TSelf Create( string name, ExpSyntaxNode node )
+        {
+            return null;
+        }
 
     }
 }

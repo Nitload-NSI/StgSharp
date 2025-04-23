@@ -47,11 +47,7 @@ namespace StgSharp.Script
         public readonly string Value;
         public readonly TokenFlag Flag;
 
-        public Token(
-                       string chars,
-                       int lineNumber,
-                       int columnNumber,
-                       TokenFlag flag )
+        public Token( string chars, int lineNumber, int columnNumber, TokenFlag flag )
         {
             Value = chars;
             Line = lineNumber;
@@ -83,6 +79,7 @@ namespace StgSharp.Script
         Separator_Right = 8,
         Index_Left = 9,
         Index_Right = 10,
+        Enum = 11
 
     }
 }

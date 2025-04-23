@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,10 +43,10 @@ namespace StgSharp.Script.Express
         private ExpMetaRefNode _type;
         private ExpSyntaxNode _init;
 
-        public ExpElementInitializingNode(
-               Token source,
-               ExpMetaRefNode type,
-               ExpSyntaxNode initParameter )
+        private ExpElementInitializingNode(
+                Token source,
+                ExpMetaRefNode type,
+                ExpSyntaxNode initParameter )
             : base( source )
         {
             _type = type;
@@ -57,6 +58,16 @@ namespace StgSharp.Script.Express
         public override ExpSyntaxNode Right => _init;
 
         public override IExpElementSource EqualityTypeConvert => _type.SourceRef;
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public ExpElementInitializingNode InitializeElement(
+                                          Token source,
+                                          ExpMetaRefNode type,
+                                          ExpSyntaxNode init )
+        {
+            ExpElementInitializingNode node = new ExpElementInitializingNode( source, type, init );
+            return node;
+        }
 
     }
 }

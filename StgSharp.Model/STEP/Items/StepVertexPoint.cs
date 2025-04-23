@@ -78,11 +78,6 @@ namespace StgSharp.Modeling.Step
             return vertex;
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            yield return Location;
-        }
-
     }
 }
 

@@ -74,11 +74,6 @@ namespace StgSharp.Modeling.Step
             return edgeLoop;
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            return EdgeList;
-        }
-
     }
 }
 

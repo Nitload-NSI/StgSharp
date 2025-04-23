@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepModel.cs"
+//     file="StepExpEnumValueNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,67 +28,33 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.PipeLine;
+using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace StgSharp.Modeling.Step
 {
-    public class StepModel
+    internal class StepExpEnumValueNode : ExpSyntaxNode
     {
 
-        private Dictionary<int, StepEntityBase> _nodes 
-            = new Dictionary<int, StepEntityBase>();
-
-        private PipelineScheduler _builder;
-        private StepInfo _header;
-
-        internal StepModel( StepInfo header )
+        public StepExpEnumValueNode( Token source )
+            : base( source )
         {
-            _header = header;
-            _builder = new PipelineScheduler();
+            EnumValue = source.Value;
         }
 
-        public StepEntityBase this[ int id ]
-        {
-            get
-            {
-                if( _nodes.TryGetValue( id, out StepEntityBase? node ) ) {
-                    return node;
-                }
-                node = StepUninitializedEntity.Create( id );
-                return node;
-            }
-        }
+        public override ExpSyntaxNode Left => Empty;
 
-        public void AddUncertainEntity( int id, StepUninitializedEntity entity )
-        {
-            if( _nodes.ContainsKey( id ) ) {
-                throw new InvalidOperationException(
-                    "Attempt to add entity with same id more than once" );
-            }
-            _nodes.Add( id, entity );
-        }
+        public override ExpSyntaxNode Right => Empty;
 
-        public void BindValue( ExpSyntaxNode node, Action<T> action ) { }
+        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException();
 
-        public void OrganizeNode()
-        {
-            PipelineScheduler ps = new PipelineScheduler();
-            foreach( StepEntityBase node in _nodes.Values )
-            {
-                if( node is StepUninitializedEntity uncertain )
-                {
-                    PipelineNode pNode = ps.Create( uncertain, uncertain.Name );
-
-                    //TODO 为新生节点设定依赖关系
-                }
-            }
-        }
+        public string EnumValue { get; private set; }
 
     }
 }

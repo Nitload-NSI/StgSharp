@@ -91,15 +91,6 @@ namespace StgSharp.Modeling.Step
             return orientedEdge;
         }
 
-        internal override IEnumerable<StepRepresentationItem> GetReferencedItems()
-        {
-            foreach( StepRepresentationItem item in base.GetReferencedItems() ) {
-                yield return item;
-            }
-
-            yield return EdgeElement;
-        }
-
     }
 }
 
