@@ -34,6 +34,7 @@ using StgSharp.Script.Express;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 
 namespace StgSharp.Modeling.Step
@@ -60,7 +61,8 @@ namespace StgSharp.Modeling.Step
                 if( _nodes.TryGetValue( id, out StepEntityBase? node ) ) {
                     return node;
                 }
-                node = StepUninitializedEntity.Create( id );
+                node = new StepUninitializedEntity( this, id );
+                _nodes.Add( id, node );
                 return node;
             }
         }
@@ -74,20 +76,31 @@ namespace StgSharp.Modeling.Step
             _nodes.Add( id, entity );
         }
 
-        public void BindValue( ExpSyntaxNode node, Action<T> action ) { }
+        public void BindValue<T>( ExpSyntaxNode node, Action<T> action ) { }
 
         public void OrganizeNode()
         {
             PipelineScheduler ps = new PipelineScheduler();
             foreach( StepEntityBase node in _nodes.Values )
             {
-                if( node is StepUninitializedEntity uncertain )
-                {
-                    PipelineNode pNode = ps.Create( uncertain, uncertain.Name );
-
-                    //TODO 为新生节点设定依赖关系
+                if( node is StepUninitializedEntity uncertain ) {
+                    uncertain.ConvertToAccurate();
                 }
             }
+        }
+
+        public void ReplaceEntity(
+                    StepUninitializedEntity uninitialized,
+                    StepEntityBase accurateEntity )
+        {
+            ArgumentNullException.ThrowIfNull( uninitialized );
+            if( uninitialized. Context != this || accurateEntity.Context != this ) {
+                throw new InvalidOperationException();
+            }
+            if( uninitialized.Id != accurateEntity.Id ) {
+                throw new InvalidOperationException();
+            }
+            _nodes[ uninitialized.Id ] = accurateEntity;
         }
 
     }

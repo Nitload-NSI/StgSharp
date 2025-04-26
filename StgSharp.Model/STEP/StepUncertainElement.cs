@@ -37,46 +37,37 @@ using StgSharp.Script.Express;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace StgSharp.Modeling.Step
 {
     public class StepUninitializedEntity : StepEntityBase, IConvertableToPipelineNode
     {
 
+        internal const string InName = "in", OutName = "out";
+
         private ExpSyntaxNode data;
-        private int _id;
-        private StepModel _model;
-        private string _name;
 
-        public StepUninitializedEntity( string name, int id )
-            : base( name )
+        public StepUninitializedEntity( StepModel model, int id )
         {
-            _name = name;
-            _id = id;
-        }
-
-        public int Id
-        {
-            get => _id;
+            Context = model;
+            Id = id;
         }
 
         public override StepItemType ItemType => StepItemType.Unknown;
 
-        public string Name
-        {
-            get => _name;
-        }
-
         internal static HashSet<string> UnsupportedItemTypes { get; } = new HashSet<string>();
 
-        public static StepUninitializedEntity Create( int id )
+        public static StepUninitializedEntity FromSyntax( StepModel model, ExpSyntaxNode node )
         {
-            return new StepUninitializedEntity( string.Empty, id );
-        }
-
-        public static StepUninitializedEntity Create( string name, ExpSyntaxNode node )
-        {
-            return new StepUninitializedEntity( name, 0 );
+            if( node is not ExpBinaryOperatorNode assign ) {
+                throw new ExpInvalidSyntaxException( "Not an assign expression " );
+            }
+            StepEntityInstanceNode? idNode = assign.Left as StepEntityInstanceNode;
+            ExpElementInitializingNode? initNode = assign.Right as ExpElementInitializingNode;
+            StepUninitializedEntity entity = new StepUninitializedEntity( model, idNode.Id );
+            entity.data = initNode;
+            return entity;
         }
 
         public void Init( StepModel model, ExpSyntaxNode param )
@@ -93,105 +84,88 @@ namespace StgSharp.Modeling.Step
             }
         }
 
-        public void InitGeometry()
+        internal void ConvertToAccurate()
         {
-            throw new NotImplementedException();
-        }
-
-        internal static StepEntityBase FromTypedParameter(
-                                       StepModel binder,
-                                       ExpSyntaxNode itemSyntax )
-        {
-            StepEntityBase item = null!;
-            if( itemSyntax is ExpElementInitializingNode initNode )
+            if( data is ExpFunctionCallingNode initNode )
             {
-                string name = initNode.EqualityTypeConvert.Name;
-                switch( name )
+                string name = initNode.FunctionCaller.Name;
+                StepEntityBase? entity = name switch
                 {
-                    case StepItemTypeExtensions.AdvancedFaceText:
-                        item = StepAdvancedFace.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.Axis2Placement2DText:
-                        item = StepAxis2Placement2D.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.Axis2Placement3DText:
-                        item = StepAxis2Placement3D.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.BSplineCurveWithKnotsText:
-                        item = StepBSplineCurveWithKnots.CreateFromSyntaxList(
-                            binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.CartesianPointText:
-                        item = StepCartesianPoint.CreateFromSyntaxList( initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.CircleText:
-                        item = StepCircle.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.CylindricalSurfaceText:
-                        item = StepCylindricalSurface.CreateFromSyntaxList( binder,
-                                                                            initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.DirectionText:
-                        item = StepDirection.CreateFromSyntaxList( initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.EdgeCurveText:
-                        item = StepEdgeCurve.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.EdgeLoopText:
-                        item = StepEdgeLoop.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.EllipseText:
-                        item = StepEllipse.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.FaceBoundText:
-                        item = StepFaceBound.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.FaceOuterBoundText:
-                        item = StepFaceOuterBound.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.LineText:
-                        item = StepLine.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.OrientedEdgeText:
-                        item = StepOrientedEdge.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.PlaneText:
-                        item = StepPlane.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.VectorText:
-                        item = StepVector.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    case StepItemTypeExtensions.VertexPointText:
-                        item = StepVertexPoint.CreateFromSyntaxList( binder, initNode.Right );
-                        break;
-                    default:
-                        if( UnsupportedItemTypes.Add( name ) ) {
-                            Debug.WriteLine(
-                                $"Unsupported item {name} at {initNode.Line}, {initNode.Column}" );
-                        }
-                        break;
+                    ExpressStepUtil.AdvancedFaceText => StepAdvancedFace.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.Axis2Placement2DText => StepAxis2Placement2D.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.Axis2Placement3DText => StepAxis2Placement3D.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.BSplineCurveWithKnotsText => StepBSplineCurveWithKnots.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.CartesianPointText => StepCartesianPoint.FromSyntax(
+                        initNode.Right ),
+
+                    ExpressStepUtil.CircleText => StepCircle.FromSyntax( Context, initNode.Right ),
+
+                    ExpressStepUtil.CylindricalSurfaceText => StepCylindricalSurface.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.DirectionText => StepDirection.FromSyntax( initNode.Right ),
+
+                    ExpressStepUtil.EdgeCurveText => StepEdgeCurve.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.EdgeLoopText => StepEdgeLoop.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.EllipseText => StepEllipse.FromSyntax( Context,
+                                                                           initNode.Right ),
+
+                    ExpressStepUtil.FaceBoundText => StepFaceBound.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.FaceOuterBoundText => StepFaceOuterBound.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.LineText => StepLine.FromSyntax( Context, initNode.Right ),
+
+                    ExpressStepUtil.OrientedEdgeText => StepOrientedEdge.FromSyntax(
+                        Context, initNode.Right ),
+
+                    ExpressStepUtil.PlaneText => StepPlane.FromSyntax( Context, initNode.Right ),
+
+                    ExpressStepUtil.VectorText => StepVector.FromSyntax( Context, initNode.Right ),
+
+                    ExpressStepUtil.VertexPointText => StepVertexPoint.FromSyntax(
+                        Context, initNode.Right ),
+
+                    _ => null
+                };
+                if( entity is null )
+                {
+                    UnsupportedItemTypes.Add( name );
+                    return;
                 }
+                Context.ReplaceEntity( this, entity );
             } else
             {
-                // TODO:
+                throw new ExpInvalidSyntaxException( "Name of entity is required." );
             }
-
-            return item;
         }
 
         void IConvertableToPipelineNode.NodeMain(
                                         in Dictionary<string, PipelineNodeImport> input,
                                         in Dictionary<string, PipelineNodeExport> output )
         {
-            InitGeometry();
             PipelineNodeExport.SkipAll( output );
         }
 
-        IEnumerable<string> IConvertableToPipelineNode.InputInterfacesName => ["in"];
+        IEnumerable<string> IConvertableToPipelineNode.InputInterfacesName => [InName];
 
         PipelineNodeOperation IConvertableToPipelineNode.Operation => ( this as IConvertableToPipelineNode ).NodeMain;
 
-        IEnumerable<string> IConvertableToPipelineNode.OutputInterfacesName => ["out"];
+        IEnumerable<string> IConvertableToPipelineNode.OutputInterfacesName => [OutName];
 
     }
 }

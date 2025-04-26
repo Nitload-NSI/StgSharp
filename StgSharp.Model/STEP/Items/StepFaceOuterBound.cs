@@ -45,7 +45,7 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.FaceOuterBound;
 
-        internal static new StepFaceOuterBound CreateFromSyntaxList(
+        internal static new StepFaceOuterBound FromSyntax(
                                                StepModel binder,
                                                ExpSyntaxNode syntaxList )
         {

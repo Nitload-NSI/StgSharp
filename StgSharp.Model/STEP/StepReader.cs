@@ -29,14 +29,19 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp;
+using StgSharp.Script;
+using StgSharp.Script.Express;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace StgSharp.Modeling.Step
 {
@@ -57,8 +62,8 @@ namespace StgSharp.Modeling.Step
             _fileStream = stream;
             _size = size;
             _memoryFile = MemoryMappedFile.CreateFromFile(
-                stream, mapName: null, size, MemoryMappedFileAccess.Read,
-                HandleInheritability.None, leaveOpen: true );
+                stream, mapName: null, size, MemoryMappedFileAccess.Read, HandleInheritability.None,
+                leaveOpen: true );
         }
 
         // ~StepReader()
@@ -75,18 +80,18 @@ namespace StgSharp.Modeling.Step
         public static bool FromFile( string path, out StepReader reader )
         {
             FileInfo info = new FileInfo( path );
-            if( !info.Exists ) {
+            if( !info.Exists )
+            {
                 reader = null!;
                 return false;
             }
             FileStream stream = new FileStream(
-                path, FileMode.Open, FileAccess.Read, FileShare.Read,
-                bufferSize: 4096, useAsync: true );
+                path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096,
+                useAsync: true );
             byte[] fileHead = new byte[40];
             stream.Read( fileHead, 0, fileLabel.Length );
             if( !Encoding.UTF8.GetString( fileHead ).Contains( fileLabel ) ) {
-                throw new InvalidDataException(
-                    "The given file is not a STEP file" );
+                throw new InvalidDataException( "The given file is not a STEP file" );
             }
             reader = new StepReader( stream, info.Length );
             reader.LocateSection();
@@ -102,26 +107,31 @@ namespace StgSharp.Modeling.Step
                 endsecSec = Encoding.UTF8.GetBytes( "ENDSEC;" ),
                 dataSec = Encoding.UTF8.GetBytes( "DATA;" );
             _fileStream.Position = 0;
-            for( ; startPos < _size; startPos += 1000 ) {
+            for( ; startPos < _size; startPos += 1000 )
+            {
                 _fileStream.Read( buffer );
-                if( _headStart == -1 ) {
+                if( _headStart == -1 )
+                {
                     long pos = bufferSpan.IndexOf( headerSec );
                     if( pos >= 0 ) {
                         _headStart = startPos + pos;
                     }
                 }
-                if( _headEnd == -1 ) {
+                if( _headEnd == -1 )
+                {
                     long pos = bufferSpan.IndexOf( endsecSec );
                     if( pos >= 0 ) {
                         _headEnd = startPos + pos;
                     }
                 }
-                if( _dataStart == -1 ) {
+                if( _dataStart == -1 )
+                {
                     long pos = bufferSpan.IndexOf( dataSec );
                     if( pos >= 0 ) {
                         _dataStart = startPos + pos;
                     }
-                } else {
+                } else
+                {
                     break;
                 }
                 _fileStream.Seek( 1000, SeekOrigin.Current );
@@ -131,9 +141,11 @@ namespace StgSharp.Modeling.Step
         private string ReadToken( StreamReader reader, ref long posCache )
         {
             StringBuilder token = new StringBuilder( 100 );
-            while( token.Length == 0 || token[ token.Length - 1 ] != ';' ) {
-                string subString = reader.ReadLine();
-                if( subString == null ) {
+            while( token.Length == 0 || token[ token.Length - 1 ] != ';' )
+            {
+                string subString = reader.ReadLine()!;
+                if( subString == null )
+                {
                     break;
                 }
                 token.Append( subString.TrimStart() );
@@ -144,8 +156,10 @@ namespace StgSharp.Modeling.Step
 
         private protected virtual void Dispose( bool disposing )
         {
-            if( !disposedValue ) {
-                if( disposing ) {
+            if( !disposedValue )
+            {
+                if( disposing )
+                {
                     _fileStream.Dispose();
                     _memoryFile.Dispose();
                 }

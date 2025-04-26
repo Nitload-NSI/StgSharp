@@ -33,11 +33,6 @@ using StgSharp.Script;
 
 namespace StgSharp.Modeling.Step
 {
-    public abstract class StepLoop : StepTopologicalRepresentationItem
-    {
-
-        public StepLoop( string name ) : base( name ) { }
-
-    }
+    public abstract class StepLoop : StepTopologicalRepresentationItem { }
 }
 

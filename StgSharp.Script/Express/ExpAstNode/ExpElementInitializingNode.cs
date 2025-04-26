@@ -65,6 +65,9 @@ namespace StgSharp.Script.Express
                                           ExpMetaRefNode type,
                                           ExpSyntaxNode init )
         {
+            if( init is ExpTupleNode tupleNode ) {
+                init = tupleNode.Right;
+            }
             ExpElementInitializingNode node = new ExpElementInitializingNode( source, type, init );
             return node;
         }

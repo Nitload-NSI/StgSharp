@@ -61,6 +61,11 @@ namespace StgSharp.Modeling.Step
             _transmitter = transmitter;
         }
 
+        public bool IsEmpty
+        {
+            get => _reader.IsEmpty && _transmitter.IsWriting;
+        }
+
         public Token ReadToken()
         {
             return _reader.ReadToken();

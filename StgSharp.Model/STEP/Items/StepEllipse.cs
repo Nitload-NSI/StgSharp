@@ -75,9 +75,7 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.Ellipse;
 
-        internal static StepEllipse CreateFromSyntaxList(
-                                    StepModel binder,
-                                    ExpSyntaxNode syntaxList )
+        internal static StepEllipse FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepEllipse ellipse = new StepEllipse();

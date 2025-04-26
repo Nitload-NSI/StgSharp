@@ -73,9 +73,7 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.OrientedEdge;
 
-        internal static StepOrientedEdge CreateFromSyntaxList(
-                                         StepModel binder,
-                                         ExpSyntaxNode syntaxList )
+        internal static StepOrientedEdge FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepOrientedEdge orientedEdge = new StepOrientedEdge();

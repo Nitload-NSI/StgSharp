@@ -40,28 +40,25 @@ namespace StgSharp.Modeling.Step
     public class StepEdgeLoop : StepLoop
     {
 
-        public StepEdgeLoop( string name, IEnumerable<StepOrientedEdge> edgeList )
-            : base( name )
+        public StepEdgeLoop( IEnumerable<StepOrientedEdge> edgeList )
         {
             EdgeList = new List<StepOrientedEdge>( edgeList );
         }
 
-        public StepEdgeLoop( string name, params StepOrientedEdge[] edgeList )
-            : this( name, ( IEnumerable<StepOrientedEdge> )edgeList ) { }
+        public StepEdgeLoop( params StepOrientedEdge[] edgeList )
+            : this( ( IEnumerable<StepOrientedEdge> )edgeList ) { }
 
         public List<StepOrientedEdge> EdgeList { get; private set; }
 
         public override StepItemType ItemType => StepItemType.EdgeLoop;
 
-        internal static StepEdgeLoop CreateFromSyntaxList(
-                                     StepModel binder,
-                                     ExpSyntaxNode syntaxList )
+        internal static StepEdgeLoop FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 2 );
             ExpNodeNextEnumerator edgeSyntaxList = enumerator.Values[ 1 ].ToEnumerator();
             StepEdgeLoop edgeLoop = new StepEdgeLoop(
-                string.Empty, new StepOrientedEdge[edgeSyntaxList.Values.Count] );
+                new StepOrientedEdge[edgeSyntaxList.Values.Count] );
             edgeLoop.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
             for( int i = 0; i < edgeSyntaxList.Values.Count; i++ )
             {

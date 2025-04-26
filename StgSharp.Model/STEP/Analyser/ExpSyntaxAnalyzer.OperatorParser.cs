@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Model.Step.SyntaxNode;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
@@ -41,7 +42,7 @@ using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Modeling.Step
 {
-    public partial class StepExpSyntaxAnalyzer
+    internal partial class StepExpSyntaxAnalyzer
     {
 
         public int CompareOperatorPrecedence( Token left, Token right )
@@ -88,48 +89,11 @@ namespace StgSharp.Modeling.Step
                     _cache.PushOperand( node );
                     return node;
                 case TokenFlag.Member:
-                    if( _context.TryGetFunction( op.Value, out ExpFunctionSource? f ) )
-                    {
-                        if( !_cache.PopOperand( out Token t, out ExpSyntaxNode? p ) )
-                        {
-                            node = ExpFunctionCallingNode.CallFunction( op, f, p );
-                            return node;
-                        } else
-                        {
-                            throw new ExpCompileException(
-                                t,
-                                "An ExpNode for function calling is needed, but a token was popped" );
-                        }
-                    } else if( _context.TryGetProcedure( op.Value, out ExpProcedureSource? p ) )
-                    {
-                        if( !_cache.PopOperand( out Token t, out ExpSyntaxNode? param ) )
-                        {
-                            node = ExpProcedureCallingNode.CallProcedure( op, p, param );
-                            return node;
-                        } else
-                        {
-                            throw new ExpCompileException(
-                                t,
-                                "An ExpNode for function calling is needed, but a token was popped" );
-                        }
-                    } else if( ExpSchema.BuiltinSchema.TryGetFunction( op.Value, out f ) )
-                    {
-                        if( !_cache.PopOperand( out Token t, out ExpSyntaxNode? param ) )
-                        {
-                            node = ExpFunctionCallingNode.CallFunction( op, f, param );
-                            return node;
-                        } else
-                        {
-                            throw new ExpCompileException(
-                                t,
-                                "An ExpNode for function calling is needed, but a token was popped" );
-                        }
-                    } else
-                    {
-                        throw new NotImplementedException();
-
-                        //uncertain case here
-                    }
+                    _cache.PopOperand( out _, out ExpSyntaxNode? p );
+                    StepEntityInitCaller caller = StepEntityInitCaller.CreateCaller( op.Value );
+                    node = ExpFunctionCallingNode.CallFunction( op, caller, p );
+                    _cache.PushOperand( node );
+                    return node;
                 default:
                     throw new NotImplementedException();
             }

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepDataSectionsTranmitter.cs"
+//     file="StepEntityInitCaller.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,7 +28,11 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using StgSharp.Modeling.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Concurrent;
@@ -37,58 +41,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step.SyntaxNode
 {
-    public class StepDataSectionTransmitter : IScriptSourceProvider
+    public class StepEntityInitCaller : ExpFunctionSource
     {
 
-        private bool _isEmpty;
-        private ConcurrentQueue<string> _cache = new ConcurrentQueue<string>();
-        private int _line = 0;
+        private static Dictionary<string, StepEntityInitCaller> _callers = new();
 
-        public bool IsEmpty => _isEmpty;
-
-        public int Location => _line;
-
-        public void EndWriting()
+        private StepEntityInitCaller( string name )
+            : base( name, null )
         {
-            _cache.Enqueue( "END_DATA" );
+            ReturningType = StepEntityType.Source;
         }
 
-        public string ReadLine()
+        public static StepEntityInitCaller CreateCaller( string name )
         {
-            _cache.TryDequeue( out string? line );
-            while( !IsEmpty )
-            {
-                if( _cache.TryDequeue( out line ) )
-                {
-                    if( line == "END_DATA" )
-                    {
-                        _isEmpty = true;
-                        return string.Empty;
-                    }
-                    _line++;
-                    return line;
-                }
+            if( _callers.TryGetValue( name, out StepEntityInitCaller? caller ) ) {
+                return caller;
             }
-            return string.Empty;
-        }
-
-        public string ReadLine( out int position )
-        {
-            string ret = ReadLine();
-            position = _line;
-            return ret;
-        }
-
-        public void WriteLine( string line )
-        {
-            _cache.Enqueue( line );
-        }
-
-        IScriptSourceProvider IScriptSourceProvider.Slice( int location, int count )
-        {
-            throw new NotSupportedException();
+            caller = new StepEntityInitCaller( name );
+            _callers.Add( name, caller );
+            return caller;
         }
 
     }

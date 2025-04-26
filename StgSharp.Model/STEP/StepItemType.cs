@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepCircle.cs"
+//     file="StepItemType.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,55 +30,33 @@
 //-----------------------------------------------------------------------
 using StgSharp.Modeling.Step;
 using StgSharp.Script;
-using StgSharp.Script.Express;
 
 using System;
-using System.Collections.Generic;
 
 namespace StgSharp.Modeling.Step
 {
-    public class StepCircle : StepConic
+    public enum StepItemType
     {
 
-        private StepAxis2Placement _position;
-
-        private StepCircle() : base( string.Empty ) { }
-
-        public StepCircle( string label, StepAxis2Placement position, float radius )
-            : base( label )
-        {
-            Position = position;
-            Radius = radius;
-        }
-
-        public float Radius { get; set; }
-
-        public StepAxis2Placement Position
-        {
-            get { return _position; }
-            set
-            {
-                if( value == null ) {
-                    throw new ArgumentNullException();
-                }
-
-                _position = value;
-            }
-        }
-
-        public override StepItemType ItemType => StepItemType.Circle;
-
-        internal static StepCircle FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
-        {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
-            StepCircle circle = new StepCircle();
-            enumerator.AssertEnumeratorCount( 3 );
-            circle.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => circle.Position = v.AsType<StepAxis2Placement>() );
-            circle.Radius = ( enumerator.Values[ 2 ]as ExpRealNumberNode )!.Value;
-            return circle;
-        }
+        Unknown,
+        AdvancedFace,
+        AxisPlacement2D,
+        AxisPlacement3D,
+        BSplineCurveWithKnots,
+        CartesianPoint,
+        Circle,
+        CylindricalSurface,
+        Direction,
+        EdgeCurve,
+        EdgeLoop,
+        Ellipse,
+        FaceBound,
+        FaceOuterBound,
+        Line,
+        OrientedEdge,
+        Plane,
+        Vector,
+        VertexPoint
 
     }
 }

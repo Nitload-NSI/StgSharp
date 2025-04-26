@@ -68,9 +68,7 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.Vector;
 
-        internal static StepVector CreateFromSyntaxList(
-                                   StepModel binder,
-                                   ExpSyntaxNode syntaxList )
+        internal static StepVector FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepVector vector = new StepVector();

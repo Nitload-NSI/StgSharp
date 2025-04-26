@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpressStepUntil.cs"
+//     file="ExpressStepUtil.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -29,7 +29,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Modeling.Step;
-using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
@@ -40,17 +39,54 @@ using System.Runtime.CompilerServices;
 
 namespace StgSharp.Modeling.Step
 {
-    public class ExpressStepUntil : ExpSchema
+    public class ExpressStepUtil : ExpSchema
     {
+
+        public const string AdvancedFaceText = "ADVANCED_FACE";
+        public const string Axis2Placement2DText = "AXIS2_PLACEMENT_2D";
+        public const string Axis2Placement3DText = "AXIS2_PLACEMENT_3D";
+        public const string BSplineCurveWithKnotsText = "B_SPLINE_CURVE_WITH_KNOTS";
+        public const string CartesianPointText = "CARTESIAN_POINT";
+        public const string CircleText = "CIRCLE";
+        public const string CylindricalSurfaceText = "CYLINDRICAL_SURFACE";
+        public const string DirectionText = "DIRECTION";
+        public const string EdgeCurveText = "EDGE_CURVE";
+        public const string EdgeLoopText = "EDGE_LOOP";
+        public const string EllipseText = "ELLIPSE";
+        public const string FaceBoundText = "FACE_BOUND";
+        public const string FaceOuterBoundText = "FACE_OUTER_BOUND";
+        public const string LineText = "LINE";
+        public const string OrientedEdgeText = "ORIENTED_EDGE";
+        public const string PlaneText = "PLANE";
+        public const string VectorText = "VECTOR";
+        public const string VertexPointText = "VERTEX_POINT";
+
+        private static
+            HashSet<string> names = [
+                AdvancedFaceText,
+                Axis2Placement2DText,
+                Axis2Placement3DText,
+                BSplineCurveWithKnotsText,
+                CartesianPointText,
+                CircleText,
+                CylindricalSurfaceText,
+                DirectionText,
+                EdgeCurveText,
+                EdgeLoopText,
+                EllipseText,
+                FaceBoundText,
+                FaceOuterBoundText,
+                LineText,
+                OrientedEdgeText,
+                PlaneText,
+                VectorText,
+                VertexPointText,
+                ];
 
         private FrozenDictionary<string, ExpTypeSource> entitiesDefine;
 
-        public ExpressStepUntil()
+        public ExpressStepUtil()
         {
-            Span<KeyValuePair<string, ExpTypeSource>> source = [
-                new KeyValuePair<string, ExpTypeSource>( StepItemTypeExtensions.AdvancedFaceText,
-                                                          ),
-                ];
             Dictionary<string, ExpTypeSource> tIndex = new Dictionary<string, ExpTypeSource>();
         }
 
@@ -69,7 +105,8 @@ namespace StgSharp.Modeling.Step
 
         public override bool TryGetEntity( string name, out ExpEntitySource e )
         {
-            throw new NotImplementedException();
+            e = null!;
+            return false;
         }
 
         public override bool TryGetFunction( string name, out ExpFunctionSource f )
@@ -79,22 +116,26 @@ namespace StgSharp.Modeling.Step
 
         public override bool TryGetProcedure( string name, out ExpProcedureSource p )
         {
-            throw new NotImplementedException();
+            p = null!;
+            return false;
         }
 
         public override bool TryGetRule( string name, out ExpRuleSource r )
         {
-            throw new NotImplementedException();
+            r = null!;
+            return false;
         }
 
         public override bool TryGetSchemaInclude( string name, out ExpSchema include )
         {
-            throw new NotImplementedException();
+            include = null!;
+            return false;
         }
 
         public override bool TryGetType( string name, out ExpTypeSource t )
         {
-            throw new NotImplementedException();
+            t = null!;
+            return false;
         }
 
     }

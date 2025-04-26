@@ -43,22 +43,36 @@ namespace StgSharp.Modeling.Step
     public class StepEntityInstanceNode : ExpSyntaxNode
     {
 
-        private int id;
-        private StepModel _model;
-
-        public StepEntityInstanceNode( Token source, StepModel model ) : base( source ) { }
+        private StepEntityInstanceNode( Token source ) : base( source ) { }
 
         public override ExpSyntaxNode Left => Empty;
 
         public override ExpSyntaxNode Right => Empty;
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException();
+        public override IExpElementSource EqualityTypeConvert => StepEntityType.Source;
 
-        private void GetInstance()
+        public int Id { get; init; }
+
+        public static StepEntityInstanceNode Register( Token t )
         {
-            _model 
-
+            if( t.Value[ 0 ] != '#' ) {
+                throw new ExpInvalidSyntaxException( "Entity label in STEP should be # + number" );
+            }
+            StepEntityInstanceNode node = new StepEntityInstanceNode( t )
+            {
+                Id = int.Parse( t.Value.AsSpan( 1 ) ),
+            };
+            return node;
         }
+
+    }
+
+    internal class StepEntityType : ExpTypeSource
+    {
+
+        private StepEntityType( string typeName ) : base( typeName ) { }
+
+        public static StepEntityType Source { get; } = new StepEntityType( "ENTITY" );
 
     }
 }

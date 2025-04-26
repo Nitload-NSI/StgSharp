@@ -41,10 +41,9 @@ namespace StgSharp.Modeling.Step
     public class StepFaceBound : StepTopologicalRepresentationItem
     {
 
-        protected StepFaceBound() : base( string.Empty ) { }
+        public StepFaceBound() { }
 
         public StepFaceBound( string name, StepLoop bound, bool orientation )
-            : base( name )
         {
             Bound = bound;
             Orientation = orientation;
@@ -56,9 +55,7 @@ namespace StgSharp.Modeling.Step
 
         public StepLoop Bound { get; set; }
 
-        internal static StepFaceBound CreateFromSyntaxList(
-                                      StepModel binder,
-                                      ExpSyntaxNode syntaxList )
+        internal static StepFaceBound FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );

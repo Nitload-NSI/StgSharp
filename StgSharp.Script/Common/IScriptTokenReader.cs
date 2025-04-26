@@ -33,6 +33,8 @@ namespace StgSharp.Script
     public interface IScriptTokenReader
     {
 
+        bool IsEmpty { get; }
+
         Token ReadToken();
 
         bool TryReadToken( out Token t );

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpSyntaxAnalyzer.ErrorProcess.cs"
+//     file="StepComplexEntityNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,28 +28,39 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Script.Express;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
-    public partial class StepExpSyntaxAnalyzer
+    public class StepComplexEntityNode : ExpSyntaxNode
     {
 
-        public void ThrowCompileException( int errorCode )
+        private ExpSyntaxNode _begin;
+
+        public StepComplexEntityNode( ExpSyntaxNode node )
+            : base( node.Source )
         {
-            switch( errorCode )
-            {
-                case 0 or 1:
-                    return;
-                case TokenTypeNotMatch:
-                    throw new Exception();
-                default:
-                    break;
+            _begin = node;
+        }
+
+        public override ExpSyntaxNode Left => Empty;
+
+        public override ExpSyntaxNode Right => _begin;
+
+        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException();
+
+        public StepComplexEntityNode FromTuple( ExpSyntaxNode node )
+        {
+            if( node is not ExpTupleNode tuple ) {
+                throw new ExpInvalidSyntaxException( "Node to convert is not a complex" );
             }
+            return new StepComplexEntityNode( tuple.Right );
         }
 
     }

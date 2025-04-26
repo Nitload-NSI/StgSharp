@@ -45,12 +45,11 @@ namespace StgSharp.Modeling.Step
         private StepEdgeCurve() : base() { }
 
         public StepEdgeCurve(
-               string name,
                StepVertex edgeStart,
                StepVertex edgeEnd,
                StepCurve edgeGeometry,
                bool isSameSense )
-            : base( name, edgeStart, edgeEnd )
+            : base( edgeStart, edgeEnd )
         {
             EdgeGeometry = edgeGeometry;
             IsSameSense = isSameSense;
@@ -73,9 +72,7 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.EdgeCurve;
 
-        internal static StepEdgeCurve CreateFromSyntaxList(
-                                      StepModel binder,
-                                      ExpSyntaxNode syntaxList )
+        internal static StepEdgeCurve FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepEdgeCurve edgeCurve = new StepEdgeCurve();

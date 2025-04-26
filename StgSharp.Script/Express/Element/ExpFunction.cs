@@ -54,6 +54,8 @@ namespace StgSharp.Script.Express
 
         public override ExpElementType ElementType => ExpElementType.Function;
 
+        public IExpElementSource ReturningType { get; protected set; }
+
         public override IScriptSourceProvider SourceProvider => _transmitter;
 
         public override string Name => _name;

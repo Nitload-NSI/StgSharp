@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepDataReader.cs"
+//     file="StepDataSectionsTranmitter.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,48 +28,77 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
-using StgSharp.Modeling.Step;
 using StgSharp.Script;
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.IO.MemoryMappedFiles;
+using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace StgSharp.Modeling.Step
 {
-    public partial class StepReader
+    public class StepDataSectionTransmitter : IScriptSourceProvider
     {
 
-        public StepDataSectionTransmitter DataTransmitter { get; } = new StepDataSectionTransmitter(
-            );
+        private const string EndDataText = "ENDSEC;";
 
-        public void ReadDataSection()
+        private bool _isEmpty;
+        private ConcurrentQueue<string> _cache = new ConcurrentQueue<string>();
+        private int _line = 0;
+
+        public bool IsEmpty => _isEmpty;
+
+        public bool IsWriting { get; private set; } = true;
+
+        public int Location => _line;
+
+        public void EndWriting()
         {
-            using( MemoryMappedViewStream ms = _memoryFile.CreateViewStream(
-                0, _size, MemoryMappedFileAccess.Read ) )
-            {
-                StreamReader sr = new StreamReader( ms );
-                long pos = _headStart;
-                string line;
-                while( string.IsNullOrEmpty( line = sr.ReadLine()! ) ) {
-                    DataTransmitter.WriteLine( line );
-                }
-                sr.Dispose();
-            }
+            _cache.Enqueue( EndDataText );
+            IsWriting = false;
         }
 
-        [GeneratedRegex(
-                @"^#(?<id>[0-9]+)\s*?=\s*?(?<expression>\S.*?)\s*;$",
-                RegexOptions.Compiled | RegexOptions.Singleline )]
-        private static partial Regex GetExpressionSplitter();
+        public string ReadLine()
+        {
+            _cache.TryDequeue( out string? line );
+            while( !IsEmpty )
+            {
+                if( _cache.TryDequeue( out line ) )
+                {
+                    if( line == EndDataText )
+                    {
+                        _isEmpty = true;
+                        return string.Empty;
+                    }
+                    _line++;
+                    return line;
+                }
+            }
+            return string.Empty;
+        }
+
+        public string ReadLine( out int position )
+        {
+            string ret = ReadLine();
+            position = _line;
+            return ret;
+        }
+
+        public void WriteLine( string line )
+        {
+            if( line == EndDataText ) {
+                EndWriting();
+            }
+            _cache.Enqueue( line );
+        }
+
+        IScriptSourceProvider IScriptSourceProvider.Slice( int location, int count )
+        {
+            throw new NotSupportedException();
+        }
 
     }
 }

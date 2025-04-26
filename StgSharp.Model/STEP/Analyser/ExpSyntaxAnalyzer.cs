@@ -35,6 +35,7 @@ using StgSharp.Script.Express;
 using StgSharp.Threading;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Pipes;
@@ -46,7 +47,7 @@ using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Modeling.Step
 {
-    public partial class StepExpSyntaxAnalyzer : ISyntaxAnalyzer
+    internal partial class StepExpSyntaxAnalyzer : ISyntaxAnalyzer
     {
 
         private const int EndLine = 1;
@@ -76,6 +77,9 @@ namespace StgSharp.Modeling.Step
             }
             _local = local;
         }
+
+        public ConcurrentQueue<ExpSyntaxNode> StepEntityInitStatements { get; } = new ConcurrentQueue<ExpSyntaxNode>(
+            );
 
         /// <summary>
         ///   Append a token to top of cache. This method will automatically convert token to node

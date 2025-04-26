@@ -41,15 +41,9 @@ namespace StgSharp.Modeling.Step
     public class StepAdvancedFace : StepFaceSurface
     {
 
-        private StepAdvancedFace() : base( string.Empty ) { }
-
-        public StepAdvancedFace( string name ) : base( name ) { }
-
         public override StepItemType ItemType => StepItemType.AdvancedFace;
 
-        internal static StepAdvancedFace CreateFromSyntaxList(
-                                         StepModel binder,
-                                         ExpSyntaxNode syntaxList )
+        internal static StepAdvancedFace FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepAdvancedFace face = new StepAdvancedFace();

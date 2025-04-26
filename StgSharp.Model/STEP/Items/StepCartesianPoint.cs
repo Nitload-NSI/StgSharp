@@ -47,7 +47,7 @@ namespace StgSharp.Modeling.Step
 
         protected override int MinimumValueCount => 1;
 
-        internal static StepCartesianPoint CreateFromSyntaxList( ExpSyntaxNode syntaxList )
+        internal static StepCartesianPoint FromSyntax( ExpSyntaxNode syntaxList )
         {
             return ( StepCartesianPoint )AssignTo( new StepCartesianPoint(), syntaxList );
         }

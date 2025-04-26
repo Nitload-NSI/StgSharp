@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="STEPHeader.cs"
+//     file="StepHeader.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -35,11 +35,10 @@ using System.Text;
 namespace StgSharp.Modeling.Step
 {
     /// <summary>
-    /// C# implementation of HEADER part in STEP file.
+    ///   C# implementation of HEADER part in STEP file.
     /// </summary>
-    public struct StepInfo
+    public record class StepInfo
     {
-
         private STEPFileDescriptor _header;
         private STEPFileName _name;
         private STEPSchema _schema;
@@ -127,101 +126,46 @@ namespace StgSharp.Modeling.Step
             get => _schema.Data;
             internal set => _schema.Data = value;
         }
-
     }
 
     /// <summary>
-    /// C# implementation of FILE_NAME part in header of STEP file.
+    ///   C# implementation of FILE_NAME part in header of STEP file.
     /// </summary>
-    public struct STEPFileName
+    public record class STEPFileName
     {
+        public DateTime TimeStamp { get; internal set; }
 
-        public DateTime TimeStamp
-        {
-            get;
-            internal set;
-        }
+        public string Name { get; internal set; }
 
-        public string Name
-        {
-            get;
-            internal set;
-        }
+        public string Author { get; internal set; }
 
-        public string Author
-        {
-            get;
-            internal set;
-        }
+        public string Description { get; internal set; }
 
-        public string Description
-        {
-            get;
-            internal set;
-        }
+        public string PreprocessorVersion { get; internal set; }
 
-        public string PreprocessorVersion
-        {
-            get;
-            internal set;
-        }
+        public string Version { get; internal set; }
 
-        public string Version
-        {
-            get;
-            internal set;
-        }
+        public string Organization { get; internal set; }
 
-        public string Organization
-        {
-            get;
-            internal set;
-        }
+        public string OriginatingSystem { get; internal set; }
 
-        public string OriginatingSystem
-        {
-            get;
-            internal set;
-        }
-
-        public string Authorization
-        {
-            get;
-            internal set;
-        }
-
+        public string Authorization { get; internal set; }
     }
 
-    public struct STEPSchema
+    public record class STEPSchema
     {
-
         private List<string> _schema;
 
-        public string Data
-        {
-            get;
-            internal set;
-        }
-
+        public string Data { get; internal set; }
     }
 
     /// <summary>
-    /// C# implementation of FILE_NAME part in header of STEP file.
+    ///   C# implementation of FILE_NAME part in header of STEP file.
     /// </summary>
-    public struct STEPFileDescriptor
+    public record class STEPFileDescriptor
     {
+        public (int mainLevel,int? subLevel) Level { get; internal set; }
 
-        public (int mainLevel,int? subLevel) Level
-        {
-            get;
-            internal set;
-        }
-
-        public string Description
-        {
-            get;
-            internal set;
-        }
-
+        public string Description { get; internal set; }
     }
 }

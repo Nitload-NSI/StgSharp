@@ -40,8 +40,6 @@ namespace StgSharp.Modeling.Step
     public abstract class StepFaceSurface : StepFace
     {
 
-        public StepFaceSurface( string name ) : base( name ) { }
-
         public bool SameSense { get; set; }
 
         public StepSurface FaceGeometry { get; set; }

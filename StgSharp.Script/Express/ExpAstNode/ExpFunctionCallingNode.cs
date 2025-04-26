@@ -58,8 +58,7 @@ namespace StgSharp.Script.Express
 
         public ExpFunctionSource FunctionCaller => _function;
 
-        public override ExpInstantiableElement EqualityTypeConvert => throw new NotImplementedException(
-            );
+        public override ExpInstantiableElement EqualityTypeConvert => _function.;
 
         public override ExpSyntaxNode Left => Empty;
 
@@ -75,6 +74,9 @@ namespace StgSharp.Script.Express
                                              ExpFunctionSource function,
                                              ExpSyntaxNode param )
         {
+            if( param is ExpTupleNode ) {
+                param = param.Right;
+            }
             return new ExpFunctionCallingNode( source, function, param );
         }
 

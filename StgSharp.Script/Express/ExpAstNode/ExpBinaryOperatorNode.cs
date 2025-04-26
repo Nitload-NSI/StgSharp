@@ -61,6 +61,8 @@ namespace StgSharp.Script.Express
 
         public override ExpSyntaxNode Right => _right;
 
+        public string Operator { get; private set; }
+
         public static ExpBinaryOperatorNode Add(
                                             Token source,
                                             ExpSyntaxNode left,
@@ -93,6 +95,7 @@ namespace StgSharp.Script.Express
             {
                 _returnType = ExpInstantiableElement.Void,
                 _nodeFlag = ExpNodeFlag.Operator_Binary | left._nodeFlag,
+                Operator = "=",
                 CodeConvertTemplate = "{0} = {1}",
             };
         }
@@ -111,11 +114,11 @@ namespace StgSharp.Script.Express
         }
 
         public static ExpBinaryOperatorNode CompareInstanceNotEqual(
-                                            Token nsource,
+                                            Token source,
                                             ExpSyntaxNode left,
                                             ExpSyntaxNode right )
         {
-            return new ExpBinaryOperatorNode( nsource, left, right )
+            return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = ExpressCompile.ExpBool,
                 _nodeFlag = ExpNodeFlag.BuiltinType_Boolean | ExpNodeFlag.Operator_Binary,
@@ -128,13 +131,13 @@ namespace StgSharp.Script.Express
                                             ExpSyntaxNode left,
                                             ExpSyntaxNode right )
         {
-            if( right is not ExpMetaRefNode metaref ) {
+            if( right is not ExpMetaRefNode metaRef ) {
                 throw new ExpInvalidTypeException(
                     "<source of element>", right.EqualityTypeConvert.Name );
             }
             return new ExpBinaryOperatorNode( source, left, right )
             {
-                _returnType = metaref.SourceRef,
+                _returnType = metaRef.SourceRef,
                 _nodeFlag = ExpNodeFlag.Operator_Binary,
                 /*
                  * 0. instance to convert

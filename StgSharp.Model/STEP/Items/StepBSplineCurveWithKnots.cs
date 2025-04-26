@@ -76,7 +76,7 @@ namespace StgSharp.Modeling.Step
 
         public StepKnotType KnotSpec { get; set; } = StepKnotType.Unspecified;
 
-        internal static StepBSplineCurveWithKnots CreateFromSyntaxList(
+        internal static StepBSplineCurveWithKnots FromSyntax(
                                                   StepModel binder,
                                                   ExpSyntaxNode syntaxList )
         {

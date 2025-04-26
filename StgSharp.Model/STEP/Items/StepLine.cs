@@ -102,7 +102,7 @@ namespace StgSharp.Modeling.Step
             return new StepLine( string.Empty, start, vector );
         }
 
-        internal static StepLine CreateFromSyntaxList( StepModel binder, ExpSyntaxNode syntaxList )
+        internal static StepLine FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             StepLine line = new StepLine();

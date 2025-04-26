@@ -42,7 +42,7 @@ using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Modeling.Step
 {
-    public partial class StepExpSyntaxAnalyzer
+    internal partial class StepExpSyntaxAnalyzer
     {
 
         private void ClosePrefixReverse( Token rightSeparator )

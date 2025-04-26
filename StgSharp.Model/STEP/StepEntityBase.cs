@@ -45,21 +45,13 @@ namespace StgSharp.Modeling.Step
     public abstract class StepEntityBase : IExpMarshalType<StepUninitializedEntity>
     {
 
-        protected StepEntityBase( string name )
-        {
-            Name = name;
-        }
-
         public int Id { get; protected set; }
 
         public abstract StepItemType ItemType { get; }
 
-        public string Name { get; protected set; }
+        public StepModel Context { get; init; }
 
-        public static StepUninitializedEntity Create( string name, ExpSyntaxNode node )
-        {
-            return new StepUninitializedEntity( name, 0 );
-        }
+        public string Name { get; protected set; }
 
     }
 }

@@ -38,6 +38,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Schema;
 
@@ -45,12 +46,17 @@ using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
 namespace StgSharp.Modeling.Step
 {
-    public partial class StepExpSyntaxAnalyzer
+    internal partial class StepExpSyntaxAnalyzer
     {
 
-        private bool IsSeparatorMatch( Token leftSperator, Token rightSeparator )
+        private static Regex _entityTypeCheckPattern = GetEntityTypeCheckPattern();
+
+        [GeneratedRegex( @"^[A-Z_]+$", RegexOptions.Singleline )]
+        private static partial Regex GetEntityTypeCheckPattern();
+
+        private bool IsSeparatorMatch( Token leftSeparator, Token rightSeparator )
         {
-            return leftSperator.Value switch
+            return leftSeparator.Value switch
             {
                 ExpKeyword.LeftBrace => rightSeparator.Value == ExpKeyword.RightBrace,
                 ExpKeyword.LeftParen => rightSeparator.Value == ExpKeyword.RightParen,
@@ -142,6 +148,9 @@ namespace StgSharp.Modeling.Step
                 case 1:
                     _cache.PopOperand( out _, out ExpSyntaxNode? statement );
                     _cache.StatementsInDepth.Push( statement );
+                    if( t.Value == ";" ) {
+                        StepEntityInitStatements.Enqueue( statement );
+                    }
                     return true;
                 default:
                     ExpInvalidSyntaxException.ThrowNoOperator( t );
@@ -237,36 +246,18 @@ namespace StgSharp.Modeling.Step
 
         private bool TryParseFunction( Token t )
         {
-            if( ExpKeyword.BuiltinFunctions.Contains( t.Value ) )
-            {
+            if( _entityTypeCheckPattern.IsMatch( t.Value ) ) {
                 _cache.PushOperator( t );
-                return true;
-            } else if( _context.TryGetFunction( t.Value, out ExpFunctionSource? f ) )
-            {
-                _cache.PushOperand( t );
-                return true;
             }
             return false;
         }
 
         private bool TryParseInstance( Token t )
         {
-            if( _local.TryGetMember( t.Value,
-                                     out ExpSyntaxNode? node ) && node is ExpElementInstance instance )
+            if( t.Value[ 0 ] == '#' )
             {
-                _cache.PushOperand( ExpInstanceReferenceNode.MakeReferenceFrom( t, instance ) );
+                _cache.PushOperand( StepEntityInstanceNode.Register( t ) );
                 return true;
-            } else if( _cache.IsLastAddedOperator )
-            {
-                if( _cache.PeekOperand( out _,
-                                        out ExpSyntaxNode? typenode ) && typenode is ExpMetaRefNode typeRef )
-                {
-                    _cache.PopOperand( out _, out _ );
-                    _local.AddMember( t.Value, typeRef.SourceRef.CreateInstanceNode( t ) );
-                } else
-                {
-                    return false;
-                }
             }
             return false;
         }

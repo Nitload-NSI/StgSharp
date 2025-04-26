@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepExpressParser.cs"
+//     file="ExpSyntaxAnalyzer.ErrorProcess.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,9 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
-using StgSharp.Script;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,18 +36,20 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Modeling.Step
 {
-    public class StepExpressSyntaxParser : ISyntaxAnalyzer
+    internal partial class StepExpSyntaxAnalyzer
     {
 
-        private StepExpSyntaxAnalyzer _analyzer;
-
-        public StepExpressSyntaxParser()
+        public void ThrowCompileException( int errorCode )
         {
-            _analyzer = new StepExpSyntaxAnalyzer();
-        }
-
-        public void AppendToken( Token t )
-        {
+            switch( errorCode )
+            {
+                case 0 or 1:
+                    return;
+                case TokenTypeNotMatch:
+                    throw new Exception();
+                default:
+                    break;
+            }
         }
 
     }

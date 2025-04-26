@@ -53,9 +53,7 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.CylindricalSurface;
 
-        internal static StepEntityBase CreateFromSyntaxList(
-                                       StepModel binder,
-                                       ExpSyntaxNode syntaxList )
+        internal static StepEntityBase FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );

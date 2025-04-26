@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Math;
 using StgSharp.Modeling.Step;
 using StgSharp.Script;
 
@@ -36,7 +37,7 @@ namespace StgSharp.Modeling.Step
     public abstract class StepVertex : StepTopologicalRepresentationItem
     {
 
-        protected StepVertex( string name ) : base( name ) { }
+        public Vec3 Vertex { get; set; }
 
     }
 }

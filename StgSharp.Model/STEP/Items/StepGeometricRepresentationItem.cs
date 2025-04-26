@@ -36,7 +36,7 @@ namespace StgSharp.Modeling.Step
     public abstract class StepGeometricRepresentationItem : StepEntityBase
     {
 
-        protected StepGeometricRepresentationItem( string name ) : base( name ) { }
+        protected StepGeometricRepresentationItem( string name ) { }
 
     }
 }

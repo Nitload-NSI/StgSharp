@@ -41,62 +41,61 @@ namespace StgSharp.Modeling.Step
 {
     public partial class StepReader
     {
-        /**/
 
         private static Regex expressionSplitter = new Regex(
-            @"^(?<CALLER>[A-Z_]+)\s?\((?<PARAM>.+)\)\;",
-            RegexOptions.Compiled );
+            @"^(?<CALLER>[A-Z_]+)\s?\((?<PARAM>.+)\)\;", RegexOptions.Compiled );
+        /**/
+        private StepInfo _info;
 
         public StepInfo GetInfo()
         {
+            if( _info is not null ) {
+                return _info;
+            }
             StepInfo info = new StepInfo();
             List<StepObjectConstructor> constructorList = new List<StepObjectConstructor>();
             using( MemoryMappedViewStream ms = _memoryFile.CreateViewStream(
-                0, _size, MemoryMappedFileAccess.Read ) ) {
-                using( StreamReader sr = new StreamReader( ms ) ) {
+                0, _size, MemoryMappedFileAccess.Read ) )
+            {
+                using( StreamReader sr = new StreamReader( ms ) )
+                {
                     long pos = _headStart;
                     ms.Seek( _headStart, SeekOrigin.Begin );
-                    while( pos <= _headEnd ) {
+                    while( pos <= _headEnd )
+                    {
                         string token = ReadToken( sr, ref pos );
-                        if( token == "HEADER;" ) {
+                        if( token == "HEADER;" )
+                        {
                             continue;
                         }
 
-                        if( token == "ENDSEC;" ) {
+                        if( token == "ENDSEC;" )
+                        {
                             break;
                         }
 
-                        GroupCollection match = expressionSplitter.Match(
-                            token )
-                                .Groups;
+                        GroupCollection match = expressionSplitter.Match( token ).Groups;
                         constructorList.Add(
                             new StepObjectConstructor(
-                                0, match[ "CALLER" ].ToString(),
-                                match[ "PARAM" ].ToString() ) );
+                                0, match[ "CALLER" ].ToString(), match[ "PARAM" ].ToString() ) );
                     }
-                    foreach( StepObjectConstructor constructor in constructorList ) {
-                        switch( constructor.Caller ) {
+                    foreach( StepObjectConstructor constructor in constructorList )
+                    {
+                        switch( constructor.Caller )
+                        {
                             case "FILE_DESCRIPTION":
-                                info.Description = StepDataParser.ToString(
-                                    constructor[ 0 ] );
-                                info.Level = StepDataParser.ToVersion(
-                                    constructor[ 1 ] );
+                                info.Description = StepDataParser.ToString( constructor[ 0 ] );
+                                info.Level = StepDataParser.ToVersion( constructor[ 1 ] );
                                 break;
                             case "FILE_NAME":
-                                info.Name = StepDataParser.ToString(
-                                    constructor[ 0 ] );
-                                info.TimeStamp = StepDataParser.ToDateTime(
-                                    constructor[ 1 ] );
-                                info.Author = StepDataParser.ToString(
-                                    constructor[ 2 ] );
-                                info.Organization = StepDataParser.ToString(
-                                    constructor[ 3 ] );
+                                info.Name = StepDataParser.ToString( constructor[ 0 ] );
+                                info.TimeStamp = StepDataParser.ToDateTime( constructor[ 1 ] );
+                                info.Author = StepDataParser.ToString( constructor[ 2 ] );
+                                info.Organization = StepDataParser.ToString( constructor[ 3 ] );
                                 info.PreprocessorVersion = StepDataParser.ToString(
                                     constructor[ 4 ] );
-                                info.OriginatingSystem = StepDataParser.ToString(
-                                    constructor[ 5 ] );
-                                info.Authorization = StepDataParser.ToString(
-                                    constructor[ 6 ] );
+                                info.OriginatingSystem = StepDataParser.ToString( constructor[ 5 ] );
+                                info.Authorization = StepDataParser.ToString( constructor[ 6 ] );
                                 break;
                             default:
                                 break;

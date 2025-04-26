@@ -39,8 +39,6 @@ namespace StgSharp.Modeling.Step
     public abstract class StepFace : StepTopologicalRepresentationItem
     {
 
-        public StepFace( string name ) : base( name ) { }
-
         public List<StepFaceBound> Bounds { get; } = new List<StepFaceBound>();
 
     }

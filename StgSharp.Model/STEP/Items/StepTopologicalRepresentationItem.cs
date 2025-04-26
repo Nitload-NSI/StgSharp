@@ -36,11 +36,6 @@ using System;
 
 namespace StgSharp.Modeling.Step
 {
-    public abstract class StepTopologicalRepresentationItem : StepEntityBase
-    {
-
-        protected StepTopologicalRepresentationItem( string name ) : base( name ) { }
-
-    }
+    public abstract class StepTopologicalRepresentationItem : StepEntityBase { }
 }
 

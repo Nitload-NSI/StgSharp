@@ -71,7 +71,7 @@ namespace StgSharp.Modeling.Step
 
         public override StepItemType ItemType => StepItemType.AxisPlacement3D;
 
-        internal static StepAxis2Placement3D CreateFromSyntaxList(
+        internal static StepAxis2Placement3D FromSyntax(
                                              StepModel binder,
                                              ExpSyntaxNode syntaxList )
         {

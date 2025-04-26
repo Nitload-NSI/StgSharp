@@ -40,10 +40,9 @@ namespace StgSharp.Modeling.Step
     public abstract class StepEdge : StepTopologicalRepresentationItem
     {
 
-        protected StepEdge() : base( string.Empty ) { }
+        protected StepEdge() { }
 
-        protected StepEdge( string name, StepVertex edgeStart, StepVertex edgeEnd )
-            : base( name )
+        protected StepEdge( StepVertex edgeStart, StepVertex edgeEnd )
         {
             EdgeStart = edgeStart;
             EdgeEnd = edgeEnd;
