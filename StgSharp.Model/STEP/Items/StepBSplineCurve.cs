@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 
 using System;
@@ -36,7 +36,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public enum StepBSplineCurveForm
     {

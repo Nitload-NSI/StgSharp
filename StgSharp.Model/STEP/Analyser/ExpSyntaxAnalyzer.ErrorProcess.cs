@@ -34,7 +34,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     internal partial class StepExpSyntaxAnalyzer
     {

@@ -30,7 +30,6 @@
 //-----------------------------------------------------------------------
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-using StgSharp.Modeling.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
@@ -41,7 +40,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Model.Step.SyntaxNode
+namespace StgSharp.Model.Step
 {
     public class StepEntityInitCaller : ExpFunctionSource
     {

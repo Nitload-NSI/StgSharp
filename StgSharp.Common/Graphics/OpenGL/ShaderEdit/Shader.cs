@@ -45,9 +45,11 @@ namespace StgSharp.Graphics.OpenGL
     {
 
         /// <summary>
-        /// Create an instance of <see cref="Shader" /> program
+        ///   Create an instance of <see cref="Shader" /> program
         /// </summary>
-        /// <returns> New instance of <see cref="Shader" /> instance. </returns>
+        /// <returns>
+        ///   New instance of <see cref="Shader" /> instance.
+        /// </returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         protected override sealed ShaderProgram CreateShaderProgram()
         {
@@ -55,9 +57,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        protected override sealed Shader CreateShaderSegment(
-            ShaderType type,
-            int count )
+        protected override sealed Shader CreateShaderSegment( ShaderType type, int count )
         {
             return new Shader( GL.CreateShaderSet( count, type ), type, this );
         }
@@ -71,10 +71,7 @@ namespace StgSharp.Graphics.OpenGL
         internal readonly GlHandle[] handle;
         public readonly ShaderType type;
 
-        internal unsafe Shader(
-            GlHandle[] handle,
-            ShaderType usage,
-            glRender stream )
+        internal unsafe Shader( GlHandle[] handle, ShaderType usage, glRender stream )
         {
             this.handle = handle;
             GL = stream.GL;
@@ -84,10 +81,14 @@ namespace StgSharp.Graphics.OpenGL
         public SerializableTypeCode SSDTypeCode => SerializableTypeCode.Shader;
 
         /// <summary>
-        /// Attach one shader code to a shader program.
+        ///   Attach one shader code to a shader program.
         /// </summary>
-        /// <param _name="target"> Shader program to attach </param>
-        /// <param _name="index"> Index of shader code in current shader code set. </param>
+        /// <param _name="target">
+        ///   Shader program to attach
+        /// </param>
+        /// <param _name="index">
+        ///   Index of shader code in current shader code set.
+        /// </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void AttachTo( int index, ShaderProgram target )
         {
@@ -98,16 +99,22 @@ namespace StgSharp.Graphics.OpenGL
         {
             string log = GL.GetShaderStatus( this, index, ( int )status );
             if( !string.IsNullOrEmpty( log ) ) {
-                throw new Exception( $"{$"Shader Error \t{status}\n"}{log}" );
+                throw new InvalidOperationException( $"{$"Shader Error \t{status}\n"}{log}" );
             }
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public unsafe void Compile( int index, ReadOnlySpan<byte> codeU8Stream )
+        {
+            GL.LoadShaderSource( handle[ index ], codeU8Stream );
+            GL.CompileShader( handle[ index ] );
+            CheckStatus( index, ShaderStatus.CompileStatus );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void Compile( int index, byte[] codeStream )
         {
-            if( codeStream == null ) {
-                throw new ArgumentNullException( nameof( codeStream ) );
-            }
+            ArgumentNullException.ThrowIfNull( codeStream );
             GL.LoadShaderSource( handle[ index ], codeStream );
             GL.CompileShader( handle[ index ] );
             CheckStatus( index, ShaderStatus.CompileStatus );
@@ -119,8 +126,7 @@ namespace StgSharp.Graphics.OpenGL
             if( codeStream == null ) {
                 throw new ArgumentNullException( nameof( codeStream ) );
             }
-            GL.LoadShaderSource(
-                handle[ index ], codeStream.AsSpan() );
+            GL.LoadShaderSource( handle[ index ], codeStream.AsSpan() );
             GL.CompileShader( handle[ index ] );
             CheckStatus( index, ShaderStatus.CompileStatus );
         }
@@ -134,8 +140,7 @@ namespace StgSharp.Graphics.OpenGL
         {
             string str = File.ReadAllText( fileRoute );
             if( string.IsNullOrEmpty( str ) ) {
-                throw new InvalidOperationException(
-                    $"Cannot load and GLSL code from {fileRoute}" );
+                throw new InvalidOperationException( $"Cannot load and GLSL code from {fileRoute}" );
             }
             return Encoding.UTF8.GetBytes( str );
         }
@@ -171,7 +176,7 @@ namespace StgSharp.Graphics.OpenGL
         internal readonly GlHandle handle;
 
         /// <summary>
-        /// CustomizeInit a program with no shader attached.
+        ///   CustomizeInit a program with no shader attached.
         /// </summary>
         internal unsafe ShaderProgram( glRender binding )
         {
@@ -180,10 +185,14 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Get a uniform form current shader, the value type of the uniform should be provided.
+        ///   Get a uniform form current shader, the value type of the uniform should be provided.
         /// </summary>
-        /// <param _name="name"> ContextName of the Uniform in shader code </param>
-        /// <returns></returns>
+        /// <param _name="name">
+        ///   ContextName of the Uniform in shader code
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe Uniform<T> GetUniform<T>( string name ) where T: struct
         {
@@ -191,70 +200,79 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Get a uniform form current shader, the value type of the uniform should be provided.
+        ///   Get a uniform form current shader, the value type of the uniform should be provided.
         /// </summary>
-        /// <param _name="name"> ContextName of the Uniform in shader code </param>
-        /// <returns></returns>
-        public unsafe Uniform<T, U> GetUniform<T, U>( string name )
-            where T: struct
-            where U: struct
+        /// <param _name="name">
+        ///   ContextName of the Uniform in shader code
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
+        public unsafe Uniform<T, U> GetUniform<T, U>( string name ) where T: struct where U: struct
         {
-            return new Uniform<T, U>(
-                GL.GetUniformLocation( this.handle, name ) );
+            return new Uniform<T, U>( GL.GetUniformLocation( this.handle, name ) );
         }
 
         /// <summary>
-        /// Get a uniform form current shader, the value type of the uniform should be provided.
+        ///   Get a uniform form current shader, the value type of the uniform should be provided.
         /// </summary>
-        /// <param _name="name"> ContextName of the Uniform in shader code </param>
-        /// <returns></returns>
-        public unsafe Uniform<T, U, V> GetUniform<T, U, V>( string name )
-            where T: struct
+        /// <param _name="name">
+        ///   ContextName of the Uniform in shader code
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
+        public unsafe Uniform<T, U, V> GetUniform<T, U, V>( string name ) where T: struct
             where U: struct
             where V: struct
         {
-            return new Uniform<T, U, V>(
-                GL.GetUniformLocation( this.handle, name ) );
+            return new Uniform<T, U, V>( GL.GetUniformLocation( this.handle, name ) );
         }
 
         /// <summary>
-        /// Get a uniform form current shader, the value type of the uniform should be provided.
+        ///   Get a uniform form current shader, the value type of the uniform should be provided.
         /// </summary>
-        /// <param _name="name"> ContextName of the Uniform in shader code </param>
-        /// <returns></returns>
-        public unsafe Uniform<T, U, V, W> GetUniform<T, U, V, W>( string name )
-            where T: struct
+        /// <param _name="name">
+        ///   ContextName of the Uniform in shader code
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
+        public unsafe Uniform<T, U, V, W> GetUniform<T, U, V, W>( string name ) where T: struct
             where U: struct
             where V: struct
             where W: struct
         {
-            return new Uniform<T, U, V, W>(
-                GL.GetUniformLocation( this.handle, name ) );
+            return new Uniform<T, U, V, W>( GL.GetUniformLocation( this.handle, name ) );
         }
 
         /// <summary>
-        /// Link the shader to current viewPortDisplay.
+        ///   Link the shader to current viewPortDisplay.
         /// </summary>
         public unsafe void Link()
         {
             if( InternalIO.InternalLinkShaderProgram(
-                ( OpenglContext* )this.GL.ContextHandle, handle.Value ) == 0 ) {
+                ( OpenglContext* )this.GL.ContextHandle, handle.Value ) ==
+                0 )
+            {
                 IntPtr logPtr = InternalIO.InternalReadSSCLog();
-                try {
+                try
+                {
                     byte[] logByte = new byte[512];
                     Marshal.Copy( logPtr, logByte, 0, 512 );
                     string log = Encoding.UTF8.GetString( logByte );
                     log = log.Replace( "\0", string.Empty );
                     InternalIO.InternalWriteLog( log, LogType.Error );
                 }
-                catch( Exception ex ) {
+                catch( Exception ex )
+                {
                     InternalIO.InternalWriteLog( ex.Message, LogType.Error );
                 }
             }
         }
 
         /// <summary>
-        /// Let the current viewPortDisplay use this shader.
+        ///   Let the current viewPortDisplay use this shader.
         /// </summary>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void Use()

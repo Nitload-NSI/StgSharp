@@ -32,16 +32,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     /// <summary>
     ///   C# implementation of HEADER part in STEP file.
     /// </summary>
     public record class StepInfo
     {
-        private STEPFileDescriptor _header;
-        private STEPFileName _name;
-        private STEPSchema _schema;
+        private STEPFileDescriptor _header = new();
+        private STEPFileName _name = new();
+        private STEPSchema _schema = new();
 
         public (int mainLevel, int? subLevel) Level
         {
@@ -154,7 +154,7 @@ namespace StgSharp.Modeling.Step
 
     public record class STEPSchema
     {
-        private List<string> _schema;
+        private List<string> _schema = new();
 
         public string Data { get; internal set; }
     }

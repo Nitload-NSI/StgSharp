@@ -69,7 +69,7 @@ namespace StgSharp.Script.Express
                 Dot, Comma, Semicolon, Colon, Percent, Apostrophe,
                 Backslash, IndexOf, RightBracket, LeftBrace,
                 RightBrace, Pipe, LeftParen, RightParen, LeftAsterisk,
-                Assignment, DoublePipe, ExpSymbole, CommentSingleLine,
+                Assignment, DoublePipe, ExpSymbol, CommentSingleLine,
                 CommentStart, CommentEnd, InstanceEqual, InstanceNotEqual
             ];
 
@@ -342,7 +342,7 @@ namespace StgSharp.Script.Express
             public const string LeftAsterisk = "<*";
             public const string Assignment = ":=";
             public const string DoublePipe = "||";
-            public const string ExpSymbole = "**";
+            public const string ExpSymbol = "**";
             public const string CommentSingleLine = "--";
             public const string CommentStart = "(*";
             public const string CommentEnd = "*)";

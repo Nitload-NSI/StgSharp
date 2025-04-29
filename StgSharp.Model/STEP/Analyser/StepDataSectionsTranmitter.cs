@@ -38,44 +38,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public class StepDataSectionTransmitter : IScriptSourceProvider
     {
 
         private const string EndDataText = "ENDSEC;";
 
-        private bool _isEmpty;
+        //private bool _isEmpty;
         private ConcurrentQueue<string> _cache = new ConcurrentQueue<string>();
         private int _line = 0;
 
-        public bool IsEmpty => _isEmpty;
+        public StepDataSectionTransmitter() { }
+
+        public StepDataSectionTransmitter( int begins )
+        {
+            Begin = begins;
+            _line = Begin;
+        }
+
+        public bool IsEmpty => _cache.IsEmpty && !IsWriting;
 
         public bool IsWriting { get; private set; } = true;
+
+        public int Begin { get; internal set; }
 
         public int Location => _line;
 
         public void EndWriting()
         {
-            _cache.Enqueue( EndDataText );
             IsWriting = false;
         }
 
         public string ReadLine()
         {
-            _cache.TryDequeue( out string? line );
-            while( !IsEmpty )
+            if( _cache.TryDequeue( out string? line ) )
             {
-                if( _cache.TryDequeue( out line ) )
-                {
-                    if( line == EndDataText )
-                    {
-                        _isEmpty = true;
-                        return string.Empty;
-                    }
-                    _line++;
-                    return line;
-                }
+                _line++;
+                return line;
             }
             return string.Empty;
         }
@@ -89,10 +89,17 @@ namespace StgSharp.Modeling.Step
 
         public void WriteLine( string line )
         {
-            if( line == EndDataText ) {
-                EndWriting();
+            if( line == "DATA;" ) {
+                return;
             }
-            _cache.Enqueue( line );
+            if( line == EndDataText )
+            {
+                EndWriting();
+                return;
+            }
+            if( IsWriting ) {
+                _cache.Enqueue( line );
+            }
         }
 
         IScriptSourceProvider IScriptSourceProvider.Slice( int location, int count )

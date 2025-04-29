@@ -29,14 +29,14 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public class StepFaceBound : StepTopologicalRepresentationItem
     {

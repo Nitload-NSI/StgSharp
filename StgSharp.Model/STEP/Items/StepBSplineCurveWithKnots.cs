@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
@@ -37,7 +37,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public enum StepKnotType
     {

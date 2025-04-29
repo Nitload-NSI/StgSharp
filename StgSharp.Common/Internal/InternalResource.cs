@@ -49,7 +49,9 @@ namespace StgSharp.Internal
 
         #region CollisionTexture
 
-        internal const string CollisionTextureVertexShader = """
+        internal static ReadOnlySpan<byte> CollisionTextureVertexShader
+        {
+            get => """
             #version 430 core
             layout(location = 0) in vec2 localCollisionCoord;
             layout(location = 1) in vec2 spaceCoord;
@@ -75,8 +77,12 @@ namespace StgSharp.Internal
                 float angle = atan(realCoord.y, realCoord.x);
                 gl_Position = vec4(angle, realCoord.y, dist, 1);
             }
-            """;
-        internal const string CollisionTextureFragmentShader = """
+            """u8;
+        }
+
+        internal static ReadOnlySpan<byte> CollisionTextureFragmentShader
+        {
+            get => """
             #version 430 core
             out vec4 Color;
             
@@ -92,8 +98,9 @@ namespace StgSharp.Internal
                 gl_FragDepth = min(dist, gl_FragDepth);
                 Color = vec4(dist,0,0,1);
             }
-            """;
+            """u8;
+        }
 
-    #endregion
+        #endregion
     }
 }

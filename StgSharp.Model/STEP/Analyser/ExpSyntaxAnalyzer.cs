@@ -45,7 +45,7 @@ using System.Threading.Tasks;
 
 using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     internal partial class StepExpSyntaxAnalyzer : ISyntaxAnalyzer
     {
@@ -62,24 +62,10 @@ namespace StgSharp.Modeling.Step
         public StepExpSyntaxAnalyzer()
         {
             _cache = new CompileStack<ExpSyntaxNode, IExpElementSource>();
+            _context = new ExpressStepUtil();
         }
 
-        public StepExpSyntaxAnalyzer( ExpSchema context, IExpElementSource local )
-        {
-            _cache = new CompileStack<ExpSyntaxNode, IExpElementSource>();
-            ArgumentNullException.ThrowIfNull( context );
-            if( context is not ExpSchema_Builtin )
-            {
-                _context = context;
-            } else
-            {
-                throw new InvalidCastException( "Not a valid Schema type" );
-            }
-            _local = local;
-        }
-
-        public ConcurrentQueue<ExpSyntaxNode> StepEntityInitStatements { get; } = new ConcurrentQueue<ExpSyntaxNode>(
-            );
+        public ConcurrentQueue<StepEntityDefineSequence> StepEntityInitStatements { get; } = new();
 
         /// <summary>
         ///   Append a token to top of cache. This method will automatically convert token to node

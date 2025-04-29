@@ -44,14 +44,16 @@ using System.Xml.Schema;
 
 using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     internal partial class StepExpSyntaxAnalyzer
     {
 
         private static Regex _entityTypeCheckPattern = GetEntityTypeCheckPattern();
 
-        [GeneratedRegex( @"^[A-Z_]+$", RegexOptions.Singleline )]
+        private StepDependencyDetector _dependencyDetector = new StepDependencyDetector();
+
+        [GeneratedRegex( @"^[A-Z0-9_]+$", RegexOptions.Singleline )]
         private static partial Regex GetEntityTypeCheckPattern();
 
         private bool IsSeparatorMatch( Token leftSeparator, Token rightSeparator )
@@ -147,10 +149,16 @@ namespace StgSharp.Modeling.Step
                     goto case 1;
                 case 1:
                     _cache.PopOperand( out _, out ExpSyntaxNode? statement );
-                    _cache.StatementsInDepth.Push( statement );
-                    if( t.Value == ";" ) {
-                        StepEntityInitStatements.Enqueue( statement );
+                    if( t.Value == ";" )
+                    {
+                        StepEntityDefineSequence sequence = new StepEntityDefineSequence(
+                            statement, _dependencyDetector.ExportAllDependencies() );
+                        StepEntityInitStatements.Enqueue( sequence );
+                    } else
+                    {
+                        _cache.StatementsInDepth.Push( statement );
                     }
+
                     return true;
                 default:
                     ExpInvalidSyntaxException.ThrowNoOperator( t );
@@ -213,6 +221,12 @@ namespace StgSharp.Modeling.Step
         {
             switch( t.Value )
             {
+                case "$":
+                    _cache.PushOperand( StepEntityInstanceNode.RegisterNull( t ) );
+                    return true;
+                case "*":
+                    _cache.PushOperand( StepEntityInstanceNode.RegisterRuntimeInference( t ) );
+                    return true;
                 case ExpKeyword.E:
                     _cache.PushOperand( new ExpRealNumberNode( t, MathF.E, true ) );
                     return true;
@@ -246,8 +260,15 @@ namespace StgSharp.Modeling.Step
 
         private bool TryParseFunction( Token t )
         {
-            if( _entityTypeCheckPattern.IsMatch( t.Value ) ) {
+            if( _entityTypeCheckPattern.IsMatch( t.Value ) )
+            {
+                if( _cache.PeekOperator().Flag == TokenFlag.Member )
+                {
+                    Token op = _cache.PopOperator();
+                    ConvertAndPushOneOperator( op );
+                }
                 _cache.PushOperator( t );
+                return true;
             }
             return false;
         }
@@ -256,7 +277,11 @@ namespace StgSharp.Modeling.Step
         {
             if( t.Value[ 0 ] == '#' )
             {
-                _cache.PushOperand( StepEntityInstanceNode.Register( t ) );
+                StepEntityInstanceNode node = StepEntityInstanceNode.Register( t );
+                if( _cache.OperandAheadOfDepth > 0 ) {
+                    _dependencyDetector.AddDependency( node );
+                }
+                _cache.PushOperand( node );
                 return true;
             }
             return false;

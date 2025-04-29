@@ -28,17 +28,18 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public class StepEntityInstanceNode : ExpSyntaxNode
     {
@@ -61,6 +62,32 @@ namespace StgSharp.Modeling.Step
             StepEntityInstanceNode node = new StepEntityInstanceNode( t )
             {
                 Id = int.Parse( t.Value.AsSpan( 1 ) ),
+            };
+            return node;
+        }
+
+        public static StepEntityInstanceNode RegisterNull( Token t )
+        {
+            if( t.Value != "$" ) {
+                throw new ExpInvalidSyntaxException(
+                    $"Token {t.Value} does not represent a null entity" );
+            }
+            StepEntityInstanceNode node = new StepEntityInstanceNode( t )
+            {
+                Id = 0,
+            };
+            return node;
+        }
+
+        public static StepEntityInstanceNode RegisterRuntimeInference( Token t )
+        {
+            if( t.Value != "*" ) {
+                throw new ExpInvalidSyntaxException(
+                    $"Token {t.Value} does not represent a runtime inferences entity" );
+            }
+            StepEntityInstanceNode node = new StepEntityInstanceNode( t )
+            {
+                Id = -1,
             };
             return node;
         }

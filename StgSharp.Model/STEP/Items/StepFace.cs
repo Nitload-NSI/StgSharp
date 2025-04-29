@@ -28,13 +28,13 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public abstract class StepFace : StepTopologicalRepresentationItem
     {

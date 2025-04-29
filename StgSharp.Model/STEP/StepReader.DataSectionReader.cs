@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepDataReader.cs"
+//     file="StepReader.DataSectionReader.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,8 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 
 using System;
@@ -43,7 +43,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public partial class StepReader
     {
@@ -51,15 +51,16 @@ namespace StgSharp.Modeling.Step
         public StepDataSectionTransmitter DataTransmitter { get; } = new StepDataSectionTransmitter(
             );
 
-        public async void ReadDataSection()
+        internal async void ReadDataSection()
         {
             using( MemoryMappedViewStream ms = _memoryFile.CreateViewStream(
                 0, _size, MemoryMappedFileAccess.Read ) )
             {
                 StreamReader sr = new StreamReader( ms );
-                long pos = _headStart;
+                ms.Position = _dataStart;
+                DataTransmitter.Begin = _dataBeginLine;
                 string line;
-                while( string.IsNullOrEmpty( line = sr.ReadLine()! ) ) {
+                while( !string.IsNullOrEmpty( line = sr.ReadLine()! ) ) {
                     DataTransmitter.WriteLine( line );
                 }
                 sr.Dispose();

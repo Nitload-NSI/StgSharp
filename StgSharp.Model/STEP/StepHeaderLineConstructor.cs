@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepObjectConstructor.cs"
+//     file="StepHeaderLineConstructor.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -36,9 +36,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
-    public class StepObjectConstructor
+    public class StepHeaderLineConstructor
     {
 
         private static Regex regex = new Regex(
@@ -49,7 +49,7 @@ namespace StgSharp.Modeling.Step
         private readonly List<string> _paramList;
         private string _caller;
 
-        public StepObjectConstructor( int id, string caller, string parameters )
+        public StepHeaderLineConstructor( int id, string caller, string parameters )
         {
             _caller = caller;
             _paramList = new List<string>();
@@ -77,9 +77,9 @@ namespace StgSharp.Modeling.Step
             internal set => _caller = value;
         }
 
-        public static StepObjectConstructor CreateTempExpression( int id )
+        public static StepHeaderLineConstructor CreateTempExpression( int id )
         {
-            return new StepObjectConstructor( id, "TEMPCALLER", string.Empty );
+            return new StepHeaderLineConstructor( id, "TEMPCALLER", string.Empty );
         }
 
         private void SplitParameter( string parameters )

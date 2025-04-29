@@ -43,7 +43,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public partial class StepReader : IDisposable
     {
@@ -52,6 +52,7 @@ namespace StgSharp.Modeling.Step
 
         private bool disposedValue;
         private FileStream _fileStream;
+        private int _dataBeginLine;
         private long _headStart = -1, _headEnd = -1, _dataStart = -1, _size;
         private MemoryMappedFile _memoryFile;
 

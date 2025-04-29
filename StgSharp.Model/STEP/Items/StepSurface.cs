@@ -28,10 +28,10 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public abstract class StepSurface : StepGeometricRepresentationItem
     {

@@ -114,7 +114,7 @@ namespace StgSharp.Script.Express
                     do
                     {
                         _lineCache = _provider.ReadLine( out _lineNum );
-                    } while (string.IsNullOrEmpty( _lineCache ));
+                    } while (string.IsNullOrEmpty( _lineCache ) && !_provider.IsEmpty);
                     _current = 0;
                 }
                 if( _isReadingMultiLineComment )
@@ -182,7 +182,7 @@ namespace StgSharp.Script.Express
                             rest = match.Groups[ "rest" ].Index;
                             _current = rest;
                             _last = new(
-                                ExpressCompile.PoolString( source[ 1..( end - begin ) ] ), _lineNum,
+                                ExpressCompile.PoolString( source[ 0..( end - begin ) ] ), _lineNum,
                                 begin, TokenFlag.Member );
                             return _last;
                         } else
@@ -236,21 +236,12 @@ namespace StgSharp.Script.Express
                             throw new ExpInvalidCharException( '\"' );
                         }
                     case '(':
-                        cNext = source[ 1 ];
-                        if( cNext == '*' )
-                        {
-                            _isReadingMultiLineComment = true;
-                            _current += 2;
-                            goto readLine;
-                        } else
-                        {
-                            begin = _current;
-                            _current++;
-                            _last = new(
-                                ExpressCompile.PoolString( source[ ..1 ] ), _lineNum, begin,
-                                TokenFlag.Separator_Left );
-                            return _last;
-                        }
+                        begin = _current;
+                        _current++;
+                        _last = new(
+                            ExpressCompile.PoolString( source[ ..1 ] ), _lineNum, begin,
+                            TokenFlag.Separator_Left );
+                        return _last;
                     case ')' or '}':
                         begin = _current;
                         _current++;

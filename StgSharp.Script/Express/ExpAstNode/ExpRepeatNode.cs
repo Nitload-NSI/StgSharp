@@ -78,7 +78,7 @@ namespace StgSharp.Script.Express
                             1, isLiteral: true );
                         break;
                     default:
-                        throw new ExpInvalidTypeException( "Int or Real", "otherwise" );
+                        throw new ExpInvalidTypeException( variable, "Int or Real", "otherwise" );
                 }
             }
             _variable = variable;

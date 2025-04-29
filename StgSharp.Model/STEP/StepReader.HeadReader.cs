@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StepHeadReader.cs"
+//     file="StepReader.HeadReader.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -37,13 +37,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public partial class StepReader
     {
 
-        private static Regex expressionSplitter = new Regex(
-            @"^(?<CALLER>[A-Z_]+)\s?\((?<PARAM>.+)\)\;", RegexOptions.Compiled );
+        private static Regex expressionSplitter = GetStepHeadExpressionParser();
         /**/
         private StepInfo _info;
 
@@ -53,7 +52,7 @@ namespace StgSharp.Modeling.Step
                 return _info;
             }
             StepInfo info = new StepInfo();
-            List<StepObjectConstructor> constructorList = new List<StepObjectConstructor>();
+            List<StepHeaderLineConstructor> constructorList = new List<StepHeaderLineConstructor>();
             using( MemoryMappedViewStream ms = _memoryFile.CreateViewStream(
                 0, _size, MemoryMappedFileAccess.Read ) )
             {
@@ -76,10 +75,10 @@ namespace StgSharp.Modeling.Step
 
                         GroupCollection match = expressionSplitter.Match( token ).Groups;
                         constructorList.Add(
-                            new StepObjectConstructor(
+                            new StepHeaderLineConstructor(
                                 0, match[ "CALLER" ].ToString(), match[ "PARAM" ].ToString() ) );
                     }
-                    foreach( StepObjectConstructor constructor in constructorList )
+                    foreach( StepHeaderLineConstructor constructor in constructorList )
                     {
                         switch( constructor.Caller )
                         {
@@ -105,6 +104,9 @@ namespace StgSharp.Modeling.Step
             }
             return info;
         }
+
+        [GeneratedRegex( @"^(?<CALLER>[A-Z_]+)\s?\((?<PARAM>.+)\)\;", RegexOptions.Compiled )]
+        private static partial Regex GetStepHeadExpressionParser();
         /**/
 
     }

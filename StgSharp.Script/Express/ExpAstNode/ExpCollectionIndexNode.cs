@@ -67,7 +67,7 @@ namespace StgSharp.Script.Express
         {
             if( !indexExpression.IsNumber ) {
                 throw new ExpInvalidTypeException(
-                    "Number", indexExpression.EqualityTypeConvert.Name );
+                    source, "Number", indexExpression.EqualityTypeConvert.Name );
             }
             return new ExpCollectionIndexNode( source, instance, indexExpression );
         }

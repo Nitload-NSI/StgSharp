@@ -7,7 +7,7 @@
 //     
 //     Permission is hereby granted, free of charge, to any person 
 //     obtaining a copy of this software and associated documentation 
-//     files (the ¡°Software¡±), to deal in the Software without restriction, 
+//     files (the ï¿½ï¿½Softwareï¿½ï¿½), to deal in the Software without restriction, 
 //     including without limitation the rights to use, copy, modify, merge,
 //     publish, distribute, sublicense, and/or sell copies of the Software, 
 //     and to permit persons to whom the Software is furnished to do so, 
@@ -17,7 +17,7 @@
 //     this permission notice shall be included in all copies 
 //     or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED ¡°AS IS¡±, 
+//     THE SOFTWARE IS PROVIDED ï¿½ï¿½AS ISï¿½ï¿½, 
 //     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
 //     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
@@ -46,9 +46,7 @@ namespace StgSharp.Gaming
             float angle,
             float scale )
         {
-            if( buffer == null ) {
-                throw new ArgumentNullException( nameof( buffer ) );
-            }
+            ArgumentNullException.ThrowIfNull(buffer);
             GlobalBuffer = buffer;
             BufferId = buffer.CreateInstanceID();
             ( ( IInstancing )this ).Scale = scale;

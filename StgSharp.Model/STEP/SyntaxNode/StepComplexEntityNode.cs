@@ -53,7 +53,7 @@ namespace StgSharp.Model.Step
 
         public override ExpSyntaxNode Right => _begin;
 
-        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException();
+        public override IExpElementSource EqualityTypeConvert => StepEntityType.Source;
 
         public StepComplexEntityNode FromTuple( ExpSyntaxNode node )
         {

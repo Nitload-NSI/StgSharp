@@ -37,7 +37,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public class StepModel
     {
@@ -54,12 +54,15 @@ namespace StgSharp.Modeling.Step
             _builder = new PipelineScheduler();
         }
 
-        public StepEntityBase this[ int id ]
+        public StepEntityBase? this[ int id ]
         {
             get
             {
                 if( _nodes.TryGetValue( id, out StepEntityBase? node ) ) {
                     return node;
+                }
+                if( id == 0 ) {
+                    return null;
                 }
                 node = new StepUninitializedEntity( this, id );
                 _nodes.Add( id, node );
@@ -76,7 +79,7 @@ namespace StgSharp.Modeling.Step
             _nodes.Add( id, entity );
         }
 
-        public void BindValue<T>( ExpSyntaxNode node, Action<T> action ) { }
+        public void BindValue( ExpSyntaxNode node, Action<StepEntityBase> action ) { }
 
         public void OrganizeNode()
         {

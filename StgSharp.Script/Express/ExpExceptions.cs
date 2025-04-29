@@ -42,7 +42,22 @@ namespace StgSharp.Script.Express
     public class ExpException : Exception
     {
 
+        private Token _pos;
+
         public ExpException( string message ) : base( message ) { }
+
+        public ExpException( Token position, string message )
+            : base( $"Express compile error at {position.Line}-{position.Column}:\n{message}" )
+        {
+            _pos = position;
+        }
+
+        public ExpException( ExpSyntaxNode node, string message )
+            : base(
+            $"Express compile error at {node.Source.Line}-{node.Source.Column}:\n{message}" )
+        {
+            _pos = node._source;
+        }
 
     }
 
@@ -100,11 +115,17 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpInvalidTypeException : InvalidCastException
+    public class ExpInvalidTypeException : ExpException
     {
 
-        public ExpInvalidTypeException( string required, string provided )
+        public ExpInvalidTypeException( ExpSyntaxNode node, string required, string provided )
             : base(
+            node,
+            $"Type {required} is required at position, but a {provided} instance is provided." ) { }
+
+        public ExpInvalidTypeException( Token t, string required, string provided )
+            : base(
+            t,
             $"Type {required} is required at position, but a {provided} instance is provided." ) { }
 
     }

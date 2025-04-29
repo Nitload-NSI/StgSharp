@@ -29,11 +29,11 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public class StepPlane : StepElementarySurface
     {

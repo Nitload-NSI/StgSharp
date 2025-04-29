@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
@@ -37,7 +37,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public class ExpressStepUtil : ExpSchema
     {

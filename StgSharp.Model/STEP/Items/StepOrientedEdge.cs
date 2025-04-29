@@ -28,14 +28,14 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public class StepOrientedEdge : StepEdge
     {
@@ -45,12 +45,11 @@ namespace StgSharp.Modeling.Step
         private StepOrientedEdge() { }
 
         public StepOrientedEdge(
-               string name,
                StepVertex edgeStart,
                StepVertex edgeEnd,
                StepEdge edgeElement,
                bool orientation )
-            : base( name, edgeStart, edgeEnd )
+            : base( edgeStart, edgeEnd )
         {
             EdgeElement = edgeElement;
             Orientation = orientation;

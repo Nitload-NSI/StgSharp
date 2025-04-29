@@ -39,7 +39,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public partial class StepReader
     {
@@ -66,11 +66,11 @@ namespace StgSharp.Modeling.Step
             GetInfo();
             tokenReader = new StepDataTokenReader( DataTransmitter );
             analyzer = new StepExpSyntaxAnalyzer();
+            ConcurrentQueue<StepEntityDefineSequence> initStatements = analyzer.StepEntityInitStatements;
             Task secTask = Task.Run( ReadDataSection );
             Task anTask = Task.Run( ReadStepToken );
-            ConcurrentQueue<ExpSyntaxNode> initStatements = analyzer.StepEntityInitStatements;
             Model = new StepModel( _info );
-            while( initStatements.TryDequeue( out ExpSyntaxNode? statement ) || !anTask.IsCompleted )
+            while( initStatements.TryDequeue( out StepEntityDefineSequence? statement ) || !anTask.IsCompleted )
             {
                 if( statement is null )
                 {
@@ -93,11 +93,45 @@ namespace StgSharp.Modeling.Step
             return await ReadToModelTask;
         }
 
+        public StepModel ReadToModelSingleThread()
+        {
+            if( Model is not null ) {
+                return Model;
+            }
+            if( _version != 0 ) {
+                throw new InvalidOperationException(
+                    "A ReadToModel method has been called and is running now, use Async version instead" );
+            }
+            Interlocked.Increment( ref _version );
+            GetInfo();
+            tokenReader = new StepDataTokenReader( DataTransmitter );
+            analyzer = new StepExpSyntaxAnalyzer();
+            ConcurrentQueue<StepEntityDefineSequence> initStatements = analyzer.StepEntityInitStatements;
+            ReadDataSection();
+            ReadStepToken();
+            Model = new StepModel( _info );
+            while( initStatements.TryDequeue( out StepEntityDefineSequence? statement ) )
+            {
+                if( statement is null )
+                {
+                    Thread.Sleep( 0 );
+                    continue;
+                }
+                StepUninitializedEntity entity = StepUninitializedEntity.FromSyntax(
+                    Model, statement );
+                Model.AddUncertainEntity( entity.Id, entity );
+            }
+            return Model;
+        }
+
         private void ReadStepToken()
         {
             while( !tokenReader.IsEmpty )
             {
                 Token t = tokenReader.ReadToken();
+                if( t.Line == 18214 && t.Value == ";" ) {
+                    Console.WriteLine( 1 );
+                }
                 analyzer.AppendToken( t );
             }
         }

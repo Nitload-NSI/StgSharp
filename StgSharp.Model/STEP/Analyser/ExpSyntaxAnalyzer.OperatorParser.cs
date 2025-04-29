@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Model.Step.SyntaxNode;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
@@ -40,7 +39,7 @@ using System.Threading.Tasks;
 
 using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     internal partial class StepExpSyntaxAnalyzer
     {
@@ -92,7 +91,7 @@ namespace StgSharp.Modeling.Step
                     _cache.PopOperand( out _, out ExpSyntaxNode? p );
                     StepEntityInitCaller caller = StepEntityInitCaller.CreateCaller( op.Value );
                     node = ExpFunctionCallingNode.CallFunction( op, caller, p );
-                    _cache.PushOperand( node );
+                    _cache.StatementsInDepth.Push( node );
                     return node;
                 default:
                     throw new NotImplementedException();
@@ -101,42 +100,26 @@ namespace StgSharp.Modeling.Step
 
         private bool TryGenerateBinaryNode( Token t, out ExpSyntaxNode node )
         {
+            /*
             ExpSyntaxNode right = GetNextOperandCache();
             ExpSyntaxNode left = GetNextOperandCache();
+            /**/
             switch( t.Value )
             {
-                case ExpKeyword.Add:
-                    node = ExpBinaryOperatorNode.Add( t, left, right );
-                    return true;
-                case ExpKeyword.Sub:
-                    node = ExpBinaryOperatorNode.Sub( t, left, right );
-                    return true;
-                case ExpKeyword.Mul:
-                    node = ExpBinaryOperatorNode.Mul( t, left, right );
-                    return true;
-                case ExpKeyword.Div:
-                    node = ExpBinaryOperatorNode.Div( t, left, right );
-                    return true;
-                case ExpKeyword.Equal:
-                    node = ExpBinaryOperatorNode.EqualTo( t, left, right );
-                    return true;
-                case ExpKeyword.NotEqual:
-                    node = ExpBinaryOperatorNode.NotEqualTo( t, left, right );
-                    return true;
-                case ExpKeyword.GreaterThan:
-                    node = ExpBinaryOperatorNode.GreaterThan( t, left, right );
-                    return true;
-                case ExpKeyword.LessThan:
-                    node = ExpBinaryOperatorNode.LessThan( t, left, right );
-                    return true;
-                case ExpKeyword.Assignment:
+                case "=":
+                    ExpSyntaxNode right = GetNextOperandCache();
+                    ExpSyntaxNode left;
+                    if( right is ExpTupleNode tuple )
+                    {
+                        right = new StepComplexEntityNode( tuple );
+                        left = GetNextOperandCache();
+                    } else
+                    {
+                        left = right;
+                        right = _cache.StatementsInDepth.Pop();
+                    }
+
                     node = ExpBinaryOperatorNode.Assign( t, left, right );
-                    return true;
-                case ExpKeyword.InstanceEqual:
-                    node = ExpBinaryOperatorNode.CompareInstanceEqual( t, left, right );
-                    return true;
-                case ExpKeyword.InstanceNotEqual:
-                    node = ExpBinaryOperatorNode.CompareInstanceNotEqual( t, left, right );
                     return true;
                 default:
                     node = ExpSyntaxNode.Empty;

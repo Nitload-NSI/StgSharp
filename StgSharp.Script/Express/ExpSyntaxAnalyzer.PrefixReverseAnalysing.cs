@@ -54,7 +54,7 @@ namespace StgSharp.Script.Express
                     _cache.StatementsInDepth.Push( statement );
                 } else
                 {
-                    ExpInvalidSyntaxException.ThrowNoOperator( rightSeparator );
+                    _cache.StatementsInDepth.Push( ExpSyntaxNode.Empty );
                 }
             } else
             {

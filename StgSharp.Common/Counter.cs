@@ -42,20 +42,17 @@ namespace StgSharp
 
         internal readonly T _defualtIncreament;
 
-        public Counter(
-                       T defualtValue,
-                       T defualtIncreament,
-                       T defualtDecreament )
+        public Counter( T defaultValue, T defaultIncrement, T defaultDecrement )
         {
-            _value = defualtValue;
-            _defaultValue = defualtValue;
-            _defualtIncreament = defualtIncreament;
-            _defualtDecreament = defualtDecreament;
+            _value = defaultValue;
+            _defaultValue = defaultValue;
+            _defualtIncreament = defaultIncrement;
+            _defualtDecreament = defaultDecrement;
         }
 
-        public T DecreamentSoan => _defualtDecreament;
+        public T DecrementSpan => _defualtDecreament;
 
-        public T IncreamentSpan => _defualtIncreament;
+        public T IncrementSpan => _defualtIncreament;
 
         public T CurrentSpan => _value - _defaultValue;
 

@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
@@ -41,14 +41,14 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
-    public class StepDataTokenReader : IScriptTokenReader
+    public partial class StepDataTokenReader : IScriptTokenReader
     {
 
         private ExpTokenReader _reader;
 
-        private HashSet<string> token1Hash = [
+        private HashSet<string> tokenHash = [
             "T","F","UNSPECIFIED"
             ];
         private Queue<Token> _cache = new Queue<Token>();
@@ -63,7 +63,13 @@ namespace StgSharp.Modeling.Step
 
         public bool IsEmpty
         {
-            get => _reader.IsEmpty && _transmitter.IsWriting;
+            get
+            {
+                if( _reader.IsEmpty ) {
+                    return !_transmitter.IsWriting;
+                }
+                return false;
+            }
         }
 
         public Token ReadToken()
@@ -76,40 +82,72 @@ namespace StgSharp.Modeling.Step
             return _reader.TryReadToken( out t );
         }
 
-        private class TokenPreReader : ExpTokenReaderPreProcessor
+        private partial class TokenPreReader : ExpTokenReaderPreProcessor
         {
 
             private static Regex NextEnumPattern = GetNextEnumPattern();
+
+            private static Regex _stringPattern = GetStringPattern();
 
             public override bool Process( string codeLine, int line, ref int current, out Token t )
             {
                 ReadOnlySpan<char> chars = codeLine.AsSpan( current );
                 char c = chars[ 0 ];
-                if( c != '.' )
+                switch( c )
                 {
-                    t = Token.Empty;
-                    return false;
+                    case '.':
+                        Match match = NextEnumPattern.Match( codeLine, current );
+                        if( match.Success )
+                        {
+                            int begin = match.Groups[ "token" ].Index;
+                            int end = match.Groups[ "end" ].Index;
+                            int rest = match.Groups[ "rest" ].Index;
+                            current = rest;
+                            t = new Token(
+                                match.Groups[ "token" ].Value, line, begin, TokenFlag.Enum );
+                            return true;
+                        }
+                        break;
+                    case '$':
+                        t = new Token( "$", line, current, TokenFlag.Member );
+                        current++;
+                        return true;
+                    case '*':
+                        t = new Token( "*", line, current, TokenFlag.Member );
+                        current++;
+                        return true;
+                    case '\'':
+                        match = _stringPattern.Match( codeLine, current );
+                        if( match.Success )
+                        {
+                            int begin = match.Groups[ "token" ].Index;
+                            int end = match.Groups[ "end" ].Index;
+                            int rest = match.Groups[ "rest" ].Index;
+                            current = rest;
+                            string value = chars.Slice( 1, ( end - begin - 1 ) ).ToString();
+                            if( string.IsNullOrWhiteSpace( value ) ) {
+                                value = string.Empty;
+                            }
+                            t = new Token( value, line, begin, TokenFlag.String );
+                            return true;
+                        }
+                        break;
+                    default:
+                        break;
                 }
-                Match match = NextEnumPattern.Match( codeLine, current );
-                if( match.Success )
-                {
-                    int begin = match.Groups[ "begin" ].Index;
-                    int end = match.Groups[ "end" ].Length;
-                    int rest = match.Groups[ "rets" ].Length;
-                    current = rest;
-                    t = new Token( match.Groups[ "begin" ].Value, line, begin, TokenFlag.Enum );
-                    return true;
-                } else
-                {
-                    t = Token.Empty;
-                    return false;
-                }
+                t = Token.Empty;
+                return false;
             }
 
             [GeneratedRegex(
-                    @"(?<begin>\.[A-Za-z_]+\.)(?<end>\s*)(?<rest>\S*)",
+                    @"(?<token>\.[A-Za-z_]+\.)(?<end>\s*)(?<rest>\S*)",
                     RegexOptions.Singleline )]
-            private static extern Regex GetNextEnumPattern();
+            private static partial Regex GetNextEnumPattern();
+
+            [GeneratedRegex(
+                    @"(?<token>')(?>\\\\|''|(?!')[^'])*(?<end>')\s*?(?<rest>\S|$)",
+                    RegexOptions.Singleline )]
+            private static partial Regex GetStringPattern();
 
         }
 

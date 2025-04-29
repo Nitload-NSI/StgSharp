@@ -31,7 +31,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using StgSharp.Math;
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.PipeLine;
 using StgSharp.Script.Express;
 
@@ -40,7 +40,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public abstract class StepEntityBase : IExpMarshalType<StepUninitializedEntity>
     {
@@ -52,6 +52,11 @@ namespace StgSharp.Modeling.Step
         public StepModel Context { get; init; }
 
         public string Name { get; protected set; }
+
+        public T AsType<T>() where T: StepEntityBase
+        {
+            return null;
+        }
 
     }
 }

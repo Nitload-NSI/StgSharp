@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpSyntaxAnalyzer.PrefixReverseAnalysing.cs"
+//     file="StepDependencyDetector.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,62 +28,33 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Script;
-using StgSharp.Script.Express;
+using StgSharp.Model.Step;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
-
 namespace StgSharp.Model.Step
 {
-    internal partial class StepExpSyntaxAnalyzer
+    internal class StepDependencyDetector
     {
 
-        private void ClosePrefixReverse( Token rightSeparator )
-        {
-            Token op;
-            ExpSyntaxNode root;
-            if( _cache.OperatorAheadOfDepth == 0 )
-            {
-                if( _cache.OperandAheadOfDepth == 1 )
-                {
-                    _cache.PopOperand( out _, out ExpSyntaxNode? statement );
-                    _cache.StatementsInDepth.Push( statement );
-                } else
-                {
-                    _cache.StatementsInDepth.Push( ExpSyntaxNode.Empty );
-                }
-            } else
-            {
-                while( _cache.TryPopOperator( out op ) )
-                {
-                    ExpSyntaxNode node = ConvertAndPushOneOperator( op );
-                }
-                if( _cache.OperandAheadOfDepth == 1 )
-                {
-                    _cache.PopOperand( out _, out root );
-                    _cache.StatementsInDepth.Push( root );
-                }
-            }
+        public StepDependencyDetector() { }
 
-            root = _cache.PackAllStatements();
-            _cache.DecreaseDepth();
-            if( IsSeparatorMatch( _cache.PeekOperator(), rightSeparator ) )
-            {
-                _cache.PopOperator();
-                root = ExpTupleNode.Pack( root );
-                _cache.PushOperand( root );
-            } else
-            {
-                throw new ExpCompileException(
-                    rightSeparator, "Ending of block does not match its begging" );
-            }
+        public List<int> Dependencies { get; private set; } = new();
+
+        public void AddDependency( StepEntityInstanceNode node )
+        {
+            Dependencies.Add( node.Id );
+        }
+
+        public IEnumerable<int> ExportAllDependencies()
+        {
+            List<int> ret = Dependencies;
+            Dependencies = new List<int>();
+            return ret;
         }
 
     }

@@ -29,6 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp;
+using StgSharp.Model.Step;
 using StgSharp.PipeLine;
 using StgSharp.Script;
 
@@ -39,7 +40,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Xml.Linq;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public class StepUninitializedEntity : StepEntityBase, IConvertableToPipelineNode
     {
@@ -58,14 +59,17 @@ namespace StgSharp.Modeling.Step
 
         internal static HashSet<string> UnsupportedItemTypes { get; } = new HashSet<string>();
 
-        public static StepUninitializedEntity FromSyntax( StepModel model, ExpSyntaxNode node )
+        public static StepUninitializedEntity FromSyntax(
+                                              StepModel model,
+                                              StepEntityDefineSequence sequence )
         {
+            ExpSyntaxNode node = sequence.Expression;
             if( node is not ExpBinaryOperatorNode assign ) {
                 throw new ExpInvalidSyntaxException( "Not an assign expression " );
             }
             StepEntityInstanceNode? idNode = assign.Left as StepEntityInstanceNode;
-            ExpElementInitializingNode? initNode = assign.Right as ExpElementInitializingNode;
-            StepUninitializedEntity entity = new StepUninitializedEntity( model, idNode.Id );
+            ExpElementInitializingNode initNode = ( assign.Right as ExpElementInitializingNode )!;
+            StepUninitializedEntity entity = new StepUninitializedEntity( model, idNode!.Id );
             entity.data = initNode;
             return entity;
         }
@@ -93,53 +97,35 @@ namespace StgSharp.Modeling.Step
                 {
                     ExpressStepUtil.AdvancedFaceText => StepAdvancedFace.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.Axis2Placement2DText => StepAxis2Placement2D.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.Axis2Placement3DText => StepAxis2Placement3D.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.BSplineCurveWithKnotsText => StepBSplineCurveWithKnots.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.CartesianPointText => StepCartesianPoint.FromSyntax(
                         initNode.Right ),
-
                     ExpressStepUtil.CircleText => StepCircle.FromSyntax( Context, initNode.Right ),
-
                     ExpressStepUtil.CylindricalSurfaceText => StepCylindricalSurface.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.DirectionText => StepDirection.FromSyntax( initNode.Right ),
-
                     ExpressStepUtil.EdgeCurveText => StepEdgeCurve.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.EdgeLoopText => StepEdgeLoop.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.EllipseText => StepEllipse.FromSyntax( Context,
                                                                            initNode.Right ),
-
                     ExpressStepUtil.FaceBoundText => StepFaceBound.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.FaceOuterBoundText => StepFaceOuterBound.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.LineText => StepLine.FromSyntax( Context, initNode.Right ),
-
                     ExpressStepUtil.OrientedEdgeText => StepOrientedEdge.FromSyntax(
                         Context, initNode.Right ),
-
                     ExpressStepUtil.PlaneText => StepPlane.FromSyntax( Context, initNode.Right ),
-
                     ExpressStepUtil.VectorText => StepVector.FromSyntax( Context, initNode.Right ),
-
                     ExpressStepUtil.VertexPointText => StepVertexPoint.FromSyntax(
                         Context, initNode.Right ),
-
                     _ => null
                 };
                 if( entity is null )
@@ -148,6 +134,9 @@ namespace StgSharp.Modeling.Step
                     return;
                 }
                 Context.ReplaceEntity( this, entity );
+            } else if( data is StepComplexEntityNode )
+            {
+                //TODO 处理融合初始化表达式
             } else
             {
                 throw new ExpInvalidSyntaxException( "Name of entity is required." );

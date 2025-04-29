@@ -58,7 +58,7 @@ namespace StgSharp.Script.Express
 
         public ExpFunctionSource FunctionCaller => _function;
 
-        public override ExpInstantiableElement EqualityTypeConvert => _function.;
+        public override ExpInstantiableElement EqualityTypeConvert => _function.ReturningType;
 
         public override ExpSyntaxNode Left => Empty;
 

@@ -28,24 +28,23 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Modeling.Step;
+using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 
-namespace StgSharp.Modeling.Step
+namespace StgSharp.Model.Step
 {
     public class StepVertexPoint : StepVertex
     {
 
         private StepCartesianPoint _location;
 
-        private StepVertexPoint() : base( string.Empty ) { }
+        public StepVertexPoint() { }
 
-        public StepVertexPoint( string name, StepCartesianPoint location )
-            : base( name )
+        public StepVertexPoint( StepCartesianPoint location )
         {
             Location = location;
         }

@@ -69,7 +69,8 @@ namespace StgSharp.Script.Express
                                             ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( source, "Number",
+                                                   left.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
@@ -89,7 +90,7 @@ namespace StgSharp.Script.Express
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
-                    left.EqualityTypeConvert.Name, right.EqualityTypeConvert.Name );
+                    source, left.EqualityTypeConvert.Name, right.EqualityTypeConvert.Name );
             }
             return new ExpBinaryOperatorNode( source, left, right )
             {
@@ -133,7 +134,7 @@ namespace StgSharp.Script.Express
         {
             if( right is not ExpMetaRefNode metaRef ) {
                 throw new ExpInvalidTypeException(
-                    "<source of element>", right.EqualityTypeConvert.Name );
+                    source, "<source of element>", right.EqualityTypeConvert.Name );
             }
             return new ExpBinaryOperatorNode( source, left, right )
             {
@@ -153,7 +154,8 @@ namespace StgSharp.Script.Express
                                             ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( source, "Number",
+                                                   left.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
@@ -173,7 +175,7 @@ namespace StgSharp.Script.Express
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
-                    left.EqualityTypeConvert.Name, right.EqualityTypeConvert.Name );
+                    source, left.EqualityTypeConvert.Name, right.EqualityTypeConvert.Name );
             }
             return new ExpBinaryOperatorNode( source, left, right )
             {
@@ -189,7 +191,8 @@ namespace StgSharp.Script.Express
                                             ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( source, "Number",
+                                                   left.EqualityTypeConvert.Name );
             }
             return new ExpBinaryOperatorNode( source, left, right )
             {
@@ -205,7 +208,8 @@ namespace StgSharp.Script.Express
                                             ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( source, "Number",
+                                                   left.EqualityTypeConvert.Name );
             }
             return new ExpBinaryOperatorNode( source, left, right )
             {
@@ -221,7 +225,8 @@ namespace StgSharp.Script.Express
                                             ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( source, "Number",
+                                                   left.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
@@ -241,7 +246,7 @@ namespace StgSharp.Script.Express
         {
             if( left.EqualityTypeConvert != right.EqualityTypeConvert ) {
                 throw new ExpInvalidTypeException(
-                    left.EqualityTypeConvert.Name, right.EqualityTypeConvert.Name );
+                    source, left.EqualityTypeConvert.Name, right.EqualityTypeConvert.Name );
             }
             return new ExpBinaryOperatorNode( source, left, right )
             {
@@ -257,7 +262,8 @@ namespace StgSharp.Script.Express
                                             ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( source, "Number",
+                                                   left.EqualityTypeConvert.Name );
             }
             return new ExpBinaryOperatorNode( source, left, right )
             {
@@ -273,7 +279,8 @@ namespace StgSharp.Script.Express
                                             ExpSyntaxNode right )
         {
             if( !left.IsNumber && !right.IsNumber ) {
-                throw new ExpInvalidTypeException( "Number", left.EqualityTypeConvert.Name );
+                throw new ExpInvalidTypeException( source, "Number",
+                                                   left.EqualityTypeConvert.Name );
             }
             bool isFloat =
                     ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==

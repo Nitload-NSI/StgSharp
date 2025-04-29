@@ -89,6 +89,8 @@ namespace StgSharp.Script
             get => _statementCache.Peek();
         }
 
+        public Stack<CompileDepthMark> DepthStack => _depthStack;
+
         public void DecreaseDepth()
         {
             CompileDepthMark mark = _depthStack.Pop();
@@ -110,9 +112,13 @@ namespace StgSharp.Script
             if( StatementsInDepth.Count == 0 ) {
                 return TNode.Empty;
             }
-            TNode first = StatementsInDepth.Peek();
-            while( StatementsInDepth.Count > 0 ) {
-                first.PrependNode( StatementsInDepth.Pop() );
+            TNode end = StatementsInDepth.Peek();
+            TNode first = end;
+            while( StatementsInDepth.Count > 0 )
+            {
+                first = StatementsInDepth.Pop();
+                end.PrependNode( first );
+                end = first;
             }
             return first;
         }

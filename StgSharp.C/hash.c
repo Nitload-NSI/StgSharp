@@ -19,7 +19,8 @@ INTERNAL int SSCDECL city_hash_simplify_sse(byte const *str, int const length)
                         hash = _mm_crc32_u16(hash, *ptr);
                 }
         } else {
-                byte *last_128 = end - 16, *last_32 = end - 4;
+                byte *last_128 = end - 16;
+                byte *last_32 = end - 4;
                 uint64_t hash64 = size;
                 for (; ptr < last_128; ptr += 16) {
                         __m128i vec = _mm_loadu_si32((int *)ptr);

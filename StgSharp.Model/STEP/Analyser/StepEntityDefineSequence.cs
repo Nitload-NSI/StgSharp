@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="StateMachine.cs"
+//     file="StepEntityDefineSequence.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,36 +28,27 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Script.Express;
+
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp
+namespace StgSharp.Model.Step
 {
-    public interface IStateMachine<T> where T: Enum
+    public record class StepEntityDefineSequence
     {
+        public StepEntityDefineSequence( ExpSyntaxNode node, IEnumerable<int> dep )
+        {
+            Expression = node;
+            Dependencies = dep;
+        }
 
-        public T LastStableState { get; }
+        public ExpSyntaxNode Expression { get; init; }
 
-        public bool TryEnterState();
-
-        public bool TryExitState();
-
-        public bool TrySwitchState();
-
-    }
-
-    public interface IStateMachineWithSwitchSpan<TState, TSpan> : IStateMachine<TState>
-        where TState: Enum
-    {
-
-        public bool IsInStabelState { get; }
-
-        public TState NextStableState { get; }
-
-        public bool TrySwitchState();
-
+        public IEnumerable<int> Dependencies { get; init; }
     }
 }
