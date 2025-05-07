@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+
 using StgSharp.Entities;
 
 using System;
@@ -56,56 +57,63 @@ namespace StgSharp.PipeLine
     {
 
         private static Dictionary<string, PipelineConnector> _emptyLayer = new();
-        private static PipelineNode _emptyNode = new PipelineNode( string.Empty, null!, false );
+        private static PipelineNode _emptyNode = new PipelineNode(
+            PipelineNodeLabel.Empty, null!, false );
         private IConvertableToPipelineNode _mainOperation;
-        private string _name;
-        private protected bool _levelAvailable, _nativeRequested;
-        private protected Dictionary<string, PipelineNodeImport> _input;
-        private protected Dictionary<string, PipelineNodeExport> _output;
-        private protected int _level;
+        private PipelineNodeLabel _label;
+        private protected bool _nativeRequested;
+        private protected Dictionary<string, PipelineNodeInPort> _input;
+        private protected Dictionary<string, PipelineNodeOutPort> _output;
+        private protected int _level, _count;
 
-        internal PipelineNode( string name, IConvertableToPipelineNode node, bool isNative )
+        internal PipelineNode(
+                 PipelineNodeLabel label,
+                 IConvertableToPipelineNode node,
+                 bool isNative )
         {
-            _levelAvailable = false;
-            _name = name;
+            _label = label;
             _nativeRequested = isNative;
             _mainOperation = node;
-            InputPorts = new Dictionary<string, PipelineNodeImport>();
-            OutputPorts = new Dictionary<string, PipelineNodeExport>();
-            foreach( string portName in node.InputInterfacesName ) {
-                InputPorts.Add( portName, new PipelineNodeImport( this, portName ) );
+            InputPorts = new();
+            OutputPorts = new();
+            foreach( string port in node.InputPortName ) {
+                InputPorts.Add( port, new PipelineNodeInPort( this, port ) );
             }
-
-            foreach( string portName in node.OutputInterfacesName ) {
-                OutputPorts.Add( portName, new PipelineNodeExport( this, portName ) );
+            foreach( string port in node.OutputPortName ) {
+                OutputPorts.Add( port, new PipelineNodeOutPort( this, port ) );
             }
         }
 
         #pragma warning disable CS8618
         internal PipelineNode(
                  PipelineNodeOperation operation,
-                 string name,
+                 PipelineNodeLabel name,
                  bool isNative,
-                 string[] inputPorts,
-                 string[] outputPorts )
+                 string[] inputNames,
+                 string[] outputNames )
         #pragma warning restore CS8618
         {
-            if( ( inputPorts == null ) || ( inputPorts.Length == 0 ) ) {
-                throw new ArgumentNullException( nameof( inputPorts ) );
+            if( ( inputNames == null ) || ( inputNames.Length == 0 ) ) {
+                throw new ArgumentNullException( nameof( inputNames ) );
             }
-            if( ( outputPorts == null ) || ( outputPorts.Length == 0 ) ) {
-                throw new ArgumentNullException( nameof( outputPorts ) );
+            if( ( outputNames == null ) || ( outputNames.Length == 0 ) ) {
+                throw new ArgumentNullException( nameof( outputNames ) );
             }
-            _levelAvailable = false;
-            _name = name;
+            _label = name;
             _nativeRequested = isNative;
             if( operation == null ) {
                 operation = DefaultOperation;
             }
             _mainOperation = new DefaultConvertableToBlueprintNode(
-                operation, inputPorts, outputPorts );
-            InputPorts = new Dictionary<string, PipelineNodeImport>();
-            OutputPorts = new Dictionary<string, PipelineNodeExport>();
+                operation, inputNames, outputNames );
+            InputPorts = new Dictionary<string, PipelineNodeInPort>();
+            OutputPorts = new Dictionary<string, PipelineNodeOutPort>();
+            foreach( string port in inputNames ) {
+                InputPorts.Add( port, new PipelineNodeInPort( this, port ) );
+            }
+            foreach( string port in outputNames ) {
+                OutputPorts.Add( port, new PipelineNodeOutPort( this, port ) );
+            }
         }
 
         public bool IsNative
@@ -119,20 +127,26 @@ namespace StgSharp.PipeLine
             get => _emptyLayer;
         }
 
+        public int Level
+        {
+            get => _level;
+            private set { _level = value; }
+        }
+
         public static PipelineNode Empty
         {
             get => _emptyNode;
         }
 
-        public string Name => _name;
+        public PipelineNodeLabel Label => _label;
 
-        internal Dictionary<string, PipelineNodeImport> InputPorts
+        internal Dictionary<string, PipelineNodeInPort> InputPorts
         {
             get => _input;
             private set => _input = value;
         }
 
-        internal Dictionary<string, PipelineNodeExport> OutputPorts
+        internal Dictionary<string, PipelineNodeOutPort> OutputPorts
         {
             get => _output;
             private set => _output = value;
@@ -147,6 +161,8 @@ namespace StgSharp.PipeLine
             get => _mainOperation;
         }
 
+        internal int RemainingIncreaseCount => Previous.Count - _count;
+
         public static void Connect(
                            PipelineNode front,
                            string frontNodePort,
@@ -156,10 +172,10 @@ namespace StgSharp.PipeLine
             ArgumentNullException.ThrowIfNull( front );
             ArgumentNullException.ThrowIfNull( back );
             if( !front.OutputPorts.TryGetValue( frontNodePort,
-                                                out PipelineNodeExport? frontPort ) ) {
+                                                out PipelineNodeOutPort? frontPort ) ) {
                 throw new ArgumentOutOfRangeException( $"Cannot find port named {frontNodePort}" );
             }
-            if( !back.InputPorts.TryGetValue( backNodePort, out PipelineNodeImport? backPort ) ) {
+            if( !back.InputPorts.TryGetValue( backNodePort, out PipelineNodeInPort? backPort ) ) {
                 throw new ArgumentOutOfRangeException( $"Cannot find port named {backNodePort}" );
             }
             backPort.Connect( frontPort );
@@ -168,7 +184,7 @@ namespace StgSharp.PipeLine
 
         public IEnumerator<PipelineNode> GetFormerNodes()
         {
-            foreach( PipelineNodeImport port in InputPorts.Values )
+            foreach( PipelineNodeInPort port in InputPorts.Values )
             {
                 IEnumerator<PipelineNode> enumerator = port.GetFormerNodes();
                 while( enumerator.MoveNext() ) {
@@ -181,8 +197,8 @@ namespace StgSharp.PipeLine
         {
             try
             {
-                //Console.WriteLine(_name);
-                PipelineNodeImport.WaitAll( InputPorts );
+                //Console.WriteLine(_label);
+                PipelineNodeInPort.WaitAll( InputPorts );
                 if( _mainOperation != null ) {
                     _mainOperation.NodeMain( in _input, in _output );
                 }
@@ -193,48 +209,61 @@ namespace StgSharp.PipeLine
             }
         }
 
-        protected static void DefaultOperation(
-                              in Dictionary<string, PipelineNodeImport> input,
-                              in Dictionary<string, PipelineNodeExport> output )
+        internal bool TryIncreaseLevelTo( int level )
         {
-            PipelineNodeExport.SkipAll( output );
+            _count++;
+            if( _count > Previous.Count ) {
+                return false;
+            }
+            Level = int.Max( level, this.Level );
+            return true;
+        }
+
+        protected static void DefaultOperation(
+                              in Dictionary<string, PipelineNodeInPort> input,
+                              in Dictionary<string, PipelineNodeOutPort> output )
+        {
+            PipelineNodeOutPort.SkipAll( output );
         }
 
         #region port operation
 
-        public PipelineNodeImport GetInputPort( string name )
+        public PipelineNodeInPort GetInputPort( string lable )
         {
-            if( !InputPorts.TryGetValue( name, out PipelineNodeImport? ret ) ) {
+            if( !InputPorts.TryGetValue( lable, out PipelineNodeInPort? ret ) ) {
                 throw new ArgumentOutOfRangeException(
-                    $"Cannot find the interface named {name} in node {Name}." );
+                    $"Cannot find the interface named {lable} in node {Label}." );
             }
             return ret;
         }
 
-        public PipelineNodeExport GetOutputPort( string name )
+        public PipelineNodeOutPort GetOutputPort( string lable )
         {
-            if( !OutputPorts.TryGetValue( name, out PipelineNodeExport? ret ) ) {
+            if( !OutputPorts.TryGetValue( lable, out PipelineNodeOutPort? ret ) ) {
                 throw new ArgumentOutOfRangeException(
-                    $"Cannot find the interface named {name} in node {Name}." );
+                    $"Cannot find the interface named {lable} in node {Label}." );
             }
             return ret;
         }
 
-        public void DefineCertainInputPort( string name )
+        public PipelineNodeInPort DefineCertainInputPort( string label )
         {
-            if( InputPorts.ContainsKey( name ) ) {
-                throw new ArgumentException( $"Port named {name} in node {Name} has been defined." );
+            if( InputPorts.ContainsKey( label ) ) {
+                return null;
             }
-            InputPorts[ name ] = new PipelineNodeImport( this, name );
+            PipelineNodeInPort port = new PipelineNodeInPort( this, label );
+            InputPorts[ label ] = port;
+            return port;
         }
 
-        public void DefineCertainOutputPort( string name )
+        public PipelineNodeOutPort DefineCertainOutputPort( string label )
         {
-            if( OutputPorts.ContainsKey( name ) ) {
-                throw new ArgumentOutOfRangeException(
-                    $"Port named {name} in node {Name} has been defined." );
+            if( OutputPorts.ContainsKey( label ) ) {
+                return null;
             }
-            OutputPorts[ name ] = new PipelineNodeExport( this, name );
+            PipelineNodeOutPort port = new PipelineNodeOutPort( this, label );
+            OutputPorts[ label ] = port;
+            return port;
         }
 
         #endregion

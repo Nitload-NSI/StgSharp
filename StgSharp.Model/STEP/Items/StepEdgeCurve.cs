@@ -74,17 +74,15 @@ namespace StgSharp.Model.Step
 
         internal static StepEdgeCurve FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepEdgeCurve edgeCurve = new StepEdgeCurve();
             enumerator.AssertEnumeratorCount( 5 );
-            edgeCurve.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => edgeCurve.EdgeStart = v.AsType<StepVertex>() );
-            binder.BindValue(
-                enumerator.Values[ 2 ], v => edgeCurve.EdgeEnd = v.AsType<StepVertex>() );
-            binder.BindValue(
-                enumerator.Values[ 3 ], v => edgeCurve.EdgeGeometry = v.AsType<StepCurve>() );
-            edgeCurve.IsSameSense = ( enumerator.Values[ 4 ]as ExpBoolNode )!.Value;
+            edgeCurve.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            binder.BindValue( enumerator[ 1 ], v => edgeCurve.EdgeStart = v.AsType<StepVertex>() );
+            binder.BindValue( enumerator[ 2 ], v => edgeCurve.EdgeEnd = v.AsType<StepVertex>() );
+            binder.BindValue( enumerator[ 3 ],
+                              v => edgeCurve.EdgeGeometry = v.AsType<StepCurve>() );
+            edgeCurve.IsSameSense = ( enumerator[ 4 ]as ExpBoolNode )!.Value;
             return edgeCurve;
         }
 

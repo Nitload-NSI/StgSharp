@@ -41,8 +41,6 @@ namespace StgSharp.Model.Step
         private StepCartesianPoint _location;
         private StepDirection _refDirection;
 
-        protected StepAxis2Placement( string name ) : base( name ) { }
-
         public StepCartesianPoint Location
         {
             get { return _location; }

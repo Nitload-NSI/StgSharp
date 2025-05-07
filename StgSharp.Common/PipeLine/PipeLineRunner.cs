@@ -51,69 +51,26 @@ namespace StgSharp.PipeLine
         private static ConcurrentStack<PipelineScheduler> pipelineInWaiting 
             = new ConcurrentStack<PipelineScheduler>();
         private static int _callingThread;
-        private static SemaphoreSlim bpLock = new SemaphoreSlim( 0, 1 );
+        private static SemaphoreSlim pipelineLock = new SemaphoreSlim( 0, 1 );
 
-        /// <summary>
-        ///   <para> Only the following occasions of calling are valid: </para> <para> 1. no bp is
-        ///   running or the only bp is quitting. </para><para> 2. calling from the main thread or a
-        ///   thread the current bp is running on.</para>
-        /// </summary>
-        internal static bool IsValidCalling
-        {
-            get
-            {
-                if( ( NodeRunner.CurrentBlueprint == null ) || //no bp running at all
-                    ( ( pipelineInWaiting.IsEmpty ) && ( NodeRunner.CurrentBlueprint.IsRunning ==
-                                                         false ) ) )
-                {
-                    // a bp is quitting
-                    //in case no bp is running
-                    return true;
-                }
-                int? id = Task.CurrentId;
-                if( id is null )
-                {
-                    // in case calling from main thread and current running bp
-                    return _callingThread == Environment.CurrentManagedThreadId;
-                }
-                foreach( NodeRunner item in allAvailableTask )
-                {
-                    if( item.Id == id )
-                    {
-                        //if calling from any bp running task
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-
-        public static void Run( PipelineScheduler blueprint )
+        public static void Run( PipelineScheduler pipeline )
         {
             //Console.WriteLine();
-            if( blueprint == null )
+            if( pipeline == null )
             {
                 return;
             }
-            if( blueprint.IsRunning ) {
+            if( pipeline.IsRunning ) {
                 throw new InvalidOperationException( "Attempt to run a blueprint instance twice." );
             }
-            if( IsValidCalling )
-            {
-                //Console.WriteLine("valid and run");
-                if( InterruptAndRunNewBp( blueprint ) )
-                {
-                    while( InterruptAndRunNewBp( NodeRunner.CurrentBlueprint ) ) { }
-                }
-            } else
-            {
-                bpLock.Wait();
-                if( InterruptAndRunNewBp( blueprint ) )
-                {
-                    while( InterruptAndRunNewBp( NodeRunner.CurrentBlueprint ) ) { }
-                }
-                bpLock.Release();
+            if( !IsValidCalling() ) {
+                pipelineLock.Wait();
             }
+            if( InterruptAndRunNewPipeline( pipeline ) )
+            {
+                while( InterruptAndRunNewPipeline( NodeRunner.CurrentPipeline! ) ) { }
+            }
+            pipelineLock.Release();
             Interlocked.Exchange( ref _callingThread, -1 );
         }
 
@@ -137,7 +94,10 @@ namespace StgSharp.PipeLine
         public static void Terminate()
         {
             cts.Cancel();
-            NodeRunner.CurrentBlueprint.Terminate();
+            if( NodeRunner.CurrentPipeline is null ) {
+                return;
+            }
+            NodeRunner.CurrentPipeline.Terminate();
             foreach( NodeRunner task in allAvailableTask ) {
                 task.Cts.Cancel();
             }
@@ -147,26 +107,28 @@ namespace StgSharp.PipeLine
             pipelineInWaiting.Clear();
         }
 
-        internal static bool InterruptAndRunNewBp( PipelineScheduler newBp )
+        internal static bool InterruptAndRunNewPipeline( PipelineScheduler newPipeline )
         {
-            ArgumentNullException.ThrowIfNull( newBp );
-            if( ( newBp != NodeRunner.CurrentBlueprint ) && ( NodeRunner.CurrentBlueprint != null ) )
+            ArgumentNullException.ThrowIfNull( newPipeline );
+            if( ( newPipeline != NodeRunner.CurrentPipeline ) &&
+                ( NodeRunner.CurrentPipeline != null ) )
             {
                 //if a running bp exists
-                pipelineInWaiting.Push( NodeRunner.CurrentBlueprint );
+                pipelineInWaiting.Push( NodeRunner.CurrentPipeline );
             }
 
             //load new bp to current bp
-            Interlocked.Exchange( ref NodeRunner.CurrentBlueprint!, newBp );
+            NodeRunner.CurrentPipeline = newPipeline;
             Interlocked.Exchange( ref _callingThread, Environment.CurrentManagedThreadId );
 
             //run beginning node to init it first.
-            if( !NodeRunner.CurrentBlueprint.IsRunning )
+            if( !NodeRunner.CurrentPipeline.IsRunning )
             {
-                ( NodeRunner.CurrentBlueprint.BeginLayer as BeginningNode )!.Run();
+                ( NodeRunner.CurrentPipeline.BeginLayer as BeginningNode )!.Run();
             }
 
             //refresh all tasks
+            /*
             for( int i = 0; i < allAvailableTask.Length; i++ )
             {
                 NodeRunner item = allAvailableTask[ i ];
@@ -174,19 +136,64 @@ namespace StgSharp.PipeLine
                     allAvailableTask[ i ] = NodeRunner.Run();
                 }
             }
+            /**/
             PipelineNode node;
-            while( !cts.Token.IsCancellationRequested && NodeRunner.CurrentBlueprint
-                                                                   .RequestNextNativeNode(
-                                                                       out node ) )
+            while( !cts.Token.IsCancellationRequested &&
+                   NodeRunner.CurrentPipeline.RequestNextMainThreadNode( out node ) )
             {
                 node.Run();
-                if( !NodeRunner.CurrentBlueprint.IsRunning )
+                if( !NodeRunner.CurrentPipeline.IsRunning )
                 {
                     break;
                 }
             }
-            ( NodeRunner.CurrentBlueprint.EndLayer as EndingNode )!.Run();
-            return pipelineInWaiting.TryPeek( out NodeRunner.CurrentBlueprint );
+
+            while( ( NodeRunner.CurrentPipeline != null ) &&
+                   NodeRunner.CurrentPipeline.IsRunning &&
+                   !cts.Token.IsCancellationRequested &&
+                   NodeRunner.CurrentPipeline!.RequestNexConcurrentNode( out node ) )
+            {
+                node.Run();
+                if( !NodeRunner.CurrentPipeline!.IsRunning )
+                {
+                    break;
+                }
+            }
+            ( NodeRunner.CurrentPipeline!.EndLayer as EndingNode )!.Run();
+            bool isEmpty = pipelineInWaiting.TryPop( out PipelineScheduler? pipeline );
+            NodeRunner.CurrentPipeline = pipeline!;
+            return isEmpty;
+        }
+
+        /// <summary>
+        ///   <para> Only the following occasions of calling are valid: </para> <para> 1. no bp is
+        ///   running or the only bp is quitting. </para><para> 2. calling from the main thread or a
+        ///   thread the current bp is running on.</para>
+        /// </summary>
+        internal static bool IsValidCalling()
+        {
+            if( ( NodeRunner.CurrentPipeline == null ) || //no bp running at all
+                ( ( pipelineInWaiting.IsEmpty ) && ( NodeRunner.CurrentPipeline.IsRunning == false ) ) )
+            {
+                // a bp is quitting
+                //in case no bp is running
+                return true;
+            }
+            int? id = Task.CurrentId;
+            if( id is null )
+            {
+                // in case calling from main thread and current running bp
+                return _callingThread == Environment.CurrentManagedThreadId;
+            }
+            foreach( NodeRunner item in allAvailableTask )
+            {
+                if( item.Id == id )
+                {
+                    //if calling from any bp running task
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static NodeRunner[] CreateBlueprintRunnerArray()
@@ -200,7 +207,7 @@ namespace StgSharp.PipeLine
     internal class NodeRunner : CancellableTask
     {
 
-        private static PipelineScheduler _current;
+        private static volatile PipelineScheduler? _current;
 
         internal NodeRunner()
             : base()
@@ -208,9 +215,10 @@ namespace StgSharp.PipeLine
             _startup = InternalRun;
         }
 
-        internal static ref PipelineScheduler CurrentBlueprint
+        internal static PipelineScheduler? CurrentPipeline
         {
-            get => ref _current;
+            get => _current;
+            set => _current = value;
         }
 
         internal static NodeRunner Run()
@@ -225,16 +233,14 @@ namespace StgSharp.PipeLine
 
         private static void InternalRun( CancellationToken token )
         {
-            //Console.WriteLine("Task Begin");
             PipelineNode item;
-            while( ( CurrentBlueprint != null ) && CurrentBlueprint.IsRunning && !token.IsCancellationRequested && CurrentBlueprint.RequestNexGlobalNode(
-                out item ) )
-            {
-                //Console.WriteLine($"Get node of {item.Name}, going to run.");
+            Console.WriteLine( $"Global thread {Environment.CurrentManagedThreadId} starts." );
+            while( ( CurrentPipeline != null ) &&
+                   CurrentPipeline.IsRunning &&
+                   !token.IsCancellationRequested &&
+                   CurrentPipeline.RequestNexConcurrentNode( out item ) ) {
                 item.Run();
             }
-
-            //Console.WriteLine("Task Completed");
         }
 
     }//------------------------------------- End of Class ------------------------------------------

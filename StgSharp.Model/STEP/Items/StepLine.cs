@@ -44,10 +44,9 @@ namespace StgSharp.Model.Step
         private StepCartesianPoint _point;
         private StepVector _vector;
 
-        private StepLine() : base( string.Empty ) { }
+        private StepLine() { }
 
-        public StepLine( string label, StepCartesianPoint point, StepVector vector )
-            : base( label )
+        public StepLine( StepCartesianPoint point, StepVector vector )
         {
             Point = point;
             Vector = vector;
@@ -89,7 +88,7 @@ namespace StgSharp.Model.Step
                                float y2,
                                float z2 )
         {
-            StepCartesianPoint start = new StepCartesianPoint( string.Empty, x1, y1, z1 );
+            StepCartesianPoint start = new StepCartesianPoint( x1, y1, z1 );
             float dx = x2 - x1;
             float dy = y2 - y1;
             float dz = z2 - z1;
@@ -97,20 +96,18 @@ namespace StgSharp.Model.Step
             float dxn = dx / length;
             float dyn = dy / length;
             float dzn = dz / length;
-            StepVector vector = new StepVector(
-                string.Empty, new StepDirection( string.Empty, dxn, dyn, dzn ), length );
-            return new StepLine( string.Empty, start, vector );
+            StepVector vector = new StepVector( new StepDirection( dxn, dyn, dzn ), length );
+            return new StepLine( start, vector );
         }
 
         internal static StepLine FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepLine line = new StepLine();
             enumerator.AssertEnumeratorCount( 3 );
-            line.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => line.Point = v.AsType<StepCartesianPoint>() );
-            binder.BindValue( enumerator.Values[ 2 ], v => line.Vector = v.AsType<StepVector>() );
+            line.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            binder.BindValue( enumerator[ 1 ], v => line.Point = v.AsType<StepCartesianPoint>() );
+            binder.BindValue( enumerator[ 2 ], v => line.Vector = v.AsType<StepVector>() );
             return line;
         }
 

@@ -42,14 +42,12 @@ namespace StgSharp.Model.Step
 
         private StepDirection _axis;
 
-        private StepAxis2Placement3D() : base( string.Empty ) { }
+        private StepAxis2Placement3D() { }
 
         public StepAxis2Placement3D(
-               string name,
                StepCartesianPoint location,
                StepDirection axis,
                StepDirection refDirection )
-            : base( name )
         {
             Location = location;
             Axis = axis;
@@ -75,15 +73,14 @@ namespace StgSharp.Model.Step
                                              StepModel binder,
                                              ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepAxis2Placement3D axis = new StepAxis2Placement3D();
             enumerator.AssertEnumeratorCount( 4 );
-            axis.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => axis.Location = v.AsType<StepCartesianPoint>() );
-            binder.BindValue( enumerator.Values[ 2 ], v => axis.Axis = v.AsType<StepDirection>() );
-            binder.BindValue(
-                enumerator.Values[ 3 ], v => axis.RefDirection = v.AsType<StepDirection>() );
+            axis.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            binder.BindValue( enumerator[ 1 ],
+                              v => axis.Location = v.AsType<StepCartesianPoint>() );
+            binder.BindValue( enumerator[ 2 ], v => axis.Axis = v.AsType<StepDirection>() );
+            binder.BindValue( enumerator[ 3 ], v => axis.RefDirection = v.AsType<StepDirection>() );
             return axis;
         }
 

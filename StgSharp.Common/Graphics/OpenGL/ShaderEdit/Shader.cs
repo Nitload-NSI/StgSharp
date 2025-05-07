@@ -83,10 +83,10 @@ namespace StgSharp.Graphics.OpenGL
         /// <summary>
         ///   Attach one shader code to a shader program.
         /// </summary>
-        /// <param _name="target">
+        /// <param _label="target">
         ///   Shader program to attach
         /// </param>
-        /// <param _name="index">
+        /// <param _label="index">
         ///   Index of shader code in current shader code set.
         /// </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -187,7 +187,7 @@ namespace StgSharp.Graphics.OpenGL
         /// <summary>
         ///   Get a uniform form current shader, the value type of the uniform should be provided.
         /// </summary>
-        /// <param _name="name">
+        /// <param _label="name">
         ///   ContextName of the Uniform in shader code
         /// </param>
         /// <returns>
@@ -202,7 +202,7 @@ namespace StgSharp.Graphics.OpenGL
         /// <summary>
         ///   Get a uniform form current shader, the value type of the uniform should be provided.
         /// </summary>
-        /// <param _name="name">
+        /// <param _label="name">
         ///   ContextName of the Uniform in shader code
         /// </param>
         /// <returns>
@@ -216,7 +216,7 @@ namespace StgSharp.Graphics.OpenGL
         /// <summary>
         ///   Get a uniform form current shader, the value type of the uniform should be provided.
         /// </summary>
-        /// <param _name="name">
+        /// <param _label="name">
         ///   ContextName of the Uniform in shader code
         /// </param>
         /// <returns>
@@ -232,7 +232,7 @@ namespace StgSharp.Graphics.OpenGL
         /// <summary>
         ///   Get a uniform form current shader, the value type of the uniform should be provided.
         /// </summary>
-        /// <param _name="name">
+        /// <param _label="name">
         ///   ContextName of the Uniform in shader code
         /// </param>
         /// <returns>

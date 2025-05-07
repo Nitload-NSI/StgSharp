@@ -60,9 +60,9 @@ namespace StgSharp.Script.Express
             return new ExpTupleNode( node );
         }
 
-        public ExpNodeNextEnumerator TupleAsEnumerator()
+        public ExpNodePresidentEnumerator TupleAsEnumerator()
         {
-            return node.ToEnumerator();
+            return node.ToPresidentEnumerator();
         }
 
     }

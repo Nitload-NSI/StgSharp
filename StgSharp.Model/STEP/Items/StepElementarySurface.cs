@@ -41,10 +41,7 @@ namespace StgSharp.Model.Step
 
         private StepAxis2Placement3D _position;
 
-        protected StepElementarySurface() : base( string.Empty ) { }
-
-        public StepElementarySurface( string name, StepAxis2Placement3D position )
-            : base( name )
+        public StepElementarySurface( StepAxis2Placement3D position )
         {
             Position = position;
         }

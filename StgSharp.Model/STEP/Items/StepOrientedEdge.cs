@@ -74,17 +74,16 @@ namespace StgSharp.Model.Step
 
         internal static StepOrientedEdge FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepOrientedEdge orientedEdge = new StepOrientedEdge();
             enumerator.AssertEnumeratorCount( 5 );
-            orientedEdge.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
+            orientedEdge.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
-                enumerator.Values[ 1 ], v => orientedEdge.EdgeStart = v.AsType<StepVertex>() );
+                enumerator[ 1 ], v => orientedEdge.EdgeStart = v.AsType<StepVertex>() );
+            binder.BindValue( enumerator[ 2 ], v => orientedEdge.EdgeEnd = v.AsType<StepVertex>() );
             binder.BindValue(
-                enumerator.Values[ 2 ], v => orientedEdge.EdgeEnd = v.AsType<StepVertex>() );
-            binder.BindValue(
-                enumerator.Values[ 3 ], v => orientedEdge.EdgeElement = v.AsType<StepEdge>() );
-            orientedEdge.Orientation = ( enumerator.Values[ 4 ]as ExpBoolNode )!.Value;
+                enumerator[ 3 ], v => orientedEdge.EdgeElement = v.AsType<StepEdge>() );
+            orientedEdge.Orientation = ( enumerator[ 4 ]as ExpBoolNode )!.Value;
             return orientedEdge;
         }
 

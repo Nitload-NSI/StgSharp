@@ -43,18 +43,24 @@ namespace StgSharp.PipeLine
     internal sealed class BeginningNode : PipelineNode
     {
 
+        public const string OutName = "default";
+
         private PipelineScheduler _bp;
 
         public BeginningNode( PipelineScheduler bp )
-            : base( DefaultOperation, name: "BeginningNode", true, ["default"], ["default"] )
+            : base(
+            DefaultOperation, new PipelineNodeStringLabel( "BeginningNode" ), true, ["default"],
+            [OutName] )
         {
             _bp = bp;
         }
 
+        public PipelineNodeOutPort DefaultOut => OutputPorts[ OutName ];
+
         public override void Run()
         {
             _bp.RunningStat.Wait();
-            PipelineNodeExport.SkipAll( _output );
+            PipelineNodeOutPort.SkipAll( _output );
         }
 
         internal void SetInputData( IEnumerable<(string, IPipeLineConnectionPayload)> data )
@@ -75,16 +81,17 @@ namespace StgSharp.PipeLine
         private PipelineScheduler _bp;
 
         public EndingNode( PipelineScheduler bp )
-            : base( DefaultOperation, name: "EndingNode", true, ["default"], ["default"] )
+            : base(
+            DefaultOperation, name: new PipelineNodeStringLabel( "EndingNode" ), true, ["default"],
+            ["default"] )
         {
             _bp = bp;
         }
 
         public override void Run()
         {
-            PipelineNodeImport.WaitAll( _input );
-            Interlocked.Exchange( ref _bp.currentGlobalNodeIndex, 0 );
-            Interlocked.Exchange( ref _bp.currentNativeNodeIndex, 0 );
+            PipelineNodeInPort.WaitAll( _input );
+            _bp.ResetIndex();
             _bp.RunningStat.Release();
         }
 

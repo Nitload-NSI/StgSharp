@@ -70,16 +70,15 @@ namespace StgSharp.Model.Step
             Task secTask = Task.Run( ReadDataSection );
             Task anTask = Task.Run( ReadStepToken );
             Model = new StepModel( _info );
-            while( initStatements.TryDequeue( out StepEntityDefineSequence? statement ) || !anTask.IsCompleted )
+            while( initStatements.TryDequeue( out StepEntityDefineSequence? statement ) ||
+                   !anTask.IsCompleted )
             {
                 if( statement is null )
                 {
                     Thread.Sleep( 0 );
                     continue;
                 }
-                StepUninitializedEntity entity = StepUninitializedEntity.FromSyntax(
-                    Model, statement );
-                Model.AddUncertainEntity( entity.Id, entity );
+                StepUninitializedEntity entity = Model.FromInitSequence( statement );
             }
             Task.WaitAll( secTask, anTask );
             return Model;
@@ -117,9 +116,7 @@ namespace StgSharp.Model.Step
                     Thread.Sleep( 0 );
                     continue;
                 }
-                StepUninitializedEntity entity = StepUninitializedEntity.FromSyntax(
-                    Model, statement );
-                Model.AddUncertainEntity( entity.Id, entity );
+                StepUninitializedEntity entity = Model.FromInitSequence( statement );
             }
             return Model;
         }
@@ -129,9 +126,6 @@ namespace StgSharp.Model.Step
             while( !tokenReader.IsEmpty )
             {
                 Token t = tokenReader.ReadToken();
-                if( t.Line == 18214 && t.Value == ";" ) {
-                    Console.WriteLine( 1 );
-                }
                 analyzer.AppendToken( t );
             }
         }

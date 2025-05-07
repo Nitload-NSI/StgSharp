@@ -38,20 +38,20 @@ namespace StgSharp.Model.Step
     public class StepPlane : StepElementarySurface
     {
 
-        private StepPlane() : base() { }
+        public StepPlane() : base( null ) { }
 
-        public StepPlane( string name, StepAxis2Placement3D position ) : base( name, position ) { }
+        public StepPlane( StepAxis2Placement3D position ) : base( position ) { }
 
         public override StepItemType ItemType => StepItemType.Plane;
 
         internal static StepPlane FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepPlane plane = new StepPlane();
             enumerator.AssertEnumeratorCount( 2 );
-            plane.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
+            plane.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
-                enumerator.Values[ 1 ], v => plane.Position = v.AsType<StepAxis2Placement3D>() );
+                enumerator[ 1 ], v => plane.Position = v.AsType<StepAxis2Placement3D>() );
             return plane;
         }
 

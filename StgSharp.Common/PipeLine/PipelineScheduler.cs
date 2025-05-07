@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+
 using StgSharp.Stg;
 
 using System;
@@ -49,29 +50,25 @@ namespace StgSharp.PipeLine
     {
 
         private BeginningNode _beginning;
-        private Dictionary<string, PipelineNode> allNode;
+        private Dictionary<PipelineNodeLabel, PipelineNode> _allNode;
         private EndingNode _ending;
 
-        private List<PipelineNode>
-            _concurrentNodes = new List<PipelineNode>(), 
-            _mainThreadNodes = new List<PipelineNode>();
-
-        private List<PipelineNode> globalNodeList;
-        private List<PipelineNode> mainThreadNodeList;
-
-        private SemaphoreSlim runningStat;
-
-        internal int currentGlobalNodeIndex;
-        internal int currentNativeNodeIndex;
+        private int mtLevel, cLevel,mtIndex, cIndex;
+        private List<List<PipelineNode>> _concurrentNodes, _mainThreadNodes ;
+        private SemaphoreSlim runningStat,_concurrentLock = new SemaphoreSlim( 1, 1 );
 
         public PipelineScheduler()
         {
-            allNode = new Dictionary<string, PipelineNode>();
-            globalNodeList = new List<PipelineNode>();
-            mainThreadNodeList = new List<PipelineNode>();
+            _allNode = new Dictionary<PipelineNodeLabel, PipelineNode>();
             runningStat = new SemaphoreSlim( 1, 1 );
             _beginning = new BeginningNode( this );
             _ending = new EndingNode( this );
+        }
+        /**/
+
+        public PipelineNode this[ PipelineNodeLabel label ]
+        {
+            get { return _allNode[ label ]; }
         }
 
         public bool IsRunning
@@ -79,12 +76,12 @@ namespace StgSharp.PipeLine
             get => runningStat.CurrentCount == 0;
         }
 
-        public IEnumerable<string> InputInterfacesName
+        public IEnumerable<string> InputPortName
         {
-            get { return _beginning.OutputPorts.Keys; }
+            get { return _beginning.InputPorts.Keys; }
         }
 
-        public IEnumerable<string> OutputInterfacesName
+        public IEnumerable<string> OutputPortName
         {
             get { return _beginning.OutputPorts.Keys; }
         }
@@ -104,112 +101,177 @@ namespace StgSharp.PipeLine
         {
             get => runningStat;
         }
-        /**/
 
         public void AddNode( PipelineNode node, bool isNative )
         {
             ArgumentNullException.ThrowIfNull( node );
             node.IsNative = isNative;
-            allNode.Add( node.Name, node );
+            _allNode.TryAdd( node.Label, node );
         }
 
-        public void ArrangeNodeOrder()
+        public void ArrangeNodes()
         {
-            LinkedList<PipelineNode> _cache = new LinkedList<PipelineNode>();
-            foreach( PipelineNode node in _beginning.Next )
+            int maxLevel = 1;
+            Queue<PipelineNode> completedNodes = new Queue<PipelineNode>();
+            foreach( PipelineNode item in _beginning.Next )
             {
-                if( node.IsNative )
+                item.TryIncreaseLevelTo( 1 );
+                completedNodes.Enqueue( item );
+            }
+
+            //calc level of nodes O(V)
+            while( completedNodes.Count > 0 )
+            {
+                PipelineNode u = completedNodes.Dequeue();
+                foreach( PipelineNode v in u.Next )
                 {
-                    _mainThreadNodes.Add( node );
+                    if( !v.TryIncreaseLevelTo( u.Level + 1 ) ) {
+                        throw new InvalidOperationException( "Ring in DAG detected." );
+                    }
+                    if( v.RemainingIncreaseCount == 0 )
+                    {
+                        completedNodes.Enqueue( v );
+                        maxLevel = int.Max( maxLevel, v.Level );
+                    }
+                }
+            }
+
+            //bucket sort of nodes, O(E)
+            _concurrentNodes = new List<List<PipelineNode>>( maxLevel + 1 );
+            _mainThreadNodes = new List<List<PipelineNode>>( maxLevel + 1 );
+            for( int i = 0; i <= maxLevel; i++ )
+            {
+                _concurrentNodes.Add( [] );
+                _mainThreadNodes.Add( [] );
+            }
+            foreach( PipelineNode item in _allNode.Values )
+            {
+                if( item.IsNative )
+                {
+                    _mainThreadNodes[ item.Level ].Add( item );
                 } else
                 {
-                    _concurrentNodes.Add( node );
-                }
-                foreach( PipelineNode item in node.Next )
-                {
-                    item.Previous.Remove( node );
-                    _cache.AddLast( item );
+                    _concurrentNodes[ item.Level ].Add( item );
                 }
             }
-            while( _cache.Count > 0 )
-            {
-                LinkedListNode<PipelineNode> begin = _cache.First!,current = begin,zero;
-                do
-                {
-                    PipelineNode node = current.Value;
-                    if( current.Value.Previous.Count == 0 )
-                    {
-                        zero = current;
-                        current = current.Next!;
-                        if( node.IsNative )
-                        {
-                            _mainThreadNodes.Add( node );
-                        } else
-                        {
-                            _concurrentNodes.Add( node );
-                        }
-                        foreach( PipelineNode item in node.Next )
-                        {
-                            item.Previous.Remove( node );
-                            _cache.AddLast( item );
-                        }
-                        _cache.Remove( zero );
-                    } else
-                    {
-                        current = current.Next!;
-                    }
-                } while (current.Next != begin);
+            foreach( List<PipelineNode> item in _concurrentNodes ) {
+                item.TrimExcess();
+            }
+            foreach( List<PipelineNode> item in _mainThreadNodes ) {
+                item.TrimExcess();
             }
         }
 
-        public PipelineNode Create( [NotNull]IConvertableToPipelineNode body, string name )
+        public PipelineNode Create(
+                            PipelineNodeLabel label,
+                            [NotNull] IConvertableToPipelineNode body )
         {
-            PipelineNode node = new PipelineNode( name, body, false );
+            if( _allNode.TryGetValue( label, out PipelineNode? node ) ) {
+                throw new InvalidOperationException( "Label has exist in scheduler." );
+            }
+            node = new PipelineNode( label, body, false );
+            _allNode.Add( label, node );
             return node;
         }
 
+        public PipelineNode GetNode( PipelineNodeLabel label )
+        {
+            if( _allNode.TryGetValue( label, out PipelineNode? node ) )
+            {
+                return node;
+            } else
+            {
+                throw new KeyNotFoundException();
+            }
+        }
+
+        public void LinkToInput( PipelineNodeInPort port )
+        {
+            ArgumentNullException.ThrowIfNull( port );
+            PipelineNodeOutPort p = _beginning.DefaultOut;
+            p.Connect( port );
+        }
+
+        public void LinkToInput( PipelineNodeInPort port, string inputPortName )
+        {
+            ArgumentNullException.ThrowIfNull( port );
+            PipelineNodeOutPort p = _beginning.DefineCertainOutputPort( inputPortName );
+            p.Connect( port );
+        }
+
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void SetInput( params (string name, IPipeLineConnectionPayload arg)[] parameters )
+        public void SetInput( params (string label, IPipeLineConnectionPayload arg)[] parameters )
         {
             _beginning.SetInputData( parameters );
         }
 
         public void Terminate()
         {
-            Interlocked.Exchange( ref currentGlobalNodeIndex, int.MaxValue );
-            Interlocked.Exchange( ref currentNativeNodeIndex, int.MaxValue );
+            _concurrentLock.Wait();
+            (mtLevel, cLevel, mtIndex, cIndex) = (int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
+            _concurrentLock.Release();
         }
 
-        internal bool RequestNexGlobalNode( out PipelineNode node )
+        internal bool RequestNexConcurrentNode( out PipelineNode node )
         {
-            if( currentGlobalNodeIndex < globalNodeList.Count )
+            int index, level;
+            if( cLevel >= _concurrentNodes.Count )
             {
-                node = globalNodeList[ currentGlobalNodeIndex ];
-                Interlocked.Increment( ref currentGlobalNodeIndex );
-                return true;
+                node = null!;
+                return false;
             }
-            node = default!;
-            return false;
+            _concurrentLock.Wait();
+            while( cIndex >= _concurrentNodes[ cLevel ].Count )
+            {
+                Interlocked.Increment( ref cLevel );
+                Interlocked.Exchange( ref cIndex, 0 );
+                if( cLevel >= _concurrentNodes.Count )
+                {
+                    node = null!;
+                    return false;
+                }
+            }
+            index = cIndex;
+            level = cLevel;
+            Interlocked.Increment( ref cIndex );
+            _concurrentLock.Release();
+            node = _concurrentNodes[ level ][ index ];
+            return true;
         }
 
-        internal bool RequestNextNativeNode( out PipelineNode node )
+        internal bool RequestNextMainThreadNode( out PipelineNode node )
         {
-            if( currentNativeNodeIndex < mainThreadNodeList.Count )
+            if( mtLevel >= _mainThreadNodes.Count )
             {
-                node = mainThreadNodeList[ currentNativeNodeIndex ];
-                Interlocked.Increment( ref currentNativeNodeIndex );
-                return true;
+                node = null!;
+                return false;
             }
-            node = default!;
-            return false;
+            while( mtIndex >= _mainThreadNodes[ cLevel ].Count )
+            {
+                Interlocked.Increment( ref mtLevel );
+                Interlocked.Exchange( ref mtIndex, 0 );
+                if( mtLevel >= _mainThreadNodes.Count )
+                {
+                    node = null!;
+                    return false;
+                }
+            }
+            node = _mainThreadNodes[ mtLevel ][ mtIndex ];
+            return true;
+        }
+
+        internal void ResetIndex()
+        {
+            (mtLevel, cLevel, mtIndex, cIndex) = (0, 0, 0, 0);
+            _concurrentLock.Release();
         }
 
         void IConvertableToPipelineNode.NodeMain(
-                                        in Dictionary<string, PipelineNodeImport> input,
-                                        in Dictionary<string, PipelineNodeExport> output )
+                                        in Dictionary<string, PipelineNodeInPort> input,
+                                        in Dictionary<string, PipelineNodeOutPort> output )
         {
             PipeLineRunner.Run( this );
-            PipelineNodeExport.SkipAll( output );
+            PipelineNodeOutPort.SkipAll( output );
         }
 
         ~PipelineScheduler()

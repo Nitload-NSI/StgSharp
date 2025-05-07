@@ -49,13 +49,12 @@ namespace StgSharp.Model.Step
                                                StepModel binder,
                                                ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );
             StepFaceOuterBound faceOuterBound = new StepFaceOuterBound();
-            faceOuterBound.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => faceOuterBound.Bound = v.AsType<StepLoop>() );
-            faceOuterBound.Orientation = ( enumerator.Values[ 2 ]as ExpBoolNode )!.Value;
+            faceOuterBound.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            binder.BindValue( enumerator[ 1 ], v => faceOuterBound.Bound = v.AsType<StepLoop>() );
+            faceOuterBound.Orientation = ( enumerator[ 2 ]as ExpBoolNode )!.Value;
             return faceOuterBound;
         }
 

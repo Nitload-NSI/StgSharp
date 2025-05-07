@@ -46,17 +46,21 @@ namespace StgSharp.Math
 
         public static Vec4 Orthogonalize( Vec4 vec )
         {
-            return new Vec4 { vec = Vector4.Normalize( vec.vec ) };
+            return new Vec4
+            {
+                vec = Vector4.Normalize( vec.vec )
+            };
         }
 
         public static Vec3 Orthogonalize( Vec3 vec )
         {
-            return new Vec3 { v = Vector3.Normalize( vec.v ) };
+            return new Vec3
+            {
+                v = Vector3.Normalize( vec.v )
+            };
         }
 
-        public static unsafe void Orthogonalize(
-                                          ref Vec4 source,
-                                          ref Vec4 target )
+        public static unsafe void Orthogonalize( ref Vec4 source, ref Vec4 target )
         {
             Vector4 s = source.vec;
             Vector4 t = target.vec;
@@ -73,21 +77,22 @@ namespace StgSharp.Math
         }
 
         /// <summary>
-        /// Orthogonalize two <see cref="Vec3" />s, let their length be 1 and perpendicular to each
-        /// other.
+        ///   Orthogonalize two <see cref="Vec3" />s, let their length be 1 and perpendicular to
+        ///   each other.
         /// </summary>
-        /// <param _name="source"></param>
-        /// <param _name="target"></param>
-        public static unsafe void Orthogonalize(
-                                          ref Vec3 source,
-                                          ref Vec3 target )
+        /// <param _label="source">
+        ///
+        /// </param>
+        /// <param _label="target">
+        ///
+        /// </param>
+        public static unsafe void Orthogonalize( ref Vec3 source, ref Vec3 target )
         {
             Vector3 s = source.v;
             Vector3 t = target.v;
 
             s = Vector3.Normalize( s );
-            Vector3 projection = ( Vector3.Dot( t, s ) / Vector3.Dot( s,
-                                                                      s ) ) * s;
+            Vector3 projection = ( Vector3.Dot( t, s ) / Vector3.Dot( s, s ) ) * s;
             t -= projection;
             t = Vector3.Normalize( t );
 

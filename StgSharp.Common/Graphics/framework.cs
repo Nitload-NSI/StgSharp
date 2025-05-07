@@ -42,65 +42,62 @@ using System.Text;
 // using Windows.Win32;
 #endif
 
-
 namespace StgSharp.Graphics
 {
+    /// <summary>
+    ///   Function handler to load an opengl function by searching its _label.
+    /// </summary>
+    /// <param _label="name">
+    ///   the _label of the Opengl function
+    /// </param>
+    /// <returns>
+    ///   An Intptr value representing the pointer to the function
+    /// </returns>
+    public delegate IntPtr glLoader( string name );
 
     #region StgSharpDele
 
-    public unsafe delegate void FrameBufferSizeHandler(
-                                        IntPtr window,
-                                        int width,
-                                        int height);
+    public unsafe delegate void FrameBufferSizeHandler( IntPtr window, int width, int height );
 
-    public unsafe delegate void FramePositionHandler(
-                                        IntPtr window,
-                                        float width,
-                                        float height);
+    public unsafe delegate void FramePositionHandler( IntPtr window, float width, float height );
 
     #endregion
 
-    /// <summary>
-    /// Function handler to load an opengl function by searching its _name.
-    /// </summary>
-    /// <param _name="name"> the _name of the Opengl function </param>
-    /// <returns> An Intptr value representing the pointer to the function </returns>
-    public delegate IntPtr glLoader(string name);
 
     #region glDEBUG
 
     internal unsafe delegate void GLDEBUGPROC(
-                                          int source,
-                                          int type,
-                                          uint id,
-                                          int severity,
-                                          int length,
-                                          sbyte* message,
-                                          void* userParam);
+                                  int source,
+                                  int type,
+                                  uint id,
+                                  int severity,
+                                  int length,
+                                  sbyte* message,
+                                  void* userParam );
     internal unsafe delegate void GLDEBUGPROCARB(
-                                          int source,
-                                          int type,
-                                          uint id,
-                                          int severity,
-                                          int length,
-                                          sbyte* message,
-                                          void* userParam);
+                                  int source,
+                                  int type,
+                                  uint id,
+                                  int severity,
+                                  int length,
+                                  sbyte* message,
+                                  void* userParam );
     internal unsafe delegate void GLDEBUGPROCKHR(
-                                          int source,
-                                          int type,
-                                          uint id,
-                                          int severity,
-                                          int length,
-                                          sbyte* message,
-                                          void* userParam);
+                                  int source,
+                                  int type,
+                                  uint id,
+                                  int severity,
+                                  int length,
+                                  sbyte* message,
+                                  void* userParam );
     internal unsafe delegate void GLDEBUGPROCAMD(
-                                          uint id,
-                                          int category,
-                                          int severity,
-                                          int length,
-                                          sbyte* message,
-                                          void* userParam);
+                                  uint id,
+                                  int category,
+                                  int severity,
+                                  int length,
+                                  sbyte* message,
+                                  void* userParam );
 
-    #endregion
+#endregion
 
 }

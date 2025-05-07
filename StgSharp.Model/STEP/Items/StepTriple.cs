@@ -43,10 +43,9 @@ namespace StgSharp.Model.Step
 
         private Vec3 _coord;
 
-        protected StepTriple() : this( string.Empty, 0.0f, 0.0f, 0.0f ) { }
+        protected StepTriple() : this( 0.0f, 0.0f, 0.0f ) { }
 
-        protected StepTriple( string name, float x, float y, float z )
-            : base( name )
+        protected StepTriple( float x, float y, float z )
         {
             X = x;
             Y = y;
@@ -95,14 +94,14 @@ namespace StgSharp.Model.Step
 
         internal static StepTriple AssignTo( StepTriple triple, ExpSyntaxNode values )
         {
-            ExpNodeNextEnumerator enumerator = values.ToEnumerator();
+            ExpNodePresidentEnumerator enumerator = values.ToPresidentEnumerator();
             enumerator.AssertEnumeratorCount( 2 );
-            triple.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            ExpNodeNextEnumerator pointValues = enumerator.Values[ 1 ].ToEnumerator();
+            triple.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            ExpNodePresidentEnumerator pointValues = enumerator[ 1 ].ToPresidentEnumerator();
             pointValues.AssertEnumeratorCount( triple.MinimumValueCount, 3 );
-            triple.X = ( pointValues.Values[ 0 ]as ExpRealNumberNode )!.Value;
-            triple.Y = ( pointValues.Values[ 1 ]as ExpRealNumberNode )!.Value;
-            triple.Z = ( pointValues.Values[ 2 ]as ExpRealNumberNode )!.Value;
+            triple.X = ( pointValues[ 0 ]as ExpRealNumberNode )!.Value;
+            triple.Y = ( pointValues[ 1 ]as ExpRealNumberNode )!.Value;
+            triple.Z = ( pointValues[ 2 ]as ExpRealNumberNode )!.Value;
             return triple;
         }
 

@@ -45,7 +45,13 @@ namespace StgSharp.Model.Step
     public abstract class StepEntityBase : IExpMarshalType<StepUninitializedEntity>
     {
 
-        public int Id { get; protected set; }
+        public int Id
+        {
+            get => Label.Id;
+            protected set { Label = new StepEntityLabel( value ); }
+        }
+
+        public StepEntityLabel Label { get; protected set; }
 
         public abstract StepItemType ItemType { get; }
 
@@ -57,6 +63,8 @@ namespace StgSharp.Model.Step
         {
             return null;
         }
+
+        public void ImplementFrom( StepEntityBase entity ) { }
 
     }
 }

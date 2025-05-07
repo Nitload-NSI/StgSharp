@@ -36,10 +36,14 @@ namespace StgSharp.Math
         public const float E = 2.718281828f;
 
         /// <summary>
-        /// Get the value of E ^ x;
+        ///   Get the value of E ^ x;
         /// </summary>
-        /// <param _name="x"></param>
-        /// <returns></returns>
+        /// <param _label="x">
+        ///
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
         public static unsafe float Exp( float x )
         {
             if( x == 1 ) {
@@ -50,15 +54,18 @@ namespace StgSharp.Math
             }
 
             bool sign = false;
-            if( x < 0 ) {
+            if( x < 0 )
+            {
                 sign = true;
                 x = -x;
             }
 
             float z = x, t;
-            if( x < 0.5f ) {
+            if( x < 0.5f )
+            {
                 t = 1.0f + ( x * ( 1.0f + ( x * ( 0.5f + ( x * ( 0.1666666667f + ( x * ( 0.0416666666667f + ( x * 8.333333333e-3f ) ) ) ) ) ) ) ) );
-            } else {
+            } else
+            {
                 /*
                  * define z =  n * 2 ^ m
                  * n is between 0 and 0.5

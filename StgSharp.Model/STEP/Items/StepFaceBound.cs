@@ -57,12 +57,12 @@ namespace StgSharp.Model.Step
 
         internal static StepFaceBound FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );
             StepFaceBound faceBound = new StepFaceBound();
-            faceBound.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue( enumerator.Values[ 1 ], v => faceBound.Bound = v.AsType<StepLoop>() );
-            faceBound.Orientation = ( enumerator.Values[ 2 ]as ExpBoolNode )!.Value;
+            faceBound.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            binder.BindValue( enumerator[ 1 ], v => faceBound.Bound = v.AsType<StepLoop>() );
+            faceBound.Orientation = ( enumerator[ 2 ]as ExpBoolNode )!.Value;
             return faceBound;
         }
 

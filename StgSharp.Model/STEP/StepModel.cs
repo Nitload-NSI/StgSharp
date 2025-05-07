@@ -34,8 +34,10 @@ using StgSharp.Script.Express;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
+using System.Xml.Linq;
 
 namespace StgSharp.Model.Step
 {
@@ -46,6 +48,8 @@ namespace StgSharp.Model.Step
             = new Dictionary<int, StepEntityBase>();
 
         private PipelineScheduler _builder;
+
+        private PipelineScheduler _initScheduler = new PipelineScheduler();
         private StepInfo _header;
 
         internal StepModel( StepInfo header )
@@ -70,26 +74,57 @@ namespace StgSharp.Model.Step
             }
         }
 
-        public void AddUncertainEntity( int id, StepUninitializedEntity entity )
-        {
-            if( _nodes.ContainsKey( id ) ) {
-                throw new InvalidOperationException(
-                    "Attempt to add entity with same id more than once" );
-            }
-            _nodes.Add( id, entity );
-        }
-
         public void BindValue( ExpSyntaxNode node, Action<StepEntityBase> action ) { }
 
-        public void OrganizeNode()
+        public StepUninitializedEntity FromInitSequence( StepEntityDefineSequence sequence )
         {
-            PipelineScheduler ps = new PipelineScheduler();
-            foreach( StepEntityBase node in _nodes.Values )
+            int id = ( sequence.Expression.Left as StepEntityInstanceNode )!.Id;
+            PipelineNode node;
+            if( _nodes.TryGetValue( id, out StepEntityBase? e ) && e is StepUninitializedEntity u )
             {
-                if( node is StepUninitializedEntity uncertain ) {
-                    uncertain.ConvertToAccurate();
+                u.FromSequence( sequence );
+                node = _initScheduler.GetNode( u.Label );
+            } else
+            {
+                u = new StepUninitializedEntity( this, id );
+                u.FromSequenceUnsafe( sequence );
+                _nodes.Add( id, u );
+                node = _initScheduler.Create( u.Label, u );
+            }
+
+            PipelineNodeInPort port = node.GetInputPort( StepUninitializedEntity.InName );
+            if( sequence.Dependencies.Count() == 0 )
+            {
+                _initScheduler.LinkToInput( port );
+            } else
+            {
+                foreach( int i in sequence.Dependencies )
+                {
+                    PipelineNode dNode;
+                    StepEntityLabel label = new StepEntityLabel( i );
+                    if( _nodes.TryGetValue( i, out e ) )
+                    {
+                        dNode = _initScheduler.GetNode( label );
+                    } else
+                    {
+                        u = new StepUninitializedEntity( this, i );
+                        _nodes.Add( i, u );
+                        dNode = _initScheduler.Create( u.Label, u );
+                    }
+                    port.Connect( dNode.GetOutputPort( StepUninitializedEntity.OutName ) );
                 }
             }
+            return u;
+        }
+
+        public void InitEntity()
+        {
+            if( _initScheduler is null ) {
+                return;
+            }
+            _initScheduler.ArrangeNodes();
+            PipeLineRunner.Run( _initScheduler );
+            _initScheduler = null!;
         }
 
         public void ReplaceEntity(

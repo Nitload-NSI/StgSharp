@@ -66,12 +66,11 @@ namespace StgSharp.Model.Step
 
         internal static StepVertexPoint FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepVertexPoint vertex = new StepVertexPoint();
             enumerator.AssertEnumeratorCount( 2 );
-            vertex.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => vertex.Location = v.AsType<StepCartesianPoint>() );
+            vertex.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            vertex.Location = binder[ ( enumerator[ 1 ] as StepEntityInstanceNode ).Id ] as StepCartesianPoint;
             return vertex;
         }
 

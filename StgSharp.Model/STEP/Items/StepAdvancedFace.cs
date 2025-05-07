@@ -45,26 +45,24 @@ namespace StgSharp.Model.Step
 
         internal static StepAdvancedFace FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepAdvancedFace face = new StepAdvancedFace();
             enumerator.AssertEnumeratorCount( 4 );
-            face.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
+            face.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
 
-            ExpNodeNextEnumerator boundsList = enumerator.Values[ 1 ].ToEnumerator();
+            ExpNodePresidentEnumerator boundsList = enumerator[ 1 ].ToPresidentEnumerator();
             face.Bounds.Clear();
             face.Bounds
                 .AddRange(
-                    Enumerable.Range( 0, enumerator.Values.Count )
-                              .Select( _ => ( StepFaceBound )null ) );
-            for( int i = 0; i < enumerator.Values.Count; i++ )
+                    Enumerable.Range( 0, enumerator.Count ).Select( _ => ( StepFaceBound )null ) );
+            for( int i = 0; i < enumerator.Count; i++ )
             {
                 int j = i; // capture to avoid rebinding
                 binder.BindValue(
-                    enumerator.Values[ j ], v => face.Bounds[ j ] = v.AsType<StepFaceBound>() );
+                    enumerator[ j ], v => face.Bounds[ j ] = v.AsType<StepFaceBound>() );
             }
-            binder.BindValue(
-                enumerator.Values[ 2 ], v => face.FaceGeometry = v.AsType<StepSurface>() );
-            face.SameSense = ( enumerator.Values[ 3 ] as ExpBoolNode )!.Value;
+            binder.BindValue( enumerator[ 2 ], v => face.FaceGeometry = v.AsType<StepSurface>() );
+            face.SameSense = ( enumerator[ 3 ] as ExpBoolNode )!.Value;
 
             return face;
         }

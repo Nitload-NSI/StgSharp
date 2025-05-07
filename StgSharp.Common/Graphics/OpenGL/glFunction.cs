@@ -126,12 +126,12 @@ namespace StgSharp.Graphics.OpenGL
 
         /// <summary>
         ///   Bind a frame Buffer to a frame Buffer target Same function as <see
-        ///   href="https://docs._gl/gl3/glBindFramebuffer"> glBindFramebuffer </see>.
+        ///   href="https://docs._gl/gl3/glBindFramebuffer">glBindFramebuffer</see>.
         /// </summary>
-        /// <param _name="target">
+        /// <param _label="target">
         ///   The frame Buffer target of the binding operation.
         /// </param>
-        /// <param _name="handle">
+        /// <param _label="handle">
         ///   The handle of the frame Buffer object to bind.
         /// </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -279,11 +279,10 @@ namespace StgSharp.Graphics.OpenGL
 
         /// <summary>
         ///   Delete a render Buffer object Very simlilar function as <see
-        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers"> glDeleteRenderbuffers </see>. The
-        ///   only deifference is that this mehtod can only delete one renderbuffer at the same
-        ///   time.
+        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers">glDeleteRenderbuffers</see>. The only
+        ///   deifference is that this mehtod can only delete one renderbuffer at the same time.
         /// </summary>
-        /// <param _name="bufferHandle">
+        /// <param _label="bufferHandle">
         ///   Handle to Buffer to delete.
         /// </param>
         public unsafe void DeleteRenderBuffer( GlHandle bufferHandle )

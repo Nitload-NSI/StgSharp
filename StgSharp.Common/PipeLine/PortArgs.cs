@@ -44,11 +44,11 @@ namespace StgSharp.PipeLine
     {
 
         private protected IPipeLineConnectionPayload args;
-        private protected PipelineNodeExport input;
-        private protected PipelineNodeImport output;
+        private protected PipelineNodeInPort output;
+        private protected PipelineNodeOutPort input;
         private protected SemaphoreSlim formerCompleteSemaphore;
 
-        public PipelineConnector( PipelineNodeExport former, PipelineNodeImport after )
+        public PipelineConnector( PipelineNodeOutPort former, PipelineNodeInPort after )
         {
             this.input = former;
             this.output = after;
@@ -61,9 +61,9 @@ namespace StgSharp.PipeLine
             set => args = value;
         }
 
-        public PipelineNodeExport Input => input;
+        public PipelineNodeInPort Output => output;
 
-        public PipelineNodeImport Output => output;
+        public PipelineNodeOutPort Input => input;
 
         public static void SkipAll( Dictionary<string, PipelineConnector> ports )
         {

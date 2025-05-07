@@ -84,16 +84,20 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Load an <see cref="Image" /> to certain texture.
+        ///   Load an <see cref="Image" /> to certain texture.
         /// </summary>
-        /// <param _name="index"> </param>
-        /// <param _name="i"> </param>
+        /// <param _label="index">
+        ///
+        /// </param>
+        /// <param _label="i">
+        ///
+        /// </param>
         public unsafe void LoadTexture( int index, Image i )
         {
             byte[] handle = i.PixelBuffer;
             _gl.TextureImage2d(
-                Texture2DTarget.Texture2D, 0, i.Channel, ( uint )i.Width,
-                ( uint )i.Height, i.Channel, i.PixelLayout, pixels: handle );
+                Texture2DTarget.Texture2D, 0, i.Channel, ( uint )i.Width, ( uint )i.Height,
+                i.Channel, i.PixelLayout, pixels: handle );
             _gl.GenerateMipmap( Texture2DTarget.Texture2D );
         }
 
@@ -101,50 +105,45 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void Set2dFilterProperty(
-                            int index,
-                            TextureFilter onMinify,
-                            TextureFilter onMagnify )
+                    int index,
+                    TextureFilter onMinify,
+                    TextureFilter onMagnify )
         {
             #if DEBUG
-            if( index != currentEditingTextureIndex ) {
+            if( index != currentEditingTextureIndex )
+            {
                 throw new InvalidOperationException(
                     "Texture to be editted is not the one being activated." );
             }
             #endif
-            _gl.TextureParameter(
-                glConst.TEXTURE_2D, glConst.TEXTURE_MIN_FILTER,
-                ( int )onMinify );
-            _gl.TextureParameter(
-                glConst.TEXTURE_2D, glConst.TEXTURE_MAG_FILTER,
-                ( int )onMagnify );
+            _gl.TextureParameter( glConst.TEXTURE_2D, glConst.TEXTURE_MIN_FILTER, ( int )onMinify );
+            _gl.TextureParameter( glConst.TEXTURE_2D, glConst.TEXTURE_MAG_FILTER,
+                                  ( int )onMagnify );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void Set2dWrapProperty(
-                            int index,
-                            TextureWrap onHorizontial,
-                            TextureWrap onVertical )
+                    int index,
+                    TextureWrap onHorizontial,
+                    TextureWrap onVertical )
         {
             #if DEBUG
-            if( index != currentEditingTextureIndex ) {
+            if( index != currentEditingTextureIndex )
+            {
                 throw new InvalidOperationException(
                     "Texture to be editted is not the one being activated." );
             }
             #endif
-            _gl.TextureParameter(
-                glConst.TEXTURE_2D, glConst.TEXTURE_WRAP_S,
-                ( int )onHorizontial );
-            _gl.TextureParameter(
-                glConst.TEXTURE_2D, glConst.TEXTURE_WRAP_T, ( int )onVertical );
+            _gl.TextureParameter( glConst.TEXTURE_2D, glConst.TEXTURE_WRAP_S,
+                                  ( int )onHorizontial );
+            _gl.TextureParameter( glConst.TEXTURE_2D, glConst.TEXTURE_WRAP_T, ( int )onVertical );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void Set2dProperty( int index, TextureProperty property )
         {
-            Set2dFilterProperty(
-                index, property.FilterOnMinify, property.FilterOnMagnify );
-            Set2dWrapProperty(
-                index, property.WrapOnHorizontial, property.WrapOnVertical );
+            Set2dFilterProperty( index, property.FilterOnMinify, property.FilterOnMagnify );
+            Set2dWrapProperty( index, property.WrapOnHorizontial, property.WrapOnVertical );
         }
 
         #endregion texture setting
@@ -162,10 +161,10 @@ namespace StgSharp.Graphics.OpenGL
         [FieldOffset( 12 )] private TextureWrap vert;
 
         public TextureProperty(
-                       TextureFilter onMagnify,
-                       TextureFilter onMinify,
-                       TextureWrap onHorizontial,
-                       TextureWrap onVertical )
+               TextureFilter onMagnify,
+               TextureFilter onMinify,
+               TextureWrap onHorizontial,
+               TextureWrap onVertical )
         {
             FilterOnMagnify = onMagnify;
             FilterOnMinify = onMinify;
@@ -205,8 +204,7 @@ namespace StgSharp.Graphics.OpenGL
         public override int GetHashCode()
         {
             return HashCode.Combine(
-                FilterOnMagnify, FilterOnMagnify, WrapOnHorizontial,
-                WrapOnVertical );
+                FilterOnMagnify, FilterOnMagnify, WrapOnHorizontial, WrapOnVertical );
         }
 
         public override string ToString()
@@ -214,30 +212,25 @@ namespace StgSharp.Graphics.OpenGL
             return $"FilterOnMagnify:{FilterOnMagnify}, " + $"FilterOnMagnify:{FilterOnMagnify}, " + $"WrapOnHorizontial:{WrapOnHorizontial}, " + $"WrapOnVertical:{WrapOnVertical}";
         }
 
-        public static bool operator !=(
-                                            TextureProperty left,
-                                            TextureProperty right )
+        public static bool operator !=( TextureProperty left, TextureProperty right )
         {
             return left.mask != right.mask;
         }
 
-        public static bool operator ==(
-                                            TextureProperty left,
-                                            TextureProperty right )
+        public static bool operator ==( TextureProperty left, TextureProperty right )
         {
             return left.mask == right.mask;
         }
 
         public static implicit operator TextureProperty(
-                                                (
+                                        (
             TextureFilter onMagnify, TextureFilter onMinify,
             TextureWrap onHorizontial, TextureWrap onVertical
             ) propertyValueTuple )
         {
             return new TextureProperty(
                 propertyValueTuple.onMagnify, propertyValueTuple.onMinify,
-                propertyValueTuple.onHorizontial,
-                propertyValueTuple.onVertical );
+                propertyValueTuple.onHorizontial, propertyValueTuple.onVertical );
         }
 
     }

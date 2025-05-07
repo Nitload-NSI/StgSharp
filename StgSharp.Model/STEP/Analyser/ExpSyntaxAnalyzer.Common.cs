@@ -278,7 +278,7 @@ namespace StgSharp.Model.Step
             if( t.Value[ 0 ] == '#' )
             {
                 StepEntityInstanceNode node = StepEntityInstanceNode.Register( t );
-                if( _cache.OperandAheadOfDepth > 0 ) {
+                if( t.Column != 0 ) {
                     _dependencyDetector.AddDependency( node );
                 }
                 _cache.PushOperand( node );

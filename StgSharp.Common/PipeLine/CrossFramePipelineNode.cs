@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+
 using StgSharp.PipeLine;
 
 using System;
@@ -63,9 +64,9 @@ namespace StgSharp.PipeLine
             private protected set => _mainExecution = value;
         }
 
-        public IEnumerable<string> InputInterfacesName => _inputName;
+        public IEnumerable<string> InputPortName => _inputName;
 
-        public IEnumerable<string> OutputInterfacesName => _outputName;
+        public IEnumerable<string> OutputPortName => _outputName;
 
         public PipelineNodeOperation Operation
         {
@@ -73,8 +74,8 @@ namespace StgSharp.PipeLine
         }
 
         public void NodeMain(
-                    in Dictionary<string, PipelineNodeImport> input,
-                    in Dictionary<string, PipelineNodeExport> output )
+                    in Dictionary<string, PipelineNodeInPort> input,
+                    in Dictionary<string, PipelineNodeOutPort> output )
         {
             if( currentCount < cycleCount )
             {
@@ -86,7 +87,7 @@ namespace StgSharp.PipeLine
             }
 
             //Console.WriteLine(currentCount);
-            PipelineNodeExport.SkipAll( output );
+            PipelineNodeOutPort.SkipAll( output );
         }
 
     }

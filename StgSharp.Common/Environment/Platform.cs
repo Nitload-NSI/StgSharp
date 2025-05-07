@@ -75,8 +75,8 @@ namespace StgSharp
     {
 
         /// <summary>
-        /// Version of current StgSharp platform. Main version represent in hundred's digit, and sub
-        /// version represent in ten's digit.
+        ///   Version of current StgSharp platform. Main version represent in hundred's digit, and
+        ///   sub version represent in ten's digit.
         /// </summary>
         public const long version = 430;
 
@@ -92,8 +92,7 @@ namespace StgSharp
             InternalIO.glfwInit();
             InternalIO.InternalAppendLog( "\n\n\n" );
             InternalIO.InternalWriteLog(
-                $"Program {Assembly.GetEntryAssembly()!.FullName} Started.",
-                LogType.Info );
+                $"Program {Assembly.GetEntryAssembly()!.FullName} Started.", LogType.Info );
             _mainThreadID = Environment.CurrentManagedThreadId;
 
 
@@ -122,8 +121,7 @@ namespace StgSharp
 
         public static void LogWarning( Exception notVerySeriesException )
         {
-            InternalIO.InternalWriteLog(
-                notVerySeriesException.Message, LogType.Warning );
+            InternalIO.InternalWriteLog( notVerySeriesException.Message, LogType.Warning );
         }
 
         public static void Mark( bool needConsole )
@@ -142,12 +140,12 @@ namespace StgSharp
         }
 
         public static void Track(
-                                   object target,
-                                   string message,
-                                   bool isConsole,
-                                   [CallerFilePath] string filePath = "",
-                                   [CallerMemberName] string callerName = "",
-                                   [CallerLineNumber] int lineNumber = 0 )
+                           object target,
+                           string message,
+                           bool isConsole,
+                           [CallerFilePath] string filePath = "",
+                           [CallerMemberName] string callerName = "",
+                           [CallerLineNumber] int lineNumber = 0 )
         {
             Type t = target.GetType();
             string log = $"Tracked object: {nameof(target)}\t\tType:{t.Name}\n";
@@ -159,18 +157,24 @@ namespace StgSharp
             }
             log += $"Tracking at:\n{filePath}\t{callerName}\tline {lineNumber}\n";
             log += $"Additional information:\n{message}\n";
-            if( isConsole ) {
+            if( isConsole )
+            {
                 Console.WriteLine( log );
-            } else {
+            } else
+            {
                 InternalIO.InternalWriteLog( log, LogType.Info );
             }
         }
 
         /// <summary>
-        /// Write a log message to log file, and mark the _level of this message.
+        ///   Write a log message to log file, and mark the _level of this message.
         /// </summary>
-        /// <param _name="message"> A string contains information of how current evironment runs. </param>
-        /// <param _name="logType"> The severity of current message. </param>
+        /// <param _label="message">
+        ///   A string contains information of how current evironment runs.
+        /// </param>
+        /// <param _label="logType">
+        ///   The severity of current message.
+        /// </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static void WriteLog( string message, LogType logType )
         {
@@ -183,10 +187,12 @@ namespace StgSharp
                 throw new InvalidCastException(
                     "Failed to convert api, the function pointer is zero." );
             }
-            try {
+            try
+            {
                 return Marshal.GetDelegateForFunctionPointer<TDele>( funcPtr );
             }
-            catch( Exception ) {
+            catch( Exception )
+            {
                 throw;
             }
         }
@@ -197,10 +203,12 @@ namespace StgSharp
                 throw new InvalidCastException(
                     "Failed to convert api, the function pointer is zero." );
             }
-            try {
+            try
+            {
                 return Marshal.GetDelegateForFunctionPointer( funcPtr, T );
             }
-            catch( Exception ) {
+            catch( Exception )
+            {
                 throw;
             }
         }

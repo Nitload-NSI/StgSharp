@@ -33,11 +33,6 @@ using StgSharp.Script;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepBoundedCurve : StepCurve
-    {
-
-        protected StepBoundedCurve( string name ) : base( name ) { }
-
-    }
+    public abstract class StepBoundedCurve : StepCurve { }
 }
 

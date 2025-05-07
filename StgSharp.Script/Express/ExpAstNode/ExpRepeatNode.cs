@@ -54,9 +54,9 @@ namespace StgSharp.Script.Express
                  ExpSyntaxNode whileRule )
             : base( source )
         {
-            if( variable.NodeFlag != begin.NodeFlag || begin.NodeFlag != end.NodeFlag || ( increment !=
-                                                                                           null && end.NodeFlag !=
-                                                                                           increment.NodeFlag ) ) {
+            if( variable.NodeFlag != begin.NodeFlag ||
+                begin.NodeFlag != end.NodeFlag ||
+                ( increment != null && end.NodeFlag != increment.NodeFlag ) ) {
                 throw new InvalidCastException();
             }
             if( IsNullOrEmpty( increment ) )

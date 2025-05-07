@@ -49,12 +49,13 @@ using System.Threading;
 namespace StgSharp.MVVM.View
 {
     /// <summary>
-    /// ViewBase is the base type for all view types, providing context binding and control element
-    /// binding. A complete view should contain one complete <see cref="ViewDesigner{T}" />, <see
-    /// cref="ViewRender{TView}" />, and <see cref="ViewResponder" />, which provide layout
-    /// descriptions of control elements, user responses, and rendering implementations in the view.
-    /// Data between instances of <see cref="ViewDesigner{T}" />, <see cref="ViewRender{TView}" />,
-    /// and <see cref="ViewResponder{T}" /> is shared through <see cref="ViewBase" />.
+    ///   ViewBase is the base type for all view types, providing context binding and control
+    ///   element binding. A complete view should contain one complete <see cref="ViewDesigner{T}"
+    ///   />, <see cref="ViewRender{TView}" />, and <see cref="ViewResponder" />, which provide
+    ///   layout descriptions of control elements, user responses, and rendering implementations in
+    ///   the view. Data between instances of <see cref="ViewDesigner{T}" />, <see
+    ///   cref="ViewRender{TView}" />, and <see cref="ViewResponder{T}" /> is shared through <see
+    ///   cref="ViewBase" />.
     /// </summary>
 
     public abstract unsafe partial class ViewBase
@@ -72,9 +73,7 @@ namespace StgSharp.MVVM.View
 
         private ViewPort context;
 
-        private delegate bool GetDataBindingEntryDelegate(
-            string name,
-            out DataBindingEntry entry );
+        private delegate bool GetDataBindingEntryDelegate( string name, out DataBindingEntry entry );
 
         public DataBindingEntry this[ string name ]
         {
@@ -95,11 +94,7 @@ namespace StgSharp.MVVM.View
             get => unitCubeSize;
         }
 
-        public bool Activated
-        {
-            get;
-            internal set;
-        }
+        public bool Activated { get; internal set; }
 
         public int Height
         {
@@ -123,11 +118,7 @@ namespace StgSharp.MVVM.View
 
         public string ContextName => context.Name;
 
-        public string SelfName
-        {
-            get;
-            set;
-        }
+        public string SelfName { get; set; }
 
         public ViewPort Port
         {
@@ -151,14 +142,17 @@ namespace StgSharp.MVVM.View
             set => _responder = value;
         }
 
-        public abstract void CustomizedInitialize(
-            [NotNull]ViewModelBase viewModelBinding );
+        public abstract void CustomizedInitialize( [NotNull]ViewModelBase viewModelBinding );
 
         /// <summary>
-        /// Get the status of a certain key on the keyboard.
+        ///   Get the status of a certain key on the keyboard.
         /// </summary>
-        /// <param _name="key"></param>
-        /// <returns><see cref="KeyStatus" /> representing if a key is pressed or released. </returns>
+        /// <param _label="key">
+        ///
+        /// </param>
+        /// <returns>
+        ///   <see cref="KeyStatus" /> representing if a key is pressed or released.
+        /// </returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public KeyStatus GetKeyStatus( KeyboardKey key )
         {
@@ -166,9 +160,9 @@ namespace StgSharp.MVVM.View
         }
 
         public void InternalInitialize(
-            string name,
-            (int, int, int) cubeSize,
-            [NotNull]ViewModelBase viewModelBinding )
+                    string name,
+                    (int, int, int) cubeSize,
+                    [NotNull]ViewModelBase viewModelBinding )
         {
             SelfName = name;
             unitCubeSize = cubeSize;
@@ -179,13 +173,12 @@ namespace StgSharp.MVVM.View
             CustomizedInitialize( viewModelBinding );
         }
 
-        public abstract bool TryGetObjectReference(
-            string name,
-            out DataBindingEntry entry );
+        public abstract bool TryGetObjectReference( string name, out DataBindingEntry entry );
 
         public void Use()
         {
-            if( usedFrame == 0 ) {
+            if( usedFrame == 0 )
+            {
                 if( !ValidateInitialization() ) {
                     throw new InvalidOperationException(
                         "This view is not correctly initialized before rendering." );
@@ -197,9 +190,9 @@ namespace StgSharp.MVVM.View
 
         public bool ValidateInitialization()
         {
-            return ( _design != null ) && ( _render != null ) && ( getDataBindingEntry != null ) && ( _responder != null ) && _design.ValidateInitializing(
-                ) && _responder.ValidateInitializing() && _render.ValidateInitializing(
-                );
+            return ( _design != null ) && ( _render != null ) && ( getDataBindingEntry != null ) && ( _responder !=
+                                                                                                      null ) && _design.ValidateInitializing(
+                ) && _responder.ValidateInitializing() && _render.ValidateInitializing();
         }
 
         protected abstract void Show();

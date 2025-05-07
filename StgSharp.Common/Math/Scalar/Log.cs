@@ -42,9 +42,11 @@ namespace StgSharp.Math
         /// <summary>
         ///
         /// </summary>
-        /// <param _name="x"></param>
+        /// <param _label="x">
+        ///
+        /// </param>
         /// <returns>
-        /// Returns the value of ln(x).
+        ///   Returns the value of ln(x).
         /// </returns>
         public static unsafe float Log( float x )
         {

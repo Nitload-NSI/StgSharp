@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using CommunityToolkit.HighPerformance.Buffers;
+
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
@@ -83,11 +85,17 @@ namespace StgSharp.Model.Step
                 VertexPointText,
                 ];
 
-        private FrozenDictionary<string, ExpTypeSource> entitiesDefine;
+        private FrozenDictionary<string, ExpEntitySource> entitiesDefine;
+        private StringPool _entityNamePool = new StringPool();
 
         public ExpressStepUtil()
         {
-            Dictionary<string, ExpTypeSource> tIndex = new Dictionary<string, ExpTypeSource>();
+            IEnumerable<KeyValuePair<string, ExpEntitySource>> defineSource = [];
+            entitiesDefine = new Dictionary<string, ExpEntitySource>( defineSource )
+                .ToFrozenDictionary();
+            foreach( string item in names ) {
+                _entityNamePool.Add( item );
+            }
         }
 
         internal StepModel Current { get; set; }
@@ -105,13 +113,13 @@ namespace StgSharp.Model.Step
 
         public override bool TryGetEntity( string name, out ExpEntitySource e )
         {
-            e = null!;
-            return false;
+            return entitiesDefine.TryGetValue( name, out e! );
         }
 
         public override bool TryGetFunction( string name, out ExpFunctionSource f )
         {
-            throw new NotImplementedException();
+            f = null!;
+            return false;
         }
 
         public override bool TryGetProcedure( string name, out ExpProcedureSource p )

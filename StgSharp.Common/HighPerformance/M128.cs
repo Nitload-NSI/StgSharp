@@ -81,7 +81,8 @@ namespace StgSharp.HighPerformance
         public T Read<T>( int index ) where T: struct, INumber<T>
 
         {
-            fixed( byte* p = Buffer ) {
+            fixed( byte* p = Buffer )
+            {
                 #pragma warning disable CS8500
                 return *( ( T* )p + index );
                 #pragma warning restore CS8500
@@ -105,7 +106,8 @@ namespace StgSharp.HighPerformance
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void Write<T>( int index, T value ) where T: struct, INumber<T>
         {
-            fixed( byte* p = Buffer ) {
+            fixed( byte* p = Buffer )
+            {
                 #pragma warning disable CS8500
                 *( ( T* )p + index ) = value;
                 #pragma warning restore CS8500

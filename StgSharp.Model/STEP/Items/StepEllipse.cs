@@ -42,14 +42,13 @@ namespace StgSharp.Model.Step
 
         private StepAxis2Placement _position;
 
-        private StepEllipse() : base( string.Empty ) { }
+        private StepEllipse() { }
 
         public StepEllipse(
                string name,
                StepAxis2Placement position,
                double semiAxis1,
                double semiAxis2 )
-            : base( name )
         {
             Position = position;
             SemiAxis1 = semiAxis1;
@@ -77,14 +76,14 @@ namespace StgSharp.Model.Step
 
         internal static StepEllipse FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepEllipse ellipse = new StepEllipse();
             enumerator.AssertEnumeratorCount( 4 );
-            ellipse.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
+            ellipse.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
-                enumerator.Values[ 1 ], v => ellipse.Position = v.AsType<StepAxis2Placement>() );
-            ellipse.SemiAxis1 = ( enumerator.Values[ 2 ] as ExpRealNumberNode )!.Value;
-            ellipse.SemiAxis2 = ( enumerator.Values[ 3 ] as ExpRealNumberNode )!.Value;
+                enumerator[ 1 ], v => ellipse.Position = v.AsType<StepAxis2Placement>() );
+            ellipse.SemiAxis1 = ( enumerator[ 2 ] as ExpRealNumberNode )!.Value;
+            ellipse.SemiAxis2 = ( enumerator[ 3 ] as ExpRealNumberNode )!.Value;
             return ellipse;
         }
 

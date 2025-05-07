@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -36,21 +37,21 @@ using System.Text;
 namespace StgSharp.PipeLine
 {
     public delegate void PipelineNodeOperation(
-                         in Dictionary<string, PipelineNodeImport> input,
-                         in Dictionary<string, PipelineNodeExport> output );
+                         in Dictionary<string, PipelineNodeInPort> input,
+                         in Dictionary<string, PipelineNodeOutPort> output );
 
     public interface IConvertableToPipelineNode
     {
 
-        public IEnumerable<string> InputInterfacesName { get; }
+        public IEnumerable<string> InputPortName { get; }
 
-        public IEnumerable<string> OutputInterfacesName { get; }
+        public IEnumerable<string> OutputPortName { get; }
 
         PipelineNodeOperation Operation { get; }
 
         void NodeMain(
-             in Dictionary<string, PipelineNodeImport> input,
-             in Dictionary<string, PipelineNodeExport> output );
+             in Dictionary<string, PipelineNodeInPort> input,
+             in Dictionary<string, PipelineNodeOutPort> output );
 
     }
 
@@ -71,15 +72,15 @@ namespace StgSharp.PipeLine
             _execution = execution;
         }
 
-        public IEnumerable<string> InputInterfacesName => _input;
+        public IEnumerable<string> InputPortName => _input;
 
-        public IEnumerable<string> OutputInterfacesName => _output;
+        public IEnumerable<string> OutputPortName => _output;
 
         public PipelineNodeOperation Operation => _execution;
 
         public void NodeMain(
-                    in Dictionary<string, PipelineNodeImport> input,
-                    in Dictionary<string, PipelineNodeExport> output )
+                    in Dictionary<string, PipelineNodeInPort> input,
+                    in Dictionary<string, PipelineNodeOutPort> output )
         {
             _execution.Invoke( input, output );
         }

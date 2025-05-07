@@ -38,12 +38,13 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Threading
 {
-    public class CancellableTask:IDisposable
+    public class CancellableTask : IDisposable
     {
+
+        private bool disposedValue;
+        private CancellationTokenSource cts;
         private protected Action<CancellationToken> _startup;
         private protected Task _internalTask;
-        private CancellationTokenSource cts;
-        private bool disposedValue;
 
         private protected CancellableTask()
         {
@@ -82,9 +83,23 @@ namespace StgSharp.Threading
             _internalTask.Wait();
         }
 
+        // ~CancellableTask()
+        // {
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            Dispose( disposing: true );
+            GC.SuppressFinalize( this );
+        }
+
         public static CancellableTask Run( Action<CancellationToken> startup )
         {
-            CancellableTask ret = new CancellableTask { _startup = startup };
+            CancellableTask ret = new CancellableTask
+            {
+                _startup = startup
+            };
             ret._internalTask = Task.Run( ret.InternalAction );
             return ret;
         }
@@ -104,8 +119,28 @@ namespace StgSharp.Threading
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         internal void InternalAction()
         {
-            //Console.WriteLine($"Task {Task.CurrentId} is running.");
             _startup( Cts.Token );
+        }
+
+        protected virtual void Dispose( bool disposing )
+        {
+            if( !disposedValue )
+            {
+                if( disposing )
+                {
+                    if( IsCompleted )
+                    {
+                        cts.Dispose();
+                        _internalTask.Dispose();
+                    } else
+                    {
+                        throw new InvalidOperationException(
+                            "Cannot dispose a cancellable task before completed" );
+                    }
+                }
+
+                disposedValue = true;
+            }
         }
 
         public static implicit operator Task( CancellableTask task )
@@ -118,36 +153,5 @@ namespace StgSharp.Threading
             Cts.Dispose();
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    if (IsCompleted)
-                    {
-                        cts.Dispose();
-                        _internalTask.Dispose();
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("Cannot dispose a cancellable task before completed");
-                    }
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        // ~CancellableTask()
-        // {
-        //     Dispose(disposing: false);
-        // }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
     }
 }

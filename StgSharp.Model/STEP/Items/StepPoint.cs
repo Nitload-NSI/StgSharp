@@ -28,16 +28,11 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Script;
 using StgSharp.Model.Step;
+using StgSharp.Script;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepPoint : StepGeometricRepresentationItem
-    {
-
-        protected StepPoint( string name ) : base( name ) { }
-
-    }
+    public abstract class StepPoint : StepGeometricRepresentationItem { }
 }
 

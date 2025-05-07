@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="glRenderSourceGenrator.cs"
+//     file="glRenderObjectGenrator.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -48,10 +48,14 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Create a set of <see cref="ElementBuffer" />.
+        ///   Create a set of <see cref="ElementBuffer" />.
         /// </summary>
-        /// <param _name="count"> Amount of EBO to be created. </param>
-        /// <returns></returns>
+        /// <param _label="count">
+        ///   Amount of EBO to be created.
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         protected ElementBuffer CreateElementBuffer( int count )
         {
@@ -71,10 +75,14 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Create a sets of <see cref="TextureGL" />
+        ///   Create a sets of <see cref="TextureGL" />
         /// </summary>
-        /// <param _name="count"> Amount of textures to be created. </param>
-        /// <returns></returns>
+        /// <param _label="count">
+        ///   Amount of textures to be created.
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         protected TextureGL CreateTexture( int count )
         {
@@ -82,10 +90,14 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Create a set of <see cref="VertexArray" />.
+        ///   Create a set of <see cref="VertexArray" />.
         /// </summary>
-        /// <param _name="count"> Amount of VAO to be created. </param>
-        /// <returns></returns>
+        /// <param _label="count">
+        ///   Amount of VAO to be created.
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         protected VertexArray CreateVertexArray( int count )
         {
@@ -93,10 +105,14 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Create a set of <see cref="VertexBuffer" />.
+        ///   Create a set of <see cref="VertexBuffer" />.
         /// </summary>
-        /// <param _name="count"> Amount of Object to be created. </param>
-        /// <returns></returns>
+        /// <param _label="count">
+        ///   Amount of Object to be created.
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         protected VertexBuffer CreateVertexBuffer( int count )
         {

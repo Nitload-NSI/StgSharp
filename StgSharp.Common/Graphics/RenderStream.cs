@@ -50,8 +50,9 @@ namespace StgSharp.Graphics
     public abstract class RenderStream
     {
 
-        private protected ViewPort primeArgs;
         private Camera nativeCamera;
+
+        private protected ViewPort primeArgs;
         internal TimeSpanProvider _timeProvider;
 
         public (int width, int height) Size
@@ -59,10 +60,7 @@ namespace StgSharp.Graphics
             get => (Width, Height);
         }
 
-        public abstract bool IsContextSharable
-        {
-            get;
-        }
+        public abstract bool IsContextSharable { get; }
 
         public int Height
         {
@@ -129,28 +127,33 @@ namespace StgSharp.Graphics
         }
 
         /// <summary>
-        /// Set the size limit of current form
+        ///   Set the size limit of current form
         /// </summary>
-        /// <param _name="minWidth"> Minimum width of current form </param>
-        /// <param _name="minHeight"> Minimum height of current form </param>
-        /// <param _name="maxWidth"> Maximum width of current form </param>
-        /// <param _name="maxHeight"> Maximum height of current form </param>
+        /// <param _label="minWidth">
+        ///   Minimum width of current form
+        /// </param>
+        /// <param _label="minHeight">
+        ///   Minimum height of current form
+        /// </param>
+        /// <param _label="maxWidth">
+        ///   Maximum width of current form
+        /// </param>
+        /// <param _label="maxHeight">
+        ///   Maximum height of current form
+        /// </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public abstract void SetSizeLimit(
-            int minWidth,
-            int minHeight,
-            int maxWidth,
-            int maxHeight );
+                             int minWidth,
+                             int minHeight,
+                             int maxWidth,
+                             int maxHeight );
 
-        public static TTarget ShareContextFrom<TSource, TTarget>(
-            [NotNull]TSource source )
+        public static TTarget ShareContextFrom<TSource, TTarget>( [NotNull]TSource source )
             where TSource: RenderStream
             where TTarget: RenderStream, new()
         {
             TTarget target = new TTarget();
-            target.Initialize(
-                source.BindedViewPortContext, 
-                source._timeProvider );
+            target.Initialize( source.BindedViewPortContext, source._timeProvider );
             return target;
         }
 
@@ -170,38 +173,37 @@ namespace StgSharp.Graphics
         #region native camera operation
 
         protected abstract void NativeCameraViewRange(
-            Radius fieldOfRange,
-            Vec2 offset,
-            (float frontDepth, float backDepth) viewDepth );
+                                Radius fieldOfRange,
+                                Vec2 offset,
+                                (float frontDepth, float backDepth) viewDepth );
 
-        protected abstract void NativeCameraViewTarget(
-            Vec3 position,
-            Vec3 direction,
-            Vec3 up );
+        protected abstract void NativeCameraViewTarget( Vec3 position, Vec3 direction, Vec3 up );
 
         /// <summary>
-        /// Get <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) uniform from a shader.
-        /// This uniform will be used as projection matrix of this camera. Additionally, for multi-
-        /// shader rendering, each shader requires a uniform,  so do not ignore return value of this
-        /// method.
+        ///   Get <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) uniform from a shader.
+        ///   This uniform will be used as projection matrix of this camera. Additionally, for
+        ///   multi- shader rendering, each shader requires a uniform,  so do not ignore return
+        ///   value of this method.
         /// </summary>
-        /// <param _name="source"> Shader using this camera </param>
-        /// <param _name="name"> ContextName of projection camera named in shader </param>
+        /// <param _label="source">
+        ///   Shader using this camera
+        /// </param>
+        /// <param _label="name">
+        ///   ContextName of projection camera named in shader
+        /// </param>
         /// <returns>
-        /// <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) representing  projection
-        /// matrix in shader program.
+        ///   <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) representing  projection
+        ///   matrix in shader program.
         /// </returns>
         protected abstract Uniform<Matrix44> NativeCameraUniform(
-            ShaderProgram source,
-            string name );
+                                             ShaderProgram source,
+                                             string name );
 
         #endregion
 
         #region internal operation
 
-        public void Initialize(
-            ViewPort v,
-            TimeSpanProvider timeProvider )
+        public void Initialize( ViewPort v, TimeSpanProvider timeProvider )
         {
             if( v == null ) {
                 throw new ArgumentNullException( nameof( v ) );
@@ -227,13 +229,14 @@ namespace StgSharp.Graphics
         protected abstract void CustomizeInit();
 
         /// <summary>
-        /// Marking the start of current render operations,  and set this renser context as current.
+        ///   Marking the start of current render operations,  and set this renser context as
+        ///   current.
         /// </summary>
         public abstract void RenderStart();
 
         /// <summary>
-        /// Marking the end of current render operations,  and release the binding of this renser
-        /// context to current,  making it available for another thread as current.
+        ///   Marking the end of current render operations,  and release the binding of this renser
+        ///   context to current,  making it available for another thread as current.
         /// </summary>
         public abstract void RenderEnd();
 
@@ -241,9 +244,7 @@ namespace StgSharp.Graphics
 
         #region public resource generator
 
-        protected abstract Shader CreateShaderSegment(
-            ShaderType type,
-            int count );
+        protected abstract Shader CreateShaderSegment( ShaderType type, int count );
 
         protected abstract ShaderProgram CreateShaderProgram();
 

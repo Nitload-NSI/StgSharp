@@ -40,7 +40,7 @@ namespace StgSharp.Model.Step
 
         private StepDirection() { }
 
-        public StepDirection( string name, float x, float y, float z ) : base( name, x, y, z ) { }
+        public StepDirection( float x, float y, float z ) : base( x, y, z ) { }
 
         public override StepItemType ItemType => StepItemType.Direction;
 

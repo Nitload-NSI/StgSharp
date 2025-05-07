@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpNodeNextEnumerator.cs"
+//     file="ExpNodeTempEnumerator.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -44,9 +44,9 @@ namespace StgSharp.Script.Express
     public static class ExpNodeNextEnumeratorExtensions
     {
 
-        public static ExpNodeNextEnumerator AsCollectionEnumerator( this ExpSyntaxNode token )
+        public static ExpNodeTempEnumerator AsCollectionEnumerator( this ExpSyntaxNode token )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( token );
+            ExpNodeTempEnumerator enumerator = new ExpNodeTempEnumerator( token );
             IExpElementSource type = token.EqualityTypeConvert;
             while( enumerator.MoveNext() )
             {
@@ -58,24 +58,22 @@ namespace StgSharp.Script.Express
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static ExpNodeNextEnumerator ToEnumerator( this ExpSyntaxNode token )
+        public static ExpNodePresidentEnumerator ToPresidentEnumerator( this ExpSyntaxNode token )
         {
-            return new ExpNodeNextEnumerator( token );
+            return new ExpNodePresidentEnumerator( token );
         }
 
     }
 
-    public class ExpNodeNextEnumerator : IEnumerator<ExpSyntaxNode>
+    public class ExpNodePresidentEnumerator : IEnumerator<ExpSyntaxNode>
     {
 
-        private ExpSyntaxNode _current;
-
+        private int _index = -1;
         private List<ExpSyntaxNode> _begin = new List<ExpSyntaxNode>();
 
-        public ExpNodeNextEnumerator( ExpSyntaxNode token )
+        public ExpNodePresidentEnumerator( ExpSyntaxNode token )
         {
             _begin[ 0 ] = token;
-            _current = token;
             ExpSyntaxNode t = token;
             while( !ReferenceEquals( t.Next, token ) && t.Next != null )
             {
@@ -94,9 +92,9 @@ namespace StgSharp.Script.Express
             }
         }
 
-        public ExpSyntaxNode Current => _current;
+        public ExpSyntaxNode Current => _begin[ _index ];
 
-        public List<ExpSyntaxNode> Values => _begin;
+        public int Count => _begin.Count;
 
         public void AssertEnumeratorCount( int count )
         {
@@ -114,8 +112,50 @@ namespace StgSharp.Script.Express
             }
         }
 
+        public void Dispose()
+        {
+            return;
+        }
+
         public bool MoveNext()
         {
+            if( _index < _begin.Count - 1 )
+            {
+                _index++;
+                return true;
+            }
+            return false;
+        }
+
+        public void Reset()
+        {
+            _index = -1;
+        }
+
+        object IEnumerator.Current => this.Current;
+
+    }
+
+    public class ExpNodeTempEnumerator : IEnumerator<ExpSyntaxNode>
+    {
+
+        private ExpSyntaxNode? _current,_begin;
+
+        public ExpNodeTempEnumerator( ExpSyntaxNode node )
+        {
+            _current = null;
+            _begin = node;
+        }
+
+        public ExpSyntaxNode Current => _current!;
+
+        public bool MoveNext()
+        {
+            if( _current == null )
+            {
+                _current = _begin;
+                return true;
+            }
             ExpSyntaxNode next = _current.Next;
             if( ReferenceEquals( next, _begin ) || next == null ) {
                 return false;
@@ -131,7 +171,7 @@ namespace StgSharp.Script.Express
 
         void IEnumerator.Reset()
         {
-            _current = _begin[ 0 ];
+            _current = null;
         }
 
         object IEnumerator.Current => _current;

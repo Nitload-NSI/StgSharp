@@ -41,13 +41,9 @@ namespace StgSharp.Model.Step
     public class StepAxis2Placement2D : StepAxis2Placement
     {
 
-        private StepAxis2Placement2D() : base( string.Empty ) { }
+        private StepAxis2Placement2D() { }
 
-        public StepAxis2Placement2D(
-               string label,
-               StepCartesianPoint location,
-               StepDirection direction )
-            : base( label )
+        public StepAxis2Placement2D( StepCartesianPoint location, StepDirection direction )
         {
             Location = location;
             RefDirection = direction;
@@ -59,14 +55,13 @@ namespace StgSharp.Model.Step
                                              StepModel binder,
                                              ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepAxis2Placement2D axis = new StepAxis2Placement2D();
             enumerator.AssertEnumeratorCount( 3 );
-            axis.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => axis.Location = v.AsType<StepCartesianPoint>() );
-            binder.BindValue(
-                enumerator.Values[ 2 ], v => axis.RefDirection = v.AsType<StepDirection>() );
+            axis.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            binder.BindValue( enumerator[ 1 ],
+                              v => axis.Location = v.AsType<StepCartesianPoint>() );
+            binder.BindValue( enumerator[ 2 ], v => axis.RefDirection = v.AsType<StepDirection>() );
             return axis;
         }
 

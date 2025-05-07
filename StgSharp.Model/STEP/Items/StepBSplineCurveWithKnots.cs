@@ -60,13 +60,11 @@ namespace StgSharp.Model.Step
         private const string UNIFORM_KNOTS = "UNIFORM_KNOTS";
         private const string UNSPECIFIED = "UNSPECIFIED";
 
-        public StepBSplineCurveWithKnots(
-               string name,
-               IEnumerable<StepCartesianPoint> controlPoints )
-            : base( name, controlPoints ) { }
+        public StepBSplineCurveWithKnots( IEnumerable<StepCartesianPoint> controlPoints )
+            : base( controlPoints ) { }
 
-        public StepBSplineCurveWithKnots( string name, params StepCartesianPoint[] controlPoints )
-            : base( name, controlPoints ) { }
+        public StepBSplineCurveWithKnots( params StepCartesianPoint[] controlPoints )
+            : base( controlPoints ) { }
 
         public List<int> KnotMultiplicities { get; } = new List<int>();
 
@@ -80,41 +78,41 @@ namespace StgSharp.Model.Step
                                                   StepModel binder,
                                                   ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 9 );
-            ExpNodeNextEnumerator controlPointsList = enumerator.Values[ 2 ].ToEnumerator();
+            ExpNodePresidentEnumerator controlPointsList = enumerator[ 2 ].ToPresidentEnumerator();
 
             StepBSplineCurveWithKnots spline = new StepBSplineCurveWithKnots(
-                string.Empty, new StepCartesianPoint[controlPointsList.Values.Count] );
-            spline.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            spline.Degree = ( enumerator.Values[ 1 ] as ExpIntNode )!.Value;
+                new StepCartesianPoint[controlPointsList.Count] );
+            spline.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            spline.Degree = ( enumerator[ 1 ] as ExpIntNode )!.Value;
 
-            for( int i = 0; i < controlPointsList.Values.Count; i++ )
+            for( int i = 0; i < controlPointsList.Count; i++ )
             {
                 int j = i; // capture to avoid rebinding
                 binder.BindValue(
-                    controlPointsList.Values[ j ],
+                    controlPointsList[ j ],
                     v => spline.ControlPointsList[ j ] = v.AsType<StepCartesianPoint>() );
             }
 
-            spline.CurveForm = ParseCurveForm( enumerator.Values[ 3 ].CodeConvertTemplate );
-            spline.ClosedCurve = ( enumerator.Values[ 4 ] as ExpBoolNode )!.Value;
-            spline.SelfIntersect = ( enumerator.Values[ 5 ]as ExpBoolNode )!.Value;
+            spline.CurveForm = ParseCurveForm( enumerator[ 3 ].CodeConvertTemplate );
+            spline.ClosedCurve = ( enumerator[ 4 ] as ExpBoolNode )!.Value;
+            spline.SelfIntersect = ( enumerator[ 5 ]as ExpBoolNode )!.Value;
 
-            ExpNodeNextEnumerator knotMultiplicitiesList = enumerator.Values[ 6 ].ToEnumerator();
+            ExpNodePresidentEnumerator knotMultiplicitiesList = enumerator[ 6 ].ToPresidentEnumerator(
+                );
             spline.KnotMultiplicities.Clear();
-            for( int i = 0; i < knotMultiplicitiesList.Values.Count; i++ ) {
-                spline.KnotMultiplicities
-                      .Add( ( knotMultiplicitiesList.Values[ i ]as ExpIntNode )!.Value );
+            for( int i = 0; i < knotMultiplicitiesList.Count; i++ ) {
+                spline.KnotMultiplicities.Add( ( knotMultiplicitiesList[ i ]as ExpIntNode )!.Value );
             }
 
-            ExpNodeNextEnumerator knotslist = enumerator.Values[ 7 ].ToEnumerator();
+            ExpNodePresidentEnumerator knotslist = enumerator[ 7 ].ToPresidentEnumerator();
             spline.Knots.Clear();
-            for( int i = 0; i < knotslist.Values.Count; i++ ) {
-                spline.Knots.Add( ( knotslist.Values[ i ]as ExpRealNumberNode )!.Value );
+            for( int i = 0; i < knotslist.Count; i++ ) {
+                spline.Knots.Add( ( knotslist[ i ]as ExpRealNumberNode )!.Value );
             }
 
-            spline.KnotSpec = ParseKnotSpec( ( enumerator.Values[ 8 ]as ExpStringNode )!.Value );
+            spline.KnotSpec = ParseKnotSpec( ( enumerator[ 8 ]as ExpStringNode )!.Value );
 
             return spline;
         }

@@ -40,8 +40,7 @@ namespace StgSharp.Model.Step
 
         private StepCartesianPoint() { }
 
-        public StepCartesianPoint( string label, float x, float y, float z )
-            : base( label, x, y, z ) { }
+        public StepCartesianPoint( float x, float y, float z ) : base( x, y, z ) { }
 
         public override StepItemType ItemType => StepItemType.CartesianPoint;
 

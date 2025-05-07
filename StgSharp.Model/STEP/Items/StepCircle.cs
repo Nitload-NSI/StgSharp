@@ -42,10 +42,9 @@ namespace StgSharp.Model.Step
 
         private StepAxis2Placement _position;
 
-        private StepCircle() : base( string.Empty ) { }
+        public StepCircle() { }
 
-        public StepCircle( string label, StepAxis2Placement position, float radius )
-            : base( label )
+        public StepCircle( StepAxis2Placement position, float radius )
         {
             Position = position;
             Radius = radius;
@@ -70,13 +69,13 @@ namespace StgSharp.Model.Step
 
         internal static StepCircle FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepCircle circle = new StepCircle();
             enumerator.AssertEnumeratorCount( 3 );
-            circle.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
+            circle.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
             binder.BindValue(
-                enumerator.Values[ 1 ], v => circle.Position = v.AsType<StepAxis2Placement>() );
-            circle.Radius = ( enumerator.Values[ 2 ]as ExpRealNumberNode )!.Value;
+                enumerator[ 1 ], v => circle.Position = v.AsType<StepAxis2Placement>() );
+            circle.Radius = ( enumerator[ 2 ]as ExpRealNumberNode )!.Value;
             return circle;
         }
 

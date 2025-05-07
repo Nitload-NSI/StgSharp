@@ -54,17 +54,16 @@ namespace StgSharp.Model.Step
 
         internal static StepEdgeLoop FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 2 );
-            ExpNodeNextEnumerator edgeSyntaxList = enumerator.Values[ 1 ].ToEnumerator();
-            StepEdgeLoop edgeLoop = new StepEdgeLoop(
-                new StepOrientedEdge[edgeSyntaxList.Values.Count] );
-            edgeLoop.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            for( int i = 0; i < edgeSyntaxList.Values.Count; i++ )
+            ExpNodePresidentEnumerator edgeSyntaxList = enumerator[ 1 ].ToPresidentEnumerator();
+            StepEdgeLoop edgeLoop = new StepEdgeLoop( new StepOrientedEdge[edgeSyntaxList.Count] );
+            edgeLoop.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            for( int i = 0; i < edgeSyntaxList.Count; i++ )
             {
                 int j = i; // capture to avoid rebinding
                 binder.BindValue(
-                    edgeSyntaxList.Values[ j ],
+                    edgeSyntaxList[ j ],
                     v => edgeLoop.EdgeList[ j ] = v.AsType<StepOrientedEdge>() );
             }
 

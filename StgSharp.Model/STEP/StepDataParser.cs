@@ -62,7 +62,7 @@ namespace StgSharp.Model.Step
             return string.Empty;
         }
 
-        public static Vec3 ToVector3D( ExpNodeNextEnumerator enumerator )
+        public static Vec3 ToVector3D( ExpNodePresidentEnumerator enumerator )
         {
             enumerator.AssertEnumeratorCount( 3 );
             Vec3 result = new Vec3();

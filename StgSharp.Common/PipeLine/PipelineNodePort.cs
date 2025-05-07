@@ -28,6 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,118 +39,151 @@ using System.Threading.Tasks;
 
 namespace StgSharp.PipeLine
 {
-    public class PipelineNodeExport
+    public class PipelineNodeInPort
     {
 
-        private HashSet<PipelineNodeImport> _linkerSet = new HashSet<PipelineNodeImport>();
-        private SemaphoreSlim formerCompleteSemaphore;
+        private HashSet<PipelineNodeOutPort> _linkerSet = new HashSet<PipelineNodeOutPort>();
 
-        public PipelineNodeExport( PipelineNode container, string name )
+        public PipelineNodeInPort( PipelineNode container, string label )
         {
             Container = container;
-            Name = name;
-            formerCompleteSemaphore = new SemaphoreSlim( initialCount: 0, maxCount: 1 );
+            Label = label;
         }
+
+        public IEnumerable<PipelineNodeOutPort> LinkedPorts => _linkerSet;
 
         public PipelineNode Container { get; init; }
 
         public SemaphoreSlim Waiter { get; init; }
 
-        public string Name { get; init; }
+        public string Label { get; init; }
 
-        public void Connect( PipelineNodeImport port )
+        internal HashSet<PipelineNodeOutPort> Linkers => _linkerSet;
+
+        public void Connect( PipelineNodeOutPort port )
         {
             ArgumentNullException.ThrowIfNull( port );
-            if( _linkerSet.Add( port ) ) {
-                Container.Next.Add( port.Container );
-            }
-        }
-
-        public static void SkipAll( Dictionary<string, PipelineNodeExport> ports )
-        {
-            if( ports is null ) {
-                return;
-            }
-            foreach( PipelineNodeExport port in ports.Values ) {
-                port.Waiter.Release();
-            }
-        }
-
-        public void TransmitValue( IPipeLineConnectionPayload value )
-        {
-            foreach( PipelineNodeImport item in _linkerSet ) { }
-        }
-
-        public void WaitAll( IEnumerable<PipelineNodeExport> ports )
-        {
-            if( ports is null ) {
-                return;
-            }
-            foreach( PipelineNodeExport port in ports ) {
-                port.Waiter.Wait();
-            }
-        }
-
-    }
-
-    public class PipelineNodeImport
-    {
-
-        private HashSet<PipelineNodeExport> _linkerSet = new HashSet<PipelineNodeExport>();
-
-        public PipelineNodeImport( PipelineNode container, string name )
-        {
-            Container = container;
-            Name = name;
-        }
-
-        public IEnumerable<PipelineNodeExport> LinkedPorts => _linkerSet;
-
-        public PipelineNode Container { get; init; }
-
-        public SemaphoreSlim Waiter { get; init; }
-
-        public string Name { get; init; }
-
-        public void Connect( PipelineNodeExport port )
-        {
-            ArgumentNullException.ThrowIfNull( port );
-            if( _linkerSet.Add( port ) ) {
+            if( _linkerSet.Add( port ) )
+            {
+                port.Linkers.Add( this );
                 Container.Previous.Add( port.Container );
+                port.Container.Next.Add( Container );
             }
         }
 
         public IEnumerator<PipelineNode> GetFormerNodes()
         {
-            foreach( PipelineNodeExport port in _linkerSet ) {
+            foreach( PipelineNodeOutPort port in _linkerSet ) {
                 yield return port.Container;
             }
         }
 
         public void Wait()
         {
-            foreach( PipelineNodeExport connector in _linkerSet ) {
-                connector.Waiter.Wait();
-            }
+            PipelineNodeOutPort.WaitAll( _linkerSet );
         }
 
-        public static void WaitAll( IDictionary<string, PipelineNodeImport> ports )
+        public static void WaitAll( IDictionary<string, PipelineNodeInPort> ports )
         {
             if( ports is null ) {
                 return;
             }
-            foreach( PipelineNodeImport port in ports.Values ) {
+            foreach( PipelineNodeInPort port in ports.Values ) {
                 port.Wait();
             }
         }
 
-        public static void WaitAll( IEnumerable<PipelineNodeImport> ports )
+        public static void WaitAll( IEnumerable<PipelineNodeInPort> ports )
         {
             if( ports is null ) {
                 return;
             }
-            foreach( PipelineNodeImport port in ports ) {
+            foreach( PipelineNodeInPort port in ports ) {
                 port.Wait();
+            }
+        }
+
+    }
+
+    public class PipelineNodeOutPort
+    {
+
+        private HashSet<PipelineNodeInPort> _linkerSet = new HashSet<PipelineNodeInPort>();
+        private volatile int _passCount;
+        private SemaphoreSlim formerCompleteSemaphore;
+
+        public PipelineNodeOutPort( PipelineNode container, string label )
+        {
+            Container = container;
+            Label = label;
+            formerCompleteSemaphore = new SemaphoreSlim( initialCount: 0, maxCount: 1 );
+        }
+
+        public PipelineNode Container { get; init; }
+
+        public string Label { get; init; }
+
+        internal HashSet<PipelineNodeInPort> Linkers => _linkerSet;
+
+        private SemaphoreSlim Waiter => formerCompleteSemaphore;
+
+        public void Connect( PipelineNodeInPort port )
+        {
+            ArgumentNullException.ThrowIfNull( port );
+            if( _linkerSet.Add( port ) )
+            {
+                port.Linkers.Add( this );
+                Container.Next.Add( port.Container );
+                port.Container.Previous.Add( Container );
+            }
+        }
+
+        public void Release()
+        {
+            if( _passCount == 0 )
+            {
+                Waiter.Release();
+            } else
+            {
+                return;
+            }
+        }
+
+        public static void SkipAll( Dictionary<string, PipelineNodeOutPort> ports )
+        {
+            if( ports is null ) {
+                return;
+            }
+            foreach( PipelineNodeOutPort port in ports.Values ) {
+                port.Release();
+            }
+        }
+
+        public void TransmitValue( IPipeLineConnectionPayload value )
+        {
+            foreach( PipelineNodeInPort item in _linkerSet ) { }
+        }
+
+        public static void WaitAll( IEnumerable<PipelineNodeOutPort> ports )
+        {
+            if( ports is null ) {
+                return;
+            }
+            foreach( PipelineNodeOutPort port in ports ) {
+                port.Wait();
+            }
+        }
+
+        internal void Wait()
+        {
+            Waiter.Wait();
+            if( _passCount >= _linkerSet.Count )
+            {
+                Interlocked.Exchange( ref _passCount, 0 );
+            } else
+            {
+                Interlocked.Increment( ref _passCount );
+                Waiter.Release();
             }
         }
 

@@ -74,14 +74,13 @@ namespace StgSharp.Model.Step
     public abstract class StepBSplineCurve : StepBoundedCurve
     {
 
-        public StepBSplineCurve( string name, IEnumerable<StepCartesianPoint> controlPoints )
-            : base( name )
+        public StepBSplineCurve( IEnumerable<StepCartesianPoint> controlPoints )
         {
             ControlPointsList.AddRange( controlPoints );
         }
 
-        public StepBSplineCurve( string name, params StepCartesianPoint[] controlPoints )
-            : this( name, ( IEnumerable<StepCartesianPoint> )controlPoints ) { }
+        public StepBSplineCurve( params StepCartesianPoint[] controlPoints )
+            : this( ( IEnumerable<StepCartesianPoint> )controlPoints ) { }
 
         public bool ClosedCurve { get; set; }
 

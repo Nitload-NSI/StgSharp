@@ -33,11 +33,6 @@ using StgSharp.Script;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepPlacement : StepGeometricRepresentationItem
-    {
-
-        protected StepPlacement( string name ) : base( name ) { }
-
-    }
+    public abstract class StepPlacement : StepGeometricRepresentationItem { }
 }
 

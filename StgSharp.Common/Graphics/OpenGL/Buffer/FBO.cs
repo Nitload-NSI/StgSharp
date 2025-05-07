@@ -63,10 +63,13 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Bind the frame Buffer object with _name frame Buffer to the frame Buffer target specified
-        /// by target. <see langword="FrameBufferTarget.All" /> will be set as default target.
+        ///   Bind the frame Buffer object with _label frame Buffer to the frame Buffer target
+        ///   specified by target. <see langword="FrameBufferTarget.All" /> will be set as default
+        ///   target.
         /// </summary>
-        /// <param _name="index"> Index of object to be binded in handle set </param>
+        /// <param _label="index">
+        ///   Index of object to be binded in handle set
+        /// </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public override unsafe void Bind( int index )
         {
@@ -74,11 +77,15 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Bind the frame Buffer object with _name frame Buffer to the frame Buffer target specified
-        /// by target. Target of this frame Buffer should be set manually.
+        ///   Bind the frame Buffer object with _label frame Buffer to the frame Buffer target
+        ///   specified by target. Target of this frame Buffer should be set manually.
         /// </summary>
-        /// <param _name="target"> The frame Buffer target of the binding operation. </param>
-        /// <param _name="index"> Index of object to be binded in handle set </param>
+        /// <param _label="target">
+        ///   The frame Buffer target of the binding operation.
+        /// </param>
+        /// <param _label="index">
+        ///   Index of object to be binded in handle set
+        /// </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void Bind( FrameBufferTarget target, int index )
         {
@@ -88,8 +95,7 @@ namespace StgSharp.Graphics.OpenGL
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static void BindNull()
         {
-            OpenGLFunction.CurrentGL
-                .BindFrameBuffer( FrameBufferTarget.All, GlHandle.Zero );
+            OpenGLFunction.CurrentGL.BindFrameBuffer( FrameBufferTarget.All, GlHandle.Zero );
         }
 
         protected override void Dispose( bool disposing )

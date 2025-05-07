@@ -34,11 +34,17 @@ namespace StgSharp.Math
     {
 
         /// <summary>
-        /// calculate the value of x^y
+        ///   calculate the value of x^y
         /// </summary>
-        /// <param _name="x"></param>
-        /// <param _name="y"></param>
-        /// <returns> Returns the value of x^y </returns>
+        /// <param _label="x">
+        ///
+        /// </param>
+        /// <param _label="y">
+        ///
+        /// </param>
+        /// <returns>
+        ///   Returns the value of x^y
+        /// </returns>
         public static unsafe float Pow( float x, float y )
         {
             /* 
@@ -67,14 +73,17 @@ namespace StgSharp.Math
             z = Scaler.Log( x ) * y;
 
             bool sign = false;
-            if( z < 0 ) {
+            if( z < 0 )
+            {
                 sign = true;
                 z = -z;
             }
 
-            if( z < 0.5f ) {
+            if( z < 0.5f )
+            {
                 t = 1.0f + ( z * ( 1.0f + ( z * ( 0.5f + ( z * ( 0.1666666667f + ( z * ( 0.0416666666667f + ( z * 8.333333333e-3f ) ) ) ) ) ) ) ) );
-            } else {
+            } else
+            {
                 uint zBit = *( uint* )&z;
                 uint zBitAbs = zBit & 0b_0111_1111_1111_1111_1111_1111_1111_1111;
                 uint uintm = zBitAbs >> 23;

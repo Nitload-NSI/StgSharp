@@ -41,11 +41,17 @@ namespace StgSharp.Math
         piby2 = 1.5707963705e+00f; /* 0x3fc90fdb */
 
         /// <summary>
-        /// Reurns the value of ArcSin(x)
+        ///   Reurns the value of ArcSin(x)
         /// </summary>
-        /// <param _name="x"> The sine value of the angle </param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <param _label="x">
+        ///   The sine value of the angle
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        ///
+        /// </exception>
         public static float ASin( float x )
         {
             return MathF.Asin( x );

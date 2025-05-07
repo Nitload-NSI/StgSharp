@@ -40,7 +40,7 @@ using System.Threading;
 namespace StgSharp.Timing
 {
     /// <summary>
-    /// A microsecond-accuracy timer. It will refresh every a certain time span.
+    ///   A microsecond-accuracy timer. It will refresh every a certain time span.
     /// </summary>
     public class TimeSpanProvider
     {
@@ -58,14 +58,16 @@ namespace StgSharp.Timing
         private readonly TimeSourceProviderBase _timeSource;
 
         /// <summary>
-        /// Create a new <see cref="TimeSpanProvider" /> and define the length of time span. Length
-        /// of a single time span is defined in microseconds.
+        ///   Create a new <see cref="TimeSpanProvider" /> and define the length of time span.
+        ///   Length of a single time span is defined in microseconds.
         /// </summary>
-        /// <param _name="spanMicroSeconds"></param>
-        /// <param _name="provider"></param>
-        public TimeSpanProvider(
-            long spanMicroSeconds,
-            TimeSourceProviderBase provider )
+        /// <param _label="spanMicroSeconds">
+        ///
+        /// </param>
+        /// <param _label="provider">
+        ///
+        /// </param>
+        public TimeSpanProvider( long spanMicroSeconds, TimeSourceProviderBase provider )
         {
             if( provider == null ) {
                 throw new ArgumentNullException( nameof( provider ) );
@@ -80,14 +82,16 @@ namespace StgSharp.Timing
         }
 
         /// <summary>
-        /// Create a new <see cref="TimeSpanProvider" /> and define the length of time span.  Length
-        /// of a single time span is defined in seconds.
+        ///   Create a new <see cref="TimeSpanProvider" /> and define the length of time span. 
+        ///   Length of a single time span is defined in seconds.
         /// </summary>
-        /// <param _name="spanSeconds"></param>
-        /// <param _name="provider"></param>
-        public TimeSpanProvider(
-            double spanSeconds,
-            TimeSourceProviderBase provider )
+        /// <param _label="spanSeconds">
+        ///
+        /// </param>
+        /// <param _label="provider">
+        ///
+        /// </param>
+        public TimeSpanProvider( double spanSeconds, TimeSourceProviderBase provider )
         {
             if( provider == null ) {
                 throw new ArgumentNullException( nameof( provider ) );
@@ -103,23 +107,25 @@ namespace StgSharp.Timing
         }
 
         /// <summary>
-        /// Create a new <see cref="TimeSpanProvider" /> and define the length of time span. Length
-        /// of a single time span is defined in microseconds.
+        ///   Create a new <see cref="TimeSpanProvider" /> and define the length of time span.
+        ///   Length of a single time span is defined in microseconds.
         /// </summary>
-        /// <param _name="spanLength"></param>
-        /// <param _name="maxSpan"></param>
-        /// <param _name="provider"></param>
-        public TimeSpanProvider(
-            long spanLength,
-            long maxSpan,
-            TimeSourceProviderBase provider )
+        /// <param _label="spanLength">
+        ///
+        /// </param>
+        /// <param _label="maxSpan">
+        ///
+        /// </param>
+        /// <param _label="provider">
+        ///
+        /// </param>
+        public TimeSpanProvider( long spanLength, long maxSpan, TimeSourceProviderBase provider )
         {
             if( provider == null ) {
                 throw new ArgumentNullException( nameof( provider ) );
             }
             if( maxSpan <= 0 ) {
-                throw new ArgumentException(
-                    "Sapn count cannot be smaller than zero" );
+                throw new ArgumentException( "Sapn count cannot be smaller than zero" );
             }
             _timeSource = provider;
             _spanLength = spanLength;
@@ -151,14 +157,13 @@ namespace StgSharp.Timing
         }
 
         /// <summary>
-        /// Time source provider provided in <see cref="StgSharp" /> internal framework.
+        ///   Time source provider provided in <see cref="StgSharp" /> internal framework.
         /// </summary>
         public static TimeSourceProviderBase DefaultProvider => StgSharpTime.OnlyInstance;
 
         public TimeSpanAwaitingToken ParticipantSpanAwaiting( int count )
         {
-            TimeSpanAwaitingToken token = new TimeSpanAwaitingToken(
-                this, count );
+            TimeSpanAwaitingToken token = new TimeSpanAwaitingToken( this, count );
             _tokenToAdd.Enqueue( token );
             return token;
         }
@@ -173,8 +178,7 @@ namespace StgSharp.Timing
             Interlocked.Exchange( ref _maxSpanCount, 0 );
         }
 
-        public void SubscribeToTimeSource(
-            TimeSourceProviderBase serviceHandler )
+        public void SubscribeToTimeSource( TimeSourceProviderBase serviceHandler )
         {
             if( serviceHandler == null ) {
                 throw new ArgumentNullException( nameof( serviceHandler ) );
@@ -196,26 +200,30 @@ namespace StgSharp.Timing
             if( microseconds - _spanBegin < _spanLength ) {
                 return true;
             }
-            while( !_tokenToAdd.IsEmpty ) {
+            while( !_tokenToAdd.IsEmpty )
+            {
                 _tokenToAdd.TryDequeue( out TimeSpanAwaitingToken tokenAdd );
                 _awaitingTokens.Add( tokenAdd );
             }
-            while( !_tokenToQuit.IsEmpty ) {
+            while( !_tokenToQuit.IsEmpty )
+            {
                 _tokenToQuit.TryDequeue( out TimeSpanAwaitingToken tokenQuit );
                 _awaitingTokens.Remove( tokenQuit );
                 InternalIO.InternalWriteLog(
-                    $"Awaiting token {tokenQuit!.TokenID} has been removed.",
-                    LogType.Info );
+                    $"Awaiting token {tokenQuit!.TokenID} has been removed.", LogType.Info );
             }
 
             _spanBegin = microseconds;
             timeSpanCount++;
 
-            foreach( TimeSpanAwaitingToken item in _awaitingTokens ) {
-                if( item.AwaitingSemaphoreSlim.CurrentCount == 0 ) {
+            foreach( TimeSpanAwaitingToken item in _awaitingTokens )
+            {
+                if( item.AwaitingSemaphoreSlim.CurrentCount == 0 )
+                {
                     item.AwaitingSemaphoreSlim.Release();
                     item.Refresh();
-                } else {
+                } else
+                {
                     item.MissRefresh();
                 }
             }
@@ -223,8 +231,7 @@ namespace StgSharp.Timing
             return timeSpanCount < _maxSpanCount;
         }
 
-        public static explicit operator int(
-            [NotNull]TimeSpanProvider provider )
+        public static explicit operator int( [NotNull]TimeSpanProvider provider )
         {
             return provider.ToInt32();
         }

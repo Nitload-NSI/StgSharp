@@ -42,10 +42,9 @@ namespace StgSharp.Model.Step
 
         private StepDirection _direction;
 
-        private StepVector() : base( string.Empty ) { }
+        private StepVector() : base() { }
 
-        public StepVector( string name, StepDirection direction, double length )
-            : base( name )
+        public StepVector( StepDirection direction, double length )
         {
             Direction = direction;
             Length = length;
@@ -70,13 +69,12 @@ namespace StgSharp.Model.Step
 
         internal static StepVector FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
-            ExpNodeNextEnumerator enumerator = new ExpNodeNextEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             StepVector vector = new StepVector();
             enumerator.AssertEnumeratorCount( 3 );
-            vector.Name = ( enumerator.Values[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator.Values[ 1 ], v => vector.Direction = v.AsType<StepDirection>() );
-            vector.Length = ( enumerator.Values[ 2 ]as ExpRealNumberNode )!.Value;
+            vector.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
+            binder.BindValue( enumerator[ 1 ], v => vector.Direction = v.AsType<StepDirection>() );
+            vector.Length = ( enumerator[ 2 ]as ExpRealNumberNode )!.Value;
             return vector;
         }
 
