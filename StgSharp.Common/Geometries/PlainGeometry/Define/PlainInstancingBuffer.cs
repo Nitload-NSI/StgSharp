@@ -85,12 +85,12 @@ namespace StgSharp.Geometries
         {
             get
             {
-                if( coordArray.Length != coordList.Capacity ) {
+                if( coordArray.Length != coordList.Capacity )
+                {
                     FieldInfo fieldInfo = typeof( List<Vec4> ).
-                        GetField(
-                            "_items",
-                            BindingFlags.NonPublic | BindingFlags.Instance );
-                    if( fieldInfo == null ) {
+                        GetField( "_items", BindingFlags.NonPublic | BindingFlags.Instance );
+                    if( fieldInfo == null )
+                    {
                         #pragma warning disable CA1065
                         #pragma warning disable CA2201
                         throw new NullReferenceException();
@@ -107,12 +107,12 @@ namespace StgSharp.Geometries
         {
             get
             {
-                if( scaleArray.Length != coordList.Capacity ) {
+                if( scaleArray.Length != coordList.Capacity )
+                {
                     FieldInfo fieldInfo = typeof( List<float> ).
-                        GetField(
-                            "_items",
-                            BindingFlags.NonPublic | BindingFlags.Instance );
-                    if( fieldInfo == null ) {
+                        GetField( "_items", BindingFlags.NonPublic | BindingFlags.Instance );
+                    if( fieldInfo == null )
+                    {
                         #pragma warning disable CA1065
                         #pragma warning disable CA2201
                         throw new NullReferenceException();
@@ -167,8 +167,7 @@ namespace StgSharp.Geometries
             temp.BufferId = instance.BufferId;
 
             coordList[ instance.BufferId ] = coordList[ coordList.Count - 1 ];
-            scalingList[ instance.BufferId ] = scalingList[
-                scalingList.Count - 1 ];
+            scalingList[ instance.BufferId ] = scalingList[ scalingList.Count - 1 ];
 
             instanceList.RemoveAt( instanceList.Count - 1 );
             coordList.RemoveAt( coordList.Count - 1 );
@@ -185,7 +184,8 @@ namespace StgSharp.Geometries
 
         protected virtual void Dispose( bool disposing )
         {
-            if( !disposedValue ) {
+            if( !disposedValue )
+            {
                 if( disposing ) {
                     mutex.Dispose();
                 }
@@ -204,8 +204,7 @@ namespace StgSharp.Geometries
             }
         }
 
-        IGeometry IInstancingBuffer.TypicalShape => throw new NotImplementedException(
-            );
+        IGeometry IInstancingBuffer.TypicalShape => throw new NotImplementedException();
 
         #region field of mem opt
 

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="glHandle.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -46,24 +46,33 @@ namespace StgSharp.Graphics.OpenGL
     public struct GlHandle
     {
 
-        [FieldOffset( 0 )] public int SignedValue;
-        [FieldOffset( 0 )] public uint Value;
+        [FieldOffset( 0 )] internal int SignedValue;
+        [FieldOffset( 0 )] internal uint Value;
 
         public static GlHandle Zero
         {
-            get => new GlHandle { Value = 0 };
+            get => new GlHandle
+            {
+                Value = 0
+            };
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static GlHandle Alloc( uint value )
         {
-            return new GlHandle { Value = value };
+            return new GlHandle
+            {
+                Value = value
+            };
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static GlHandle SignedAlloc( int value )
         {
-            return new GlHandle { SignedValue = value };
+            return new GlHandle
+            {
+                SignedValue = value
+            };
         }
 
     }

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="Uniform.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -65,7 +66,10 @@ namespace StgSharp.Graphics.OpenGL
 
         internal static Uniform<T> FromHandle( GlHandle handle )
         {
-            return new Uniform<T> { id = handle };
+            return new Uniform<T>
+            {
+                id = handle
+            };
         }
 
     }
@@ -82,14 +86,15 @@ namespace StgSharp.Graphics.OpenGL
 
         internal static Uniform<T, U> FromHandle( GlHandle handle )
         {
-            return new Uniform<T, U> { id = handle };
+            return new Uniform<T, U>
+            {
+                id = handle
+            };
         }
 
     }
 
-    public sealed class Uniform<T, U, V> : Uniform where T: struct
-        where U: struct
-        where V: struct
+    public sealed class Uniform<T, U, V> : Uniform where T: struct where U: struct where V: struct
     {
 
         internal Uniform() { }
@@ -101,13 +106,15 @@ namespace StgSharp.Graphics.OpenGL
 
         internal static Uniform<T, U, V> FromHandle( GlHandle handle )
         {
-            return new Uniform<T, U, V> { id = handle };
+            return new Uniform<T, U, V>
+            {
+                id = handle
+            };
         }
 
     }
 
-    public sealed class Uniform<T, U, V, W> : Uniform where T: struct
-        where U: struct
+    public sealed class Uniform<T, U, V, W> : Uniform where T: struct where U: struct
         where V: struct
         where W: struct
     {
@@ -121,7 +128,10 @@ namespace StgSharp.Graphics.OpenGL
 
         internal static Uniform<T, U, V, W> FromHandle( GlHandle handle )
         {
-            return new Uniform<T, U, V, W> { id = handle };
+            return new Uniform<T, U, V, W>
+            {
+                id = handle
+            };
         }
 
     }
@@ -133,14 +143,13 @@ namespace StgSharp.Graphics.OpenGL
         public void SetUniformValue( [NotNull] Uniform<Matrix44> uniform, Matrix44 mat )
         {
             Matrix44 temp = mat;
-            Context.glUniformMatrix4fv(
-                uniform.id.SignedValue, 1, false, ( float* )&temp );
+            Context.glUniformMatrix4fv( uniform.id.SignedValue, 1, false, ( float* )&temp );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void SetUniformValue(
-            [NotNull]Uniform<float, float, float, float> uniform,
-            Vec4 vec )
+                    [NotNull]Uniform<float, float, float, float> uniform,
+                    Vec4 vec )
         {
             Vec4 temp = vec;
             Context.glUniform1fv( uniform.id.SignedValue, 4, &temp.reg );
@@ -166,31 +175,28 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void SetUniformValue(
-            [NotNull] Uniform<float, float> uniform,
-            float v0,
-            float v1 )
+        public void SetUniformValue( [NotNull] Uniform<float, float> uniform, float v0, float v1 )
         {
             Context.glUniform2f( uniform.id.SignedValue, v0, v1 );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void SetUniformValue(
-            [NotNull] Uniform<float, float, float> uniform,
-            float v0,
-            float v1,
-            float v2 )
+                    [NotNull] Uniform<float, float, float> uniform,
+                    float v0,
+                    float v1,
+                    float v2 )
         {
             Context.glUniform3f( uniform.id.SignedValue, v0, v1, v2 );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void SetUniformValue(
-            [NotNull] Uniform<float, float, float, float> uniform,
-            float v0,
-            float v1,
-            float v2,
-            float v3 )
+                    [NotNull] Uniform<float, float, float, float> uniform,
+                    float v0,
+                    float v1,
+                    float v2,
+                    float v3 )
         {
             Context.glUniform4f( uniform.id.SignedValue, v0, v1, v2, v3 );
         }

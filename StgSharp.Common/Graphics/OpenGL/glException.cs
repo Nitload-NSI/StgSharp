@@ -60,19 +60,13 @@ namespace StgSharp.Graphics.OpenGL
 
         internal GlArrayFormatException( string message ) : base( message ) { }
 
-        internal GlArrayFormatException(
-            SerializationInfo info,
-            StreamingContext context )
+        internal GlArrayFormatException( SerializationInfo info, StreamingContext context )
             : base( info, context ) { }
 
-        internal GlArrayFormatException(
-            string message,
-            Exception innerException )
+        internal GlArrayFormatException( string message, Exception innerException )
             : base( message, innerException ) { }
 
-        public GlArrayFormatException(
-            PixelChannelLayout layout,
-            string arrayname )
+        public GlArrayFormatException( PixelChannelLayout layout, string arrayname )
             : base( $"{arrayname} cannot be used as layout of {layout}" ) { }
 
     }
@@ -80,13 +74,12 @@ namespace StgSharp.Graphics.OpenGL
     public static partial class GlHelper
     {
 
-        public static bool CheckArrayFormat(
-            this Array array,
-            PixelChannelLayout layout )
+        public static bool CheckArrayFormat( this Array array, PixelChannelLayout layout )
         {
             return layout switch
             {
-                PixelChannelLayout.Byte or PixelChannelLayout.UByte332 or PixelChannelLayout.UByte233Rev => ( array is byte[] ) || ( array is sbyte[] ),
+                PixelChannelLayout.Byte or PixelChannelLayout.UByte332 or PixelChannelLayout.UByte233Rev => ( array is byte[] ) ||
+                                                                                                            ( array is sbyte[] ),
                 PixelChannelLayout.Short => array is short[],
                 PixelChannelLayout.UShort => array is ushort[],
                 PixelChannelLayout.Int => array is int[],

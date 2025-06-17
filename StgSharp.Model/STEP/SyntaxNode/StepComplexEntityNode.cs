@@ -43,7 +43,7 @@ namespace StgSharp.Model.Step
 
         private ExpSyntaxNode _begin;
 
-        public StepComplexEntityNode( ExpSyntaxNode node )
+        private StepComplexEntityNode( ExpSyntaxNode node )
             : base( node.Source )
         {
             _begin = node;
@@ -55,7 +55,7 @@ namespace StgSharp.Model.Step
 
         public override IExpElementSource EqualityTypeConvert => StepEntityType.Source;
 
-        public StepComplexEntityNode FromTuple( ExpSyntaxNode node )
+        public static StepComplexEntityNode FromTuple( ExpSyntaxNode node )
         {
             if( node is not ExpTupleNode tuple ) {
                 throw new ExpInvalidSyntaxException( "Node to convert is not a complex" );

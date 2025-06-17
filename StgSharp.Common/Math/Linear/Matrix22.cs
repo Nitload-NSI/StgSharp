@@ -96,7 +96,8 @@ namespace StgSharp.Math
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         internal void InternalTranspose()
         {
-            if( !isTransposed ) {
+            if( !isTransposed )
+            {
                 _transpose = _mat;
                 float cache = _transpose.m10;
                 _transpose.m10 = _transpose.m01;
@@ -106,21 +107,17 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix22 operator -(
-                                                       Matrix22 left,
-                                                       Matrix22 right )
+        public static unsafe Matrix22 operator -( Matrix22 left, Matrix22 right )
         {
             Matrix22 ret = new Matrix22();
-            InternalIO.Intrinsic.sub_mat_2( &left._mat, &right._mat,
-                                            &ret._mat );
+            InternalIO.Intrinsic.sub_mat_2( &left._mat, &right._mat, &ret._mat );
             return ret;
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static Matrix22 operator *( Matrix22 mat, float value )
         {
-            return new Matrix22(
-                mat._mat.colum0 * value, mat._mat.colum1 * value );
+            return new Matrix22( mat._mat.colum0 * value, mat._mat.colum1 * value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -168,18 +165,14 @@ namespace StgSharp.Math
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static Matrix22 operator /( Matrix22 mat, float value )
         {
-            return new Matrix22(
-                mat._mat.colum0 / value, mat._mat.colum1 / value );
+            return new Matrix22( mat._mat.colum0 / value, mat._mat.colum1 / value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix22 operator +(
-                                                       Matrix22 left,
-                                                       Matrix22 right )
+        public static unsafe Matrix22 operator +( Matrix22 left, Matrix22 right )
         {
             Matrix22 ret = new Matrix22();
-            InternalIO.Intrinsic.add_mat_2( &left._mat, &right._mat,
-                                            &ret._mat );
+            InternalIO.Intrinsic.add_mat_2( &left._mat, &right._mat, &ret._mat );
             return ret;
         }
 

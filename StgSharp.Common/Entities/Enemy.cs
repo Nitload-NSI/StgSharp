@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 namespace StgSharp.Entities
 {
     public class Enemy : IEntity
@@ -39,23 +38,11 @@ namespace StgSharp.Entities
         internal Launcher<EntityPartical> _dieBulletLauncher;
         public bool _selectalbe;
 
-        public Launcher<EntityPartical> AwardLauncher
-        {
-            get;
-            set;
-        }
+        public Launcher<EntityPartical> AwardLauncher { get; set; }
 
-        public Launcher<EntityPartical> CommonBulletLauncher
-        {
-            get;
-            set;
-        }
+        public Launcher<EntityPartical> CommonBulletLauncher { get; set; }
 
-        public Launcher<EntityPartical> DieBulletLauncher
-        {
-            get;
-            set;
-        }
+        public Launcher<EntityPartical> DieBulletLauncher { get; set; }
 
         public override void OnRenderFrame()
         {

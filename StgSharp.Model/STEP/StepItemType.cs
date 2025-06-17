@@ -38,13 +38,18 @@ namespace StgSharp.Model.Step
     public enum StepItemType
     {
 
+        BoundedSurface,
+        BSplineSurface,
         Unknown,
+        Face,
+        Conic,
         AdvancedFace,
         AxisPlacement2D,
         AxisPlacement3D,
         BSplineCurveWithKnots,
         CartesianPoint,
         Circle,
+        Curve,
         CylindricalSurface,
         Direction,
         EdgeCurve,
@@ -55,6 +60,8 @@ namespace StgSharp.Model.Step
         Line,
         OrientedEdge,
         Plane,
+        Point,
+        PresentationItem,
         Vector,
         VertexPoint
 

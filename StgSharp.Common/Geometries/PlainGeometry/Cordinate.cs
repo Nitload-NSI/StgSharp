@@ -47,14 +47,11 @@ namespace StgSharp.Geometries
         internal Matrix32 axis;
 
         /// <summary>
-        /// The _origin of this coordinate.
+        ///   The _origin of this coordinate.
         /// </summary>
         public Vec3 origin;
 
-        public PartialPlainCoordinate(
-                       Vec3 origin,
-                       Vec3 horiziontial,
-                       Vec3 vertical )
+        public PartialPlainCoordinate( Vec3 origin, Vec3 horiziontial, Vec3 vertical )
         {
             this.origin = origin;
             axis = new Matrix32();
@@ -66,12 +63,12 @@ namespace StgSharp.Geometries
         }
 
         /// <summary>
-        /// The horizontial axis of the coordinate. Point to the right direction.
+        ///   The horizontial axis of the coordinate. Point to the right direction.
         /// </summary>
         public Vec3 axis_H => axis.colum0;
 
         /// <summary>
-        /// The vertical axis of the coordinate. Point to the top direction.
+        ///   The vertical axis of the coordinate. Point to the top direction.
         /// </summary>
         public Vec3 axis_V => axis.colum1;
 

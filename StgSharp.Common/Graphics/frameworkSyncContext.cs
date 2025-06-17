@@ -42,8 +42,7 @@ namespace StgSharp.Threading
     public class FrameworkSyncContext : SynchronizationContext
     {
 
-        private static readonly FrameworkSyncContext _mainThreadContext = new FrameworkSyncContext(
-            );
+        private static readonly FrameworkSyncContext _mainThreadContext = new FrameworkSyncContext();
 
         private readonly BlockingCollection<SendOrPostCallback> _syncContexts = new BlockingCollection<SendOrPostCallback>(
             );
@@ -67,9 +66,11 @@ namespace StgSharp.Threading
 
         public override void Send( SendOrPostCallback d, object state )
         {
-            if( Thread.CurrentThread == _mainThread ) {
+            if( Thread.CurrentThread == _mainThread )
+            {
                 d( state );
-            } else {
+            } else
+            {
                 Post( d, state );
             }
         }

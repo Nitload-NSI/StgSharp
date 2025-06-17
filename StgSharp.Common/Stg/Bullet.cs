@@ -7,7 +7,7 @@
 //     
 //     Permission is hereby granted, free of charge, to any person 
 //     obtaining a copy of this software and associated documentation 
-//     files (the ��Software��), to deal in the Software without restriction, 
+//     files (the “Software”), to deal in the Software without restriction, 
 //     including without limitation the rights to use, copy, modify, merge,
 //     publish, distribute, sublicense, and/or sell copies of the Software, 
 //     and to permit persons to whom the Software is furnished to do so, 
@@ -17,7 +17,7 @@
 //     this permission notice shall be included in all copies 
 //     or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED ��AS IS��, 
+//     THE SOFTWARE IS PROVIDED “AS IS”, 
 //     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
 //     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 //     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Geometries;
 using StgSharp.Math;
 
@@ -40,13 +39,13 @@ namespace StgSharp.Gaming
     {
 
         protected Bullet(
-            PlainInstancingBuffer<Bullet> buffer,
-            GeometryMotion movement,
-            Vec2 beginPosition,
-            float angle,
-            float scale )
+                  PlainInstancingBuffer<Bullet> buffer,
+                  GeometryMotion movement,
+                  Vec2 beginPosition,
+                  float angle,
+                  float scale )
         {
-            ArgumentNullException.ThrowIfNull(buffer);
+            ArgumentNullException.ThrowIfNull( buffer );
             GlobalBuffer = buffer;
             BufferId = buffer.CreateInstanceID();
             ( ( IInstancing )this ).Scale = scale;
@@ -55,40 +54,20 @@ namespace StgSharp.Gaming
             Motion = movement;
         }
 
-        public GeometryMotion Motion
-        {
-            get;
-            set;
-        }
+        public GeometryMotion Motion { get; set; }
 
-        public IInstancingBuffer GlobalBuffer
-        {
-            get;
-            set;
-        }
+        public IInstancingBuffer GlobalBuffer { get; set; }
 
-        public int BufferId
-        {
-            get;
-            set;
-        }
+        public int BufferId { get; set; }
 
-        public Vec2 CenterPosition
-        {
-            get;
-            set;
-        }
+        public Vec2 CenterPosition { get; set; }
 
         public bool CollideWith( IPlainEntity entity )
         {
             throw new System.NotImplementedException();
         }
 
-        Vec3 IInstancing.CenterPositionGlobal
-        {
-            get;
-            set;
-        }
+        Vec3 IInstancing.CenterPositionGlobal { get; set; }
 
     }
 }

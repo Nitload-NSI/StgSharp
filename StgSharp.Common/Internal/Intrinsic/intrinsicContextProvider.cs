@@ -40,8 +40,7 @@ namespace StgSharp.Internal
     internal static unsafe partial class InternalIO
     {
 
-        private static readonly IntrinsicContext _intrinsicContext = new IntrinsicContext(
-            );
+        private static readonly IntrinsicContext _intrinsicContext = new IntrinsicContext();
 
         internal static IntrinsicContext Intrinsic
         {
@@ -56,7 +55,8 @@ namespace StgSharp.Internal
                 statCode = LoadIntrinsicFunction( cptr );
             }
 
-            switch( statCode ) {
+            switch( statCode )
+            {
                 case 0:
 
                     //Dialogue.PostError(new PlatformNotSupportedException("No SIMD instructions supported on current hardware platform"));
@@ -69,8 +69,7 @@ namespace StgSharp.Internal
 
         [LibraryImport( SSC_libName, EntryPoint = "load_intrinsic_function" )]
         [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
-        private static partial int LoadIntrinsicFunction(
-                                           IntrinsicContext* context );
+        private static partial int LoadIntrinsicFunction( IntrinsicContext* context );
 
     }
 }

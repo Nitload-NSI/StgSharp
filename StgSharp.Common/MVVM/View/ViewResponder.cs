@@ -37,7 +37,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.MVVM.View
+namespace StgSharp.MVVM
 {
     public partial class ViewBase
     {
@@ -45,14 +45,9 @@ namespace StgSharp.MVVM.View
         protected interface IViewResponder<out TVIew> where TVIew: ViewBase
         {
 
-            Action? this[ IClickTrigger trigger ]
-            {
-                get;
-                set;
-            }
+            Action? this[ IClickTrigger trigger ] { get; set; }
 
-            void CustomizedInitialize(
-                Func<IClickTrigger, string, Action> keyRegister );
+            void CustomizedInitialize( Func<IClickTrigger, string, Action> keyRegister );
 
             void Initialize( MethodLookUpDelegate methodGetter );
 
@@ -62,8 +57,7 @@ namespace StgSharp.MVVM.View
 
         }
 
-        protected abstract class ViewResponder<TView> : IViewResponder<TView>
-            where TView: ViewBase
+        protected abstract class ViewResponder<TView> : IViewResponder<TView> where TView: ViewBase
         {
 
             private bool _isInitialized;
@@ -82,20 +76,17 @@ namespace StgSharp.MVVM.View
             public Action? this[ IClickTrigger trigger ]
             #pragma warning restore CA1043
             {
-                get => keyCallbackIndex.TryGetValue(
-                    trigger, out Action callback ) ?
-                callback : null;
+                get => keyCallbackIndex.TryGetValue( trigger, out Action callback ) ?
+                        callback : null;
                 set
                 {
-                    if( keyCallbackIndex.TryGetValue(
-                        trigger, out Action callback ) ) {
+                    if( keyCallbackIndex.TryGetValue( trigger, out Action callback ) )
+                    {
                         callback += value;
-                    } else {
+                    } else
+                    {
                         keyCallbackIndex.Add(
-                            trigger,
-                            value ??
-                                throw new ArgumentNullException(
-                                    nameof( value ) ) );
+                            trigger, value ?? throw new ArgumentNullException( nameof( value ) ) );
                     }
                 }
             }
@@ -103,7 +94,7 @@ namespace StgSharp.MVVM.View
             protected TView Binding => _binding;
 
             public abstract void CustomizedInitialize(
-                Func<IClickTrigger, string, Action> keyRegister );
+                                 Func<IClickTrigger, string, Action> keyRegister );
 
             public void Initialize( MethodLookUpDelegate methodGetter )
             {
@@ -112,11 +103,13 @@ namespace StgSharp.MVVM.View
                 }
                 CustomizedInitialize(
                     ( trigger, name ) => {
-                        if( !nameToCallbackMap.TryGetValue(
-                            name, out Action ret ) ) {
-                            if( methodGetter( name, out Action lookup ) ) {
+                        if( !nameToCallbackMap.TryGetValue( name, out Action ret ) )
+                        {
+                            if( methodGetter( name, out Action lookup ) )
+                            {
                                 this[ trigger ] = lookup;
-                            } else {
+                            } else
+                            {
                                 throw new InvalidOperationException(
                                     $"Cannot find method named {name} in binded view model" );
                             }
@@ -127,10 +120,11 @@ namespace StgSharp.MVVM.View
 
             public void ProcessUserInput()
             {
-                foreach( KeyValuePair<IClickTrigger, Action> pair in keyCallbackIndex ) {
-                    if( InternalIO.glfwGetKey(
-                        _binding.ViewHandle,
-                        pair.Key.TargetKeyOrButtonID ) == pair.Key.TriggeredStatus ) {
+                foreach( KeyValuePair<IClickTrigger, Action> pair in keyCallbackIndex )
+                {
+                    if( InternalIO.glfwGetKey( _binding.ViewHandle,
+                                               pair.Key.TargetKeyOrButtonID ) ==
+                        pair.Key.TriggeredStatus ) {
                         pair.Value();
                     }
                 }

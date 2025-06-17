@@ -53,29 +53,13 @@ namespace StgSharp.Geometries
             ( ( IInstancingBuffer )buffer ).InstanceList.Add( this );
         }
 
-        public GeometryMotion Motion
-        {
-            get;
-            set;
-        }
+        public GeometryMotion Motion { get; set; }
 
-        public IInstancingBuffer GlobalBuffer
-        {
-            get;
-            set;
-        }
+        public IInstancingBuffer GlobalBuffer { get; set; }
 
-        public int BufferId
-        {
-            get;
-            set;
-        }
+        public int BufferId { get; set; }
 
-        Vec3 IInstancing.CenterPositionGlobal
-        {
-            get;
-            set;
-        }
+        Vec3 IInstancing.CenterPositionGlobal { get; set; }
 
         bool IPlainEntity.CollideWith( IPlainEntity entity )
         {

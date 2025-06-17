@@ -40,17 +40,17 @@ namespace StgSharp.Collections
 {
     public partial class PartialDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
+
         private readonly Dictionary<TKey, TValue> _source;
         private readonly HashSet<TKey> _keys;
         private readonly PartialDictionaryValues _values;
 
-        public PartialDictionary(
-                       Dictionary<TKey, TValue> source,
-                       TKey[] index )
+        public PartialDictionary( Dictionary<TKey, TValue> source, TKey[] index )
         {
             _source = source;
             _keys = new HashSet<TKey>( index );
-            foreach( TKey item in _keys ) {
+            foreach( TKey item in _keys )
+            {
                 if( !_source.ContainsKey( item ) ) {
                     _source.Add( item, default! );
                 }
@@ -58,13 +58,12 @@ namespace StgSharp.Collections
             _values = new PartialDictionaryValues( this );
         }
 
-        public PartialDictionary(
-                       Dictionary<TKey, TValue> source,
-                       HashSet<TKey> keys )
+        public PartialDictionary( Dictionary<TKey, TValue> source, HashSet<TKey> keys )
         {
             _source = source;
             _keys = keys;
-            foreach( TKey item in _keys ) {
+            foreach( TKey item in _keys )
+            {
                 if( !_source.ContainsKey( item ) ) {
                     _source.Add( item, default! );
                 }
@@ -73,20 +72,19 @@ namespace StgSharp.Collections
         }
 
         public PartialDictionary(
-                Dictionary<TKey, TValue> source,
-                TKey[] index, IHashMultiplexer<TKey> multiplexer
-            )
+               Dictionary<TKey, TValue> source,
+               TKey[] index,
+               IHashMultiplexer<TKey> multiplexer )
         {
             _source = source;
-            _keys = new HashSet<TKey>(index);
-            foreach (TKey item in _keys)
+            _keys = new HashSet<TKey>( index );
+            foreach( TKey item in _keys )
             {
-                if (!_source.ContainsKey(item))
-                {
-                    _source.Add(item, default!);
+                if( !_source.ContainsKey( item ) ) {
+                    _source.Add( item, default! );
                 }
             }
-            _values = new PartialDictionaryValues(this);
+            _values = new PartialDictionaryValues( this );
         }
 
         public TValue this[ TKey key ]
@@ -131,14 +129,14 @@ namespace StgSharp.Collections
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             foreach( TKey item in _keys ) {
-                yield return new KeyValuePair<TKey, TValue>(
-                    item, _source[ item ] );
+                yield return new KeyValuePair<TKey, TValue>( item, _source[ item ] );
             }
         }
 
         public bool TryGetValue( TKey key, out TValue value )
         {
-            if( _keys.Contains( key ) ) {
+            if( _keys.Contains( key ) )
+            {
                 value = _source[ key ];
                 return true;
             }
@@ -146,8 +144,7 @@ namespace StgSharp.Collections
             return false;
         }
 
-        void ICollection<KeyValuePair<TKey, TValue>>.Add(
-                                                             KeyValuePair<TKey, TValue> item )
+        void ICollection<KeyValuePair<TKey, TValue>>.Add( KeyValuePair<TKey, TValue> item )
         {
             return;
         }
@@ -157,8 +154,7 @@ namespace StgSharp.Collections
             throw new NotSupportedException();
         }
 
-        bool ICollection<KeyValuePair<TKey, TValue>>.Remove(
-                                                             KeyValuePair<TKey, TValue> item )
+        bool ICollection<KeyValuePair<TKey, TValue>>.Remove( KeyValuePair<TKey, TValue> item )
         {
             throw new NotSupportedException();
         }

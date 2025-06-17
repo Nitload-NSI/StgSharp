@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="VBO.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -131,7 +131,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        ///   Set _data to current vertex Buffer object
+        ///   Set data to current vertex Buffer object
         /// </summary>
         /// <typeparam _label="TItem">
         ///   Type of bufferData
@@ -140,10 +140,10 @@ namespace StgSharp.Graphics.OpenGL
         ///   Index to find certain VBO in this instance
         /// </param>
         /// <param _label="vectorSpan">
-        ///   A <see cref="Span{T}" /> of _data to write in
+        ///   A <see cref="Span{T}" /> of data to write in
         /// </param>
         /// <param _label="usage">
-        ///   How OpenGL use these _data, defined by <see cref="BufferUsage" />
+        ///   How OpenGL use these data, defined by <see cref="BufferUsage" />
         /// </param>
         public void WriteVectorData<T>( int index, ReadOnlySpan<T> vectorSpan, BufferUsage usage )
             where T: struct, IVector<T>

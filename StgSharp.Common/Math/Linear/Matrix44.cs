@@ -62,11 +62,7 @@ namespace StgSharp.Math
             this.mat = mat;
         }
 
-        internal Matrix44(
-                         Vector4 vec0,
-                         Vector4 vec1,
-                         Vector4 vec2,
-                         Vector4 vec3 )
+        internal Matrix44( Vector4 vec0, Vector4 vec1, Vector4 vec2, Vector4 vec3 )
         {
             Unsafe.SkipInit( out this );
             isTransposed = false;
@@ -83,22 +79,22 @@ namespace StgSharp.Math
         }
 
         public unsafe Matrix44(
-                              float a00,
-                              float a01,
-                              float a02,
-                              float a03,
-                              float a10,
-                              float a11,
-                              float a12,
-                              float a13,
-                              float a20,
-                              float a21,
-                              float a22,
-                              float a23,
-                              float a30,
-                              float a31,
-                              float a32,
-                              float a33 )
+                      float a00,
+                      float a01,
+                      float a02,
+                      float a03,
+                      float a10,
+                      float a11,
+                      float a12,
+                      float a13,
+                      float a20,
+                      float a21,
+                      float a22,
+                      float a23,
+                      float a30,
+                      float a31,
+                      float a32,
+                      float a33 )
         {
             Unsafe.SkipInit( out this );
             isTransposed = false;
@@ -113,7 +109,8 @@ namespace StgSharp.Math
             get
             {
                 #if DEBUG
-                if( ( rowNum > 3 ) || ( rowNum < 0 ) ) {
+                if( ( rowNum > 3 ) || ( rowNum < 0 ) )
+                {
                     throw new ArgumentOutOfRangeException( nameof( columNum ) );
                 }
                 if( ( columNum > 3 ) || ( columNum < 0 ) ) {
@@ -121,7 +118,8 @@ namespace StgSharp.Math
                 }
                 #endif
                 InternalTranspose();
-                fixed( float* p = &this.transpose.m00 ) {
+                fixed( float* p = &this.transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     return *( float* )pbit;
                 }
@@ -129,7 +127,8 @@ namespace StgSharp.Math
             set
             {
                 #if DEBUG
-                if( ( rowNum > 3 ) || ( rowNum < 0 ) ) {
+                if( ( rowNum > 3 ) || ( rowNum < 0 ) )
+                {
                     throw new ArgumentOutOfRangeException( nameof( columNum ) );
                 }
                 if( ( columNum > 3 ) || ( columNum < 0 ) ) {
@@ -137,7 +136,8 @@ namespace StgSharp.Math
                 }
                 #endif
                 InternalTranspose();
-                fixed( float* p = &this.transpose.m00 ) {
+                fixed( float* p = &this.transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     *( float* )pbit = value;
                 }
@@ -191,8 +191,8 @@ namespace StgSharp.Math
         public override int GetHashCode()
         {
             return HashCode.Combine(
-                mat.colum0.GetHashCode(), mat.colum1.GetHashCode(),
-                mat.colum2.GetHashCode(), mat.colum3.GetHashCode() );
+                mat.colum0.GetHashCode(), mat.colum1.GetHashCode(), mat.colum2.GetHashCode(),
+                mat.colum3.GetHashCode() );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -200,7 +200,8 @@ namespace StgSharp.Math
         {
             InternalTranspose();
             Matrix42 ans = new Matrix42();
-            fixed( ColumnSet4* lptr = &transpose ) {
+            fixed( ColumnSet4* lptr = &transpose )
+            {
                 fixed( Vector4* rptr = &right.mat.colum0 ) {
                     InternalIO.Intrinsic.dot_42( lptr, rptr, &ans.mat.colum0 );
                 }
@@ -215,7 +216,8 @@ namespace StgSharp.Math
 
             Matrix43 ans = new Matrix43();
 
-            fixed( Vector4* rptr = &right.mat.colum0 ) {
+            fixed( Vector4* rptr = &right.mat.colum0 )
+            {
                 fixed( ColumnSet4* lptr = &transpose ) {
                     InternalIO.Intrinsic.dot_43( lptr, rptr, &ans.mat.colum0 );
                 }
@@ -233,7 +235,8 @@ namespace StgSharp.Math
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         internal unsafe void InternalTranspose()
         {
-            if( !isTransposed ) {
+            if( !isTransposed )
+            {
                 fixed( ColumnSet4* source = &mat, target = &transpose ) {
                     InternalIO.Intrinsic.transpose44( source, target );
                 }
@@ -242,15 +245,11 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix44 operator -(
-                                                       Matrix44 left,
-                                                       Matrix44 right )
+        public static unsafe Matrix44 operator -( Matrix44 left, Matrix44 right )
         {
             return new Matrix44(
-                right.mat.colum0 - left.mat.colum0,
-                right.mat.colum1 - left.mat.colum1,
-                right.mat.colum2 - left.mat.colum2,
-                right.mat.colum3 - left.mat.colum3 );
+                right.mat.colum0 - left.mat.colum0, right.mat.colum1 - left.mat.colum1,
+                right.mat.colum2 - left.mat.colum2, right.mat.colum3 - left.mat.colum3 );
         }
 
         public static bool operator !=( Matrix44 left, Matrix44 right )
@@ -262,17 +261,15 @@ namespace StgSharp.Math
         public static unsafe Matrix44 operator *( Matrix44 mat, float value )
         {
             return new Matrix44(
-                mat.mat.colum0 * value, mat.mat.colum1 * value,
-                mat.mat.colum2 * value, mat.mat.colum3 * value );
+                mat.mat.colum0 * value, mat.mat.colum1 * value, mat.mat.colum2 * value,
+                mat.mat.colum3 * value );
         }
 
         [Obsolete(
                 "The operand may cause performance loss, use Matrix.Multiple() method instead.",
                 false )]
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix42 operator *(
-                                                       Matrix44 left,
-                                                       Matrix42 right )
+        public static unsafe Matrix42 operator *( Matrix44 left, Matrix42 right )
         {
             return left.Multiple( right );
         }
@@ -313,9 +310,7 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix44 operator +(
-                                                       Matrix44 left,
-                                                       Matrix44 right )
+        public static unsafe Matrix44 operator +( Matrix44 left, Matrix44 right )
         {
             Matrix44 ret = new Matrix44();
             InternalIO.Intrinsic.add_mat_4( &left.mat, &right.mat, &ret.mat );

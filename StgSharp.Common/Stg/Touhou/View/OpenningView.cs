@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.MVVM.View;
+using StgSharp.MVVM;
 using StgSharp.MVVM.ViewModel;
 
 using System;
@@ -42,8 +42,7 @@ namespace StgSharp.Stg.Touhou
     public abstract class OpenningView : ViewBase
     {
 
-        public override void CustomizedInitialize(
-            ViewModelBase viewModelBinding )
+        public override void CustomizedInitialize( ViewModelBase viewModelBinding )
         {
             throw new NotImplementedException();
         }

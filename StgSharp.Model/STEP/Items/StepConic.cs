@@ -30,9 +30,27 @@
 //-----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepConic : StepCurve { }
+    public class StepConic : StepCurve, IExpConvertableFrom<StepConic>
+    {
+
+        public StepConic( StepModel model ) : base( model ) { }
+
+        public override StepItemType ItemType => StepItemType.Conic;
+
+        public override bool IsConvertableTo( string entityTypeName )
+        {
+            return base.IsConvertableTo( entityTypeName ) || entityTypeName == "StepConic";
+        }
+
+        void IExpConvertableFrom<StepConic>.FromInstance( StepConic entity )
+        {
+            base.FromInstance( entity );
+        }
+
+    }
 }
 

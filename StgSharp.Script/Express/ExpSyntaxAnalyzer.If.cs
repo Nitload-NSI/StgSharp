@@ -107,7 +107,7 @@ namespace StgSharp.Script.Express
                     _cache.StatementsInDepth.Push( ifNode );
                     return true;
                 default:
-                    AppendToken_common( t );
+                    AppendToken_Common( t );
                     return true;
             }
         }

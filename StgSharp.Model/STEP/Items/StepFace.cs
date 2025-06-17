@@ -30,16 +30,32 @@
 //-----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 using System.Collections.Generic;
 using System.Linq;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepFace : StepTopologicalRepresentationItem
+    public class StepFace : StepTopologicalRepresentationItem, IExpConvertableFrom<StepFace>
     {
 
-        public List<StepFaceBound> Bounds { get; } = new List<StepFaceBound>();
+        public StepFace( StepModel model ) : base( model ) { }
+
+        public List<StepFaceBound> Bounds { get; private set; } = new List<StepFaceBound>();
+
+        public override StepItemType ItemType => StepItemType.Face;
+
+        public void FromInstance( StepFace entity )
+        {
+            base.FromInstance( entity );
+            Bounds = entity.Bounds;
+        }
+
+        public override bool IsConvertableTo( string entityName )
+        {
+            return base.IsConvertableTo( entityName ) || entityName == "StepFace";
+        }
 
     }
 }

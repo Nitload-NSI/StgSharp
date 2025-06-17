@@ -41,9 +41,9 @@ using System.Text;
 namespace StgSharp.Controls
 {
     public delegate void RenderButtonTextureCallback(
-        ButtonStatus status,
-        float beginTime,
-        in TextureProvider texture );
+                         ButtonStatus status,
+                         float beginTime,
+                         in TextureProvider texture );
 
     public enum ButtonStatus
     {
@@ -106,9 +106,11 @@ namespace StgSharp.Controls
         {
             add
             {
-                if( _renderButton == null ) {
+                if( _renderButton == null )
+                {
                     _renderButton = value;
-                } else {
+                } else
+                {
                     _renderButton += value;
                 }
             }
@@ -120,17 +122,9 @@ namespace StgSharp.Controls
             }
         }
 
-        public bool IsHighLighted
-        {
-            get;
-            internal set;
-        }
+        public bool IsHighLighted { get; internal set; }
 
-        public bool IsDisabled
-        {
-            get;
-            internal set;
-        }
+        public bool IsDisabled { get; internal set; }
 
         public bool IsEntity => true;
 
@@ -139,41 +133,17 @@ namespace StgSharp.Controls
             get => MemoryMarshal.Cast<Vec2, Vec4>( _texture.TextureCoordinate );
         }
 
-        public Rectangle BoundingBox
-        {
-            get;
-            set;
-        }
+        public Rectangle BoundingBox { get; set; }
 
-        public TriggerButton Left
-        {
-            get;
-            internal set;
-        }
+        public TriggerButton Left { get; internal set; }
 
-        public TriggerButton Right
-        {
-            get;
-            internal set;
-        }
+        public TriggerButton Right { get; internal set; }
 
-        public TriggerButton Up
-        {
-            get;
-            internal set;
-        }
+        public TriggerButton Up { get; internal set; }
 
-        public TriggerButton Down
-        {
-            get;
-            internal set;
-        }
+        public TriggerButton Down { get; internal set; }
 
-        public Vec2 Position
-        {
-            get;
-            set;
-        }
+        public Vec2 Position { get; set; }
 
         internal TextureProvider Texture
         {
@@ -181,11 +151,7 @@ namespace StgSharp.Controls
             set => _texture = value;
         }
 
-        protected ButtonStatus CurrentStatus
-        {
-            get;
-            set;
-        }
+        protected ButtonStatus CurrentStatus { get; set; }
 
         public void DeHighlight()
         {
@@ -209,9 +175,11 @@ namespace StgSharp.Controls
 
         public void Enable()
         {
-            if( CurrentStatus == ButtonStatus.Disable ) {
+            if( CurrentStatus == ButtonStatus.Disable )
+            {
                 CurrentStatus = ButtonStatus.DisableToEnable;
-            } else {
+            } else
+            {
                 return;
             }
             if( enableCallback != null ) {
@@ -227,9 +195,11 @@ namespace StgSharp.Controls
 
         public void Highlight()
         {
-            if( CurrentStatus == ButtonStatus.Enable ) {
+            if( CurrentStatus == ButtonStatus.Enable )
+            {
                 CurrentStatus |= ButtonStatus.EnableToHighlight;
-            } else {
+            } else
+            {
                 return;
             }
             if( confirmCallback != null ) {

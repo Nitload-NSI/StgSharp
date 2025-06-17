@@ -36,6 +36,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,9 +45,11 @@ namespace StgSharp.Script.Express
     public static class ExpNodeNextEnumeratorExtensions
     {
 
-        public static ExpNodeTempEnumerator AsCollectionEnumerator( this ExpSyntaxNode token )
+        public static ExpNodeTempEnumerator AsCollectionEnumerator(
+                                            this ExpSyntaxNode token,
+                                            bool unpack )
         {
-            ExpNodeTempEnumerator enumerator = new ExpNodeTempEnumerator( token );
+            ExpNodeTempEnumerator enumerator = new ExpNodeTempEnumerator( token, unpack );
             IExpElementSource type = token.EqualityTypeConvert;
             while( enumerator.MoveNext() )
             {
@@ -58,9 +61,15 @@ namespace StgSharp.Script.Express
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static ExpNodePresidentEnumerator ToPresidentEnumerator( this ExpSyntaxNode token )
+        public static ExpNodePresidentEnumerator ToPresidentEnumerator( this ExpSyntaxNode node )
         {
-            return new ExpNodePresidentEnumerator( token );
+            return new ExpNodePresidentEnumerator( node );
+        }
+
+        public static ExpNodePresidentEnumerator TupleToPresidentEnumerator(
+                                                 this ExpSyntaxNode tuple )
+        {
+            return new ExpNodePresidentEnumerator( tuple.Right );
         }
 
     }
@@ -73,7 +82,7 @@ namespace StgSharp.Script.Express
 
         public ExpNodePresidentEnumerator( ExpSyntaxNode token )
         {
-            _begin[ 0 ] = token;
+            _begin.Add( token );
             ExpSyntaxNode t = token;
             while( !ReferenceEquals( t.Next, token ) && t.Next != null )
             {
@@ -112,6 +121,11 @@ namespace StgSharp.Script.Express
             }
         }
 
+        public Span<ExpSyntaxNode> AsSpan()
+        {
+            return CollectionsMarshal.AsSpan( _begin );
+        }
+
         public void Dispose()
         {
             return;
@@ -145,6 +159,12 @@ namespace StgSharp.Script.Express
         {
             _current = null;
             _begin = node;
+        }
+
+        public ExpNodeTempEnumerator( ExpSyntaxNode node, bool unpack )
+        {
+            _current = null;
+            _begin = unpack ? node.Right : node;
         }
 
         public ExpSyntaxNode Current => _current!;

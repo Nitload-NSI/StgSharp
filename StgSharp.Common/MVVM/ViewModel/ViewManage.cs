@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
-using StgSharp.MVVM.View;
+using StgSharp.MVVM;
 
 using System;
 using System.Collections.Generic;
@@ -44,9 +44,7 @@ namespace StgSharp.MVVM.ViewModel
 
         private Dictionary<string, ViewBase> allView;
 
-        public T CreateAndBindView<T>(
-            string name,
-            (int x, int y, int z) unitCubeSize )
+        public T CreateAndBindView<T>( string name, (int x, int y, int z) unitCubeSize )
             where T: ViewBase, new()
         {
             T ret = new T();

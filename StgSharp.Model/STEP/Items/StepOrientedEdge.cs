@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.Win32.SafeHandles;
+
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
@@ -37,19 +39,20 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepOrientedEdge : StepEdge
+    public class StepOrientedEdge : StepEdge, IExpConvertableFrom<StepOrientedEdge>
     {
 
         private StepEdge _edgeElement;
 
-        private StepOrientedEdge() { }
+        private StepOrientedEdge( StepModel model ) : base( model ) { }
 
         public StepOrientedEdge(
+               StepModel model,
                StepVertex edgeStart,
                StepVertex edgeEnd,
                StepEdge edgeElement,
                bool orientation )
-            : base( edgeStart, edgeEnd )
+            : base( model, edgeStart, edgeEnd )
         {
             EdgeElement = edgeElement;
             Orientation = orientation;
@@ -72,17 +75,22 @@ namespace StgSharp.Model.Step
 
         public override StepItemType ItemType => StepItemType.OrientedEdge;
 
+        public void FromInstance( StepOrientedEdge entity )
+        {
+            base.FromInstance( entity );
+            EdgeElement = entity.EdgeElement;
+            Orientation = entity.Orientation;
+        }
+
         internal static StepOrientedEdge FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepOrientedEdge orientedEdge = new StepOrientedEdge();
+            StepOrientedEdge orientedEdge = new StepOrientedEdge( binder );
             enumerator.AssertEnumeratorCount( 5 );
             orientedEdge.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator[ 1 ], v => orientedEdge.EdgeStart = v.AsType<StepVertex>() );
-            binder.BindValue( enumerator[ 2 ], v => orientedEdge.EdgeEnd = v.AsType<StepVertex>() );
-            binder.BindValue(
-                enumerator[ 3 ], v => orientedEdge.EdgeElement = v.AsType<StepEdge>() );
+            orientedEdge.EdgeStart = binder[ enumerator[ 1 ] ]as StepVertex;
+            orientedEdge.EdgeEnd = binder[ enumerator[ 2 ] ] as StepVertex;
+            orientedEdge.EdgeElement = binder[ enumerator[ 3 ] ] as StepEdge;
             orientedEdge.Orientation = ( enumerator[ 4 ]as ExpBoolNode )!.Value;
             return orientedEdge;
         }

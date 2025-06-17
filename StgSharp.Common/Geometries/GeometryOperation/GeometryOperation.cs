@@ -40,9 +40,7 @@ using System.Text;
 namespace StgSharp.Geometries
 {
 [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-    public delegate Vec3 GeometryMotionDelegate(
-        TimeSpanProvider timeSource,
-        out float rotation );
+    public delegate Vec3 GeometryMotionDelegate( TimeSpanProvider timeSource, out float rotation );
 
     public class GeometryMotion
     {
@@ -54,20 +52,23 @@ namespace StgSharp.Geometries
         private TimeSpanProvider time;
 
         public unsafe GeometryMotion(
-            bool isIncreament,
-            TimeSpanProvider timeSource,
-            GeometryMotionDelegate motionDelegate )
+                      bool isIncreament,
+                      TimeSpanProvider timeSource,
+                      GeometryMotionDelegate motionDelegate )
         {
             isIncrementMode = isIncreament;
             time = timeSource;
-            if( motionDelegate == null ) {
+            if( motionDelegate == null )
+            {
                 handle = ( IntPtr )( delegate*<TimeSpanProvider, out float, Vec3> )&defaultMotion;
                 movement = defaultMotion;
-            } else if( motionDelegate.Method.IsStatic ) {
+            } else if( motionDelegate.Method.IsStatic )
+            {
                 sourceIsStatic = true;
                 handle = Marshal.GetFunctionPointerForDelegate( motionDelegate );
                 movement = motionDelegate;
-            } else {
+            } else
+            {
                 movement = motionDelegate;
             }
 
@@ -88,25 +89,27 @@ namespace StgSharp.Geometries
         {
             float rot;
             Vec3 vec;
-            if( sourceIsStatic ) {
+            if( sourceIsStatic )
+            {
                 vec = ( ( delegate* unmanaged[Cdecl]<TimeSpanProvider, out float, Vec3> )handle )(
                     time, out rot );
-            } else {
+            } else
+            {
                 vec = movement( time, out rot );
             }
 
-            if( isIncrementMode ) {
+            if( isIncrementMode )
+            {
                 coord += vec;
                 rotation += rot;
-            } else {
+            } else
+            {
                 coord = vec;
                 rotation = rot;
             }
         }
 
-        private static Vec3 defaultMotion(
-            TimeSpanProvider provider,
-            out float rotation )
+        private static Vec3 defaultMotion( TimeSpanProvider provider, out float rotation )
         {
             rotation = 0;
             return Vec3.Zero;

@@ -52,16 +52,15 @@ namespace StgSharp.Controls
         private PlainGeometryMesh _tittleMesh;
 
         public CharacterLineIndexImage(
-            int length,
-            char defaultChar,
-            PlainGeometryMesh tittleMesh,
-            IEnumerable<(char, PlainGeometryMesh)> indexEnumeration )
+               int length,
+               char defaultChar,
+               PlainGeometryMesh tittleMesh,
+               IEnumerable<(char, PlainGeometryMesh)> indexEnumeration )
         {
             this.length = length;
             displayIndex = new char[length];
             _tittleMesh = tittleMesh;
-            texIndex = indexEnumeration.ToDictionary(
-                item => item.Item1, item => item.Item2 );
+            texIndex = indexEnumeration.ToDictionary( item => item.Item1, item => item.Item2 );
         }
 
         public bool IsEntity
@@ -93,8 +92,8 @@ namespace StgSharp.Controls
             }
 
             string result = ( message.Length >= length ) ?
-            message.Substring( message.Length - displayIndex.Length ) : message.PadLeft(
-                length, defaultChar );
+                    message.Substring( message.Length - displayIndex.Length ) : message.PadLeft(
+                        length, defaultChar );
 
             displayIndex = result.ToCharArray();
         }

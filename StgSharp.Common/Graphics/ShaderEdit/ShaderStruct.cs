@@ -53,8 +53,7 @@ namespace StgSharp.Graphics.ShaderEdit
 
         internal ShaderStruct() { }
 
-        public ShaderStruct(
-            params (GlHandle, ShaderStructMember)[] uniformPairs )
+        public ShaderStruct( params (GlHandle, ShaderStructMember)[] uniformPairs )
         {
             uniformPair = new Dictionary<GlHandle, ShaderStructMember>();
             if( uniformPairs.Length == 0 ) {
@@ -69,10 +68,12 @@ namespace StgSharp.Graphics.ShaderEdit
         public unsafe void SetAllUniforms()
         {
             OpenglContext* gl = ( OpenglContext* )OpenGL.OpenGLFunction.CurrentGL.ContextHandle;
-            foreach( KeyValuePair<GlHandle, ShaderStructMember> uniform in uniformPair ) {
+            foreach( KeyValuePair<GlHandle, ShaderStructMember> uniform in uniformPair )
+            {
                 int id = uniform.Key.SignedValue;
                 ShaderStructMember s = uniform.Value;
-                switch( s.type ) {
+                switch( s.type )
+                {
                     case InternalShaderType.Struct:
                         throw new ArgumentException(
                             "Incorrect type \"Struct\" defined in this self define type" );

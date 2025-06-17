@@ -38,34 +38,15 @@ namespace StgSharp.Graphics
     public interface IPixel
     {
 
-        public float Red
-        {
-            get;
-            set;
-        }
+        public float Red { get; set; }
 
-        public float Green
-        {
-            get;
-            set;
-        }
+        public float Green { get; set; }
 
-        public float Blue
-        {
-            get;
-            set;
-        }
+        public float Blue { get; set; }
 
-        public float Alpha
-        {
-            get;
-            set;
-        }
+        public float Alpha { get; set; }
 
-        internal int Size
-        {
-            get;
-        }
+        internal int Size { get; }
 
     }
 

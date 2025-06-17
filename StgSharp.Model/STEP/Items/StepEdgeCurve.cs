@@ -37,19 +37,20 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepEdgeCurve : StepEdge
+    public class StepEdgeCurve : StepEdge, IExpConvertableFrom<StepEdgeCurve>
     {
 
         private StepCurve _edgeGeometry;
 
-        private StepEdgeCurve() : base() { }
+        private StepEdgeCurve( StepModel model ) : base( model ) { }
 
         public StepEdgeCurve(
+               StepModel model,
                StepVertex edgeStart,
                StepVertex edgeEnd,
                StepCurve edgeGeometry,
                bool isSameSense )
-            : base( edgeStart, edgeEnd )
+            : base( model, edgeStart, edgeEnd )
         {
             EdgeGeometry = edgeGeometry;
             IsSameSense = isSameSense;
@@ -62,26 +63,28 @@ namespace StgSharp.Model.Step
             get { return _edgeGeometry; }
             set
             {
-                if( value == null ) {
-                    throw new ArgumentNullException();
-                }
-
+                ArgumentNullException.ThrowIfNull( value );
                 _edgeGeometry = value;
             }
         }
 
         public override StepItemType ItemType => StepItemType.EdgeCurve;
 
+        public void FromInstance( StepEdgeCurve entity )
+        {
+            base.FromInstance( entity );
+            EdgeGeometry = entity.EdgeGeometry;
+        }
+
         internal static StepEdgeCurve FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepEdgeCurve edgeCurve = new StepEdgeCurve();
+            StepEdgeCurve edgeCurve = new StepEdgeCurve( binder );
             enumerator.AssertEnumeratorCount( 5 );
             edgeCurve.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue( enumerator[ 1 ], v => edgeCurve.EdgeStart = v.AsType<StepVertex>() );
-            binder.BindValue( enumerator[ 2 ], v => edgeCurve.EdgeEnd = v.AsType<StepVertex>() );
-            binder.BindValue( enumerator[ 3 ],
-                              v => edgeCurve.EdgeGeometry = v.AsType<StepCurve>() );
+            edgeCurve.EdgeStart = binder[ enumerator[ 1 ] ] as StepVertex;
+            edgeCurve.EdgeEnd = binder[ enumerator[ 2 ] ] as StepVertex;
+            edgeCurve.EdgeGeometry = binder[ enumerator[ 3 ] ] as StepCurve;
             edgeCurve.IsSameSense = ( enumerator[ 4 ]as ExpBoolNode )!.Value;
             return edgeCurve;
         }

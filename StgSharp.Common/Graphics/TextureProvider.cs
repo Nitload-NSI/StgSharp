@@ -75,9 +75,11 @@ namespace StgSharp.Graphics
             if( i == _tex ) {
                 return;
             }
-            if( i.Size == _tex.Size ) {
+            if( i.Size == _tex.Size )
+            {
                 _tex = i;
-            } else {
+            } else
+            {
                 throw new ArgumentException(
                     $"Size of {nameof(i)} does not equals to current image." );
             }

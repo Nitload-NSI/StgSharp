@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="TimeSpanProvider.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -69,9 +68,7 @@ namespace StgSharp.Timing
         /// </param>
         public TimeSpanProvider( long spanMicroSeconds, TimeSourceProviderBase provider )
         {
-            if( provider == null ) {
-                throw new ArgumentNullException( nameof( provider ) );
-            }
+            ArgumentNullException.ThrowIfNull( provider );
             _timeSource = provider;
             _spanLength = spanMicroSeconds;
             _maxSpanCount = int.MaxValue;
@@ -93,9 +90,7 @@ namespace StgSharp.Timing
         /// </param>
         public TimeSpanProvider( double spanSeconds, TimeSourceProviderBase provider )
         {
-            if( provider == null ) {
-                throw new ArgumentNullException( nameof( provider ) );
-            }
+            ArgumentNullException.ThrowIfNull( provider );
             _timeSource = provider;
             _spanLength = ( long )( spanSeconds * 1000L * 1000L );
             _spanBegin = -_spanLength;
@@ -121,9 +116,7 @@ namespace StgSharp.Timing
         /// </param>
         public TimeSpanProvider( long spanLength, long maxSpan, TimeSourceProviderBase provider )
         {
-            if( provider == null ) {
-                throw new ArgumentNullException( nameof( provider ) );
-            }
+            ArgumentNullException.ThrowIfNull( provider );
             if( maxSpan <= 0 ) {
                 throw new ArgumentException( "Sapn count cannot be smaller than zero" );
             }
@@ -157,7 +150,7 @@ namespace StgSharp.Timing
         }
 
         /// <summary>
-        ///   Time source provider provided in <see cref="StgSharp" /> internal framework.
+        ///   Time source provider provided in <see cref="World" /> internal framework.
         /// </summary>
         public static TimeSourceProviderBase DefaultProvider => StgSharpTime.OnlyInstance;
 
@@ -180,9 +173,7 @@ namespace StgSharp.Timing
 
         public void SubscribeToTimeSource( TimeSourceProviderBase serviceHandler )
         {
-            if( serviceHandler == null ) {
-                throw new ArgumentNullException( nameof( serviceHandler ) );
-            }
+            ArgumentNullException.ThrowIfNull( serviceHandler );
             if( _subscribed ) {
                 return;
             }
@@ -200,18 +191,17 @@ namespace StgSharp.Timing
             if( microseconds - _spanBegin < _spanLength ) {
                 return true;
             }
-            while( !_tokenToAdd.IsEmpty )
-            {
-                _tokenToAdd.TryDequeue( out TimeSpanAwaitingToken tokenAdd );
+            foreach( TimeSpanAwaitingToken tokenAdd in _tokenToAdd ) {
                 _awaitingTokens.Add( tokenAdd );
             }
-            while( !_tokenToQuit.IsEmpty )
+            _tokenToAdd.Clear();
+            foreach( TimeSpanAwaitingToken tokenQuit in _tokenToQuit )
             {
-                _tokenToQuit.TryDequeue( out TimeSpanAwaitingToken tokenQuit );
                 _awaitingTokens.Remove( tokenQuit );
                 InternalIO.InternalWriteLog(
                     $"Awaiting token {tokenQuit!.TokenID} has been removed.", LogType.Info );
             }
+            _tokenToQuit.Clear();
 
             _spanBegin = microseconds;
             timeSpanCount++;

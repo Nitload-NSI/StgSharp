@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="ExpSyntaxAnalyzer.PrefixReverseAnalysing.cs"
+//     file="StepSurfaceCurve.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,57 +28,26 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Script.Express;
+
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ExpKeyword = StgSharp.Script.Express.ExpressCompile.Keyword;
-
-namespace StgSharp.Script.Express
+namespace StgSharp.Model.Step
 {
-    public partial class ExpSyntaxAnalyzer
+    public class StepSurfaceCurve : StepCurve, IExpConvertableFrom<StepSurfaceCurve>
     {
 
-        private void ClosePrefixReverse( Token rightSeparator )
-        {
-            Token op;
-            ExpSyntaxNode root;
-            if( _cache.OperatorAheadOfDepth == 0 )
-            {
-                if( _cache.OperandAheadOfDepth == 1 )
-                {
-                    _cache.PopOperand( out _, out ExpSyntaxNode? statement );
-                    _cache.StatementsInDepth.Push( statement );
-                } else
-                {
-                    _cache.StatementsInDepth.Push( ExpSyntaxNode.Empty );
-                }
-            } else
-            {
-                while( _cache.TryPopOperator( out op ) ) {
-                    ConvertAndPushOneOperator( op );
-                }
-                _cache.PopOperand( out _, out root );
-                _cache.StatementsInDepth.Push( root );
-            }
+        public StepSurfaceCurve( StepModel model ) : base( model ) { }
 
-            root = _cache.PackAllStatements();
-            if( rightSeparator.Value == ")" ) {
-                root = ExpTupleNode.Pack( root );
-            }
-            _cache.DecreaseDepth();
-            if( IsSeparatorMatch( _cache.PeekOperator(), rightSeparator ) )
-            {
-                _cache.PopOperator();
-                _cache.PushOperand( root );
-            } else
-            {
-                throw new ExpCompileException(
-                    rightSeparator, "Ending of block does not match its begging" );
-            }
+        public StepCurve Curve3D { get; set; }
+
+        public void FromInstance( StepSurfaceCurve entity )
+        {
+            throw new NotImplementedException();
         }
 
     }

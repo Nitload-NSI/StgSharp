@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Model.Step;
 
 using StgSharp.Script;
@@ -38,12 +37,16 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepAxis2Placement2D : StepAxis2Placement
+    public class StepAxis2Placement2D : StepAxis2Placement, IExpConvertableFrom<StepAxis2Placement2D>
     {
 
-        private StepAxis2Placement2D() { }
+        private StepAxis2Placement2D( StepModel model ) : base( model ) { }
 
-        public StepAxis2Placement2D( StepCartesianPoint location, StepDirection direction )
+        public StepAxis2Placement2D(
+               StepModel model,
+               StepCartesianPoint location,
+               StepDirection direction )
+            : base( model )
         {
             Location = location;
             RefDirection = direction;
@@ -51,17 +54,23 @@ namespace StgSharp.Model.Step
 
         public override StepItemType ItemType => StepItemType.AxisPlacement2D;
 
+        public void FromInstance( StepAxis2Placement2D entity )
+        {
+            base.FromInstance( entity );
+            Location = entity.Location;
+            RefDirection = entity.RefDirection;
+        }
+
         internal static StepAxis2Placement2D FromSyntax(
                                              StepModel binder,
                                              ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepAxis2Placement2D axis = new StepAxis2Placement2D();
+            StepAxis2Placement2D axis = new StepAxis2Placement2D( binder );
             enumerator.AssertEnumeratorCount( 3 );
             axis.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue( enumerator[ 1 ],
-                              v => axis.Location = v.AsType<StepCartesianPoint>() );
-            binder.BindValue( enumerator[ 2 ], v => axis.RefDirection = v.AsType<StepDirection>() );
+            axis.Location = binder[ enumerator[ 1 ] ] as StepCartesianPoint;
+            axis.RefDirection = binder[ enumerator[ 2 ] ] as StepDirection;
             return axis;
         }
 

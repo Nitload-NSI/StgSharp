@@ -215,9 +215,9 @@ namespace StgSharp
 
     }
 
-    #pragma warning restore CA1707
-    #pragma warning restore CA1712
-    #pragma warning restore CA7008
+        #pragma warning restore CA1707
+        #pragma warning restore CA1712
+        #pragma warning restore CA7008
 
     internal enum InputEquipment
     {

@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Model.Step;
 
 using StgSharp.Script;
@@ -38,13 +37,16 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepCylindricalSurface : StepElementarySurface
+    public class StepCylindricalSurface : StepElementarySurface, IExpConvertableFrom<StepCylindricalSurface>
     {
 
-        public StepCylindricalSurface() : base( null ) { }
+        public StepCylindricalSurface( StepModel model ) : base( model ) { }
 
-        public StepCylindricalSurface( StepAxis2Placement3D position, float radius )
-            : base( position )
+        public StepCylindricalSurface(
+               StepModel model,
+               StepAxis2Placement3D position,
+               float radius )
+            : base( model, position )
         {
             Radius = radius;
         }
@@ -53,14 +55,21 @@ namespace StgSharp.Model.Step
 
         public override StepItemType ItemType => StepItemType.CylindricalSurface;
 
-        internal static StepEntityBase FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
+        public void FromInstance( StepCylindricalSurface entity )
+        {
+            base.FromInstance( entity );
+            Radius = entity.Radius;
+        }
+
+        internal static StepRepresentationItem FromSyntax(
+                                               StepModel binder,
+                                               ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );
-            StepCylindricalSurface surface = new StepCylindricalSurface();
+            StepCylindricalSurface surface = new StepCylindricalSurface( binder );
             surface.Name = ( enumerator[ 0 ] as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator[ 1 ], v => surface.Position = v.AsType<StepAxis2Placement3D>() );
+            surface.Position = binder[ enumerator[ 1 ] ]as StepAxis2Placement3D;
             surface.Radius = ( enumerator[ 2 ]as ExpRealNumberNode )!.Value;
             return surface;
         }

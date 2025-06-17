@@ -30,6 +30,7 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace StgSharp.Script.Express
@@ -46,13 +47,10 @@ namespace StgSharp.Script.Express
     public struct ExpLogic
     {
 
-        public static readonly ExpLogic False = new ExpLogic(
-            ExpLogicValue.False );
+        public static readonly ExpLogic False = new ExpLogic( ExpLogicValue.False );
 
-        public static readonly ExpLogic True = new ExpLogic(
-            ExpLogicValue.True );
-        public static readonly ExpLogic Unknown = new ExpLogic(
-            ExpLogicValue.Unknown );
+        public static readonly ExpLogic True = new ExpLogic( ExpLogicValue.True );
+        public static readonly ExpLogic Unknown = new ExpLogic( ExpLogicValue.Unknown );
 
         private readonly ExpLogicValue _value;
 
@@ -67,13 +65,18 @@ namespace StgSharp.Script.Express
 
         public bool IsUnknown => _value == ExpLogicValue.Unknown;
 
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public bool ToBoolean()
+        {
+            return _value == ExpLogicValue.True;
+        }
+
         public override string ToString() => _value.ToString();
 
-        public static bool TryParse(
-                                   ReadOnlySpan<char> value,
-                                   out ExpLogic result )
+        public static bool TryParse( ReadOnlySpan<char> value, out ExpLogic result )
         {
-            if( Enum.TryParse<ExpLogicValue>( value, out ExpLogicValue e ) ) {
+            if( Enum.TryParse<ExpLogicValue>( value, out ExpLogicValue e ) )
+            {
                 result = new ExpLogic( e );
                 return true;
             }

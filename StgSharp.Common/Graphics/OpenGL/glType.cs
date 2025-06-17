@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="glType.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -37,24 +36,26 @@ using System.Text;
 
 namespace StgSharp.Internal.OpenGL
 {
-    public delegate IntPtr GLfuncLoader( string name );
-
     internal delegate void GLVULKANPROCNV();
 
-    public unsafe struct GLhandleARB
+    public unsafe struct glHandleARB
     {
 
         private dynamic value;
 
-        public unsafe GLhandleARB( dynamic value )
+        public unsafe glHandleARB( dynamic value )
         {
-            if( !RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) ) {
-                if( value.GetType().Name != "Uint32" ) {
+            if( !RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) )
+            {
+                if( value.GetType().Name != "Uint32" )
+                {
                     goto errorlog;
                 }
                 this.value = value;
-            } else {
-                if( value.GetType().Name != "IntPtr" ) {
+            } else
+            {
+                if( value.GetType().Name != "IntPtr" )
+                {
                     goto errorlog;
                 }
                 this.value = value;
@@ -68,81 +69,10 @@ namespace StgSharp.Internal.OpenGL
             }
         }
 
-        public static implicit operator uint( GLhandleARB value )
+        public static implicit operator uint( glHandleARB value )
         {
             return ( uint )value;
         }
 
     }
-
-    #region GLFW_dele
-
-    internal unsafe delegate void GLFWwindowsizefun(
-                                          glfwWindow* window,
-                                          int width,
-                                          int height );
-    internal unsafe delegate void GLFWwindowrefreshfun( glfwWindow* window );
-    internal unsafe delegate void GLFWwindowposfun(
-                                          glfwWindow* window,
-                                          int xpos,
-                                          int ypos );
-    internal unsafe delegate void GLFWwindowmaximizefun(
-                                          glfwWindow* window,
-                                          int maximized );
-    internal unsafe delegate void GLFWwindowiconifyfun(
-                                          glfwWindow* window,
-                                          int iconified );
-    internal unsafe delegate void GLFWwindowfocusfun(
-                                          glfwWindow* window,
-                                          int focused );
-    internal unsafe delegate void GLFWwindowcontentscalefun(
-                                          glfwWindow* window,
-                                          float xscale,
-                                          float yscale );
-    internal unsafe delegate void GLFWwindowclosefun( glfwWindow* window );
-    internal unsafe delegate void GLFWvkproc();
-    internal unsafe delegate void GLFWscrollfun(
-                                          glfwWindow* window,
-                                          double xoffset,
-                                          double yoffset );
-    internal unsafe delegate void GLFWmousebuttonfun(
-                                          glfwWindow* window,
-                                          int button,
-                                          int action,
-                                          int mods );
-    internal unsafe delegate void GLFWmonitorfun(
-                                          glfwMonitor* monitor,
-                                          int monitorevent );
-    internal unsafe delegate void GLFWkeyfun(
-                                          glfwWindow* window,
-                                          int key,
-                                          int scancode,
-                                          int action,
-                                          int mods );
-    internal unsafe delegate void GLFWjoystickfun( int jid, int keyevent );
-    public unsafe delegate void GLFWglproc();
-    internal unsafe delegate void GLFWerrorfun(
-                                          int error_code,
-                                          sbyte* description );
-    internal unsafe delegate void GLFWdropfun(
-                                          glfwWindow* window,
-                                          int path_count,
-                                          sbyte*[] paths );
-    internal unsafe delegate void GLFWcursorposfun(
-                                          glfwWindow* window,
-                                          double xpos,
-                                          double ypos );
-    internal unsafe delegate void GLFWcursorenterfun(
-                                          glfwWindow* window,
-                                          int entered );
-    internal unsafe delegate void GLFWcharmodsfun(
-                                          glfwWindow* window,
-                                          uint codepoint,
-                                          int mods );
-    internal unsafe delegate void GLFWcharfun(
-                                          glfwWindow* window,
-                                          uint codepoint );
-
-#endregion
-
 }

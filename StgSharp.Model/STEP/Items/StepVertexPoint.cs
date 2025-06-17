@@ -37,14 +37,15 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepVertexPoint : StepVertex
+    public class StepVertexPoint : StepVertex, IExpConvertableFrom<StepVertexPoint>
     {
 
         private StepCartesianPoint _location;
 
-        public StepVertexPoint() { }
+        public StepVertexPoint( StepModel model ) : base( model ) { }
 
-        public StepVertexPoint( StepCartesianPoint location )
+        public StepVertexPoint( StepModel model, StepCartesianPoint location )
+            : base( model )
         {
             Location = location;
         }
@@ -54,23 +55,26 @@ namespace StgSharp.Model.Step
             get { return _location; }
             set
             {
-                if( value == null ) {
-                    throw new ArgumentNullException();
-                }
-
+                ArgumentNullException.ThrowIfNull( value );
                 _location = value;
             }
         }
 
         public override StepItemType ItemType => StepItemType.VertexPoint;
 
+        public void FromInstance( StepVertexPoint entity )
+        {
+            base.FromInstance( entity );
+            this.Location = entity.Location;
+        }
+
         internal static StepVertexPoint FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepVertexPoint vertex = new StepVertexPoint();
+            StepVertexPoint vertex = new StepVertexPoint( binder );
             enumerator.AssertEnumeratorCount( 2 );
             vertex.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            vertex.Location = binder[ ( enumerator[ 1 ] as StepEntityInstanceNode ).Id ] as StepCartesianPoint;
+            vertex.Location = binder[ enumerator[ 1 ] ] as StepCartesianPoint;
             return vertex;
         }
 

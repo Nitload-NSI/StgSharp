@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Model.Step;
 
 using StgSharp.Script;
@@ -38,30 +37,36 @@ using System.Linq;
 
 namespace StgSharp.Model.Step
 {
-    public class StepAdvancedFace : StepFaceSurface
+    public class StepAdvancedFace : StepFaceSurface, IExpConvertableFrom<StepAdvancedFace>
     {
 
+        public StepAdvancedFace( StepModel model ) : base( model ) { }
+
         public override StepItemType ItemType => StepItemType.AdvancedFace;
+
+        public void FromInstance( StepAdvancedFace entity )
+        {
+            base.FromInstance( entity );
+        }
 
         internal static StepAdvancedFace FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepAdvancedFace face = new StepAdvancedFace();
+            StepAdvancedFace face = new StepAdvancedFace( binder );
             enumerator.AssertEnumeratorCount( 4 );
             face.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
 
-            ExpNodePresidentEnumerator boundsList = enumerator[ 1 ].ToPresidentEnumerator();
+            ExpNodePresidentEnumerator boundsList = enumerator[ 1 ].TupleToPresidentEnumerator();
             face.Bounds.Clear();
             face.Bounds
                 .AddRange(
                     Enumerable.Range( 0, enumerator.Count ).Select( _ => ( StepFaceBound )null ) );
-            for( int i = 0; i < enumerator.Count; i++ )
+            for( int i = 0; i < boundsList.Count; i++ )
             {
                 int j = i; // capture to avoid rebinding
-                binder.BindValue(
-                    enumerator[ j ], v => face.Bounds[ j ] = v.AsType<StepFaceBound>() );
+                face.Bounds[ j ] = binder[ boundsList[ j ] ] as StepFaceBound;
             }
-            binder.BindValue( enumerator[ 2 ], v => face.FaceGeometry = v.AsType<StepSurface>() );
+            face.FaceGeometry = binder[ enumerator[ 2 ] ] as StepSurface;
             face.SameSense = ( enumerator[ 3 ] as ExpBoolNode )!.Value;
 
             return face;

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IExpMarshalType.cs"
+//     file="ExpSyntaxAnalyzer.Enum.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,20 +28,40 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Script;
+using StgSharp.Script.Express;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Script.Express
+namespace StgSharp.Model.Step
 {
-    public interface IExpMarshalType<TSelf> where TSelf: class
+    internal partial class StepExpSyntaxAnalyzer
     {
 
-        static virtual TSelf Create( string name, ExpSyntaxNode node )
+        private static string ParseStepEnumLiteral( string source )
         {
-            return null;
+            int length = source.Length;
+            ReadOnlySpan<char> span = source.AsSpan();
+            if( length > 2 && span[ 0 ] == '.' && span[ length - 1 ] == '.' ) {
+                return span.Slice( 1, length - 2 ).ToString();
+            }
+            throw new ExpInvalidSyntaxException( $"\"{source}\" is not a valid enum syntax" );
+        }
+
+        private void TryAppendEnum( Token e )
+        {
+            ExpSyntaxNode node = e.Value switch
+            {
+                ".T." => new ExpBoolNode( e, true, true ),
+                ".F." => new ExpBoolNode( e, false, true ),
+                ".U." => new ExpLogicValueNode( e, ExpLogic.Unknown, true ),
+                _ => ExpEnumLiteralNode.Create( e, ParseStepEnumLiteral ),
+            };
+            _cache.PushOperand( node );
         }
 
     }

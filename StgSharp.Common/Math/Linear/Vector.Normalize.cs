@@ -46,12 +46,18 @@ namespace StgSharp.Math
 
         public static Vec4 Normalize( Vec4 vec )
         {
-            return new Vec4 { vec = Vector4.Normalize( vec.vec ) };
+            return new Vec4
+            {
+                vec = Vector4.Normalize( vec.vec )
+            };
         }
 
         public static Vec3 Normalize( Vec3 vec )
         {
-            return new Vec3 { v = Vector3.Normalize( vec.v ) };
+            return new Vec3
+            {
+                v = Vector3.Normalize( vec.v )
+            };
         }
 
         public static unsafe void Normalize( ref Vec4 source, ref Vec4 target )
@@ -76,8 +82,7 @@ namespace StgSharp.Math
             Vector3 t = target.v;
 
             s = Vector3.Normalize( s );
-            Vector3 projection = ( Vector3.Dot( t, s ) / Vector3.Dot( s,
-                                                                      s ) ) * s;
+            Vector3 projection = ( Vector3.Dot( t, s ) / Vector3.Dot( s, s ) ) * s;
             t -= projection;
             t = Vector3.Normalize( t );
 

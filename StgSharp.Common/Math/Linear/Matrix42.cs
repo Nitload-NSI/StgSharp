@@ -71,14 +71,14 @@ namespace StgSharp.Math
         }
 
         public Matrix42(
-                       float a00,
-                       float a01,
-                       float a10,
-                       float a11,
-                       float a20,
-                       float a21,
-                       float a30,
-                       float a31 )
+               float a00,
+               float a01,
+               float a10,
+               float a11,
+               float a20,
+               float a21,
+               float a30,
+               float a31 )
         {
             Unsafe.SkipInit( out this );
             isTransposed = false;
@@ -97,7 +97,8 @@ namespace StgSharp.Math
                     throw new ArgumentOutOfRangeException( nameof( columNum ) );
                 }
                 InternalTranspose();
-                fixed( float* p = &this.transpose.m00 ) {
+                fixed( float* p = &this.transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     return *( float* )pbit;
                 }
@@ -111,7 +112,8 @@ namespace StgSharp.Math
                     throw new ArgumentOutOfRangeException( nameof( columNum ) );
                 }
                 InternalTranspose();
-                fixed( float* p = &this.transpose.m00 ) {
+                fixed( float* p = &this.transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     *( float* )pbit = value;
                 }
@@ -121,15 +123,16 @@ namespace StgSharp.Math
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(
-                mat.colum0.GetHashCode(), mat.colum1.GetHashCode() );
+            return HashCode.Combine( mat.colum0.GetHashCode(), mat.colum1.GetHashCode() );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         internal unsafe void InternalTranspose()
         {
-            if( !isTransposed ) {
-                fixed( ColumnSet2* source = &this.mat ) {
+            if( !isTransposed )
+            {
+                fixed( ColumnSet2* source = &this.mat )
+                {
                     fixed( ColumnSet4* target = &this.transpose ) {
                         InternalIO.Intrinsic.transpose24( source, target );
                     }
@@ -140,9 +143,7 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix42 operator -(
-                                                       Matrix42 left,
-                                                       Matrix42 right )
+        public static unsafe Matrix42 operator -( Matrix42 left, Matrix42 right )
         {
             Matrix42 ret = new Matrix42();
             InternalIO.Intrinsic.sub_mat_2( &left.mat, &right.mat, &ret.mat );
@@ -152,8 +153,7 @@ namespace StgSharp.Math
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static Matrix42 operator *( Matrix42 mat, float value )
         {
-            return new Matrix42(
-                mat.mat.colum0 * value, mat.mat.colum1 * value );
+            return new Matrix42( mat.mat.colum0 * value, mat.mat.colum1 * value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -225,14 +225,11 @@ namespace StgSharp.Math
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static Matrix42 operator /( Matrix42 mat, float value )
         {
-            return new Matrix42(
-                mat.mat.colum0 / value, mat.mat.colum1 / value );
+            return new Matrix42( mat.mat.colum0 / value, mat.mat.colum1 / value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix42 operator +(
-                                                       Matrix42 left,
-                                                       Matrix42 right )
+        public static unsafe Matrix42 operator +( Matrix42 left, Matrix42 right )
         {
             Matrix42 ret = new Matrix42();
             InternalIO.Intrinsic.add_mat_2( &left.mat, &right.mat, &ret.mat );

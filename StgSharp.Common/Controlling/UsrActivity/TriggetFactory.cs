@@ -49,42 +49,31 @@ namespace StgSharp.Controlling.UsrActivity
         private static KeyTrigger keyboardtemp;
         private static MouseTrigger mousetemp;
 
-        public static JoystickTrigger BuildJoystickClickTrigger(
-            int keyCode,
-            KeyStatus status )
+        public static JoystickTrigger BuildJoystickClickTrigger( int keyCode, KeyStatus status )
         {
             if( keyCode > MouseMin && keyCode < MouseMax ) {
                 return new JoystickTrigger( ( Joystick )keyCode, status );
             }
-            throw new InvalidOperationException(
-                "Known key code or key is not on joystick." );
+            throw new InvalidOperationException( "Known key code or key is not on joystick." );
         }
 
-        public static KeyTrigger BuildKeyboardClickTrigger(
-            int keyCode,
-            KeyStatus status )
+        public static KeyTrigger BuildKeyboardClickTrigger( int keyCode, KeyStatus status )
         {
             if( keyCode > KeyboardMin && keyCode < KeyboardMax ) {
                 return new KeyTrigger( ( KeyboardKey )keyCode, status );
             }
-            throw new InvalidOperationException(
-                "Known key code or kay is not on keyboard." );
+            throw new InvalidOperationException( "Known key code or kay is not on keyboard." );
         }
 
-        public static MouseTrigger BuildMouseClickTrigger(
-            int keyCode,
-            KeyStatus status )
+        public static MouseTrigger BuildMouseClickTrigger( int keyCode, KeyStatus status )
         {
             if( keyCode >= MouseMin && keyCode <= MouseMax ) {
                 return new MouseTrigger( ( Mouse )keyCode, status );
             }
-            throw new InvalidOperationException(
-                "Known key code or key is not on mouse." );
+            throw new InvalidOperationException( "Known key code or key is not on mouse." );
         }
 
-        public static IClickTrigger BuildTrigger(
-            int keyCode,
-            KeyStatus status )
+        public static IClickTrigger BuildTrigger( int keyCode, KeyStatus status )
         {
             if( keyCode > KeyboardMin && keyCode < KeyboardMax ) {
                 return new KeyTrigger( ( KeyboardKey )keyCode, status );

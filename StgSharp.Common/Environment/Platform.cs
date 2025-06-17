@@ -28,11 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-// using StgSharp.Envitronment;
-// using StgSharp.Envitronment.Win32;
-// using StgSharp.Graphics;
-// using StgSharp.Math;
-
 using StgSharp.Internal;
 using StgSharp.Internal.Intrinsic;
 
@@ -71,12 +66,12 @@ namespace StgSharp
 
     }
 
-    public static partial class StgSharp
+    public static partial class World
     {
 
         /// <summary>
-        ///   Version of current StgSharp platform. Main version represent in hundred's digit, and
-        ///   sub version represent in ten's digit.
+        ///   Version of current World platform. Main version represent in hundred's digit, and sub
+        ///   version represent in ten's digit.
         /// </summary>
         public const long version = 430;
 

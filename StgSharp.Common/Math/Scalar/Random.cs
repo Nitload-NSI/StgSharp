@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Math;
 
 using System;
@@ -56,9 +55,11 @@ namespace StgSharp.Math
         #endif
 
         /// <summary>
-        /// returns a random float number between 0 and 1.
+        ///   returns a random float number between 0 and 1.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        ///
+        /// </returns>
         public static unsafe float LowProceisionRandom()
         {
             float seed = currentSeed;
@@ -75,7 +76,8 @@ namespace StgSharp.Math
             sample2 *= 1000000;
 
             float result = sample2 - ( ( int )sample2 );
-            if( result == 0 ) {
+            if( result == 0 )
+            {
                 currentSeed = sample2 + 0.1f;
                 result = Scaler.LowProceisionRandom();
             }
@@ -85,19 +87,21 @@ namespace StgSharp.Math
         /// <summary>
         ///
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        ///
+        /// </returns>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static T Random<T>() where T: struct, IConvertible, INumber<T>
 
         {
-            if( randomSeed == null ) {
+            if( randomSeed == null )
+            {
                 randomSeed = new byte[64];
                 string originSeed =
-                    ( $"{((Assembly.GetEntryAssembly() == null) ? (Assembly.GetAssembly(typeof(StgSharp))!) :
+                    ( $"{((Assembly.GetEntryAssembly() == null) ? (Assembly.GetAssembly(typeof(World))!) :
                     Assembly.GetEntryAssembly())}" ) + ( $"{DateTime.UtcNow.ToString("o")}" );
                 using( SHA256 sha = SHA256.Create() ) {
-                    randomSeed = sha.ComputeHash(
-                        Encoding.UTF8.GetBytes( originSeed ) );
+                    randomSeed = sha.ComputeHash( Encoding.UTF8.GetBytes( originSeed ) );
                 }
             }
             using( SHA256 sha = SHA256.Create() ) {
@@ -109,9 +113,11 @@ namespace StgSharp.Math
         }
 
         /// <summary>
-        /// Generates a random seed in int value.
+        ///   Generates a random seed in int value.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        ///
+        /// </returns>
         public static unsafe int RandomSeed()
         {
             float seedValue1 = LowProceisionRandom();

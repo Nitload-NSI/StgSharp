@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Math;
 
 using System;
@@ -56,11 +55,7 @@ namespace StgSharp.Geometries
             vertexMat = rawCoord;
         }
 
-        public Polygon4(
-            Point topLeft,
-            Point topRight,
-            Point bottomRight,
-            Point bottomLeft )
+        public Polygon4( Point topLeft, Point topRight, Point bottomRight, Point bottomLeft )
             : base( PlainCoordinate.StandardPlainCoordination )
         {
             this[ 0 ] = topLeft;
@@ -70,12 +65,12 @@ namespace StgSharp.Geometries
         }
 
         public Polygon4(
-            CoordinationBase coordinate,
-            PlainCoordinate coordination,
-            Point topLeft,
-            Point topRight,
-            Point bottomRight,
-            Point bottomLeft )
+               CoordinationBase coordinate,
+               PlainCoordinate coordination,
+               Point topLeft,
+               Point topRight,
+               Point bottomRight,
+               Point bottomLeft )
             : base( coordinate )
         {
             this[ 0 ] = topLeft;
@@ -85,14 +80,14 @@ namespace StgSharp.Geometries
         }
 
         public Polygon4(
-            float v0x,
-            float v0y,
-            float v1x,
-            float v1y,
-            float v2x,
-            float v2y,
-            float v3x,
-            float v3y )
+               float v0x,
+               float v0y,
+               float v1x,
+               float v1y,
+               float v2x,
+               float v2y,
+               float v3x,
+               float v3y )
             : base( PlainCoordinate.StandardPlainCoordination )
         {
             vertexMat = new Vec4[4];
@@ -104,15 +99,15 @@ namespace StgSharp.Geometries
         }
 
         public Polygon4(
-            PlainCoordinate coordination,
-            float v0x,
-            float v0y,
-            float v1x,
-            float v1y,
-            float v2x,
-            float v2y,
-            float v3x,
-            float v3y )
+               PlainCoordinate coordination,
+               float v0x,
+               float v0y,
+               float v1x,
+               float v1y,
+               float v2x,
+               float v2y,
+               float v3x,
+               float v3y )
             : base( coordination )
         {
             vertexMat = new Vec4[4];

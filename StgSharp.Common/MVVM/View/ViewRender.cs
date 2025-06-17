@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="ViewRender.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Graphics;
 
 using StgSharp.HighPerformance;
@@ -37,19 +36,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StgSharp.MVVM.View
+namespace StgSharp.MVVM
 {
     public abstract partial class ViewBase
     {
 
-        protected internal interface IViewRender<out TView>
-            where TView: ViewBase
+        protected internal interface IViewRender<out TView> where TView: ViewBase
         {
 
-            RenderStream this[ DataLabel renderName ]
-            {
-                get;
-            }
+            RenderStream this[ DataLabel renderName ] { get; }
 
             void CustomizedInitialize();
 
@@ -61,8 +56,7 @@ namespace StgSharp.MVVM.View
 
         }
 
-        protected abstract class ViewRender<TView> : IViewRender<TView>
-            where TView: ViewBase
+        protected abstract class ViewRender<TView> : IViewRender<TView> where TView: ViewBase
         {
 
             protected ViewRender( TView binding )
@@ -73,14 +67,15 @@ namespace StgSharp.MVVM.View
 
             public RenderStream this[ DataLabel renderName ]
             {
-                get => _render.TryGetValue(
-                            renderName, out RenderStream stream ) ?
+                get => _render.TryGetValue( renderName, out RenderStream stream ) ?
                         stream : ( null! );
                 protected set
                 {
-                    if( _render.ContainsKey( renderName ) ) {
+                    if( _render.ContainsKey( renderName ) )
+                    {
                         _render[ renderName ] = value;
-                    } else {
+                    } else
+                    {
                         _render.Add( renderName, value );
                     }
                 }
@@ -106,8 +101,7 @@ namespace StgSharp.MVVM.View
                 return ret;
             }
 
-            public T CreateRenderStream<T>( ViewPort vp )
-                where T: RenderStream, new()
+            public T CreateRenderStream<T>( ViewPort vp ) where T: RenderStream, new()
             {
                 T ret = new T();
                 ret.Initialize( vp, Binding.TimeProvider );

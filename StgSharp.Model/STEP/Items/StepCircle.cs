@@ -37,14 +37,15 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepCircle : StepConic
+    public class StepCircle : StepConic, IExpConvertableFrom<StepCircle>
     {
 
         private StepAxis2Placement _position;
 
-        public StepCircle() { }
+        public StepCircle( StepModel model ) : base( model ) { }
 
-        public StepCircle( StepAxis2Placement position, float radius )
+        public StepCircle( StepModel model, StepAxis2Placement position, float radius )
+            : base( model )
         {
             Position = position;
             Radius = radius;
@@ -67,14 +68,19 @@ namespace StgSharp.Model.Step
 
         public override StepItemType ItemType => StepItemType.Circle;
 
+        public void FromInstance( StepCircle entity )
+        {
+            base.FromInstance( entity );
+            this._position = entity.Position;
+        }
+
         internal static StepCircle FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepCircle circle = new StepCircle();
+            StepCircle circle = new StepCircle( binder );
             enumerator.AssertEnumeratorCount( 3 );
             circle.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator[ 1 ], v => circle.Position = v.AsType<StepAxis2Placement>() );
+            circle.Position = binder[ enumerator[ 1 ] ] as StepAxis2Placement;
             circle.Radius = ( enumerator[ 2 ]as ExpRealNumberNode )!.Value;
             return circle;
         }

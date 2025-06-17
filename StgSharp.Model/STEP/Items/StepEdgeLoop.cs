@@ -37,34 +37,39 @@ using System.Linq;
 
 namespace StgSharp.Model.Step
 {
-    public class StepEdgeLoop : StepLoop
+    public class StepEdgeLoop : StepLoop, IExpConvertableFrom<StepEdgeCurve>
     {
 
-        public StepEdgeLoop( IEnumerable<StepOrientedEdge> edgeList )
+        public StepEdgeLoop( StepModel model, params StepOrientedEdge[] edgeList )
+            : this( model, ( IEnumerable<StepOrientedEdge> )edgeList ) { }
+
+        public StepEdgeLoop( StepModel model, IEnumerable<StepOrientedEdge> edgeList )
+            : base( model )
         {
             EdgeList = new List<StepOrientedEdge>( edgeList );
         }
-
-        public StepEdgeLoop( params StepOrientedEdge[] edgeList )
-            : this( ( IEnumerable<StepOrientedEdge> )edgeList ) { }
 
         public List<StepOrientedEdge> EdgeList { get; private set; }
 
         public override StepItemType ItemType => StepItemType.EdgeLoop;
 
+        public void FromInstance( StepEdgeCurve entity )
+        {
+            base.FromInstance( entity );
+        }
+
         internal static StepEdgeLoop FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 2 );
-            ExpNodePresidentEnumerator edgeSyntaxList = enumerator[ 1 ].ToPresidentEnumerator();
-            StepEdgeLoop edgeLoop = new StepEdgeLoop( new StepOrientedEdge[edgeSyntaxList.Count] );
+            ExpNodePresidentEnumerator edgeSyntaxList = enumerator[ 1 ].TupleToPresidentEnumerator();
+            StepEdgeLoop edgeLoop = new StepEdgeLoop(
+                binder, new StepOrientedEdge[edgeSyntaxList.Count] );
             edgeLoop.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
             for( int i = 0; i < edgeSyntaxList.Count; i++ )
             {
                 int j = i; // capture to avoid rebinding
-                binder.BindValue(
-                    edgeSyntaxList[ j ],
-                    v => edgeLoop.EdgeList[ j ] = v.AsType<StepOrientedEdge>() );
+                edgeLoop.EdgeList[ j ] = binder[ edgeSyntaxList[ j ] ] as StepOrientedEdge;
             }
 
             return edgeLoop;

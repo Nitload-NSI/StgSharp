@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Graphics;
 using StgSharp.Math;
 
@@ -57,10 +56,10 @@ namespace StgSharp.Geometries
         }
 
         public Triangle(
-            PlainCoordinate coordination,
-            Point vertex01,
-            Point vertex02,
-            Point vertex03 )
+               PlainCoordinate coordination,
+               Point vertex01,
+               Point vertex02,
+               Point vertex03 )
             : base( coordination )
         {
             this[ 0 ] = vertex01;
@@ -68,13 +67,7 @@ namespace StgSharp.Geometries
             this[ 2 ] = vertex03;
         }
 
-        public Triangle(
-            float v0x,
-            float v0y,
-            float v1x,
-            float v1y,
-            float v2x,
-            float v2y )
+        public Triangle( float v0x, float v0y, float v1x, float v1y, float v2x, float v2y )
             : base( PlainCoordinate.StandardPlainCoordination )
         {
             this[ 0 ] = new Point( v0x, v0y, 0 );
@@ -83,13 +76,13 @@ namespace StgSharp.Geometries
         }
 
         public Triangle(
-            PlainCoordinate coordination,
-            float v0x,
-            float v0y,
-            float v1x,
-            float v1y,
-            float v2x,
-            float v2y )
+               PlainCoordinate coordination,
+               float v0x,
+               float v0y,
+               float v1x,
+               float v1y,
+               float v2x,
+               float v2y )
             : base( coordination )
         {
             this[ 0 ] = new Point( v0x, v0y, 0 );

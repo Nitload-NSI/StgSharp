@@ -63,17 +63,9 @@ namespace StgSharp.Controls
             get => marker.TextureCoord;
         }
 
-        public Rectangle BoundingBox
-        {
-            get;
-            set;
-        }
+        public Rectangle BoundingBox { get; set; }
 
-        public Vec2 Position
-        {
-            get;
-            set;
-        }
+        public Vec2 Position { get; set; }
 
         public IEnumerator<PlainGeometryMesh> GetEnumerator()
         {

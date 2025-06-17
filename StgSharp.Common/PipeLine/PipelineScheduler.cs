@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Stg;
 
 using System;
@@ -50,12 +49,13 @@ namespace StgSharp.PipeLine
     {
 
         private BeginningNode _beginning;
-        private Dictionary<PipelineNodeLabel, PipelineNode> _allNode;
+        private bool _isAvailable = false;
         private EndingNode _ending;
 
         private int mtLevel, cLevel,mtIndex, cIndex;
         private List<List<PipelineNode>> _concurrentNodes, _mainThreadNodes ;
         private SemaphoreSlim runningStat,_concurrentLock = new SemaphoreSlim( 1, 1 );
+        internal Dictionary<PipelineNodeLabel, PipelineNode> _allNode;
 
         public PipelineScheduler()
         {
@@ -78,12 +78,12 @@ namespace StgSharp.PipeLine
 
         public IEnumerable<string> InputPortName
         {
-            get { return _beginning.InputPorts.Keys; }
+            get => _beginning.InputPorts.Keys;
         }
 
         public IEnumerable<string> OutputPortName
         {
-            get { return _beginning.OutputPorts.Keys; }
+            get => _beginning.OutputPorts.Keys;
         }
 
         public PipelineNode BeginLayer => _beginning;
@@ -111,6 +111,9 @@ namespace StgSharp.PipeLine
 
         public void ArrangeNodes()
         {
+            if( _isAvailable ) {
+                return;
+            }
             int maxLevel = 1;
             Queue<PipelineNode> completedNodes = new Queue<PipelineNode>();
             foreach( PipelineNode item in _beginning.Next )
@@ -160,6 +163,7 @@ namespace StgSharp.PipeLine
             foreach( List<PipelineNode> item in _mainThreadNodes ) {
                 item.TrimExcess();
             }
+            _isAvailable = true;
         }
 
         public PipelineNode Create(
@@ -210,6 +214,21 @@ namespace StgSharp.PipeLine
             _concurrentLock.Wait();
             (mtLevel, cLevel, mtIndex, cIndex) = (int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
             _concurrentLock.Release();
+        }
+
+        public bool TryGetAllNode(
+                    out List<List<PipelineNode>> mainThreadNodes,
+                    out List<List<PipelineNode>> concurrentNodes )
+        {
+            if( _isAvailable )
+            {
+                mainThreadNodes = _mainThreadNodes;
+                concurrentNodes = _concurrentNodes;
+                return true;
+            }
+            mainThreadNodes = null;
+            concurrentNodes = null;
+            return false;
         }
 
         internal bool RequestNexConcurrentNode( out PipelineNode node )

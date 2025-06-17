@@ -40,11 +40,11 @@ namespace StgSharp.Geometries
     {
 
         public SpaceCoordinate(
-            CoordinationBase localCoordination,
-            Point origin,
-            Vec3 xAxis,
-            Vec3 yAxis,
-            Vec3 zAxis )
+               CoordinationBase localCoordination,
+               Point origin,
+               Vec3 xAxis,
+               Vec3 yAxis,
+               Vec3 zAxis )
             : base( localCoordination ) { }
 
     }

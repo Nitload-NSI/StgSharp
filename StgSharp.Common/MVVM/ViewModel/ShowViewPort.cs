@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="ShowViewPort.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------
 using StgSharp.Controls;
 using StgSharp.Graphics;
-using StgSharp.MVVM.View;
+using StgSharp.MVVM;
 using StgSharp.Threading;
 using StgSharp.Timing;
 
@@ -54,14 +54,13 @@ namespace StgSharp.MVVM.ViewModel
         }
 
         /// <summary>
-        /// CustomizeInit this form and render it on screen, and respond with operation
+        ///   CustomizeInit this form and render it on screen, and respond with operation
         /// </summary>
         public unsafe void UseViewModel( string viewEntryName )
         {
             CustomizeInitialize();
             UseViewInNextFrame( viewEntryName );
-            TimeSpanAwaitingToken fpsCountingToken = fpsCountProvider.ParticipantSpanAwaiting(
-                1 );
+            TimeSpanAwaitingToken fpsCountingToken = fpsCountProvider.ParticipantSpanAwaiting( 1 );
             fpsCountingToken.TimeSpanRefreshed += CountFps;
             fpsCountingToken.MissTimeSpanRefreshed += CountFps;
             if( _nextView != _currentView ) {
@@ -69,21 +68,25 @@ namespace StgSharp.MVVM.ViewModel
             }
             Thread renderThread = new Thread(
                 ( token ) => {
-                    try {
+                    try
+                    {
                         ProcessFrameWithoutEvent();
                     }
-                    catch( Exception ex ) {
+                    catch( Exception ex )
+                    {
                         InternalIO.InternalWriteLog(
-                            $"Critical error when rendering:\n" + $"{ex}",
-                            LogType.Error );
+                            $"Critical error when rendering:\n" + $"{ex}", LogType.Error );
                         ShouldClose = true;
+                        throw;
                     }
                 } );
             renderThread.Start();
             /**/
             using( TimeSpanAwaitingToken eventAwaitingToken = frameTimeProvider.ParticipantSpanAwaiting(
-                1 ) ) {
-                while( _closed ) {
+                1 ) )
+            {
+                while( _closed )
+                {
                     if( _nextView != _currentView ) {
                         Interlocked.Exchange( ref _currentView, _nextView );
                     }
@@ -112,16 +115,12 @@ namespace StgSharp.MVVM.ViewModel
         {
             Interlocked.Exchange( ref _frameSpeed, _frameCount );
             Interlocked.Exchange( ref _frameCount, 0 );
-            /*
-            Console.Clear();
-            Console.WriteLine( FrameSpeed );
-            /**/
         }
 
         private unsafe void PrivateShow()
         {
-            if( 0 == InternalIO.glfwWindowShouldClose(
-                this.viewPortDisplay.ViewPortID ) ) {
+            if( 0 == InternalIO.glfwWindowShouldClose( this.viewPortDisplay.ViewPortHandle ) )
+            {
                 CurrentView.Use();
                 RenderStream.PollEvents();
             }
@@ -130,9 +129,11 @@ namespace StgSharp.MVVM.ViewModel
         private void ProcessFrameWithoutEvent()
         {
             using( TimeSpanAwaitingToken renderAwaitingToken = frameTimeProvider.ParticipantSpanAwaiting(
-                1 ) ) {
+                1 ) )
+            {
                 renderAwaitingToken.TimeSpanRefreshed += ( _, _ ) => { };
-                while( _closed ) {
+                while( _closed )
+                {
                     foreach( ViewPort context in CurrentView.Render ) {
                         context.FlushSize();
                     }

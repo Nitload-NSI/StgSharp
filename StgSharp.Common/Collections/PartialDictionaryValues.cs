@@ -43,8 +43,7 @@ namespace StgSharp.Collections
 
             private readonly PartialDictionary<TKey, TValue> _values;
 
-            public PartialDictionaryValues(
-                           PartialDictionary<TKey, TValue> value )
+            public PartialDictionaryValues( PartialDictionary<TKey, TValue> value )
             {
                 _values = value;
             }
@@ -55,7 +54,8 @@ namespace StgSharp.Collections
 
             public bool Contains( TValue item )
             {
-                foreach( KeyValuePair<TKey, TValue> kvp in _values ) {
+                foreach( KeyValuePair<TKey, TValue> kvp in _values )
+                {
                     if( kvp.Value != null && kvp.Value.Equals( item ) ) {
                         return true;
                     }
@@ -65,7 +65,8 @@ namespace StgSharp.Collections
 
             public void CopyTo( TValue[] array, int arrayIndex )
             {
-                foreach( KeyValuePair<TKey, TValue> kvp in _values ) {
+                foreach( KeyValuePair<TKey, TValue> kvp in _values )
+                {
                     array[ arrayIndex ] = kvp.Value;
                     arrayIndex++;
                 }

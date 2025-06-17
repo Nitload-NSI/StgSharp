@@ -73,7 +73,8 @@ namespace StgSharp.Controlling.UsrActivity
 
         public static bool operator ==( KeyTrigger left, KeyTrigger right )
         {
-            return ( left._triggerStat == right._triggerStat ) && ( left._targetKey == right._targetKey );
+            return ( left._triggerStat == right._triggerStat ) &&
+                   ( left._targetKey == right._targetKey );
         }
 
         bool IEquatable<KeyTrigger>.Equals( KeyTrigger other )

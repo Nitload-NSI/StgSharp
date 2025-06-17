@@ -111,7 +111,7 @@ namespace StgSharp.Model.Step
                     ExpSyntaxNode left;
                     if( right is ExpTupleNode tuple )
                     {
-                        right = new StepComplexEntityNode( tuple );
+                        right = StepComplexEntityNode.FromTuple( tuple );
                         left = GetNextOperandCache();
                     } else
                     {

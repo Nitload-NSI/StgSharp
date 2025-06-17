@@ -48,11 +48,9 @@ namespace StgSharp.Graphics.ShaderEdit
         private List<string> codeList;
         private List<ShaderFunction> usedShaderFunctions;
 
-        public Uniform<T> DefineUniform<T>( string name, int index )
-            where T: struct
+        public Uniform<T> DefineUniform<T>( string name, int index ) where T: struct
         {
-            ShaderParameter p = new ShaderParameter(
-                name, ShaderParameter.TypeMarshal<T>() );
+            ShaderParameter p = new ShaderParameter( name, ShaderParameter.TypeMarshal<T>() );
             uniformDefine.Add( index, p );
 
             //return new Uniform<TView>();
@@ -72,23 +70,26 @@ namespace StgSharp.Graphics.ShaderEdit
         public int ParameterCount => inputList.Count;
 
         public void EmitCall(
-            ShaderFunction function,
-            ShaderParameter outPut,
-            params ShaderParameter[] inputParams )
+                    ShaderFunction function,
+                    ShaderParameter outPut,
+                    params ShaderParameter[] inputParams )
         {
-            if( inputParams.Length != function.ParameterCount ) {
+            if( inputParams.Length != function.ParameterCount )
+            {
                 // Param list length not equal
                 throw new ArgumentException(
                     "Provided parameters does not match function's parameter list." );
             }
-            if( !ShaderParameter.IsSameType( outPut, function.outPut ) ) {
+            if( !ShaderParameter.IsSameType( outPut, function.outPut ) )
+            {
                 // Type of returning value not equal
                 throw new ArgumentException(
                     "Provided parameters does not match function's parameter list." );
             }
-            for( int i = 0; i < inputParams.Length; i++ ) {
-                if( !ShaderParameter.IsSameType(
-                    function.inputList[ i ], inputParams[ i ] ) ) {
+            for( int i = 0; i < inputParams.Length; i++ )
+            {
+                if( !ShaderParameter.IsSameType( function.inputList[ i ], inputParams[ i ] ) )
+                {
                     // Input type not match
                     throw new InvalidCastException(
                         "Provided parameters does not match function's parameter list." );
@@ -124,20 +125,21 @@ namespace StgSharp.Graphics.ShaderEdit
             isReadOnly = false;
         }
 
-        public static bool IsSameType(
-            ShaderParameter param1,
-            ShaderParameter param2 )
+        public static bool IsSameType( ShaderParameter param1, ShaderParameter param2 )
         {
-            if( param1.type != InternalShaderType.Struct ) {
+            if( param1.type != InternalShaderType.Struct )
+            {
                 return param1.type == param2.type;
-            } else {
+            } else
+            {
                 throw new Exception( "Struct is currently not supported." );
             }
         }
 
         public static InternalShaderType TypeMarshal<T>() where T: struct
         {
-            switch( Type.GetTypeCode( typeof( T ) ) ) {
+            switch( Type.GetTypeCode( typeof( T ) ) )
+            {
                 case TypeCode.Single:
                     return InternalShaderType.Float;
                 case TypeCode.Double:
@@ -149,7 +151,8 @@ namespace StgSharp.Graphics.ShaderEdit
                 default:
                     break;
             }
-            switch( typeof( T ).Name ) {
+            switch( typeof( T ).Name )
+            {
                 case "vec4d":
                     return InternalShaderType.Vector4;
                 case "Matrix2x2":
@@ -171,8 +174,7 @@ namespace StgSharp.Graphics.ShaderEdit
                 case "Matrix4x4":
                     return InternalShaderType.Matrix4x4;
                 default:
-                    throw new ArgumentException(
-                        "Not supported shader data type." );
+                    throw new ArgumentException( "Not supported shader data type." );
             }
         }
 

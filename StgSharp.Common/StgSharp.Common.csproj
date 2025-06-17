@@ -105,7 +105,7 @@
     </PropertyGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="xcopy  /E /I /Y $(OutDir) $(SolutionDir)build" />
+      <Exec Command="xcopy /E /I /Y &quot;$(OutDir)&quot; &quot;$(SolutionDir)build&quot;" />
     </Target>
     
 </Project>

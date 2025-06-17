@@ -28,27 +28,32 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 namespace StgSharp.Model.Step
 {
-    public class StepCartesianPoint : StepTriple
+    public class StepCartesianPoint : StepTriple, IExpConvertableFrom<StepCartesianPoint>
     {
 
-        private StepCartesianPoint() { }
+        private StepCartesianPoint( StepModel model ) : base( model ) { }
 
-        public StepCartesianPoint( float x, float y, float z ) : base( x, y, z ) { }
+        public StepCartesianPoint( StepModel model, float x, float y, float z )
+            : base( model, x, y, z ) { }
 
         public override StepItemType ItemType => StepItemType.CartesianPoint;
 
         protected override int MinimumValueCount => 1;
 
-        internal static StepCartesianPoint FromSyntax( ExpSyntaxNode syntaxList )
+        public void FromInstance( StepCartesianPoint entity )
         {
-            return ( StepCartesianPoint )AssignTo( new StepCartesianPoint(), syntaxList );
+            base.FromInstance( entity );
+        }
+
+        internal static StepCartesianPoint FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
+        {
+            return AssignTo( new StepCartesianPoint( binder ), syntaxList );
         }
 
     }

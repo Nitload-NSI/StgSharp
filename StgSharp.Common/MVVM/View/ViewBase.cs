@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="ViewBase.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -46,7 +46,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 
-namespace StgSharp.MVVM.View
+namespace StgSharp.MVVM
 {
     /// <summary>
     ///   ViewBase is the base type for all view types, providing context binding and control
@@ -108,7 +108,7 @@ namespace StgSharp.MVVM.View
 
         public IntPtr Monitor => context.Monitor;
 
-        public IntPtr ViewHandle => context.ViewPortID;
+        public IntPtr ViewHandle => context.ViewPortHandle;
 
         public IViewDesigner<ViewBase> Designer
         {
@@ -156,7 +156,7 @@ namespace StgSharp.MVVM.View
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public KeyStatus GetKeyStatus( KeyboardKey key )
         {
-            return InternalIO.glfwGetKey( context.ViewPortID, ( int )key );
+            return InternalIO.glfwGetKey( context.ViewPortHandle, ( int )key );
         }
 
         public void InternalInitialize(
@@ -190,9 +190,13 @@ namespace StgSharp.MVVM.View
 
         public bool ValidateInitialization()
         {
-            return ( _design != null ) && ( _render != null ) && ( getDataBindingEntry != null ) && ( _responder !=
-                                                                                                      null ) && _design.ValidateInitializing(
-                ) && _responder.ValidateInitializing() && _render.ValidateInitializing();
+            return ( _design != null ) &&
+                   ( _render != null ) &&
+                   ( getDataBindingEntry != null ) &&
+                   ( _responder != null ) &&
+                   _design.ValidateInitializing() &&
+                   _responder.ValidateInitializing() &&
+                   _render.ValidateInitializing();
         }
 
         protected abstract void Show();

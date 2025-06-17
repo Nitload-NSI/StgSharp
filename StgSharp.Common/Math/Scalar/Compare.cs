@@ -42,7 +42,8 @@ namespace StgSharp.Math
         public static float MaxOf( params float[] stream )
         {
             float ret = stream[ 0 ];
-            foreach( float num in stream ) {
+            foreach( float num in stream )
+            {
                 if( ret < num ) {
                     ret = num;
                 }
@@ -53,7 +54,8 @@ namespace StgSharp.Math
         public static float MinOf( params float[] stream )
         {
             float ret = stream[ 0 ];
-            foreach( float num in stream ) {
+            foreach( float num in stream )
+            {
                 if( ret > num ) {
                     ret = num;
                 }

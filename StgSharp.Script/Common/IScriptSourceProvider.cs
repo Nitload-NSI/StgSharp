@@ -37,15 +37,9 @@ namespace StgSharp.Script
     public interface IScriptSourceProvider
     {
 
-        bool IsEmpty
-        {
-            get;
-        }
+        bool IsEmpty { get; }
 
-        int Location
-        {
-            get;
-        }
+        int Location { get; }
 
         void EndWriting();
 
@@ -54,10 +48,14 @@ namespace StgSharp.Script
         string ReadLine( out int position );
 
         /// <summary>
-        /// Return part of current provider.
+        ///   Return part of current provider.
         /// </summary>
-        /// <param name="count"> Count of lines to be sliced </param>
-        /// <returns></returns>
+        /// <param name="count">
+        ///   Count of lines to be sliced
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
         public IScriptSourceProvider Slice( int location, int count );
 
     }

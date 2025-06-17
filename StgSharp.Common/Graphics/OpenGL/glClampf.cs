@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 namespace StgSharp.Internal
 {
     /// <summary>
-    /// OpenGL numeric type. An IEEE-754 floating-point value, clamped to the range [0,1].
+    ///   OpenGL numeric type. An IEEE-754 floating-point value, clamped to the range [0,1].
     /// </summary>
     [StructLayout( LayoutKind.Sequential )]
     public struct GLclampf
@@ -64,8 +64,8 @@ namespace StgSharp.Internal
     }
 
     /// <summary>
-    /// OpenGL numeric type. An IEEE-754 double precision floating-point value, clamped to the range
-    /// [0,1].
+    ///   OpenGL numeric type. An IEEE-754 double precision floating-point value, clamped to the
+    ///   range [0,1].
     /// </summary>
     [StructLayout( LayoutKind.Sequential )]
     public struct GLclampd

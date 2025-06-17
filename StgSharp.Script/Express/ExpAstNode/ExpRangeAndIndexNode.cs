@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Class1.cs"
+//     file="ExpRangeAndIndexNode.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -30,9 +30,32 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.Geometries.SpaceGeometry
+namespace StgSharp.Script.Express
 {
-    internal class Class1 { }
+    public class ExpIndexNode : ExpInstanceReferenceNode
+    {
+
+        internal ExpIndexNode( Token t, ExpSyntaxNode node ) : base( t ) { }
+
+        public override ExpSyntaxNode Left => throw new NotImplementedException();
+
+        public override ExpSyntaxNode Right => throw new NotImplementedException();
+
+        public override IExpElementSource EqualityTypeConvert => throw new NotImplementedException();
+
+        public static ExpIndexNode IndexAt( Token position, ExpSyntaxNode expression )
+        {
+            ArgumentNullException.ThrowIfNull( expression );
+            if( ExpNodeFlag.BuiltinType_Int.IsNotInFlag( expression.NodeFlag ) ) {
+                throw new ExpInvalidTypeException(
+                    position, "Integer", expression.EqualityTypeConvert.Name );
+            }
+            return new ExpIndexNode( position, expression );
+        }
+
+    }
 }

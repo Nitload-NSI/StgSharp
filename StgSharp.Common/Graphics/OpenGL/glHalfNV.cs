@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="glHalfNV.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -35,7 +35,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Internal.OpenGL
+namespace StgSharp.Graphics.OpenGL
 {
     [StructLayout( LayoutKind.Explicit, Size = 16 )]
     public struct glHalfNV
@@ -48,19 +48,19 @@ namespace StgSharp.Internal.OpenGL
             binary = bin;
         }
 
-        public static glHalfNV FromInt16(short x)
+        public static glHalfNV FromInt16( short x )
         {
-            return new glHalfNV(x);
+            return new glHalfNV( x );
+        }
+
+        public static short ToInt16( glHalfNV half )
+        {
+            return half.binary;
         }
 
         public static explicit operator glHalfNV( short x )
         {
             return new glHalfNV( x );
-        }
-
-        public static short ToInt16(glHalfNV half)
-        {
-            return half.binary;
         }
 
         public static explicit operator short( glHalfNV x )

@@ -71,7 +71,6 @@ namespace StgSharp.Script.Express
         private IScriptSourceProvider _provider;
 
         private Regex 
-            _nextHashtagSymbolPattern = GetHashtagSymbolPattern() ,
             _nextWordTokenPattern = GetNextWordTokenPattern(),
             _nextStringLiteralPattern = GetStringLiteralPattern(),
             _nextNumberLiteralPattern = GetNumberLiteralPattern(),
@@ -91,7 +90,8 @@ namespace StgSharp.Script.Express
 
         public bool IsEmpty
         {
-            get => ( ( string.IsNullOrEmpty( _lineCache ) || _current >= _lineCache.Length ) ) && _provider.IsEmpty;
+            get => ( ( string.IsNullOrEmpty( _lineCache ) || _current >= _lineCache.Length ) ) &&
+                   _provider.IsEmpty;
         }
 
         public ExpTokenReaderPreProcessor TokenReaderPreProcessor { get; set; } = ExpTokenReaderPreProcessor.Default;
@@ -173,22 +173,6 @@ namespace StgSharp.Script.Express
                 Match match;
                 switch( c )
                 {
-                    case '#':
-                        match = _nextHashtagSymbolPattern.Match( _lineCache, _current );
-                        if( match.Success )
-                        {
-                            begin = match.Groups[ "token" ].Index;
-                            end = match.Groups[ "end" ].Index;
-                            rest = match.Groups[ "rest" ].Index;
-                            _current = rest;
-                            _last = new(
-                                ExpressCompile.PoolString( source[ 0..( end - begin ) ] ), _lineNum,
-                                begin, TokenFlag.Member );
-                            return _last;
-                        } else
-                        {
-                            throw new ExpInvalidCharException( '#' );
-                        }
                     case '\'':
                         char cNext = source[ 1 ];
                         if( cNext == '\'' )                                     //empty string
@@ -281,8 +265,9 @@ namespace StgSharp.Script.Express
                         {
                             begin = _current;
                             _current++;
-                            if( _last.Flag == TokenFlag.Member || _last.Flag ==
-                                TokenFlag.Index_Right || _last.Flag == TokenFlag.Separator_Right )
+                            if( _last.Flag == TokenFlag.Member ||
+                                _last.Flag == TokenFlag.Index_Right ||
+                                _last.Flag == TokenFlag.Separator_Right )
                             {
                                 _last = new(
                                     ExpressCompile.PoolString( source[ ..1 ] ), _lineNum, begin,
@@ -407,11 +392,6 @@ namespace StgSharp.Script.Express
         }
 
         [GeneratedRegex(
-                @"(?<token>#[0-9A-Za-z]+)(?<end>\s*?)(?<rest>\S|$)",
-                RegexOptions.Singleline )]
-        private static partial Regex GetHashtagSymbolPattern();
-
-        [GeneratedRegex(
                 @"(?<token>[a-zA-Z][a-zA-Z0-9_]*)(?<end>\s*?)(?<rest>\S|$)",
                 RegexOptions.Singleline )]
         private static partial Regex GetNextWordTokenPattern();
@@ -435,7 +415,7 @@ namespace StgSharp.Script.Express
         private static partial Regex GetStringLiteralPatternWithSingle();
 
         [GeneratedRegex(
-                @"(?<token>[:<>=+\-*\/]+)(?<end>\s?)\s*?(?<rest>\S|$)",
+                @"(?<token>[:<>=+\-*\/\.]+)(?<end>\s?)\s*?(?<rest>\S|$)",
                 RegexOptions.Singleline )]
         private static partial Regex GetSymbolPattern();
 

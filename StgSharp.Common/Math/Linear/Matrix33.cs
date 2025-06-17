@@ -68,15 +68,15 @@ namespace StgSharp.Math
         }
 
         public Matrix33(
-                       float a00,
-                       float a01,
-                       float a02,
-                       float a10,
-                       float a11,
-                       float a12,
-                       float a20,
-                       float a21,
-                       float a22 )
+               float a00,
+               float a01,
+               float a02,
+               float a10,
+               float a11,
+               float a12,
+               float a20,
+               float a21,
+               float a22 )
         {
             Unsafe.SkipInit( out this );
             isTransposed = false;
@@ -96,7 +96,8 @@ namespace StgSharp.Math
                     throw new ArgumentOutOfRangeException( nameof( columNum ) );
                 }
                 InternalTranspose();
-                fixed( float* p = &this.transpose.m00 ) {
+                fixed( float* p = &this.transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     return *( float* )pbit;
                 }
@@ -112,7 +113,8 @@ namespace StgSharp.Math
                         LogType.Error );
                 }
                 InternalTranspose();
-                fixed( float* p = &this.transpose.m00 ) {
+                fixed( float* p = &this.transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     *( float* )pbit = value;
                 }
@@ -131,7 +133,8 @@ namespace StgSharp.Math
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         internal unsafe void InternalTranspose()
         {
-            if( !isTransposed ) {
+            if( !isTransposed )
+            {
                 fixed( ColumnSet3* source = &this.mat, target = &this.transpose ) {
                     InternalIO.Intrinsic.transpose33( source, target );
                 }
@@ -140,9 +143,7 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix33 operator -(
-                                                       Matrix33 left,
-                                                       Matrix33 right )
+        public static unsafe Matrix33 operator -( Matrix33 left, Matrix33 right )
         {
             Matrix33 ret = new Matrix33();
             InternalIO.Intrinsic.sub_mat_3( &left.mat, &right.mat, &ret.mat );
@@ -153,8 +154,7 @@ namespace StgSharp.Math
         public static Matrix33 operator *( Matrix33 mat, float value )
         {
             return new Matrix33(
-                mat.mat.colum0 * value, mat.mat.colum1 * value,
-                mat.mat.colum2 * value );
+                mat.mat.colum0 * value, mat.mat.colum1 * value, mat.mat.colum2 * value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -225,14 +225,11 @@ namespace StgSharp.Math
         public static Matrix33 operator /( Matrix33 mat, float value )
         {
             return new Matrix33(
-                mat.mat.colum0 / value, mat.mat.colum1 / value,
-                mat.mat.colum2 / value );
+                mat.mat.colum0 / value, mat.mat.colum1 / value, mat.mat.colum2 / value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix33 operator +(
-                                                       Matrix33 left,
-                                                       Matrix33 right )
+        public static unsafe Matrix33 operator +( Matrix33 left, Matrix33 right )
         {
             Matrix33 ret = new Matrix33();
             InternalIO.Intrinsic.add_mat_3( &left.mat, &right.mat, &ret.mat );

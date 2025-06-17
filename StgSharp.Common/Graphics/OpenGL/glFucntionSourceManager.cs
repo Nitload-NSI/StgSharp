@@ -55,7 +55,8 @@ namespace StgSharp.Graphics.OpenGL
         internal void ReturnAvailableUnit( IEnumerable<TextureUnit> source )
         {
             int v = glConst.TEXTURE0 + TextureUnitCount;
-            foreach( TextureUnit unit in source ) {
+            foreach( TextureUnit unit in source )
+            {
                 if( ( int )unit > v ) {
                     throw new InvalidOperationException(
                         "Source contains texture unit beyond context support." );
@@ -63,15 +64,16 @@ namespace StgSharp.Graphics.OpenGL
             }
         }
 
-        internal int TryGetAvailableTextureUnit(
-            int count,
-            out IEnumerable<TextureUnit> result )
+        internal int TryGetAvailableTextureUnit( int count, out IEnumerable<TextureUnit> result )
         {
             result = new Queue<TextureUnit>();
-            for( int i = 0; i < count; i++ ) {
-                if( UnusedTextureImageUint.TryDequeue( out TextureUnit unit ) ) {
+            for( int i = 0; i < count; i++ )
+            {
+                if( UnusedTextureImageUint.TryDequeue( out TextureUnit unit ) )
+                {
                     ( result as Queue<TextureUnit> )!.Enqueue( unit );
-                } else {
+                } else
+                {
                     return i;
                 }
             }
@@ -80,8 +82,7 @@ namespace StgSharp.Graphics.OpenGL
 
         private ConcurrentQueue<TextureUnit> InitializeUnusedTextureImageUint()
         {
-            ConcurrentQueue<TextureUnit> result = new ConcurrentQueue<TextureUnit>(
-                );
+            ConcurrentQueue<TextureUnit> result = new ConcurrentQueue<TextureUnit>();
             for( int index = 0; index < TextureUnitCount; index++ ) {
                 result.Enqueue( ( TextureUnit )( glConst.TEXTURE0 + index ) );
             }

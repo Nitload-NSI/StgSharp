@@ -51,19 +51,17 @@ namespace StgSharp.Graphics.OpenGL
             GL.BindRenderBuffer( this[ index ] );
         }
 
-        public void Store(
-            RenderBufferInternalFormat format,
-            (int width, int height) size )
+        public void Store( RenderBufferInternalFormat format, (int width, int height) size )
         {
             if( ( size.width > binding.Width ) || ( size.height > binding.Height ) ) {
-                StgSharp.LogWarning(
-                    "FrameBuffer is larger than current canvas binding" );
+                World.LogWarning( "FrameBuffer is larger than current canvas binding" );
             }
         }
 
         protected override void Dispose( bool disposing )
         {
-            foreach( GlHandle item in _bufferHandle ) {
+            foreach( GlHandle item in _bufferHandle )
+            {
                 Console.WriteLine( "removing a render buffer" );
                 GL.DeleteRenderBuffer( item );
             }

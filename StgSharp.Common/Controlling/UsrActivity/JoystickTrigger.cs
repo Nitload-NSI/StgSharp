@@ -70,16 +70,12 @@ namespace StgSharp.Controlling.UsrActivity
             return $"Key {_stick} triggered when {_status}";
         }
 
-        public static bool operator !=(
-            JoystickTrigger left,
-            JoystickTrigger right )
+        public static bool operator !=( JoystickTrigger left, JoystickTrigger right )
         {
             return !( left == right );
         }
 
-        public static bool operator ==(
-            JoystickTrigger left,
-            JoystickTrigger right )
+        public static bool operator ==( JoystickTrigger left, JoystickTrigger right )
         {
             return ( left._status == right._status ) && ( left._stick == right._stick );
         }

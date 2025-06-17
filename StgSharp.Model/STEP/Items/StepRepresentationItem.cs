@@ -28,26 +28,36 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using StgSharp.Model.Step;
-
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
+using System;
 using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public abstract partial class StepRepresentationItem
+    public class StepRepresentationItem : StepEntityBase, IExpConvertableFrom<StepRepresentationItem>
     {
 
-        protected StepRepresentationItem( string name )
+        protected StepRepresentationItem( StepModel model )
         {
-            Name = name;
+            Context = model;
         }
 
-        public abstract StepItemType ItemType { get; }
+        public override StepItemType ItemType => StepItemType.PresentationItem;
 
-        public string Name { get; set; }
+        public void FromInstance( StepRepresentationItem entity )
+        {
+            base.FromInstance( entity );
+        }
+
+        public virtual bool IsConvertableTo( string entityName )
+        {
+            return entityName == "StepRepresentationItem";
+        }
 
     }
 }

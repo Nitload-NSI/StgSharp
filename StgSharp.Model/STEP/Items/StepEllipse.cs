@@ -37,36 +37,36 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepEllipse : StepConic
+    public class StepEllipse : StepConic, IExpConvertableFrom<StepEllipse>
     {
 
         private StepAxis2Placement _position;
 
-        private StepEllipse() { }
+        private StepEllipse( StepModel model ) : base( model ) { }
 
         public StepEllipse(
+               StepModel model,
                string name,
                StepAxis2Placement position,
-               double semiAxis1,
-               double semiAxis2 )
+               float semiAxis1,
+               float semiAxis2 )
+            : base( model )
         {
             Position = position;
             SemiAxis1 = semiAxis1;
             SemiAxis2 = semiAxis2;
         }
 
-        public double SemiAxis1 { get; set; }
+        public float SemiAxis1 { get; set; }
 
-        public double SemiAxis2 { get; set; }
+        public float SemiAxis2 { get; set; }
 
         public StepAxis2Placement Position
         {
             get { return _position; }
             set
             {
-                if( value == null ) {
-                    throw new ArgumentNullException();
-                }
+                ArgumentNullException.ThrowIfNull( value );
 
                 _position = value;
             }
@@ -74,14 +74,20 @@ namespace StgSharp.Model.Step
 
         public override StepItemType ItemType => StepItemType.Ellipse;
 
+        public void FromInstance( StepEllipse entity )
+        {
+            base.FromInstance( entity );
+            SemiAxis1 = entity.SemiAxis1;
+            SemiAxis2 = entity.SemiAxis2;
+        }
+
         internal static StepEllipse FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepEllipse ellipse = new StepEllipse();
+            StepEllipse ellipse = new StepEllipse( binder );
             enumerator.AssertEnumeratorCount( 4 );
             ellipse.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator[ 1 ], v => ellipse.Position = v.AsType<StepAxis2Placement>() );
+            ellipse.Position = binder[ ( enumerator[ 1 ] as StepEntityInstanceNode )!.Id ]as StepAxis2Placement2D;
             ellipse.SemiAxis1 = ( enumerator[ 2 ] as ExpRealNumberNode )!.Value;
             ellipse.SemiAxis2 = ( enumerator[ 3 ] as ExpRealNumberNode )!.Value;
             return ellipse;

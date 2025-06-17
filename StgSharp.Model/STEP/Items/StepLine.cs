@@ -38,15 +38,16 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepLine : StepCurve
+    public class StepLine : StepCurve, IExpConvertableFrom<StepLine>
     {
 
         private StepCartesianPoint _point;
         private StepVector _vector;
 
-        private StepLine() { }
+        private StepLine( StepModel model ) : base( model ) { }
 
-        public StepLine( StepCartesianPoint point, StepVector vector )
+        public StepLine( StepModel model, StepCartesianPoint point, StepVector vector )
+            : base( model )
         {
             Point = point;
             Vector = vector;
@@ -57,10 +58,7 @@ namespace StgSharp.Model.Step
             get { return _point; }
             set
             {
-                if( value == null ) {
-                    throw new ArgumentNullException();
-                }
-
+                ArgumentNullException.ThrowIfNull( value );
                 _point = value;
             }
         }
@@ -72,15 +70,20 @@ namespace StgSharp.Model.Step
             get { return _vector; }
             set
             {
-                if( value == null ) {
-                    throw new ArgumentNullException();
-                }
-
+                ArgumentNullException.ThrowIfNull( value );
                 _vector = value;
             }
         }
 
+        public void FromInstance( StepLine entity )
+        {
+            base.FromInstance( entity );
+            Point = entity.Point;
+            Vector = entity.Vector;
+        }
+
         public static StepLine FromPoints(
+                               StepModel model,
                                float x1,
                                float y1,
                                float z1,
@@ -88,7 +91,7 @@ namespace StgSharp.Model.Step
                                float y2,
                                float z2 )
         {
-            StepCartesianPoint start = new StepCartesianPoint( x1, y1, z1 );
+            StepCartesianPoint start = new StepCartesianPoint( model, x1, y1, z1 );
             float dx = x2 - x1;
             float dy = y2 - y1;
             float dz = z2 - z1;
@@ -96,18 +99,19 @@ namespace StgSharp.Model.Step
             float dxn = dx / length;
             float dyn = dy / length;
             float dzn = dz / length;
-            StepVector vector = new StepVector( new StepDirection( dxn, dyn, dzn ), length );
-            return new StepLine( start, vector );
+            StepVector vector = new StepVector(
+                model, new StepDirection( model, dxn, dyn, dzn ), length );
+            return new StepLine( model, start, vector );
         }
 
         internal static StepLine FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepLine line = new StepLine();
+            StepLine line = new StepLine( binder );
             enumerator.AssertEnumeratorCount( 3 );
             line.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue( enumerator[ 1 ], v => line.Point = v.AsType<StepCartesianPoint>() );
-            binder.BindValue( enumerator[ 2 ], v => line.Vector = v.AsType<StepVector>() );
+            line.Point = binder[ enumerator[ 1 ] ] as StepCartesianPoint;
+            line.Vector = binder[ enumerator[ 2 ] ] as StepVector;
             return line;
         }
 

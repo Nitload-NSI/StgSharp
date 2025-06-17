@@ -44,7 +44,7 @@ namespace StgSharp.Model.Step
     public class StepModel
     {
 
-        private Dictionary<int, StepEntityBase> _nodes 
+        private Dictionary<int, StepEntityBase> _nodes
             = new Dictionary<int, StepEntityBase>();
 
         private PipelineScheduler _builder;
@@ -62,15 +62,38 @@ namespace StgSharp.Model.Step
         {
             get
             {
-                if( _nodes.TryGetValue( id, out StepEntityBase? node ) ) {
-                    return node;
-                }
                 if( id == 0 ) {
                     return null;
+                }
+                if( _nodes.TryGetValue( id, out StepEntityBase? node ) )
+                {
+                    if( node is StepUnsupportedEntity ) {
+                        throw new StepEntityUnsupportedException();
+                    }
+                    return node;
                 }
                 node = new StepUninitializedEntity( this, id );
                 _nodes.Add( id, node );
                 return node;
+            }
+            private set { _nodes[ id ] = value!; }
+        }
+
+        internal StepEntityBase? this[ ExpSyntaxNode node ]
+        {
+            get
+            {
+                if( node is not StepEntityInstanceNode instance ) {
+                    throw new InvalidCastException();
+                }
+                return this[ instance.Id ];
+            }
+            set
+            {
+                if( node is not StepEntityInstanceNode instance ) {
+                    throw new InvalidCastException();
+                }
+                this[ instance.Id ] = value;
             }
         }
 
@@ -132,13 +155,44 @@ namespace StgSharp.Model.Step
                     StepEntityBase accurateEntity )
         {
             ArgumentNullException.ThrowIfNull( uninitialized );
-            if( uninitialized. Context != this || accurateEntity.Context != this ) {
+            if( uninitialized.Context != this || accurateEntity.Context != this ) {
                 throw new InvalidOperationException();
             }
             if( uninitialized.Id != accurateEntity.Id ) {
                 throw new InvalidOperationException();
             }
             _nodes[ uninitialized.Id ] = accurateEntity;
+        }
+
+        public string[] ShowStructure( int depth )
+        {
+            _initScheduler.ArrangeNodes();
+            IEnumerable<PipelineNode> nodes = PipelineMarshal.GetNodeSortedEnumeration(
+                _initScheduler );
+            int count = 0;
+            List<string> info = [
+                @$"Step model root",
+                ];
+            foreach( PipelineNode node in nodes )
+            {
+                count++;
+                StepUninitializedEntity uncertain = ( node.NodeOperation as StepUninitializedEntity )!;
+                string[] strings = uncertain.GetEntityDescription( depth - 1 );
+                if( count < nodes.Count() )
+                {
+                    info.Add( $"  ├-{strings[0]}" );
+                    for( int i = 1; i < strings.Length; i++ ) {
+                        info.Add( $"  | {strings[i]}" );
+                    }
+                } else
+                {
+                    info.Add( $"  └-{strings[0]}" );
+                    for( int i = 1; i < strings.Length; i++ ) {
+                        info.Add( $"    {strings[i]}" );
+                    }
+                }
+            }
+            return info.ToArray();
         }
 
     }

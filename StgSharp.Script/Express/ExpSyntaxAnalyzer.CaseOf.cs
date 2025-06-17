@@ -64,8 +64,8 @@ namespace StgSharp.Script.Express
                     return true;
                 case ":":
                     state = _cache.StateOfCurrentDepth<CaseOfStateCache>();
-                    if( state.CurrentState != ExpKeyword.Of && state.CurrentState !=
-                        ExpKeyword.Otherwise )
+                    if( state.CurrentState != ExpKeyword.Of &&
+                        state.CurrentState != ExpKeyword.Otherwise )
                     {
                         root = _cache.PackAllStatements();
                         state.CloseCurrentCase( root );
@@ -95,7 +95,7 @@ namespace StgSharp.Script.Express
                     _cache.StatementsInDepth.Push( root );
                     return true;
                 default:
-                    AppendToken_common( t );
+                    AppendToken_Common( t );
                     return true;
             }
         }

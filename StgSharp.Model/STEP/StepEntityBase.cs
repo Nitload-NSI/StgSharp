@@ -38,12 +38,16 @@ using StgSharp.Script.Express;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepEntityBase : IExpMarshalType<StepUninitializedEntity>
+    public abstract class StepEntityBase : IExpConvertableFrom<StepEntityBase>
     {
+
+        public IEnumerable<int> Dependencies { get; private protected set; }
 
         public int Id
         {
@@ -59,12 +63,71 @@ namespace StgSharp.Model.Step
 
         public string Name { get; protected set; }
 
-        public T AsType<T>() where T: StepEntityBase
+        protected string ExpEntityTypeName { get; set; }
+
+        public void FromInstance( StepEntityBase entity )
         {
-            return null;
+            this.Id = entity.Id;
+            this.Label = entity.Label;
+            this.ExpEntityTypeName = entity.ExpEntityTypeName;
+            this.Name = entity.Name;
         }
 
-        public void ImplementFrom( StepEntityBase entity ) { }
+        public unsafe string[] GetEntityDescription( int depth )
+        {
+            List<string> ret = new();
+            string thisDescription = $"Entity Id: {Id}, type: {ExpEntityTypeName}";
+            if( depth <= 0 ) {
+                return [thisDescription];
+            }
+            switch( Dependencies.Count() )
+            {
+                case 0:
+                    return [thisDescription];
+                case 1:
+                    ret.Add( thisDescription );
+                    int only = Dependencies.First();
+                    string[] dep = Context[ only ]!.GetEntityDescription( depth - 1 );
+                    ret.Add( $"  ©¸-{dep[0]}" );
+                    for( int i = 1; i < dep.Length; i++ ) {
+                        ret.Add( $"    {dep[i]}" );
+                    }
+                    return ret.ToArray();
+                default:
+                    ret.Add( thisDescription );
+                    int first = Dependencies.First();
+                    dep = Context[ first ]!.GetEntityDescription( depth - 1 );
+                    ret.Add( $"  ©À-{dep[0]}" );
+                    int index = 0;
+                    for( int i = 1; i < dep.Length; i++ ) {
+                        ret.Add( $"  | {dep[i]}" );
+                    }
+                    foreach( int item in Dependencies )
+                    {
+                        index++;
+                        if( index == 1 || index >= Dependencies.Count() )
+                        {
+                            continue;
+                        }
+                        dep = Context[ item ]!.GetEntityDescription( depth - 1 );
+                        ret.Add( $"  ©À-{dep[0]}" );
+                        for( int i = 1; i < dep.Length; i++ ) {
+                            ret.Add( $"  | {dep[i]}" );
+                        }
+                    }
+                    dep = Context[ Dependencies.Last() ].GetEntityDescription( depth - 1 );
+                    ret.Add( $"  ©¸-{dep[0]}" );
+                    for( int i = 1; i < dep.Length; i++ ) {
+                        ret.Add( $"    {dep[i]}" );
+                    }
+                    return ret.ToArray();
+            }
+        }
+
+        public bool IsConvertableTo( string entityName )
+        {
+            return false;
+        }
 
     }
 }

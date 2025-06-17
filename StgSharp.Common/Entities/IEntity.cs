@@ -42,29 +42,21 @@ namespace StgSharp
         protected uint _bornTick;
         internal Func<int, Vec3> _movHandler;
         internal LinkedList<PlainGeometry> _collisionBox;
+        internal PlainGeometryCollisionSensor<PlainGeometry, PlainGeometry> _collisionSensor;
         internal Point _basePoint;
         internal Point _pos;
         internal Point _position;
-        internal PlainGeometryCollisionSensor<PlainGeometry, PlainGeometry> _collisionSensor;
         internal string _texture;
 
         /// <summary>
-        /// X position of an enenmy entity
+        ///   X position of an enenmy entity
         /// </summary>
-        public float X
-        {
-            get;
-            set;
-        }
+        public float X { get; set; }
 
         /// <summary>
-        /// Y position of an enemy entity
+        ///   Y position of an enemy entity
         /// </summary>
-        public float Y
-        {
-            get;
-            set;
-        }
+        public float Y { get; set; }
 
         public LinkedList<PlainGeometry> CollisionBox
         {
@@ -73,7 +65,7 @@ namespace StgSharp
         }
 
         /// <summary>
-        /// A sensor used for checking out if a bullet hit a player or something else
+        ///   A sensor used for checking out if a bullet hit a player or something else
         /// </summary>
         public PlainGeometryCollisionSensor<PlainGeometry, PlainGeometry> CollisionSensor
         {
@@ -81,20 +73,13 @@ namespace StgSharp
             set => _collisionSensor = value;
         }
 
-        public string TextureGL
-        {
-            get;
-            set;
-        }
+        public string TextureGL { get; set; }
 
         /// <summary>
-        /// A 2D vector presenting the position of an enemy entity, position can also be visited by
-        /// X, Y
+        ///   A 2D vector presenting the position of an enemy entity, position can also be visited
+        ///   by X, Y
         /// </summary>
-        public Vec2 Location
-        {
-            get;
-        }
+        public Vec2 Location { get; }
 
         public abstract void OnRenderFrame();
 

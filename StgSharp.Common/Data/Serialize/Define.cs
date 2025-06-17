@@ -35,7 +35,7 @@ using System.Text;
 namespace StgSharp.Internal
 {
     /// <summary>
-    /// A class contains a sets of methods to serialize several types
+    ///   A class contains a sets of methods to serialize several types
     /// </summary>
     public static partial class Serializer { }
 }

@@ -40,10 +40,12 @@ using System.Xml.Serialization;
 namespace StgSharp.Collections
 {
     /// <summary>
-    /// Part of a collection. This contains a direct reference to _origin collection, so all change
-    /// to _origin collection will be reflected in this object.
+    ///   Part of a collection. This contains a direct reference to _origin collection, so all
+    ///   change to _origin collection will be reflected in this object.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">
+    ///
+    /// </typeparam>
     public struct ListSegment<T> : ICollection<T>
     {
 
@@ -56,8 +58,7 @@ namespace StgSharp.Collections
             ArgumentNullException.ThrowIfNull( collection );
             ArgumentOutOfRangeException.ThrowIfLessThan( begin, 0 );
             ArgumentOutOfRangeException.ThrowIfLessThan( length, 0 );
-            ArgumentOutOfRangeException.ThrowIfLessThan(
-                begin + length, collection.Count );
+            ArgumentOutOfRangeException.ThrowIfLessThan( begin + length, collection.Count );
             _collection = collection;
             _begin = begin;
             _length = length;
@@ -68,9 +69,19 @@ namespace StgSharp.Collections
             get
             {
                 ArgumentOutOfRangeException.ThrowIfLessThan( indexValue, 0 );
-                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(
-                    indexValue, _length );
+                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( indexValue, _length );
                 return _collection[ indexValue + _begin ];
+            }
+        }
+
+        public T this[ Index i ]
+        {
+            get
+            {
+                int offset = i.IsFromEnd ? _length - i.Value : i.Value;
+                ArgumentOutOfRangeException.ThrowIfLessThan( offset, 0 );
+                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( offset, _length );
+                return _collection[ offset + _begin ];
             }
         }
 
@@ -87,8 +98,7 @@ namespace StgSharp.Collections
         public void CopyTo( T[] array, int arrayIndex )
         {
             ArgumentNullException.ThrowIfNull( array );
-            Span<T> span = CollectionsMarshal.AsSpan<T>( _collection )
-                    .Slice( _begin, _length );
+            Span<T> span = CollectionsMarshal.AsSpan<T>( _collection ).Slice( _begin, _length );
             Span<T> target = new Span<T>( array, arrayIndex, _length );
             span.CopyTo( target );
         }

@@ -51,17 +51,9 @@ namespace StgSharp.Controls
             get => throw new NotImplementedException();
         }
 
-        public Rectangle BoundingBox
-        {
-            get;
-            set;
-        }
+        public Rectangle BoundingBox { get; set; }
 
-        public Vec2 Position
-        {
-            get;
-            set;
-        }
+        public Vec2 Position { get; set; }
 
         public IEnumerator<PlainGeometryMesh> GetEnumerator()
         {

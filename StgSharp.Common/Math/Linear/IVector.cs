@@ -40,27 +40,9 @@ namespace StgSharp.Math
     public interface IVector<TSelf> where TSelf: struct, IVector<TSelf>
     {
 
-        public static abstract TSelf Zero
-        {
-            get;
-        }
+        public static abstract TSelf Zero { get; }
 
-        public static abstract TSelf One
-        {
-            get;
-        }
-
-        public Vec2 XY
-        {
-            get;
-            set;
-        }
-
-        public Vec3 XYZ
-        {
-            get;
-            set;
-        }
+        public static abstract TSelf One { get; }
 
     }
 }

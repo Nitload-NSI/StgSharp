@@ -30,9 +30,20 @@
 //-----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepLoop : StepTopologicalRepresentationItem { }
+    public abstract class StepLoop : StepTopologicalRepresentationItem, IExpConvertableFrom<StepLoop>
+    {
+
+        protected StepLoop( StepModel model ) : base( model ) { }
+
+        public void FromInstance( StepLoop entity )
+        {
+            base.FromInstance( entity );
+        }
+
+    }
 }
 

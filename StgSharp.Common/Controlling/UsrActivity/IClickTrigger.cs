@@ -37,15 +37,9 @@ namespace StgSharp.Controlling.UsrActivity
     public interface IClickTrigger
     {
 
-        public int TargetKeyOrButtonID
-        {
-            get;
-        }
+        public int TargetKeyOrButtonID { get; }
 
-        public KeyStatus TriggeredStatus
-        {
-            get;
-        }
+        public KeyStatus TriggeredStatus { get; }
 
     }
 }

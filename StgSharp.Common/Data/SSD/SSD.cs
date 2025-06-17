@@ -58,8 +58,7 @@ namespace StgSharp.Internal
 
         public static SSD FromFile( string fileRoute )
         {
-            return new SSD(
-                new FileStream( fileRoute, FileMode.Open, FileAccess.Read ) )
+            return new SSD( new FileStream( fileRoute, FileMode.Open, FileAccess.Read ) )
             {
             };
         }

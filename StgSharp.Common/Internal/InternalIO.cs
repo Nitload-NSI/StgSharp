@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
 
@@ -60,8 +59,7 @@ namespace StgSharp.Internal
 
         internal static IntPtr SSClibPtr = IntPtr.Zero;
 
-        internal static SemaphoreSlim logSyncSemaphore = new SemaphoreSlim(
-            1, 1 );
+        internal static SemaphoreSlim logSyncSemaphore = new SemaphoreSlim( 1, 1 );
 
         static InternalIO()
         {
@@ -76,7 +74,8 @@ namespace StgSharp.Internal
 
         internal static void InternalAppendLog( string log )
         {
-            if( !File.Exists( SS_errorLog ) ) {
+            if( !File.Exists( SS_errorLog ) )
+            {
                 FileStream stream = File.Create( SS_errorLog );
                 stream.Close();
             }
@@ -87,10 +86,10 @@ namespace StgSharp.Internal
         }
 
         [Obsolete( "Not completed", true )]
-        internal static IntPtr InternalLoadProc<T>( IntPtr lib, string name )
-            where T: Delegate
+        internal static IntPtr InternalLoadProc<T>( IntPtr lib, string name ) where T: Delegate
         {
-            try {
+            try
+            {
                 IntPtr procPtr =
 #if WINDOWS
                     IntPtr.Zero;
@@ -102,7 +101,8 @@ namespace StgSharp.Internal
                 #endif
                 return procPtr;
             }
-            catch( Exception ) {
+            catch( Exception )
+            {
                 throw;
             }
         }
@@ -110,34 +110,33 @@ namespace StgSharp.Internal
         internal static void InternalWriteLog( string logLine, LogType logType )
         {
             logSyncSemaphore.Wait();
-            if( !File.Exists( SS_errorLog ) ) {
+            if( !File.Exists( SS_errorLog ) )
+            {
                 FileStream stream = File.Create( SS_errorLog );
                 stream.Close();
             }
 
-            using( StreamWriter logStream = File.AppendText( SS_errorLog ) ) {
-                logStream.WriteLine(
-                    $"{logType}\t{DateTime.Now.ToString("o")}" );
+            using( StreamWriter logStream = File.AppendText( SS_errorLog ) )
+            {
+                logStream.WriteLine( $"{logType}\t{DateTime.Now.ToString("o")}" );
                 logStream.WriteLine( logLine );
             }
             logSyncSemaphore.Release();
         }
 
-        internal static void InternalWriteLog(
-                                     string beforeTime,
-                                     string logLine,
-                                     LogType logType )
+        internal static void InternalWriteLog( string beforeTime, string logLine, LogType logType )
         {
             logSyncSemaphore.Wait();
-            if( !File.Exists( SS_errorLog ) ) {
+            if( !File.Exists( SS_errorLog ) )
+            {
                 FileStream stream = File.Create( SS_errorLog );
                 stream.Close();
             }
 
-            using( StreamWriter logStream = File.AppendText( SS_errorLog ) ) {
+            using( StreamWriter logStream = File.AppendText( SS_errorLog ) )
+            {
                 logStream.WriteLine( beforeTime );
-                logStream.WriteLine(
-                    $"{logType}\t@\t{DateTime.Now.ToString("o")}" );
+                logStream.WriteLine( $"{logType}\t@\t{DateTime.Now.ToString("o")}" );
                 logStream.WriteLine( logLine );
             }
             logSyncSemaphore.Release( 1 );

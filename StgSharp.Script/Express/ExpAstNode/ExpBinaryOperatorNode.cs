@@ -73,8 +73,8 @@ namespace StgSharp.Script.Express
                                                    left.EqualityTypeConvert.Name );
             }
             bool isFloat =
-                    ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
-                    0;
+                    ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 ||
+                    ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0;
             return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = isFloat ? ExpressCompile.ExpReal : ExpressCompile.ExpInt,
@@ -158,8 +158,8 @@ namespace StgSharp.Script.Express
                                                    left.EqualityTypeConvert.Name );
             }
             bool isFloat =
-                    ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
-                    0;
+                    ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 ||
+                    ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0;
             return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = isFloat ? ExpressCompile.ExpReal : ExpressCompile.ExpInt,
@@ -229,8 +229,8 @@ namespace StgSharp.Script.Express
                                                    left.EqualityTypeConvert.Name );
             }
             bool isFloat =
-                    ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
-                    0;
+                    ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 ||
+                    ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0;
             return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = isFloat ? ExpressCompile.ExpReal : ExpressCompile.ExpInt,
@@ -283,8 +283,8 @@ namespace StgSharp.Script.Express
                                                    left.EqualityTypeConvert.Name );
             }
             bool isFloat =
-                    ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 || ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) ==
-                    0;
+                    ( left._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0 ||
+                    ( right._nodeFlag | ExpNodeFlag.BuiltinType_Real ) == 0;
             return new ExpBinaryOperatorNode( source, left, right )
             {
                 _returnType = isFloat ? ExpressCompile.ExpReal : ExpressCompile.ExpInt,

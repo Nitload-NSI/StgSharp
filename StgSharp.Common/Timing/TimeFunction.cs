@@ -44,9 +44,9 @@ namespace StgSharp.Timing
         internal TimeFunction() { }
 
         public TimeFunction(
-            TimeSpanProvider timeSpanProvider,
-            Func<float, float> timeRelatedCalculation,
-            float range )
+               TimeSpanProvider timeSpanProvider,
+               Func<float, float> timeRelatedCalculation,
+               float range )
         {
             _timeProvider = timeSpanProvider;
             _timeRelatedCalculation = timeRelatedCalculation;
@@ -84,28 +84,20 @@ namespace StgSharp.Timing
             if( _timeProvider.CurrentSecond < _ending ) {
                 return 0;
             }
-            return _timeRelatedCalculation(
-                _timeProvider.CurrentSecond - _beginning );
+            return _timeRelatedCalculation( _timeProvider.CurrentSecond - _beginning );
         }
 
-        public static TimeFunction Proportional(
-            TimeSpanProvider time,
-            float begin,
-            float range )
+        public static TimeFunction Proportional( TimeSpanProvider time, float begin, float range )
         {
             return new TimeFunction( time, ( float t ) => t + begin, range );
         }
 
-        public virtual TimeFunction Renew(
-            (Func<float, float> func, float range) funcPair )
+        public virtual TimeFunction Renew( (Func<float, float> func, float range) funcPair )
         {
-            return new TimeFunction(
-                _timeProvider, funcPair.func, funcPair.range );
+            return new TimeFunction( _timeProvider, funcPair.func, funcPair.range );
         }
 
-        public virtual TimeFunction Renew(
-            Func<float, float> func,
-            float range )
+        public virtual TimeFunction Renew( Func<float, float> func, float range )
         {
             return new TimeFunction( _timeProvider, func, range );
         }
@@ -121,8 +113,7 @@ namespace StgSharp.Timing
         {
             float range = _ending - _beginning;
             return new TimeFunction(
-                _timeProvider, p => _timeRelatedCalculation( range - p ),
-                range );
+                _timeProvider, p => _timeRelatedCalculation( range - p ), range );
         }
 
     }
@@ -142,15 +133,12 @@ namespace StgSharp.Timing
             return 1;
         }
 
-        public override TimeFunction Renew(
-            (Func<float, float> func, float range) funcPair )
+        public override TimeFunction Renew( (Func<float, float> func, float range) funcPair )
         {
             throw new NotSupportedException();
         }
 
-        public override TimeFunction Renew(
-            Func<float, float> func,
-            float range )
+        public override TimeFunction Renew( Func<float, float> func, float range )
         {
             throw new NotSupportedException();
         }

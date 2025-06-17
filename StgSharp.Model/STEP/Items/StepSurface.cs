@@ -30,9 +30,25 @@
 //-----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepSurface : StepGeometricRepresentationItem { }
+    public class StepSurface : StepGeometricRepresentationItem, IExpConvertableFrom<StepSurface>
+    {
+
+        protected StepSurface( StepModel model ) : base( model ) { }
+
+        public void FromInstance( StepSurface entity )
+        {
+            base.FromInstance( entity );
+        }
+
+        public override bool IsConvertableTo( string entityName )
+        {
+            return base.IsConvertableTo( entityName ) || entityName == "StepSurface";
+        }
+
+    }
 }
 

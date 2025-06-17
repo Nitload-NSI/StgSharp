@@ -50,50 +50,47 @@ namespace StgSharp.Script.Express
 
         public string Process( string filePath )
         {
-            Dictionary<string, string> factoryMethods = new Dictionary<string, string>(
-                );
+            Dictionary<string, string> factoryMethods = new Dictionary<string, string>();
 
             FileStream file = File.OpenRead( filePath );
-            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(
-                File.ReadAllText( filePath ) );
+            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText( File.ReadAllText( filePath ) );
 
-            CSharpCompilation compilation = CSharpCompilation.Create(
-                "Analysis" )
-                    .AddSyntaxTrees( syntaxTree )
-                    .AddReferences(
-                        MetadataReference.CreateFromFile(
-                            typeof( object ).Assembly.Location ) );
+            CSharpCompilation compilation = CSharpCompilation.Create( "Analysis" )
+                                                             .AddSyntaxTrees( syntaxTree )
+                                                             .AddReferences(
+                                                                 MetadataReference.CreateFromFile(
+                                                                     typeof( object ).Assembly.Location ) );
 
-            INamedTypeSymbol? interfaceSymbol = compilation.GetTypeByMetadataName(
-                _interfaceName );
+            INamedTypeSymbol? interfaceSymbol = compilation.GetTypeByMetadataName( _interfaceName );
 
             if( interfaceSymbol == null ) {
-                throw new InvalidOperationException(
-                    $"Interface '{_interfaceName}' not found." );
+                throw new InvalidOperationException( $"Interface '{_interfaceName}' not found." );
             }
 
-            SemanticModel semanticModel = compilation.GetSemanticModel(
-                syntaxTree );
+            SemanticModel semanticModel = compilation.GetSemanticModel( syntaxTree );
             SyntaxNode root = syntaxTree.GetRoot();
 
-            IEnumerable<ClassDeclarationSyntax> classDeclarations = root.DescendantNodes(
-                )
-                    .OfType<ClassDeclarationSyntax>()
-                    .Where(
-                        cls => cls.BaseList?.Types.Any(
-                                t => SymbolEqualityComparer.Default
-                                        .Equals(
-                                            semanticModel.GetTypeInfo( t.Type )
-                                                                .Type,
-                                            interfaceSymbol ) ) ??
-                            false );
+            IEnumerable<ClassDeclarationSyntax> classDeclarations = root.DescendantNodes()
+                                                                        .OfType<ClassDeclarationSyntax>(
+                                                                            )
+                                                                        .Where(
+                                                                            cls => cls.BaseList?.Types.Any(
+                                                                                    t => SymbolEqualityComparer.Default
+                                                                                                               .Equals(
+                                                                                                                   semanticModel.GetTypeInfo(
+                                                                                                                                   t.Type )
+                                                                                                                                .Type,
+                                                                                                                   interfaceSymbol ) ) ??
+                                                                                false );
 
-            foreach( ClassDeclarationSyntax classDeclaration in classDeclarations ) {
+            foreach( ClassDeclarationSyntax classDeclaration in classDeclarations )
+            {
                 string className = classDeclaration.Identifier.Text;
                 IMethodSymbol? factoryMethod = interfaceSymbol.GetMembers()
-                        .OfType<IMethodSymbol>()
-                        .FirstOrDefault(
-                            m => m.IsStatic && m.Name == "CreateInstance" );
+                                                              .OfType<IMethodSymbol>()
+                                                              .FirstOrDefault(
+                                                                  m => m.IsStatic &&
+                                                                       m.Name == "CreateInstance" );
 
                 if( factoryMethod != null ) {
                     factoryMethods[ className ] = $"() => {interfaceSymbol.Name}.CreateInstance()";
@@ -102,9 +99,7 @@ namespace StgSharp.Script.Express
 
             string code = "var factoryMethods = new Dictionary<string, Func<object>>\n{\n";
             code += string.Join(
-                ",\n",
-                factoryMethods.Select(
-                    kvp => $"    {{ \"{kvp.Key}\", {kvp.Value} }}" ) );
+                ",\n", factoryMethods.Select( kvp => $"    {{ \"{kvp.Key}\", {kvp.Value} }}" ) );
             code += "\n};";
 
             return code;

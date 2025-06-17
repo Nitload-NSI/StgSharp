@@ -39,13 +39,17 @@ namespace StgSharp.Commom.Collections
 {
     public static class CapacityFixedListBuilder
     {
-        internal static CapacityFixedList<T> Create<T>(ReadOnlySpan<T> values)
+
+        internal static CapacityFixedList<T> Create<T>( ReadOnlySpan<T> values )
         {
-            return new CapacityFixedList<T>(values);
+            return new CapacityFixedList<T>( values );
         }
+
     }
 
-    [CollectionBuilder(typeof(CapacityFixedListBuilder),nameof(CapacityFixedListBuilder.Create))]
+    [CollectionBuilder(
+            typeof( CapacityFixedListBuilder ),
+            nameof( CapacityFixedListBuilder.Create ) )]
     public class CapacityFixedList<T> : IList<T>
     {
 
@@ -57,7 +61,7 @@ namespace StgSharp.Commom.Collections
             _values = new T[size];
         }
 
-        public CapacityFixedList(ReadOnlySpan<T> values)
+        public CapacityFixedList( ReadOnlySpan<T> values )
         {
             _values = values.ToArray();
         }
@@ -65,13 +69,14 @@ namespace StgSharp.Commom.Collections
         public T this[ int index ]
         {
             get => index < _index ?
-                    _values[ index ] : throw new ArgumentOutOfRangeException(
-                        nameof( index ) );
+                    _values[ index ] : throw new ArgumentOutOfRangeException( nameof( index ) );
             set
             {
-                if( index < _index ) {
+                if( index < _index )
+                {
                     _values[ index ] = value;
-                } else {
+                } else
+                {
                     throw new ArgumentOutOfRangeException( nameof( index ) );
                 }
             }
@@ -83,7 +88,8 @@ namespace StgSharp.Commom.Collections
 
         public void Add( T item )
         {
-            if( _index < capacity - 1 ) {
+            if( _index < capacity - 1 )
+            {
                 _index++;
                 this[ _index ] = item;
             }
@@ -97,7 +103,8 @@ namespace StgSharp.Commom.Collections
 
         public bool Contains( T item )
         {
-            for( int i = 0; i <= _index; i++ ) {
+            for( int i = 0; i <= _index; i++ )
+            {
                 if( item.Equals( _values[ i ] ) ) {
                     return true;
                 }
@@ -120,7 +127,8 @@ namespace StgSharp.Commom.Collections
         public int IndexOf( T item )
         {
             T v;
-            for( int i = 0; i <= _index; i++ ) {
+            for( int i = 0; i <= _index; i++ )
+            {
                 if( ( v = _values[ i ] ) != null && v.Equals( item ) ) {
                     return i;
                 }
@@ -131,8 +139,10 @@ namespace StgSharp.Commom.Collections
         public bool Remove( T item )
         {
             T v;
-            for( int i = 0; i <= _index; i++ ) {
-                if( ( v = _values[ i ] ) != null && v.Equals( item ) ) {
+            for( int i = 0; i <= _index; i++ )
+            {
+                if( ( v = _values[ i ] ) != null && v.Equals( item ) )
+                {
                     _values[ i ] = _values[ _index ];
                     _index--;
                     return true;
@@ -143,8 +153,10 @@ namespace StgSharp.Commom.Collections
 
         public void RemoveAll( Predicate<T> predicate )
         {
-            for( int i = _index; i > 0; i-- ) {
-                if( predicate( _values[ i ] ) ) {
+            for( int i = _index; i > 0; i-- )
+            {
+                if( predicate( _values[ i ] ) )
+                {
                     _values[ i ] = _values[ _index ];
                     _index--;
                 }
@@ -153,7 +165,8 @@ namespace StgSharp.Commom.Collections
 
         public void RemoveAt( int index )
         {
-            if( index <= _index ) {
+            if( index <= _index )
+            {
                 _values[ index ] = _values[ _index ];
                 _index--;
             }

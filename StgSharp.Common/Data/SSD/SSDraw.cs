@@ -60,17 +60,9 @@ namespace StgSharp.Internal.FileIO
             streamSource.Read( data.AsSpan() );
         }
 
-        public SSDrawHead Head
-        {
-            get;
-            set;
-        }
+        public SSDrawHead Head { get; set; }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
     }
 

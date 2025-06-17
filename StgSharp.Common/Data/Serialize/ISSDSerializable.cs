@@ -39,10 +39,7 @@ namespace StgSharp.Internal
     public interface ISSDSerializable
     {
 
-        public SerializableTypeCode SSDTypeCode
-        {
-            get;
-        }
+        public SerializableTypeCode SSDTypeCode { get; }
 
         public byte[] GetBytes();
 
@@ -68,8 +65,7 @@ namespace StgSharp.Internal
     public static partial class Serializer
     {
 
-        public static T Deserialize<T>( byte[] stream )
-            where T: ISSDSerializable
+        public static T Deserialize<T>( byte[] stream ) where T: ISSDSerializable
         {
             T serializableObject = Activator.CreateInstance<T>();
             serializableObject.FromBytes( stream );
@@ -78,7 +74,8 @@ namespace StgSharp.Internal
 
         public static string GetNameTail( SerializableTypeCode typeCode )
         {
-            switch( typeCode ) {
+            switch( typeCode )
+            {
                 case SerializableTypeCode.IndexTable:
                     return "_idt";
                 case SerializableTypeCode.PixelImage:

@@ -38,11 +38,7 @@ namespace StgSharp.Graphics
     public static class ImageHelper
     {
 
-        public static void Resize(
-            Image i,
-            int width,
-            int height,
-            ImageMovement move )
+        public static void Resize( Image i, int width, int height, ImageMovement move )
         {
             if( i == null ) {
                 throw new ArgumentNullException( nameof( i ) );
@@ -58,7 +54,8 @@ namespace StgSharp.Graphics
             i.Height = height;
             i.Width = width;
             i.PixelUpdateCount++;
-            switch( move ) {
+            switch( move )
+            {
                 case ImageMovement.Discard:
                     break;
                 case ImageMovement.Top:

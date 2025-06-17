@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="ViewPort.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -53,31 +54,27 @@ namespace StgSharp.MVVM
             Name = new StackFrame( 1, false ).
                 GetMethod()!.DeclaringType!.Name;
             Monitor = IntPtr.Zero;
-            ViewPortID = InternalIO.glfwCreateWindow(
-                _newWidth, _newHeight, Encoding.UTF8.GetBytes( Name ), Monitor,
-                IntPtr.Zero );
-            if( ViewPortID == IntPtr.Zero ) {
-                throw new InvalidOperationException(
-                    "Unable to create viewport handle." );
+            ViewPortHandle = InternalIO.glfwCreateWindow(
+                _newWidth, _newHeight, Encoding.UTF8.GetBytes( Name ), Monitor, IntPtr.Zero );
+            if( ViewPortHandle == IntPtr.Zero ) {
+                throw new InvalidOperationException( "Unable to create viewport handle." );
             }
-            _handleToViewPortIndex.TryAdd( ViewPortID, this );
+            _handleToViewPortIndex.TryAdd( ViewPortHandle, this );
         }
 
-        public ViewPort(int width, int height, string name, IntPtr monitor )
+        public ViewPort( int width, int height, string name, IntPtr monitor )
         {
             _newWidth = width;
             _newHeight = height;
             FlushSize();
             Name = name;
             Monitor = monitor;
-            ViewPortID = InternalIO.glfwCreateWindow(
-                _newWidth, _newHeight, Encoding.UTF8.GetBytes( Name ), Monitor,
-                IntPtr.Zero );
-            if( ViewPortID == IntPtr.Zero ) {
-                throw new InvalidOperationException(
-                    "Unable to create viewport handle." );
+            ViewPortHandle = InternalIO.glfwCreateWindow(
+                _newWidth, _newHeight, Encoding.UTF8.GetBytes( Name ), Monitor, IntPtr.Zero );
+            if( ViewPortHandle == IntPtr.Zero ) {
+                throw new InvalidOperationException( "Unable to create viewport handle." );
             }
-            _handleToViewPortIndex.TryAdd( ViewPortID, this );
+            _handleToViewPortIndex.TryAdd( ViewPortHandle, this );
         }
 
         public unsafe int Height
@@ -92,35 +89,17 @@ namespace StgSharp.MVVM
             internal set { Interlocked .Exchange( ref _width, value ); }
         }
 
-        public IntPtr GraphicHandle
-        {
-            get;
-            internal set;
-        }
+        public IntPtr GraphicHandle { get; internal set; }
 
-        public IntPtr Monitor
-        {
-            get;
-            internal set;
-        }
+        public IntPtr Monitor { get; internal set; }
 
-        public IntPtr ViewPortID
-        {
-            get;
-            private set;
-        }
+        public IntPtr ViewPortHandle { get; private set; }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
         //[BlueprintNodeExecution]
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static bool GetExistedViewPort(
-            IntPtr handle,
-            out ViewPort port )
+        public static bool GetExistedViewPort( IntPtr handle, out ViewPort port )
         {
             return _handleToViewPortIndex.TryGetValue( handle, out port );
         }

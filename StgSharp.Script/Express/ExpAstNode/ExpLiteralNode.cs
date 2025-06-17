@@ -88,7 +88,14 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpBoolNode : ExpElementInstance
+    public interface IExpBooleanSyntax
+    {
+
+        bool Value { get; }
+
+    }
+
+    public class ExpBoolNode : ExpElementInstance, IExpBooleanSyntax
     {
 
         private readonly bool _value;
@@ -152,7 +159,7 @@ namespace StgSharp.Script.Express
 
     }
 
-    public class ExpLogicValueNode : ExpElementInstance
+    public class ExpLogicValueNode : ExpElementInstance, IExpBooleanSyntax
     {
 
         private readonly ExpLogic _value;
@@ -166,7 +173,7 @@ namespace StgSharp.Script.Express
             CodeConvertTemplate = isLiteral ? value.ToString() : source.Value;
         }
 
-        public ExpLogic Value => _value;
+        public ExpLogic LogicValue => _value;
 
         public override IExpElementSource EqualityTypeConvert
         {
@@ -176,6 +183,8 @@ namespace StgSharp.Script.Express
         }
 
         public override string TypeName => EqualityTypeConvert.Name;
+
+        bool IExpBooleanSyntax.Value => _value.ToBoolean();
 
     }
 }

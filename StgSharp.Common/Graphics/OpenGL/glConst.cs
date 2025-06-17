@@ -4851,7 +4851,8 @@ namespace StgSharp.Graphics.OpenGL
         public static uint Color( int i )
         {
             #if DEBUG
-            if( ( i > OpenGLFunction.CurrentGL.AttachmentColorRange ) || ( i < 0 ) ) {
+            if( ( i > OpenGLFunction.CurrentGL.AttachmentColorRange ) || ( i < 0 ) )
+            {
                 throw new ArgumentOutOfRangeException();
             }
             #endif

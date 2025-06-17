@@ -30,9 +30,46 @@
 //-----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
+
+using System;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepPlacement : StepGeometricRepresentationItem { }
+    public class StepPlacement : StepGeometricRepresentationItem, IExpConvertableFrom<StepPlacement>
+    {
+
+        private StepCartesianPoint _location;
+
+        public StepPlacement( StepModel model ) : base( model ) { }
+
+        public StepPlacement( StepModel model, StepCartesianPoint location )
+            : base( model )
+        {
+            _location = location;
+        }
+
+        public StepCartesianPoint Location
+        {
+            get { return _location; }
+            set
+            {
+                ArgumentNullException.ThrowIfNull( value );
+                _location = value;
+            }
+        }
+
+        public void FromInstance( StepPlacement entity )
+        {
+            base.FromInstance( entity );
+            this.Location = entity.Location;
+        }
+
+        public override bool IsConvertableTo( string entityName )
+        {
+            return base.IsConvertableTo( entityName ) || entityName == "StepPlacement";
+        }
+
+    }
 }
 

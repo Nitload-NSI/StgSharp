@@ -53,8 +53,7 @@ namespace StgSharp.Math
             return *( int* )a;
         }
 
-        internal static string GetListSeparator(
-            IFormatProvider formatProvider )
+        internal static string GetListSeparator( IFormatProvider formatProvider )
         {
             if( formatProvider is CultureInfo cultureInfo ) {
                 return cultureInfo.TextInfo.ListSeparator;

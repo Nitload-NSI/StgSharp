@@ -42,33 +42,18 @@ namespace StgSharp.Geometries
     public interface IGeometry
     {
 
-        public Point this[ int index ]
-        {
-            get;
-            set;
-        }
+        public Point this[ int index ] { get; set; }
 
         #pragma warning disable CA1819 
         public Vec4[] VertexStream
-        #pragma warning restore CA1819 
-        {
-            get;
-        }
+ #pragma warning restore CA1819 
+ { get; }
 
-        public CoordinationBase Coordination
-        {
-            get;
-        }
+        public CoordinationBase Coordination { get; }
 
-        public int VertexCount
-        {
-            get;
-        }
+        public int VertexCount { get; }
 
-        public ReadOnlySpan<int> VertexIndices
-        {
-            get;
-        }
+        public ReadOnlySpan<int> VertexIndices { get; }
 
     }
 }

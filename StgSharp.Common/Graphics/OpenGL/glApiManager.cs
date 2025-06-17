@@ -31,7 +31,7 @@
 using StgSharp.HighPerformance;
 using StgSharp.Math;
 using StgSharp.MVVM;
-using StgSharp.MVVM.View;
+using StgSharp.MVVM;
 
 using System;
 using System.Collections.Generic;
@@ -155,8 +155,9 @@ namespace StgSharp.Graphics.OpenGL
             }
 
             uint code = context->glGetError();
-            Console.WriteLine( code );
-            if( code != 0 ) {
+            if( code != 0 )
+            {
+                Console.WriteLine(code);
                 throw new GlExecutionException( code );
             }
 

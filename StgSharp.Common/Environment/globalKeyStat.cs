@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp
 {
-    public static partial class StgSharp
+    public static partial class World
     {
 
         private static ConcurrentDictionary<int, KeyStatus> keyListener

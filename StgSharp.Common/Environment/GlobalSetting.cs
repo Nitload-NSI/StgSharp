@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="GlobalSetting.cs"
-//     Project: StgSharp
+//     Project: World
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -39,7 +39,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp
 {
-    public static unsafe partial class StgSharp
+    public static unsafe partial class World
     {
 
         internal const int ssdSegmentLength = 16;
@@ -74,7 +74,7 @@ namespace StgSharp
 
         /// <summary>
         /// CustomizeInit an instance of OpenGL program, This method should be called before any
-        /// other StgSharp api.
+        /// other World api.
         /// </summary>
         public static void InitGL( int majorVersion, int minorVersion )
         {

@@ -85,18 +85,34 @@ namespace StgSharp.Model.Step
         private partial class TokenPreReader : ExpTokenReaderPreProcessor
         {
 
-            private static Regex NextEnumPattern = GetNextEnumPattern();
-
-            private static Regex _stringPattern = GetStringPattern();
+            private static Regex
+                _nextHashtagSymbolPattern = GetEntityTagSymbolPattern(),
+                _nextEnumPattern = GetNextEnumPattern(),
+                _stringPattern = GetStringPattern();
 
             public override bool Process( string codeLine, int line, ref int current, out Token t )
             {
                 ReadOnlySpan<char> chars = codeLine.AsSpan( current );
                 char c = chars[ 0 ];
+                Match match;
                 switch( c )
                 {
+                    case '#':
+                        match = _nextHashtagSymbolPattern.Match( codeLine, current );
+                        if( match.Success )
+                        {
+                            int begin = match.Groups[ "token" ].Index;
+                            int end = match.Groups[ "end" ].Index;
+                            int rest = match.Groups[ "rest" ].Index;
+                            current = rest;
+                            t = new(
+                                ExpressCompile.PoolString( chars[ 0..( end - begin ) ] ), line,
+                                begin, TokenFlag.Member );
+                            return true;
+                        }
+                        break;
                     case '.':
-                        Match match = NextEnumPattern.Match( codeLine, current );
+                        match = _nextEnumPattern.Match( codeLine, current );
                         if( match.Success )
                         {
                             int begin = match.Groups[ "token" ].Index;
@@ -138,6 +154,11 @@ namespace StgSharp.Model.Step
                 t = Token.Empty;
                 return false;
             }
+
+            [GeneratedRegex(
+                    @"(?<token>#[0-9A-Za-z]+)(?<end>\s*?)(?<rest>\S|$)",
+                    RegexOptions.Singleline )]
+            private static partial Regex GetEntityTagSymbolPattern();
 
             [GeneratedRegex(
                     @"(?<token>\.[A-Za-z_]+\.)(?<end>\s*)(?<rest>\S*)",

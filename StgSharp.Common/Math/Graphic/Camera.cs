@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="Camera.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -96,6 +96,11 @@ namespace StgSharp.Graphics
             }
         }
 
+        public Matrix44 CameraMatrix()
+        {
+            return Projection * View;
+        }
+
         public void DisplayGLtypeDefinition()
         {
             Console.WriteLine( "uniform matrix4x4 cameraName;" );
@@ -150,10 +155,9 @@ namespace StgSharp.Graphics
         public void SetViewDirection( Vec3 position, Vec3 target, Vec3 up )
         {
             Vec3 direction = position - target;
-            if( ( position.reg == cameraAtt.colum3.reg ) && ( this.up == up ) && ( cameraAtt.colum2.reg ==
-                                                                                   direction.reg ) )
-            {
-                //no difference with precious value
+            if( ( position.reg == cameraAtt.colum3.reg ) &&
+                ( this.up == up ) &&
+                ( cameraAtt.colum2.reg == direction.reg ) ) {
                 return;
             }
             if( direction.GetLength() == 0 )
@@ -173,10 +177,10 @@ namespace StgSharp.Graphics
 
             Vec3 right = Linear.Orthogonalize( Linear.Cross( up, direction ) );
 
-            cameraAtt.colum0.reg = right.    reg;
+            cameraAtt.colum0.reg = right.reg;
             cameraAtt.colum1.reg = up.reg;
             cameraAtt.colum2.reg = direction.reg;
-            cameraAtt.colum3.reg = position. reg;
+            cameraAtt.colum3.reg = position.reg;
 
             InternalPitch();
             InternalRow();

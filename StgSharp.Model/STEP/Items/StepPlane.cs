@@ -28,30 +28,35 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
+using StgSharp.Geometries;
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 namespace StgSharp.Model.Step
 {
-    public class StepPlane : StepElementarySurface
+    public class StepPlane : StepElementarySurface, IExpConvertableFrom<StepPlane>
     {
 
-        public StepPlane() : base( null ) { }
+        public StepPlane( StepModel model ) : base( model ) { }
 
-        public StepPlane( StepAxis2Placement3D position ) : base( position ) { }
+        public StepPlane( StepModel model, StepAxis2Placement3D position )
+            : base( model, position ) { }
 
         public override StepItemType ItemType => StepItemType.Plane;
+
+        public void FromInstance( StepPlane entity )
+        {
+            base.FromInstance( entity );
+        }
 
         internal static StepPlane FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepPlane plane = new StepPlane();
+            StepPlane plane = new StepPlane( binder );
             enumerator.AssertEnumeratorCount( 2 );
             plane.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue(
-                enumerator[ 1 ], v => plane.Position = v.AsType<StepAxis2Placement3D>() );
+            plane.Position = binder[ enumerator[ 1 ] ] as StepAxis2Placement3D;
             return plane;
         }
 

@@ -31,13 +31,22 @@
 using StgSharp.Math;
 using StgSharp.Model.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepVertex : StepTopologicalRepresentationItem
+    public class StepVertex : StepTopologicalRepresentationItem, IExpConvertableFrom<StepVertex>
     {
 
+        public StepVertex( StepModel model ) : base( model ) { }
+
         public Vec3 Vertex { get; set; }
+
+        public void FromInstance( StepVertex entity )
+        {
+            base.FromInstance( entity );
+            Vertex = entity.Vertex;
+        }
 
     }
 }

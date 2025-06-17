@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="CachePool.cs"
+//     file="StepUnsupportedEntity.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,36 +28,30 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Graphics.OpenGL;
+using StgSharp.Script.Express;
 
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.Commom.Collections
+namespace StgSharp.Model.Step
 {
-    /*
-    public interface IPoolItem<TSignature>
+    public class StepUnsupportedEntity : StepEntityBase
     {
 
-        public int ID
+        private ExpSyntaxNode _initSequence;
+
+        public StepUnsupportedEntity( StepModel model, int id, string name, ExpSyntaxNode sequence )
         {
-            get;
-            init;
+            Id = id;
+            Name = name;
+            _initSequence = sequence;
+            Context = model;
         }
 
-    }
-
-    public class CacheIndexPool<TSignature, TItem> : IEnumerable<TItem>
-        where TItem: IPoolItem<TSignature>
-    {
-
-        public CacheIndexPool(
-                       Func<TSignature> 
- ) { }
+        public override StepItemType ItemType => StepItemType.Unknown;
 
     }
-    /**/
 }

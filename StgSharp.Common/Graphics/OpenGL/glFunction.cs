@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="glFunction.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -126,7 +126,7 @@ namespace StgSharp.Graphics.OpenGL
 
         /// <summary>
         ///   Bind a frame Buffer to a frame Buffer target Same function as <see
-        ///   href="https://docs._gl/gl3/glBindFramebuffer">glBindFramebuffer</see>.
+        ///   href="https://docs._gl/gl3/glBindFramebuffer"> glBindFramebuffer </see>.
         /// </summary>
         /// <param _label="target">
         ///   The frame Buffer target of the binding operation.
@@ -279,8 +279,9 @@ namespace StgSharp.Graphics.OpenGL
 
         /// <summary>
         ///   Delete a render Buffer object Very simlilar function as <see
-        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers">glDeleteRenderbuffers</see>. The only
-        ///   deifference is that this mehtod can only delete one renderbuffer at the same time.
+        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers"> glDeleteRenderbuffers </see>. The
+        ///   only deifference is that this mehtod can only delete one renderbuffer at the same
+        ///   time.
         /// </summary>
         /// <param _label="bufferHandle">
         ///   Handle to Buffer to delete.
@@ -300,6 +301,23 @@ namespace StgSharp.Graphics.OpenGL
                     Context.glDeleteVertexArrays( 1, iptr + i );
                 }
             }
+        }
+
+        public void DepthMaskAccess( bool isWrite )
+        {
+            Context.glDepthMask( isWrite );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void Disable( glOperation operation )
+        {
+            Context.glDisable( ( uint )operation );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public unsafe void DrawArrays( GeometryType mode, int first, uint count )
+        {
+            Context.glDrawArrays( ( uint )mode, first, count );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -339,7 +357,6 @@ namespace StgSharp.Graphics.OpenGL
                 case TypeCode.Byte:
                     a = glConst.UNSIGNED_BYTE;
                     break;
-
                 default:
                     InternalIO.InternalWriteLog(
                         $"{$"Parameter error in parameter {nameof(type)} method DrawElements. "}{$"Only {typeof(uint).Name},{typeof(ushort).Name},{typeof(byte).Name} types are supported."}",
@@ -525,6 +542,18 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void PolygonMode( FaceMode mode )
+        {
+            Context.glPolygonMode( glConst.FRONT_AND_BACK, ( uint )mode );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public void PolygonOffset( float factor, float unit )
+        {
+            Context.glPolygonOffset( factor, unit );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void ReadPixels(
                     (int X, int Y) beginPosition,
                     (int width, int height) size,
@@ -594,16 +623,16 @@ namespace StgSharp.Graphics.OpenGL
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void SetBufferData<T>(
                            BufferType bufferType,
-                           ReadOnlySpan<T> bufferArray,
+                           ReadOnlySpan<T> bufferSpan,
                            BufferUsage usage )
             where T: struct,INumber<T>
         {
-            int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
-            if( bufferArray == null ) {
+            int size = bufferSpan.Length * Marshal.SizeOf( typeof( T ) );
+            if( bufferSpan == null ) {
                 return;
             }
             #pragma warning disable CS8500
-            fixed( void* bufferPtr = bufferArray )
+            fixed( void* bufferPtr = bufferSpan )
             #pragma warning restore CS8500
             {
                 Context.glBufferData(
@@ -624,7 +653,7 @@ namespace StgSharp.Graphics.OpenGL
             }
 
             #pragma warning disable CS8500
-            fixed( void* bufferPtr = &bufferArray.GetPinnableReference() )
+            fixed( void* bufferPtr = bufferArray )
             #pragma warning restore CS8500
             {
                 Context.glBufferData(
@@ -635,16 +664,13 @@ namespace StgSharp.Graphics.OpenGL
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void SetBufferVectorData<T>(
                            BufferType bufferType,
-                           ReadOnlySpan<T> bufferArray,
+                           ReadOnlySpan<T> bufferSpan,
                            BufferUsage usage )
             where T: struct, IVector<T>
         {
-            int size = bufferArray.Length * Marshal.SizeOf( typeof( T ) );
-            if( bufferArray == null ) {
-                return;
-            }
+            int size = bufferSpan.Length * Marshal.SizeOf( typeof( T ) );
             #pragma warning disable CS8500
-            fixed( void* bufferPtr = &bufferArray.GetPinnableReference() )
+            fixed( void* bufferPtr = bufferSpan )
             #pragma warning restore CS8500
             {
                 Context.glBufferData(
@@ -782,6 +808,7 @@ namespace StgSharp.Graphics.OpenGL
             Context.glViewport( x, y, width, height );
         }
 
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void WaitAccomplishment()
         {
             Context.glFinish();

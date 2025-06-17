@@ -37,14 +37,15 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepVector : StepGeometricRepresentationItem
+    public class StepVector : StepGeometricRepresentationItem, IExpConvertableFrom<StepVector>
     {
 
         private StepDirection _direction;
 
-        private StepVector() : base() { }
+        private StepVector( StepModel model ) : base( model ) { }
 
-        public StepVector( StepDirection direction, double length )
+        public StepVector( StepModel model, StepDirection direction, double length )
+            : base( model )
         {
             Direction = direction;
             Length = length;
@@ -57,9 +58,7 @@ namespace StgSharp.Model.Step
             get { return _direction; }
             set
             {
-                if( value == null ) {
-                    throw new ArgumentNullException();
-                }
+                ArgumentNullException.ThrowIfNull( value );
 
                 _direction = value;
             }
@@ -67,13 +66,19 @@ namespace StgSharp.Model.Step
 
         public override StepItemType ItemType => StepItemType.Vector;
 
+        public void FromInstance( StepVector entity )
+        {
+            base.FromInstance( entity );
+            _direction = entity.Direction;
+        }
+
         internal static StepVector FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
-            StepVector vector = new StepVector();
+            StepVector vector = new StepVector( binder );
             enumerator.AssertEnumeratorCount( 3 );
             vector.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue( enumerator[ 1 ], v => vector.Direction = v.AsType<StepDirection>() );
+            vector.Direction = binder[ enumerator[ 1 ] ] as StepDirection;
             vector.Length = ( enumerator[ 2 ]as ExpRealNumberNode )!.Value;
             return vector;
         }

@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using StgSharp.Math;
 using StgSharp.Script.Express;
 
@@ -35,14 +37,38 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace StgSharp.Model.Step
 {
-    public static partial class StepDataParser
+    internal static partial class StepDataParser
     {
 
         private static Regex _stringParser = GetStringParser();
         private static Regex _vectorParser = GetVectorParser();
+        private static Type _implementorInterface = typeof( IExpConvertableFrom<> );
+
+        public static StepRepresentationItem Implement(
+                                             StepRepresentationItem left,
+                                             StepRepresentationItem right )
+        {
+            Type tLeft = left.GetType(),
+                tRight = right.GetType(),
+                iLeft = _implementorInterface.MakeGenericType( tLeft ),
+                iRight = _implementorInterface.MakeGenericType( tRight );
+            if( tLeft.IsAssignableTo( iRight ) )
+            {
+                ( ( dynamic )left ).FromInstance( ( dynamic )right );
+                return left;
+            }
+            if( tRight.IsAssignableTo( iLeft ) )
+            {
+                ( ( dynamic )right ).FromInstance( ( dynamic )left );
+                return right;
+            }
+            throw new InvalidCastException(
+                $"{tLeft.Name } and { tRight.Name } has no implementation or inheritance relationship" );
+        }
 
         public static DateTime ToDateTime( string source )
         {
@@ -96,36 +122,15 @@ namespace StgSharp.Model.Step
 
         public static Vec3 ToVector3D( ExpSyntaxNode node )
         {
-            ExpSyntaxNode begin = node;
             Vec3 result = new Vec3();
-            if( node is ExpRealNumberNode x )
+            if( node is ExpTupleNode )
             {
-                result.X = x.Value;
-                node = node.Next;
+                ToVector3DPrivate( node.Right, ref result );
             } else
             {
-                throw new InvalidCastException();
+                ToVector3DPrivate( node, ref result );
             }
-            if( node is ExpRealNumberNode y )
-            {
-                result.Y = y.Value;
-                node = node.Next;
-            } else
-            {
-                throw new InvalidCastException();
-            }
-            if( node is ExpRealNumberNode z )
-            {
-                result.Z = z.Value;
-                node = node.Next;
-            } else
-            {
-                throw new InvalidCastException();
-            }
-            if( ReferenceEquals( node, begin ) ) {
-                return result;
-            }
-            return Vec3.Zero;
+            return result;
         }
 
         public static (int, int?) ToVersion( string source )
@@ -151,6 +156,38 @@ namespace StgSharp.Model.Step
                 @"^\(\s+(?<x>-?[0-9]+\.[0-9]+),\s+(?<y>-?[0-9]+\.[0-9]+),\s+(?<z>-?[0-9]+\.[0-9]+)\s+\)$",
                 RegexOptions.Singleline )]
         private static partial Regex GetVectorParser();
+
+        private static void ToVector3DPrivate( ExpSyntaxNode node, ref Vec3 result )
+        {
+            ExpSyntaxNode begin = node;
+            if( node is ExpRealNumberNode x )
+            {
+                result.X = x.Value;
+                node = node.Next;
+            } else
+            {
+                throw new InvalidCastException();
+            }
+            if( node is ExpRealNumberNode y )
+            {
+                result.Y = y.Value;
+                node = node.Next;
+            } else
+            {
+                throw new InvalidCastException();
+            }
+            if( node is ExpRealNumberNode z )
+            {
+                result.Z = z.Value;
+                node = node.Next;
+            } else
+            {
+                throw new InvalidCastException();
+            }
+            if( !ReferenceEquals( node, begin ) ) {
+                throw new InvalidCastException();
+            }
+        }
 
     }
 }

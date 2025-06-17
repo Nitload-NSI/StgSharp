@@ -52,8 +52,7 @@ namespace StgSharp.HighPerformance
         {
             ReadOnlySpan<char> nameSpan = _name.AsSpan();
             fixed( char* cptr = nameSpan ) {
-                return InternalIO.Intrinsic
-                        .city_hash_simplify( cptr, _name.Length );
+                return InternalIO.Intrinsic.city_hash_simplify( cptr, _name.Length );
             }
         }
 

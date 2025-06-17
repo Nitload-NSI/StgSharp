@@ -41,11 +41,7 @@ namespace StgSharp.Geometries
     public interface IPlainEntity
     {
 
-        public Vec2 CenterPosition
-        {
-            get;
-            set;
-        }
+        public Vec2 CenterPosition { get; set; }
 
         public bool CollideWith( IPlainEntity entity );
 

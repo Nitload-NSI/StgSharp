@@ -58,8 +58,7 @@ namespace StgSharp.Script.Express
             _ruleDefineBegin = GetRuleDefineBegin(),
             _ruleDefineEnd = GetRuleDefineEnd();
 
-        private readonly GeneratedExpSchema _compileResult = new GeneratedExpSchema(
-            );
+        private readonly GeneratedExpSchema _compileResult = new GeneratedExpSchema();
 
         private List<IExpElementSource> _sourceCache = [];
 
@@ -92,15 +91,19 @@ namespace StgSharp.Script.Express
             }
             name = _schemaBegin.Match( line ).Groups[ "namespace" ].Value;
 
-            while( !_schemaEnd.IsMatch( line ) ) {
-                if( TryReadConst( line, reader,
-                                  out IExpElementSource source ) ) {
+            while( !_schemaEnd.IsMatch( line ) )
+            {
+                if( TryReadConst( line, reader, out IExpElementSource source ) )
+                {
                     _sourceCache.Add( source );
-                } else if( TryReadType( line, reader, out source ) ) {
+                } else if( TryReadType( line, reader, out source ) )
+                {
                     _sourceCache.Add( source );
-                } else if( TryReadEntity( line, reader, out source ) ) {
+                } else if( TryReadEntity( line, reader, out source ) )
+                {
                     _sourceCache.Add( source );
-                } else if( TryReadRule( line, reader, out source ) ) {
+                } else if( TryReadRule( line, reader, out source ) )
+                {
                     _sourceCache.Add( source );
                 } else if( TryReadFunction( line, reader, out source ) ) {
                     _sourceCache.Add( source );
@@ -110,33 +113,34 @@ namespace StgSharp.Script.Express
         }
 
         public static bool TryReadSchema(
-                                   string firstLine,
-                                   ExpFileSource reader,
-                                   out ExpSchemaSource source )
+                           string firstLine,
+                           ExpFileSource reader,
+                           out ExpSchemaSource source )
         {
-            if( !_schemaBegin.IsMatch( firstLine ) ) {
+            if( !_schemaBegin.IsMatch( firstLine ) )
+            {
                 source = null!;
                 return false;
             }
             ExpSchemaSource _source = new ExpSchemaSource();
             _source.name = _schemaBegin.Match( firstLine ).Groups[ "namespace" ].Value;
 
-            while( !_schemaEnd.IsMatch( firstLine ) ) {
-                if( _source.TryReadConst(
-                    firstLine, reader,
-                    out IExpElementSource _elementSource ) ) {
+            while( !_schemaEnd.IsMatch( firstLine ) )
+            {
+                if( _source.TryReadConst( firstLine, reader,
+                                          out IExpElementSource _elementSource ) )
+                {
                     _source._sourceCache.Add( _elementSource );
-                } else if( _source.TryReadType(
-                           firstLine, reader, out _elementSource ) ) {
+                } else if( _source.TryReadType( firstLine, reader, out _elementSource ) )
+                {
                     _source._sourceCache.Add( _elementSource );
-                } else if( _source.TryReadEntity(
-                           firstLine, reader, out _elementSource ) ) {
+                } else if( _source.TryReadEntity( firstLine, reader, out _elementSource ) )
+                {
                     _source._sourceCache.Add( _elementSource );
-                } else if( _source.TryReadRule(
-                           firstLine, reader, out _elementSource ) ) {
+                } else if( _source.TryReadRule( firstLine, reader, out _elementSource ) )
+                {
                     _source._sourceCache.Add( _elementSource );
-                } else if( _source.TryReadFunction(
-                           firstLine, reader, out _elementSource ) ) {
+                } else if( _source.TryReadFunction( firstLine, reader, out _elementSource ) ) {
                     _source._sourceCache.Add( _elementSource );
                 }
                 firstLine = reader.ReadLine();
@@ -151,9 +155,7 @@ namespace StgSharp.Script.Express
         [GeneratedRegex( @"\s*END_CONSTANT;" )]
         private static partial Regex GetConstDefineEnd();
 
-        [GeneratedRegex(
-                @"\s*ENTITY\s*(?<TypeName>[A-Za-z0-9_]+)\s*",
-                RegexOptions.Compiled )]
+        [GeneratedRegex( @"\s*ENTITY\s*(?<TypeName>[A-Za-z0-9_]+)\s*", RegexOptions.Compiled )]
         private static partial Regex GetEntityDefineBegin();
 
         [GeneratedRegex(
@@ -184,9 +186,7 @@ namespace StgSharp.Script.Express
         [GeneratedRegex( @"\s*SCHEMA\s*(?<namespace>[A-Za-z0-9_]+)\s?;" )]
         private static partial Regex GetSchemaBegin();
 
-        [GeneratedRegex(
-                @"END_SCHEMA;\s*--\s*(?<namespace>[A-Za-z0-9_]+)",
-                RegexOptions.Compiled )]
+        [GeneratedRegex( @"END_SCHEMA;\s*--\s*(?<namespace>[A-Za-z0-9_]+)", RegexOptions.Compiled )]
         private static partial Regex GetSchemaEnd();
 
         [GeneratedRegex(
@@ -200,18 +200,19 @@ namespace StgSharp.Script.Express
         private static partial Regex GetTypeDefineEnd();
 
         private bool TryReadConst(
-                             string firstLine,
-                             ExpFileSource reader,
-                             out IExpElementSource source )
+                     string firstLine,
+                     ExpFileSource reader,
+                     out IExpElementSource source )
         {
             Match match = _constDefineBegin.Match( firstLine );
-            if( match.Success ) {
+            if( match.Success )
+            {
                 ScriptSourceTransmitter transmitter = new ScriptSourceTransmitter(
                     "END_CONSTANT", reader.Location );
-                ExpConstantCollectionSource _source = new ExpConstantCollectionSource(
-                    transmitter );
+                ExpConstantCollectionSource _source = new ExpConstantCollectionSource( transmitter );
                 string line = reader.ReadLine();
-                while( !_constDefineEnd.IsMatch( line ) ) {
+                while( !_constDefineEnd.IsMatch( line ) )
+                {
                     transmitter.WriteLine( line );
                     line = reader.ReadLine();
                 }
@@ -224,27 +225,28 @@ namespace StgSharp.Script.Express
         }
 
         private bool TryReadEntity(
-                             string firstLine,
-                             ExpFileSource reader,
-                             out IExpElementSource source )
+                     string firstLine,
+                     ExpFileSource reader,
+                     out IExpElementSource source )
         {
             Match match = _entityDefineBegin.Match( firstLine );
-            if( match.Success ) {
+            if( match.Success )
+            {
                 ScriptSourceTransmitter transmitter = new ScriptSourceTransmitter(
                     "END_ENTITY", reader.Location );
                 ExpEntitySource _source = new ExpEntitySource(
                     match.Groups[ "TypeName" ].ToString(), transmitter );
                 string line = reader.ReadLine();
                 match = _entityDefineEnd.Match( line );
-                while( !match.Success ) {
+                while( !match.Success )
+                {
                     transmitter.WriteLine( line );
                     line = reader.ReadLine();
                     match = _entityDefineEnd.Match( line );
                 }
                 string endedName = match.Groups[ "TypeName" ].ToString();
                 if( !string.Equals( endedName, _source.Name ) ) {
-                    throw new ExpInvalidElementDeclareEndingExceptions(
-                        _source.Name, endedName );
+                    throw new ExpInvalidElementDeclareEndingExceptions( _source.Name, endedName );
                 }
                 transmitter.WriteLine( "END_ENTITY" );
                 source = _source;
@@ -255,12 +257,13 @@ namespace StgSharp.Script.Express
         }
 
         private bool TryReadFunction(
-                             string firstLine,
-                             ExpFileSource reader,
-                             out IExpElementSource source )
+                     string firstLine,
+                     ExpFileSource reader,
+                     out IExpElementSource source )
         {
             Match match = _functionDefineBegin.Match( firstLine );
-            if( match.Success ) {
+            if( match.Success )
+            {
                 ScriptSourceTransmitter transmitter = new ScriptSourceTransmitter(
                     "END_FUNCTION", reader.Location );
                 ExpFunctionSource _source = new ExpFunctionSource(
@@ -268,15 +271,15 @@ namespace StgSharp.Script.Express
                 transmitter.WriteLine( match.Groups[ "Remaining" ].ToString() );
                 string line = reader.ReadLine();
                 match = _functionDefineEnd.Match( line );
-                while( !match.Success ) {
+                while( !match.Success )
+                {
                     transmitter.WriteLine( line );
                     line = reader.ReadLine();
                     match = _functionDefineEnd.Match( line );
                 }
                 string endedName = match.Groups[ "FunctionName" ].ToString();
                 if( !string.Equals( endedName, _source.Name ) ) {
-                    throw new ExpInvalidElementDeclareEndingExceptions(
-                        _source.Name, endedName );
+                    throw new ExpInvalidElementDeclareEndingExceptions( _source.Name, endedName );
                 }
                 transmitter.WriteLine( "END_FUNCTION" );
                 source = _source;
@@ -287,12 +290,13 @@ namespace StgSharp.Script.Express
         }
 
         private bool TryReadRule(
-                             string firstLine,
-                             ExpFileSource reader,
-                             out IExpElementSource source )
+                     string firstLine,
+                     ExpFileSource reader,
+                     out IExpElementSource source )
         {
             Match match = _ruleDefineBegin.Match( firstLine );
-            if( match.Success ) {
+            if( match.Success )
+            {
                 ScriptSourceTransmitter transmitter = new ScriptSourceTransmitter(
                     "END_RULE", reader.Location );
                 ExpRuleSource _source = new ExpRuleSource(
@@ -303,15 +307,15 @@ namespace StgSharp.Script.Express
                 }
                 string line = reader.ReadLine();
                 match = _ruleDefineEnd.Match( line );
-                while( !match.Success ) {
+                while( !match.Success )
+                {
                     transmitter.WriteLine( line );
                     line = reader.ReadLine();
                     match = _ruleDefineEnd.Match( line );
                 }
                 string endedName = match.Groups[ "RuleName" ].ToString();
                 if( !string.Equals( endedName, _source.Name ) ) {
-                    throw new ExpInvalidElementDeclareEndingExceptions(
-                        _source.Name, endedName );
+                    throw new ExpInvalidElementDeclareEndingExceptions( _source.Name, endedName );
                 }
                 transmitter.WriteLine( "END_RULE" );
                 source = _source;
@@ -322,12 +326,13 @@ namespace StgSharp.Script.Express
         }
 
         private bool TryReadType(
-                             string firstLine,
-                             ExpFileSource reader,
-                             out IExpElementSource source )
+                     string firstLine,
+                     ExpFileSource reader,
+                     out IExpElementSource source )
         {
             Match match = _typeDefineBegin.Match( firstLine );
-            if( match.Success ) {
+            if( match.Success )
+            {
                 ScriptSourceTransmitter transmitter = new ScriptSourceTransmitter(
                     "END_ENTITY", reader.Location );
                 ExpTypeSource _source = new ExpTypeSource(
@@ -335,15 +340,15 @@ namespace StgSharp.Script.Express
                 transmitter.WriteLine( match.Groups[ "Remaining" ].ToString() );
                 string line = reader.ReadLine();
                 match = _typeDefineEnd.Match( line );
-                while( !match.Success ) {
+                while( !match.Success )
+                {
                     transmitter.WriteLine( line );
                     line = reader.ReadLine();
                     match = _typeDefineEnd.Match( line );
                 }
                 string endedName = match.Groups[ "TypeName" ].ToString();
                 if( !string.Equals( endedName, _source.Name ) ) {
-                    throw new ExpInvalidElementDeclareEndingExceptions(
-                        _source.Name, endedName );
+                    throw new ExpInvalidElementDeclareEndingExceptions( _source.Name, endedName );
                 }
                 transmitter.WriteLine( "END_ENTITY" );
                 source = _source;

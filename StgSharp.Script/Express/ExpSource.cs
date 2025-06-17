@@ -51,14 +51,13 @@ namespace StgSharp.Script.Express
 
         public ExpFileSource( string path )
         {
-            if ( !File.Exists( path ) ) {
+            if( !File.Exists( path ) ) {
                 throw new FileNotFoundException();
             }
-            _expFileStream = new FileStream(
-                path, FileMode.Open, FileAccess.Read );
+            _expFileStream = new FileStream( path, FileMode.Open, FileAccess.Read );
             _expMemoryMappedFile = MemoryMappedFile.CreateFromFile(
-                _expFileStream, null, 0, MemoryMappedFileAccess.Read,
-                HandleInheritability.None, true );
+                _expFileStream, null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None,
+                true );
             _expMemoryMappedStream = _expMemoryMappedFile.CreateViewStream(
                 offset: 0, size: 0, access: MemoryMappedFileAccess.Read );
             _memoryReader = new StreamReader( _expMemoryMappedStream );
@@ -79,9 +78,7 @@ namespace StgSharp.Script.Express
             GC.SuppressFinalize( this );
         }
 
-        public void EndWriting()
-        {
-        }
+        public void EndWriting() { }
 
         public string ReadLine()
         {
@@ -92,7 +89,7 @@ namespace StgSharp.Script.Express
             return line;
         }
 
-        public string ReadLine(out int position)
+        public string ReadLine( out int position )
         {
             throw new NotImplementedException();
         }
@@ -105,15 +102,12 @@ namespace StgSharp.Script.Express
             readLineSemaphore.Release();
         }
 
-        IScriptSourceProvider IScriptSourceProvider.Slice(int location, int count)
-        {
-            throw new NotSupportedException();
-        }
-
         protected virtual void Dispose( bool disposing )
         {
-            if( !disposedValue ) {
-                if( disposing ) {
+            if( !disposedValue )
+            {
+                if( disposing )
+                {
                     _expFileStream.Dispose();
                     _expMemoryMappedFile.Dispose();
                     _expMemoryMappedStream.Dispose();
@@ -121,6 +115,11 @@ namespace StgSharp.Script.Express
                 }
                 disposedValue = true;
             }
+        }
+
+        IScriptSourceProvider IScriptSourceProvider.Slice( int location, int count )
+        {
+            throw new NotSupportedException();
         }
 
     }

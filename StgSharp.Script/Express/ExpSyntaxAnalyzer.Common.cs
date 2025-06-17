@@ -249,7 +249,8 @@ namespace StgSharp.Script.Express
         private bool TryParseInstance( Token t )
         {
             if( _local.TryGetMember( t.Value,
-                                     out ExpSyntaxNode? node ) && node is ExpElementInstance instance )
+                                     out ExpSyntaxNode? node ) &&
+                node is ExpElementInstance instance )
             {
                 _cache.PushOperand( ExpInstanceReferenceNode.MakeReferenceFrom( t, instance ) );
                 return true;
@@ -260,7 +261,8 @@ namespace StgSharp.Script.Express
             } else if( _cache.IsLastAddedOperator )
             {
                 if( _cache.PeekOperand( out _,
-                                        out ExpSyntaxNode? typenode ) && typenode is ExpMetaRefNode typeRef )
+                                        out ExpSyntaxNode? typenode ) &&
+                    typenode is ExpMetaRefNode typeRef )
                 {
                     _cache.PopOperand( out _, out _ );
                     _local.AddMember( t.Value, typeRef.SourceRef.CreateInstanceNode( t ) );

@@ -42,27 +42,13 @@ namespace StgSharp.Controls
     public interface ControllingItem : IEnumerable<PlainGeometryMesh>
     {
 
-        public abstract bool IsEntity
-        {
-            get;
-        }
+        public abstract bool IsEntity { get; }
 
-        public abstract ReadOnlySpan<Vec4> TextureBox
-        {
-            get;
-        }
+        public abstract ReadOnlySpan<Vec4> TextureBox { get; }
 
-        public abstract Rectangle BoundingBox
-        {
-            get;
-            set;
-        }
+        public abstract Rectangle BoundingBox { get; set; }
 
-        public abstract Vec2 Position
-        {
-            get;
-            set;
-        }
+        public abstract Vec2 Position { get; set; }
 
         IEnumerator IEnumerable.GetEnumerator()
         {

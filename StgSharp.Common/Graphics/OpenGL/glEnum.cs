@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="glEnum.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -28,13 +28,13 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using System.Runtime.CompilerServices;
 
 namespace StgSharp.Graphics.OpenGL
 {
     public enum PixelChannelLayout
     {
+
         UByte = glConst.UNSIGNED_BYTE,
         Byte = glConst.BYTE,
         UShort = glConst.UNSIGNED_SHORT,
@@ -54,6 +54,16 @@ namespace StgSharp.Graphics.OpenGL
         UInt8888Rev = glConst.UNSIGNED_INT_8_8_8_8_REV,
         UInt1010102 = glConst.UNSIGNED_INT_10_10_10_2,
         UInt2101010Rev = glConst.UNSIGNED_INT_2_10_10_10_REV
+
+    }
+
+    public enum FaceMode
+    {
+
+        Point = glConst.POINT,
+        Line = glConst.LINE,
+        Fill = glConst.FILL
+
     }
 
     public enum FrameBufferStatus
@@ -125,12 +135,18 @@ namespace StgSharp.Graphics.OpenGL
 
     public enum glOperation : uint
     {
+
         StencilTest = glConst.STENCIL_TEST,
+        DepthTest = glConst.DEPTH_TEST,
+        PolygonOffsetFill = glConst.POLYGON_OFFSET_FILL,
+        PolygonOffsetLine = glConst.POLYGON_OFFSET_LINE,
+        PolygonOffsetPoint = glConst.POLYGON_OFFSET_POINT,
+
     }
 
-#pragma warning disable CA1008
+    #pragma warning disable CA1008
     public enum ShaderType : int
-#pragma warning restore CA1008
+    #pragma warning restore CA1008
     {
 
         Fragment = glConst.FRAGMENT_SHADER,
@@ -140,9 +156,9 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-#pragma warning disable CA1008
+    #pragma warning disable CA1008
     public enum BufferType : int
-#pragma warning restore CA1008
+    #pragma warning restore CA1008
     {
 
         ArrayBuffer = glConst.ARRAY_BUFFER,
@@ -162,9 +178,9 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-#pragma warning disable CA1008
+    #pragma warning disable CA1008
     public enum BufferUsage : int
-#pragma warning restore CA1008
+    #pragma warning restore CA1008
     {
 
         StreamDraw = 0x88E0,

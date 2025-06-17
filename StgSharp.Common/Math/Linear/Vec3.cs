@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.HighPerformance;
 using System;
 using System.Numerics;
@@ -133,9 +132,11 @@ namespace StgSharp.Math
 
         public override bool Equals( object obj )
         {
-            if( obj is Vec3 ) {
+            if( obj is Vec3 )
+            {
                 return this == ( Vec3 )obj;
-            } else {
+            } else
+            {
                 return false;
             }
         }
@@ -220,8 +221,7 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe implicit operator Vec3(
-                                                       (float, float, float) tuple )
+        public static unsafe implicit operator Vec3( (float, float, float) tuple )
         {
             Vec3 vec = new Vec3( *( Vector3* )&tuple );
             return vec;

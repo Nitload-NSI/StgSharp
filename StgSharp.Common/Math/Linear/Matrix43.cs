@@ -70,18 +70,18 @@ namespace StgSharp.Math
         }
 
         public Matrix43(
-                       float a00,
-                       float a01,
-                       float a02,
-                       float a10,
-                       float a11,
-                       float a12,
-                       float a20,
-                       float a21,
-                       float a22,
-                       float a30,
-                       float a31,
-                       float a32 )
+               float a00,
+               float a01,
+               float a02,
+               float a10,
+               float a11,
+               float a12,
+               float a20,
+               float a21,
+               float a22,
+               float a30,
+               float a31,
+               float a32 )
         {
             Unsafe.SkipInit( out this );
             isTransposed = false;
@@ -101,7 +101,8 @@ namespace StgSharp.Math
                     throw new ArgumentOutOfRangeException( nameof( columNum ) );
                 }
                 InternalTranspose();
-                fixed( float* p = &this.transpose.m00 ) {
+                fixed( float* p = &this.transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     return *( float* )pbit;
                 }
@@ -115,7 +116,8 @@ namespace StgSharp.Math
                     throw new ArgumentOutOfRangeException( nameof( columNum ) );
                 }
                 InternalTranspose();
-                fixed( float* p = &this.transpose.m00 ) {
+                fixed( float* p = &this.transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     *( float* )pbit = value;
                 }
@@ -130,22 +132,22 @@ namespace StgSharp.Math
 
         public bool Equals( Matrix43 other )
         {
-            return EqualityComparer<ColumnSet3>.Default.Equals( mat,
-                                                                other.mat );
+            return EqualityComparer<ColumnSet3>.Default.Equals( mat, other.mat );
         }
 
         public override int GetHashCode()
         {
             return HashCode.Combine(
-                mat.colum0.GetHashCode(), mat.colum1.GetHashCode(),
-                mat.colum2.GetHashCode() );
+                mat.colum0.GetHashCode(), mat.colum1.GetHashCode(), mat.colum2.GetHashCode() );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         internal unsafe void InternalTranspose()
         {
-            if( !isTransposed ) {
-                fixed( ColumnSet3* source = &this.mat ) {
+            if( !isTransposed )
+            {
+                fixed( ColumnSet3* source = &this.mat )
+                {
                     fixed( ColumnSet4* target = &this.transpose ) {
                         InternalIO.Intrinsic.transpose34( source, target );
                     }
@@ -159,8 +161,7 @@ namespace StgSharp.Math
         public static Matrix43 operator -( Matrix43 left, Matrix43 right )
         {
             return new Matrix43(
-                left.mat.colum0 - right.mat.colum0,
-                left.mat.colum1 - right.mat.colum1,
+                left.mat.colum0 - right.mat.colum0, left.mat.colum1 - right.mat.colum1,
                 left.mat.colum2 - right.mat.colum2 );
         }
 
@@ -173,8 +174,7 @@ namespace StgSharp.Math
         public static unsafe Matrix43 operator *( Matrix43 mat, float value )
         {
             return new Matrix43(
-                mat.mat.colum0 * value, mat.mat.colum1 * value,
-                mat.mat.colum2 * value );
+                mat.mat.colum0 * value, mat.mat.colum1 * value, mat.mat.colum2 * value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -247,14 +247,11 @@ namespace StgSharp.Math
         public static Matrix43 operator /( Matrix43 mat, float value )
         {
             return new Matrix43(
-                mat.mat.colum0 / value, mat.mat.colum1 / value,
-                mat.mat.colum2 / value );
+                mat.mat.colum0 / value, mat.mat.colum1 / value, mat.mat.colum2 / value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix43 operator +(
-                                                       Matrix43 left,
-                                                       Matrix43 right )
+        public static unsafe Matrix43 operator +( Matrix43 left, Matrix43 right )
         {
             Matrix43 ret = new Matrix43();
             InternalIO.Intrinsic.add_mat_3( &left.mat, &right.mat, &ret.mat );

@@ -49,14 +49,14 @@ namespace StgSharp.Graphics.ShaderEdit
         /// <summary>
         ///
         /// </summary>
-        public void GainAllUniforms(
-            ShaderProgram source,
-            params string[] uniformName );
+        public void GainAllUniforms( ShaderProgram source, params string[] uniformName );
 
         /// <summary>
         ///
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        ///
+        /// </returns>
         public ShaderStruct GetConvertedGLtype();
 
         /// <summary>

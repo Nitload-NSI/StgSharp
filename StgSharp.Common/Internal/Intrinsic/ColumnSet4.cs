@@ -65,11 +65,7 @@ namespace StgSharp.Internal.Intrinsic
         [FieldOffset( 60 )] public float m33;
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        internal ColumnSet4(
-                         Vector4 colum0,
-                         Vector4 colum1,
-                         Vector4 colum2,
-                         Vector4 colum3 )
+        internal ColumnSet4( Vector4 colum0, Vector4 colum1, Vector4 colum2, Vector4 colum3 )
         {
             Unsafe.SkipInit( out this );
             this.colum0 = colum0;
@@ -86,9 +82,10 @@ namespace StgSharp.Internal.Intrinsic
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public bool Equals( ColumnSet4 other )
         {
-            return colum0.Equals( other.colum0 ) && colum1.Equals(
-                other.colum1 ) && colum2.Equals( other.colum2 ) && colum3.Equals(
-                other.colum3 );
+            return colum0.Equals( other.colum0 ) &&
+                   colum1.Equals( other.colum1 ) &&
+                   colum2.Equals( other.colum2 ) &&
+                   colum3.Equals( other.colum3 );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]

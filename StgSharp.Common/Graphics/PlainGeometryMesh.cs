@@ -46,9 +46,7 @@ namespace StgSharp.Graphics
         private PlainGeometry _shape;
         private TextureProvider _texture;
 
-        public PlainGeometryMesh(
-                       [NotNull] PlainGeometry shape,
-                       [NotNull] TextureProvider texture )
+        public PlainGeometryMesh( [NotNull] PlainGeometry shape, [NotNull] TextureProvider texture )
         {
             if( shape.VertexCount > texture.TextureCoordinate.Length ) {
                 throw new ArgumentException(
@@ -61,10 +59,7 @@ namespace StgSharp.Graphics
 
         //private Image _texture;
 
-        public PlainGeometryMesh(
-                       PlainGeometry shape,
-                       Image texture,
-                       Vec2[] texCoord )
+        public PlainGeometryMesh( PlainGeometry shape, Image texture, Vec2[] texCoord )
         {
             ArgumentNullException.ThrowIfNull( shape );
             ArgumentNullException.ThrowIfNull( texCoord );

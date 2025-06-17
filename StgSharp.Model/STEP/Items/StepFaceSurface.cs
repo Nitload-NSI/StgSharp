@@ -28,21 +28,30 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Model.Step;
 
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepFaceSurface : StepFace
+    public class StepFaceSurface : StepFace, IExpConvertableFrom<StepFaceSurface>
     {
+
+        public StepFaceSurface( StepModel model ) : base( model ) { }
 
         public bool SameSense { get; set; }
 
         public StepSurface FaceGeometry { get; set; }
+
+        public void FromInstance( StepFaceSurface entity )
+        {
+            base.FromInstance( entity );
+            SameSense = entity.SameSense;
+            FaceGeometry = entity.FaceGeometry;
+        }
 
     }
 }

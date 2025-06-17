@@ -51,7 +51,7 @@ namespace StgSharp.Model.Step
 
 ;
 
-    public class StepBSplineCurveWithKnots : StepBSplineCurve
+    public class StepBSplineCurveWithKnots : StepBSplineCurve, IExpConvertableFrom<StepBSplineCurveWithKnots>
     {
 
         private const string PIECEWISE_BEZIER_KNOTS = "PIECEWISE_BEZIER_KNOTS";
@@ -60,11 +60,15 @@ namespace StgSharp.Model.Step
         private const string UNIFORM_KNOTS = "UNIFORM_KNOTS";
         private const string UNSPECIFIED = "UNSPECIFIED";
 
-        public StepBSplineCurveWithKnots( IEnumerable<StepCartesianPoint> controlPoints )
-            : base( controlPoints ) { }
+        public StepBSplineCurveWithKnots(
+               StepModel model,
+               IEnumerable<StepCartesianPoint> controlPoints )
+            : base( model, controlPoints ) { }
 
-        public StepBSplineCurveWithKnots( params StepCartesianPoint[] controlPoints )
-            : base( controlPoints ) { }
+        public StepBSplineCurveWithKnots(
+               StepModel model,
+               params StepCartesianPoint[] controlPoints )
+            : base( model, controlPoints ) { }
 
         public List<int> KnotMultiplicities { get; } = new List<int>();
 
@@ -74,79 +78,79 @@ namespace StgSharp.Model.Step
 
         public StepKnotType KnotSpec { get; set; } = StepKnotType.Unspecified;
 
+        public void FromInstance( StepBSplineCurveWithKnots entity )
+        {
+            base.FromInstance( entity );
+            KnotSpec = entity.KnotSpec;
+            KnotMultiplicities.Clear();
+            KnotMultiplicities.AddRange( entity.KnotMultiplicities );
+            Knots.Clear();
+            Knots.AddRange( entity.Knots );
+        }
+
         internal static StepBSplineCurveWithKnots FromSyntax(
                                                   StepModel binder,
                                                   ExpSyntaxNode syntaxList )
         {
-            ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
+            ExpNodePresidentEnumerator enumerator = syntaxList .ToPresidentEnumerator();
             enumerator.AssertEnumeratorCount( 9 );
-            ExpNodePresidentEnumerator controlPointsList = enumerator[ 2 ].ToPresidentEnumerator();
+            ExpNodePresidentEnumerator controlPointsList = enumerator[ 2 ].TupleToPresidentEnumerator(
+                );
 
             StepBSplineCurveWithKnots spline = new StepBSplineCurveWithKnots(
-                new StepCartesianPoint[controlPointsList.Count] );
+                binder, new StepCartesianPoint[controlPointsList.Count] );
             spline.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
             spline.Degree = ( enumerator[ 1 ] as ExpIntNode )!.Value;
 
             for( int i = 0; i < controlPointsList.Count; i++ )
             {
                 int j = i; // capture to avoid rebinding
-                binder.BindValue(
-                    controlPointsList[ j ],
-                    v => spline.ControlPointsList[ j ] = v.AsType<StepCartesianPoint>() );
+                spline.ControlPointsList[ j ] = binder[ controlPointsList[ j ] ]as StepCartesianPoint;
             }
 
             spline.CurveForm = ParseCurveForm( enumerator[ 3 ].CodeConvertTemplate );
             spline.ClosedCurve = ( enumerator[ 4 ] as ExpBoolNode )!.Value;
             spline.SelfIntersect = ( enumerator[ 5 ]as ExpBoolNode )!.Value;
 
-            ExpNodePresidentEnumerator knotMultiplicitiesList = enumerator[ 6 ].ToPresidentEnumerator(
+            ExpNodePresidentEnumerator knotMultiplicitiesList = enumerator[ 6 ].TupleToPresidentEnumerator(
                 );
             spline.KnotMultiplicities.Clear();
             for( int i = 0; i < knotMultiplicitiesList.Count; i++ ) {
                 spline.KnotMultiplicities.Add( ( knotMultiplicitiesList[ i ]as ExpIntNode )!.Value );
             }
 
-            ExpNodePresidentEnumerator knotslist = enumerator[ 7 ].ToPresidentEnumerator();
+            ExpNodePresidentEnumerator knotsList = enumerator[ 7 ].TupleToPresidentEnumerator();
             spline.Knots.Clear();
-            for( int i = 0; i < knotslist.Count; i++ ) {
-                spline.Knots.Add( ( knotslist[ i ]as ExpRealNumberNode )!.Value );
+            for( int i = 0; i < knotsList.Count; i++ ) {
+                spline.Knots.Add( ( knotsList[ i ]as ExpRealNumberNode )!.Value );
             }
 
-            spline.KnotSpec = ParseKnotSpec( ( enumerator[ 8 ]as ExpStringNode )!.Value );
+            spline.KnotSpec = ParseKnotSpec( enumerator[ 8 ].CodeConvertTemplate );
 
             return spline;
         }
 
         private static string GetKnotSpec( StepKnotType spec )
         {
-            switch( spec )
+            return spec switch
             {
-                case StepKnotType.UniformKnots:
-                    return UNIFORM_KNOTS;
-                case StepKnotType.QuasiUniformKnots:
-                    return QUASI_UNIFORM_KNOTS;
-                case StepKnotType.PiecewiseBezierKnots:
-                    return PIECEWISE_BEZIER_KNOTS;
-                case StepKnotType.Unspecified:
-                    return UNSPECIFIED;
-            }
-
-            throw new NotImplementedException();
+                StepKnotType.UniformKnots => UNIFORM_KNOTS,
+                StepKnotType.QuasiUniformKnots => QUASI_UNIFORM_KNOTS,
+                StepKnotType.PiecewiseBezierKnots => PIECEWISE_BEZIER_KNOTS,
+                StepKnotType.Unspecified => UNSPECIFIED,
+                _ => throw new NotImplementedException(),
+            };
         }
 
         private static StepKnotType ParseKnotSpec( string enumerationValue )
         {
-            switch( enumerationValue.ToUpperInvariant() )
+            return enumerationValue.ToUpperInvariant() switch
             {
-                case UNIFORM_KNOTS:
-                    return StepKnotType.UniformKnots;
-                case QUASI_UNIFORM_KNOTS:
-                    return StepKnotType.QuasiUniformKnots;
-                case PIECEWISE_BEZIER_KNOTS:
-                    return StepKnotType.PiecewiseBezierKnots;
-                default:
-                    return StepKnotType.Unspecified;
-            }
+                UNIFORM_KNOTS => StepKnotType.UniformKnots,
+                QUASI_UNIFORM_KNOTS => StepKnotType.QuasiUniformKnots,
+                PIECEWISE_BEZIER_KNOTS => StepKnotType.PiecewiseBezierKnots,
+                _ => StepKnotType.Unspecified,
+            };
         }
 
     }

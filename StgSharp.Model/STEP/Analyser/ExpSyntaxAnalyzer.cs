@@ -100,6 +100,9 @@ namespace StgSharp.Model.Step
                 case TokenFlag.Member:
                     TryAppendMember( expToken );
                     break;
+                case TokenFlag.Enum:
+                    TryAppendEnum( expToken );
+                    break;
                 default:
                     break;
             }

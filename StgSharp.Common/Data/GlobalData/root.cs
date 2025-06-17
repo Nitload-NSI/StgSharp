@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp
 {
-    public static unsafe partial class StgSharp
+    public static unsafe partial class World
     {
 
         private static byte leastUnusedArea;

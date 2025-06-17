@@ -38,14 +38,15 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepTriple : StepPoint
+    public abstract class StepTriple : StepPoint, IExpConvertableFrom<StepTriple>
     {
 
         private Vec3 _coord;
 
-        protected StepTriple() : this( 0.0f, 0.0f, 0.0f ) { }
+        protected StepTriple( StepModel model ) : this( model, 0.0f, 0.0f, 0.0f ) { }
 
-        protected StepTriple( float x, float y, float z )
+        protected StepTriple( StepModel model, float x, float y, float z )
+            : base( model )
         {
             X = x;
             Y = y;
@@ -78,8 +79,11 @@ namespace StgSharp.Model.Step
                 return false;
             }
 
-            return ItemType == other.ItemType && X == other.X && Y == other.Y && Z == other.Z && Name ==
-                   other.Name;
+            return ItemType == other.ItemType &&
+                   X == other.X &&
+                   Y == other.Y &&
+                   Z == other.Z &&
+                   Name == other.Name;
         }
 
         public override bool Equals( object obj )
@@ -87,21 +91,30 @@ namespace StgSharp.Model.Step
             return ( obj is StepTriple triple ) && Equals( triple );
         }
 
+        public void FromInstance( StepTriple entity )
+        {
+            base.FromInstance( entity );
+            _coord = entity._coord;
+        }
+
         public override int GetHashCode()
         {
             return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode();
         }
 
-        internal static StepTriple AssignTo( StepTriple triple, ExpSyntaxNode values )
+        public override bool IsConvertableTo( string entityName )
+        {
+            return base.IsConvertableTo( entityName ) || entityName == "StepTriple";
+        }
+
+        internal static T AssignTo<T>( T triple, ExpSyntaxNode values ) where T: StepTriple
         {
             ExpNodePresidentEnumerator enumerator = values.ToPresidentEnumerator();
             enumerator.AssertEnumeratorCount( 2 );
             triple.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            ExpNodePresidentEnumerator pointValues = enumerator[ 1 ].ToPresidentEnumerator();
+            ExpNodePresidentEnumerator pointValues = enumerator[ 1 ].TupleToPresidentEnumerator();
             pointValues.AssertEnumeratorCount( triple.MinimumValueCount, 3 );
-            triple.X = ( pointValues[ 0 ]as ExpRealNumberNode )!.Value;
-            triple.Y = ( pointValues[ 1 ]as ExpRealNumberNode )!.Value;
-            triple.Z = ( pointValues[ 2 ]as ExpRealNumberNode )!.Value;
+            triple._coord = StepDataParser.ToVector3D( pointValues[ 0 ] );
             return triple;
         }
 

@@ -28,21 +28,22 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Model.Step;
 
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepEdge : StepTopologicalRepresentationItem
+    public class StepEdge : StepTopologicalRepresentationItem, IExpConvertableFrom<StepEdge>
     {
 
-        protected StepEdge() { }
+        protected StepEdge( StepModel model ) : base( model ) { }
 
-        protected StepEdge( StepVertex edgeStart, StepVertex edgeEnd )
+        protected StepEdge( StepModel model, StepVertex edgeStart, StepVertex edgeEnd )
+            : base( model )
         {
             EdgeStart = edgeStart;
             EdgeEnd = edgeEnd;
@@ -51,6 +52,18 @@ namespace StgSharp.Model.Step
         public StepVertex EdgeStart { get; set; }
 
         public StepVertex EdgeEnd { get; set; }
+
+        public void FromInstance( StepEdge entity )
+        {
+            base.FromInstance( entity );
+            EdgeStart = entity.EdgeStart;
+            EdgeEnd = entity.EdgeEnd;
+        }
+
+        public override bool IsConvertableTo( string entityName )
+        {
+            return base.IsConvertableTo( entityName ) || entityName == "StepEdge";
+        }
 
     }
 }

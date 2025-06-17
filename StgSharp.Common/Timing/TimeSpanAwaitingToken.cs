@@ -45,8 +45,7 @@ namespace StgSharp.Timing
     public sealed class TimeSpanAwaitingToken : IDisposable
     {
 
-        private static readonly ConcurrentStack<int> s_unusedID = new ConcurrentStack<int>(
-            [0] );
+        private static readonly ConcurrentStack<int> s_unusedID = new ConcurrentStack<int>( [0] );
         private static int s_maxID;
         private static readonly object s_lock = new object();
 
@@ -60,13 +59,16 @@ namespace StgSharp.Timing
 
         internal TimeSpanAwaitingToken( TimeSpanProvider provider )
         {
-            if( s_unusedID.Count == 1 ) {
-                lock( s_lock ) {
+            if( s_unusedID.Count == 1 )
+            {
+                lock( s_lock )
+                {
                     s_unusedID.TryPop( out int id );
                     TokenID = id;
                     s_unusedID.Push( s_maxID++ );
                 }
-            } else {
+            } else
+            {
                 s_unusedID.TryPop( out int id );
                 TokenID = id;
             }
@@ -77,13 +79,16 @@ namespace StgSharp.Timing
 
         internal TimeSpanAwaitingToken( TimeSpanProvider provider, int count )
         {
-            if( s_unusedID.Count == 1 ) {
-                lock( s_lock ) {
+            if( s_unusedID.Count == 1 )
+            {
+                lock( s_lock )
+                {
                     s_unusedID.TryPop( out int id );
                     TokenID = id;
                     s_unusedID.Push( s_maxID++ );
                 }
-            } else {
+            } else
+            {
                 s_unusedID.TryPop( out int id );
                 TokenID = id;
             }
@@ -130,12 +135,12 @@ namespace StgSharp.Timing
 
         public void Participant()
         {
-            lock( _participantObject ) {
+            lock( _participantObject )
+            {
                 _size++;
                 SemaphoreSlim newSemaphore = new SemaphoreSlim(
                     _awaitingSemaphore.CurrentCount, _size );
-                Interlocked.Exchange( ref _awaitingSemaphore, newSemaphore )
-                    .Dispose();
+                Interlocked.Exchange( ref _awaitingSemaphore, newSemaphore ).Dispose();
             }
         }
 

@@ -28,10 +28,10 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Internal;
 using StgSharp.Geometries;
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
+using StgSharp.Internal;
 
 using StgSharp.Math;
 using StgSharp.MVVM;
@@ -72,8 +72,7 @@ namespace StgSharp.Stg
 
         public override bool IsContextSharable => false;
 
-        public void GenerateCollisionTexture(
-            IEnumerable<IInstancingBuffer> bufferEnumeration )
+        public void GenerateCollisionTexture( IEnumerable<IInstancingBuffer> bufferEnumeration )
         {
             fbo.Bind( 0 );
             GL.ClearColor( 0, 0, 0, 1 );
@@ -81,7 +80,8 @@ namespace StgSharp.Stg
             generatingShader.Use();
             vao.Bind( 0 );
 
-            foreach( IInstancingBuffer item in bufferEnumeration ) {
+            foreach( IInstancingBuffer item in bufferEnumeration )
+            {
                 IGeometry g = item.TypicalShape;
 
                 if( !( g is PlainGeometry ) ) {
@@ -92,42 +92,33 @@ namespace StgSharp.Stg
                 ebo.Bind( 0 );
                 ebo.SetValue<int>( 0, g.VertexIndices, BufferUsage.StreamDraw );
 
-                vbo.WriteVectorData<Vec4>(
-                    0, item.CoordAndRotationSpan, BufferUsage.StreamDraw );
+                vbo.WriteVectorData<Vec4>( 0, item.CoordAndRotationSpan, BufferUsage.StreamDraw );
+                vao.SetVertexAttribute( 1, 3, TypeCode.Single, false, 4 * sizeof( float ), 0 );
                 vao.SetVertexAttribute(
-                    1, 3, TypeCode.Single, false, 4 * sizeof( float ), 0 );
-                vao.SetVertexAttribute(
-                    2, 1, TypeCode.Single, false, 4 * sizeof( float ),
-                    3 * sizeof( float ) );
+                    2, 1, TypeCode.Single, false, 4 * sizeof( float ), 3 * sizeof( float ) );
 
-                vbo.WriteScalerData<float>(
-                    2, item.ScalingSpan, BufferUsage.StreamDraw );
-                vao.SetVertexAttribute(
-                    3, 1, TypeCode.Single, false, sizeof( float ), 0 );
+                vbo.WriteScalerData<float>( 2, item.ScalingSpan, BufferUsage.StreamDraw );
+                vao.SetVertexAttribute( 3, 1, TypeCode.Single, false, sizeof( float ), 0 );
 
-                vbo.WriteVectorData( 1, g.VertexStream,
-                                     BufferUsage.StreamDraw );
-                vao.SetVertexAttribute(
-                    0, 3, TypeCode.Single, false, 4 * sizeof( float ), 0 );
+                vbo.WriteVectorData( 1, g.VertexStream, BufferUsage.StreamDraw );
+                vao.SetVertexAttribute( 0, 3, TypeCode.Single, false, 4 * sizeof( float ), 0 );
 
                 GL.DrawElementsInstanced(
-                    GeometryType.TRIANGLES,
-                    ( ( uint )g.VertexIndices.Length ) / 3, TypeCode.UInt32,
+                    GeometryType.TRIANGLES, ( ( uint )g.VertexIndices.Length ) / 3, TypeCode.UInt32,
                     IntPtr.Zero, ( uint )item.ScalingSpan.Length );
             }
 
             t.Bind2D( 0 );
             GL.GetTextureImage(
-                Texture2DTarget.Texture2D, 0, ImageChannel.SingleColor,
-                PixelChannelLayout.Float, textureOutput );
+                Texture2DTarget.Texture2D, 0, ImageChannel.SingleColor, PixelChannelLayout.Float,
+                textureOutput );
             VertexArray.BindNull();
         }
 
         public void Init( Radius angleStride, string name )
         {
             primeArgs = new ViewPort(
-                1, (int)(( new Radius( Scaler.Pi ) ) / angleStride), name,
-                IntPtr.Zero );
+                1, ( int )( ( new Radius( Scaler.Pi ) ) / angleStride ), name, IntPtr.Zero );
 
             PlatformSpecifiedInitialize();
             CustomizeInit();
@@ -145,12 +136,10 @@ namespace StgSharp.Stg
             generatingShader = CreateShaderProgram();
 
             Shader vertexShader = CreateShaderSegment( ShaderType.Vertex, 1 );
-            Shader fragmentShader = CreateShaderSegment(
-                ShaderType.Fragment, 1 );
+            Shader fragmentShader = CreateShaderSegment( ShaderType.Fragment, 1 );
 
             vertexShader.Compile( 0, InternalIO.CollisionTextureVertexShader );
-            fragmentShader.Compile(
-                0, InternalIO.CollisionTextureFragmentShader );
+            fragmentShader.Compile( 0, InternalIO.CollisionTextureFragmentShader );
             vertexShader.AttachTo( 0, generatingShader );
             fragmentShader.AttachTo( 0, generatingShader );
 
@@ -164,27 +153,24 @@ namespace StgSharp.Stg
 
             fbo = CreateFrameBuffer( 1 );
             rbo = CreateRenderBuffer( 1 );
-            GL.SetRenderBufferStorage(
-                RenderBufferInternalFormat.Depth24_Stencil8, this.Size );
+            GL.SetRenderBufferStorage( RenderBufferInternalFormat.Depth24_Stencil8, this.Size );
 
 
             t = CreateTexture( 1 );
             t.Bind2D( 0 );
             GL.TextureImage2d<byte>(
-                Texture2DTarget.Texture2D, 0, ImageChannel.WithAlphaChannel,
-                ( uint )Width, ( uint )Height, ImageChannel.WithAlphaChannel,
-                PixelChannelLayout.Byte, Array.Empty<byte>() );
+                Texture2DTarget.Texture2D, 0, ImageChannel.WithAlphaChannel, ( uint )Width,
+                ( uint )Height, ImageChannel.WithAlphaChannel, PixelChannelLayout.Byte,
+                Array.Empty<byte>() );
 
             t.Set2dWrapProperty( 0, TextureWrap.Repeat, TextureWrap.Repeat );
-            t.Set2dFilterProperty(
-                0, TextureFilter.Nearest, TextureFilter.Nearest );
+            t.Set2dFilterProperty( 0, TextureFilter.Nearest, TextureFilter.Nearest );
 
             GL.FrameBufferTexture2d(
-                FrameBufferTarget.All, glAttachment.Color( 0 ),
-                Texture2DTarget.Texture2D, t[ 0 ], 0 );
+                FrameBufferTarget.All, glAttachment.Color( 0 ), Texture2DTarget.Texture2D, t[ 0 ],
+                0 );
 
-            GL.CombineFrameBufferRenderBuffer(
-                FrameBufferAttachment.Color, rbo[ 0 ] );
+            GL.CombineFrameBufferRenderBuffer( FrameBufferAttachment.Color, rbo[ 0 ] );
 
             textureOutput = new float[this.Width];
         }

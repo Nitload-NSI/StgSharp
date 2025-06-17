@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Timing;
 
 using System;
@@ -40,7 +39,7 @@ using System.Threading;
 
 namespace StgSharp
 {
-    public static partial class StgSharp
+    public static partial class World
     {
 
         internal static StgSharpTime mainTimeProvider = new StgSharpTime();
@@ -52,15 +51,14 @@ namespace StgSharp
     public sealed class StgSharpTime : TimeSourceProviderBase
     {
 
-        private static List<TimeSpanProvider> subscriberList = new List<TimeSpanProvider>(
-            );
+        private static List<TimeSpanProvider> subscriberList = new List<TimeSpanProvider>();
         private static long accuracy;
         private static Stopwatch mainProvider = new Stopwatch();
         private static Thread timeProvideThread;
 
         internal StgSharpTime() { }
 
-        public static TimeSourceProviderBase OnlyInstance => StgSharp.MainTimeProvider;
+        public static TimeSourceProviderBase OnlyInstance => World.MainTimeProvider;
 
         public override sealed void StartProvidingTime()
         {
@@ -71,13 +69,14 @@ namespace StgSharp
 
             //speed test
             long totalMS, internalFrequncy = Stopwatch.Frequency;
-            for( int i = 0; i < 100; i++ ) {
+            for( int i = 0; i < 100; i++ )
+            {
                 totalMS = mainProvider.ElapsedTicks / ( internalFrequncy / ( 1000L * 1000L ) );
-                for( int t = 0; t < 10; t++ ) {
+                for( int t = 0; t < 10; t++ )
+                {
                     if( totalMS < 1000 ) {
                         subscriberList.Add(
-                            new TimeSpanProvider(
-                                100L, TimeSpanProvider.DefaultProvider ) );
+                            new TimeSpanProvider( 100L, TimeSpanProvider.DefaultProvider ) );
                     }
                 }
             }
@@ -104,14 +103,12 @@ namespace StgSharp
             }
         }
 
-        protected override sealed void AddSubscriberUnsynced(
-            TimeSpanProvider subscriber )
+        protected override sealed void AddSubscriberUnsynced( TimeSpanProvider subscriber )
         {
             subscriberList.Add( subscriber );
         }
 
-        protected override sealed void RemoveSubscriberUnsynced(
-            TimeSpanProvider subscriber )
+        protected override sealed void RemoveSubscriberUnsynced( TimeSpanProvider subscriber )
         {
             subscriberList.Remove( subscriber );
         }
@@ -122,24 +119,27 @@ namespace StgSharp
             lock( mainProvider ) {
                 mainProvider.Restart();
             }
-            while( mainProvider.IsRunning ) {
+            while( mainProvider.IsRunning )
+            {
                 totalMS = mainProvider.ElapsedTicks / ( internalFrequncy / ( 1000L * 1000L ) );
-                if( subscriberList.Count == 0 ) {
+                if( subscriberList.Count == 0 )
+                {
                     continue;
                 }
                 CheckSubscriberSemaphore.Wait();
-                List<TimeSpanProvider> toRemoveList = new List<TimeSpanProvider>(
-                    );
-                foreach( TimeSpanProvider subscriber in subscriberList ) {
-                    if( !subscriber.CheckTime( totalMS ) ) {
+                List<TimeSpanProvider> toRemoveList = new List<TimeSpanProvider>();
+                foreach( TimeSpanProvider subscriber in subscriberList )
+                {
+                    if( !subscriber.CheckTime( totalMS ) )
+                    {
                         toRemoveList.Add( subscriber );
                         InternalIO.InternalWriteLog(
-                            $"Time subscriber {subscriber} is to be removed.",
-                            LogType.Info );
+                            $"Time subscriber {subscriber} is to be removed.", LogType.Info );
                     }
                     ;
                 }
-                if( toRemoveList.Count != 0 ) {
+                if( toRemoveList.Count != 0 )
+                {
                     foreach( TimeSpanProvider subscriber in toRemoveList ) {
                         subscriberList.Remove( subscriber );
                     }

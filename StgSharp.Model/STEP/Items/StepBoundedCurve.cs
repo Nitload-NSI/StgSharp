@@ -30,9 +30,30 @@
 //-----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepBoundedCurve : StepCurve { }
+    public class StepBoundedCurve : StepCurve, IExpConvertableFrom<StepBoundedCurve>
+    {
+
+        public StepBoundedCurve( StepModel model ) : base( model ) { }
+
+        public void FromInstance( StepBoundedCurve entity )
+        {
+            base.FromInstance( entity );
+        }
+
+        public override bool IsConvertableTo( string entityName )
+        {
+            return base.IsConvertableTo( entityName ) || entityName == "StepBoundedCurve";
+        }
+
+        internal static StepBoundedCurve FromSyntax( StepModel binder, ExpSyntaxNode syntax )
+        {
+            return new StepBoundedCurve( binder );
+        }
+
+    }
 }
 

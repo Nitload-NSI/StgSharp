@@ -39,7 +39,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp
 {
-    public static partial class StgSharp
+    public static partial class World
     {
 
         private static unsafe IntPtr[] monitorsArray;
@@ -48,12 +48,12 @@ namespace StgSharp
         {
             get
             {
-                if( monitorsArray == null ) {
+                if( monitorsArray == null )
+                {
                     int count = 0;
                     IntPtr* arrayhandle = InternalIO.glfwGetMonitors( &count );
                     monitorsArray = new IntPtr[count];
-                    Marshal.Copy(
-                        ( IntPtr )arrayhandle, monitorsArray, 0, count );
+                    Marshal.Copy( ( IntPtr )arrayhandle, monitorsArray, 0, count );
                     Marshal.FreeHGlobal( ( IntPtr )arrayhandle );
                 }
                 return monitorsArray;

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="KeyMultiplexer.cs"
+//     file="StringHashMultiplexer.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -38,7 +38,7 @@ using System.Threading;
 
 namespace StgSharp.Collections
 {
-    public sealed class StringHashMultiplexer :  IHashMultiplexer<string>
+    public sealed class StringHashMultiplexer : IHashMultiplexer<string>
     {
 
         private int _initCount, _remainedCount, _hashCache, _hashLast;
@@ -74,15 +74,15 @@ namespace StgSharp.Collections
         {
             int hash;
             fixed( char* cPtr = obj.AsSpan() ) {
-                hash = InternalIO.Intrinsic
-                        .city_hash_simplify( cPtr, obj.Length );
+                hash = InternalIO.Intrinsic.city_hash_simplify( cPtr, obj.Length );
             }
             return hash;
         }
 
         public int GetHashCode( string obj )
         {
-            if( _remainedCount > 0 && ReferenceEquals( _source, obj ) ) {
+            if( _remainedCount > 0 && ReferenceEquals( _source, obj ) )
+            {
                 _remainedCount--;
                 return _hashCache;
             }
@@ -139,8 +139,7 @@ namespace StgSharp.Collections
         {
             int hash;
             fixed( char* cPtr = obj.AsSpan() ) {
-                hash = InternalIO.Intrinsic
-                        .city_hash_simplify( cPtr, obj.Length );
+                hash = InternalIO.Intrinsic.city_hash_simplify( cPtr, obj.Length );
             }
             return hash;
         }
@@ -152,7 +151,8 @@ namespace StgSharp.Collections
 
         private void Dispose( bool disposing )
         {
-            if( !disposedValue ) {
+            if( !disposedValue )
+            {
                 if( disposing ) {
                     _multiplexers.Dispose();
                 }

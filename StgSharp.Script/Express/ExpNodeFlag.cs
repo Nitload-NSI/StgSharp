@@ -30,12 +30,39 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.Script.Express
 {
+    [EditorBrowsable( EditorBrowsableState.Never )]
+    public static class ExpNodeFlagHelper
+    {
+
+        public static bool IsInFlag( this ExpNodeFlag flag, long target )
+        {
+            return ( ( long )flag & target ) != 0;
+        }
+
+        public static bool IsInFlag( this ExpNodeFlag flag, ExpNodeFlag target )
+        {
+            return ( long )( flag & target ) != 0;
+        }
+
+        public static bool IsNotInFlag( this ExpNodeFlag flag, long target )
+        {
+            return ( ( long )flag & target ) == 0;
+        }
+
+        public static bool IsNotInFlag( this ExpNodeFlag flag, ExpNodeFlag target )
+        {
+            return ( long )( flag & target ) == 0;
+        }
+
+    }
+
     [Flags]
     public enum ExpNodeFlag : long
     {

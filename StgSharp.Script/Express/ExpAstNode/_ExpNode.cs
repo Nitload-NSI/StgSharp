@@ -122,11 +122,12 @@ namespace StgSharp.Script.Express
         {
             IExpElementSource tLeft = left.EqualityTypeConvert,
                 tRight = right.EqualityTypeConvert;
-            if( tLeft is not ExpInstantiableElement tLeftIns || tRight is not ExpInstantiableElement tRightIns ) {
+            if( tLeft is not ExpInstantiableElement tLeftIns ||
+                tRight is not ExpInstantiableElement tRightIns ) {
                 return false;
             }
-            if( ExpInstantiableElement.IsNullOrVoid( tLeftIns ) || ExpInstantiableElement.IsNullOrVoid(
-                tLeftIns ) ) {
+            if( ExpInstantiableElement.IsNullOrVoid( tLeftIns ) ||
+                ExpInstantiableElement.IsNullOrVoid( tLeftIns ) ) {
                 return false;
             }
             return tLeft.IsConvertable( tRight );

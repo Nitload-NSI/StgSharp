@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Commom.Collections;
 using System;
 using System.Collections.Generic;
@@ -42,11 +41,11 @@ using System.Threading.Tasks;
 namespace StgSharp.Graphics.OpenGL
 {
     /// <summary>
-    /// A collection of a sets of OpenGL textures. The collection can automatically select one of
-    /// the  texture with minimum costs to upgrade pixels to Buffer. Usually <see
-    /// cref="AutoTextureGL" /> is used for <see cref="IImageProvider" /> loading, but not for
-    /// target of  <see cref="OpenGLFunction.FrameBufferTexture2d(FrameBufferTarget, uint,
-    /// Texture2DTarget, GlHandle, int)" />.
+    ///   A collection of a sets of OpenGL textures. The collection can automatically select one of
+    ///   the  texture with minimum costs to upgrade pixels to Buffer. Usually <see
+    ///   cref="AutoTextureGL" /> is used for <see cref="IImageProvider" /> loading, but not for
+    ///   target of  <see cref="OpenGLFunction.FrameBufferTexture2d(FrameBufferTarget, uint,
+    ///   Texture2DTarget, GlHandle, int)" />.
     /// </summary>
     public sealed class AutoTextureGL
     {
@@ -54,8 +53,7 @@ namespace StgSharp.Graphics.OpenGL
         private TextureProperty[] propertyCache;
         private BidirectionalDictionary<Image, int> imageIndexMap = new BidirectionalDictionary<Image, int>(
             );
-        private Dictionary<Image, int> imageUpdateIndex = new Dictionary<Image, int>(
-            );
+        private Dictionary<Image, int> imageUpdateIndex = new Dictionary<Image, int>();
 
         private int _size, _currentIndex;
         private LinkedList<int> usedTextureIndex;
@@ -69,8 +67,7 @@ namespace StgSharp.Graphics.OpenGL
             texturePackage = texture;
             _size = texture.Count;
             imageIndexMap = new BidirectionalDictionary<Image, int>();
-            unusedTextureUnitIndex = new Queue<int>(
-                Enumerable.Range( 0, _size ) );
+            unusedTextureUnitIndex = new Queue<int>( Enumerable.Range( 0, _size ) );
             usedTextureIndex = new LinkedList<int>();
             propertyCache = new TextureProperty[_size];
         }
@@ -80,8 +77,7 @@ namespace StgSharp.Graphics.OpenGL
             this._size = textureObjectSize;
             imageIndexMap = new BidirectionalDictionary<Image, int>();
             texturePackage = new TextureGL( textureObjectSize, binding );
-            unusedTextureUnitIndex = new Queue<int>(
-                Enumerable.Range( 0, _size ) );
+            unusedTextureUnitIndex = new Queue<int>( Enumerable.Range( 0, _size ) );
             usedTextureIndex = new LinkedList<int>();
             propertyCache = new TextureProperty[_size];
         }
@@ -105,29 +101,34 @@ namespace StgSharp.Graphics.OpenGL
             SelectTextureAndBind( i, property );
         }
 
-        public void SelectTextureAndBind(
-            [NotNull]Image i,
-            TextureProperty property )
+        public void SelectTextureAndBind( [NotNull]Image i, TextureProperty property )
         {
             //usable texture with image match
-            if( imageIndexMap.TryGetValue( i, out int index ) ) {
+            if( imageIndexMap.TryGetValue( i, out int index ) )
+            {
                 //prop setting match
-                if( propertyCache[ index ] == property ) {
+                if( propertyCache[ index ] == property )
+                {
                     _currentIndex = index;                          //GL.Assert(true);
                     texturePackage.Bind2D( index );                   //GL.Assert(true);
-                    if( i.PixelUpdateCount != imageUpdateIndex[ i ] ) {
+                    if( i.PixelUpdateCount != imageUpdateIndex[ i ] )
+                    {
                         texturePackage.LoadTexture( index, i );       //GL.Assert(true);
                     }
-                } else {
+                } else
+                {
                     _currentIndex = index;                          //GL.Assert(true);
                     texturePackage.Bind2D( index );                   //GL.Assert(true);
                     texturePackage.Set2dProperty( index, property );  //GL.Assert(true);
-                    if( i.PixelUpdateCount != imageUpdateIndex[ i ] ) {
+                    if( i.PixelUpdateCount != imageUpdateIndex[ i ] )
+                    {
                         texturePackage.LoadTexture( index, i );       //GL.Assert(true);
                     }
                 }
-            } else {
-                if( unusedTextureUnitIndex.TryDequeue( out int newIndex ) ) {
+            } else
+            {
+                if( unusedTextureUnitIndex.TryDequeue( out int newIndex ) )
+                {
                     //has extra unused texture object
                     imageIndexMap.Add( i, index );
                     texturePackage.Bind2D( index );
@@ -136,7 +137,8 @@ namespace StgSharp.Graphics.OpenGL
                     usedTextureIndex.AddLast( newIndex );
                     propertyCache[ newIndex ] = property;
                     imageUpdateIndex[ i ] = i.PixelUpdateCount;
-                } else {
+                } else
+                {
                     //recycle from current
                     int reusedIndex = usedTextureIndex.First!.Value;
                     usedTextureIndex.RemoveFirst();
@@ -151,8 +153,7 @@ namespace StgSharp.Graphics.OpenGL
         public static AutoTextureGL ToAuto( [NotNull]TextureGL texture )
         {
             if( texture.IndexOfCurrentTexture != -1 ) {
-                throw new InvalidOperationException(
-                    "Texture to be converted has been editted." );
+                throw new InvalidOperationException( "Texture to be converted has been editted." );
             }
             return new AutoTextureGL( texture );
         }

@@ -37,7 +37,7 @@ using System.ComponentModel;
 namespace StgSharp.Geometries
 {
     /// <summary>
-    /// Plain geometry only contains straight sides.
+    ///   Plain geometry only contains straight sides.
     /// </summary>
     public abstract class PlainGeometry : IGeometry
     {
@@ -58,10 +58,7 @@ namespace StgSharp.Geometries
 
         public int VertexCount => this.vertexMat.Length;
 
-        public abstract ReadOnlySpan<int> VertexIndices
-        {
-            get;
-        }
+        public abstract ReadOnlySpan<int> VertexIndices { get; }
 
         #pragma warning disable CA1819 
         public Vec4[] VertexStream => vertexMat;

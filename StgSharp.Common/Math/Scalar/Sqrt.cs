@@ -47,9 +47,9 @@ namespace StgSharp.Math
              * 在进一步简化操作后，计算精度达到0.5%，速度约为.Net库函数的3倍
              */
 
-            if( x < 0 ) {
-                throw new ArgumentOutOfRangeException(
-                    "Input is smaller than zero!" );
+            if( x < 0 )
+            {
+                throw new ArgumentOutOfRangeException( "Input is smaller than zero!" );
             }
             if( x == 0 ) {
                 return 0;
@@ -60,7 +60,8 @@ namespace StgSharp.Math
             * 故不考虑正负号
             */
 
-            if( x < 0 ) {
+            if( x < 0 )
+            {
                 throw new ArgumentOutOfRangeException();
             }
             if( x <= 1e-12 ) {

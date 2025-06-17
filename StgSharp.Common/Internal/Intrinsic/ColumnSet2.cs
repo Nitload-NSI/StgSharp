@@ -71,8 +71,7 @@ namespace StgSharp.Internal.Intrinsic
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public bool Equals( ColumnSet2 other )
         {
-            return colum0.Equals( other.colum0 ) && colum1.Equals(
-                other.colum1 );
+            return colum0.Equals( other.colum0 ) && colum1.Equals( other.colum1 );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]

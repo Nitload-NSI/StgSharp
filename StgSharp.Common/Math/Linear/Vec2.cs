@@ -38,8 +38,8 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Math
 {
     /// <summary>
-    /// A two dimension vector defined by two elements. Vec2 in StgSharp are default used as colum
-    /// vector.
+    ///   A two dimension vector defined by two elements. Vec2 in World are default used as colum
+    ///   vector.
     /// </summary>
     [StructLayout( LayoutKind.Explicit, Size = 16, Pack = 16 )]
     public struct Vec2 : IVector<Vec2>

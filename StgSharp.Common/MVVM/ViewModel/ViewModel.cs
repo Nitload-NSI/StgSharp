@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="ViewModel.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -32,7 +32,7 @@ using StgSharp.Controlling.UsrActivity;
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
 using StgSharp.Math;
-using StgSharp.MVVM.View;
+using StgSharp.MVVM;
 using StgSharp.MVVM.ViewModel;
 using StgSharp.Threading;
 using StgSharp.Timing;
@@ -130,8 +130,9 @@ namespace StgSharp.MVVM.ViewModel
 
         public bool ShouldClose
         {
-            get => InternalIO.glfwWindowShouldClose( viewPortDisplay.ViewPortID ) != 0;
-            set => InternalIO.glfwSetWindowShouldClose( viewPortDisplay.ViewPortID, value ? 1 : 0 );
+            get => InternalIO.glfwWindowShouldClose( viewPortDisplay.ViewPortHandle ) != 0;
+            set => InternalIO.glfwSetWindowShouldClose(
+                viewPortDisplay.ViewPortHandle, value ? 1 : 0 );
         }
 
         public int CurrentFrameCount => frameTimeProvider.CurrentSpan;
@@ -156,7 +157,7 @@ namespace StgSharp.MVVM.ViewModel
 
         public unsafe IntPtr WindowID
         {
-            get => viewPortDisplay.ViewPortID;
+            get => viewPortDisplay.ViewPortHandle;
         }
 
         public string Name
@@ -184,7 +185,8 @@ namespace StgSharp.MVVM.ViewModel
             {
                 _resizeCallback = value;
                 IntPtr handlerPtr = Marshal.GetFunctionPointerForDelegate( value );
-                InternalIO.glfwSetFramebufferSizeCallback( viewPortDisplay.ViewPortID, handlerPtr );
+                InternalIO.glfwSetFramebufferSizeCallback(
+                    viewPortDisplay.ViewPortHandle, handlerPtr );
             }
         }
         #pragma warning restore CA1044
@@ -205,7 +207,7 @@ namespace StgSharp.MVVM.ViewModel
         {
             ThreadHelper.MainThreadAssert();
             InternalIO.glfwSetWindowSizeLimits(
-                this.viewPortDisplay.ViewPortID, ( int )minSize.X, ( int )minSize.Y,
+                this.viewPortDisplay.ViewPortHandle, ( int )minSize.X, ( int )minSize.Y,
                 ( int )maxSize.X, ( int )maxSize.Y );
         }
 
@@ -229,7 +231,7 @@ namespace StgSharp.MVVM.ViewModel
         {
             ThreadHelper.MainThreadAssert();
             InternalIO.glfwSetWindowSizeLimits(
-                this.viewPortDisplay.ViewPortID, minWidth, minHeight, maxWidth, maxHeight );
+                this.viewPortDisplay.ViewPortHandle, minWidth, minHeight, maxWidth, maxHeight );
         }
 
         public abstract bool TryGetObjectReference( string name, out DataBindingEntry entry );

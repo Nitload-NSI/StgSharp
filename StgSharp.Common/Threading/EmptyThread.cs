@@ -41,8 +41,7 @@ namespace StgSharp.Threading
     public static partial class ThreadHelper
     {
 
-        private static readonly Thread _emptyThreadCache = new Thread(
-            () => { } );
+        private static readonly Thread _emptyThreadCache = new Thread( () => { } );
 
         static ThreadHelper()
         {
@@ -50,8 +49,8 @@ namespace StgSharp.Threading
         }
 
         /// <summary>
-        /// An individual thread doing nothing,  and its <see cref="Thread.IsAlive" /> <see
-        /// langword="property" /> always returns false.
+        ///   An individual thread doing nothing,  and its <see cref="Thread.IsAlive" /> <see
+        ///   langword="property" /> always returns false.
         /// </summary>
         public static Thread EmptyThread
         {

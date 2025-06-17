@@ -43,9 +43,9 @@ using System.Text;
 namespace StgSharp.Graphics.OpenGL
 {
     /// <summary>
-    /// A collection of handle to Element Buffer Object in OpenglFunc. Each <see langword="uint" />
-    /// value indexed from instance of this class this is the only handle to one Element Buffer
-    /// Object.
+    ///   A collection of handle to Element Buffer Object in OpenglFunc. Each <see langword="uint"
+    ///   /> value indexed from instance of this class this is the only handle to one Element Buffer
+    ///   Object.
     /// </summary>
     public sealed unsafe class ElementBuffer : GlBufferObjectBase
     {
@@ -58,29 +58,21 @@ namespace StgSharp.Graphics.OpenGL
 
         public override sealed void Bind( int index )
         {
-            GL.BindBuffer(
-                BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
+            GL.BindBuffer( BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
         }
 
         public void SetValue<T>( int index, T[] bufferArray, BufferUsage usage )
             where T: struct, INumber<T>
         {
-            GL.BindBuffer(
-                BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
-            GL.SetBufferData<T>(
-                BufferType.ElementArrayBuffer, bufferArray, usage );
+            GL.BindBuffer( BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
+            GL.SetBufferData<T>( BufferType.ElementArrayBuffer, bufferArray, usage );
         }
 
-        public void SetValue<T>(
-            int index,
-            ReadOnlySpan<T> bufferSpan,
-            BufferUsage usage )
+        public void SetValue<T>( int index, ReadOnlySpan<T> bufferSpan, BufferUsage usage )
             where T: struct, INumber<T>
         {
-            GL.BindBuffer(
-                BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
-            GL.SetBufferData<T>( BufferType.ElementArrayBuffer, bufferSpan,
-                              usage );
+            GL.BindBuffer( BufferType.ElementArrayBuffer, _bufferHandle[ index ] );
+            GL.SetBufferData<T>( BufferType.ElementArrayBuffer, bufferSpan, usage );
         }
 
         protected override sealed void Dispose( bool disposing )

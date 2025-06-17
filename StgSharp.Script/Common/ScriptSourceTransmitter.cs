@@ -38,9 +38,9 @@ using System.Text.RegularExpressions;
 namespace StgSharp.Script
 {
     /// <summary>
-    /// Transmit a continuous part of script code to interpreter or compiler. This transmitter is
-    /// designed for single-thread-write and single-thread read. Any multi thread operation will
-    /// cause undefined behaviour.
+    ///   Transmit a continuous part of script code to interpreter or compiler. This transmitter is
+    ///   designed for single-thread-write and single-thread read. Any multi thread operation will
+    ///   cause undefined behaviour.
     /// </summary>
     public class ScriptSourceTransmitter : IScriptSourceProvider
     {
@@ -73,10 +73,7 @@ namespace StgSharp.Script
             _index = 0;
         }
 
-        public ScriptSourceTransmitter(
-                       string endMark,
-                       int start,
-                       int capacity )
+        public ScriptSourceTransmitter( string endMark, int start, int capacity )
         {
             _cache = new List<string>( capacity );
             _completeMark = endMark;
@@ -85,8 +82,7 @@ namespace StgSharp.Script
         }
 
         public bool IsEmpty => _isWriting ?
-                ( _cache.Count == 0 ) : ( _buffer.Length == 0 ) || ( _index >=
-                                                                     _buffer.Length );
+                ( _cache.Count == 0 ) : ( _buffer.Length == 0 ) || ( _index >= _buffer.Length );
 
         public bool IsFrozen => !_isWriting;
 
@@ -107,8 +103,7 @@ namespace StgSharp.Script
         public string ReadLine()
         {
             if( _isWriting ) {
-                throw new InvalidOperationException(
-                    "Cannot read before all writing operation." );
+                throw new InvalidOperationException( "Cannot read before all writing operation." );
             }
             if( _index >= _buffer.Length ) {
                 return string.Empty;
@@ -121,10 +116,10 @@ namespace StgSharp.Script
         public string ReadLine( out int position )
         {
             if( _isWriting ) {
-                throw new InvalidOperationException(
-                    "Cannot read before all writing operation." );
+                throw new InvalidOperationException( "Cannot read before all writing operation." );
             }
-            if( _index >= _buffer.Length ) {
+            if( _index >= _buffer.Length )
+            {
                 position = -1;
                 return string.Empty;
             }
@@ -148,7 +143,8 @@ namespace StgSharp.Script
             if( !_isWriting ) {
                 return;
             }
-            if( string.Equals( _completeMark, line ) ) {
+            if( string.Equals( _completeMark, line ) )
+            {
                 EndWriting();
                 return;
             }

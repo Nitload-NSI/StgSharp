@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="Shader.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -33,6 +33,7 @@ using StgSharp.Internal;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -90,7 +91,7 @@ namespace StgSharp.Graphics.OpenGL
         ///   Index of shader code in current shader code set.
         /// </param>
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void AttachTo( int index, ShaderProgram target )
+        public void AttachTo( int index, [NotNull]ShaderProgram target )
         {
             GL.AttachShader( target.handle, handle[ index ] );
         }

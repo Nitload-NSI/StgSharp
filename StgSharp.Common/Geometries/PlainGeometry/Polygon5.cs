@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Math;
 
 using System;
@@ -48,16 +47,16 @@ namespace StgSharp.Geometries
         }
 
         public Polygon5(
-            float v0x,
-            float v0y,
-            float v1x,
-            float v1y,
-            float v2x,
-            float v2y,
-            float v3x,
-            float v3y,
-            float v4x,
-            float v4y )
+               float v0x,
+               float v0y,
+               float v1x,
+               float v1y,
+               float v2x,
+               float v2y,
+               float v3x,
+               float v3y,
+               float v4x,
+               float v4y )
             : base( PlainCoordinate.StandardPlainCoordination )
         {
             vertexMat = new Vec4[5];
@@ -69,17 +68,17 @@ namespace StgSharp.Geometries
         }
 
         public Polygon5(
-            PlainCoordinate coordination,
-            float v0x,
-            float v0y,
-            float v1x,
-            float v1y,
-            float v2x,
-            float v2y,
-            float v3x,
-            float v3y,
-            float v4x,
-            float v4y )
+               PlainCoordinate coordination,
+               float v0x,
+               float v0y,
+               float v1x,
+               float v1y,
+               float v2x,
+               float v2y,
+               float v3x,
+               float v3y,
+               float v4x,
+               float v4y )
             : base( coordination )
         {
             vertexMat = new Vec4[5];

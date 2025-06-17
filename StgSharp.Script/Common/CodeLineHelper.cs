@@ -51,8 +51,7 @@ namespace StgSharp.Script
             ReadOnlySpan<char> subSpan = sourceSpan.Slice( startIndex );
 
             int start = 0;
-            while( start < subSpan.Length && char.IsWhiteSpace(
-                subSpan[ start ] ) ) {
+            while( start < subSpan.Length && char.IsWhiteSpace( subSpan[ start ] ) ) {
                 start++;
             }
             int end = subSpan.Length - 1;
@@ -67,10 +66,7 @@ namespace StgSharp.Script
             return new string( subSpan.Slice( start, finalLength ) );
         }
 
-        public static string SliceAndTrim(
-                                     this string line,
-                                     int startIndex,
-                                     int length )
+        public static string SliceAndTrim( this string line, int startIndex, int length )
         {
             if( line == null ) {
                 throw new ArgumentNullException( nameof( line ) );
@@ -88,8 +84,7 @@ namespace StgSharp.Script
             ReadOnlySpan<char> subSpan = sourceSpan.Slice( startIndex, length );
 
             int start = 0;
-            while( start < subSpan.Length && char.IsWhiteSpace(
-                subSpan[ start ] ) ) {
+            while( start < subSpan.Length && char.IsWhiteSpace( subSpan[ start ] ) ) {
                 start++;
             }
             int end = subSpan.Length - 1;

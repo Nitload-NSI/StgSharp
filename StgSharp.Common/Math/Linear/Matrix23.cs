@@ -61,13 +61,7 @@ namespace StgSharp.Math
             Unsafe.SkipInit( out _transpose );
         }
 
-        public Matrix23(
-                       float a00,
-                       float a01,
-                       float a02,
-                       float a10,
-                       float a11,
-                       float a12 )
+        public Matrix23( float a00, float a01, float a02, float a10, float a11, float a12 )
         {
             _mat.colum0 = new Vector4( a00, a10, 0, 0 );
             _mat.colum1 = new Vector4( a01, a11, 0, 0 );
@@ -85,7 +79,8 @@ namespace StgSharp.Math
                     throw new ArgumentOutOfRangeException( nameof( columNum ) );
                 }
                 InternalTranspose();
-                fixed( float* p = &this._transpose.m00 ) {
+                fixed( float* p = &this._transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     return *( float* )pbit;
                 }
@@ -99,7 +94,8 @@ namespace StgSharp.Math
                     throw new ArgumentOutOfRangeException( nameof( columNum ) );
                 }
                 InternalTranspose();
-                fixed( float* p = &this._transpose.m00 ) {
+                fixed( float* p = &this._transpose.m00 )
+                {
                     ulong pbit = ( ( ulong )p ) + ( ( ( ulong )sizeof( Vector4 ) ) * ( ( ulong )rowNum ) ) + ( ( ( ulong )sizeof( float ) ) * ( ( ulong )columNum ) );
                     *( float* )pbit = value;
                 }
@@ -110,8 +106,10 @@ namespace StgSharp.Math
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         internal unsafe void InternalTranspose()
         {
-            if( !isTransposed ) {
-                fixed( ColumnSet3* source = &this._mat ) {
+            if( !isTransposed )
+            {
+                fixed( ColumnSet3* source = &this._mat )
+                {
                     fixed( ColumnSet2* target = &this._transpose ) {
                         InternalIO.Intrinsic.transpose32( source, target );
                     }
@@ -122,13 +120,10 @@ namespace StgSharp.Math
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix23 operator -(
-                                                       Matrix23 left,
-                                                       Matrix23 right )
+        public static unsafe Matrix23 operator -( Matrix23 left, Matrix23 right )
         {
             Matrix23 ret = new Matrix23();
-            InternalIO.Intrinsic.sub_mat_3( &left._mat, &right._mat,
-                                            &ret._mat );
+            InternalIO.Intrinsic.sub_mat_3( &left._mat, &right._mat, &ret._mat );
             return ret;
         }
 
@@ -136,8 +131,7 @@ namespace StgSharp.Math
         public static Matrix23 operator *( Matrix23 mat, float value )
         {
             return new Matrix23(
-                mat._mat.colum0 * value, mat._mat.colum1 * value,
-                mat._mat.colum2 * value );
+                mat._mat.colum0 * value, mat._mat.colum1 * value, mat._mat.colum2 * value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -186,18 +180,14 @@ namespace StgSharp.Math
         public static Matrix23 operator /( Matrix23 mat, float value )
         {
             return new Matrix23(
-                mat._mat.colum0 / value, mat._mat.colum1 / value,
-                mat._mat.colum2 / value );
+                mat._mat.colum0 / value, mat._mat.colum1 / value, mat._mat.colum2 / value );
         }
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe Matrix23 operator +(
-                                                       Matrix23 left,
-                                                       Matrix23 right )
+        public static unsafe Matrix23 operator +( Matrix23 left, Matrix23 right )
         {
             Matrix23 ret = new Matrix23();
-            InternalIO.Intrinsic.add_mat_3( &left._mat, &right._mat,
-                                            &ret._mat );
+            InternalIO.Intrinsic.add_mat_3( &left._mat, &right._mat, &ret._mat );
             return ret;
         }
 

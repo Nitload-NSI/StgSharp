@@ -28,8 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.Internal;
 using StgSharp.Graphics.OpenGL;
+using StgSharp.Internal;
 using StgSharp.Math;
 
 using System;
@@ -73,7 +73,8 @@ namespace StgSharp.Graphics
         {
             get
             {
-                if( ( _data.Length == 0 ) || ( _data == null ) ) {
+                if( ( _data.Length == 0 ) || ( _data == null ) )
+                {
                     GetBytes();
                     return _data!;
                 }
@@ -84,7 +85,7 @@ namespace StgSharp.Graphics
         public ImageChannel Channel => _rawInfo.Channel;
 
         /// <summary>
-        /// Hash code of time pixels updated last time.
+        ///   Hash code of time pixels updated last time.
         /// </summary>
         public int PixelUpdateCount
         {
@@ -106,8 +107,7 @@ namespace StgSharp.Graphics
             internal set => _rawInfo.Width = value;
         }
 
-        public int PixelSize => ImageInfo.GetPixelSize(
-            _rawInfo.pixelLayout, _rawInfo.Channel );
+        public int PixelSize => ImageInfo.GetPixelSize( _rawInfo.pixelLayout, _rawInfo.Channel );
 
         public PixelChannelLayout PixelLayout
         {
@@ -134,9 +134,9 @@ namespace StgSharp.Graphics
         }
 
         public static Image FromMemory(
-            (int width, int height) size,
-            ImageChannel channel,
-            byte[] stream )
+                            (int width, int height) size,
+                            ImageChannel channel,
+                            byte[] stream )
         {
             ImageInfo _info = new ImageInfo
             {
@@ -152,10 +152,10 @@ namespace StgSharp.Graphics
         }
 
         public static Image FromMemory(
-            (int width, int height) size,
-            ImageChannel channel,
-            PixelChannelLayout layout,
-            byte[] stream )
+                            (int width, int height) size,
+                            ImageChannel channel,
+                            PixelChannelLayout layout,
+                            byte[] stream )
         {
             ImageInfo _info = new ImageInfo
             {
@@ -172,11 +172,10 @@ namespace StgSharp.Graphics
 
         public unsafe byte[] GetBytes()
         {
-            if( _data.Length == 0 ) {
-                int size = Width * Height * ImageInfo.GetPixelSize(
-                    PixelLayout, Channel );
-                _data = new Span<byte>( ( byte* )_rawInfo.StreamPtr,
-                                        size ).ToArray();
+            if( _data.Length == 0 )
+            {
+                int size = Width * Height * ImageInfo.GetPixelSize( PixelLayout, Channel );
+                _data = new Span<byte>( ( byte* )_rawInfo.StreamPtr, size ).ToArray();
                 fixed( ImageInfo* pptr = &_rawInfo ) {
                     InternalIO.InternalUnloadImage( pptr );
                 }
@@ -187,10 +186,7 @@ namespace StgSharp.Graphics
 
         public Image ProvideImage() => this;
 
-        internal static Image FromMemory(
-            ImageInfo info,
-            byte[] data,
-            int operationCount )
+        internal static Image FromMemory( ImageInfo info, byte[] data, int operationCount )
         {
             return new Image
             {
@@ -206,13 +202,9 @@ namespace StgSharp.Graphics
         }
 
     }
-
 }
 
 namespace StgSharp.Graphics.OpenGL
 {
-    public static partial class GlHelper
-    {
-
-    }
+    public static partial class GlHelper { }
 }

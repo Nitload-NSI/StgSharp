@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="RenderStream.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -32,7 +32,6 @@ using StgSharp.Graphics.OpenGL;
 using StgSharp.Math;
 
 using StgSharp.MVVM;
-using StgSharp.MVVM.View;
 using StgSharp.Timing;
 
 using System;
@@ -91,7 +90,7 @@ namespace StgSharp.Graphics
 
         internal IntPtr CanvasHandle
         {
-            get => primeArgs.ViewPortID;
+            get => primeArgs.ViewPortHandle;
         }
 
         internal IntPtr ContextHandle

@@ -43,8 +43,7 @@ namespace StgSharp.Math
 
         public static float GetAngle( Vec3 vec1, Vec3 vec2 )
         {
-            return Scaler.ACos(
-                ( vec1 * vec2 ) / ( vec1.GetLength() * vec2.GetLength() ) );
+            return Scaler.ACos( ( vec1 * vec2 ) / ( vec1.GetLength() * vec2.GetLength() ) );
         }
 
     }

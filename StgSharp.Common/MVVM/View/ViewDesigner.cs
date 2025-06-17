@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="ViewDesigner.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -40,7 +40,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
-namespace StgSharp.MVVM.View
+namespace StgSharp.MVVM
 {
     public abstract partial class ViewBase
     {
@@ -57,12 +57,11 @@ namespace StgSharp.MVVM.View
         }
 
         /// <summary>
-        /// ViewDesigner provides descriptions of various controls in the view,  binds the controls
-        /// to specific user actions and behaviors,  and describes the layout and interactions of
-        /// each control.
+        ///   ViewDesigner provides descriptions of various controls in the view,  binds the
+        ///   controls to specific user actions and behaviors,  and describes the layout and
+        ///   interactions of each control.
         /// </summary>
-        public abstract class ViewDesigner<TView> : IViewDesigner<TView>
-            where TView: ViewBase
+        public abstract class ViewDesigner<TView> : IViewDesigner<TView> where TView: ViewBase
         {
 
             private KeyboardButtonGroup currentButtonGroup;
@@ -82,10 +81,10 @@ namespace StgSharp.MVVM.View
             }
 
             public CharacterLineIndexImage CreateCharacterLine(
-                int length,
-                char blankFilling,
-                PlainGeometryMesh tittle,
-                IEnumerable<(char, PlainGeometryMesh)> charList )
+                                           int length,
+                                           char blankFilling,
+                                           PlainGeometryMesh tittle,
+                                           IEnumerable<(char, PlainGeometryMesh)> charList )
             {
                 CharacterLineIndexImage ret = new CharacterLineIndexImage(
                     length, blankFilling, tittle, charList );
@@ -94,17 +93,19 @@ namespace StgSharp.MVVM.View
             }
 
             public TriggerButton CreateKeyboardButton(
-                Rectangle bonding,
-                TextureProvider defaultAnimation,
-                bool isEnable )
+                                 Rectangle bonding,
+                                 TextureProvider defaultAnimation,
+                                 bool isEnable )
             {
                 TriggerButton ret = new TriggerButton();
                 ret.BoundingBox = bonding;
                 ret.Texture = defaultAnimation;
-                if( isEnable ) {
+                if( isEnable )
+                {
                     ret.IsDisabled = false;
                     ret.Enable();
-                } else {
+                } else
+                {
                     ret.IsDisabled = true;
                     ret.Disable();
                 }
@@ -113,11 +114,11 @@ namespace StgSharp.MVVM.View
             }
 
             public TButtonGroup CreateKeyboardButtonGroup<TButtonGroup>(
-                IClickTrigger leftBidning,
-                IClickTrigger rightBinding,
-                IClickTrigger upBinding,
-                IClickTrigger downBinding,
-                IClickTrigger confirmBinding )
+                                IClickTrigger leftBidning,
+                                IClickTrigger rightBinding,
+                                IClickTrigger upBinding,
+                                IClickTrigger downBinding,
+                                IClickTrigger confirmBinding )
                 where TButtonGroup: KeyboardButtonGroup, new()
             {
                 TButtonGroup ret = new TButtonGroup();

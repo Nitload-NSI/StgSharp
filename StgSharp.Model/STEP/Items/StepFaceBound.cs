@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Model.Step;
 
 using StgSharp.Script;
@@ -38,12 +37,13 @@ using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public class StepFaceBound : StepTopologicalRepresentationItem
+    public class StepFaceBound : StepTopologicalRepresentationItem, IExpConvertableFrom<StepFaceBound>
     {
 
-        public StepFaceBound() { }
+        public StepFaceBound( StepModel model ) : base( model ) { }
 
-        public StepFaceBound( string name, StepLoop bound, bool orientation )
+        public StepFaceBound( StepModel model, StepLoop bound, bool orientation )
+            : base( model )
         {
             Bound = bound;
             Orientation = orientation;
@@ -55,13 +55,20 @@ namespace StgSharp.Model.Step
 
         public StepLoop Bound { get; set; }
 
+        public void FromInstance( StepFaceBound entity )
+        {
+            base.FromInstance( entity );
+            Bound = entity.Bound;
+            Orientation = entity.Orientation;
+        }
+
         internal static StepFaceBound FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );
-            StepFaceBound faceBound = new StepFaceBound();
+            StepFaceBound faceBound = new StepFaceBound( binder );
             faceBound.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue( enumerator[ 1 ], v => faceBound.Bound = v.AsType<StepLoop>() );
+            faceBound.Bound = binder[ enumerator[ 1 ] ] as StepLoop;
             faceBound.Orientation = ( enumerator[ 2 ]as ExpBoolNode )!.Value;
             return faceBound;
         }

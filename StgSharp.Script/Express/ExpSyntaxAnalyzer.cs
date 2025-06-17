@@ -90,7 +90,7 @@ namespace StgSharp.Script.Express
                     AppendToken_RepeatLoop( expToken );
                     break;
                 default:
-                    AppendToken_common( expToken );
+                    AppendToken_Common( expToken );
                     break;
             }
         }
@@ -112,7 +112,7 @@ namespace StgSharp.Script.Express
         ///   Append a token to top of cache. This method will automatically convert token to node
         ///   if meets separators or operators.
         /// </summary>
-        private void AppendToken_common( Token expToken )
+        private void AppendToken_Common( Token expToken )
         {
             switch( expToken.Flag )
             {

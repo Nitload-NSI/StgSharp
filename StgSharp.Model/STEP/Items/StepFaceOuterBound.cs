@@ -28,22 +28,26 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 namespace StgSharp.Model.Step
 {
-    public class StepFaceOuterBound : StepFaceBound
+    public class StepFaceOuterBound : StepFaceBound, IExpConvertableFrom<StepFaceOuterBound>
     {
 
-        private StepFaceOuterBound() : base() { }
+        private StepFaceOuterBound( StepModel model ) : base( model ) { }
 
-        public StepFaceOuterBound( string name, StepLoop bound, bool orientation )
-            : base( name, bound, orientation ) { }
+        public StepFaceOuterBound( StepModel model, StepLoop bound, bool orientation )
+            : base( model, bound, orientation ) { }
 
         public override StepItemType ItemType => StepItemType.FaceOuterBound;
+
+        public void FromInstance( StepFaceOuterBound entity )
+        {
+            base.FromInstance( entity );
+        }
 
         internal static new StepFaceOuterBound FromSyntax(
                                                StepModel binder,
@@ -51,9 +55,9 @@ namespace StgSharp.Model.Step
         {
             ExpNodePresidentEnumerator enumerator = new ExpNodePresidentEnumerator( syntaxList );
             enumerator.AssertEnumeratorCount( 3 );
-            StepFaceOuterBound faceOuterBound = new StepFaceOuterBound();
+            StepFaceOuterBound faceOuterBound = new StepFaceOuterBound( binder );
             faceOuterBound.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            binder.BindValue( enumerator[ 1 ], v => faceOuterBound.Bound = v.AsType<StepLoop>() );
+            faceOuterBound.Bound = binder[ enumerator[ 1 ] ] as StepLoop;
             faceOuterBound.Orientation = ( enumerator[ 2 ]as ExpBoolNode )!.Value;
             return faceOuterBound;
         }

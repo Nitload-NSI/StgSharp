@@ -39,8 +39,7 @@ namespace StgSharp.Timing
     public abstract class TimeSourceProviderBase
     {
 
-        private SemaphoreSlim _addSubscriberSemaphore = new SemaphoreSlim(
-            1, 1 );
+        private SemaphoreSlim _addSubscriberSemaphore = new SemaphoreSlim( 1, 1 );
 
         protected SemaphoreSlim CheckSubscriberSemaphore
         {
@@ -49,14 +48,17 @@ namespace StgSharp.Timing
 
         public void AddSubscriber( TimeSpanProvider subscriber )
         {
-            try {
+            try
+            {
                 _addSubscriberSemaphore.Wait();
                 AddSubscriberUnsynced( subscriber );
             }
-            catch( Exception ) {
+            catch( Exception )
+            {
                 throw;
             }
-            finally {
+            finally
+            {
                 _addSubscriberSemaphore.Release();
             }
         }
@@ -64,13 +66,16 @@ namespace StgSharp.Timing
         public void RemoveSubscriber( TimeSpanProvider subscriber )
         {
             _addSubscriberSemaphore.Wait();
-            try {
+            try
+            {
                 RemoveSubscriberUnsynced( subscriber );
             }
-            catch( Exception ) {
+            catch( Exception )
+            {
                 throw;
             }
-            finally {
+            finally
+            {
                 _addSubscriberSemaphore.Release();
             }
         }
@@ -79,11 +84,9 @@ namespace StgSharp.Timing
 
         public abstract void StopProvidingTime();
 
-        protected abstract void AddSubscriberUnsynced(
-            TimeSpanProvider subscriber );
+        protected abstract void AddSubscriberUnsynced( TimeSpanProvider subscriber );
 
-        protected abstract void RemoveSubscriberUnsynced(
-            TimeSpanProvider subscriber );
+        protected abstract void RemoveSubscriberUnsynced( TimeSpanProvider subscriber );
 
     }
 }

@@ -44,12 +44,11 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Internal
 {
-    [StructLayout( LayoutKind.Explicit, Size = StgSharp.ssdSegmentLength * 16 )]
+    [StructLayout( LayoutKind.Explicit, Size = World.ssdSegmentLength * 16 )]
     public unsafe struct SSDSegment : IComparable<int>, IComparable<SSDSegment>
     {
 
-        [FieldOffset( 16 )] public fixed byte Data[
-            16 * ( StgSharp.ssdSegmentLength - 1 ) ];
+        [FieldOffset( 16 )] public fixed byte Data[ 16 * ( World.ssdSegmentLength - 1 ) ];
         [FieldOffset( 12 )] public int DataHash;
         [FieldOffset( 8 )] public int PreviousHash;
         [FieldOffset( 0 * 16 )] public SSDSegmentHead Head;
@@ -63,7 +62,7 @@ namespace StgSharp.Internal
         {
             get
             {
-                if( index > ( 16 * ( StgSharp.ssdSegmentLength - 1 ) ) - 1 ) {
+                if( index > ( 16 * ( World.ssdSegmentLength - 1 ) ) - 1 ) {
                     throw new IndexOutOfRangeException();
                 }
                 return Data[ index ];
@@ -71,7 +70,7 @@ namespace StgSharp.Internal
 
             set
             {
-                if( index > ( 16 * ( StgSharp.ssdSegmentLength - 1 ) ) - 1 ) {
+                if( index > ( 16 * ( World.ssdSegmentLength - 1 ) ) - 1 ) {
                     throw new IndexOutOfRangeException();
                 }
                 Data[ index ] = value;
@@ -98,15 +97,15 @@ namespace StgSharp.Internal
 
         public static SSDSegment FromStream( byte[] stream )
         {
-            if( stream.Length != 16 * StgSharp.ssdSegmentLength ) {
+            if( stream.Length != 16 * World.ssdSegmentLength ) {
                 throw new ArgumentException();
             }
             SSDSegment ret = new SSDSegment();
-            fixed( byte* bptr = stream ) {
+            fixed( byte* bptr = stream )
+            {
                 ret.Head.data = *( M128* )bptr;
-                for( int i = 1; i < StgSharp.ssdSegmentLength; i++ ) {
-                    ret.WriteData<M128>(
-                        i - 1, *( M128* )( bptr + ( 16 * i ) ) );
+                for( int i = 1; i < World.ssdSegmentLength; i++ ) {
+                    ret.WriteData<M128>( i - 1, *( M128* )( bptr + ( 16 * i ) ) );
                 }
             }
             return ret;
@@ -114,9 +113,11 @@ namespace StgSharp.Internal
 
         public byte[] GetBytes()
         {
-            byte[] ret = new byte[16 * StgSharp.ssdSegmentLength];
-            fixed( M128* mptr = &Head.data ) {
-                fixed( byte* aptr = ret ) {
+            byte[] ret = new byte[16 * World.ssdSegmentLength];
+            fixed( M128* mptr = &Head.data )
+            {
+                fixed( byte* aptr = ret )
+                {
                     Vector4* vsptr = ( Vector4* )mptr;
                     Vector4* vtptr = ( Vector4* )aptr;
                     for( int i = 0; i < 18; i++ ) {
@@ -131,9 +132,10 @@ namespace StgSharp.Internal
         public int GetDataHash()
         {
             Vector4 v = Vector4.One;
-            fixed( M128* mptr = &Head.data ) {
+            fixed( M128* mptr = &Head.data )
+            {
                 Vector4* vptr = ( Vector4* )mptr;
-                for( int i = 0; i < StgSharp.ssdSegmentLength - 1; i += 1 ) {
+                for( int i = 0; i < World.ssdSegmentLength - 1; i += 1 ) {
                     v += ( *vptr ) * 31;
                 }
             }
@@ -145,9 +147,10 @@ namespace StgSharp.Internal
         public override int GetHashCode()
         {
             int ret = 17;
-            fixed( M128* mptr = &Head.data ) {
+            fixed( M128* mptr = &Head.data )
+            {
                 Vector4* vptr = ( Vector4* )mptr;
-                for( int i = 0; i < StgSharp.ssdSegmentLength; i++ ) {
+                for( int i = 0; i < World.ssdSegmentLength; i++ ) {
                     ret = ( ret + ( *vptr ).GetHashCode() ) * 31;
                 }
             }
@@ -156,7 +159,8 @@ namespace StgSharp.Internal
 
         public unsafe T ReadData<T>( int index ) where T: struct
         {
-            fixed( byte* bptr = Data ) {
+            fixed( byte* bptr = Data )
+            {
                 T* tptr = ( T* )bptr;
                 return *( tptr + index );
             }
@@ -164,7 +168,8 @@ namespace StgSharp.Internal
 
         public unsafe void WriteData<T>( int index, T value ) where T: struct
         {
-            fixed( byte* bptr = Data ) {
+            fixed( byte* bptr = Data )
+            {
                 T* tptr = ( T* )bptr;
                 *( tptr + index ) = value;
             }

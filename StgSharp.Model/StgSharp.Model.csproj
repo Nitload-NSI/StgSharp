@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
       <LangVersion>preview</LangVersion>
       <Platforms>AnyCPU;x64</Platforms>
+      <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

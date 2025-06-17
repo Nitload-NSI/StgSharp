@@ -34,38 +34,40 @@ using System;
 
 namespace StgSharp
 {
-    public class CollisionEventArgs:EventArgs
+    public class CollisionEventArgs : EventArgs
     {
-        public CollisionEventArgs(IGeometry target, IGeometry boarder)
+
+        public CollisionEventArgs( IGeometry target, IGeometry boarder )
         {
             Target = target;
             Boarder = boarder;
         }
 
         public IGeometry Target { get; set; }
+
         public IGeometry Boarder { get; set; }
+
     }
 
-    public class PlainGeometryCollisionSensor<TBoarder,TTarget>
-        where TBoarder : IGeometry
-        where TTarget : IGeometry
+    public class PlainGeometryCollisionSensor<TBoarder, TTarget> where TBoarder: IGeometry
+        where TTarget: IGeometry
     {
+
+        internal EventHandler<CollisionEventArgs> _rule;
         internal PlainGeometry _boarder;
         internal PlainGeometry _target;
-        internal EventHandler<CollisionEventArgs> _rule;
 
         public event EventHandler<CollisionEventArgs> Rule
         {
             add { _rule += value; }
-            remove 
+            remove
             {
-                if (value == null)
-                {
+                if( value == null ) {
                     return;
                 }
-#pragma warning disable CS8601
+                #pragma warning disable CS8601
                 _rule -= value;
-#pragma warning restore CS8601
+                #pragma warning restore CS8601
             }
         }
 

@@ -29,9 +29,9 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 
-using StgSharp.Internal.OpenGL;
-
 using StgSharp.Graphics.OpenGL;
+
+using StgSharp.Internal.OpenGL;
 
 using System;
 using System.Runtime.InteropServices;
@@ -43,6 +43,18 @@ namespace StgSharp.Internal
     //rename types in style of GLFW
 
     using GLFWbool = Boolean;
+
+    #region glad struct
+
+    [StructLayout( LayoutKind.Sequential )]
+    internal struct GLsync
+    {
+
+        public IntPtr Handle;
+
+    }
+
+        #endregion glad struct
 
     //strucs defined in GLFW3.h
 
@@ -60,7 +72,7 @@ namespace StgSharp.Internal
         void (* swapBuffers) (glfwWindow*);
         void (* swapInterval) (int);
         int (* extensionSupported) (const byte*);
-        GLFWglproc(*getProcAddress)(const byte*);
+        delegate*<void>(*getProcAddress)(const byte*);
         void (* destroy) (glfwWindow*);
         */
 
@@ -490,9 +502,7 @@ namespace StgSharp.Internal
     internal unsafe struct GLFWlibrary
     {
 
-        [MarshalAs(
-                UnmanagedType.ByValArray,
-                SizeConst = glConst.GLFW_JOYSTICK_LAST + 1 )]
+        [MarshalAs( UnmanagedType.ByValArray, SizeConst = glConst.GLFW_JOYSTICK_LAST + 1 )]
         private GLFWjoystick[] joysticks = new GLFWjoystick[glConst.GLFW_JOYSTICK_LAST + 1];
 
         private GLFWallocator allocator;
@@ -946,17 +956,6 @@ namespace StgSharp.Internal
 
     #endregion GLFW3 struct
 
-    #region glad struct
-
-    [StructLayout( LayoutKind.Sequential )]
-    internal struct GLsync
-    {
-
-        public IntPtr Handle;
-
-    }
-
-    #endregion glad struct
 }
 
 /**/

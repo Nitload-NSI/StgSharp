@@ -41,13 +41,9 @@ namespace StgSharp.Data
     public interface IValueBox
     {
 
-        ref object ValueReference
-        {
-            get;
-        }
+        ref object ValueReference { get; }
 
-        static virtual IValueBox<T> AsGeneric<T>( IValueBox box )
-            where T: struct
+        static virtual IValueBox<T> AsGeneric<T>( IValueBox box ) where T: struct
         {
             if( box is not IValueBox<T> genericBox ) {
                 return null;
@@ -65,19 +61,17 @@ namespace StgSharp.Data
     public interface IValueBox<T> where T: struct
     {
 
-        T Value
-        {
-            get;
-            set;
-        }
+        T Value { get; set; }
 
     }
 
     /// <summary>
-    /// A class attempt to reduce cost of boxing, though still a bit slower than direct access to
-    /// _origin value type instance.
+    ///   A class attempt to reduce cost of boxing, though still a bit slower than direct access to
+    ///   _origin value type instance.
     /// </summary>
-    /// <typeparam name="T"> Type of instance to be boxed. </typeparam>
+    /// <typeparam name="T">
+    ///   Type of instance to be boxed.
+    /// </typeparam>
     public class ValueBox<T> : IValueBox, IValueBox<T> where T: struct
     {
 
@@ -88,8 +82,7 @@ namespace StgSharp.Data
             _value = value;
         }
 
-        public ref object ValueReference => ref Unsafe.As<T, object>(
-            ref _value );
+        public ref object ValueReference => ref Unsafe.As<T, object>( ref _value );
 
         public T Value
         {

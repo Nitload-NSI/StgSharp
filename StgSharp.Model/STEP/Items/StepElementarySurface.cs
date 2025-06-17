@@ -30,18 +30,22 @@
 //-----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 using System;
 using System.Collections.Generic;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepElementarySurface : StepSurface
+    public class StepElementarySurface : StepSurface, IExpConvertableFrom<StepElementarySurface>
     {
 
         private StepAxis2Placement3D _position;
 
-        public StepElementarySurface( StepAxis2Placement3D position )
+        public StepElementarySurface( StepModel model ) : base( model ) { }
+
+        public StepElementarySurface( StepModel model, StepAxis2Placement3D position )
+            : base( model )
         {
             Position = position;
         }
@@ -51,12 +55,15 @@ namespace StgSharp.Model.Step
             get { return _position; }
             set
             {
-                if( value == null ) {
-                    throw new ArgumentNullException();
-                }
-
+                ArgumentNullException.ThrowIfNull( value );
                 _position = value;
             }
+        }
+
+        public void FromInstance( StepElementarySurface entity )
+        {
+            base.FromInstance( entity );
+            _position = entity.Position;
         }
 
     }

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="glRenderStream.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -58,29 +58,28 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        /// Initialize an opengl context and load all opengl functions.
+        ///   Initialize an opengl context and load all opengl functions.
         /// </summary>
         public unsafe void InitializeContext()
         {
-            if( ContextHandle == default ) {
-                ContextHandle = Marshal.AllocHGlobal(
-                    Marshal.SizeOf( typeof( OpenglContext ) ) );
+            if( ContextHandle == default )
+            {
+                ContextHandle = Marshal.AllocHGlobal( Marshal.SizeOf( typeof( OpenglContext ) ) );
                 OpenglContext* contextID = ( OpenglContext* )ContextHandle;
                 contextID->glGetString = ( delegate*<uint, IntPtr> )IntPtr.Zero;
             }
             if( GL == null ) {
-                _context = OpenGLFunction.BuildGlFunctionPackage(
-                    ContextHandle );
+                _context = OpenGLFunction.BuildGlFunctionPackage( ContextHandle );
             }
         }
 
         /// <summary>
-        /// Initialize an OpenGl viewPortDisplay if current form has not been binded to any
-        /// viewPortDisplay.  and set the viewPortDisplay binded to current form as current OpenGL
-        /// viewPortDisplay.
+        ///   Initialize an OpenGl viewPortDisplay if current form has not been binded to any
+        ///   viewPortDisplay.  and set the viewPortDisplay binded to current form as current OpenGL
+        ///   viewPortDisplay.
         /// </summary>
         /// <exception cref="Exception">
-        /// Something goes wrong and StgSharp fails in creating a new OpenGL viewPortDisplay.
+        ///   Something goes wrong and World fails in creating a new OpenGL viewPortDisplay.
         /// </exception>
         public unsafe void MakeAsCurrentContext()
         {
@@ -91,8 +90,7 @@ namespace StgSharp.Graphics.OpenGL
         /// <inheritdoc />
         public override void RenderEnd()
         {
-            if( !renderToThread.TryGetValue( this,
-                                             out Thread t ) || t != Thread.CurrentThread ) {
+            if( !renderToThread.TryGetValue( this, out Thread t ) || t != Thread.CurrentThread ) {
                 throw new InvalidOperationException(
                     $"Current render has had been binded to thread {t!.ManagedThreadId}" );
             }
@@ -106,8 +104,8 @@ namespace StgSharp.Graphics.OpenGL
         public override void RenderStart()
         {
             Thread current = Thread.CurrentThread;
-            if( !renderToThread.TryGetValue( this,
-                                             out Thread t ) || t == ThreadHelper.EmptyThread ) {
+            if( !renderToThread.TryGetValue( this, out Thread t ) || t == ThreadHelper.EmptyThread )
+            {
                 renderToThread[ this ] = current;
                 MakeAsCurrentContext();
                 return;
@@ -120,10 +118,10 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public override void SetSizeLimit(
-            int minWidth,
-            int minHeight,
-            int maxWidth,
-            int maxHeight )
+                             int minWidth,
+                             int minHeight,
+                             int maxWidth,
+                             int maxHeight )
         {
             InternalIO.glfwSetWindowSizeLimits(
                 this.CanvasHandle, minWidth, minHeight, maxWidth, maxHeight );
@@ -144,8 +142,8 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         protected override sealed Uniform<Matrix44> NativeCameraUniform(
-            ShaderProgram source,
-            string name )
+                                                    ShaderProgram source,
+                                                    string name )
         {
             NativeCamera.GainAllUniforms( source, name );
             return NativeCamera.convertedUniform;
@@ -153,18 +151,18 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         protected override sealed void NativeCameraViewRange(
-            Radius fieldOfRange,
-            Vec2 offset,
-            (float frontDepth, float backDepth) viewDepth )
+                                       Radius fieldOfRange,
+                                       Vec2 offset,
+                                       (float frontDepth, float backDepth) viewDepth )
         {
-            NativeCamera.SetViewRange(
-                fieldOfRange, this.Size, offset, viewDepth );
+            NativeCamera.SetViewRange( fieldOfRange, this.Size, offset, viewDepth );
         }
 
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
         protected override sealed void NativeCameraViewTarget(
-            Vec3 position,
-            Vec3 direction,
-            Vec3 up )
+                                       Vec3 position,
+                                       Vec3 direction,
+                                       Vec3 up )
         {
             NativeCamera.SetViewDirection( position, direction, up );
         }

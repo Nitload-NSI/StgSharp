@@ -76,12 +76,12 @@ namespace StgSharp.Script.Express
                 case ExpKeyword.Semicolon:
                     if( t.Value != ExpKeyword.EndRepeat )
                     {
-                        AppendToken_common( t );
+                        AppendToken_Common( t );
                         return true;
                     }
                     break;
                 default:
-                    AppendToken_common( t );
+                    AppendToken_Common( t );
                     return false;
             }
             ExpSyntaxNode root = _cache.PackAllStatements();
@@ -118,7 +118,7 @@ namespace StgSharp.Script.Express
                     state.Begin = root;
                     return true;
                 default:
-                    AppendToken_common( t );
+                    AppendToken_Common( t );
                     return true;
             }
         }
@@ -137,7 +137,7 @@ namespace StgSharp.Script.Express
                     state.CurrentState = ExpKeyword.While;
                     break;
                 default:
-                    AppendToken_common( t );
+                    AppendToken_Common( t );
                     return true;
             }
             while( _cache.TryPopOperator( out Token op ) ) {
@@ -162,7 +162,7 @@ namespace StgSharp.Script.Express
                     state.CurrentState = ExpKeyword.While;
                     break;
                 default:
-                    AppendToken_common( t );
+                    AppendToken_Common( t );
                     return true;
             }
             while( _cache.TryPopOperator( out Token op ) ) {
@@ -181,7 +181,7 @@ namespace StgSharp.Script.Express
                     state.CurrentState = ExpKeyword.Semicolon;
                     break;
                 default:
-                    AppendToken_common( t );
+                    AppendToken_Common( t );
                     return true;
             }
             while( _cache.TryPopOperator( out Token op ) ) {
@@ -210,8 +210,9 @@ namespace StgSharp.Script.Express
                     if( ExpTypeSource.IsNullOrVoid( state.IncrementVariableType ) )
                     {
                         if( ( _local.TryGetMember( t.Value,
-                                                   out ExpSyntaxNode? node ) && node is ExpElementInstance instance ) || _tempVariableInLoops.TryGetValue(
-                            t.Value, out instance ) )
+                                                   out ExpSyntaxNode? node ) &&
+                              node is ExpElementInstance instance ) ||
+                            _tempVariableInLoops.TryGetValue( t.Value, out instance ) )
                         {
                             state.IncrementVariable = ExpInstanceReferenceNode.MakeReferenceFrom(
                                 t, instance );
@@ -241,7 +242,7 @@ namespace StgSharp.Script.Express
                     state.CurrentState = ExpKeyword.Until;
                     break;
                 default:
-                    AppendToken_common( t );
+                    AppendToken_Common( t );
                     return true;
             }
             while( _cache.TryPopOperator( out Token op ) ) {

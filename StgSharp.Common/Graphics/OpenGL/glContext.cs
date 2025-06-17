@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="glContext.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.HighPerformance;
 using StgSharp.Internal;
 using StgSharp.Internal.Intrinsic;
@@ -57,16 +56,12 @@ namespace StgSharp.Graphics.OpenGL
             }
         }
 
-        public static bool operator !=(
-                                            OpenglContext left,
-                                            OpenglContext right )
+        public static bool operator !=( OpenglContext left, OpenglContext right )
         {
             return !( left == right );
         }
 
-        public static bool operator ==(
-                                            OpenglContext left,
-                                            OpenglContext right )
+        public static bool operator ==( OpenglContext left, OpenglContext right )
         {
             return left.Equals( right );
         }
@@ -95,7 +90,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint*, ulong*, uint, uint, uint, uint, IntPtr, IntPtr, UIntPtr, uint, uint*, ulong*, uint> glAsyncCopyBufferSubDataNVX;
         internal unsafe delegate*<uint, uint*, ulong*, uint, uint, uint, uint, int, int, int, int, uint, uint, int, int, int, int, uint, uint, uint, uint, uint*, ulong*, uint> glAsyncCopyImageSubDataNVX;
         internal unsafe delegate*<uint, void> glAsyncMarkerSGIX;
-        internal unsafe delegate*<GLhandleARB, GLhandleARB, void> glAttachObjectARB;
+        internal unsafe delegate*<glHandleARB, glHandleARB, void> glAttachObjectARB;
         internal unsafe delegate*<uint, uint, void> glAttachShader;
         internal unsafe delegate*<uint, uint, void> glBeginConditionalRender;
         internal unsafe delegate*<uint, uint, void> glBeginConditionalRenderNV;
@@ -113,7 +108,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<void> glBeginVertexShaderEXT;
         internal unsafe delegate*<uint, void> glBeginVideoCaptureNV;
         internal unsafe delegate*<uint, uint, byte*, void> glBindAttribLocation;
-        internal unsafe delegate*<GLhandleARB, uint, byte*, void> glBindAttribLocationARB;
+        internal unsafe delegate*<glHandleARB, uint, byte*, void> glBindAttribLocationARB;
         internal unsafe delegate*<uint, uint, void> glBindBuffer;
         internal unsafe delegate*<uint, uint, void> glBindBufferARB;
         internal unsafe delegate*<uint, uint, uint, void> glBindBufferBase;
@@ -301,7 +296,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint, void> glCommandListSegmentsNV;
         internal unsafe delegate*<uint, void> glCompileCommandListNV;
         internal unsafe delegate*<uint, void> glCompileShader;
-        internal unsafe delegate*<GLhandleARB, void> glCompileShaderARB;
+        internal unsafe delegate*<glHandleARB, void> glCompileShaderARB;
         internal unsafe delegate*<uint, uint, byte*, int*, void> glCompileShaderIncludeARB;
         internal unsafe delegate*<uint, uint, int, uint, uint, int, uint, void*, void> glCompressedMultiTexImage1DEXT;
         internal unsafe delegate*<uint, uint, int, uint, uint, uint, int, uint, void*, void> glCompressedMultiTexImage2DEXT;
@@ -384,7 +379,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint*, void> glCreateMemoryObjectsEXT;
         internal unsafe delegate*<uint, uint*, void> glCreatePerfQueryINTEL;
         internal unsafe delegate*<uint> glCreateProgram;
-        internal unsafe delegate*<GLhandleARB> glCreateProgramObjectARB;
+        internal unsafe delegate*<glHandleARB> glCreateProgramObjectARB;
         internal unsafe delegate*<uint, uint*, void> glCreateProgramPipelines;
         internal unsafe delegate*<uint> glCreateProgressFenceNVX;
         internal unsafe delegate*<uint, uint, uint*, void> glCreateQueries;
@@ -392,7 +387,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint*, void> glCreateSamplers;
         internal unsafe delegate*<uint, uint*, void> glCreateSemaphoresNV;
         internal unsafe delegate*<uint, uint> glCreateShader;
-        internal unsafe delegate*<uint, GLhandleARB> glCreateShaderObjectARB;
+        internal unsafe delegate*<uint, glHandleARB> glCreateShaderObjectARB;
         internal unsafe delegate*<uint, byte*, uint> glCreateShaderProgramEXT;
         internal unsafe delegate*<uint, uint, byte*, uint> glCreateShaderProgramv;
         internal unsafe delegate*<uint, uint*, void> glCreateStatesNV;
@@ -428,7 +423,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint*, void> glDeleteMemoryObjectsEXT;
         internal unsafe delegate*<int, byte*, void> glDeleteNamedStringARB;
         internal unsafe delegate*<uint, uint, uint*, void> glDeleteNamesAMD;
-        internal unsafe delegate*<GLhandleARB, void> glDeleteObjectARB;
+        internal unsafe delegate*<glHandleARB, void> glDeleteObjectARB;
         internal unsafe delegate*<uint, uint*, void> glDeleteOcclusionQueriesNV;
         internal unsafe delegate*<uint, uint, void> glDeletePathsNV;
         internal unsafe delegate*<uint, uint*, void> glDeletePerfMonitorsAMD;
@@ -467,7 +462,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<float, float, void> glDepthRangef;
         internal unsafe delegate*<GLclampf, GLclampf, void> glDepthRangefOES;
         internal unsafe delegate*<GLfixed, GLfixed, void> glDepthRangexOES;
-        internal unsafe delegate*<GLhandleARB, GLhandleARB, void> glDetachObjectARB;
+        internal unsafe delegate*<glHandleARB, glHandleARB, void> glDetachObjectARB;
         internal unsafe delegate*<uint, uint, void> glDetachShader;
         internal unsafe delegate*<uint, uint, float*, void> glDetailTexFuncSGIS;
         internal unsafe delegate*<uint, void> glDisable;
@@ -682,12 +677,12 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint, void> glGenerateTextureMipmapEXT;
         internal unsafe delegate*<uint, uint, uint, int*, void> glGetActiveAtomicCounterBufferiv;
         internal unsafe delegate*<uint, uint, uint, uint*, int*, uint*, byte*, void> glGetActiveAttrib;
-        internal unsafe delegate*<GLhandleARB, uint, uint, uint*, int*, uint*, byte*, void> glGetActiveAttribARB;
+        internal unsafe delegate*<glHandleARB, uint, uint, uint*, int*, uint*, byte*, void> glGetActiveAttribARB;
         internal unsafe delegate*<uint, uint, uint, uint, uint*, byte*, void> glGetActiveSubroutineName;
         internal unsafe delegate*<uint, uint, uint, uint, uint*, byte*, void> glGetActiveSubroutineUniformName;
         internal unsafe delegate*<uint, uint, uint, uint, int*, void> glGetActiveSubroutineUniformiv;
         internal unsafe delegate*<uint, uint, uint, uint*, int*, uint*, byte*, void> glGetActiveUniform;
-        internal unsafe delegate*<GLhandleARB, uint, uint, uint*, int*, uint*, byte*, void> glGetActiveUniformARB;
+        internal unsafe delegate*<glHandleARB, uint, uint, uint*, int*, uint*, byte*, void> glGetActiveUniformARB;
         internal unsafe delegate*<uint, uint, uint, uint*, byte*, void> glGetActiveUniformBlockName;
         internal unsafe delegate*<uint, uint, uint, int*, void> glGetActiveUniformBlockiv;
         internal unsafe delegate*<uint, uint, uint, uint*, byte*, void> glGetActiveUniformName;
@@ -695,10 +690,10 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint, uint, uint*, uint*, uint*, byte*, void> glGetActiveVaryingNV;
         internal unsafe delegate*<uint, uint, float*, void> glGetArrayObjectfvATI;
         internal unsafe delegate*<uint, uint, int*, void> glGetArrayObjectivATI;
-        internal unsafe delegate*<GLhandleARB, uint, uint*, GLhandleARB*, void> glGetAttachedObjectsARB;
+        internal unsafe delegate*<glHandleARB, uint, uint*, glHandleARB*, void> glGetAttachedObjectsARB;
         internal unsafe delegate*<uint, uint, uint*, uint*, void> glGetAttachedShaders;
         internal unsafe delegate*<uint, byte*, int> glGetAttribLocation;
-        internal unsafe delegate*<GLhandleARB, byte*, int> glGetAttribLocationARB;
+        internal unsafe delegate*<glHandleARB, byte*, int> glGetAttribLocationARB;
         internal unsafe delegate*<uint, uint, bool*, void> glGetBooleanIndexedvEXT;
         internal unsafe delegate*<uint, uint, bool*, void> glGetBooleani_v;
         internal unsafe delegate*<uint, bool*, void> glGetBooleanv;
@@ -769,7 +764,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint, int*, void> glGetFramebufferParameterivMESA;
         internal unsafe delegate*<uint> glGetGraphicsResetStatus;
         internal unsafe delegate*<uint> glGetGraphicsResetStatusARB;
-        internal unsafe delegate*<uint, GLhandleARB> glGetHandleARB;
+        internal unsafe delegate*<uint, glHandleARB> glGetHandleARB;
         internal unsafe delegate*<uint, bool, uint, uint, void*, void> glGetHistogramEXT;
         internal unsafe delegate*<uint, uint, float*, void> glGetHistogramParameterfvEXT;
         internal unsafe delegate*<uint, uint, int*, void> glGetHistogramParameterivEXT;
@@ -778,7 +773,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, int, bool, int, uint, ulong> glGetImageHandleNV;
         internal unsafe delegate*<uint, uint, float*, void> glGetImageTransformParameterfvHP;
         internal unsafe delegate*<uint, uint, int*, void> glGetImageTransformParameterivHP;
-        internal unsafe delegate*<GLhandleARB, uint, uint*, byte*, void> glGetInfoLogARB;
+        internal unsafe delegate*<glHandleARB, uint, uint*, byte*, void> glGetInfoLogARB;
         internal unsafe delegate*<int> glGetInstrumentsSGIX;
         internal unsafe delegate*<uint, uint, long*, void> glGetInteger64i_v;
         internal unsafe delegate*<uint, long*, void> glGetInteger64v;
@@ -853,9 +848,9 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint, int*, void> glGetObjectBufferivATI;
         internal unsafe delegate*<uint, uint, uint, uint*, byte*, void> glGetObjectLabel;
         internal unsafe delegate*<uint, uint, uint, uint*, byte*, void> glGetObjectLabelEXT;
-        internal unsafe delegate*<GLhandleARB, uint, float*, void> glGetObjectParameterfvARB;
+        internal unsafe delegate*<glHandleARB, uint, float*, void> glGetObjectParameterfvARB;
         internal unsafe delegate*<uint, uint, uint, int*, void> glGetObjectParameterivAPPLE;
-        internal unsafe delegate*<GLhandleARB, uint, int*, void> glGetObjectParameterivARB;
+        internal unsafe delegate*<glHandleARB, uint, int*, void> glGetObjectParameterivARB;
         internal unsafe delegate*<void*, uint, uint*, byte*, void> glGetObjectPtrLabel;
         internal unsafe delegate*<uint, uint, int*, void> glGetOcclusionQueryivNV;
         internal unsafe delegate*<uint, uint, uint*, void> glGetOcclusionQueryuivNV;
@@ -944,7 +939,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint, uint*, byte*, void> glGetShaderInfoLog;
         internal unsafe delegate*<uint, uint, int*, int*, void> glGetShaderPrecisionFormat;
         internal unsafe delegate*<uint, uint, uint*, byte*, void> glGetShaderSource;
-        internal unsafe delegate*<GLhandleARB, uint, uint*, byte*, void> glGetShaderSourceARB;
+        internal unsafe delegate*<glHandleARB, uint, uint*, byte*, void> glGetShaderSourceARB;
         internal unsafe delegate*<uint, uint, int*, void> glGetShaderiv;
         internal unsafe delegate*<uint, uint, uint*, void> glGetShadingRateImagePaletteNV;
         internal unsafe delegate*<uint, uint, uint, int*, void> glGetShadingRateSampleLocationivNV;
@@ -1002,16 +997,16 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, int, int> glGetUniformBufferSizeEXT;
         internal unsafe delegate*<uint, uint, byte*, char**, uint*, void> glGetUniformIndices;
         internal unsafe delegate*<uint, byte*, int> glGetUniformLocation;
-        internal unsafe delegate*<GLhandleARB, byte*, int> glGetUniformLocationARB;
+        internal unsafe delegate*<glHandleARB, byte*, int> glGetUniformLocationARB;
         internal unsafe delegate*<uint, int, IntPtr> glGetUniformOffsetEXT;
         internal unsafe delegate*<uint, int, uint*, void> glGetUniformSubroutineuiv;
         internal unsafe delegate*<uint, int, double*, void> glGetUniformdv;
         internal unsafe delegate*<uint, int, float*, void> glGetUniformfv;
-        internal unsafe delegate*<GLhandleARB, int, float*, void> glGetUniformfvARB;
+        internal unsafe delegate*<glHandleARB, int, float*, void> glGetUniformfvARB;
         internal unsafe delegate*<uint, int, long*, void> glGetUniformi64vARB;
         internal unsafe delegate*<uint, int, long*, void> glGetUniformi64vNV;
         internal unsafe delegate*<uint, int, int*, void> glGetUniformiv;
-        internal unsafe delegate*<GLhandleARB, int, int*, void> glGetUniformivARB;
+        internal unsafe delegate*<glHandleARB, int, int*, void> glGetUniformivARB;
         internal unsafe delegate*<uint, int, ulong*, void> glGetUniformui64vARB;
         internal unsafe delegate*<uint, int, ulong*, void> glGetUniformui64vNV;
         internal unsafe delegate*<uint, int, uint*, void> glGetUniformuiv;
@@ -1178,7 +1173,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<float, void> glLineWidth;
         internal unsafe delegate*<GLfixed, void> glLineWidthxOES;
         internal unsafe delegate*<uint, void> glLinkProgram;
-        internal unsafe delegate*<GLhandleARB, void> glLinkProgramARB;
+        internal unsafe delegate*<glHandleARB, void> glLinkProgramARB;
         internal unsafe delegate*<uint, uint, void**, uint*, uint*, uint*, uint, void> glListDrawCommandsStatesClientNV;
         internal unsafe delegate*<uint, uint, float, void> glListParameterfSGIX;
         internal unsafe delegate*<uint, uint, float*, void> glListParameterfvSGIX;
@@ -1844,7 +1839,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint, uint, uint, void> glShaderOp2EXT;
         internal unsafe delegate*<uint, uint, uint, uint, uint, void> glShaderOp3EXT;
         internal unsafe delegate* unmanaged[Stdcall]<uint, uint, byte**, void*, void> glShaderSource;
-        internal unsafe delegate*<GLhandleARB, uint, byte**, int*, void> glShaderSourceARB;
+        internal unsafe delegate*<glHandleARB, uint, byte**, int*, void> glShaderSourceARB;
         internal unsafe delegate*<uint, uint, uint, void> glShaderStorageBlockBinding;
         internal unsafe delegate*<bool, void> glShadingRateImageBarrierNV;
         internal unsafe delegate*<uint, uint, uint, uint*, void> glShadingRateImagePaletteNV;
@@ -2196,7 +2191,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint, uint, void*, uint, void> glUpdateObjectBufferATI;
         internal unsafe delegate*<uint, void> glUploadGpuMaskNVX;
         internal unsafe delegate*<uint, void> glUseProgram;
-        internal unsafe delegate*<GLhandleARB, void> glUseProgramObjectARB;
+        internal unsafe delegate*<glHandleARB, void> glUseProgramObjectARB;
         internal unsafe delegate*<uint, uint, uint, void> glUseProgramStages;
         internal unsafe delegate*<uint, uint, void> glUseShaderProgramEXT;
         internal unsafe delegate*<void> glVDPAUFiniNV;
@@ -2211,7 +2206,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, uint*, void> glVDPAUUnmapSurfacesNV;
         internal unsafe delegate*<uint, void> glVDPAUUnregisterSurfaceNV;
         internal unsafe delegate*<uint, void> glValidateProgram;
-        internal unsafe delegate*<GLhandleARB, void> glValidateProgramARB;
+        internal unsafe delegate*<glHandleARB, void> glValidateProgramARB;
         internal unsafe delegate*<uint, void> glValidateProgramPipeline;
         internal unsafe delegate*<uint, uint, uint, uint, uint, void> glVariantArrayObjectATI;
         internal unsafe delegate*<uint, uint, uint, void*, void> glVariantPointerEXT;

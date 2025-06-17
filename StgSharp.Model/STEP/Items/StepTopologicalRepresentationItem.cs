@@ -36,6 +36,22 @@ using System;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepTopologicalRepresentationItem : StepEntityBase { }
+    public class StepTopologicalRepresentationItem : StepRepresentationItem, IExpConvertableFrom<StepTopologicalRepresentationItem>
+    {
+
+        protected StepTopologicalRepresentationItem( StepModel model ) : base( model ) { }
+
+        public void FromInstance( StepTopologicalRepresentationItem entity )
+        {
+            base.FromInstance( entity );
+        }
+
+        public override bool IsConvertableTo( string entityName )
+        {
+            return base.IsConvertableTo( entityName ) ||
+                   entityName == "StepTopologicalRepresentationItem";
+        }
+
+    }
 }
 

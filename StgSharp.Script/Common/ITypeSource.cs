@@ -36,8 +36,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Script
 {
-    public interface ITypeSource<in TConvert>
-        where TConvert: ITypeSource<TConvert>
+    public interface ITypeSource<in TConvert> where TConvert: ITypeSource<TConvert>
     {
 
         bool IsConvertable( TConvert targetType );

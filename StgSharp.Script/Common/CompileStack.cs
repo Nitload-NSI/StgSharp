@@ -28,6 +28,8 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using StgSharp.Collections;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -49,9 +51,10 @@ namespace StgSharp.Script
         private Token[] _tokenArray = new Token[4];
 
         private int _nodeCount,_tokenCount, _operatorCount;
-        private Stack<CompileDepthMark> _depthStack = new Stack<CompileDepthMark>();
 
-        private Stack<bool> _isNode = new Stack<bool>();
+        private RandomAccessibleStack<OperandIndex> _isNode = new RandomAccessibleStack<OperandIndex>(
+            8 );
+        private Stack<CompileDepthMark> _depthStack = new Stack<CompileDepthMark>();
         private Stack<Stack<TNode>> _statementCache = new Stack<Stack<TNode>>();
         private TNode _lastNode;
 
@@ -97,6 +100,43 @@ namespace StgSharp.Script
             Stack<TNode> statementsInDepth = _statementCache.Pop();
         }
 
+        public bool GetOperandAt( Index i, out TNode operandNode, out Token operandToken )
+        {
+            OperandIndex index = _isNode[ i ];
+            if( index.IsNode )
+            {
+                operandNode = _nodeArray[ index.Index ];
+                operandToken = Token.Empty;
+                return true;
+            } else
+            {
+                operandToken = _tokenArray[ index.Index ];
+                operandNode = default!;
+                return false;
+            }
+        }
+
+        public bool GetOperandAt(
+                    CompileDepthMark depth,
+                    Index i,
+                    out Token operandToken,
+                    out TNode operandNode )
+        {
+            OperandIndex index = _isNode[ i ];
+            _depthStack.Contains( depth );
+            if( index.IsNode )
+            {
+                operandNode = _nodeArray[ index.Index ];
+                operandToken = Token.Empty;
+                return true;
+            } else
+            {
+                operandToken = _tokenArray[ index.Index ];
+                operandNode = default!;
+                return false;
+            }
+        }
+
         public CompileDepthMark IncreaseDepth( int usage )
         {
             CompileDepthMark mark =
@@ -131,7 +171,7 @@ namespace StgSharp.Script
                 n = TNode.Empty;
                 return false;
             }
-            if( _isNode.Pop() )
+            if( _isNode.Pop().IsNode )
             {
                 t = Token.Empty;
                 n = _nodeArray[ _nodeCount - 1 ];
@@ -160,7 +200,7 @@ namespace StgSharp.Script
                 n = TNode.Empty;
                 return false;
             }
-            if( _isNode.Pop() )
+            if( _isNode.Pop().IsNode )
             {
                 t = Token.Empty;
                 n = _nodeArray[ --_nodeCount ];
@@ -189,8 +229,8 @@ namespace StgSharp.Script
                 Array.Resize( ref _nodeArray, _nodeArray.Length * 2 );
             }
             _nodeArray[ _nodeCount ] = node;
+            _isNode.Push( new( true, _nodeCount ) );
             _nodeCount++;
-            _isNode.Push( true );
             IsLastAddedOperator = false;
         }
 
@@ -200,8 +240,8 @@ namespace StgSharp.Script
                 Array.Resize( ref _tokenArray, _tokenArray.Length * 2 );
             }
             _tokenArray[ _tokenCount ] = token;
+            _isNode.Push( new( false, _tokenCount ) );
             _tokenCount++;
-            _isNode.Push( false );
             IsLastAddedOperator = false;
         }
 
@@ -229,7 +269,7 @@ namespace StgSharp.Script
                 isNode = false;
                 return false;
             }
-            if( _isNode.Pop() )
+            if( _isNode.Pop().IsNode )
             {
                 t = Token.Empty;
                 n = _nodeArray[ _nodeCount - 1 ];
@@ -264,7 +304,7 @@ namespace StgSharp.Script
                 isNode = false;
                 return false;
             }
-            if( _isNode.Pop() )
+            if( _isNode.Pop().IsNode )
             {
                 t = Token.Empty;
                 n = _nodeArray[ --_nodeCount ];
@@ -289,6 +329,8 @@ namespace StgSharp.Script
             op = Token.Empty;
             return false;
         }
+
+        private record struct OperandIndex( bool IsNode, int Index );
 
     }
 }

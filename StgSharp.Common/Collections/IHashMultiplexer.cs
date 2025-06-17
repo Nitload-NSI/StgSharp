@@ -36,11 +36,7 @@ namespace StgSharp.Collections
     public interface IHashMultiplexer<T> : IEqualityComparer<T>
     {
 
-        int RemainedMultiplexCount
-        {
-            get;
-            set;
-        }
+        int RemainedMultiplexCount { get; set; }
 
         void CacheHash( T obj, int count );
 

@@ -15,7 +15,7 @@ INTERNAL int SSCDECL city_hash_simplify_sse(byte const *str, int const length)
                 for (; ptr < end; ptr += 4) {
                         hash = _mm_crc32_u32(hash, *(uint32_t *)ptr);
                 }
-                for (; ptr < end; ptr++) {
+                for (; ptr < end; ptr++) {      
                         hash = _mm_crc32_u16(hash, *ptr);
                 }
         } else {

@@ -28,27 +28,32 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
 
 namespace StgSharp.Model.Step
 {
-    public class StepDirection : StepTriple
+    public class StepDirection : StepTriple, IExpConvertableFrom<StepDirection>
     {
 
-        private StepDirection() { }
+        private StepDirection( StepModel model ) : base( model ) { }
 
-        public StepDirection( float x, float y, float z ) : base( x, y, z ) { }
+        public StepDirection( StepModel model, float x, float y, float z )
+            : base( model, x, y, z ) { }
 
         public override StepItemType ItemType => StepItemType.Direction;
 
         protected override int MinimumValueCount => 2;
 
-        internal static StepDirection FromSyntax( ExpSyntaxNode syntaxList )
+        public void FromInstance( StepDirection entity )
         {
-            return ( StepDirection )AssignTo( new StepDirection(), syntaxList );
+            base.FromInstance( entity );
+        }
+
+        internal static StepDirection FromSyntax( StepModel binder, ExpSyntaxNode syntaxList )
+        {
+            return AssignTo( new StepDirection( binder ), syntaxList );
         }
 
     }

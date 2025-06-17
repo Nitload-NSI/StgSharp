@@ -60,6 +60,7 @@ namespace StgSharp.Model.Step
         public const string LineText = "LINE";
         public const string OrientedEdgeText = "ORIENTED_EDGE";
         public const string PlaneText = "PLANE";
+        public const string RepresentationItemText = "REPRESENTATION_ITEM";
         public const string VectorText = "VECTOR";
         public const string VertexPointText = "VERTEX_POINT";
 
@@ -81,6 +82,7 @@ namespace StgSharp.Model.Step
                 LineText,
                 OrientedEdgeText,
                 PlaneText,
+                RepresentationItemText,
                 VectorText,
                 VertexPointText,
                 ];

@@ -35,34 +35,26 @@ using System;
 
 namespace StgSharp.Model.Step
 {
-    public abstract class StepAxis2Placement : StepPlacement
+    public class StepAxis2Placement : StepPlacement
     {
 
-        private StepCartesianPoint _location;
         private StepDirection _refDirection;
 
-        public StepCartesianPoint Location
-        {
-            get { return _location; }
-            set
-            {
-                ArgumentNullException.ThrowIfNull( value );
-
-                _location = value;
-            }
-        }
+        protected StepAxis2Placement( StepModel model ) : base( model ) { }
 
         public StepDirection RefDirection
         {
             get { return _refDirection; }
             set
             {
-                if( value == null ) {
-                    throw new ArgumentNullException();
-                }
-
+                ArgumentNullException.ThrowIfNull( value );
                 _refDirection = value;
             }
+        }
+
+        public override bool IsConvertableTo( string entityName )
+        {
+            return base.IsConvertableTo( entityName ) || entityName == "StepAxis2Placement";
         }
 
     }

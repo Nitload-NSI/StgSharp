@@ -56,15 +56,16 @@ namespace StgSharp.Commom.Collections
                 if( _reverse.TryGetValue( key, out TFirst value ) ) {
                     return value;
                 }
-                throw new ArgumentException(
-                    $"Cannot find key {key!.ToString()} in dictionary." );
+                throw new ArgumentException( $"Cannot find key {key!.ToString()} in dictionary." );
             }
             set
             {
-                if( _reverse.TryGetValue( key, out TFirst origin ) ) {
+                if( _reverse.TryGetValue( key, out TFirst origin ) )
+                {
                     _reverse[ key ] = value;
                     _forward.Remove( origin );
-                } else {
+                } else
+                {
                     _reverse.Add( key, value );
                 }
                 _forward.Add( value, key );
@@ -78,15 +79,16 @@ namespace StgSharp.Commom.Collections
                 if( _forward.TryGetValue( key, out TSecond value ) ) {
                     return value;
                 }
-                throw new ArgumentException(
-                    $"Cannot find key {key!.ToString()} in dictionary." );
+                throw new ArgumentException( $"Cannot find key {key!.ToString()} in dictionary." );
             }
             set
             {
-                if( _forward.TryGetValue( key, out TSecond origin ) ) {
+                if( _forward.TryGetValue( key, out TSecond origin ) )
+                {
                     _forward[ key ] = value;
                     _reverse.Remove( origin );
-                } else {
+                } else
+                {
                     _forward.Add( key, value );
                 }
                 _reverse.Add( value, key );
@@ -109,8 +111,7 @@ namespace StgSharp.Commom.Collections
 
         public void Add( KeyValuePair<TFirst, TSecond> item )
         {
-            if( _forward.ContainsKey( item.Key ) || _reverse.ContainsKey(
-                item.Value ) ) {
+            if( _forward.ContainsKey( item.Key ) || _reverse.ContainsKey( item.Value ) ) {
                 throw new ArgumentException( "Duplicate key or value." );
             }
             _forward.Add( item.Key, item.Value );
@@ -134,8 +135,9 @@ namespace StgSharp.Commom.Collections
 
         public bool Contains( KeyValuePair<TFirst, TSecond> item )
         {
-            return _forward.Contains( item ) && _reverse.TryGetValue(
-                item.Value, out TFirst var ) && var!.Equals( item.Key );
+            return _forward.Contains( item ) &&
+                   _reverse.TryGetValue( item.Value, out TFirst var ) &&
+                   var!.Equals( item.Key );
         }
 
         public bool Contains( TSecond key )
@@ -148,9 +150,7 @@ namespace StgSharp.Commom.Collections
             return _forward.ContainsKey( key );
         }
 
-        public void CopyTo(
-                            KeyValuePair<TFirst, TSecond>[] array,
-                            int arrayIndex )
+        public void CopyTo( KeyValuePair<TFirst, TSecond>[] array, int arrayIndex )
         {
             if( array == null ) {
                 throw new ArgumentNullException( nameof( array ) );
@@ -159,8 +159,7 @@ namespace StgSharp.Commom.Collections
                 throw new ArgumentOutOfRangeException( nameof( arrayIndex ) );
             }
             if( array.Length - arrayIndex < _forward.Count ) {
-                throw new ArgumentException(
-                    "The array is too small to copy the elements." );
+                throw new ArgumentException( "The array is too small to copy the elements." );
             }
 
             foreach( KeyValuePair<TFirst, TSecond> pair in _forward ) {

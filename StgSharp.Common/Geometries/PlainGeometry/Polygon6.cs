@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Math;
 
 using System;
@@ -48,14 +47,14 @@ namespace StgSharp.Geometries
         }
 
         public Polygon6(
-                       PlainCoordinate coordination,
-                       Vec2 vert0,
-                       Vec2 vert1,
-                       Vec2 vert2,
-                       Vec2 vert3,
-                       Vec2 vert4,
-                       Vec2 vert5,
-                       Vec2 vert6 )
+               PlainCoordinate coordination,
+               Vec2 vert0,
+               Vec2 vert1,
+               Vec2 vert2,
+               Vec2 vert3,
+               Vec2 vert4,
+               Vec2 vert5,
+               Vec2 vert6 )
             : base( coordination )
         {
             vertexMat = new Vec4[6];

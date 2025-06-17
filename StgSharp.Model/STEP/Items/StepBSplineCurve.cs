@@ -30,6 +30,7 @@
 //-----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
+using StgSharp.Script.Express;
 
 using System;
 
@@ -71,16 +72,17 @@ namespace StgSharp.Model.Step
 
     }
 
-    public abstract class StepBSplineCurve : StepBoundedCurve
+    public class StepBSplineCurve : StepBoundedCurve, IExpConvertableFrom<StepBSplineCurve>
     {
 
-        public StepBSplineCurve( IEnumerable<StepCartesianPoint> controlPoints )
+        public StepBSplineCurve( StepModel model, params StepCartesianPoint[] controlPoints )
+            : this( model, ( IEnumerable<StepCartesianPoint> )controlPoints ) { }
+
+        public StepBSplineCurve( StepModel model, IEnumerable<StepCartesianPoint> controlPoints )
+            : base( model )
         {
             ControlPointsList.AddRange( controlPoints );
         }
-
-        public StepBSplineCurve( params StepCartesianPoint[] controlPoints )
-            : this( ( IEnumerable<StepCartesianPoint> )controlPoints ) { }
 
         public bool ClosedCurve { get; set; }
 
@@ -88,48 +90,50 @@ namespace StgSharp.Model.Step
 
         public int Degree { get; set; }
 
-        public List<StepCartesianPoint> ControlPointsList { get; } = new List<StepCartesianPoint>();
+        public List<StepCartesianPoint> ControlPointsList { get; private set; } 
+            = new List<StepCartesianPoint>();
 
         public StepBSplineCurveForm CurveForm { get; set; } = StepBSplineCurveForm.Unspecified;
 
+        public void FromInstance( StepBSplineCurve entity )
+        {
+            base.FromInstance( entity );
+            this.Degree = entity.Degree;
+            this.ClosedCurve = entity.ClosedCurve;
+            this.ControlPointsList = entity.ControlPointsList;
+            this.SelfIntersect = entity.SelfIntersect;
+        }
+
+        public override bool IsConvertableTo( string entityName )
+        {
+            return base.IsConvertableTo( entityName ) || entityName == "StepBSplineCurve";
+        }
+
         protected static string GetCurveFormString( StepBSplineCurveForm form )
         {
-            switch( form )
+            return form switch
             {
-                case StepBSplineCurveForm.Polyline:
-                    return StepExpEnumValue.POLYLINE_FORM;
-                case StepBSplineCurveForm.CircularArc:
-                    return StepExpEnumValue.CIRCULAR_ARC;
-                case StepBSplineCurveForm.EllipticalArc:
-                    return StepExpEnumValue.ELLIPTIC_ARC;
-                case StepBSplineCurveForm.ParabolicArc:
-                    return StepExpEnumValue.PARABOLIC_ARC;
-                case StepBSplineCurveForm.HyperbolicArc:
-                    return StepExpEnumValue.HYPERBOLIC_ARC;
-                case StepBSplineCurveForm.Unspecified:
-                    return StepExpEnumValue.UNSPECIFIED;
-            }
-
-            throw new NotImplementedException();
+                StepBSplineCurveForm.Polyline => StepExpEnumValue.POLYLINE_FORM,
+                StepBSplineCurveForm.CircularArc => StepExpEnumValue.CIRCULAR_ARC,
+                StepBSplineCurveForm.EllipticalArc => StepExpEnumValue.ELLIPTIC_ARC,
+                StepBSplineCurveForm.ParabolicArc => StepExpEnumValue.PARABOLIC_ARC,
+                StepBSplineCurveForm.HyperbolicArc => StepExpEnumValue.HYPERBOLIC_ARC,
+                StepBSplineCurveForm.Unspecified => StepExpEnumValue.UNSPECIFIED,
+                _ => throw new NotImplementedException(),
+            };
         }
 
         protected static StepBSplineCurveForm ParseCurveForm( string enumerationValue )
         {
-            switch( enumerationValue.ToUpperInvariant() )
+            return enumerationValue.ToUpperInvariant() switch
             {
-                case StepExpEnumValue.POLYLINE_FORM:
-                    return StepBSplineCurveForm.Polyline;
-                case StepExpEnumValue.CIRCULAR_ARC:
-                    return StepBSplineCurveForm.CircularArc;
-                case StepExpEnumValue.ELLIPTIC_ARC:
-                    return StepBSplineCurveForm.EllipticalArc;
-                case StepExpEnumValue.PARABOLIC_ARC:
-                    return StepBSplineCurveForm.ParabolicArc;
-                case StepExpEnumValue.HYPERBOLIC_ARC:
-                    return StepBSplineCurveForm.HyperbolicArc;
-                default:
-                    return StepBSplineCurveForm.Unspecified;
-            }
+                StepExpEnumValue.POLYLINE_FORM => StepBSplineCurveForm.Polyline,
+                StepExpEnumValue.CIRCULAR_ARC => StepBSplineCurveForm.CircularArc,
+                StepExpEnumValue.ELLIPTIC_ARC => StepBSplineCurveForm.EllipticalArc,
+                StepExpEnumValue.PARABOLIC_ARC => StepBSplineCurveForm.ParabolicArc,
+                StepExpEnumValue.HYPERBOLIC_ARC => StepBSplineCurveForm.HyperbolicArc,
+                _ => StepBSplineCurveForm.Unspecified,
+            };
         }
 
     }

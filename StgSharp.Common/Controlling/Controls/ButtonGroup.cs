@@ -63,22 +63,14 @@ namespace StgSharp.Controls
             get => throw new NotSupportedException();
         }
 
-        public Rectangle BoundingBox
-        {
-            get;
-            set;
-        }
+        public Rectangle BoundingBox { get; set; }
 
         public TriggerButton CurrentButton
         {
             get => current;
         }
 
-        public Vec2 Position
-        {
-            get;
-            set;
-        }
+        public Vec2 Position { get; set; }
 
         protected List<TriggerButton> AllButton
         {

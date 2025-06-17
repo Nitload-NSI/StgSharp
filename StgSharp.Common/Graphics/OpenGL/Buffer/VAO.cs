@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="VAO.cs"
-//     Project: StgSharp
+//     Project: StepVisualizer
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -59,15 +58,15 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public void SetVertexAttribute(
-            uint index,
-            int vertexLength,
-            TypeCode dataType,
-            bool isNomalized,
-            uint stride,
-            int pointer )
+                    uint attributeIndex,
+                    int vertexLength,
+                    TypeCode dataType,
+                    bool isNomalized,
+                    uint stride,
+                    int pointer )
         {
             GL.SetVertexAttribute(
-                index, vertexLength, dataType, isNomalized, stride, pointer );
+                attributeIndex, vertexLength, dataType, isNomalized, stride, pointer );
         }
 
         protected override sealed void Dispose( bool disposing )

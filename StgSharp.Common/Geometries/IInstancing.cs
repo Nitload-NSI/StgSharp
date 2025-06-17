@@ -43,53 +43,29 @@ namespace StgSharp.Geometries
     public interface IInstancing
     {
 
-        public float Rotation
-        {
-            get { return GlobalBuffer.CoordAndRotationList[ BufferId ].W; }
-            set
-            {
-                Vec4 temp = GlobalBuffer.CoordAndRotationList[ BufferId ];
-                temp.W = value;
-                GlobalBuffer.CoordAndRotationList[ BufferId ] = temp;
-            }
-        }
+        public float Rotation { get { return GlobalBuffer.CoordAndRotationList[ BufferId ].W; } set
+                                                                                                {
+                                                                                                    Vec4 temp = GlobalBuffer.CoordAndRotationList[
+                                                                                                        BufferId ];
+                                                                                                    temp.W = value;
+                                                                                                    GlobalBuffer.CoordAndRotationList[
+                                                                                                        BufferId ] = temp;
+                                                                                                } }
 
-        public float Scale
-        {
-            get { return GlobalBuffer.ScalingList[ BufferId ]; }
-            set { GlobalBuffer.ScalingList[ BufferId ] = value; }
-        }
+        public float Scale { get { return GlobalBuffer.ScalingList[ BufferId ]; } set { GlobalBuffer.ScalingList[
+                                                                                            BufferId ] = value; } }
 
-        public GeometryMotion Motion
-        {
-            get;
-            set;
-        }
+        public GeometryMotion Motion { get; set; }
 
-        public IInstancingBuffer GlobalBuffer
-        {
-            get;
-            internal set;
-        }
+        public IInstancingBuffer GlobalBuffer { get; internal set; }
 
-        public int BufferId
-        {
-            get;
-            internal set;
-        }
+        public int BufferId { get; internal set; }
 
-        public Vec3 CenterPositionGlobal
-        {
-            get;
-            internal set;
-        }
+        public Vec3 CenterPositionGlobal { get; internal set; }
 
-        public Vec3 Coord
-        {
-            get { return GlobalBuffer.CoordAndRotationList[ BufferId ].XYZ; }
-            set { GlobalBuffer.CoordAndRotationList[ BufferId ] = new Vec4(
-                      value.reg ); }
-        }
+        public Vec3 Coord { get { return GlobalBuffer.CoordAndRotationList[ BufferId ].XYZ; } set { GlobalBuffer.CoordAndRotationList[
+                                                                                                        BufferId ] = new Vec4(
+                                                                                                        value.reg ); } }
 
         public void Move()
         {

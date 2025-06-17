@@ -40,14 +40,12 @@ namespace StgSharp.MVVM.ViewModel
 {
 #nullable enable
 
-    [UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
+[UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
     public delegate ref object BindingDataGetter();
 [UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
     public delegate void BindingDataSetter( ref object value );
 [UnmanagedFunctionPointer( CallingConvention.Cdecl )] 
-    public delegate bool MethodLookUpDelegate(
-        string name,
-        out Action callback );
+    public delegate bool MethodLookUpDelegate( string name, out Action callback );
 
     public abstract partial class ViewModelBase
     {
@@ -55,24 +53,28 @@ namespace StgSharp.MVVM.ViewModel
         public bool MethodLookup( string methodName, out Action callback )
         {
             MethodInfo method = GetType().GetMethod( methodName )!;
-            if( method == null ) {
+            if( method == null )
+            {
                 callback = null!;
                 return false;
             }
-            try {
-                callback = ( Action )Delegate.CreateDelegate(
-                    typeof( Action ), this, methodName );
+            try
+            {
+                callback = ( Action )Delegate.CreateDelegate( typeof( Action ), this, methodName );
                 return true;
             }
-            catch( MissingMethodException ) {
+            catch( MissingMethodException )
+            {
                 callback = null!;
                 return false;
             }
-            catch( MethodAccessException ) {
+            catch( MethodAccessException )
+            {
                 callback = null!;
                 return false;
             }
-            catch( Exception ) {
+            catch( Exception )
+            {
                 throw;
             }
         }
@@ -88,8 +90,8 @@ namespace StgSharp.MVVM.ViewModel
         [FieldOffset( 0 )] private M128 _mask;
 
         public DataBindingEntry(
-            [NotNull] BindingDataGetter gettingCallback,
-            [NotNull] BindingDataSetter settingCallback )
+               [NotNull] BindingDataGetter gettingCallback,
+               [NotNull] BindingDataSetter settingCallback )
         {
             getterPtr = Marshal.GetFunctionPointerForDelegate( gettingCallback );
             setterPtr = Marshal.GetFunctionPointerForDelegate( settingCallback );
@@ -130,20 +132,15 @@ namespace StgSharp.MVVM.ViewModel
 
         public void SetValue( ref object value )
         {
-            ( ( delegate* unmanaged[Cdecl]<ref object, void> )setterPtr )(
-                ref value );
+            ( ( delegate* unmanaged[Cdecl]<ref object, void> )setterPtr )( ref value );
         }
 
-        public static bool operator !=(
-            DataBindingEntry left,
-            DataBindingEntry right )
+        public static bool operator !=( DataBindingEntry left, DataBindingEntry right )
         {
             return left._mask != right._mask;
         }
 
-        public static bool operator ==(
-            DataBindingEntry left,
-            DataBindingEntry right )
+        public static bool operator ==( DataBindingEntry left, DataBindingEntry right )
         {
             return left._mask == right._mask;
         }

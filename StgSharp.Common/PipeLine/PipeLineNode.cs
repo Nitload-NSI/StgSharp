@@ -28,7 +28,6 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-
 using StgSharp.Entities;
 
 using System;
@@ -126,6 +125,8 @@ namespace StgSharp.PipeLine
         {
             get => _emptyLayer;
         }
+
+        public IConvertableToPipelineNode NodeOperation => _mainOperation;
 
         public int Level
         {
