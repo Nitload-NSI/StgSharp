@@ -28,10 +28,24 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using System.Runtime.CompilerServices;
+
 namespace StgSharp.Math
 {
     public static unsafe partial class Scaler
     {
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static unsafe float Pow( float x, float y )
+        {
+            return System.MathF.Pow( x, y );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static unsafe double Pow( double x, double y )
+        {
+            return System.Math.Pow( x, y );
+        }
 
         /// <summary>
         ///   calculate the value of x^y
@@ -45,7 +59,7 @@ namespace StgSharp.Math
         /// <returns>
         ///   Returns the value of x^y
         /// </returns>
-        public static unsafe float Pow( float x, float y )
+        public static unsafe float PowSlow( float x, float y )
         {
             /* 
              * x^y = E ^ ( log( x ) * y )

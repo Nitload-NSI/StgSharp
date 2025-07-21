@@ -44,6 +44,7 @@ namespace StgSharp.Internal.Intrinsic
     [StructLayout( LayoutKind.Sequential )]
     internal unsafe struct IntrinsicContext
     {
+
         public delegate* unmanaged[Cdecl]<ColumnSet2*, ColumnSet2*, ColumnSet2*, void> add_mat_2;
         public delegate* unmanaged[Cdecl]<ColumnSet3*, ColumnSet3*, ColumnSet3*, void> add_mat_3;
         public delegate* unmanaged[Cdecl]<ColumnSet4*, ColumnSet4*, ColumnSet4*, void> add_mat_4;
@@ -55,6 +56,7 @@ namespace StgSharp.Internal.Intrinsic
         public delegate* unmanaged[Cdecl]<ColumnSet4*, Vector4*, Vector4*, void> dot_41;
         public delegate* unmanaged[Cdecl]<ColumnSet4*, Vector4*, Vector4*, void> dot_42;
         public delegate* unmanaged[Cdecl]<ColumnSet4*, Vector4*, Vector4*, void> dot_43;
+        public delegate* unmanaged[Cdecl]<int,ulong> factorial_simd;
         public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;
         public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> normalize_v3;
         public delegate* unmanaged[Cdecl]<ColumnSet2*, ColumnSet2*, ColumnSet2*, void> sub_mat_2;

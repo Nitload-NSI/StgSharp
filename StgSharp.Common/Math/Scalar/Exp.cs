@@ -28,12 +28,28 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
+using System;
+using System.Runtime.CompilerServices;
+
 namespace StgSharp.Math
 {
     public static unsafe partial class Scaler
     {
 
         public const float E = 2.718281828f;
+        public const double EDouble = System.Math.E;
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static float Exp( float x )
+        {
+            return MathF.Exp( x );
+        }
+
+        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        public static double Exp( double x )
+        {
+            return System.Math.Exp( x );
+        }
 
         /// <summary>
         ///   Get the value of E ^ x;
@@ -44,7 +60,7 @@ namespace StgSharp.Math
         /// <returns>
         ///
         /// </returns>
-        public static unsafe float Exp( float x )
+        public static unsafe float ExpSlow( float x )
         {
             if( x == 1 ) {
                 return E;

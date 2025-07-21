@@ -51,10 +51,11 @@ namespace StgSharp.Script
         private Token[] _tokenArray = new Token[4];
 
         private int _nodeCount,_tokenCount, _operatorCount;
+        private RandomAccessibleStack<CompileDepthMark> _depthStack = new RandomAccessibleStack<CompileDepthMark>(
+            );
 
         private RandomAccessibleStack<OperandIndex> _isNode = new RandomAccessibleStack<OperandIndex>(
             8 );
-        private Stack<CompileDepthMark> _depthStack = new Stack<CompileDepthMark>();
         private Stack<Stack<TNode>> _statementCache = new Stack<Stack<TNode>>();
         private TNode _lastNode;
 
@@ -92,8 +93,6 @@ namespace StgSharp.Script
             get => _statementCache.Peek();
         }
 
-        public Stack<CompileDepthMark> DepthStack => _depthStack;
-
         public void DecreaseDepth()
         {
             CompileDepthMark mark = _depthStack.Pop();
@@ -123,6 +122,7 @@ namespace StgSharp.Script
                     out TNode operandNode )
         {
             OperandIndex index = _isNode[ i ];
+
             _depthStack.Contains( depth );
             if( index.IsNode )
             {

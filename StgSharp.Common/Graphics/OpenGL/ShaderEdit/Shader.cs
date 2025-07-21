@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="Shader.cs"
-//     Project: StepVisualizer
+//     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -124,9 +124,7 @@ namespace StgSharp.Graphics.OpenGL
         [MethodImpl( MethodImplOptions.AggressiveInlining )]
         public unsafe void Compile( int index, string codeStream )
         {
-            if( codeStream == null ) {
-                throw new ArgumentNullException( nameof( codeStream ) );
-            }
+            ArgumentNullException.ThrowIfNull( codeStream );
             GL.LoadShaderSource( handle[ index ], codeStream.AsSpan() );
             GL.CompileShader( handle[ index ] );
             CheckStatus( index, ShaderStatus.CompileStatus );

@@ -1,8 +1,13 @@
-## Update Sec240227
+## Update 20250721
+
+We made the decision to switch window source manager from GLFW to SDL.
+The change will take quite a period to implement all work.
+
+## Update 20250227
 
 From 0.6.0 Version, we start to sign to this repository.
 
-## Update Pre240204
+## Update 20250204
 
 ### Upgrade to .Net 8!
 
