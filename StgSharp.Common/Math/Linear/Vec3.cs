@@ -36,105 +36,105 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.Math
 {
-    [StructLayout( LayoutKind.Explicit, Size = 16, Pack = 16 )]
-    public struct Vec3 : IEquatable<Vec3>, IVector<Vec3>
+    [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
+    public struct Vec3 : IEquatable<Vec3>, IFixedVector<Vec3>
     {
 
-        [FieldOffset( 0 )] internal unsafe fixed float num[ 3 ];
-        [FieldOffset( 0 )] internal M128 reg;
+        [FieldOffset(0)] internal unsafe fixed float num[3];
+        [FieldOffset(0)] internal M128 reg;
 
-        [FieldOffset( 0 )] internal Vector3 v;
+        [FieldOffset(0)] internal Vector3 v;
 
-        [FieldOffset( 0 )] public float X;
-        [FieldOffset( 4 )] public float Y;
-        [FieldOffset( 8 )] public float Z;
+        [FieldOffset(0)] public float X;
+        [FieldOffset(4)] public float Y;
+        [FieldOffset(8)] public float Z;
 
-        internal Vec3( M128 vector )
+        internal Vec3(M128 vector)
         {
-            Unsafe.SkipInit( out X );
-            Unsafe.SkipInit( out Y );
-            Unsafe.SkipInit( out Z );
-            Unsafe.SkipInit( out v );
+            Unsafe.SkipInit(out X);
+            Unsafe.SkipInit(out Y);
+            Unsafe.SkipInit(out Z);
+            Unsafe.SkipInit(out v);
             reg = vector;
-            reg.Write<uint>( 3, 0 );
+            reg.Write<uint>(3, 0);
         }
 
-        internal Vec3( Vector3 vector )
+        internal Vec3(Vector3 vector)
         {
             v = vector;
         }
 
-        public Vec3( Vec2 xy, float z )
+        public Vec3(Vec2 xy, float z)
         {
-            Unsafe.SkipInit( out X );
-            Unsafe.SkipInit( out Y );
-            Unsafe.SkipInit( out Z );
-            Unsafe.SkipInit( out v );
+            Unsafe.SkipInit(out X);
+            Unsafe.SkipInit(out Y);
+            Unsafe.SkipInit(out Z);
+            Unsafe.SkipInit(out v);
             reg = xy.reg;
             Z = z;
         }
 
-        public Vec3( float x, float y, float z )
+        public Vec3(float x, float y, float z)
         {
-            Unsafe.SkipInit( out reg );
-            Unsafe.SkipInit( out X );
-            Unsafe.SkipInit( out Y );
-            Unsafe.SkipInit( out Z );
-            v = new Vector3( x, y, z );
+            Unsafe.SkipInit(out reg);
+            Unsafe.SkipInit(out X);
+            Unsafe.SkipInit(out Y);
+            Unsafe.SkipInit(out Z);
+            v = new Vector3(x, y, z);
         }
 
         public unsafe Vec2 XY
         {
-            get => new Vec2( this.reg );
+            get => new Vec2(this.reg);
             set
             {
-                fixed( Vector3* vptr = &v ) {
-                    *( Vector2* )vptr = value.v;
+                fixed (Vector3* vptr = &v) {
+                    *(Vector2*)vptr = value.v;
                 }
             }
         }
 
         public Vec3 XYZ
         {
-            get { return new Vec3( v ); }
+            get { return new Vec3(v); }
             set { this = value; }
         }
 
         public static Vec3 Zero
         {
-            get => new Vec3( 0, 0, 0 );
+            get => new Vec3(0, 0, 0);
         }
 
-        public static Vec3 One => new Vec3( 1, 1, 1 );
+        public static Vec3 One => new Vec3(1, 1, 1);
 
-        public static Vec3 UnitX => new Vec3( 1, 0, 0 );
+        public static Vec3 UnitX => new Vec3(1, 0, 0);
 
-        public static Vec3 UnitY => new Vec3( 0, 1, 0 );
+        public static Vec3 UnitY => new Vec3(0, 1, 0);
 
-        public static Vec3 UnitZ => new Vec3( 0, 0, 1 );
+        public static Vec3 UnitZ => new Vec3(0, 0, 1);
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static Vec3 Cross( Vec3 left, Vec3 right )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec3 Cross(Vec3 left, Vec3 right)
         {
-            return Linear.Cross( left, right );
+            return Linear.Cross(left, right);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public float Dot( Vec3 right )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float Dot(Vec3 right)
         {
-            return Vector3.Dot( v, right.v );
+            return Vector3.Dot(v, right.v);
         }
 
-        public bool Equals( Vec3 other )
+        public bool Equals(Vec3 other)
         {
             return this.reg == other.reg;
         }
 
-        public override bool Equals( object obj )
+        public override bool Equals(object obj)
         {
-            if( obj is Vec3 )
+            if (obj is Vec3)
             {
-                return this == ( Vec3 )obj;
+                return this == (Vec3)obj;
             } else
             {
                 return false;
@@ -143,23 +143,23 @@ namespace StgSharp.Math
 
         public override unsafe int GetHashCode()
         {
-            fixed( float* add = &X ) {
-                return HashCode.Combine( X, Y, Z, ( ulong )add );
+            fixed (float* add = &X) {
+                return HashCode.Combine(X, Y, Z, (ulong)add);
             }
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float GetMaxValue()
         {
             float ret = X;
-            ret = ( ret > Y ) ? ret : Y;
-            ret = ( ret > Z ) ? ret : Z;
+            ret = (ret > Y) ? ret : Y;
+            ret = (ret > Z) ? ret : Z;
             return ret;
         }
 
-        public static bool IsParallel( Vec3 left, Vec3 right )
+        public static bool IsParallel(Vec3 left, Vec3 right)
         {
-            return Cross( left, right ) == Zero;
+            return Cross(left, right) == Zero;
         }
 
         public override string ToString()
@@ -167,63 +167,63 @@ namespace StgSharp.Math
             return $"[{X},{Y},{Z}]";
         }
 
-        public string ToString( string sample )
+        public string ToString(string sample)
         {
             return $"[{X.ToString(sample)},{Y.ToString(sample)},{Z.ToString(sample)}]";
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static Vec3 operator -( Vec3 vec )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec3 operator -(Vec3 vec)
         {
-            return new Vec3( -vec.v );
+            return new Vec3(-vec.v);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static Vec3 operator -( Vec3 left, Vec3 right )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec3 operator -(Vec3 left, Vec3 right)
         {
-            return new Vec3( left.v - right.v );
+            return new Vec3(left.v - right.v);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static bool operator !=( Vec3 left, Vec3 right )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(Vec3 left, Vec3 right)
         {
             return left.v != right.v;
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static Vec3 operator *( Vec3 vec, float value )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec3 operator *(Vec3 vec, float value)
         {
-            return new Vec3( vec.v * value );
+            return new Vec3(vec.v * value);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static float operator *( Vec3 left, Vec3 right )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float operator *(Vec3 left, Vec3 right)
         {
-            return Vector3.Dot( left.v, right.v );
+            return Vector3.Dot(left.v, right.v);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static Vec3 operator /( Vec3 vec, float value )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec3 operator /(Vec3 vec, float value)
         {
-            return new Vec3( vec.v / value );
+            return new Vec3(vec.v / value);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static Vec3 operator +( Vec3 left, Vec3 right )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec3 operator +(Vec3 left, Vec3 right)
         {
-            return new Vec3( left.v + right.v );
+            return new Vec3(left.v + right.v);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static bool operator ==( Vec3 left, Vec3 right )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(Vec3 left, Vec3 right)
         {
             return left.v == right.v;
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static unsafe implicit operator Vec3( (float, float, float) tuple )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe implicit operator Vec3((float, float, float) tuple)
         {
-            Vec3 vec = new Vec3( *( Vector3* )&tuple );
+            Vec3 vec = new Vec3(*(Vector3*)&tuple);
             return vec;
         }
 

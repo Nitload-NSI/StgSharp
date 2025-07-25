@@ -39,28 +39,28 @@ using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance
 {
-    [StructLayout( LayoutKind.Explicit, Pack = 16 )]
+    [StructLayout(LayoutKind.Explicit, Pack = 16)]
     public unsafe struct M256 : IRegisterType
     {
 
-        [FieldOffset( 0 )] internal fixed byte Buffer[ 32 ];
+        [FieldOffset(0)] internal fixed byte Buffer[32];
 
-        public ref T AsRef<T>() where T: struct, INumber<T>
+        public ref T AsRef<T>() where T: unmanaged, INumber<T>
         {
-            return ref Unsafe.As<byte, T>( ref Buffer[ 0 ] );
+            return ref Unsafe.As<byte, T>(ref Buffer[0]);
         }
 
-        public T Read<T>( int index ) where T: struct, INumber<T>
+        public T Read<T>(int index) where T: unmanaged, INumber<T>
         {
-            fixed( byte* mptr = Buffer ) {
-                return *( ( T* )mptr + index );
+            fixed (byte* mptr = Buffer) {
+                return *((T*)mptr + index);
             }
         }
 
-        public void Write<T>( int index, T value ) where T: struct, INumber<T>
+        public void Write<T>(int index, T value) where T: unmanaged, INumber<T>
         {
-            fixed( byte* mptr = Buffer ) {
-                *( ( T* )mptr + index ) = value;
+            fixed (byte* mptr = Buffer) {
+                *((T*)mptr + index) = value;
             }
         }
 

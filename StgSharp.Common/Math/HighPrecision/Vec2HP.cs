@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="Vec2HP.cs"
-//     Project: World
+//     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -41,27 +41,27 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Math.HighPrecision
 {
-    [StructLayout( LayoutKind.Explicit, Pack = 16 )]
-    public struct Vec2HP : IVector<Vec2HP>
+    [StructLayout(LayoutKind.Explicit, Pack = 16)]
+    public struct Vec2HP : IFixedVector<Vec2HP>
     {
 
-        [FieldOffset( 0 )] private M256 buffer;
-        [FieldOffset( 0 )] private Vector256<float> clrBuffer;
+        [FieldOffset(0)] private M256 buffer;
+        [FieldOffset(0)] private Vector256<float> clrBuffer;
 
-        [FieldOffset( 0 * sizeof( double ) )] public double X;
-        [FieldOffset( 1 * sizeof( double ) )] public double Y;
+        [FieldOffset(0 * sizeof(double))] public double X;
+        [FieldOffset(1 * sizeof(double))] public double Y;
 
-        public Vec2HP( double x, double y )
+        public Vec2HP(double x, double y)
         {
             this.X = x;
             this.Y = y;
-            Unsafe.SkipInit( out buffer );
-            Unsafe.SkipInit( out clrBuffer );
+            Unsafe.SkipInit(out buffer);
+            Unsafe.SkipInit(out clrBuffer);
         }
 
-        public static Vec2HP Zero => new Vec2HP( 0, 0 );
+        public static Vec2HP Zero => new Vec2HP(0, 0);
 
-        public static Vec2HP One => new Vec2HP( 1, 1 );
+        public static Vec2HP One => new Vec2HP(1, 1);
 
     }
 }

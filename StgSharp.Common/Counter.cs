@@ -33,7 +33,7 @@ using System.Numerics;
 
 namespace StgSharp
 {
-    public class Counter<T> where T: struct, INumber<T>
+    public class Counter<T> where T: unmanaged, INumber<T>
     {
 
         internal dynamic _value;
@@ -42,7 +42,7 @@ namespace StgSharp
 
         internal readonly T _defualtIncreament;
 
-        public Counter( T defaultValue, T defaultIncrement, T defaultDecrement )
+        public Counter(T defaultValue, T defaultIncrement, T defaultDecrement)
         {
             _value = defaultValue;
             _defaultValue = defaultValue;
@@ -62,7 +62,7 @@ namespace StgSharp
             set => _value = value;
         }
 
-        public void Add( T value )
+        public void Add(T value)
         {
             _value += value;
         }
@@ -82,26 +82,26 @@ namespace StgSharp
             _value = _defaultValue;
         }
 
-        public void Sub( T value )
+        public void Sub(T value)
         {
             _value -= value;
         }
 
         public override string ToString() => Value.ToString();
 
-        public static Counter<T> operator --( Counter<T> counter )
+        public static Counter<T> operator --(Counter<T> counter)
         {
             counter.QuickSub();
             return counter;
         }
 
-        public static Counter<T> operator ++( Counter<T> counter )
+        public static Counter<T> operator ++(Counter<T> counter)
         {
             counter.QuickAdd();
             return counter;
         }
 
-        public static implicit operator T( Counter<T> counter )
+        public static implicit operator T(Counter<T> counter)
         {
             return counter switch
             {

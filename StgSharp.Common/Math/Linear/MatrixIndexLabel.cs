@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Vec4HP.cs"
+//     file="MatrixIndexLabel.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,43 +28,69 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.HighPerformance;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Math.HighPrecision
+namespace StgSharp.Math
 {
-    [StructLayout(LayoutKind.Explicit, Pack =16)]
-    public  struct Vec4HP : IFixedVector<Vec4HP>
+    public readonly struct MatrixIndexLabel
     {
 
-        [FieldOffset(0)] private M256 buffer;
-        [FieldOffset(0)] private Vector256<float> clrBuffer;
-        [FieldOffset(3 * sizeof(double))] public double W;
-        [FieldOffset(0 * sizeof(double))] public double X;
-        [FieldOffset(1 * sizeof(double))] public double Y;
-        [FieldOffset(2 * sizeof(double))] public double Z;
+        private readonly bool _isRange;
+        public readonly Range R;
 
-        public Vec4HP(double x, double y, double z, double w)
+        internal MatrixIndexLabel(Index i)
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.W = w;
-            Unsafe.SkipInit(out buffer);
-            Unsafe.SkipInit(out clrBuffer);
+            _isRange = false;
+            R = new Range(i, Index.End);
         }
 
-        public static Vec4HP Zero => new Vec4HP(0, 0, 0, 0);
+        internal MatrixIndexLabel(Range r)
+        {
+            _isRange = true;
+            R = r;
+        }
 
-        public static Vec4HP One => new Vec4HP(1, 1, 1, 1);
+        public (int offset,int legnth) GetOffsetAndLength(int CountOfCollection)
+        {
+            return _isRange ?
+                    R.GetOffsetAndLength(CountOfCollection) : (R.Start.GetOffset(CountOfCollection), 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int Length(int CountOfCollection)
+        {
+            return _isRange ? R.GetOffsetAndLength(CountOfCollection).Length : 1;
+        }
+
+        public int Offset(int CountOfCollection)
+        {
+            return _isRange ?
+                    R.GetOffsetAndLength(CountOfCollection).Offset : R.Start
+                                                                      .GetOffset(CountOfCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator MatrixIndexLabel(Index i)
+        {
+            return new MatrixIndexLabel(i);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator MatrixIndexLabel(Range r)
+        {
+            return new MatrixIndexLabel(r);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator MatrixIndexLabel(int i)
+        {
+            return new MatrixIndexLabel(i);
+        }
 
     }
 }

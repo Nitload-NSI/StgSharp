@@ -40,25 +40,25 @@ using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance
 {
-    [StructLayout( LayoutKind.Explicit, Pack = 8 )]
+    [StructLayout(LayoutKind.Explicit, Pack = 8)]
     public unsafe struct M64 : IRegisterType
     {
 
-        [FieldOffset( 0 )] private fixed byte buffer[ 8 ];
-        [FieldOffset( 0 )] private ulong value;
+        [FieldOffset(0)] private fixed byte buffer[8];
+        [FieldOffset(0)] private ulong value;
 
         public M64()
         {
-            Unsafe.SkipInit( out this );
+            Unsafe.SkipInit(out this);
             value = 0;
         }
 
-        public ref T AsRef<T>() where T: struct,INumber<T>
+        public ref T AsRef<T>() where T: unmanaged,INumber<T>
         {
-            return ref Unsafe.As<byte, T>( ref buffer[ 0 ] );
+            return ref Unsafe.As<byte, T>(ref buffer[0]);
         }
 
-        public override bool Equals( object obj )
+        public override bool Equals(object obj)
         {
             return obj is M64 m64 && this == m64;
         }
@@ -68,23 +68,23 @@ namespace StgSharp.HighPerformance
             return value.GetHashCode();
         }
 
-        public T Read<T>( int index ) where T: struct, INumber<T>
+        public T Read<T>(int index) where T: unmanaged, INumber<T>
         {
-            return Unsafe.As<byte, T>( ref buffer[ index * sizeof( T ) ] );
+            return Unsafe.As<byte, T>(ref buffer[index * sizeof(T)]);
         }
 
-        public void Write<T>( int index, T value ) where T: struct, INumber<T>
+        public void Write<T>(int index, T value) where T: unmanaged, INumber<T>
         {
-            Unsafe.As<byte, T>( ref buffer[ index * sizeof( T ) ] ) = value;
+            Unsafe.As<byte, T>(ref buffer[index * sizeof(T)]) = value;
         }
 
-        public static bool operator !=( M64 left, M64 right )
+        public static bool operator !=(M64 left, M64 right)
         {
-            return !( left == right );
+            return !(left == right);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static M64 operator <<( M64 m, int shift )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static M64 operator <<(M64 m, int shift)
         {
             return new M64
             {
@@ -92,13 +92,13 @@ namespace StgSharp.HighPerformance
             };
         }
 
-        public static bool operator ==( M64 left, M64 right )
+        public static bool operator ==(M64 left, M64 right)
         {
             return left.value == right.value;
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static M64 operator >>( M64 m, int shift )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static M64 operator >>(M64 m, int shift)
         {
             return new M64
             {

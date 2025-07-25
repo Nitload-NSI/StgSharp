@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="Vec3HP.cs"
-//     Project: StepVisualizer
+//     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -42,38 +42,38 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Math.HighPrecision
 {
-    [StructLayout( LayoutKind.Explicit, Pack = 16 )]
-    public struct Vec3HP : IVector<Vec3HP>
+    [StructLayout(LayoutKind.Explicit, Pack = 16)]
+    public struct Vec3HP : IFixedVector<Vec3HP>
     {
 
-        [FieldOffset( 0 )] internal M256 buffer;
-        [FieldOffset( 0 )] internal Vector256<float> clrBuffer;
-        [FieldOffset( 0 * sizeof( double ) )] public double X;
-        [FieldOffset( 1 * sizeof( double ) )] public double Y;
-        [FieldOffset( 2 * sizeof( double ) )] public double Z;
+        [FieldOffset(0)] internal M256 buffer;
+        [FieldOffset(0)] internal Vector256<float> clrBuffer;
+        [FieldOffset(0 * sizeof(double))] public double X;
+        [FieldOffset(1 * sizeof(double))] public double Y;
+        [FieldOffset(2 * sizeof(double))] public double Z;
 
-        public Vec3HP() : this( 0, 0, 0 ) { }
+        public Vec3HP() : this(0, 0, 0) { }
 
-        public Vec3HP( Vector256<float> clrBuffer )
+        public Vec3HP(Vector256<float> clrBuffer)
         {
             this.X = 0;
             this.Y = 0;
             this.Z = 0;
-            Unsafe.SkipInit( out buffer );
-            Unsafe.SkipInit( out this.clrBuffer );
+            Unsafe.SkipInit(out buffer);
+            Unsafe.SkipInit(out this.clrBuffer);
             this.clrBuffer = clrBuffer;
         }
 
-        public Vec3HP( double x, double y, double z )
+        public Vec3HP(double x, double y, double z)
         {
             this.X = x;
             this.Y = y;
             this.Z = z;
-            Unsafe.SkipInit( out buffer );
-            Unsafe.SkipInit( out clrBuffer );
+            Unsafe.SkipInit(out buffer);
+            Unsafe.SkipInit(out clrBuffer);
         }
 
-        public static Vec3HP Zero => new Vec3HP( 1, 1, 1 );
+        public static Vec3HP Zero => new Vec3HP(1, 1, 1);
 
         public static Vec3HP One => throw new NotImplementedException();
 

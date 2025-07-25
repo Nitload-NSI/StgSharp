@@ -64,19 +64,19 @@ namespace StgSharp.Math
         {
             float seed = currentSeed;
 
-            float sample = Scaler.Pow( Scaler.SeedSqrt( seed ), 2 );
-            float sample2 = ( sample - seed ) / seed;
-            sample2 = Scaler.Abs( sample2 );
+            float sample = Scaler.Pow(Scaler.SeedSqrt(seed), 2);
+            float sample2 = (sample - seed) / seed;
+            sample2 = Scaler.Abs(sample2);
 
-            if( sample == 1 ) {
+            if (sample == 1) {
                 sample = sample2;
             }
 
             currentSeed = sample;
             sample2 *= 1000000;
 
-            float result = sample2 - ( ( int )sample2 );
-            if( result == 0 )
+            float result = sample2 - ((int)sample2);
+            if (result == 0)
             {
                 currentSeed = sample2 + 0.1f;
                 result = Scaler.LowProceisionRandom();
@@ -90,25 +90,25 @@ namespace StgSharp.Math
         /// <returns>
         ///
         /// </returns>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static T Random<T>() where T: struct, IConvertible, INumber<T>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T Random<T>() where T: unmanaged, IConvertible, INumber<T>
 
         {
-            if( randomSeed == null )
+            if (randomSeed == null)
             {
                 randomSeed = new byte[64];
                 string originSeed =
-                    ( $"{((Assembly.GetEntryAssembly() == null) ? (Assembly.GetAssembly(typeof(World))!) :
-                    Assembly.GetEntryAssembly())}" ) + ( $"{DateTime.UtcNow.ToString("o")}" );
-                using( SHA256 sha = SHA256.Create() ) {
-                    randomSeed = sha.ComputeHash( Encoding.UTF8.GetBytes( originSeed ) );
+                    ($"{((Assembly.GetEntryAssembly() == null) ? (Assembly.GetAssembly(typeof(World))!) :
+                    Assembly.GetEntryAssembly())}") + ($"{DateTime.UtcNow.ToString("o")}");
+                using (SHA256 sha = SHA256.Create()) {
+                    randomSeed = sha.ComputeHash(Encoding.UTF8.GetBytes(originSeed));
                 }
             }
-            using( SHA256 sha = SHA256.Create() ) {
-                randomSeed = sha.ComputeHash( randomSeed );
+            using (SHA256 sha = SHA256.Create()) {
+                randomSeed = sha.ComputeHash(randomSeed);
             }
-            fixed( byte* bptr = randomSeed ) {
-                return *( T* )bptr;
+            fixed (byte* bptr = randomSeed) {
+                return *(T*)bptr;
             }
         }
 
@@ -122,11 +122,11 @@ namespace StgSharp.Math
         {
             float seedValue1 = LowProceisionRandom();
             float seedValue2 = LowProceisionRandom();
-            uint seedValueBits = *( uint* )&seedValue1;
+            uint seedValueBits = *(uint*)&seedValue1;
 
             float seedValue = seedValueBits * seedValue2;
 
-            return *( int* )&seedValue;
+            return *(int*)&seedValue;
         }
 
     }

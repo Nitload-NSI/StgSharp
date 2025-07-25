@@ -51,16 +51,16 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///   New instance of <see cref="Shader" /> instance.
         /// </returns>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override sealed ShaderProgram CreateShaderProgram()
         {
-            return new ShaderProgram( this );
+            return new ShaderProgram(this);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        protected override sealed Shader CreateShaderSegment( ShaderType type, int count )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override sealed Shader CreateShaderSegment(ShaderType type, int count)
         {
-            return new Shader( GL.CreateShaderSet( count, type ), type, this );
+            return new Shader(GL.CreateShaderSet(count, type), type, this);
         }
 
     }
@@ -72,7 +72,7 @@ namespace StgSharp.Graphics.OpenGL
         internal readonly GlHandle[] handle;
         public readonly ShaderType type;
 
-        internal unsafe Shader( GlHandle[] handle, ShaderType usage, glRender stream )
+        internal unsafe Shader(GlHandle[] handle, ShaderType usage, glRender stream)
         {
             this.handle = handle;
             GL = stream.GL;
@@ -90,58 +90,58 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="index">
         ///   Index of shader code in current shader code set.
         /// </param>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void AttachTo( int index, [NotNull]ShaderProgram target )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AttachTo(int index, [NotNull]ShaderProgram target)
         {
-            GL.AttachShader( target.handle, handle[ index ] );
+            GL.AttachShader(target.handle, handle[index]);
         }
 
-        public void CheckStatus( int index, ShaderStatus status )
+        public void CheckStatus(int index, ShaderStatus status)
         {
-            string log = GL.GetShaderStatus( this, index, ( int )status );
-            if( !string.IsNullOrEmpty( log ) ) {
-                throw new InvalidOperationException( $"{$"Shader Error \t{status}\n"}{log}" );
+            string log = GL.GetShaderStatus(this, index, (int)status);
+            if (!string.IsNullOrEmpty(log)) {
+                throw new InvalidOperationException($"{$"Shader Error \t{status}\n"}{log}");
             }
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public unsafe void Compile( int index, ReadOnlySpan<byte> codeU8Stream )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void Compile(int index, ReadOnlySpan<byte> codeU8Stream)
         {
-            GL.LoadShaderSource( handle[ index ], codeU8Stream );
-            GL.CompileShader( handle[ index ] );
-            CheckStatus( index, ShaderStatus.CompileStatus );
+            GL.LoadShaderSource(handle[index], codeU8Stream);
+            GL.CompileShader(handle[index]);
+            CheckStatus(index, ShaderStatus.CompileStatus);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public unsafe void Compile( int index, byte[] codeStream )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void Compile(int index, byte[] codeStream)
         {
-            ArgumentNullException.ThrowIfNull( codeStream );
-            GL.LoadShaderSource( handle[ index ], codeStream );
-            GL.CompileShader( handle[ index ] );
-            CheckStatus( index, ShaderStatus.CompileStatus );
+            ArgumentNullException.ThrowIfNull(codeStream);
+            GL.LoadShaderSource(handle[index], codeStream);
+            GL.CompileShader(handle[index]);
+            CheckStatus(index, ShaderStatus.CompileStatus);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public unsafe void Compile( int index, string codeStream )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void Compile(int index, string codeStream)
         {
-            ArgumentNullException.ThrowIfNull( codeStream );
-            GL.LoadShaderSource( handle[ index ], codeStream.AsSpan() );
-            GL.CompileShader( handle[ index ] );
-            CheckStatus( index, ShaderStatus.CompileStatus );
+            ArgumentNullException.ThrowIfNull(codeStream);
+            GL.LoadShaderSource(handle[index], codeStream.AsSpan());
+            GL.CompileShader(handle[index]);
+            CheckStatus(index, ShaderStatus.CompileStatus);
         }
 
-        public void FromBytes( byte[] stream )
+        public void FromBytes(byte[] stream)
         {
             throw new NotImplementedException();
         }
 
-        public static byte[] FromCodeFile( string fileRoute )
+        public static byte[] FromCodeFile(string fileRoute)
         {
-            string str = File.ReadAllText( fileRoute );
-            if( string.IsNullOrEmpty( str ) ) {
-                throw new InvalidOperationException( $"Cannot load and GLSL code from {fileRoute}" );
+            string str = File.ReadAllText(fileRoute);
+            if (string.IsNullOrEmpty(str)) {
+                throw new InvalidOperationException($"Cannot load and GLSL code from {fileRoute}");
             }
-            return Encoding.UTF8.GetBytes( str );
+            return Encoding.UTF8.GetBytes(str);
         }
 
         public byte[] GetBytes()
@@ -149,7 +149,7 @@ namespace StgSharp.Graphics.OpenGL
             return Array.Empty<byte>();
         }
 
-        public byte[] GetBytes( out int length )
+        public byte[] GetBytes(out int length)
         {
             throw new NotImplementedException();
         }
@@ -177,7 +177,7 @@ namespace StgSharp.Graphics.OpenGL
         /// <summary>
         ///   CustomizeInit a program with no shader attached.
         /// </summary>
-        internal unsafe ShaderProgram( glRender binding )
+        internal unsafe ShaderProgram(glRender binding)
         {
             GL = binding.GL;
             handle = GL.CreateProgram();
@@ -192,10 +192,10 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///
         /// </returns>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public unsafe Uniform<T> GetUniform<T>( string name ) where T: struct
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe Uniform<T> GetUniform<T>(string name) where T: unmanaged
         {
-            return new Uniform<T>( GL.GetUniformLocation( this.handle, name ) );
+            return new Uniform<T>(GL.GetUniformLocation(this.handle, name));
         }
 
         /// <summary>
@@ -207,9 +207,9 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///
         /// </returns>
-        public unsafe Uniform<T, U> GetUniform<T, U>( string name ) where T: struct where U: struct
+        public unsafe Uniform<T, U> GetUniform<T, U>(string name) where T: unmanaged where U: struct
         {
-            return new Uniform<T, U>( GL.GetUniformLocation( this.handle, name ) );
+            return new Uniform<T, U>(GL.GetUniformLocation(this.handle, name));
         }
 
         /// <summary>
@@ -221,11 +221,11 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///
         /// </returns>
-        public unsafe Uniform<T, U, V> GetUniform<T, U, V>( string name ) where T: struct
+        public unsafe Uniform<T, U, V> GetUniform<T, U, V>(string name) where T: unmanaged
             where U: struct
             where V: struct
         {
-            return new Uniform<T, U, V>( GL.GetUniformLocation( this.handle, name ) );
+            return new Uniform<T, U, V>(GL.GetUniformLocation(this.handle, name));
         }
 
         /// <summary>
@@ -237,12 +237,12 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///
         /// </returns>
-        public unsafe Uniform<T, U, V, W> GetUniform<T, U, V, W>( string name ) where T: struct
+        public unsafe Uniform<T, U, V, W> GetUniform<T, U, V, W>(string name) where T: unmanaged
             where U: struct
             where V: struct
             where W: struct
         {
-            return new Uniform<T, U, V, W>( GL.GetUniformLocation( this.handle, name ) );
+            return new Uniform<T, U, V, W>(GL.GetUniformLocation(this.handle, name));
         }
 
         /// <summary>
@@ -250,22 +250,22 @@ namespace StgSharp.Graphics.OpenGL
         /// </summary>
         public unsafe void Link()
         {
-            if( InternalIO.InternalLinkShaderProgram(
-                ( OpenglContext* )this.GL.ContextHandle, handle.Value ) ==
-                0 )
+            if (InternalIO.InternalLinkShaderProgram(
+                (OpenglContext*)this.GL.ContextHandle, handle.Value) ==
+                0)
             {
                 IntPtr logPtr = InternalIO.InternalReadSSCLog();
                 try
                 {
                     byte[] logByte = new byte[512];
-                    Marshal.Copy( logPtr, logByte, 0, 512 );
-                    string log = Encoding.UTF8.GetString( logByte );
-                    log = log.Replace( "\0", string.Empty );
-                    InternalIO.InternalWriteLog( log, LogType.Error );
+                    Marshal.Copy(logPtr, logByte, 0, 512);
+                    string log = Encoding.UTF8.GetString(logByte);
+                    log = log.Replace("\0", string.Empty);
+                    InternalIO.InternalWriteLog(log, LogType.Error);
                 }
-                catch( Exception ex )
+                catch (Exception ex)
                 {
-                    InternalIO.InternalWriteLog( ex.Message, LogType.Error );
+                    InternalIO.InternalWriteLog(ex.Message, LogType.Error);
                 }
             }
         }
@@ -273,10 +273,10 @@ namespace StgSharp.Graphics.OpenGL
         /// <summary>
         ///   Let the current viewPortDisplay use this shader.
         /// </summary>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Use()
         {
-            GL.UseProgram( handle );
+            GL.UseProgram(handle);
         }
 
         ~ShaderProgram()

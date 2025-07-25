@@ -54,7 +54,7 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-    public sealed class Uniform<T> : Uniform where T: struct
+    public sealed class Uniform<T> : Uniform where T:unmanaged
     {
 
         internal Uniform() { }
@@ -74,7 +74,7 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-    public sealed class Uniform<T, U> : Uniform where T: struct where U: struct
+    public sealed class Uniform<T, U> : Uniform where T:unmanaged where U: struct
     {
 
         internal Uniform() { }
@@ -94,7 +94,7 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-    public sealed class Uniform<T, U, V> : Uniform where T: struct where U: struct where V: struct
+    public sealed class Uniform<T, U, V> : Uniform where T:unmanaged where U: struct where V: struct
     {
 
         internal Uniform() { }
@@ -114,7 +114,7 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-    public sealed class Uniform<T, U, V, W> : Uniform where T: struct where U: struct
+    public sealed class Uniform<T, U, V, W> : Uniform where T:unmanaged where U: struct
         where V: struct
         where W: struct
     {

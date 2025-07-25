@@ -43,22 +43,22 @@ namespace StgSharp.Data
 
         ref object ValueReference { get; }
 
-        static virtual IValueBox<T> AsGeneric<T>( IValueBox box ) where T: struct
+        static virtual IValueBox<T> AsGeneric<T>(IValueBox box) where T: unmanaged
         {
-            if( box is not IValueBox<T> genericBox ) {
+            if (box is not IValueBox<T> genericBox) {
                 return null;
             }
             return genericBox;
         }
 
-        static virtual bool IsGeneric<T>( IValueBox box ) where T: struct
+        static virtual bool IsGeneric<T>(IValueBox box) where T: unmanaged
         {
             return box is IValueBox<T>;
         }
 
     }
 
-    public interface IValueBox<T> where T: struct
+    public interface IValueBox<T> where T: unmanaged
     {
 
         T Value { get; set; }
@@ -72,17 +72,17 @@ namespace StgSharp.Data
     /// <typeparam name="T">
     ///   Type of instance to be boxed.
     /// </typeparam>
-    public class ValueBox<T> : IValueBox, IValueBox<T> where T: struct
+    public class ValueBox<T> : IValueBox, IValueBox<T> where T: unmanaged
     {
 
         private T _value;
 
-        public ValueBox( T value )
+        public ValueBox(T value)
         {
             _value = value;
         }
 
-        public ref object ValueReference => ref Unsafe.As<T, object>( ref _value );
+        public ref object ValueReference => ref Unsafe.As<T, object>(ref _value);
 
         public T Value
         {

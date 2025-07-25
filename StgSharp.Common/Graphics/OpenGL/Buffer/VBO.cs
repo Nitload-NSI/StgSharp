@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //     file="VBO.cs"
-//     Project: StepVisualizer
+//     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -44,24 +44,24 @@ namespace StgSharp.Graphics.OpenGL
     public sealed unsafe class VertexBuffer : GlBufferObjectBase
     {
 
-        internal VertexBuffer( int n, glRender binding )
-            : base( binding )
+        internal VertexBuffer(int n, glRender binding)
+            : base(binding)
         {
-            _bufferHandle = GL.GenBuffers( n );
+            _bufferHandle = GL.GenBuffers(n);
         }
 
-        public override sealed void Bind( int index )
+        public override sealed void Bind(int index)
         {
-            GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
+            GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
         }
 
         /// <summary>
         ///
         /// </summary>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Unbind()
         {
-            GL.BindBuffer( BufferType.ArrayBuffer, GlHandle.Zero );
+            GL.BindBuffer(BufferType.ArrayBuffer, GlHandle.Zero);
         }
 
         /// <summary>
@@ -79,11 +79,11 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="usage">
         ///   How OpenGL use these _data, defined by <see cref="BufferUsage" />
         /// </param>
-        public void WriteMatrixData<T>( int index, T bufferData, BufferUsage usage )
-            where T: struct, IMatrix<T>
+        public void WriteMatrixData<T>(int index, T bufferData, BufferUsage usage)
+            where T: unmanaged, IMatrix<T>
         {
-            GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
-            GL.SetBufferData( BufferType.ArrayBuffer, bufferData, usage );
+            GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
+            GL.SetBufferData(BufferType.ArrayBuffer, bufferData, usage);
         }
 
         /// <summary>
@@ -101,11 +101,11 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="usage">
         ///   How OpenGL use these _data, defined by <see cref="BufferUsage" />
         /// </param>
-        public void WriteScalerData<T>( int index, T[] bufferArray, BufferUsage usage )
-            where T: struct, INumber<T>
+        public void WriteScalerData<T>(int index, T[] bufferArray, BufferUsage usage)
+            where T: unmanaged, INumber<T>
         {
-            GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
-            GL.SetBufferData( BufferType.ArrayBuffer, bufferArray, usage );
+            GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
+            GL.SetBufferData(BufferType.ArrayBuffer, bufferArray, usage);
         }
 
         /// <summary>
@@ -123,11 +123,11 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="usage">
         ///   How OpenGL use these _data, defined by <see cref="BufferUsage" />
         /// </param>
-        public void WriteScalerData<T>( int index, ReadOnlySpan<T> scalerSpan, BufferUsage usage )
-            where T: struct,INumber<T>
+        public void WriteScalerData<T>(int index, ReadOnlySpan<T> scalerSpan, BufferUsage usage)
+            where T: unmanaged,INumber<T>
         {
-            GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
-            GL.SetBufferData( BufferType.ArrayBuffer, scalerSpan, usage );
+            GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
+            GL.SetBufferData(BufferType.ArrayBuffer, scalerSpan, usage);
         }
 
         /// <summary>
@@ -145,11 +145,11 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="usage">
         ///   How OpenGL use these data, defined by <see cref="BufferUsage" />
         /// </param>
-        public void WriteVectorData<T>( int index, ReadOnlySpan<T> vectorSpan, BufferUsage usage )
-            where T: struct, IVector<T>
+        public void WriteVectorData<T>(int index, ReadOnlySpan<T> vectorSpan, BufferUsage usage)
+            where T: unmanaged, IFixedVector<T>
         {
-            GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
-            GL.SetBufferVectorData( BufferType.ArrayBuffer, vectorSpan, usage );
+            GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
+            GL.SetBufferVectorData(BufferType.ArrayBuffer, vectorSpan, usage);
         }
 
         /// <summary>
@@ -167,17 +167,17 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="usage">
         ///   How OpenGL use these _data, defined by <see cref="BufferUsage" />
         /// </param>
-        public void WriteVectorData<T>( int index, T[] vectorArray, BufferUsage usage )
-            where T: struct, IVector<T>
+        public void WriteVectorData<T>(int index, T[] vectorArray, BufferUsage usage)
+            where T: unmanaged, IFixedVector<T>
         {
-            GL.BindBuffer( BufferType.ArrayBuffer, _bufferHandle[ index ] );
-            GL.SetBufferVectorData( BufferType.ArrayBuffer, vectorArray, usage );
+            GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
+            GL.SetBufferVectorData(BufferType.ArrayBuffer, vectorArray, usage);
         }
 
-        protected override sealed void Dispose( bool disposing )
+        protected override sealed void Dispose(bool disposing)
         {
-            if( disposing ) {
-                GL.DeleteBuffers( _bufferHandle );
+            if (disposing) {
+                GL.DeleteBuffers(_bufferHandle);
             }
         }
 

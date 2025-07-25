@@ -48,7 +48,7 @@ namespace StgSharp.Graphics.ShaderEdit
         private List<string> codeList;
         private List<ShaderFunction> usedShaderFunctions;
 
-        public Uniform<T> DefineUniform<T>( string name, int index ) where T: struct
+        public Uniform<T> DefineUniform<T>( string name, int index ) where T:unmanaged
         {
             ShaderParameter p = new ShaderParameter( name, ShaderParameter.TypeMarshal<T>() );
             uniformDefine.Add( index, p );
@@ -136,7 +136,7 @@ namespace StgSharp.Graphics.ShaderEdit
             }
         }
 
-        public static InternalShaderType TypeMarshal<T>() where T: struct
+        public static InternalShaderType TypeMarshal<T>() where T:unmanaged
         {
             switch( Type.GetTypeCode( typeof( T ) ) )
             {

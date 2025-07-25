@@ -44,36 +44,36 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Internal
 {
-    [StructLayout( LayoutKind.Explicit, Size = World.ssdSegmentLength * 16 )]
+    [StructLayout(LayoutKind.Explicit, Size = World.ssdSegmentLength * 16)]
     public unsafe struct SSDSegment : IComparable<int>, IComparable<SSDSegment>
     {
 
-        [FieldOffset( 16 )] public fixed byte Data[ 16 * ( World.ssdSegmentLength - 1 ) ];
-        [FieldOffset( 12 )] public int DataHash;
-        [FieldOffset( 8 )] public int PreviousHash;
-        [FieldOffset( 0 * 16 )] public SSDSegmentHead Head;
+        [FieldOffset(16)] public fixed byte Data[16 * (World.ssdSegmentLength - 1)];
+        [FieldOffset(12)] public int DataHash;
+        [FieldOffset(8)] public int PreviousHash;
+        [FieldOffset(0 * 16)] public SSDSegmentHead Head;
 
-        public SSDSegment( int previousHash )
+        public SSDSegment(int previousHash)
         {
             this.PreviousHash = previousHash;
         }
 
-        public byte this[ int index ]
+        public byte this[int index]
         {
             get
             {
-                if( index > ( 16 * ( World.ssdSegmentLength - 1 ) ) - 1 ) {
+                if (index > (16 * (World.ssdSegmentLength - 1)) - 1) {
                     throw new IndexOutOfRangeException();
                 }
-                return Data[ index ];
+                return Data[index];
             }
 
             set
             {
-                if( index > ( 16 * ( World.ssdSegmentLength - 1 ) ) - 1 ) {
+                if (index > (16 * (World.ssdSegmentLength - 1)) - 1) {
                     throw new IndexOutOfRangeException();
                 }
-                Data[ index ] = value;
+                Data[index] = value;
             }
         }
 
@@ -85,27 +85,27 @@ namespace StgSharp.Internal
 
         public short Size => Head.size;
 
-        public void FillRandomBytes( int begin )
+        public void FillRandomBytes(int begin)
         {
-            if( begin > 255 ) {
+            if (begin > 255) {
                 return;
             }
-            for( int i = begin; i < 255; i++ ) {
-                Data[ i ] = Scaler.Random<byte>();
+            for (int i = begin; i < 255; i++) {
+                Data[i] = Scaler.Random<byte>();
             }
         }
 
-        public static SSDSegment FromStream( byte[] stream )
+        public static SSDSegment FromStream(byte[] stream)
         {
-            if( stream.Length != 16 * World.ssdSegmentLength ) {
+            if (stream.Length != 16 * World.ssdSegmentLength) {
                 throw new ArgumentException();
             }
             SSDSegment ret = new SSDSegment();
-            fixed( byte* bptr = stream )
+            fixed (byte* bptr = stream)
             {
-                ret.Head.data = *( M128* )bptr;
-                for( int i = 1; i < World.ssdSegmentLength; i++ ) {
-                    ret.WriteData<M128>( i - 1, *( M128* )( bptr + ( 16 * i ) ) );
+                ret.Head.data = *(M128*)bptr;
+                for (int i = 1; i < World.ssdSegmentLength; i++) {
+                    ret.WriteData<M128>(i - 1, *(M128*)(bptr + (16 * i)));
                 }
             }
             return ret;
@@ -114,14 +114,14 @@ namespace StgSharp.Internal
         public byte[] GetBytes()
         {
             byte[] ret = new byte[16 * World.ssdSegmentLength];
-            fixed( M128* mptr = &Head.data )
+            fixed (M128* mptr = &Head.data)
             {
-                fixed( byte* aptr = ret )
+                fixed (byte* aptr = ret)
                 {
-                    Vector4* vsptr = ( Vector4* )mptr;
-                    Vector4* vtptr = ( Vector4* )aptr;
-                    for( int i = 0; i < 18; i++ ) {
-                        *( vtptr + i ) = *( vsptr + i );
+                    Vector4* vsptr = (Vector4*)mptr;
+                    Vector4* vtptr = (Vector4*)aptr;
+                    for (int i = 0; i < 18; i++) {
+                        *(vtptr + i) = *(vsptr + i);
                     }
                 }
             }
@@ -132,14 +132,14 @@ namespace StgSharp.Internal
         public int GetDataHash()
         {
             Vector4 v = Vector4.One;
-            fixed( M128* mptr = &Head.data )
+            fixed (M128* mptr = &Head.data)
             {
-                Vector4* vptr = ( Vector4* )mptr;
-                for( int i = 0; i < World.ssdSegmentLength - 1; i += 1 ) {
-                    v += ( *vptr ) * 31;
+                Vector4* vptr = (Vector4*)mptr;
+                for (int i = 0; i < World.ssdSegmentLength - 1; i += 1) {
+                    v += (*vptr) * 31;
                 }
             }
-            M128 m = new M128( v );
+            M128 m = new M128(v);
             DataHash = m.Vec.GetHashCode();
             return DataHash;
         }
@@ -147,42 +147,42 @@ namespace StgSharp.Internal
         public override int GetHashCode()
         {
             int ret = 17;
-            fixed( M128* mptr = &Head.data )
+            fixed (M128* mptr = &Head.data)
             {
-                Vector4* vptr = ( Vector4* )mptr;
-                for( int i = 0; i < World.ssdSegmentLength; i++ ) {
-                    ret = ( ret + ( *vptr ).GetHashCode() ) * 31;
+                Vector4* vptr = (Vector4*)mptr;
+                for (int i = 0; i < World.ssdSegmentLength; i++) {
+                    ret = (ret + (*vptr).GetHashCode()) * 31;
                 }
             }
             return ret;
         }
 
-        public unsafe T ReadData<T>( int index ) where T: struct
+        public unsafe T ReadData<T>(int index) where T: unmanaged
         {
-            fixed( byte* bptr = Data )
+            fixed (byte* bptr = Data)
             {
-                T* tptr = ( T* )bptr;
-                return *( tptr + index );
+                T* tptr = (T*)bptr;
+                return *(tptr + index);
             }
         }
 
-        public unsafe void WriteData<T>( int index, T value ) where T: struct
+        public unsafe void WriteData<T>(int index, T value) where T: unmanaged
         {
-            fixed( byte* bptr = Data )
+            fixed (byte* bptr = Data)
             {
-                T* tptr = ( T* )bptr;
-                *( tptr + index ) = value;
+                T* tptr = (T*)bptr;
+                *(tptr + index) = value;
             }
         }
 
-        int IComparable<int>.CompareTo( int other )
+        int IComparable<int>.CompareTo(int other)
         {
-            return ID.CompareTo( other );
+            return ID.CompareTo(other);
         }
 
-        int IComparable<SSDSegment>.CompareTo( SSDSegment other )
+        int IComparable<SSDSegment>.CompareTo(SSDSegment other)
         {
-            return ID.CompareTo( other.ID );
+            return ID.CompareTo(other.ID);
         }
 
     }

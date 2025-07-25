@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Vec4HP.cs"
+//     file="UnmanagedMemoryHandle.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -28,43 +28,35 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-using StgSharp.HighPerformance;
-
 using System;
+using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Math.HighPrecision
+namespace StgSharp.HighPerformance
 {
-    [StructLayout(LayoutKind.Explicit, Pack =16)]
-    public  struct Vec4HP : IFixedVector<Vec4HP>
+    public ref struct UnmanagedMemoryHandle<T> : IMemoryOwner<T>
     {
 
-        [FieldOffset(0)] private M256 buffer;
-        [FieldOffset(0)] private Vector256<float> clrBuffer;
-        [FieldOffset(3 * sizeof(double))] public double W;
-        [FieldOffset(0 * sizeof(double))] public double X;
-        [FieldOffset(1 * sizeof(double))] public double Y;
-        [FieldOffset(2 * sizeof(double))] public double Z;
+        public int Begin;
+        public Span<T> Buffer;
 
-        public Vec4HP(double x, double y, double z, double w)
+        public UnmanagedMemoryHandle() { }
+
+        public ref T this[int index]
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.W = w;
-            Unsafe.SkipInit(out buffer);
-            Unsafe.SkipInit(out clrBuffer);
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ref Buffer[index];
         }
 
-        public static Vec4HP Zero => new Vec4HP(0, 0, 0, 0);
-
-        public static Vec4HP One => new Vec4HP(1, 1, 1, 1);
+        public Span<T>.Enumerator GetEnumerator()
+        {
+            return Buffer.GetEnumerator();
+        }
 
     }
 }

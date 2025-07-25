@@ -40,11 +40,11 @@ namespace StgSharp.HighPerformance
     public interface IRegisterType
     {
 
-        public ref T AsRef<T>() where T: struct, INumber<T>;
+        public ref T AsRef<T>() where T: unmanaged, INumber<T>;
 
-        public T Read<T>( int index ) where T: struct, INumber<T>;
+        public T Read<T>(int index) where T: unmanaged, INumber<T>;
 
-        public void Write<T>( int index, T value ) where T: struct, INumber<T>;
+        public void Write<T>(int index, T value) where T: unmanaged, INumber<T>;
 
     }
 }

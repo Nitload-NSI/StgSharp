@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="IVector.cs"
+//     file="VecAny.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -29,20 +29,69 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.Math
 {
-    public interface IVector<TSelf> where TSelf: struct, IVector<TSelf>
+    [CollectionBuilder(typeof(VecAnyBuilder), nameof(VecAnyBuilder.Build))]
+    public class VecAny : IEnumerable<float>
     {
 
-        public static abstract TSelf Zero { get; }
+        private float[] _values;
 
-        public static abstract TSelf One { get; }
+        internal VecAny(ReadOnlySpan<float> values)
+        {
+            _values = values.ToArray();
+        }
+
+        public VecAny(int size)
+        {
+            if (size <= 0) {
+                throw new ArgumentOutOfRangeException(
+                    nameof(size), "Size must be greater than zero.");
+            }
+            _values = new float[size];
+        }
+
+        public VecAny? this[ReadOnlySpan<MatrixIndexLabel> span]
+        {
+            get
+            {
+                if (span.Length == 0) {
+                    return null;
+                }
+                int size = 0;
+                foreach (MatrixIndexLabel label in span) {
+                    size += label.Length(_values.Length);
+                }
+                return new VecAny(size);
+            }
+        }
+
+        public IEnumerator<float> GetEnumerator()
+        {
+            return ((IEnumerable<float>)_values).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _values.GetEnumerator();
+        }
+
+    }
+
+    public class VecAnyBuilder
+    {
+
+        public static VecAny Build(ReadOnlySpan<float> span)
+        {
+            return new VecAny(span);
+        }
 
     }
 }
