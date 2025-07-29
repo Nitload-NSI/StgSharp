@@ -72,7 +72,7 @@ namespace StgSharp.Math
             Unsafe.SkipInit(out X);
             Unsafe.SkipInit(out Y);
             reg = vec;
-            reg.Write<ulong>(1, 0);
+            reg.Member<ulong>(1) = 0;
         }
 
         public Vec2(float x, float y)
@@ -91,17 +91,17 @@ namespace StgSharp.Math
 
         public Vec2 XY
         {
-            get => this;
+            readonly get => this;
             set => this = value;
         }
 
         public Vec3 XYZ
         {
-            get => new Vec3(reg);
+            readonly get => new(reg);
             set
             {
                 reg = value.reg;
-                reg.Write<ulong>(1, 0);
+                reg.Member<ulong>(1) = 0;
             }
         }
 

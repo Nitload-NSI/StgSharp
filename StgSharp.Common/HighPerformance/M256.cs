@@ -45,23 +45,16 @@ namespace StgSharp.HighPerformance
 
         [FieldOffset(0)] internal fixed byte Buffer[32];
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T AsRef<T>() where T: unmanaged, INumber<T>
         {
             return ref Unsafe.As<byte, T>(ref Buffer[0]);
         }
 
-        public T Read<T>(int index) where T: unmanaged, INumber<T>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T Member<T>(int index) where T: unmanaged, INumber<T>
         {
-            fixed (byte* mptr = Buffer) {
-                return *((T*)mptr + index);
-            }
-        }
-
-        public void Write<T>(int index, T value) where T: unmanaged, INumber<T>
-        {
-            fixed (byte* mptr = Buffer) {
-                *((T*)mptr + index) = value;
-            }
+            return ref Unsafe.Add(ref AsRef<T>(), index);
         }
 
     }

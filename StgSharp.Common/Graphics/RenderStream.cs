@@ -1,33 +1,33 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="RenderStream.cs"
-//     Project: StepVisualizer
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="RenderStream.cs"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Graphics.OpenGL;
 using StgSharp.Math;
 
@@ -126,7 +126,7 @@ namespace StgSharp.Graphics
         }
 
         /// <summary>
-        ///   Set the size limit of current form
+        ///   Set the Size limit of current form
         /// </summary>
         /// <param _label="minWidth">
         ///   Minimum width of current form
@@ -140,19 +140,15 @@ namespace StgSharp.Graphics
         /// <param _label="maxHeight">
         ///   Maximum height of current form
         /// </param>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public abstract void SetSizeLimit(
-                             int minWidth,
-                             int minHeight,
-                             int maxWidth,
-                             int maxHeight );
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight);
 
-        public static TTarget ShareContextFrom<TSource, TTarget>( [NotNull]TSource source )
+        public static TTarget ShareContextFrom<TSource, TTarget>([NotNull]TSource source)
             where TSource: RenderStream
             where TTarget: RenderStream, new()
         {
             TTarget target = new TTarget();
-            target.Initialize( source.BindedViewPortContext, source._timeProvider );
+            target.Initialize(source.BindedViewPortContext, source._timeProvider);
             return target;
         }
 
@@ -164,7 +160,7 @@ namespace StgSharp.Graphics
 
         private protected void SwapBuffers()
         {
-            InternalIO.glfwSwapBuffers( CanvasHandle );
+            InternalIO.glfwSwapBuffers(CanvasHandle);
         }
 
         /**/
@@ -174,9 +170,9 @@ namespace StgSharp.Graphics
         protected abstract void NativeCameraViewRange(
                                 Radius fieldOfRange,
                                 Vec2 offset,
-                                (float frontDepth, float backDepth) viewDepth );
+                                (float frontDepth, float backDepth) viewDepth);
 
-        protected abstract void NativeCameraViewTarget( Vec3 position, Vec3 direction, Vec3 up );
+        protected abstract void NativeCameraViewTarget(Vec3 position, Vec3 direction, Vec3 up);
 
         /// <summary>
         ///   Get <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) uniform from a shader.
@@ -194,25 +190,23 @@ namespace StgSharp.Graphics
         ///   <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) representing  projection
         ///   matrix in shader program.
         /// </returns>
-        protected abstract Uniform<Matrix44> NativeCameraUniform(
-                                             ShaderProgram source,
-                                             string name );
+        protected abstract Uniform<Matrix44> NativeCameraUniform(ShaderProgram source, string name);
 
         #endregion
 
         #region internal operation
 
-        public void Initialize( ViewPort v, TimeSpanProvider timeProvider )
+        public void Initialize(ViewPort v, TimeSpanProvider timeProvider)
         {
-            if( v == null ) {
-                throw new ArgumentNullException( nameof( v ) );
+            if (v == null) {
+                throw new ArgumentNullException(nameof(v));
             }
             primeArgs = v;
             this._timeProvider = timeProvider;
             nativeCamera = new Camera();
             PlatformSpecifiedInitialize();
             CustomizeInit();
-            InternalIO.glfwMakeContextCurrent( IntPtr.Zero );
+            InternalIO.glfwMakeContextCurrent(IntPtr.Zero);
         }
 
         internal abstract void PlatformSpecifiedInitialize();
@@ -243,7 +237,7 @@ namespace StgSharp.Graphics
 
         #region public resource generator
 
-        protected abstract Shader CreateShaderSegment( ShaderType type, int count );
+        protected abstract Shader CreateShaderSegment(ShaderType type, int count);
 
         protected abstract ShaderProgram CreateShaderProgram();
 

@@ -66,10 +66,7 @@ namespace StgSharp.HighPerformance
 
         public override readonly bool Equals([NotNullWhen(true)] object obj)
         {
-            if (obj is not M128 other) {
-                return false;
-            }
-            return this == other;
+            return obj is M128 other && this == other;
         }
 
         public override readonly int GetHashCode()
@@ -78,15 +75,9 @@ namespace StgSharp.HighPerformance
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T Read<T>(int index) where T: unmanaged, INumber<T>
-
+        public ref T Member<T>(int index) where T: unmanaged, INumber<T>
         {
-            fixed (byte* p = Buffer)
-            {
-                #pragma warning disable CS8500
-                return *((T*)p + index);
-                #pragma warning restore CS8500
-            }
+            return ref Unsafe.Add(ref AsRef<T>(), index);
         }
 
         public override string ToString()
@@ -101,17 +92,6 @@ namespace StgSharp.HighPerformance
                 str += $"{Convert.ToString(Buffer[i], sample)} ";
             }
             return str;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Write<T>(int index, T value) where T: unmanaged, INumber<T>
-        {
-            fixed (byte* p = Buffer)
-            {
-                #pragma warning disable CS8500
-                *((T*)p + index) = value;
-                #pragma warning restore CS8500
-            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

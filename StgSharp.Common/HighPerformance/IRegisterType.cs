@@ -42,9 +42,7 @@ namespace StgSharp.HighPerformance
 
         public ref T AsRef<T>() where T: unmanaged, INumber<T>;
 
-        public T Read<T>(int index) where T: unmanaged, INumber<T>;
-
-        public void Write<T>(int index, T value) where T: unmanaged, INumber<T>;
+        public ref T Member<T>(int index) where T: unmanaged, INumber<T>;
 
     }
 }

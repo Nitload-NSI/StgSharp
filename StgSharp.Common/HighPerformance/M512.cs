@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="UnmanagedMemoryHandle.cs"
+//     file="M512.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -29,33 +29,31 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using System;
-using System.Buffers;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance
 {
-    public ref struct UnmanagedMemoryHandle
+    [StructLayout(LayoutKind.Explicit, Size = 64, Pack = 64)]
+    public unsafe struct M512 : IRegisterType
     {
 
-        public nuint Postion;
-        public Span<byte> Buffer;
+        [FieldOffset(0)]private fixed byte _buffer[64];
 
-        public UnmanagedMemoryHandle() { }
-
-        public ref byte this[int index]
+        public ref T AsRef<T>() where T: unmanaged, INumber<T>
         {
-[MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => ref Buffer[index];
+            return ref Unsafe.As<byte, T>(ref _buffer[0]);
         }
 
-        public Span<byte>.Enumerator GetEnumerator()
+        public ref T Member<T>(int index) where T: unmanaged, INumber<T>
         {
-            return Buffer.GetEnumerator();
+
+            return ref Unsafe.As<byte, T>(ref _buffer[0]);
         }
 
     }

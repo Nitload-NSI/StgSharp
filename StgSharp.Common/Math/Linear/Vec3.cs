@@ -56,7 +56,7 @@ namespace StgSharp.Math
             Unsafe.SkipInit(out Z);
             Unsafe.SkipInit(out v);
             reg = vector;
-            reg.Write<uint>(3, 0);
+            reg.Member<uint>(3) = 0;
         }
 
         internal Vec3(Vector3 vector)
@@ -96,14 +96,11 @@ namespace StgSharp.Math
 
         public Vec3 XYZ
         {
-            get { return new Vec3(v); }
-            set { this = value; }
+            get => new(v);
+            set => this = value;
         }
 
-        public static Vec3 Zero
-        {
-            get => new Vec3(0, 0, 0);
-        }
+        public static Vec3 Zero => new Vec3(0, 0, 0);
 
         public static Vec3 One => new Vec3(1, 1, 1);
 

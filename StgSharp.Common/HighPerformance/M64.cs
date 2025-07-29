@@ -68,14 +68,10 @@ namespace StgSharp.HighPerformance
             return value.GetHashCode();
         }
 
-        public T Read<T>(int index) where T: unmanaged, INumber<T>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T Member<T>(int index) where T: unmanaged, INumber<T>
         {
-            return Unsafe.As<byte, T>(ref buffer[index * sizeof(T)]);
-        }
-
-        public void Write<T>(int index, T value) where T: unmanaged, INumber<T>
-        {
-            Unsafe.As<byte, T>(ref buffer[index * sizeof(T)]) = value;
+            return ref Unsafe.As<byte, T>(ref buffer[index * sizeof(T)]);
         }
 
         public static bool operator !=(M64 left, M64 right)
