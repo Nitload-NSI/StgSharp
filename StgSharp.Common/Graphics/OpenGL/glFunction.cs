@@ -1,33 +1,33 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="glFunction.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="glFunction.cs"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Internal;
 using StgSharp.Math;
@@ -125,14 +125,14 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        ///   Bind a frame Buffer to a frame Buffer target Same function as <see
-        ///   href="https://docs._gl/gl3/glBindFramebuffer">glBindFramebuffer</see>.
+        ///   Bind a frame BufferHandle to a frame BufferHandle target Same function as <see
+        ///   href="https://docs._gl/gl3/glBindFramebuffer"> glBindFramebuffer </see>.
         /// </summary>
         /// <param _label="target">
-        ///   The frame Buffer target of the binding operation.
+        ///   The frame BufferHandle target of the binding operation.
         /// </param>
         /// <param _label="handle">
-        ///   The handle of the frame Buffer object to bind.
+        ///   The handle of the frame BufferHandle object to bind.
         /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void BindFrameBuffer(FrameBufferTarget target, GlHandle handle)
@@ -187,7 +187,7 @@ namespace StgSharp.Graphics.OpenGL
                     return;
                 }
 
-                //Console.WriteLine(code);
+                // Console.WriteLine(code);
             }
             foreach (ProcessThread thread in Process.GetCurrentProcess().Threads) {
                 Debugger.Break();
@@ -278,12 +278,13 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        ///   Delete a render Buffer object Very simlilar function as <see
-        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers">glDeleteRenderbuffers</see>. The only
-        ///   deifference is that this mehtod can only delete one renderbuffer at the same time.
+        ///   Delete a render BufferHandle object Very simlilar function as <see
+        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers"> glDeleteRenderbuffers </see>. The
+        ///   only deifference is that this mehtod can only delete one renderbuffer at the same
+        ///   time.
         /// </summary>
         /// <param _label="bufferHandle">
-        ///   Handle to Buffer to delete.
+        ///   Handle to BufferHandle to delete.
         /// </param>
         public unsafe void DeleteRenderBuffer(GlHandle bufferHandle)
         {
@@ -471,7 +472,7 @@ namespace StgSharp.Graphics.OpenGL
                            ImageChannel channel,
                            PixelChannelLayout channelLayout,
                            T[] dataStream)
-            where T:unmanaged,INumber<T>
+            where T: unmanaged,INumber<T>
         {
             #pragma warning disable CS8500
             fixed (T* tptr = dataStream)
@@ -587,7 +588,7 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void SetBufferData<T>(BufferType bufferType, T bufferData, BufferUsage usage)
-            where T:unmanaged
+            where T: unmanaged
         {
             int size = Marshal.SizeOf<T>();
             #pragma warning disable CS8500
@@ -601,7 +602,7 @@ namespace StgSharp.Graphics.OpenGL
                            BufferType bufferType,
                            T[] bufferArray,
                            BufferUsage usage)
-            where T:unmanaged,INumber<T>
+            where T: unmanaged,INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
             if (bufferArray == null) {
@@ -621,7 +622,7 @@ namespace StgSharp.Graphics.OpenGL
                            BufferType bufferType,
                            ReadOnlySpan<T> bufferSpan,
                            BufferUsage usage)
-            where T:unmanaged,INumber<T>
+            where T: unmanaged,INumber<T>
         {
             int size = bufferSpan.Length * Marshal.SizeOf(typeof(T));
             if (bufferSpan == null) {
@@ -641,7 +642,7 @@ namespace StgSharp.Graphics.OpenGL
                            BufferType bufferType,
                            Span<T> bufferArray,
                            BufferUsage usage)
-            where T:unmanaged, INumber<T>
+            where T: unmanaged, INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
             if (bufferArray == null) {
@@ -662,7 +663,7 @@ namespace StgSharp.Graphics.OpenGL
                            BufferType bufferType,
                            ReadOnlySpan<T> bufferSpan,
                            BufferUsage usage)
-            where T:unmanaged, IFixedVector<T>
+            where T: unmanaged, IFixedVector<T>
         {
             int size = bufferSpan.Length * Marshal.SizeOf(typeof(T));
             #pragma warning disable CS8500
@@ -679,7 +680,7 @@ namespace StgSharp.Graphics.OpenGL
                            BufferType bufferType,
                            T[] bufferArray,
                            BufferUsage usage)
-            where T:unmanaged, IFixedVector<T>
+            where T: unmanaged, IFixedVector<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
             if (bufferArray == null) {
@@ -737,7 +738,7 @@ namespace StgSharp.Graphics.OpenGL
                     ImageChannel targetChannel,
                     PixelChannelLayout type,
                     T[] pixels)
-            where T:unmanaged, INumber<T>
+            where T: unmanaged, INumber<T>
         {
             #pragma warning disable CS8500
             fixed (T* tptr = pixels)
@@ -760,7 +761,7 @@ namespace StgSharp.Graphics.OpenGL
                     ImageChannel targetChannel,
                     PixelChannelLayout type,
                     Span<T> pixelSpan)
-            where T:unmanaged, INumber<T>
+            where T: unmanaged, INumber<T>
         {
             #pragma warning disable CS8500
             fixed (T* tptr = pixelSpan)

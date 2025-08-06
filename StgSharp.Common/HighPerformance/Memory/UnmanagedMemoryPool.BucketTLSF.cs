@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="BufferObjectBase.cs"
+// file="UnmanagedMemoryPool.BucketTLSF.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -28,7 +28,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics.OpenGL;
+using StgSharp.HighPerformance.Memory;
 
 using System;
 using System.Collections.Generic;
@@ -36,53 +36,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Graphics
+namespace StgSharp.HighPerformance.Memory
 {
-    /// <summary>
-    ///   Interface of all kinds OpenGL BufferHandle objects
-    /// </summary>
-    public abstract class BufferObjectBase : IDisposable
+    public unsafe partial class UnmanagedMemoryPool
     {
 
-        protected GlHandle[] _bufferHandle;
-        protected RenderStream binding;
-
-        /// <summary>
-        ///   Get the only handle to one of the Object instance
-        /// </summary>
-        /// <param _label="index">
-        ///
-        /// </param>
-        /// <returns>
-        ///
-        /// </returns>
-        public GlHandle this[int index] => _bufferHandle[index];
-
-        /// <summary>
-        ///   Bind a BufferHandle instance to OpenGL
-        /// </summary>
-        /// <param _label="index">
-        ///   Index of handle of the object in this instance to be bind
-        /// </param>
-        public abstract void Bind(int index);
-
-        public void Dispose()
+        private struct Entry : ISlabAllocatable
         {
-            Dispose(disposing:true);
-            GC.SuppressFinalize(this);
-        }
 
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            return $"This is a {GetType().FullName}, containing {_bufferHandle.Length} buffer handles: {_bufferHandle.ToString()}.";
-        }
+            public Entry* NextNear, PreviousNear;
 
-        protected abstract void Dispose(bool disposing);
-
-        ~BufferObjectBase()
-        {
-            Dispose(disposing:false);
         }
 
     }

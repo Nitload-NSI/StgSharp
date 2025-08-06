@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="BufferObjectBase.cs"
+// file="UnmanagedMemoryHandle.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -28,61 +28,72 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics.OpenGL;
-
 using System;
+using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Graphics
+namespace StgSharp.HighPerformance.Memory
 {
-    /// <summary>
-    ///   Interface of all kinds OpenGL BufferHandle objects
-    /// </summary>
-    public abstract class BufferObjectBase : IDisposable
+    public unsafe struct UnmanagedMemoryHandle
     {
 
-        protected GlHandle[] _bufferHandle;
-        protected RenderStream binding;
+        public readonly byte* BufferHandle, AllocatorHandle;
+        public readonly nuint Size;
 
-        /// <summary>
-        ///   Get the only handle to one of the Object instance
-        /// </summary>
-        /// <param _label="index">
-        ///
-        /// </param>
-        /// <returns>
-        ///
-        /// </returns>
-        public GlHandle this[int index] => _bufferHandle[index];
-
-        /// <summary>
-        ///   Bind a BufferHandle instance to OpenGL
-        /// </summary>
-        /// <param _label="index">
-        ///   Index of handle of the object in this instance to be bind
-        /// </param>
-        public abstract void Bind(int index);
-
-        public void Dispose()
+        public UnmanagedMemoryHandle(byte* pointer, byte* handle, nuint s)
         {
-            Dispose(disposing:true);
-            GC.SuppressFinalize(this);
+            BufferHandle = pointer;
+            AllocatorHandle = handle;
+            Size = s;
         }
 
-        /// <inheritdoc />
-        public override string ToString()
+        public readonly ref byte this[nuint index]
         {
-            return $"This is a {GetType().FullName}, containing {_bufferHandle.Length} buffer handles: {_bufferHandle.ToString()}.";
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ref Unsafe.AddByteOffset(ref Unsafe.AsRef<byte>(BufferHandle), index);
         }
 
-        protected abstract void Dispose(bool disposing);
-
-        ~BufferObjectBase()
+        public readonly Enumerator GetEnumerator()
         {
-            Dispose(disposing:false);
+            return new Enumerator(this);
+        }
+
+        public ref struct Enumerator : IEnumerator<byte>
+        {
+
+            private nuint _index = nuint.MaxValue;
+
+            private UnmanagedMemoryHandle _handle;
+
+            internal Enumerator(UnmanagedMemoryHandle span)
+            {
+                _handle = span;
+            }
+
+            public ref byte RefCurrent => ref _handle[_index];
+
+            public readonly void Dispose() { }
+
+            public bool MoveNext()
+            {
+                _index++;
+                return _index < _handle.Size;
+            }
+
+            public void Reset()
+            {
+                _index = 0;
+            }
+
+            object IEnumerator.Current => RefCurrent;
+
+            byte IEnumerator<byte>.Current => RefCurrent;
+
         }
 
     }

@@ -1,33 +1,33 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ExpRepeatNode.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ExpRepeatNode.cs"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,34 +51,33 @@ namespace StgSharp.Script.Express
                  ExpSyntaxNode increment,
                  ExpSyntaxNode operationBegin,
                  ExpSyntaxNode untilRule,
-                 ExpSyntaxNode whileRule )
-            : base( source )
+                 ExpSyntaxNode whileRule)
+            : base(source)
         {
-            if( variable.NodeFlag != begin.NodeFlag ||
+            if (variable.NodeFlag != begin.NodeFlag ||
                 begin.NodeFlag != end.NodeFlag ||
-                ( increment != null && end.NodeFlag != increment.NodeFlag ) ) {
+                (increment != null && end.NodeFlag != increment.NodeFlag)) {
                 throw new InvalidCastException();
             }
-            if( IsNullOrEmpty( increment ) )
+            if (IsNullOrEmpty(increment))
             {
-                switch( ( ExpNodeFlag )variable.NodeFlag | ExpNodeFlag.BuiltinType_Any )
+                switch ((ExpNodeFlag)variable.NodeFlag | ExpNodeFlag.BuiltinType_Any)
                 {
                     case ExpNodeFlag.BuiltinType_Real:
                         increment = new ExpRealNumberNode(
                             new Token(
-                                ExpressCompile.PoolString( "1.0f" ), source.Line, -1,
-                                TokenFlag.Number ),
-                            1.0f, isLiteral: true );
+                                ExpressCompile.PoolString("1.0f"), source.Line, -1,
+                                TokenFlag.Number),
+                            1.0f, isLiteral:true);
                         break;
                     case ExpNodeFlag.BuiltinType_Int:
                         increment = new ExpIntNode(
                             new Token(
-                                ExpressCompile.PoolString( "1" ), source.Line, -1,
-                                TokenFlag.Number ),
-                            1, isLiteral: true );
+                                ExpressCompile.PoolString("1"), source.Line, -1, TokenFlag.Number),
+                            1, isLiteral:true);
                         break;
                     default:
-                        throw new ExpInvalidTypeException( variable, "Int or Real", "otherwise" );
+                        throw new ExpInvalidTypeException(variable, "Int or Real", "otherwise");
                 }
             }
             _variable = variable;
@@ -96,9 +95,9 @@ namespace StgSharp.Script.Express
 
         public override IExpElementSource EqualityTypeConvert => null!;
 
-        public void AppendRepeatedOperation( ExpSyntaxNode node )
+        public void AppendRepeatedOperation(ExpSyntaxNode node)
         {
-            _operationBegin.AppendNode( node );
+            _operationBegin.AppendNode(node);
         }
 
         /// <summary>
@@ -106,7 +105,7 @@ namespace StgSharp.Script.Express
         ///   WHILE and UNTIL regulation.
         /// </summary>
         /// <param name="t">
-        ///   Position of the loop.
+        ///   AllocatorHandle of the loop.
         /// </param>
         /// <param name="repeatVariable">
         ///   The variable recording increment by step.
@@ -131,12 +130,12 @@ namespace StgSharp.Script.Express
                                     ExpSyntaxNode increment,
                                     ExpSyntaxNode whileRule,
                                     ExpSyntaxNode untilRule,
-                                    ExpSyntaxNode body )
+                                    ExpSyntaxNode body)
         {
-            untilRule = ExpBoolNode.False( null );
-            whileRule = ExpBoolNode.True( null );
+            untilRule = ExpBoolNode.False(null);
+            whileRule = ExpBoolNode.True(null);
             ExpRepeatNode ret = new ExpRepeatNode(
-                t, repeatVariable.OriginObject, begin, end, increment, body, whileRule, untilRule )
+                t, repeatVariable.OriginObject, begin, end, increment, body, whileRule, untilRule)
             {
                 /*
                  * 0: variable name
@@ -168,12 +167,12 @@ namespace StgSharp.Script.Express
                                     ExpSyntaxNode increment,
                                     ExpSyntaxNode whileRule,
                                     ExpSyntaxNode untilRule,
-                                    ExpSyntaxNode body )
+                                    ExpSyntaxNode body)
         {
-            whileRule = IsNullOrEmpty( whileRule ) ? ExpBoolNode.True( t ) : whileRule;
-            untilRule = IsNullOrEmpty( untilRule ) ? ExpBoolNode.False( t ) : untilRule;
+            whileRule = IsNullOrEmpty(whileRule) ? ExpBoolNode.True(t) : whileRule;
+            untilRule = IsNullOrEmpty(untilRule) ? ExpBoolNode.False(t) : untilRule;
             ExpRepeatNode ret = new ExpRepeatNode(
-                t, repeatVariable, begin, end, increment, body, whileRule, untilRule )
+                t, repeatVariable, begin, end, increment, body, whileRule, untilRule)
             {
                 /*
                  * 0: variable name

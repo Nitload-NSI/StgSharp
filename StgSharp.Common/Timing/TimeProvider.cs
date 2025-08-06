@@ -1,33 +1,33 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="TimeProvider.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="TimeProvider.cs"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Timing;
 
 using System;
@@ -51,100 +51,101 @@ namespace StgSharp
     public sealed class StgSharpTime : TimeSourceProviderBase
     {
 
-        private static List<TimeSpanProvider> subscriberList = new List<TimeSpanProvider>();
+        private static List<TimeSpanProvider> subscriberList = [];
         private static long accuracy;
-        private static Stopwatch mainProvider = new Stopwatch();
+        private static readonly Stopwatch mainProvider = new();
         private static Thread timeProvideThread;
 
         internal StgSharpTime() { }
 
         public static TimeSourceProviderBase OnlyInstance => World.MainTimeProvider;
 
-        public override sealed void StartProvidingTime()
+        public sealed override void StartProvidingTime()
         {
-            if( mainProvider.IsRunning ) {
+            if (mainProvider.IsRunning) {
                 return;
             }
             mainProvider.Start();
 
-            //speed test
+            // speed test
             long totalMS, internalFrequncy = Stopwatch.Frequency;
-            for( int i = 0; i < 100; i++ )
+            for (int i = 0; i < 100; i++)
             {
-                totalMS = mainProvider.ElapsedTicks / ( internalFrequncy / ( 1000L * 1000L ) );
-                for( int t = 0; t < 10; t++ )
+                totalMS = mainProvider.ElapsedTicks / (internalFrequncy / (1000L * 1000L));
+                for (int t = 0; t < 10; t++)
                 {
-                    if( totalMS < 1000 ) {
+                    if (totalMS < 1000) {
                         subscriberList.Add(
-                            new TimeSpanProvider( 100L, TimeSpanProvider.DefaultProvider ) );
+                            new TimeSpanProvider(100L, TimeSpanProvider.DefaultProvider));
                     }
                 }
             }
             mainProvider.Stop();
             subscriberList.Clear();
-            totalMS = mainProvider.ElapsedTicks / ( internalFrequncy / ( 1000L * 1000L ) ) / 100L;
-            accuracy = ( totalMS * 2 ) / 3;
+            totalMS = mainProvider.ElapsedTicks / (internalFrequncy / (1000L * 1000L)) / 100L;
+            accuracy = totalMS * 2 / 3;
             mainProvider.Reset();
-            timeProvideThread = new Thread( new ThreadStart( ProvideTime ) );
+            timeProvideThread = new Thread(new ThreadStart(ProvideTime));
             timeProvideThread.Start();
         }
 
         public override void StopProvidingTime()
         {
-            lock( mainProvider ) {
+            lock (mainProvider) {
                 mainProvider.Stop();
             }
         }
 
         public void Terminate()
         {
-            lock( mainProvider ) {
+            lock (mainProvider) {
                 mainProvider.Stop();
             }
         }
 
-        protected override sealed void AddSubscriberUnsynced( TimeSpanProvider subscriber )
+        protected sealed override void AddSubscriberUnsynced(TimeSpanProvider subscriber)
         {
-            subscriberList.Add( subscriber );
+            subscriberList.Add(subscriber);
         }
 
-        protected override sealed void RemoveSubscriberUnsynced( TimeSpanProvider subscriber )
+        protected sealed override void RemoveSubscriberUnsynced(TimeSpanProvider subscriber)
         {
-            subscriberList.Remove( subscriber );
+            _ = subscriberList.Remove(subscriber);
         }
 
         private void ProvideTime()
         {
             long totalMS, internalFrequncy = Stopwatch.Frequency;
-            lock( mainProvider ) {
+            lock (mainProvider) {
                 mainProvider.Restart();
             }
-            while( mainProvider.IsRunning )
+            while (mainProvider.IsRunning)
             {
-                totalMS = mainProvider.ElapsedTicks / ( internalFrequncy / ( 1000L * 1000L ) );
-                if( subscriberList.Count == 0 )
+                totalMS = mainProvider.ElapsedTicks / (internalFrequncy / (1000L * 1000L));
+                if (subscriberList.Count == 0)
                 {
                     continue;
                 }
-                CheckSubscriberSemaphore.Wait();
-                List<TimeSpanProvider> toRemoveList = new List<TimeSpanProvider>();
-                foreach( TimeSpanProvider subscriber in subscriberList )
+                lock (SubscribeLock)
                 {
-                    if( !subscriber.CheckTime( totalMS ) )
+                    List<TimeSpanProvider> toRemoveList = [];
+                    foreach (TimeSpanProvider subscriber in subscriberList)
                     {
-                        toRemoveList.Add( subscriber );
-                        InternalIO.InternalWriteLog(
-                            $"Time subscriber {subscriber} is to be removed.", LogType.Info );
+                        if (!subscriber.CheckTime(totalMS))
+                        {
+                            toRemoveList.Add(subscriber);
+                            InternalIO.InternalWriteLog(
+                                $"Time subscriber {subscriber} is to be removed.", LogType.Info);
+                        }
+                        ;
                     }
-                    ;
-                }
-                if( toRemoveList.Count != 0 )
-                {
-                    foreach( TimeSpanProvider subscriber in toRemoveList ) {
-                        subscriberList.Remove( subscriber );
+                    if (toRemoveList.Count != 0)
+                    {
+                        foreach (TimeSpanProvider subscriber in toRemoveList) {
+                            _ = subscriberList.Remove(subscriber);
+                        }
                     }
                 }
-                CheckSubscriberSemaphore.Release();
             }
         }
 
