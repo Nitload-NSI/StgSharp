@@ -80,6 +80,12 @@ namespace StgSharp.HighPerformance.Memory
             AllocateBuffer(capacity);
         }
 
+        public ulong Count
+        {
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _count);
+        }
+
         public void Clear()
         {
             Header* header = (Header*)_buffer;

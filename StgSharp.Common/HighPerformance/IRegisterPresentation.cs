@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="UnmanagedMemoryPool.BucketTLSF.cs"
+// file="IRegisterPresentation.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -28,25 +28,21 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance.Memory;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.HighPerformance
 {
-    public unsafe partial class UnmanagedMemoryPool
+    public interface IRegisterPresentation
     {
 
-        private struct Entry : ISlabAllocatable
-        {
+        public ref T AsRef<T>() where T: unmanaged, INumber<T>;
 
-            public Entry* NextNear, PreviousNear;
-
-        }
+        public ref T Member<T>(int index) where T: unmanaged, INumber<T>;
 
     }
 }

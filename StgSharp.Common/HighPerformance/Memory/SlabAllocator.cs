@@ -42,105 +42,39 @@ using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public unsafe class SlabAllocator<T> : IDisposable where T: unmanaged, ISlabAllocatable
+    public abstract class SlabAllocator<T> : IDisposable where T: unmanaged
     {
 
-        private T* _buffer;
+        public abstract nuint Allocate();
 
-        private readonly BufferExpansionLock _lock = new();
-        private readonly ConcurrentStackBuffer<ulong> _stack;
-        private readonly int _elementSize;
-        private ulong _capacity;
-        private ulong _highestAllocated;
-
-        public SlabAllocator(int initialCapacity)
+        public static SlabAllocator<T> Create(nuint count, BufferLayout layout)
         {
-            _elementSize = Unsafe.SizeOf<T>();
-            _capacity = (nuint)initialCapacity;
-            _highestAllocated = 0;
-
-            _buffer = (T*)NativeMemory.Alloc((nuint)_capacity * (nuint)_elementSize);
-            int initCount = _capacity switch
+            return layout switch
             {
-                <= 4 => 4,
-                > 64 => 64,
-                _ => (int)_capacity / 4
+                BufferLayout.Sequential => new SequentialSlabAllocator<T>(count),
+                BufferLayout.Chunked => new ChunkedSlabAllocator<T>(count),
+                _ => throw new ArgumentOutOfRangeException(nameof(layout), layout, null)
             };
-            Span<ulong> span = stackalloc ulong[initCount];
-            for (int i = 0; i < initCount; i++) {
-                span[i] = (ulong)i;
-            }
-            _stack = new ConcurrentStackBuffer<ulong>(span);
-            _highestAllocated += (ulong)initCount;
         }
 
-        public ulong Allocate()
-        {
-            if (_stack.TryPop(out ulong index)) {
-                return index;
-            }
-            while (true)
-            {
-                index = Volatile.Read(ref _highestAllocated);
-                _lock.EnterMetaDataRead();
-                try
-                {
-                    if (index >= _capacity)
-                    {
-                        _lock.ExitMetaDataRead();
-                        _lock.EnterExpansionProcess();
-                        try
-                        {
-                            _capacity = Volatile.Read(ref _capacity) * 2;
-                            nuint newSize = (nuint)_capacity * (nuint)_elementSize;
-                            _lock.EnterBufferCopy();
-                            try
-                            {
-                                _buffer = (T*)NativeMemory.Realloc(_buffer, newSize);
-                            }
-                            finally
-                            {
-                                _lock.ExitBufferCopy();
-                            }
-                        }
-                        finally
-                        {
-                            _lock.ExitExpansionProcess();
-                        }
-                    }
-                    _ = Interlocked.Increment(ref _highestAllocated);
-                    return index;
-                }
-                finally
-                {
-                    if (_lock.IsThreadReadingMetaData) {
-                        _lock.ExitMetaDataRead();
-                    }
-                }
-            }
-        }
+        public abstract void Dispose();
 
-        public void Dispose()
-        {
-            _stack.Dispose();
-            NativeMemory.Free(_buffer);
-            _lock.Dispose();
-        }
+        public abstract void EnterBufferReading();
 
-        public void EnterBufferReading()
-        {
-            _lock.EnterBufferRead();
-        }
+        public abstract void ExitBufferReading();
 
-        public void ExitBufferReading()
-        {
-            _lock.ExitBufferRead();
-        }
+        public abstract void Free(nuint index);
 
-        public void Free(nuint index)
-        {
-            _stack.Push(index);
-        }
+        public abstract SlabAllocationHandle<T> ReadAllocation();
+
+    }
+
+    public enum BufferLayout
+    {
+
+        Sequential,
+        Chunked,
+        HybridLayerSegregatedFit
 
     }
 }

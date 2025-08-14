@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="M64.cs"
+// file="HLSFAllocationHandle.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -28,78 +28,85 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Entities;
+
 using System;
+using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance
+using Allocator = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
+
+namespace StgSharp.HighPerformance.Memory
 {
-    [StructLayout(LayoutKind.Explicit, Pack = 8)]
-    public unsafe struct M64 : IRegisterPresentation
+    public unsafe struct HybridLayerSegregatedFitAllocationHandle
     {
 
-        [FieldOffset(0)] private fixed byte buffer[8];
-        [FieldOffset(0)] private ulong value;
+        internal readonly Allocator.Entry* EntryHandle;
+        public readonly uint AllocSize;
 
-        public M64()
+        internal HybridLayerSegregatedFitAllocationHandle(Allocator.Entry* handle, uint s)
         {
-            Unsafe.SkipInit(out this);
-            value = 0;
+            EntryHandle = handle;
+            AllocSize = s;
         }
 
-        public ref T AsRef<T>() where T: unmanaged,INumber<T>
+        public readonly ref byte this[int index]
         {
-            return ref Unsafe.As<byte, T>(ref buffer[0]);
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ref BufferHandle[index];
         }
 
-        public override bool Equals(object obj)
+        public readonly Span<byte> BufferHandle
         {
-            return obj is M64 m64 && this == m64;
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new(EntryHandle->Position, (int)AllocSize);
         }
 
-        public override int GetHashCode()
+        public readonly Enumerator GetEnumerator()
         {
-            return value.GetHashCode();
+            return new Enumerator(this);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T Member<T>(int index) where T: unmanaged, INumber<T>
+        public ref struct Enumerator : IEnumerator<byte>
         {
-            return ref Unsafe.As<byte, T>(ref buffer[index * sizeof(T)]);
-        }
 
-        public static bool operator !=(M64 left, M64 right)
-        {
-            return !(left == right);
-        }
+            private HybridLayerSegregatedFitAllocationHandle _handle;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static M64 operator <<(M64 m, int shift)
-        {
-            return new M64
+            private int _index = -1;
+
+            internal Enumerator(HybridLayerSegregatedFitAllocationHandle span)
             {
-                value = m.value << shift
-            };
-        }
+                _handle = span;
+                Span = span.BufferHandle;
+            }
 
-        public static bool operator ==(M64 left, M64 right)
-        {
-            return left.value == right.value;
-        }
+            public ref byte RefCurrent => ref _handle[_index];
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static M64 operator >>(M64 m, int shift)
-        {
-            return new M64
+            public Span<byte> Span { get; init; }
+
+            public readonly void Dispose() { }
+
+            public bool MoveNext()
             {
-                value = m.value >> shift
-            };
+                _index++;
+                return _index < _handle.AllocSize;
+            }
+
+            public void Reset()
+            {
+                _index = 0;
+            }
+
+            object IEnumerator.Current => RefCurrent;
+
+            byte IEnumerator<byte>.Current => RefCurrent;
+
         }
 
     }

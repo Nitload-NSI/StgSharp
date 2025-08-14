@@ -45,34 +45,24 @@ namespace StgSharp.Timing
     public sealed class TimeSpanAwaitingToken : IDisposable
     {
 
-        private static int s_maxID;
-        private static readonly object s_lock = new object();
-
         private static readonly ConcurrentStackBuffer<int> s_unusedID = new(1);
+
+        private static int s_maxID;
 
         private EventHandler? _refreshHandler,_missHandler;
         private int _size, _id;
 
-        private object _participantObject = new object();
+        private readonly object _participantObject = new();
         private SemaphoreSlim _awaitingSemaphore;
 
         private TimeSpanProvider _provider;
 
         internal TimeSpanAwaitingToken(TimeSpanProvider provider)
         {
-            if (s_unusedID.Count == 1)
-            {
-                lock (s_lock)
-                {
-                    _ = s_unusedID.TryPop(out int id);
-                    TokenID = id;
-                    s_unusedID.Push(s_maxID++);
-                }
-            } else
-            {
-                _ = s_unusedID.TryPop(out int id);
-                TokenID = id;
+            if (!s_unusedID.TryPop(out int id)) {
+                id = Interlocked.Increment(ref s_maxID);
             }
+            TokenID = id;
             _provider = provider;
             _size = 1;
             _awaitingSemaphore = new SemaphoreSlim(0, 1);
@@ -80,18 +70,8 @@ namespace StgSharp.Timing
 
         internal TimeSpanAwaitingToken(TimeSpanProvider provider, int count)
         {
-            if (s_unusedID.Count == 1)
-            {
-                lock (s_lock)
-                {
-                    s_unusedID.TryPop(out int id);
-                    TokenID = id;
-                    s_unusedID.Push(s_maxID++);
-                }
-            } else
-            {
-                s_unusedID.TryPop(out int id);
-                TokenID = id;
+            if (!s_unusedID.TryPop(out int id)) {
+                id = Interlocked.Increment(ref s_maxID);
             }
             _provider = provider;
             _size = count;
@@ -100,14 +80,14 @@ namespace StgSharp.Timing
 
         public event EventHandler MissTimeSpanRefreshed
         {
-            add { _missHandler += value; }
-            remove { _missHandler -= value; }
+            add => _missHandler += value;
+            remove => _missHandler -= value;
         }
 
         public event EventHandler TimeSpanRefreshed
         {
-            add { _refreshHandler += value; }
-            remove { _refreshHandler -= value; }
+            add => _refreshHandler += value;
+            remove => _refreshHandler -= value;
         }
 
         public int TokenID
@@ -118,6 +98,7 @@ namespace StgSharp.Timing
 
         internal SemaphoreSlim AwaitingSemaphoreSlim
         {
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _awaitingSemaphore;
         }
 
@@ -139,8 +120,7 @@ namespace StgSharp.Timing
             lock (_participantObject)
             {
                 _size++;
-                SemaphoreSlim newSemaphore = new SemaphoreSlim(
-                    _awaitingSemaphore.CurrentCount, _size);
+                SemaphoreSlim newSemaphore = new(_awaitingSemaphore.CurrentCount, _size);
                 Interlocked.Exchange(ref _awaitingSemaphore, newSemaphore).Dispose();
             }
         }

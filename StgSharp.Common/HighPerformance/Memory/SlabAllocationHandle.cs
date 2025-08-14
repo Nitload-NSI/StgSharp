@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="UnmanagedMemoryHandle.cs"
+// file="SlabAllocationHandle.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -29,71 +29,30 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System;
-using System.Buffers;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public unsafe struct UnmanagedMemoryHandle
+    public unsafe struct SlabAllocationHandle<T> : IDisposable where T: unmanaged
     {
 
-        public readonly byte* BufferHandle, AllocatorHandle;
-        public readonly nuint Size;
+        private readonly SlabAllocator<T> _allocator;
 
-        public UnmanagedMemoryHandle(byte* pointer, byte* handle, nuint s)
+        internal SlabAllocationHandle(SlabAllocator<T> allocator, bool locked)
         {
-            BufferHandle = pointer;
-            AllocatorHandle = handle;
-            Size = s;
+            _allocator = allocator;
+            Locked = locked;
         }
 
-        public readonly ref byte this[nuint index]
+        public bool Locked { get; set; }
+
+        public void Dispose()
         {
-[MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => ref Unsafe.AddByteOffset(ref Unsafe.AsRef<byte>(BufferHandle), index);
-        }
-
-        public readonly Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-
-        public ref struct Enumerator : IEnumerator<byte>
-        {
-
-            private nuint _index = nuint.MaxValue;
-
-            private UnmanagedMemoryHandle _handle;
-
-            internal Enumerator(UnmanagedMemoryHandle span)
+            if (Locked)
             {
-                _handle = span;
+                _allocator.ExitBufferReading();
+                Locked = false;
             }
-
-            public ref byte RefCurrent => ref _handle[_index];
-
-            public readonly void Dispose() { }
-
-            public bool MoveNext()
-            {
-                _index++;
-                return _index < _handle.Size;
-            }
-
-            public void Reset()
-            {
-                _index = 0;
-            }
-
-            object IEnumerator.Current => RefCurrent;
-
-            byte IEnumerator<byte>.Current => RefCurrent;
-
         }
 
     }

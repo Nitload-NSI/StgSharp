@@ -45,6 +45,8 @@ namespace StgSharp.Threading
     public class BufferExpansionLock : IDisposable
     {
 
+        private static readonly ThreadLocal<int> Count = new();
+
         private readonly ReaderWriterLockSlim _copyLock;
         private readonly ReaderWriterLockSlim _expansionLock;
 
@@ -75,7 +77,13 @@ namespace StgSharp.Threading
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnterBufferRead()
         {
-            _copyLock.EnterReadLock();
+            if (++Count.Value == 1)
+            {
+                _copyLock.EnterReadLock();
+            } else
+            {
+                Count.Value++;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -99,7 +107,13 @@ namespace StgSharp.Threading
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ExitBufferRead()
         {
-            _copyLock.ExitReadLock();
+            if (--Count.Value == 0)
+            {
+                _copyLock.ExitReadLock();
+            } else
+            {
+                Count.Value--;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

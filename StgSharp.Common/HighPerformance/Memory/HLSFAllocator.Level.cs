@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="UnmanagedMemoryPool.cs"
+// file="HLSFAllocator.Level.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -29,23 +29,52 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System;
-using System.Collections.Concurrent;
-using System.Drawing;
-using System.Net.Security;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Transactions;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public unsafe partial class UnmanagedMemoryPool
+    public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
-        private byte* m_Buffer;
-        private SlabAllocator<Entry> _nodes = new(64);
+        private const int MaxLevel = 9;
 
-        public
+        private static readonly int[] levelSize = [
+            64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216
+            ];
+
+        public int AlignOfLevel(int bucketLevel)
+        {
+            int blockSize = levelSize[bucketLevel];
+            return int.Min(blockSize, _align);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int GetLevelFromSize(uint size)
+        {
+            int level = -1;
+            uint temp = size / 8;
+            while (temp > 3)
+            {
+                level++;
+                temp >>= 2;
+            }
+            return level;
+        }
+
+    }
+
+    public enum CommonMemoryAlign : int
+    {
+
+        XMMLevel = 16,
+        YMMLevel = 32,
+        ZMMLevel = 64,
+
+        ArmNEONLevel = 16,
 
     }
 }
