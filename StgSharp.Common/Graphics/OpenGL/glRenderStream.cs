@@ -1,34 +1,34 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="glRenderStream.cs"
-//     Project: StepVisualizer
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="glRenderStream.cs"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-using StgSharp.Math;
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+using StgSharp.Mathematics;
 using StgSharp.Threading;
 
 using System;
@@ -62,14 +62,14 @@ namespace StgSharp.Graphics.OpenGL
         /// </summary>
         public unsafe void InitializeContext()
         {
-            if( ContextHandle == default )
+            if (ContextHandle == default)
             {
-                ContextHandle = Marshal.AllocHGlobal( Marshal.SizeOf( typeof( OpenglContext ) ) );
-                OpenglContext* contextID = ( OpenglContext* )ContextHandle;
-                contextID->glGetString = ( delegate*<uint, IntPtr> )IntPtr.Zero;
+                ContextHandle = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(OpenglContext)));
+                OpenglContext* contextID = (OpenglContext*)ContextHandle;
+                contextID->glGetString = (delegate*<uint, IntPtr>)IntPtr.Zero;
             }
-            if( GL == null ) {
-                _context = OpenGLFunction.BuildGlFunctionPackage( ContextHandle );
+            if (GL == null) {
+                _context = OpenGLFunction.BuildGlFunctionPackage(ContextHandle);
             }
         }
 
@@ -83,20 +83,20 @@ namespace StgSharp.Graphics.OpenGL
         /// </exception>
         public unsafe void MakeAsCurrentContext()
         {
-            InternalIO.glfwMakeContextCurrent( CanvasHandle );
+            InternalIO.glfwMakeContextCurrent(CanvasHandle);
             OpenGLFunction.CurrentGL = this.GL;
         }
 
         /// <inheritdoc />
         public override void RenderEnd()
         {
-            if( !renderToThread.TryGetValue( this, out Thread t ) || t != Thread.CurrentThread ) {
+            if (!renderToThread.TryGetValue(this, out Thread t) || t != Thread.CurrentThread) {
                 throw new InvalidOperationException(
-                    $"Current render has had been binded to thread {t!.ManagedThreadId}" );
+                    $"Current render has had been binded to thread {t!.ManagedThreadId}");
             }
             SwapBuffers();
-            renderToThread[ this ] = ThreadHelper.EmptyThread;
-            InternalIO.glfwMakeContextCurrent( IntPtr.Zero );
+            renderToThread[this] = ThreadHelper.EmptyThread;
+            InternalIO.glfwMakeContextCurrent(IntPtr.Zero);
             OpenGLFunction.CurrentGL = null;
         }
 
@@ -104,84 +104,80 @@ namespace StgSharp.Graphics.OpenGL
         public override void RenderStart()
         {
             Thread current = Thread.CurrentThread;
-            if( !renderToThread.TryGetValue( this, out Thread t ) || t == ThreadHelper.EmptyThread )
+            if (!renderToThread.TryGetValue(this, out Thread t) || t == ThreadHelper.EmptyThread)
             {
-                renderToThread[ this ] = current;
+                renderToThread[this] = current;
                 MakeAsCurrentContext();
                 return;
             }
-            if( t != current ) {
+            if (t != current) {
                 throw new InvalidOperationException(
-                    $"Current render has had been binded to thread {t!.ManagedThreadId}" );
+                    $"Current render has had been binded to thread {t!.ManagedThreadId}");
             }
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public override void SetSizeLimit(
-                             int minWidth,
-                             int minHeight,
-                             int maxWidth,
-                             int maxHeight )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight)
         {
             InternalIO.glfwSetWindowSizeLimits(
-                this.CanvasHandle, minWidth, minHeight, maxWidth, maxHeight );
+                this.CanvasHandle, minWidth, minHeight, maxWidth, maxHeight);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        internal override sealed void PlatformSpecifiedInitialize()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal sealed override void PlatformSpecifiedInitialize()
         {
             InitializeContext();
             MakeAsCurrentContext();
-            glManager.LoadOpenGLApiTo( BindedViewPortContext.GraphicHandle );
+            glManager.LoadOpenGLApiTo(BindedViewPortContext.GraphicHandle);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        internal override sealed void Terminate()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal sealed override void Terminate()
         {
             CustomizeDeinit();
         }
 
-        protected override sealed Uniform<Matrix44> NativeCameraUniform(
+        protected sealed override Uniform<Matrix44> NativeCameraUniform(
                                                     ShaderProgram source,
-                                                    string name )
+                                                    string name)
         {
-            NativeCamera.GainAllUniforms( source, name );
+            NativeCamera.GainAllUniforms(source, name);
             return NativeCamera.convertedUniform;
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        protected override sealed void NativeCameraViewRange(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected sealed override void NativeCameraViewRange(
                                        Radius fieldOfRange,
                                        Vec2 offset,
-                                       (float frontDepth, float backDepth) viewDepth )
+                                       (float frontDepth, float backDepth) viewDepth)
         {
-            NativeCamera.SetViewRange( fieldOfRange, this.Size, offset, viewDepth );
+            NativeCamera.SetViewRange(fieldOfRange, this.Size, offset, viewDepth);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        protected override sealed void NativeCameraViewTarget(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected sealed override void NativeCameraViewTarget(
                                        Vec3 position,
                                        Vec3 direction,
-                                       Vec3 up )
+                                       Vec3 up)
         {
-            NativeCamera.SetViewDirection( position, direction, up );
+            NativeCamera.SetViewDirection(position, direction, up);
         }
 
         #region Key Control
 
-        protected KeyStatus CheckKey( KeyboardKey key )
+        protected KeyStatus CheckKey(KeyboardKey key)
         {
-            return InternalIO.glfwGetKey( this.CanvasHandle, ( int )key );
+            return InternalIO.glfwGetKey(this.CanvasHandle, (int)key);
         }
 
-        protected KeyStatus CheckKey( Mouse key )
+        protected KeyStatus CheckKey(Mouse key)
         {
-            return InternalIO.glfwGetKey( this.CanvasHandle, ( int )key );
+            return InternalIO.glfwGetKey(this.CanvasHandle, (int)key);
         }
 
-        protected KeyStatus CheckKey( Joystick key )
+        protected KeyStatus CheckKey(Joystick key)
         {
-            return InternalIO.glfwGetKey( this.CanvasHandle, ( int )key );
+            return InternalIO.glfwGetKey(this.CanvasHandle, (int)key);
         }
 
         #endregion

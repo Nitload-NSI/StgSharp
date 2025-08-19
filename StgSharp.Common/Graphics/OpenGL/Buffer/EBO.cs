@@ -31,7 +31,7 @@
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
 using StgSharp.Internal.OpenGL;
-using StgSharp.Math;
+using StgSharp.Mathematics;
 
 using System;
 using System.Collections.Generic;
@@ -56,7 +56,7 @@ namespace StgSharp.Graphics.OpenGL
             _bufferHandle = GL.GenBuffers(n);
         }
 
-        public override sealed void Bind(int index)
+        public sealed override void Bind(int index)
         {
             GL.BindBuffer(BufferType.ElementArrayBuffer, _bufferHandle[index]);
         }
@@ -75,7 +75,7 @@ namespace StgSharp.Graphics.OpenGL
             GL.SetBufferData<T>(BufferType.ElementArrayBuffer, bufferSpan, usage);
         }
 
-        protected override sealed void Dispose(bool disposing)
+        protected sealed override void Dispose(bool disposing)
         {
             if (disposing) {
                 GL.DeleteBuffers(_bufferHandle);

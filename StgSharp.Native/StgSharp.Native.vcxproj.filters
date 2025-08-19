@@ -21,12 +21,6 @@
     <Library Include="glfw3.lib">
       <Filter>资源文件</Filter>
     </Library>
-    <Library Include="glfw3_mt.lib">
-      <Filter>资源文件</Filter>
-    </Library>
-    <Library Include="glfw3dll.lib">
-      <Filter>资源文件</Filter>
-    </Library>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sn-src\dllmain.c">

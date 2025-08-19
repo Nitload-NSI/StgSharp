@@ -161,8 +161,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Library Include="glfw3.lib" />
-    <Library Include="glfw3dll.lib" />
-    <Library Include="glfw3_mt.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sn-src\dllmain.c" />

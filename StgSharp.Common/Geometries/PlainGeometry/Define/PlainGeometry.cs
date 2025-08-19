@@ -29,7 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Graphics;
-using StgSharp.Math;
+using StgSharp.Mathematics;
 
 using System;
 using System.ComponentModel;

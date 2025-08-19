@@ -39,13 +39,15 @@ namespace StgSharp.HighPerformance.Memory
 
         private static readonly nuint EmptyHandle = (nuint)(void*)null;
 
-        private ulong[] _bucketEntry;
+        // Bucket system field - directly in main allocator class
+        private ulong[] _bucketHeads;
 
+        private Entry* _spareMemory;
         private readonly byte* m_Buffer;
         private bool disposedValue;
         private readonly int _align;
         private readonly nuint _size;
-        private readonly SlabAllocator<Entry> _nodes ;
+        private readonly SlabAllocator<Entry> _nodes;
 
         public HybridLayerSegregatedFitAllocator(nuint byteSize)
         {
@@ -55,9 +57,18 @@ namespace StgSharp.HighPerformance.Memory
             _nodes = SlabAllocator<Entry>.Create(64, BufferLayout.Chunked);
             _size = byteSize;
             m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, 16);
-            _bucketEntry = new ulong[levelSize.Length * 3];
-            ;
             _align = 16;
+
+
+            // 初始化桶系统
+            InitializeBucketSystem();
+
+
+            // 初始化spareMemory
+            _spareMemory = (Entry*)_nodes.Allocate();
+            _spareMemory->State = EntryState.ThreadOccupied;
+            _spareMemory->NextNear = EmptyHandle;
+            _spareMemory->Position = (nuint)m_Buffer;
         }
 
         public HybridLayerSegregatedFitAllocator(nuint byteSize, int align)
@@ -69,6 +80,16 @@ namespace StgSharp.HighPerformance.Memory
             _nodes = SlabAllocator<Entry>.Create(64, BufferLayout.Chunked);
             m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
             _align = align;
+            _size = byteSize;
+
+            InitializeBucketSystem();
+
+
+            // 初始化spareMemory
+            _spareMemory = (Entry*)_nodes.Allocate();
+            _spareMemory->State = EntryState.ThreadOccupied;
+            _spareMemory->NextNear = EmptyHandle;
+            _spareMemory->Position = (nuint)m_Buffer;
         }
 
         public void Dispose()
@@ -76,8 +97,6 @@ namespace StgSharp.HighPerformance.Memory
             Dispose(disposing:true);
             GC.SuppressFinalize(this);
         }
-
-        public void Free(MemoryHandle handle) { }
 
         protected virtual void Dispose(bool disposing)
         {

@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,13 +56,23 @@ namespace StgSharp.HighPerformance.Memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetLevelFromSize(uint size)
         {
-            int level = -1;
-            uint temp = size / 8;
-            while (temp > 3)
-            {
-                level++;
-                temp >>= 2;
-            }
+            /*
+            * Level sizes: [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216]
+            * Pattern: 64 * 4^level = 2^6 * 2^(2*level) = 2^(6+2*level)
+            * 
+            * For size S, we need: 2^(6+2*level) >= S
+            * So: 6+2*level >= log2(S)
+            * Therefore: level >= (log2(S) - 6) / 2
+            * 
+            * We use hardware LZCNT instruction via BitOperations.LeadingZeroCount
+            * log2(S) = 31 - LeadingZeroCount(S) for 32-bit values
+            */
+            int log2Size = 31 - BitOperations.LeadingZeroCount(size);
+
+            // Calculate level: level = max(0, (log2Size - 6) / 2)
+            int level = Math.Max(0, (log2Size - 6) / 2);
+
+            // caller is responsible for ensuring level is within bounds
             return level;
         }
 

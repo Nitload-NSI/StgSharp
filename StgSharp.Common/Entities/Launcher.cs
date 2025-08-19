@@ -29,7 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Entities;
-using StgSharp.Math;
+using StgSharp.Mathematics;
 
 namespace StgSharp
 {

@@ -30,7 +30,7 @@
 // -----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Internal;
-using StgSharp.Math;
+using StgSharp.Mathematics;
 
 using System;
 using System.Collections.Concurrent;

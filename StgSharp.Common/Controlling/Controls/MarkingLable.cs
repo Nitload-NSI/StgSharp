@@ -31,7 +31,7 @@
 using StgSharp.Controls;
 using StgSharp.Geometries;
 using StgSharp.Graphics;
-using StgSharp.Math;
+using StgSharp.Mathematics;
 using StgSharp.Timing;
 
 using System;

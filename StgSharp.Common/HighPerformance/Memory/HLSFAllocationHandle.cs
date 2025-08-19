@@ -47,25 +47,34 @@ namespace StgSharp.HighPerformance.Memory
     public unsafe struct HybridLayerSegregatedFitAllocationHandle
     {
 
+        internal readonly byte* BufferPointer;
+
         internal readonly Allocator.Entry* EntryHandle;
         public readonly uint AllocSize;
 
         internal HybridLayerSegregatedFitAllocationHandle(Allocator.Entry* handle, uint s)
         {
             EntryHandle = handle;
+            BufferPointer = (byte*)handle->Position;
             AllocSize = s;
         }
 
         public readonly ref byte this[int index]
         {
 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => ref BufferHandle[index];
+            get => ref BufferPointer[index];
+        }
+
+        public readonly byte* Pointer
+        {
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => BufferPointer;
         }
 
         public readonly Span<byte> BufferHandle
         {
 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new(EntryHandle->Position, (int)AllocSize);
+            get => new((byte*) EntryHandle->Position, (int)AllocSize);
         }
 
         public readonly Enumerator GetEnumerator()

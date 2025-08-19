@@ -29,7 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.Geometries;
-using StgSharp.Math;
+using StgSharp.Mathematics;
 
 using System;
 using System.Collections.Generic;

@@ -2,12 +2,7 @@
 #pragma once
 #endif
 
-#include "xmmintrin.h"
-/*
-#include "GLAD/gl.h"
-#include "glfw3.h"
-#include "StgSharpC.h"
-*/
+#include <xmmintrin.h>
 
 #ifndef SSC_INTERNAL
 #define SSC_INTERNAL

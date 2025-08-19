@@ -1,34 +1,34 @@
 //-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="StepTriple.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="StepTriple.cs"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the ¡°Software¡±), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the ¡°Software¡±), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED ¡°AS IS¡±, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED ¡°AS IS¡±, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-using StgSharp.Math;
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+using StgSharp.Mathematics;
 
 using StgSharp.Model.Step;
 using StgSharp.Script;
@@ -43,10 +43,10 @@ namespace StgSharp.Model.Step
 
         private Vec3 _coord;
 
-        protected StepTriple( StepModel model ) : this( model, 0.0f, 0.0f, 0.0f ) { }
+        protected StepTriple(StepModel model) : this(model, 0.0f, 0.0f, 0.0f) { }
 
-        protected StepTriple( StepModel model, float x, float y, float z )
-            : base( model )
+        protected StepTriple(StepModel model, float x, float y, float z)
+            : base(model)
         {
             X = x;
             Y = y;
@@ -73,9 +73,9 @@ namespace StgSharp.Model.Step
 
         protected abstract int MinimumValueCount { get; }
 
-        public bool Equals( StepTriple other )
+        public bool Equals(StepTriple other)
         {
-            if( other is null ) {
+            if (other is null) {
                 return false;
             }
 
@@ -86,14 +86,14 @@ namespace StgSharp.Model.Step
                    Name == other.Name;
         }
 
-        public override bool Equals( object obj )
+        public override bool Equals(object obj)
         {
-            return ( obj is StepTriple triple ) && Equals( triple );
+            return (obj is StepTriple triple) && Equals(triple);
         }
 
-        public void FromInstance( StepTriple entity )
+        public void FromInstance(StepTriple entity)
         {
-            base.FromInstance( entity );
+            base.FromInstance(entity);
             _coord = entity._coord;
         }
 
@@ -102,38 +102,38 @@ namespace StgSharp.Model.Step
             return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode();
         }
 
-        public override bool IsConvertableTo( string entityName )
+        public override bool IsConvertableTo(string entityName)
         {
-            return base.IsConvertableTo( entityName ) || entityName == "StepTriple";
+            return base.IsConvertableTo(entityName) || entityName == "StepTriple";
         }
 
-        internal static T AssignTo<T>( T triple, ExpSyntaxNode values ) where T: StepTriple
+        internal static T AssignTo<T>(T triple, ExpSyntaxNode values) where T: StepTriple
         {
             ExpNodePresidentEnumerator enumerator = values.ToPresidentEnumerator();
-            enumerator.AssertEnumeratorCount( 2 );
-            triple.Name = ( enumerator[ 0 ]as ExpStringNode )!.Value;
-            ExpNodePresidentEnumerator pointValues = enumerator[ 1 ].TupleToPresidentEnumerator();
-            pointValues.AssertEnumeratorCount( triple.MinimumValueCount, 3 );
-            triple._coord = StepDataParser.ToVector3D( pointValues[ 0 ] );
+            enumerator.AssertEnumeratorCount(2);
+            triple.Name = (enumerator[0]as ExpStringNode)!.Value;
+            ExpNodePresidentEnumerator pointValues = enumerator[1].TupleToPresidentEnumerator();
+            pointValues.AssertEnumeratorCount(triple.MinimumValueCount, 3);
+            triple._coord = StepDataParser.ToVector3D(pointValues[0]);
             return triple;
         }
 
-        public static bool operator !=( StepTriple left, StepTriple right )
+        public static bool operator !=(StepTriple left, StepTriple right)
         {
-            return !( left == right );
+            return !(left == right);
         }
 
-        public static bool operator ==( StepTriple left, StepTriple right )
+        public static bool operator ==(StepTriple left, StepTriple right)
         {
-            if( ReferenceEquals( left, right ) ) {
+            if (ReferenceEquals(left, right)) {
                 return true;
             }
 
-            if( left is null || right is null ) {
+            if (left is null || right is null) {
                 return false;
             }
 
-            return left.Equals( right );
+            return left.Equals(right);
         }
 
     }

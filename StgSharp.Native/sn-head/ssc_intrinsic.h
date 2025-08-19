@@ -32,6 +32,13 @@ typedef union uint64_u {
         uint32_t u32[2];
 } uint64_u;
 
+typedef union mat_kernel{
+        __m128 xmm[4];
+        __m256 ymm[2];
+        __m512 zmm[1];
+        float m[4][4];
+}mat_kernel;
+
 typedef union column_2 {
         __m256 stream;
         __m128 column[2];

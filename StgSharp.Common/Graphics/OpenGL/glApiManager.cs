@@ -29,7 +29,7 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using StgSharp.HighPerformance;
-using StgSharp.Math;
+using StgSharp.Mathematics;
 using StgSharp.MVVM;
 using StgSharp.MVVM;
 

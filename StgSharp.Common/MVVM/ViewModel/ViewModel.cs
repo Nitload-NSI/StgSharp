@@ -31,7 +31,7 @@
 using StgSharp.Controlling.UsrActivity;
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
-using StgSharp.Math;
+using StgSharp.Mathematics;
 using StgSharp.MVVM;
 using StgSharp.MVVM.ViewModel;
 using StgSharp.Threading;

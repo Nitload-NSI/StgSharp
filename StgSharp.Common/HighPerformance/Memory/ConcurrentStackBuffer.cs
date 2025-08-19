@@ -130,6 +130,7 @@ namespace StgSharp.HighPerformance.Memory
                         _lock.ExitBufferRead();
                     }
                 }
+                Thread.Sleep(0); // Yield to avoid busy waiting
             }
         }
 
@@ -195,6 +196,7 @@ namespace StgSharp.HighPerformance.Memory
                         _lock.ExitMetaDataRead();
                     }
                 }
+                Thread.Sleep(0); // Yield to avoid busy waiting
             }
         }
 
@@ -224,6 +226,7 @@ namespace StgSharp.HighPerformance.Memory
                     }
                     return true;
                 }
+                Thread.Sleep(0); // Yield to avoid busy waiting
             }
         }
 

@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-using StgSharp.Math;
+using StgSharp.Mathematics;
 using StgSharp.Model.Step;
 using StgSharp.PipeLine;
 using StgSharp.Script.Express;

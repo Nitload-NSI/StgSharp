@@ -35,7 +35,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Math
+namespace StgSharp.Mathematics
 {
     public static partial class GeometryScaler
     {

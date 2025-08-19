@@ -29,7 +29,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Graphics.OpenGL;
-using StgSharp.Math;
+using StgSharp.Mathematics;
 
 using StgSharp.MVVM;
 using StgSharp.Timing;
