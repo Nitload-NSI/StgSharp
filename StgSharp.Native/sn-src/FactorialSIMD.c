@@ -1,10 +1,10 @@
-#include "ssc_internal.h"
-#include "ssc_intrinsic.h"
+#include "sn_internal.h"
+#include "sn_intrinsic.h"
 
 INTERNAL __m128i facIncrement = { 4, 4, 4, 4 };
 INTERNAL __m128i facBase = { 1, 2, 3, 4 };
 
-INTERNAL uint64_t SSCDECL factorial_simd_sse(int n)
+INTERNAL uint64_t SN_DECL factorial_simd_sse(int n)
 {
         __m128i baseResult = facBase;
         __m128i facBaseLocal = facBase;

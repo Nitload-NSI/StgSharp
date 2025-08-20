@@ -1,9 +1,9 @@
-#include "ssc_intrinsic.h"
-#include "SSC_internal.h"
+#include "sn_intrinsic.h"
+#include "sn_internal.h"
 
 static const int avxdot_indices[] = { 0, 4, 1, 5, 2, 3, 6, 7 };
 
-INTERNAL void FORCEINLINE SSCDECL dot_41_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void FORCEINLINE SN_DECL dot_41_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         *ans = _mm_dp_ps(transpose->column[0], *vector, 0B11110001);
         *ans = _mm_insert_ps(*ans, _mm_dp_ps(transpose->column[1], *vector, 0B11110001),
@@ -14,7 +14,7 @@ INTERNAL void FORCEINLINE SSCDECL dot_41_sse(__4_columnset *transpose, __m128 *v
                              SSE_INSERT_SIMPLE(1, 4));
 }
 
-INTERNAL void SSCDECL dot_41_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_41_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         __m256 _double = _mm256_set_m128(vector[0], vector[0]);
         __m256 tmp = _mm256_dp_ps(transpose->half[0], _double, 0B11110001);
@@ -24,7 +24,7 @@ INTERNAL void SSCDECL dot_41_avx(__4_columnset *transpose, __m128 *vector, __m12
                 _mm256_permutevar8x32_ps(tmp, _mm256_loadu_epi32(avxdot_indices)));
 }
 
-INTERNAL void FORCEINLINE SSCDECL dot_31_sse(__3_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void FORCEINLINE SN_DECL dot_31_sse(__3_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         *ans = _mm_dp_ps(transpose->column[0], *vector, 0B11110001);
         *ans = _mm_insert_ps(*ans, _mm_dp_ps(transpose->column[1], *vector, 0B11110001),
@@ -33,7 +33,7 @@ INTERNAL void FORCEINLINE SSCDECL dot_31_sse(__3_columnset *transpose, __m128 *v
                              SSE_INSERT_SIMPLE(1, 3));
 }
 
-INTERNAL void FORCEINLINE SSCDECL dot_31_avx(__3_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void FORCEINLINE SN_DECL dot_31_avx(__3_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         __m256 _double = _mm256_set_m128(vector[0], vector[0]);
         __m256 tmp = _mm256_dp_ps(transpose->part, _double, 0B11110001);
@@ -43,7 +43,7 @@ INTERNAL void FORCEINLINE SSCDECL dot_31_avx(__3_columnset *transpose, __m128 *v
                              SSE_INSERT_SIMPLE(1, 3));
 }
 
-INTERNAL void SSCDECL dot_42_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_42_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         ans[0] = _mm_dp_ps(transpose->column[0], vector[0], 0B11110001);
         ans[0] = _mm_insert_ps(*ans, _mm_dp_ps(transpose->column[1], vector[0], 0B11110001),
@@ -62,7 +62,7 @@ INTERNAL void SSCDECL dot_42_sse(__4_columnset *transpose, __m128 *vector, __m12
                                SSE_INSERT_SIMPLE(1, 4));
 }
 
-INTERNAL void SSCDECL dot_32_sse(__3_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_32_sse(__3_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         ans[0] = _mm_dp_ps(transpose->column[0], vector[0], 0B11110001);
         ans[0] = _mm_insert_ps(*ans, _mm_dp_ps(transpose->column[1], vector[0], 0B11110001),
@@ -77,7 +77,7 @@ INTERNAL void SSCDECL dot_32_sse(__3_columnset *transpose, __m128 *vector, __m12
                                SSE_INSERT_SIMPLE(1, 3));
 }
 
-INTERNAL void SSCDECL dot_42_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_42_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         __2_columnset *ans_ptr = (__2_columnset *)ans, *right_ptr = (__2_columnset *)vector;
         __m256 temp = ALIGN256(transpose->half[0]);
@@ -97,7 +97,7 @@ INTERNAL void SSCDECL dot_42_avx(__4_columnset *transpose, __m128 *vector, __m12
         ans[1] = _mm_shuffle_ps(ALIGN(ans[1]), ALIGN(ans[1]), _MM_SHUFFLE(2, 3, 0, 1));
 }
 
-INTERNAL void SSCDECL dot_32_avx(__3_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_32_avx(__3_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         __2_columnset *ans_ptr = (__2_columnset *)ans, *right_ptr = (__2_columnset *)vector;
         __m256 temp = transpose->part;
@@ -114,14 +114,14 @@ INTERNAL void SSCDECL dot_32_avx(__3_columnset *transpose, __m128 *vector, __m12
         ans[1] = _mm_shuffle_ps(ALIGN(ans[1]), ALIGN(ans[1]), _MM_SHUFFLE(2, 2, 0, 1));
 }
 
-INTERNAL void SSCDECL dot_43_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_43_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         dot_41_sse(transpose, vector, ans);
         dot_41_sse(transpose, vector + 1, ans + 1);
         dot_41_sse(transpose, vector + 2, ans + 2);
 }
 
-INTERNAL void SSCDECL dot_43_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_43_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans)
 {
         __3_columnset *ans_ptr = (__3_columnset *)ans, *right_ptr = (__3_columnset *)vector;
         __m256 temp = ALIGN256(transpose->half[0]);

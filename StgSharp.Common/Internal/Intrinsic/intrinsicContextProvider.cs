@@ -67,7 +67,7 @@ namespace StgSharp.Internal
             }
         }
 
-        [LibraryImport( SSC_libName, EntryPoint = "load_intrinsic_function" )]
+        [LibraryImport( NativeLibName, EntryPoint = "load_intrinsic_function" )]
         [UnmanagedCallConv( CallConvs = [typeof( CallConvCdecl )] )]
         private static partial int LoadIntrinsicFunction( IntrinsicContext* context );
 

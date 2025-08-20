@@ -57,28 +57,27 @@ namespace StgSharp.HighPerformance.Memory
             AcquireEntrySpinLock(e);
             try
             {
-                if (e->State != EntryState.Allocated) {
+                if (GetEntryState(e) != EntryState.Allocated) {
                     return;
                 }
-                e->State = EntryState.ThreadOccupied;
+                SetEntryState(e, EntryState.ThreadOccupied);
 
                 // Step 4: Try merge with adjacent free blocks and remove them from buckets
-                Entry* mergedEntry = TryMergeAndRemoveFromBuckets(e);
-
+                MergeAndRemoveFromBuckets(e);
 
                 // Step 5: Calculate final level and segment for the merged block
-                uint finalSize = mergedEntry->Size;
+                uint finalSize = e->Size;
                 int finalLevel = GetLevelFromSize(finalSize);
                 int finalSegment = DetermineSegmentIndex(finalSize, finalLevel);
 
                 // Step 6: Set the merged entry state to Empty (ready to be reused)
-                mergedEntry->State = EntryState.Empty;
+                SetEntryState(e, EntryState.Empty);
 
                 // Step 7: Push the merged entry back to appropriate bucket
-                PushLevel(finalLevel, finalSegment, (BucketNode*)mergedEntry->Position);
+                PushLevel(finalLevel, finalSegment, (BucketNode*)e->Position);
 
                 // Note: If mergedEntry is different from original e, the original e
-                // and any merged entries have already been freed to _nodes by TryMergeAndRemoveFromBuckets
+                // and any merged entries have already been freed to _entries by MergeAndRemoveFromBuckets
             }
             finally
             {

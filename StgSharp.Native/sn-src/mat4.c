@@ -1,6 +1,6 @@
 
-#include "StgSharpC.h"
-#include "ssc_intrinsic.h"
+#include "StgSharpNative.h"
+#include "sn_intrinsic.h"
 #include <stdio.h>
 #include <pmmintrin.h>
 
@@ -64,7 +64,7 @@ INTERNAL float __cdecl det_mat4(__4_columnset const *mat_ptr, __4_columnset cons
         return -retvec.m128_f32[0];
 }
 
-INTERNAL void SSCDECL addmatrix4_sse(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
+INTERNAL void SN_DECL addmatrix4_sse(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
 {
         ans->column[0] = _mm_add_ps(ALIGN(left->column[0]), ALIGN(right->column[0]));
         ans->column[1] = _mm_add_ps(ALIGN(left->column[1]), ALIGN(right->column[1]));
@@ -72,18 +72,18 @@ INTERNAL void SSCDECL addmatrix4_sse(__4_columnset *left, __4_columnset *right, 
         ans->column[3] = _mm_add_ps(ALIGN(left->column[3]), ALIGN(right->column[3]));
 }
 
-INTERNAL void SSCDECL addmatrix4_avx(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
+INTERNAL void SN_DECL addmatrix4_avx(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
 {
         ans->half[0] = _mm256_add_ps(ALIGN256(left->half[0]), ALIGN256(right->half[0]));
         ans->half[1] = _mm256_add_ps(ALIGN256(left->half[1]), ALIGN256(right->half[1]));
 }
 
-INTERNAL void SSCDECL addmatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
+INTERNAL void SN_DECL addmatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
 {
         ans->stream = _mm512_add_ps(ALIGN512(left->stream), ALIGN512(right->stream));
 }
 
-INTERNAL void SSCDECL submatrix4_sse(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
+INTERNAL void SN_DECL submatrix4_sse(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
 {
         ans->column[0] = _mm_sub_ps(ALIGN(left->column[0]), ALIGN(right->column[0]));
         ans->column[1] = _mm_sub_ps(ALIGN(left->column[1]), ALIGN(right->column[1]));
@@ -91,13 +91,13 @@ INTERNAL void SSCDECL submatrix4_sse(__4_columnset *left, __4_columnset *right, 
         ans->column[3] = _mm_sub_ps(ALIGN(left->column[3]), ALIGN(right->column[3]));
 }
 
-INTERNAL void SSCDECL submatrix4_avx(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
+INTERNAL void SN_DECL submatrix4_avx(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
 {
         ans->half[0] = _mm256_sub_ps(ALIGN256(left->half[0]), ALIGN256(right->half[0]));
         ans->half[1] = _mm256_sub_ps(ALIGN256(left->half[1]), ALIGN256(right->half[1]));
 }
 
-INTERNAL void SSCDECL submatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
+INTERNAL void SN_DECL submatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans)
 {
         ans->stream = _mm512_sub_ps(ALIGN512(left->stream), ALIGN512(right->stream));
 }  

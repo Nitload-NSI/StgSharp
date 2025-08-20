@@ -1,59 +1,37 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="Platform.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="Platform.cs"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-using StgSharp.Internal;
-using StgSharp.Internal.Intrinsic;
-
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-#if Windows
-
-// using Windows.Win32.UI.WindowsAndMessaging;
-// using Windows.Win32;
-// using Windows.Win32.Foundation;
-// using Windows.Win32.Graphics.OpenGL;
-// using Windows.Win32.Graphics.Gdi;
-// using Windows.Win32.UI;
-
-#endif
 
 namespace StgSharp
 {
@@ -61,7 +39,6 @@ namespace StgSharp
     {
 
         GL,
-        DX,
         VK
 
     }
@@ -84,54 +61,57 @@ namespace StgSharp
         {
             mainTimeProvider = new StgSharpTime();
             MainTimeProvider.StartProvidingTime();
-            InternalIO.glfwInit();
-            InternalIO.InternalAppendLog( "\n\n\n" );
+            InternalIO.LoadGlfw();
+            if (InternalIO.glfwInit() == 0) {
+                throw new Exception("Failed to init system graphic environment.");
+            }
+            InternalIO.InternalAppendLog("\n\n\n");
             InternalIO.InternalWriteLog(
-                $"Program {Assembly.GetEntryAssembly()!.FullName} Started.", LogType.Info );
+                $"Program {Assembly.GetEntryAssembly()!.FullName} on {Environment.MachineName} Started.", LogType.Info);
             _mainThreadID = Environment.CurrentManagedThreadId;
 
 
             Dialogue.LoadDialogue();
-            if( Dialogue.NeedShowWhenStartup ) {
+            if (Dialogue.NeedShowWhenStartup) {
                 Dialogue.CreateDialogueProcessIfNotExist();
             }
 
             InternalIO.InitIntrinsicContext();
         }
 
-        public static void LogError( Exception ex )
+        public static void LogError(Exception ex)
         {
-            InternalIO.InternalWriteLog( ex.Message, LogType.Error );
+            InternalIO.InternalWriteLog(ex.Message, LogType.Error);
         }
 
-        public static void LogInfo( string log )
+        public static void LogInfo(string log)
         {
-            InternalIO.InternalWriteLog( log, LogType.Info );
+            InternalIO.InternalWriteLog(log, LogType.Info);
         }
 
-        public static void LogWarning( string log )
+        public static void LogWarning(string log)
         {
-            InternalIO.InternalWriteLog( log, LogType.Warning );
+            InternalIO.InternalWriteLog(log, LogType.Warning);
         }
 
-        public static void LogWarning( Exception notVerySeriesException )
+        public static void LogWarning(Exception notVerySeriesException)
         {
-            InternalIO.InternalWriteLog( notVerySeriesException.Message, LogType.Warning );
+            InternalIO.InternalWriteLog(notVerySeriesException.Message, LogType.Warning);
         }
 
-        public static void Mark( bool needConsole )
+        public static void Mark(bool needConsole)
         {
             markCount++;
-            if( needConsole ) {
-                Console.WriteLine( markCount );
+            if (needConsole) {
+                Console.WriteLine(markCount);
             }
         }
 
-        public static void Terminate( int exitCode )
+        public static void Terminate(int exitCode)
         {
             MainTimeProvider.StopProvidingTime();
             InternalIO.glfwTerminate();
-            Environment.Exit( exitCode );
+            Environment.Exit(exitCode);
         }
 
         public static void Track(
@@ -140,24 +120,24 @@ namespace StgSharp
                            bool isConsole,
                            [CallerFilePath] string filePath = "",
                            [CallerMemberName] string callerName = "",
-                           [CallerLineNumber] int lineNumber = 0 )
+                           [CallerLineNumber] int lineNumber = 0)
         {
             Type t = target.GetType();
             string log = $"Tracked object: {nameof(target)}\t\tType:{t.Name}\n";
             FieldInfo[] fieldInfo = t.GetFields(
-                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance );
+                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             log += "|\tFieldName\t|\tFieldType\t|\tFieldValue\t|\n";
-            foreach( FieldInfo field in fieldInfo ) {
+            foreach (FieldInfo field in fieldInfo) {
                 log += $"|{field.Name}\t\t|{field.FieldType}\t\t|{field.GetValue(target)}\t\t|\n";
             }
             log += $"Tracking at:\n{filePath}\t{callerName}\tline {lineNumber}\n";
             log += $"Additional information:\n{message}\n";
-            if( isConsole )
+            if (isConsole)
             {
-                Console.WriteLine( log );
+                Console.WriteLine(log);
             } else
             {
-                InternalIO.InternalWriteLog( log, LogType.Info );
+                InternalIO.InternalWriteLog(log, LogType.Info);
             }
         }
 
@@ -170,39 +150,39 @@ namespace StgSharp
         /// <param _label="logType">
         ///   The severity of current message.
         /// </param>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static void WriteLog( string message, LogType logType )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteLog(string message, LogType logType)
         {
-            InternalIO.InternalWriteLog( message, logType );
+            InternalIO.InternalWriteLog(message, logType);
         }
 
-        internal static TDele ConvertAPI<TDele>( IntPtr funcPtr )
+        internal static TDele ConvertAPI<TDele>(IntPtr funcPtr)
         {
-            if( funcPtr == IntPtr.Zero ) {
+            if (funcPtr == IntPtr.Zero) {
                 throw new InvalidCastException(
-                    "Failed to convert api, the function pointer is zero." );
+                    "Failed to convert api, the function pointer is zero.");
             }
             try
             {
-                return Marshal.GetDelegateForFunctionPointer<TDele>( funcPtr );
+                return Marshal.GetDelegateForFunctionPointer<TDele>(funcPtr);
             }
-            catch( Exception )
+            catch (Exception)
             {
                 throw;
             }
         }
 
-        internal static Delegate ConvertAPI( IntPtr funcPtr, Type T )
+        internal static Delegate ConvertAPI(IntPtr funcPtr, Type T)
         {
-            if( funcPtr == IntPtr.Zero ) {
+            if (funcPtr == IntPtr.Zero) {
                 throw new InvalidCastException(
-                    "Failed to convert api, the function pointer is zero." );
+                    "Failed to convert api, the function pointer is zero.");
             }
             try
             {
-                return Marshal.GetDelegateForFunctionPointer( funcPtr, T );
+                return Marshal.GetDelegateForFunctionPointer(funcPtr, T);
             }
-            catch( Exception )
+            catch (Exception)
             {
                 throw;
             }

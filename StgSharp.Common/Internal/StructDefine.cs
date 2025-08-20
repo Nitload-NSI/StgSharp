@@ -31,8 +31,6 @@
 
 using StgSharp.Graphics.OpenGL;
 
-using StgSharp.Internal.OpenGL;
-
 using System;
 using System.Runtime.InteropServices;
 

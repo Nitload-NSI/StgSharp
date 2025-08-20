@@ -43,13 +43,13 @@ namespace StgSharp.HighPerformance.Memory
 
         private const int MaxLevel = 9;
 
-        private static readonly int[] levelSize = [
+        private static readonly int[] levelSizeArray = [
             64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216
             ];
 
         public int AlignOfLevel(int bucketLevel)
         {
-            int blockSize = levelSize[bucketLevel];
+            int blockSize = levelSizeArray[bucketLevel];
             return int.Min(blockSize, _align);
         }
 

@@ -160,32 +160,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Library Include="glfw3.lib" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="sn-src\dllmain.c" />
     <ClCompile Include="sn-src\FactorialSIMD.c" />
     <ClCompile Include="sn-src\hash.c" />
     <ClCompile Include="sn-src\intrinsic.c" />
+    <ClCompile Include="sn-src\load_glfw.c" />
     <ClCompile Include="sn-src\mat2.c" />
     <ClCompile Include="sn-src\mat3.c" />
     <ClCompile Include="sn-src\mat4.c" />
     <ClCompile Include="sn-src\stb_image.c" />
-    <ClCompile Include="sn-src\StgSharpC.c" />
+    <ClCompile Include="sn-src\stgsharp_native.c" />
     <ClCompile Include="sn-src\string.c" />
     <ClCompile Include="sn-src\vector.c" />
     <ClCompile Include="sn-src\vector_dot.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="glfw\glfw3.h" />
     <ClInclude Include="sn-head\gl.h" />
-    <ClInclude Include="sn-head\glfw3.h" />
-    <ClInclude Include="sn-head\glfw3native.h" />
+    <ClInclude Include="sn-head\glfw_function.h" />
     <ClInclude Include="sn-head\khrplatform.h" />
-    <ClInclude Include="sn-head\ssc_internal.h" />
-    <ClInclude Include="sn-head\ssc_intrinsic.h" />
+    <ClInclude Include="sn-head\sn_internal.h" />
+    <ClInclude Include="sn-head\sn_intrinsic.h" />
     <ClInclude Include="sn-head\stb_image.h" />
-    <ClInclude Include="sn-head\StgSharpC.h" />
+    <ClInclude Include="sn-head\StgSharpNative.h" />
     <ClInclude Include="sn-head\wgl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="glfw\glfw3.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

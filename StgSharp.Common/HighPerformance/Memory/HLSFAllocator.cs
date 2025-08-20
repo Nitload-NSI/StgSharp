@@ -47,28 +47,27 @@ namespace StgSharp.HighPerformance.Memory
         private bool disposedValue;
         private readonly int _align;
         private readonly nuint _size;
-        private readonly SlabAllocator<Entry> _nodes;
+        private readonly SlabAllocator<Entry> _entries;
 
         public HybridLayerSegregatedFitAllocator(nuint byteSize)
         {
             if (byteSize < 64) {
                 throw new InvalidOperationException();
             }
-            _nodes = SlabAllocator<Entry>.Create(64, BufferLayout.Chunked);
+            _entries = SlabAllocator<Entry>.Create(64, BufferLayout.Chunked);
             _size = byteSize;
             m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, 16);
             _align = 16;
 
-
-            // 初始化桶系统
             InitializeBucketSystem();
 
-
-            // 初始化spareMemory
-            _spareMemory = (Entry*)_nodes.Allocate();
-            _spareMemory->State = EntryState.ThreadOccupied;
+            _spareMemory = (Entry*)_entries.Allocate();
+            SetEntryState(_spareMemory, EntryState.ThreadOccupied);
             _spareMemory->NextNear = EmptyHandle;
             _spareMemory->Position = (nuint)m_Buffer;
+            _spareMemory->PrevLock = 0;
+            _spareMemory->NextLock = 0;
+            _spareMemory->Size = (uint)byteSize;
         }
 
         public HybridLayerSegregatedFitAllocator(nuint byteSize, int align)
@@ -77,19 +76,20 @@ namespace StgSharp.HighPerformance.Memory
                 throw new ArgumentException(
                     "Alignment must be a power of two and at least 8 bytes.");
             }
-            _nodes = SlabAllocator<Entry>.Create(64, BufferLayout.Chunked);
+            _entries = SlabAllocator<Entry>.Create(64, BufferLayout.Chunked);
             m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
             _align = align;
             _size = byteSize;
 
             InitializeBucketSystem();
 
-
-            // 初始化spareMemory
-            _spareMemory = (Entry*)_nodes.Allocate();
-            _spareMemory->State = EntryState.ThreadOccupied;
+            _spareMemory = (Entry*)_entries.Allocate();
+            SetEntryState(_spareMemory, EntryState.ThreadOccupied);
             _spareMemory->NextNear = EmptyHandle;
             _spareMemory->Position = (nuint)m_Buffer;
+            _spareMemory->PrevLock = 0;
+            _spareMemory->NextLock = 0;
+            _spareMemory->Size = (uint)byteSize;
         }
 
         public void Dispose()
@@ -103,7 +103,7 @@ namespace StgSharp.HighPerformance.Memory
             if (!disposedValue)
             {
                 if (disposing) {
-                    _nodes.Dispose();
+                    _entries.Dispose();
                 }
                 NativeMemory.AlignedFree(m_Buffer);
                 disposedValue = true;

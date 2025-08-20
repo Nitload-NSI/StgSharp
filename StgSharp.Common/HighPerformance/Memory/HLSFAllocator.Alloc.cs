@@ -33,6 +33,7 @@ using StgSharp.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -49,14 +50,14 @@ namespace StgSharp.HighPerformance.Memory
 
         public hlsfHandle Alloc(uint size)
         {
-            ArgumentOutOfRangeException.ThrowIfGreaterThan<nuint>(size, (nuint)levelSize[^1] * 2);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan<nuint>(size, (nuint)levelSizeArray[^1] * 2);
             int level = GetLevelFromSize(size);
             int segmentIndex = DetermineSegmentIndex(size, level);
 
             int i = level, s = segmentIndex;
             if (TryPopLevelForAllocation(i, s, out Entry* handle))
             {
-                handle->State = EntryState.Allocated;
+                SetEntryState(handle, EntryState.Allocated);
                 return new hlsfHandle(handle, size);
             }
 
@@ -70,27 +71,151 @@ namespace StgSharp.HighPerformance.Memory
                     s = 0;
                     i++;
                 }
-                if (i >= levelSize.Length)
+                if (i >= levelSizeArray.Length)
                 {
-                    if (TryAllocateNew16MBBlock(out handle))
-                    {
-                        break;
+                    if (!TryAllocateNew16MBBlock(out handle)) {
+                        throw new OverflowException("Out of memory: Unable to allocate new 16MB block or find suitable bucket for allocation.");
                     }
+
                     Thread.Sleep(0);
                     goto fallback;
                 }
             }
 
-            if (handle != null)
+            try
             {
-                SliceMemory(handle, (segmentIndex + 1) * levelSize[level]);
-                handle->State = EntryState.Allocated;
-            }
+                if (handle != null)
+                {
+                    AcquireEntryNextLock(handle);
+                    SliceMemory(handle, (segmentIndex + 1) * levelSizeArray[level]);
+                    SetEntryState(handle, EntryState.Allocated);
+                }
 
-            return new hlsfHandle(handle, size);
+                return new hlsfHandle(handle, size);
+            }
+            finally
+            {
+                ReleaseEntryNextLock(handle);
+            }
         }
 
-        private void SliceMemory(Entry* e, int offset) { }
+        private void SliceMemory(Entry* e, int offset)
+        {
+            Entry* current = e;
+            ulong n = e->NextNear;
+            Entry* next = e;
+
+            ulong originOffset = e->Position - (ulong)m_Buffer;
+            ulong finalOffset = originOffset + (ulong)offset;
+            int remainSize = (int)(e->Size - offset);
+
+            AcquireEntryNextLock(e);
+            AcquireEntryPrevLock(next);
+
+            try
+            {
+                if ((originOffset & 63) != 0) {
+                    throw new InvalidOperationException("Entry position offset is not aligned to 64 bytes.");
+                }
+                int minLevel = Math.Max((BitOperations.TrailingZeroCount(originOffset) - 6) / 2, 0);
+                int i = minLevel >= levelSizeArray.Length ? levelSizeArray.Length : minLevel;
+                for (; i < levelSizeArray.Length; i++)
+                {
+                    int levelSize = levelSizeArray[i];
+                    int blockCount = remainSize / levelSize % 4;
+                    if (blockCount == 0)
+                    {
+                        break;
+                    }
+                    int s = blockCount * levelSize;
+
+                    // create and init new entry
+                    Entry* newEntry = (Entry*)_entries.Allocate();
+                    newEntry->Position = (nuint)((ulong)m_Buffer + finalOffset);
+                    newEntry->Size = (uint)s;
+                    BucketNode* bucket = (BucketNode*)newEntry->Position;
+                    bucket->EntryRef = newEntry;
+                    bucket->PrevLock = 0;
+                    bucket->NextLock = 0;
+                    newEntry->State = EntryState.ThreadOccupied;
+
+                    // link new entry
+                    newEntry->PreviousNear = (ulong)e;
+                    e->NextNear = (ulong)newEntry;
+                    newEntry->NextNear = n;
+                    next->PreviousNear = (ulong)newEntry;
+                    next->NextNear = EmptyHandle;
+
+                    PushLevel(i, blockCount - 1, bucket);
+
+                    // set new entry
+                    Entry* old = current;
+                    current = newEntry;
+
+                    // update lock and data
+                    finalOffset += (ulong)s;
+                    remainSize -= s;
+                    ReleaseEntryNextLock(old);
+                    AcquireEntryNextLock(current);
+                }
+                if (remainSize <= 0)
+                {
+                    ReleaseEntryNextLock(current);
+                    ReleaseEntryPrevLock(next);
+                    return;
+                }
+
+                for (; i >= 0; i--)
+                {
+                    int levelSize = levelSizeArray[i];
+                    int blockCount = remainSize / levelSize % 4;
+                    if (blockCount == 0)
+                    {
+                        break;
+                    }
+                    int s = blockCount * levelSize;
+
+                    // create and init new entry
+                    Entry* newEntry = (Entry*)_entries.Allocate();
+                    newEntry->Position = (nuint)((ulong)m_Buffer + finalOffset);
+                    newEntry->Size = (uint)s;
+                    BucketNode* bucket = (BucketNode*)newEntry->Position;
+                    bucket->EntryRef = newEntry;
+                    bucket->PrevLock = 0;
+                    bucket->NextLock = 0;
+                    newEntry->State = EntryState.ThreadOccupied;
+
+                    // link new entry
+                    newEntry->PreviousNear = (ulong)e;
+                    e->NextNear = (ulong)newEntry;
+                    newEntry->NextNear = n;
+                    next->PreviousNear = (ulong)newEntry;
+                    next->NextNear = EmptyHandle;
+
+                    PushLevel(i, blockCount - 1, bucket);
+
+                    // set new entry
+                    Entry* old = current;
+                    current = newEntry;
+
+                    // update lock and data
+                    finalOffset += (ulong)s;
+                    remainSize -= s;
+                    ReleaseEntryNextLock(old);
+                    AcquireEntryNextLock(current);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                // Release locks in reverse order
+                ReleaseEntryNextLock(current);
+                ReleaseEntryPrevLock(next);
+            }
+        }
 
         /// <summary>
         ///   Try to allocate a new 16MB block when all buckets are empty
@@ -104,32 +229,41 @@ namespace StgSharp.HighPerformance.Memory
         private bool TryAllocateNew16MBBlock(out Entry* handle)
         {
             nuint pos = Volatile.Read(ref _spareMemory->Position);
-            nuint blockSize = (nuint)levelSize[^1] * 2; // Use last level size (16MB)
+            nuint blockSize = (nuint)levelSizeArray[^1] * 2; // Use last level size (16MB)
             nuint newPos = pos + blockSize;
 
+            if (_spareMemory->Size <= 0)
+            {
+                handle = null;
+                return false; // No spare memory available
+            }
 
             // Check if we have enough space
             if (newPos > ((nuint)m_Buffer) + _size)
             {
-                handle = null;
-                return false; // Out of memory
+                newPos = (nuint)m_Buffer + _size; // Clamp to maximum buffer size
+                blockSize = _spareMemory->Size;
             }
 
             // Try to allocate new Entry from slab allocator
             try
             {
-                handle = (Entry*)_nodes.Allocate();
+                handle = (Entry*)_entries.Allocate();
                 handle->Position = pos;
                 handle->Size = (uint)blockSize;
-                handle->State = EntryState.ThreadOccupied;
+                SetEntryState(handle, EntryState.ThreadOccupied);
                 handle->NextNear = EmptyHandle;
                 handle->PreviousNear = EmptyHandle;
-                handle->SpinLock = 0;
+                handle->Level = GetLevelFromSize((uint)blockSize);
 
+                handle->PrevLock = 0;
+                handle->NextLock = 0;
 
                 // Update spare memory position
                 _spareMemory->Position = newPos;
-
+                BucketNode* b = (BucketNode*)handle->Position;
+                b->EntryRef = handle;
+                PushLevel(handle->Level, DetermineSegmentIndex((uint)blockSize, handle->Level), b);
                 return true;
             }
             catch

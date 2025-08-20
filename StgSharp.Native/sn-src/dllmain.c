@@ -1,5 +1,5 @@
 ﻿
-#include "StgSharpC.h"
+#include "StgSharpNative.h"
 
 #ifdef _WIN32
 

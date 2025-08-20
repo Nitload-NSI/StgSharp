@@ -1,7 +1,7 @@
-#include "ssc_intrinsic.h"
-#include "StgSharpC.h"
+#include "sn_intrinsic.h"
+#include "StgSharpNative.h"
 
-INTERNAL int SSCDECL city_hash_simplify_sse(byte const *str, int const length)
+INTERNAL int SN_DECL city_hash_simplify_sse(byte const *str, int const length)
 {
         uint32_t hash = length, size = length << 1;
         byte *end = str + size, *ptr = str;

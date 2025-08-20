@@ -68,51 +68,51 @@ namespace StgSharp.MVVM.ViewModel
         protected ViewModelBase(int frameSpeed)
         {
             viewPortDisplay = new ViewPort();
-            allView = new();
+            allView = [];
             fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
             _frameSpeed = 0;
             _frameCount = 0;
-            long frameLength = (FrameSpeed > 0) ? ((1000L * 1000L) / FrameSpeed) : 0;
+            long frameLength = (FrameSpeed > 0) ? (1000L * 1000L / FrameSpeed) : 0;
             frameTimeProvider = new TimeSpanProvider(frameLength, TimeSpanProvider.DefaultProvider);
-            FrameSizeCallback = DefaultFrameRewsizeCallback;
+            SetFrameSizeCallback(DefaultFrameRewsizeCallback);
         }
 
         protected ViewModelBase(float frameLength)
         {
             viewPortDisplay = new ViewPort();
-            allView = new();
+            allView = [];
             fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
             _frameSpeed = 0;
             _frameCount = 0;
             long _frameLength = (FrameSpeed > 0) ? ((long)(1000 * frameLength)) : 0;
             frameTimeProvider = new TimeSpanProvider(_frameLength,
                                                      TimeSpanProvider.DefaultProvider);
-            FrameSizeCallback = DefaultFrameRewsizeCallback;
+            SetFrameSizeCallback(DefaultFrameRewsizeCallback);
         }
 
         public ViewModelBase(ViewPort vBinding, int frameSpeed)
         {
             viewPortDisplay = vBinding;
-            allView = new();
+            allView = [];
             fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
             _frameSpeed = 0;
             _frameCount = 0;
-            long frameLength = (frameSpeed > 0) ? ((1000L * 1000L) / frameSpeed) : 0;
+            long frameLength = (frameSpeed > 0) ? (1000L * 1000L / frameSpeed) : 0;
             frameTimeProvider = new TimeSpanProvider(frameLength, TimeSpanProvider.DefaultProvider);
-            FrameSizeCallback = DefaultFrameRewsizeCallback;
+            SetFrameSizeCallback(DefaultFrameRewsizeCallback);
         }
 
         public ViewModelBase(ViewPort vBinding, float frameLength)
         {
             viewPortDisplay = vBinding;
-            allView = new();
+            allView = [];
             fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
             _frameSpeed = 0;
             _frameCount = 0;
             long _frameLength = (frameLength > 0) ? ((long)(1000 * frameLength)) : 0;
             frameTimeProvider = new TimeSpanProvider(_frameLength,
                                                      TimeSpanProvider.DefaultProvider);
-            FrameSizeCallback = DefaultFrameRewsizeCallback;
+            SetFrameSizeCallback(DefaultFrameRewsizeCallback);
         }
 
         public DataBindingEntry this[string name]
@@ -142,6 +142,7 @@ namespace StgSharp.MVVM.ViewModel
         /// </summary>
         public int Height
         {
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => viewPortDisplay.Height;
         }
 
@@ -150,16 +151,19 @@ namespace StgSharp.MVVM.ViewModel
         /// </summary>
         public int Width
         {
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => viewPortDisplay.Width;
         }
 
         public unsafe IntPtr WindowID
         {
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => viewPortDisplay.ViewPortHandle;
         }
 
         public string Name
         {
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => viewPortDisplay.Name;
         }
 
@@ -168,26 +172,15 @@ namespace StgSharp.MVVM.ViewModel
         /// </summary>
         public Vec2 Size
         {
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => new Vec2(Width, Height);
         }
 
         public ViewPort ViewPortBinding
         {
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => viewPortDisplay;
         }
-
-        #pragma warning disable CA1044
-        protected FrameBufferSizeHandler FrameSizeCallback
-        {
-            set
-            {
-                _resizeCallback = value;
-                IntPtr handlerPtr = Marshal.GetFunctionPointerForDelegate(value);
-                InternalIO.glfwSetFramebufferSizeCallback(
-                    viewPortDisplay.ViewPortHandle, handlerPtr);
-            }
-        }
-        #pragma warning restore CA1044
 
         public abstract void CustomizeInitialize();
 
@@ -233,6 +226,14 @@ namespace StgSharp.MVVM.ViewModel
         }
 
         public abstract bool TryGetObjectReference(string name, out DataBindingEntry entry);
+
+        protected unsafe void SetFrameSizeCallback(FrameBufferSizeHandler callback)
+        {
+            _resizeCallback = callback;
+            IntPtr handlerPtr = Marshal.GetFunctionPointerForDelegate(callback);
+            InternalIO.glfwSetFrameBufferSizeCallback(
+                    viewPortDisplay.ViewPortHandle, (delegate* unmanaged[Cdecl]<IntPtr,int,int,void>)handlerPtr);
+        }
 
         private void DefaultFrameRewsizeCallback(IntPtr windowHandle, int width, int height)
         {

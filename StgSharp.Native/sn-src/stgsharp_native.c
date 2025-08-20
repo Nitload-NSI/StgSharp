@@ -1,13 +1,13 @@
-﻿#include "StgSharpC.h"
+﻿#include "StgSharpNative.h"
 #include "gl.h"
-#include "glfw3.h"
+#include "../glfw/glfw3.h"
 #include <stdio.h>
 #include <string.h>
 
 extern GladGLContext *currentContext;
 extern char infolog[512];
 
-SSCAPI int SSCDECL glCheckShaderStat(GladGLContext *context, uint64_t shaderHandle, int key,
+SN_API int SN_DECL glCheckShaderStat(GladGLContext *context, uint64_t shaderHandle, int key,
                                      char **logRef)
 {
         int stat = 0;
@@ -19,7 +19,7 @@ SSCAPI int SSCDECL glCheckShaderStat(GladGLContext *context, uint64_t shaderHand
         return stat;
 }
 
-SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion)
+SN_API void SN_DECL initGL(int majorVersion, int minorVersion)
 {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
@@ -27,7 +27,7 @@ SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 }
 
-SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char *procName)
+SN_API GLFWglproc SN_DECL loadGlfuncDefault(char *procName)
 {
         void *ret = glfwGetProcAddress(procName);
         // printf("%llu\n", (uint64_t)ret);
@@ -41,7 +41,7 @@ SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char *procName)
         return (GLFWglproc)ret;
 }
 
-SSCAPI unsigned int linkShaderProgram(GladGLContext *context, GLuint shaderProgram)
+SN_API unsigned int linkShaderProgram(GladGLContext *context, GLuint shaderProgram)
 {
         context->LinkProgram(shaderProgram);
 
@@ -55,7 +55,7 @@ SSCAPI unsigned int linkShaderProgram(GladGLContext *context, GLuint shaderProgr
         }
 }
 
-SSCAPI void SSCDECL loadImageData(char *location, Image *out, imageLoader loader)
+SN_API void SN_DECL loadImageData(char *location, Image *out, imageLoader loader)
 {
         if (loader == NULL) {
                 loader = stbi_load;
@@ -63,12 +63,12 @@ SSCAPI void SSCDECL loadImageData(char *location, Image *out, imageLoader loader
         out->pixelPtr = loader(location, &(out->width), &(out->height), &(out->channel), 0);
 }
 
-SSCAPI void SSCDECL unloadImageData(Image *out)
+SN_API void SN_DECL unloadImageData(Image *out)
 {
         free(out->pixelPtr);
 }
 
-SSCAPI char *SSCDECL readLog()
+SN_API char *SN_DECL readLog()
 {
         infolog[511] = '\0';
         return infolog;

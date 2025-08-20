@@ -1,5 +1,5 @@
-#include "StgSharpC.h"
-#include "ssc_intrinsic.h"
+#include "StgSharpNative.h"
+#include "sn_intrinsic.h"
 #include <stdio.h>
 
 INTERNAL void _cdecl transpose32(__3_columnset *source, __2_columnset *target)

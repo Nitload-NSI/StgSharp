@@ -41,22 +41,24 @@ namespace StgSharp.HighPerformance.Memory
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void AcquireEntrySpinLock(Entry* entry)
         {
-            int thread = Environment.CurrentManagedThreadId;
-            if (entry != null && Volatile.Read(ref entry->SpinLock) != thread)
-            {
-                while (Interlocked.CompareExchange(ref entry->SpinLock, thread, 0) != 0) {
-                    Thread.Sleep(0);
-                }
-            }
+            AcquireEntryBothLocks(entry);
         }
 
-        private bool AssertAlignBoundry(ulong current, Entry* target, int level)
+        private bool AssertBackwardBoundary(ulong current, Entry* target, int level)
         {
             int size = (level * 2) + 6;
             ulong align = current >> size;
-            return align == target->Position >> size && align == target->Size;
+            return align == target->Position >> size && align == (current + target->Size) >> size;
+        }
+
+        private bool AssertForwardBoundary(ulong current, Entry* target, int level)
+        {
+            int size = (level * 2) + 6;
+            ulong align = current >> size;
+            return align == target->Position >> size && align == (current - target->Size) >> size;
         }
 
         /// <summary>
@@ -65,7 +67,7 @@ namespace StgSharp.HighPerformance.Memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int DetermineSegmentIndex(uint size, int level)
         {
-            return (int)size / levelSize[level];
+            return (int)(size - 1) / levelSizeArray[level];
         }
 
         /// <summary>
@@ -82,7 +84,7 @@ namespace StgSharp.HighPerformance.Memory
         /// <summary>
         ///   Used in Free operations, efficiently remove from buckets and merge adjacent blocks.
         ///   Current Entry will serve as the final merged block. The Merge will be in lazy
-        ///   stretagey, any fail in acquiring spin lock will end a merging process.
+        ///   strategy, any fail in acquiring spin lock will end a merging process.
         /// </summary>
         private void MergeAndRemoveFromBuckets(Entry* entry)
         {
@@ -92,66 +94,113 @@ namespace StgSharp.HighPerformance.Memory
 
             Entry* result = entry;
             uint size = entry->Size;
-            int originLevel = -1;
+            int originLevel = GetLevelFromSize(size);
             int segment = DetermineSegmentIndex(size, originLevel);
-            if (TryAcquireEntrySpinLock(entry)) {
+
+            if (!TryAcquireEntrySpinLock(entry)) {
                 return;
             }
-
-            // current Level merge
-            while (originLevel != entry->Level)
+            if (!TryRemoveFromBucket(originLevel, segment, (BucketNode*)entry->Position)) { }
+            try
             {
-                ulong offset = entry->Position - (ulong)m_Buffer;
-                AcquireBucketNodeSpinLock((BucketNode*)entry->Position);
+                _ = TrySetEntryState(entry, EntryState.Empty, EntryState.Merging);
 
-                while (true)
+                // current Level merge
+                while (originLevel <= entry->Level)
                 {
-                    ulong n = entry->NextNear;
-                    Entry* near = (Entry*)n;
-                    if (near == null ||
-                        near->State != EntryState.Empty ||
-                        !IsAdjacentTo(entry, near) ||
-                        entry->Level != near->Level ||
-                        !AssertAlignBoundry(offset, near, entry->Level) ||
-                        !TryAcquireEntrySpinLock(near))
+                    ulong offset = entry->Position - (ulong)m_Buffer;
+
+                    // backward merging 
+                    while (true)
+                    {
+                        ulong p = entry->PreviousNear;
+                        Entry* prev = (Entry*)p;
+                        if (prev == null ||                                                 // null ref
+                            prev == _spareMemory ||                                         // point at end of list
+                            GetEntryState(prev) != EntryState.Empty ||                      // not empty
+                            !IsAdjacentTo(entry, prev) ||                                   // not nearby
+                            entry->Level != prev->Level ||                                  // not same level
+                            !AssertBackwardBoundary(offset, prev, entry->Level) ||          // not aligned if merge
+                            !TryAcquireEntrySpinLock(prev))                                 // occupied by threads
+                        {
+                            break;
+                        }
+                        ulong pp = prev->NextNear;
+                        Entry* prevPrev = (Entry*)pp;
+                        if (!TryAcquireEntryNextLock(prevPrev))
+                        {
+                            break;
+                        }
+                        try
+                        {
+                            if (!TryRemoveFromBucket(originLevel, DetermineSegmentIndex(prev->Size, originLevel), (BucketNode*)prev->Position))
+                            {
+                                break;
+                            }
+                            entry->Position = prev->Position; // Update position to the previous entry
+                            entry->Size += prev->Size;       // Merge sizes
+                            prevPrev->NextNear = (ulong)entry;
+                            RecycleEntry(prev);
+                        }
+                        finally
+                        {
+                            ReleaseEntryNextLock(prevPrev);
+                            ReleaseEntrySpinLock(prev);
+                        }
+                    }
+
+                    // forward merging
+                    while (true)
+                    {
+                        ulong n = entry->NextNear;
+                        Entry* next = (Entry*)n;
+                        if (next == null ||                                                 // null ref
+                            next == _spareMemory ||                                         // point at end of list
+                            GetEntryState(next) != EntryState.Empty ||                      // not empty
+                            !IsAdjacentTo(entry, next) ||                                   // not nearby
+                            entry->Level != next->Level ||                                  // not same level
+                            !AssertBackwardBoundary(offset, next, entry->Level) ||              // not aligned if merge
+                            !TryAcquireEntrySpinLock(next))                                 // occupied by threads
+                        {
+                            break;
+                        }
+                        ulong nn = next->NextNear;
+                        Entry* nextNext = (Entry*)nn;
+                        if (!TryAcquireEntryPrevLock(nextNext))
+                        {
+                            break;
+                        }
+                        try
+                        {
+                            if (!TryRemoveFromBucket(originLevel, DetermineSegmentIndex(next->Size, originLevel), (BucketNode*)next->Position))
+                            {
+                                break;
+                            }
+                            entry->Size += next->Size;
+                            entry->NextNear = next->NextNear;
+                            RecycleEntry(next);
+                        }
+                        finally
+                        {
+                            ReleaseEntrySpinLock(next);
+                        }
+                    }
+
+                    entry->Level = GetLevelFromSize(entry->Size);
+                    if (originLevel == entry->Level)
                     {
                         break;
                     }
-                    RemoveFromBucket(originLevel, , (BucketNode*)near->Position);
+                    originLevel = entry->Level;
                 }
 
-                // forward merging
-
-                while (true)
-                {
-                    ulong n = entry->NextNear;
-                    Entry* near = (Entry*)n;
-                    if (near == null ||
-                        near->State != EntryState.Empty ||
-                        !IsAdjacentTo(entry, near) ||
-                        entry->Level != near->Level ||
-                        !AssertAlignBoundry(offset, near, entry->Level) ||
-                        !TryAcquireEntrySpinLock(near))
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
-        private void MergeEntry(Entry* remain, Entry* other)
-        {
-            if (other == null) {
+                _ = TrySetEntryState(entry, EntryState.Merging, EntryState.Empty);
                 return;
             }
-
-            // Determine merged starting position and size
-            nuint newPosition = remain->Position < other->Position ? other->Position : other->Position;
-            uint newSize = remain->Size + other->Size;
-
-            // Update current Entry
-            remain->Position = newPosition;
-            remain->Size = newSize;
+            finally
+            {
+                ReleaseEntrySpinLock(entry);
+            }
         }
 
         private void RecycleEntry(Entry* entry)
@@ -159,17 +208,15 @@ namespace StgSharp.HighPerformance.Memory
             if (entry is null) {
                 return;
             }
-            entry-> PreviousNear = EmptyHandle;
-            entry-> Position = EmptyHandle;
-            _nodes.Free((nuint)entry);
+            entry->PreviousNear = EmptyHandle;
+            entry->Position = EmptyHandle;
+            _entries.Free((nuint)entry);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void ReleaseEntrySpinLock(Entry* entry)
         {
-            int thread = Environment.CurrentManagedThreadId;
-            if (entry != null && Volatile.Read(ref entry->SpinLock) != 0) {
-                _ = Interlocked.CompareExchange(ref entry->SpinLock, 0, thread);
-            }
+            ReleaseEntryBothLocks(entry);
         }
 
         /// <summary>
@@ -193,7 +240,7 @@ namespace StgSharp.HighPerformance.Memory
                 // Clear node pointers
                 entry->NextNear = EmptyHandle;
                 entry->PreviousNear = EmptyHandle;
-                _nodes.Free((nuint)entry);
+                _entries.Free((nuint)entry);
             }
             finally
             {
@@ -204,58 +251,224 @@ namespace StgSharp.HighPerformance.Memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TryAcquireEntrySpinLock(Entry* entry)
         {
-            int thread = Environment.CurrentManagedThreadId;
-            return entry == null ||
-                   (Interlocked.CompareExchange(ref entry->SpinLock, thread,
-                                               0) == 0) ||
-                   Volatile.Read(ref entry->SpinLock) == thread;
+            return TryAcquireEntryBothLocks(entry);
         }
 
         /// <summary>
         ///   Entry structure - streamlined version (only position and state information) Stored in
         ///   external SLAB
         /// </summary>
-        [StructLayout(LayoutKind.Explicit, Size = 40)]
+        [StructLayout(LayoutKind.Explicit, Size = 44)]
         internal struct Entry
         {
 
-            [FieldOffset(36)] internal int Level;           // Level of the block in the allocator
-            [FieldOffset(24)] internal int SpinLock;        // Spin lock for thread safety protection
-            [FieldOffset(28)] internal int State;           // Node state  
-            [FieldOffset(32)] internal uint Size;           // Block size information
+            [FieldOffset(28)] internal int Level;           // Level of the block in the allocator
+            [FieldOffset(40)] internal int NextLock;
+
+            [FieldOffset(36)] internal int PrevLock;
+            [FieldOffset(32)] internal int State;           // Node state (using int for atomic operations)
+            [FieldOffset(24)] internal uint Size;           // Block size information
             [FieldOffset(8)]  internal ulong NextNear;      // Position linked list: next pointer
             [FieldOffset(16)] internal ulong PreviousNear;  // Position linked list: previous pointer
             [FieldOffset(0)]  public nuint Position;        // Memory block position
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static bool IsNullOrEmptyIndex(ulong index)
-            {
-                return index == EmptyHandle;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static bool IsNullOrEmptyIndex(Entry* entry)
-            {
-                return entry == null;
-            }
-
-            /// <summary>
-            ///   Merge two adjacent Entries (caller must ensure they are adjacent and both Empty
-            ///   state)
-            /// </summary>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void MergeWith(Entry* other) { }
-
         }
 
+        // 更新后的EntryState常量类 - 使用int类型
         private static class EntryState
         {
 
             public const int Allocated = 1;       // Already allocated to user
             public const int Empty = 0;           // Free, can be allocated
+            public const int Merging = 3;         // Currently being merged
             public const int ThreadOccupied = 2;  // Occupied by thread (being operated on)
 
         }
 
+        #region Entry Operations
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsNullOrEmptyEntryIndex(ulong index)
+        {
+            return index == EmptyHandle;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsNullOrEmptyEntryIndex(Entry* entry)
+        {
+            return entry == null;
+        }
+
+        // Entry 状态操作
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool TrySetEntryState(Entry* entry, int expectedState, int newState)
+        {
+            return Interlocked.CompareExchange(ref entry->State, newState, expectedState) == expectedState;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetEntryState(Entry* entry)
+        {
+            return entry != null ? Volatile.Read(ref entry->State) : 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void SetEntryState(Entry* entry, int newState)
+        {
+            if (entry != null) {
+                Volatile.Write(ref entry->State, newState);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsEntryEmpty(Entry* entry)
+        {
+            return GetEntryState(entry) == EntryState.Empty;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsEntryAllocated(Entry* entry)
+        {
+            return GetEntryState(entry) == EntryState.Allocated;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsEntryThreadOccupied(Entry* entry)
+        {
+            return GetEntryState(entry) == EntryState.ThreadOccupied;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsEntryMerging(Entry* entry)
+        {
+            return GetEntryState(entry) == EntryState.Merging;
+        }
+
+        // Entry 前驱锁操作（控制PreviousNear字段）
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool TryAcquireEntryPrevLock(Entry* entry)
+        {
+            if (entry == null) {
+                return true;
+            }
+
+            int thread = Environment.CurrentManagedThreadId;
+            return Interlocked.CompareExchange(ref entry->PrevLock, thread, 0) == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void AcquireEntryPrevLock(Entry* entry)
+        {
+            if (entry == null) {
+                return;
+            }
+
+            int thread = Environment.CurrentManagedThreadId;
+            if (Volatile.Read(ref entry->PrevLock) != thread)
+            {
+                while (Interlocked.CompareExchange(ref entry->PrevLock, thread, 0) != 0) {
+                    Thread.Sleep(0);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ReleaseEntryPrevLock(Entry* entry)
+        {
+            if (entry == null) {
+                return;
+            }
+
+            int thread = Environment.CurrentManagedThreadId;
+            if (Volatile.Read(ref entry->PrevLock) == thread) {
+                Volatile.Write(ref entry->PrevLock, 0);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool TryAcquireEntryNextLock(Entry* entry)
+        {
+            if (entry == null) {
+                return true;
+            }
+
+            int thread = Environment.CurrentManagedThreadId;
+            return Interlocked.CompareExchange(ref entry->NextLock, thread, 0) == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void AcquireEntryNextLock(Entry* entry)
+        {
+            if (entry == null) {
+                return;
+            }
+
+            int thread = Environment.CurrentManagedThreadId;
+            if (Volatile.Read(ref entry->NextLock) != thread)
+            {
+                while (Interlocked.CompareExchange(ref entry->NextLock, thread, 0) != 0) {
+                    Thread.Sleep(0);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ReleaseEntryNextLock(Entry* entry)
+        {
+            if (entry == null) {
+                return;
+            }
+
+            int thread = Environment.CurrentManagedThreadId;
+            if (Volatile.Read(ref entry->NextLock) == thread) {
+                Volatile.Write(ref entry->NextLock, 0);
+            }
+        }
+
+        // Entry 双锁组合操作
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool TryAcquireEntryBothLocks(Entry* entry)
+        {
+            if (entry == null) {
+                return true;
+            }
+
+            if (TryAcquireEntryPrevLock(entry))
+            {
+                if (TryAcquireEntryNextLock(entry))
+                {
+                    return true;
+                } else
+                {
+                    ReleaseEntryPrevLock(entry); // 回滚
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ReleaseEntryBothLocks(Entry* entry)
+        {
+            if (entry == null) {
+                return;
+            }
+
+            ReleaseEntryPrevLock(entry);
+            ReleaseEntryNextLock(entry);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void AcquireEntryBothLocks(Entry* entry)
+        {
+            if (entry == null) {
+                return;
+            }
+
+            AcquireEntryPrevLock(entry);
+            AcquireEntryNextLock(entry);
+        }
+
+        #endregion
     }
 }

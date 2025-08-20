@@ -1,4 +1,4 @@
-#include "ssc_intrinsic.h"
+#include "sn_intrinsic.h"
 
 int index_pair_sse(short const *str, uint32_t target, int length)
 {

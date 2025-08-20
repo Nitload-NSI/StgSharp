@@ -32,468 +32,798 @@ using StgSharp.Graphics;
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace StgSharp.Internal
 {
-    internal partial class InternalIO
+    internal unsafe partial class InternalIO
     {
+
+        private static readonly GLFWFunction _glfw = new GLFWFunction();
+
+        public static GLFWFunction glfwContext => _glfw;
+
+        [LibraryImport(NativeLibName, EntryPoint = "load_glfw_functions")]
+        internal static unsafe partial void glfwLoadLibrary(GLFWFunction* context);
+
+        internal static unsafe void LoadGlfw()
+        {
+            fixed (GLFWFunction* func = &_glfw) {
+                glfwLoadLibrary(func);
+            }
+        }
 
         #region api call
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwInit")]
-        internal static unsafe partial int glfwInit();
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwTerminate")]
-        internal static unsafe partial void glfwTerminate();
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwInitHint")]
-        internal static unsafe partial void glfwInitHint(int hint, int value);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetVersion")]
-        internal static unsafe partial void glfwGetVersion(int* major, int* minor, int* rev);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetVersionString")]
-        internal static unsafe partial byte* glfwGetVersionString();
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetError")]
-        internal static unsafe partial int glfwGetError(byte** description);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetErrorCallback")]
-        internal static unsafe partial delegate*<int,byte*,void> glfwSetErrorCallback(
-                                                                 delegate*<int,byte*,void> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetMonitors")]
-        internal static unsafe partial IntPtr* glfwGetMonitors(int* count);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetPrimaryMonitor")]
-        internal static unsafe partial IntPtr glfwGetPrimaryMonitor();
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetMonitorPos")]
-        internal static unsafe partial void glfwGetMonitorPos(IntPtr monitor, int* xpos, int* ypos);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetMonitorWorkarea")]
-        internal static unsafe partial void glfwGetMonitorWorkarea(
-                                            IntPtr monitor,
-                                            int* xpos,
-                                            int* ypos,
-                                            int* width,
-                                            int* height);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetMonitorPhysicalSize")]
-        internal static unsafe partial void glfwGetMonitorPhysicalSize(
-                                            IntPtr monitor,
-                                            int* widthMM,
-                                            int* heightMM);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetMonitorContentScale")]
-        internal static unsafe partial void glfwGetMonitorContentScale(
-                                            IntPtr monitor,
-                                            float* xscale,
-                                            float* yscale);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetMonitorName")]
-        internal static unsafe partial byte* glfwGetMonitorName(IntPtr monitor);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetMonitorUserPointer")]
-        internal static unsafe partial void glfwSetMonitorUserPointer(IntPtr monitor, void* pointer);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetMonitorUserPointer")]
-        internal static unsafe partial void* glfwGetMonitorUserPointer(IntPtr monitor);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetMonitorCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,void> glfwSetMonitorCallback(
-                                                                       delegate*<glfwWindow*,int,void> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetVideoModes")]
-        internal static unsafe partial glfwVideomode* glfwGetVideoModes(IntPtr monitor, int* count);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetVideoMode")]
-        internal static unsafe partial glfwVideomode* glfwGetVideoMode(IntPtr monitor);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetGamma")]
-        internal static unsafe partial void glfwSetGamma(IntPtr monitor, float gamma);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetGammaRamp")]
-        internal static unsafe partial glfwGammaramp* glfwGetGammaRamp(IntPtr monitor);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetGammaRamp")]
-        internal static unsafe partial void glfwSetGammaRamp(IntPtr monitor, glfwGammaramp* ramp);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwDefaultWindowHints")]
-        internal static unsafe partial void glfwDefaultWindowHints();
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwWindowHint")]
-        internal static unsafe partial void glfwWindowHint(int hint, int value);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwWindowHintString")]
-        internal static unsafe partial void glfwWindowHintString(int hint, byte* value);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwCreateWindow")]
-        internal static unsafe partial IntPtr glfwCreateWindow(
-                                              int width,
-                                              int height,
-                                              byte[] title,
-                                              IntPtr monitor,
-                                              IntPtr share);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwDestroyWindow")]
-        internal static unsafe partial void glfwDestroyWindow(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwWindowShouldClose")]
-        internal static unsafe partial int glfwWindowShouldClose(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowShouldClose")]
-        internal static unsafe partial void glfwSetWindowShouldClose(IntPtr window, int value);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowTitle")]
-        internal static unsafe partial void glfwSetWindowTitle(IntPtr window, byte* title);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowIcon")]
-        internal static unsafe partial void glfwSetWindowIcon(
-                                            IntPtr window,
-                                            int count,
-                                            GLFWimage* images);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetWindowPos")]
-        internal static unsafe partial void glfwGetWindowPos(IntPtr window, int* xpos, int* ypos);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowPos")]
-        internal static unsafe partial void glfwSetWindowPos(IntPtr window, int xpos, int ypos);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetWindowSize")]
-        internal static unsafe partial void glfwGetWindowSize(
-                                            IntPtr window,
-                                            int* width,
-                                            int* height);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowSizeLimits")]
-        internal static unsafe partial void glfwSetWindowSizeLimits(
-                                            IntPtr window,
-                                            int minwidth,
-                                            int minheight,
-                                            int maxwidth,
-                                            int maxheight);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowAspectRatio")]
-        internal static unsafe partial void glfwSetWindowAspectRatio(
-                                            IntPtr window,
-                                            int numer,
-                                            int denom);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowSize")]
-        internal static unsafe partial void glfwSetWindowSize(IntPtr window, int width, int height);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetFramebufferSize")]
-        internal static unsafe partial void glfwGetFramebufferSize(
-                                            IntPtr window,
-                                            int* width,
-                                            int* height);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetWindowFrameSize")]
-        internal static unsafe partial void glfwGetWindowFrameSize(
-                                            IntPtr window,
-                                            int* left,
-                                            int* top,
-                                            int* right,
-                                            int* bottom);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetWindowContentScale")]
-        internal static unsafe partial void glfwGetWindowContentScale(
-                                            IntPtr window,
-                                            float* xscale,
-                                            float* yscale);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetWindowOpacity")]
-        internal static unsafe partial float glfwGetWindowOpacity(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowOpacity")]
-        internal static unsafe partial void glfwSetWindowOpacity(IntPtr window, float opacity);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwIconifyWindow")]
-        internal static unsafe partial void glfwIconifyWindow(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwRestoreWindow")]
-        internal static unsafe partial void glfwRestoreWindow(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwMaximizeWindow")]
-        internal static unsafe partial void glfwMaximizeWindow(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwShowWindow")]
-        internal static unsafe partial void glfwShowWindow(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwHideWindow")]
-        internal static unsafe partial void glfwHideWindow(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwFocusWindow")]
-        internal static unsafe partial void glfwFocusWindow(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwRequestWindowAttention")]
-        internal static unsafe partial void glfwRequestWindowAttention(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetWindowMonitor")]
-        internal static unsafe partial IntPtr glfwGetWindowMonitor(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowMonitor")]
-        internal static unsafe partial void glfwSetWindowMonitor(
-                                            IntPtr window,
-                                            IntPtr monitor,
-                                            int xpos,
-                                            int ypos,
-                                            int width,
-                                            int height,
-                                            int refreshRate);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetWindowAttrib")]
-        internal static unsafe partial int glfwGetWindowAttrib(IntPtr window, int attrib);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowAttrib")]
-        internal static unsafe partial void glfwSetWindowAttrib(
-                                            IntPtr window,
-                                            int attrib,
-                                            int value);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowUserPointer")]
-        internal static unsafe partial void glfwSetWindowUserPointer(IntPtr window, void* pointer);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetWindowUserPointer")]
-        internal static unsafe partial void* glfwGetWindowUserPointer(IntPtr window);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowPosCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,int,void> glfwSetWindowPosCallback(
-                                                                           IntPtr window,
-                                                                           IntPtr callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowSizeCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,int,void> glfwSetWindowSizeCallback(
-                                                                           IntPtr window,
-                                                                           delegate*<glfwWindow*,int,int,void> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowCloseCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,void> glfwSetWindowCloseCallback(
-                                                                   IntPtr window,
-                                                                   delegate*<glfwWindow*,void> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowRefreshCallback")]
-        internal static unsafe partial delegate*<glfwWindow*, void> glfwSetWindowRefreshCallback(
-                                                                    IntPtr window,
-                                                                    delegate*<glfwWindow*, void> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowFocusCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,void> glfwSetWindowFocusCallback(
-                                                                       IntPtr window,
-                                                                       delegate*<glfwWindow*,int,void> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowIconifyCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,void> glfwSetWindowIconifyCallback(
-                                                                       IntPtr window,
-                                                                       delegate*<glfwWindow*,int,void> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowMaximizeCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,void> glfwSetWindowMaximizeCallback(
-                                                                       IntPtr window,
-                                                                       delegate*<glfwWindow*,int,void> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetFramebufferSizeCallback")]
-        internal static unsafe partial FrameBufferSizeHandler glfwSetFramebufferSizeCallback(
-                                                              IntPtr window,
-                                                              IntPtr callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetWindowContentScaleCallback")]
-        internal static unsafe partial delegate*<glfwWindow*, float,float> glfwSetWindowContentScaleCallback(
-                                                                           IntPtr window,
-                                                                           delegate*<glfwWindow*, float,float> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwPollEvents")]
-        internal static unsafe partial void glfwPollEvents();
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwWaitEvents")]
-        internal static unsafe partial void glfwWaitEvents();
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwWaitEventsTimeout")]
-        internal static unsafe partial void glfwWaitEventsTimeout(double timeout);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwPostEmptyEvent")]
-        internal static unsafe partial void glfwPostEmptyEvent();
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetInputMode")]
-        internal static unsafe partial int glfwGetInputMode(IntPtr window, int mode);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetInputMode")]
-        internal static unsafe partial void glfwSetInputMode(IntPtr window, int mode, int value);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwRawMouseMotionSupported")]
-        internal static unsafe partial int glfwRawMouseMotionSupported();
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetKeyName")]
-        internal static unsafe partial byte* glfwGetKeyName(int key, int scancode);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetKeyScancode")]
-        internal static unsafe partial int glfwGetKeyScancode(int key);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetKey")]
-        internal static unsafe partial KeyStatus glfwGetKey(IntPtr window, int key);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetMouseButton")]
-        internal static unsafe partial int glfwGetMouseButton(IntPtr window, int button);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetCursorPos")]
-        internal static unsafe partial void glfwGetCursorPos(
-                                            IntPtr window,
-                                            double* xpos,
-                                            double* ypos);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetCursorPos")]
-        internal static unsafe partial void glfwSetCursorPos(
-                                            IntPtr window,
-                                            double xpos,
-                                            double ypos);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwCreateCursor")]
-        internal static unsafe partial GLFWcursor* glfwCreateCursor(
-                                                   GLFWimage* image,
-                                                   int xhot,
-                                                   int yhot);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwCreateStandardCursor")]
-        internal static unsafe partial GLFWcursor* glfwCreateStandardCursor(int shape);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwDestroyCursor")]
-        internal static unsafe partial void glfwDestroyCursor(GLFWcursor* cursor);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetCursor")]
-        internal static unsafe partial void glfwSetCursor(IntPtr window, GLFWcursor* cursor);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetKeyCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,int,int,int,void> glfwSetKeyCallback(
-                                                                                   IntPtr window,
-                                                                                   delegate*<glfwWindow*,int,int,int,int,void> callback);
-
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetCharCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,uint,void> glfwSetCharCallback(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwInit()
+        {
+            return _glfw.glfwInit();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwTerminate()
+        {
+            _glfw.glfwTerminate();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwInitHint(int hint, int value)
+        {
+            _glfw.glfwInitHint(hint, value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetVersion(int* major, int* minor, int* rev)
+        {
+            _glfw.glfwGetVersion(major, minor, rev);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte* glfwGetVersionString()
+        {
+            return _glfw.glfwGetVersionString();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwGetError(byte** description)
+        {
+            return _glfw.glfwGetError(description);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<int, byte*, void> glfwSetErrorCallback(
+                                                                            delegate* unmanaged[Cdecl]<int, byte*, void> callback)
+        {
+            return _glfw.glfwSetErrorCallback(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr* glfwGetMonitors(int* count)
+        {
+            return _glfw.glfwGetMonitors(count);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr glfwGetPrimaryMonitor()
+        {
+            return _glfw.glfwGetPrimaryMonitor();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetMonitorPos(IntPtr monitor, int* xpos, int* ypos)
+        {
+            _glfw.glfwGetMonitorPos(monitor, xpos, ypos);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetMonitorWorkarea(
+                                    IntPtr monitor,
+                                    int* xpos,
+                                    int* ypos,
+                                    int* width,
+                                    int* height)
+        {
+            _glfw.glfwGetMonitorWorkarea(monitor, xpos, ypos, width, height);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetMonitorPhysicalSize(IntPtr monitor, int* widthMM, int* heightMM)
+        {
+            _glfw.glfwGetMonitorPhysicalSize(monitor, widthMM, heightMM);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetMonitorContentScale(IntPtr monitor, float* xscale, float* yscale)
+        {
+            _glfw.glfwGetMonitorContentScale(monitor, xscale, yscale);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte* glfwGetMonitorName(IntPtr monitor)
+        {
+            return _glfw.glfwGetMonitorName(monitor);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetMonitorUserPointer(IntPtr monitor, void* pointer)
+        {
+            _glfw.glfwSetMonitorUserPointer(monitor, pointer);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void* glfwGetMonitorUserPointer(IntPtr monitor)
+        {
+            return _glfw.glfwGetMonitorUserPointer(monitor);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, void> glfwSetMonitorCallback(
+                                                                             delegate* unmanaged[Cdecl]<IntPtr, int, void> callback)
+        {
+            return _glfw.glfwSetMonitorCallback(callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe glfwVideomode* glfwGetVideoModes(IntPtr monitor, int* count)
+        {
+            return (glfwVideomode*)_glfw.glfwGetVideoModes(monitor, count);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe glfwVideomode* glfwGetVideoMode(IntPtr monitor)
+        {
+            return (glfwVideomode*)_glfw.glfwGetVideoMode(monitor);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetGamma(IntPtr monitor, float gamma)
+        {
+            _glfw.glfwSetGamma(monitor, gamma);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe glfwGammaramp* glfwGetGammaRamp(IntPtr monitor)
+        {
+            return (glfwGammaramp*)_glfw.glfwGetGammaRamp(monitor);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetGammaRamp(IntPtr monitor, glfwGammaramp* ramp)
+        {
+            _glfw.glfwSetGammaRamp(monitor, (IntPtr)ramp);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwDefaultWindowHints()
+        {
+            _glfw.glfwDefaultWindowHints();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwWindowHint(int hint, int value)
+        {
+            _glfw.glfwWindowHint(hint, value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwWindowHintString(int hint, byte* value)
+        {
+            _glfw.glfwWindowHintString(hint, value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr glfwCreateWindow(
+                                      int width,
+                                      int height,
+                                      Span<byte> title,
+                                      IntPtr monitor,
+                                      IntPtr share)
+        {
+            fixed (byte* titlePtr = title) {
+                return _glfw.glfwCreateWindow(width, height, titlePtr, monitor, share);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwDestroyWindow(IntPtr window)
+        {
+            _glfw.glfwDestroyWindow(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwWindowShouldClose(IntPtr window)
+        {
+            return _glfw.glfwWindowShouldClose(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowShouldClose(IntPtr window, int value)
+        {
+            _glfw.glfwSetWindowShouldClose(window, value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowTitle(IntPtr window, byte* title)
+        {
+            _glfw.glfwSetWindowTitle(window, title);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowIcon(IntPtr window, int count, GLFWimage* images)
+        {
+            _glfw.glfwSetWindowIcon(window, count, (IntPtr)images);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetWindowPos(IntPtr window, int* xpos, int* ypos)
+        {
+            _glfw.glfwGetWindowPos(window, xpos, ypos);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowPos(IntPtr window, int xpos, int ypos)
+        {
+            _glfw.glfwSetWindowPos(window, xpos, ypos);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetWindowSize(IntPtr window, int* width, int* height)
+        {
+            _glfw.glfwGetWindowSize(window, width, height);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowSizeLimits(
+                                    IntPtr window,
+                                    int minwidth,
+                                    int minheight,
+                                    int maxwidth,
+                                    int maxheight)
+        {
+            _glfw.glfwSetWindowSizeLimits(window, minwidth, minheight, maxwidth, maxheight);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowAspectRatio(IntPtr window, int numer, int denom)
+        {
+            _glfw.glfwSetWindowAspectRatio(window, numer, denom);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowSize(IntPtr window, int width, int height)
+        {
+            _glfw.glfwSetWindowSize(window, width, height);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetFramebufferSize(IntPtr window, int* width, int* height)
+        {
+            _glfw.glfwGetFrameBufferSize(window, width, height);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetWindowFrameSize(IntPtr window, int* left, int* top, int* right, int* bottom)
+        {
+            _glfw.glfwGetWindowFrameSize(window, left, top, right, bottom);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetWindowContentScale(IntPtr window, float* xscale, float* yscale)
+        {
+            _glfw.glfwGetWindowContentScale(window, xscale, yscale);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe float glfwGetWindowOpacity(IntPtr window)
+        {
+            return _glfw.glfwGetWindowOpacity(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowOpacity(IntPtr window, float opacity)
+        {
+            _glfw.glfwSetWindowOpacity(window, opacity);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwIconifyWindow(IntPtr window)
+        {
+            _glfw.glfwIconifyWindow(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwRestoreWindow(IntPtr window)
+        {
+            _glfw.glfwRestoreWindow(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwMaximizeWindow(IntPtr window)
+        {
+            _glfw.glfwMaximizeWindow(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwShowWindow(IntPtr window)
+        {
+            _glfw.glfwShowWindow(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwHideWindow(IntPtr window)
+        {
+            _glfw.glfwHideWindow(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwFocusWindow(IntPtr window)
+        {
+            _glfw.glfwFocusWindow(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwRequestWindowAttention(IntPtr window)
+        {
+            _glfw.glfwRequestWindowAttention(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr glfwGetWindowMonitor(IntPtr window)
+        {
+            return _glfw.glfwGetWindowMonitor(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowMonitor(
+                                    IntPtr window,
+                                    IntPtr monitor,
+                                    int xpos,
+                                    int ypos,
+                                    int width,
+                                    int height,
+                                    int refreshRate)
+        {
+            _glfw.glfwSetWindowMonitor(window, monitor, xpos, ypos, width, height, refreshRate);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwGetWindowAttrib(IntPtr window, int attrib)
+        {
+            return _glfw.glfwGetWindowAttrib(window, attrib);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowAttrib(IntPtr window, int attrib, int value)
+        {
+            _glfw.glfwSetWindowAttrib(window, attrib, value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetWindowUserPointer(IntPtr window, void* pointer)
+        {
+            _glfw.glfwSetWindowUserPointer(window, pointer);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void* glfwGetWindowUserPointer(IntPtr window)
+        {
+            return _glfw.glfwGetWindowUserPointer(window);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, int, void> glfwSetWindowPosCallback(
+                                                                                  IntPtr window,
+                                                                                  delegate* unmanaged[Cdecl]<IntPtr, int, int, void> callback)
+        {
+            return _glfw.glfwSetWindowPosCallback(window, callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, int, void> glfwSetWindowSizeCallback(
+                                                                                  IntPtr window,
+                                                                                  delegate* unmanaged[Cdecl]<IntPtr, int, int, void> callback)
+        {
+            return _glfw.glfwSetWindowSizeCallback(window, callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, void> glfwSetWindowCloseCallback(
                                                                         IntPtr window,
-                                                                        delegate*<glfwWindow*,uint,void> callback);
+                                                                        delegate* unmanaged[Cdecl]<IntPtr, void> callback)
+        {
+            return _glfw.glfwSetWindowCloseCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetCharModsCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,int,void> glfwSetCharModsCallback(
-                                                                           IntPtr window,
-                                                                           delegate*<glfwWindow*,int,int,void> callback);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, void> glfwSetWindowRefreshCallback(
+                                                                        IntPtr window,
+                                                                        delegate* unmanaged[Cdecl]<IntPtr, void> callback)
+        {
+            return _glfw.glfwSetWindowRefreshCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetMouseButtonCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,int,int,void> glfwSetMouseButtonCallback(
-                                                                               IntPtr window,
-                                                                               delegate*<glfwWindow*,int,int,int,void> callback);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, void> glfwSetWindowFocusCallback(
+                                                                             IntPtr window,
+                                                                             delegate* unmanaged[Cdecl]<IntPtr, int, void> callback)
+        {
+            return _glfw.glfwSetWindowFocusCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetCursorPosCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,double,double,void> glfwSetCursorPosCallback(
-                                                                                 IntPtr window,
-                                                                                 delegate*<glfwWindow*,double,double,void> callback);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, void> glfwSetWindowIconifyCallback(
+                                                                             IntPtr window,
+                                                                             delegate* unmanaged[Cdecl]<IntPtr, int, void> callback)
+        {
+            return _glfw.glfwSetWindowIconifyCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetCursorEnterCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,void> glfwSetCursorEnterCallback(
-                                                                       IntPtr window,
-                                                                       delegate*<glfwWindow*,int,void> callback);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, void> glfwSetWindowMaximizeCallback(
+                                                                             IntPtr window,
+                                                                             delegate* unmanaged[Cdecl]<IntPtr, int, void> callback)
+        {
+            return _glfw.glfwSetWindowMaximizeCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetScrollCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,double,double,void> glfwSetScrollCallback(
-                                                                                 IntPtr window,
-                                                                                 delegate*<glfwWindow*,double,double,void> callback);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, int, void> glfwSetFrameBufferSizeCallback(
+                                                                                  IntPtr window,
+                                                                                  delegate* unmanaged[Cdecl]<IntPtr, int, int, void> callback)
+        {
+            return _glfw.glfwSetFramebufferSizeCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetDropCallback")]
-        internal static unsafe partial delegate*<glfwWindow*,int,byte**,void> glfwSetDropCallback(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, float, float, void> glfwSetWindowContentScaleCallback(
+                                                                                      IntPtr window,
+                                                                                      delegate* unmanaged[Cdecl]<IntPtr, float, float, void> callback)
+        {
+            return _glfw.glfwSetWindowContentScaleCallback(window, callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwPollEvents()
+        {
+            _glfw.glfwPollEvents();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwWaitEvents()
+        {
+            _glfw.glfwWaitEvents();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwWaitEventsTimeout(double timeout)
+        {
+            _glfw.glfwWaitEventsTimeout(timeout);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwPostEmptyEvent()
+        {
+            _glfw.glfwPostEmptyEvent();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwGetInputMode(IntPtr window, int mode)
+        {
+            return _glfw.glfwGetInputMode(window, mode);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetInputMode(IntPtr window, int mode, int value)
+        {
+            _glfw.glfwSetInputMode(window, mode, value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwRawMouseMotionSupported()
+        {
+            return _glfw.glfwRawMouseMotionSupported();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte* glfwGetKeyName(int key, int scancode)
+        {
+            return _glfw.glfwGetKeyName(key, scancode);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwGetKeyScancode(int key)
+        {
+            return _glfw.glfwGetKeyScancode(key);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe KeyStatus glfwGetKey(IntPtr window, int key)
+        {
+            return _glfw.glfwGetKey(window, key);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwGetMouseButton(IntPtr window, int button)
+        {
+            return _glfw.glfwGetMouseButton(window, button);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwGetCursorPos(IntPtr window, double* xpos, double* ypos)
+        {
+            _glfw.glfwGetCursorPos(window, xpos, ypos);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetCursorPos(IntPtr window, double xpos, double ypos)
+        {
+            _glfw.glfwSetCursorPos(window, xpos, ypos);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr glfwCreateCursor(GLFWimage* image, int xhot, int yhot)
+        {
+            return _glfw.glfwCreateCursor((IntPtr)image, xhot, yhot);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr glfwCreateStandardCursor(int shape)
+        {
+            return _glfw.glfwCreateStandardCursor(shape);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwDestroyCursor(IntPtr cursor)
+        {
+            _glfw.glfwDestroyCursor(cursor);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetCursor(IntPtr window, IntPtr cursor)
+        {
+            _glfw.glfwSetCursor(window, cursor);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, int, int, int, void> glfwSetKeyCallback(
+                                                                                            IntPtr window,
+                                                                                            delegate* unmanaged[Cdecl]<IntPtr, int, int, int, int, void> callback)
+        {
+            return _glfw.glfwSetKeyCallback(window, callback);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, uint, void> glfwSetCharCallback(
                                                                               IntPtr window,
-                                                                              delegate*<glfwWindow*,int,byte**,void> callback);
+                                                                              delegate* unmanaged[Cdecl]<IntPtr, uint, void> callback)
+        {
+            return _glfw.glfwSetCharCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwJoystickPresent")]
-        internal static unsafe partial int glfwJoystickPresent(int jid);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, uint, int, void> glfwSetCharModsCallback(
+                                                                                   IntPtr window,
+                                                                                   delegate* unmanaged[Cdecl]<IntPtr, uint, int, void> callback)
+        {
+            return _glfw.glfwSetCharModsCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetJoystickAxes")]
-        internal static unsafe partial float* glfwGetJoystickAxes(int jid, int* count);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, int, int, void> glfwSetMouseButtonCallback(
+                                                                                       IntPtr window,
+                                                                                       delegate* unmanaged[Cdecl]<IntPtr, int, int, int, void> callback)
+        {
+            return _glfw.glfwSetMouseButtonCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetJoystickButtons")]
-        internal static unsafe partial byte* glfwGetJoystickButtons(int jid, int* count);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, double, double, void> glfwSetCursorPosCallback(
+                                                                                        IntPtr window,
+                                                                                        delegate* unmanaged[Cdecl]<IntPtr, double, double, void> callback)
+        {
+            return _glfw.glfwSetCursorPosCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetJoystickHats")]
-        internal static unsafe partial byte* glfwGetJoystickHats(int jid, int* count);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, void> glfwSetCursorEnterCallback(
+                                                                             IntPtr window,
+                                                                             delegate* unmanaged[Cdecl]<IntPtr, int, void> callback)
+        {
+            return _glfw.glfwSetCursorEnterCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetJoystickName")]
-        internal static unsafe partial byte* glfwGetJoystickName(int jid);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, double, double, void> glfwSetScrollCallback(
+                                                                                        IntPtr window,
+                                                                                        delegate* unmanaged[Cdecl]<IntPtr, double, double, void> callback)
+        {
+            return _glfw.glfwSetScrollCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetJoystickGUID")]
-        internal static unsafe partial byte* glfwGetJoystickGUID(int jid);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<IntPtr, int, byte**, void> glfwSetDropCallback(
+                                                                                     IntPtr window,
+                                                                                     delegate* unmanaged[Cdecl]<IntPtr, int, byte**, void> callback)
+        {
+            return _glfw.glfwSetDropCallback(window, callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetJoystickUserPointer")]
-        internal static unsafe partial void glfwSetJoystickUserPointer(int jid, void* pointer);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwJoystickPresent(int jid)
+        {
+            return _glfw.glfwJoystickPresent(jid);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetJoystickUserPointer")]
-        internal static unsafe partial void* glfwGetJoystickUserPointer(int jid);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe float* glfwGetJoystickAxes(int jid, int* count)
+        {
+            return _glfw.glfwGetJoystickAxes(jid, count);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwJoystickIsGamepad")]
-        internal static unsafe partial int glfwJoystickIsGamepad(int jid);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte* glfwGetJoystickButtons(int jid, int* count)
+        {
+            return _glfw.glfwGetJoystickButtons(jid, count);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetJoystickCallback")]
-        internal static unsafe partial delegate*<int,int,void> glfwSetJoystickCallback(
-                                                               delegate*<int,int,void> callback);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte* glfwGetJoystickHats(int jid, int* count)
+        {
+            return _glfw.glfwGetJoystickHats(jid, count);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwUpdateGamepadMappings")]
-        internal static unsafe partial int glfwUpdateGamepadMappings(byte* str);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte* glfwGetJoystickName(int jid)
+        {
+            return _glfw.glfwGetJoystickName(jid);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetGamepadName")]
-        internal static unsafe partial byte* glfwGetGamepadName(int jid);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte* glfwGetJoystickGUID(int jid)
+        {
+            return _glfw.glfwGetJoystickGUID(jid);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetGamepadState")]
-        internal static unsafe partial int glfwGetGamepadState(int jid, GLFWgamepadstate* state);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetJoystickUserPointer(int jid, void* pointer)
+        {
+            _glfw.glfwSetJoystickUserPointer(jid, pointer);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetClipboardString")]
-        internal static unsafe partial void glfwSetClipboardString(IntPtr window, byte* str);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void* glfwGetJoystickUserPointer(int jid)
+        {
+            return _glfw.glfwGetJoystickUserPointer(jid);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetClipboardString")]
-        internal static unsafe partial byte* glfwGetClipboardString(IntPtr window);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwJoystickIsGamepad(int jid)
+        {
+            return _glfw.glfwJoystickIsGamePad(jid);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetTime")]
-        internal static unsafe partial double glfwGetTime();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe delegate* unmanaged[Cdecl]<int, int, void> glfwSetJoystickCallback(
+                                                                          delegate* unmanaged[Cdecl]<int, int, void> callback)
+        {
+            return _glfw.glfwSetJoystickCallback(callback);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSetTime")]
-        internal static unsafe partial void glfwSetTime(double time);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwUpdateGamePadMappings(byte* str)
+        {
+            return _glfw.glfwUpdateGamePadMappings(str);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetTimerValue")]
-        internal static unsafe partial ulong* glfwGetTimerValue();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte* glfwGetGamePadName(int jid)
+        {
+            return _glfw.glfwGetGamepadName(jid);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetTimerFrequency")]
-        internal static unsafe partial ulong* glfwGetTimerFrequency();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwGetGamePadState(int jid, GLFWgamepadstate* state)
+        {
+            return _glfw.glfwGetGamepadState(jid, (IntPtr)state);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwMakeContextCurrent")]
-        internal static unsafe partial void glfwMakeContextCurrent(IntPtr window);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetClipboardString(IntPtr window, byte* str)
+        {
+            _glfw.glfwSetClipboardString(window, str);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetCurrentContext")]
-        internal static unsafe partial IntPtr glfwGetCurrentContext();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte* glfwGetClipboardString(IntPtr window)
+        {
+            return _glfw.glfwGetClipboardString(window);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSwapBuffers")]
-        internal static unsafe partial void glfwSwapBuffers(IntPtr window);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe double glfwGetTime()
+        {
+            return _glfw.glfwGetTime();
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwSwapInterval")]
-        internal static unsafe partial void glfwSwapInterval(int interval);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSetTime(double time)
+        {
+            _glfw.glfwSetTime(time);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwExtensionSupported")]
-        internal static unsafe partial int glfwExtensionSupported(byte* extension);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe ulong glfwGetTimerValue()
+        {
+            return _glfw.glfwGetTimerValue();
+        }
 
-        [LibraryImport(
-                SSC_libName,
-                EntryPoint = "glfwGetProcAddress",
-                StringMarshalling = StringMarshalling.Utf8)]
-        internal static unsafe partial IntPtr glfwGetProcAddress(string procname);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe ulong glfwGetTimerFrequency()
+        {
+            return _glfw.glfwGetTimerFrequency();
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwVulkanSupported")]
-        internal static unsafe partial int glfwVulkanSupported();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwMakeContextCurrent(IntPtr window)
+        {
+            _glfw.glfwMakeContextCurrent(window);
+        }
 
-        [LibraryImport(SSC_libName, EntryPoint = "glfwGetRequiredInstanceExtensions")]
-        internal static unsafe partial byte** glfwGetRequiredInstanceExtensions(uint* count);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr glfwGetCurrentContext()
+        {
+            return _glfw.glfwGetCurrentContext();
+        }
 
-        // [LibraryImport(InternalIO.SSC_libname, EntryPoint = "glfwGetInstanceProcAddress")] internal unsafe partial static delegate*<void> glfwGetInstanceProcAddress(VkInstance instance, byte* procname);
-        // [LibraryImport(InternalIO.SSC_libname, EntryPoint = "glfwGetPhysicalDevicePresentationSupport")] internal unsafe partial static int glfwGetPhysicalDevicePresentationSupport(VkInstance instance, VkPhysicalDevice device, uint* queuefamily);
-        // [LibraryImport(InternalIO.SSC_libname, EntryPoint = "glfwCreateWindowSurface")] internal unsafe partial static VkResult glfwCreateWindowSurface(VkInstance instance, glfwWindow* window, VkAllocationCallbacks* _allocator, VkSurfaceKHR* surface);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSwapBuffers(IntPtr window)
+        {
+            _glfw.glfwSwapBuffers(window);
+        }
 
-        #endregion api call
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void glfwSwapInterval(int interval)
+        {
+            _glfw.glfwSwapInterval(interval);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwExtensionSupported(byte* extension)
+        {
+            return _glfw.glfwExtensionSupported(extension);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr glfwGetProcAddress(string procName)
+        {
+            return glfwGetProcAddress(Encoding.UTF8.GetBytes(procName));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr glfwGetProcAddress(Span<byte> procName)
+        {
+            fixed (byte* bPtr = procName) {
+                return _glfw.glfwGetProcAddress(bPtr);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe int glfwVulkanSupported()
+        {
+            return _glfw.glfwVulkanSupported();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe byte** glfwGetRequiredInstanceExtensions(uint* count)
+        {
+            return _glfw.glfwGetRequiredInstanceExtensions(count);
+        }
+
     }
 }
+
+#endregion
+

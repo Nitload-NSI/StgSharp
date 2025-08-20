@@ -1,5 +1,5 @@
-#include "StgSharpC.h"
-#include "ssc_intrinsic.h"
+#include "StgSharpNative.h"
+#include "sn_intrinsic.h"
 
 
 #if defined(_MSC_VER) && !defined(__clang__)
@@ -39,9 +39,9 @@ PRIVATE int check_isa(most_advanced_instruction instruction_family)
 #endif
 }
 
-SSCAPI int load_intrinsic_function(void *intrinsic_context)
+SN_API int load_intrinsic_function(void *intrinsic_context)
 {
-        ssc_null_assert(intrinsic_context);
+        sn_null_assert(intrinsic_context);
 
         ssc_intrinsic *context = (ssc_intrinsic *)intrinsic_context;
 

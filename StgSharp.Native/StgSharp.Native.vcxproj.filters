@@ -18,11 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="glfw3.lib">
-      <Filter>资源文件</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="sn-src\dllmain.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -47,9 +42,6 @@
     <ClCompile Include="sn-src\stb_image.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\StgSharpC.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="sn-src\string.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -59,34 +51,45 @@
     <ClCompile Include="sn-src\vector_dot.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="sn-src\stgsharp_native.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sn-src\load_glfw.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sn-head\gl.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="sn-head\glfw3.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="sn-head\glfw3native.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="sn-head\khrplatform.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="sn-head\ssc_internal.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="sn-head\ssc_intrinsic.h">
+    <ClInclude Include="sn-head\sn_internal.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="sn-head\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="sn-head\StgSharpC.h">
+    <ClInclude Include="sn-head\StgSharpNative.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="sn-head\wgl.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="sn-head\sn_intrinsic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sn-head\glfw_function.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw\glfw3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="glfw\glfw3.lib">
+      <Filter>资源文件</Filter>
+    </Library>
   </ItemGroup>
 </Project>

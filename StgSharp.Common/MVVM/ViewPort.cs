@@ -1,33 +1,33 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ViewPort.cs"
-//     Project: StepVisualizer
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ViewPort.cs"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -41,9 +41,7 @@ namespace StgSharp.MVVM
     public class ViewPort
     {
 
-        private static ConcurrentDictionary<IntPtr, ViewPort> _handleToViewPortIndex = new ConcurrentDictionary<IntPtr, ViewPort>(
-            );
-        private int _shouldCloseMask, _closeRequestedMask;
+        private static readonly ConcurrentDictionary<IntPtr, ViewPort> _handleToViewPortIndex = [];
         private int _width, _height, _newWidth, _newHeight;
 
         internal ViewPort()
@@ -51,18 +49,18 @@ namespace StgSharp.MVVM
             _newHeight = 600;
             _newWidth = 800;
             FlushSize();
-            Name = new StackFrame( 1, false ).
+            Name = new StackFrame(1, false).
                 GetMethod()!.DeclaringType!.Name;
             Monitor = IntPtr.Zero;
             ViewPortHandle = InternalIO.glfwCreateWindow(
-                _newWidth, _newHeight, Encoding.UTF8.GetBytes( Name ), Monitor, IntPtr.Zero );
-            if( ViewPortHandle == IntPtr.Zero ) {
-                throw new InvalidOperationException( "Unable to create viewport handle." );
+                _newWidth, _newHeight, Encoding.UTF8.GetBytes(Name), Monitor, IntPtr.Zero);
+            if (ViewPortHandle == IntPtr.Zero) {
+                throw new InvalidOperationException("Unable to create viewport handle.");
             }
-            _handleToViewPortIndex.TryAdd( ViewPortHandle, this );
+            _ = _handleToViewPortIndex.TryAdd(ViewPortHandle, this);
         }
 
-        public ViewPort( int width, int height, string name, IntPtr monitor )
+        public ViewPort(int width, int height, string name, IntPtr monitor)
         {
             _newWidth = width;
             _newHeight = height;
@@ -70,23 +68,27 @@ namespace StgSharp.MVVM
             Name = name;
             Monitor = monitor;
             ViewPortHandle = InternalIO.glfwCreateWindow(
-                _newWidth, _newHeight, Encoding.UTF8.GetBytes( Name ), Monitor, IntPtr.Zero );
-            if( ViewPortHandle == IntPtr.Zero ) {
-                throw new InvalidOperationException( "Unable to create viewport handle." );
+                _newWidth, _newHeight, Encoding.UTF8.GetBytes(Name), Monitor, IntPtr.Zero);
+            if (ViewPortHandle == IntPtr.Zero) {
+                throw new InvalidOperationException("Unable to create viewport handle.");
             }
-            _handleToViewPortIndex.TryAdd( ViewPortHandle, this );
+            _ = _handleToViewPortIndex.TryAdd(ViewPortHandle, this);
         }
 
         public unsafe int Height
         {
-            get { return _height; }
-            internal set { Interlocked.Exchange( ref _height, value ); }
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _height;
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set => Interlocked.Exchange(ref _height, value);
         }
 
         public unsafe int Width
         {
-            get { return _width; }
-            internal set { Interlocked .Exchange( ref _width, value ); }
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _width;
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set => Interlocked.Exchange(ref _width, value);
         }
 
         public IntPtr GraphicHandle { get; internal set; }
@@ -97,23 +99,23 @@ namespace StgSharp.MVVM
 
         public string Name { get; set; }
 
-        //[BlueprintNodeExecution]
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static bool GetExistedViewPort( IntPtr handle, out ViewPort port )
+        // [BlueprintNodeExecution]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool GetExistedViewPort(IntPtr handle, out ViewPort port)
         {
-            return _handleToViewPortIndex.TryGetValue( handle, out port );
+            return _handleToViewPortIndex.TryGetValue(handle, out port);
         }
 
         internal unsafe void FlushSize()
         {
-            Interlocked.Exchange( ref _height, _newHeight );
-            Interlocked.Exchange( ref _width, _newWidth );
+            _ = Interlocked.Exchange(ref _height, _newHeight);
+            _ = Interlocked.Exchange(ref _width, _newWidth);
         }
 
-        internal void RequestFlushSizeInNextFrame( int width, int height )
+        internal void RequestFlushSizeInNextFrame(int width, int height)
         {
-            Interlocked.Exchange( ref _newHeight, height );
-            Interlocked .Exchange( ref _newWidth, width );
+            _ = Interlocked.Exchange(ref _newHeight, height);
+            _ = Interlocked .Exchange(ref _newWidth, width);
         }
 
     }
