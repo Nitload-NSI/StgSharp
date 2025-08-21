@@ -208,8 +208,7 @@ namespace StgSharp.HighPerformance.Memory
             if (entry is null) {
                 return;
             }
-            entry->PreviousNear = EmptyHandle;
-            entry->Position = EmptyHandle;
+            AcquireEntrySpinLock(entry);
             _entries.Free((nuint)entry);
         }
 
@@ -263,11 +262,11 @@ namespace StgSharp.HighPerformance.Memory
         {
 
             [FieldOffset(28)] internal int Level;           // Level of the block in the allocator
-            [FieldOffset(40)] internal int NextLock;
-
+            [FieldOffset(32)] internal int NextLock;
             [FieldOffset(36)] internal int PrevLock;
-            [FieldOffset(32)] internal int State;           // Node state (using int for atomic operations)
+            [FieldOffset(40)] internal int  State;           // Node state (using int for atomic operations)
             [FieldOffset(24)] internal uint Size;           // Block size information
+            [FieldOffset(32)] internal ulong LockBuffer;
             [FieldOffset(8)]  internal ulong NextNear;      // Position linked list: next pointer
             [FieldOffset(16)] internal ulong PreviousNear;  // Position linked list: previous pointer
             [FieldOffset(0)]  public nuint Position;        // Memory block position

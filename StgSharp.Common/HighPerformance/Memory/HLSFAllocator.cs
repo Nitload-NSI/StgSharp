@@ -63,6 +63,7 @@ namespace StgSharp.HighPerformance.Memory
 
             _spareMemory = (Entry*)_entries.Allocate();
             SetEntryState(_spareMemory, EntryState.ThreadOccupied);
+            _spareMemory->PreviousNear = EmptyHandle;
             _spareMemory->NextNear = EmptyHandle;
             _spareMemory->Position = (nuint)m_Buffer;
             _spareMemory->PrevLock = 0;
@@ -85,6 +86,7 @@ namespace StgSharp.HighPerformance.Memory
 
             _spareMemory = (Entry*)_entries.Allocate();
             SetEntryState(_spareMemory, EntryState.ThreadOccupied);
+            _spareMemory->PreviousNear = EmptyHandle;
             _spareMemory->NextNear = EmptyHandle;
             _spareMemory->Position = (nuint)m_Buffer;
             _spareMemory->PrevLock = 0;

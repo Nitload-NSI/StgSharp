@@ -354,11 +354,10 @@ namespace StgSharp.HighPerformance.Memory
 
             [FieldOffset(16)] internal Entry* EntryRef;     // Pointer to corresponding Entry
             [FieldOffset(28)] internal bool IsInBucket;     // Whether in bucket
-            [FieldOffset(36)] internal int NextLock;        // 后继指针锁（控制NextLevel指针操作）
-
-            // 双锁设计：分离前后指针操作
-            [FieldOffset(32)] internal int PrevLock;        // 前驱指针锁（控制PreviousLevel指针操作）
+            [FieldOffset(36)] internal int NextLock;
+            [FieldOffset(32)] internal int PrevLock;
             [FieldOffset(24)] internal uint Magic;          // Magic number verification
+            [FieldOffset(32)] internal ulong LockBuffer;
 
             [FieldOffset(0)]  internal ulong NextLevel;     // Bucket stack linked list: next pointer
             [FieldOffset(8)]  internal ulong PreviousLevel; // Bucket stack linked list: previous pointer

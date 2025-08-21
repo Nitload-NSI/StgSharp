@@ -28,6 +28,8 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using Microsoft.Win32;
+
 using StgSharp.Threading;
 
 using System;
@@ -118,7 +120,7 @@ namespace StgSharp.HighPerformance.Memory
                     throw new InvalidOperationException("Entry position offset is not aligned to 64 bytes.");
                 }
                 int minLevel = Math.Max((BitOperations.TrailingZeroCount(originOffset) - 6) / 2, 0);
-                int i = minLevel >= levelSizeArray.Length ? levelSizeArray.Length : minLevel;
+                int i = minLevel >= levelSizeArray.Length ? levelSizeArray.Length - 1 : minLevel;
                 for (; i < levelSizeArray.Length; i++)
                 {
                     int levelSize = levelSizeArray[i];
@@ -133,19 +135,19 @@ namespace StgSharp.HighPerformance.Memory
                     Entry* newEntry = (Entry*)_entries.Allocate();
                     newEntry->Position = (nuint)((ulong)m_Buffer + finalOffset);
                     newEntry->Size = (uint)s;
+                    newEntry->LockBuffer = 0;
                     BucketNode* bucket = (BucketNode*)newEntry->Position;
                     bucket->EntryRef = newEntry;
-                    bucket->PrevLock = 0;
-                    bucket->NextLock = 0;
+                    bucket->LockBuffer = 0;
                     newEntry->State = EntryState.ThreadOccupied;
 
                     // link new entry
-                    newEntry->PreviousNear = (ulong)e;
-                    e->NextNear = (ulong)newEntry;
+                    newEntry->PreviousNear = (ulong)current;
                     newEntry->NextNear = n;
+                    current->NextNear = (ulong)newEntry;
                     next->PreviousNear = (ulong)newEntry;
-                    next->NextNear = EmptyHandle;
 
+                    newEntry->Level = i;
                     PushLevel(i, blockCount - 1, bucket);
 
                     // set new entry
@@ -164,34 +166,33 @@ namespace StgSharp.HighPerformance.Memory
                     ReleaseEntryPrevLock(next);
                     return;
                 }
-
                 for (; i >= 0; i--)
                 {
                     int levelSize = levelSizeArray[i];
                     int blockCount = remainSize / levelSize % 4;
                     if (blockCount == 0)
                     {
-                        break;
+                        continue;
                     }
                     int s = blockCount * levelSize;
 
                     // create and init new entry
                     Entry* newEntry = (Entry*)_entries.Allocate();
+                    newEntry->LockBuffer = 0;
                     newEntry->Position = (nuint)((ulong)m_Buffer + finalOffset);
                     newEntry->Size = (uint)s;
                     BucketNode* bucket = (BucketNode*)newEntry->Position;
                     bucket->EntryRef = newEntry;
-                    bucket->PrevLock = 0;
-                    bucket->NextLock = 0;
+                    bucket->LockBuffer = 0;
                     newEntry->State = EntryState.ThreadOccupied;
 
                     // link new entry
-                    newEntry->PreviousNear = (ulong)e;
-                    e->NextNear = (ulong)newEntry;
+                    newEntry->PreviousNear = (ulong)current;
+                    current->NextNear = (ulong)newEntry;
                     newEntry->NextNear = n;
                     next->PreviousNear = (ulong)newEntry;
-                    next->NextNear = EmptyHandle;
 
+                    newEntry->Level = i;
                     PushLevel(i, blockCount - 1, bucket);
 
                     // set new entry
@@ -203,6 +204,10 @@ namespace StgSharp.HighPerformance.Memory
                     remainSize -= s;
                     ReleaseEntryNextLock(old);
                     AcquireEntryNextLock(current);
+                    if (remainSize <= 0)
+                    {
+                        break;
+                    }
                 }
             }
             catch (Exception)
@@ -232,6 +237,18 @@ namespace StgSharp.HighPerformance.Memory
             nuint blockSize = (nuint)levelSizeArray[^1] * 2; // Use last level size (16MB)
             nuint newPos = pos + blockSize;
 
+            ulong p;
+            Entry* previous;
+            do
+            {
+                p = Volatile.Read(ref _spareMemory->PreviousNear);
+                previous = (Entry*)p;
+                if (previous != null) {
+                    AcquireEntryNextLock(previous);
+                }
+                AcquireEntryPrevLock(_spareMemory);
+                break;
+            } while (true);
             if (_spareMemory->Size <= 0)
             {
                 handle = null;
@@ -252,8 +269,6 @@ namespace StgSharp.HighPerformance.Memory
                 handle->Position = pos;
                 handle->Size = (uint)blockSize;
                 SetEntryState(handle, EntryState.ThreadOccupied);
-                handle->NextNear = EmptyHandle;
-                handle->PreviousNear = EmptyHandle;
                 handle->Level = GetLevelFromSize((uint)blockSize);
 
                 handle->PrevLock = 0;
@@ -264,12 +279,25 @@ namespace StgSharp.HighPerformance.Memory
                 BucketNode* b = (BucketNode*)handle->Position;
                 b->EntryRef = handle;
                 PushLevel(handle->Level, DetermineSegmentIndex((uint)blockSize, handle->Level), b);
+
+                // update position linked list
+                handle->NextNear = (ulong)_spareMemory;
+                handle->PreviousNear = p;
+                _spareMemory->PreviousNear = (ulong)handle;
+                if (previous != null) {
+                    previous->NextNear = (ulong)handle;
+                }
                 return true;
             }
             catch
             {
                 handle = null;
                 return false;
+            }
+            finally
+            {
+                ReleaseEntryNextLock(previous);
+                ReleaseEntryPrevLock(_spareMemory);
             }
         }
 
