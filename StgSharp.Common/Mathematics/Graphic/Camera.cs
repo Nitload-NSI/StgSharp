@@ -31,6 +31,7 @@
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
 using StgSharp.Graphics.ShaderEdit;
+using StgSharp.HighPerformance;
 using StgSharp.Mathematics;
 
 using System;
@@ -155,9 +156,7 @@ namespace StgSharp.Graphics
         public void SetViewDirection(Vec3 position, Vec3 target, Vec3 up)
         {
             Vec3 direction = position - target;
-            if ((position.reg == cameraAtt.colum3.reg) &&
-                (this.up == up) &&
-                (cameraAtt.colum2.reg == direction.reg)) {
+            if ((position.reg == cameraAtt.colum3.reg) && (this.up == up) && (cameraAtt.colum2.reg == direction.reg)) {
                 return;
             }
             if (direction.GetLength() == 0)
@@ -187,11 +186,7 @@ namespace StgSharp.Graphics
             InternalYaw();
         }
 
-        public void SetViewRange(
-                    Radius fovRadius,
-                    Vec2 size,
-                    Vec2 offset,
-                    (float front, float back) dephRange)
+        public void SetViewRange(Radius fovRadius, Vec2 size, Vec2 offset, (float front, float back) dephRange)
         {
             float
                 distance = _target.GetLength(),
@@ -260,6 +255,7 @@ namespace StgSharp.Graphics
 
         internal void InternalPitch()
         {
+            /*
             _isLookAtAvailable = false;
 
             Matrix32 partialCoord = new Matrix32(cameraAtt.colum1.vec, cameraAtt.colum2.vec);
@@ -272,10 +268,12 @@ namespace StgSharp.Graphics
             rotationAtt.colum1.reg = partialCoord.colum0.reg;
             rotationAtt.colum2.reg = partialCoord.colum1.reg;
             rotationAtt.isTransposed = false;
+            /**/
         }
 
         internal void InternalRow()
         {
+            /*
             _isLookAtAvailable = false;
 
             Matrix32 partialCoord = new Matrix32(cameraAtt.colum0.vec, cameraAtt.colum1.vec);
@@ -288,10 +286,12 @@ namespace StgSharp.Graphics
             rotationAtt.colum0.reg = partialCoord.colum0.reg;
             rotationAtt.colum1.reg = partialCoord.colum1.reg;
             rotationAtt.isTransposed = false;
+        */
         }
 
         internal void InternalYaw()
         {
+            /*
             _isLookAtAvailable = false;
 
             Matrix32 partialCoord = new Matrix32(cameraAtt.colum0.vec, cameraAtt.colum2.vec);
@@ -303,6 +303,7 @@ namespace StgSharp.Graphics
             rotationAtt.colum0.reg = partialCoord.colum0.reg;
             rotationAtt.colum2.reg = partialCoord.colum1.reg;
             rotationAtt.isTransposed = false;
+        */
         }
 
         #endregion

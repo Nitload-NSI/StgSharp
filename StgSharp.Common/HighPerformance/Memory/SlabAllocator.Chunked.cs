@@ -32,21 +32,17 @@ using StgSharp.Threading;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
     internal sealed unsafe class ChunkedSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
     {
 
-        private readonly BufferExpansionLock _lock = new();
-        private ConcurrentStackBuffer<nuint> _buffers;
-        private ConcurrentStackBuffer<nuint> _recycle;
+        private BufferStack<nuint> _buffers;
+        private BufferStack<nuint> _recycle;
         private readonly int _elementSize = Unsafe.SizeOf<T>();
 
         private nuint _currentBuffer;
@@ -67,7 +63,7 @@ namespace StgSharp.HighPerformance.Memory
                 span[i] = _currentBuffer + (nuint)(i * _elementSize);
             }
             _buffers = new(4);
-            _recycle = new(span);
+            _recycle = BufferStackBuilder.Create(span);
             _currentCapacity = count;
             _currentIndex = (nuint)initCount;
         }
@@ -77,42 +73,20 @@ namespace StgSharp.HighPerformance.Memory
             if (_recycle.TryPop(out nuint handle)) {
                 return handle;
             }
-            while (true)
+            nuint bufferHandle = _currentBuffer;
+            nuint curIndex = _currentIndex;
+            if (curIndex >= _currentCapacity)
             {
-                nuint bufferHandle = Volatile.Read(ref _currentBuffer);
-                nuint curIndex = Volatile.Read(ref _currentIndex);
-                _lock.EnterMetaDataRead();
-                try
-                {
-                    if (curIndex >= _currentCapacity)
-                    {
-                        _lock.ExitMetaDataRead();
-                        _lock.EnterExpansionProcess();
-                        try
-                        {
-                            nuint cap = Volatile.Read(ref _currentCapacity);
-                            nuint newBuffer = (nuint)NativeMemory.Alloc(cap * (nuint)_elementSize);
-                            _buffers.Push(bufferHandle);
-                            _ = Interlocked.Exchange(ref _currentBuffer, newBuffer);
-                            _ = Interlocked.Exchange(ref _currentIndex, 0);
-                        }
-                        finally
-                        {
-                            _lock.ExitExpansionProcess();
-                        }
-                    }
-                    curIndex = Volatile.Read(ref _currentIndex);
-                    _ = Interlocked.Add(
-                        ref Unsafe.As<nuint, ulong>(ref _currentIndex), (ulong)_elementSize);
-                    return _currentBuffer + ((nuint)_elementSize * curIndex);
-                }
-                finally
-                {
-                    if (_lock.IsThreadReadingMetaData) {
-                        _lock.ExitMetaDataRead();
-                    }
-                }
+                nuint cap = _currentCapacity;
+                nuint newBuffer = (nuint)NativeMemory.Alloc(cap * (nuint)_elementSize);
+                _buffers.Push(bufferHandle);
+                _currentBuffer = newBuffer;
+                _currentIndex = 0;
             }
+            curIndex = _currentIndex;
+            _ = Interlocked.Add(
+                ref Unsafe.As<nuint, ulong>(ref _currentIndex), (ulong)_elementSize);
+            return _currentBuffer + ((nuint)_elementSize * curIndex);
         }
 
         public override void Dispose()
@@ -121,7 +95,6 @@ namespace StgSharp.HighPerformance.Memory
             while (_buffers.TryPop(out nuint buffer)) {
                 NativeMemory.Free((void*)buffer);
             }
-            _lock.Dispose();
             _buffers.Dispose();
             _recycle.Dispose();
         }

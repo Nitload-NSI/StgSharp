@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="ConcurrentStackBuffer.cs"
+// file="ConcurrentBufferStack.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -31,47 +31,68 @@
 using StgSharp.Threading;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-
-using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public static class ConcurrentStackBufferBuilder
+    public static class BufferStackBuilder
     {
 
+        // For BufferStack collection builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ConcurrentStackBuffer<T> BuildStack<T>(ReadOnlySpan<T> span)
-            where T: unmanaged
+        public static BufferStack<T> Create<T>(ReadOnlySpan<T> span) where T: unmanaged
         {
-            return new ConcurrentStackBuffer<T>(span);
+            if (span.IsEmpty)
+            {
+                return new BufferStack<T>(4); // Default small capacity
+            }
+
+            BufferStack<T> stack = new BufferStack<T>(span.Length);
+
+
+            // Use internal method for efficient bulk initialization
+            stack.InitializeFromSpan(span);
+
+            return stack;
+        }
+
+        // For ConcurrentBufferStack collection builder
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ConcurrentBufferStack<T> CreateConcurrent<T>(ReadOnlySpan<T> span) where T: unmanaged
+        {
+            if (span.IsEmpty)
+            {
+                return new ConcurrentBufferStack<T>(4); // Default small capacity
+            }
+
+            ConcurrentBufferStack<T> stack = new ConcurrentBufferStack<T>(span.Length);
+
+
+            // Use internal method for efficient bulk initialization
+            stack.InitializeFromSpan(span);
+
+            return stack;
         }
 
     }
 
-    [CollectionBuilder(
-            builderType: typeof(ConcurrentStackBufferBuilder),
-            methodName: nameof(ConcurrentStackBufferBuilder.BuildStack))]
-    public unsafe class ConcurrentStackBuffer<T> : IDisposable where T: unmanaged
+    [CollectionBuilder(builderType: typeof(BufferStackBuilder), methodName: nameof(BufferStackBuilder.CreateConcurrent))]
+    public unsafe class ConcurrentBufferStack<T> : IDisposable where T: unmanaged
     {
 
         private byte* _buffer;
         private readonly BufferExpansionLock _lock = new();
         private ulong _count;
 
-        internal ConcurrentStackBuffer(ReadOnlySpan<T> span)
+        public ConcurrentBufferStack()
         {
-            AllocateBuffer(span.Length);
-            Span<T> targe = new(_buffer + sizeof(Header), span.Length);
-            span.CopyTo(targe);
+            AllocateBuffer(4);
         }
 
-        public ConcurrentStackBuffer(int capacity)
+        public ConcurrentBufferStack(int capacity)
         {
             if (capacity <= 0) {
                 throw new ArgumentOutOfRangeException(nameof(capacity));
@@ -93,6 +114,7 @@ namespace StgSharp.HighPerformance.Memory
             try
             {
                 header->Top = 0;
+                Volatile.Write(ref _count, 0);
             }
             finally
             {
@@ -182,6 +204,7 @@ namespace StgSharp.HighPerformance.Memory
                         {
                             T* dataStart = (T*)(_buffer + sizeof(Header));
                             dataStart[oldTop] = item;
+                            _ = Interlocked.Increment(ref _count);
                             return;
                         }
                         finally
@@ -219,6 +242,7 @@ namespace StgSharp.HighPerformance.Memory
                     {
                         T* dataStart = (T*)(_buffer + sizeof(Header));
                         value = dataStart[oldTop - 1];
+                        _ = Interlocked.Decrement(ref _count);
                     }
                     finally
                     {
@@ -228,6 +252,27 @@ namespace StgSharp.HighPerformance.Memory
                 }
                 Thread.Sleep(0); // Yield to avoid busy waiting
             }
+        }
+
+        // Internal method for efficient bulk initialization
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal unsafe void InitializeFromSpan(ReadOnlySpan<T> span)
+        {
+            if (span.IsEmpty) {
+                return;
+            }
+
+            Header* header = (Header*)_buffer;
+            T* dataStart = (T*)(_buffer + sizeof(Header));
+
+            fixed (T* sourcePtr = span) {
+                Buffer.MemoryCopy(sourcePtr, dataStart, 
+                    header->Capacity * (nuint)sizeof(T), 
+                    (nuint)span.Length * (nuint)sizeof(T));
+            }
+
+            header->Top = (nuint)span.Length;
+            Volatile.Write(ref _count, (ulong)span.Length);
         }
 
         private void AllocateBuffer(int capacity)

@@ -32,12 +32,12 @@ typedef union uint64_u {
         uint32_t u32[2];
 } uint64_u;
 
-typedef union mat_kernel{
+typedef union mat_kernel {
         __m128 xmm[4];
         __m256 ymm[2];
         __m512 zmm[1];
         float m[4][4];
-}mat_kernel;
+} mat_kernel;
 
 typedef union column_2 {
         __m256 stream;
@@ -64,59 +64,33 @@ typedef void(SN_DECL *MATRIXTRANSPOSEPROC)(void *source, void *target);
 typedef void(SN_DECL *MATRIXDETPROC)(void *mat, void *transpose);
 typedef void(SN_DECL *MATARITHMETIC)(void *left, void *right, void *ans);
 typedef void(SN_DECL *SCALERMATARITHMETIC)(void *left, void *right, void *ans);
+typedef void(SN_DECL *MATFMAPROC)(mat_kernel *left, mat_kernel *right, mat_kernel *ans);
+typedef void(SN_DECL *SCALARMATARITHMETIC)(mat_kernel *matrix, float scalar, mat_kernel *ans);
+typedef void(SN_DECL *MATTRANSPOSEPROC)(mat_kernel *source, mat_kernel *target);
 typedef uint64_t(SN_DECL *FACTORIALROC)(int n);
-
 
 #pragma region matix function
 
 INTERNAL void normalize(__m128 *source, __m128 *target);
 
-INTERNAL void SN_DECL addmatrix2_sse(__2_columnset *left, __2_columnset *right, __2_columnset *ans);
-INTERNAL void SN_DECL addmatrix2_avx(__2_columnset *left, __2_columnset *right, __2_columnset *ans);
-INTERNAL void SN_DECL submatrix2_sse(__2_columnset *left, __2_columnset *right, __2_columnset *ans);
-INTERNAL void SN_DECL addmatrix2_avx(__2_columnset *left, __2_columnset *right, __2_columnset *ans);
-INTERNAL void SN_DECL transpose23(__2_columnset const *source, __3_columnset *target);
-INTERNAL void SN_DECL transpose24(__2_columnset const *source, __4_columnset *target);
-
-INTERNAL void SN_DECL addmatrix3_sse(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
-INTERNAL void SN_DECL addmatrix3_avx(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
-INTERNAL void SN_DECL addmatrix3_512(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
-INTERNAL void SN_DECL submatrix3_sse(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
-INTERNAL void SN_DECL submatrix3_avx(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
-INTERNAL void SN_DECL submatrix3_512(__3_columnset *left, __3_columnset *right, __3_columnset *ans);
-INTERNAL void SN_DECL transpose32(__3_columnset const *source, __2_columnset *target);
-INTERNAL void SN_DECL transpose33(__3_columnset const *source, __3_columnset *target);
-INTERNAL void SN_DECL transpose34(__3_columnset const *source, __4_columnset *target);
-INTERNAL float SN_DECL det_mat3(__3_columnset *matrix, __3_columnset *tranpose);
-
-INTERNAL void SN_DECL addmatrix4_sse(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
-INTERNAL void SN_DECL addmatrix4_avx(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
-INTERNAL void SN_DECL addmatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
-INTERNAL void SN_DECL submatrix4_sse(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
-INTERNAL void SN_DECL submatrix4_avx(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
-INTERNAL void SN_DECL submatrix4_512(__4_columnset *left, __4_columnset *right, __4_columnset *ans);
-INTERNAL void SN_DECL transpose42(__4_columnset const *source, __2_columnset *target);
-INTERNAL void SN_DECL transpose43(__4_columnset const *source, __3_columnset *target);
-INTERNAL void SN_DECL transpose44(__4_columnset const *source, __4_columnset *target);
-INTERNAL float SN_DECL det_mat4(__4_columnset *matrix, __4_columnset *transpose);
+INTERNAL void SN_DECL kernel_add_sse(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_add_avx(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_add_512(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_sub_sse(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_sub_avx(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_sub_512(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_transpose_sse(mat_kernel const *source, mat_kernel *target);
+INTERNAL void SN_DECL kernel_transpose_avx(mat_kernel const *source, mat_kernel *target);
+INTERNAL void SN_DECL kernel_transpose_512(mat_kernel const *source, mat_kernel *target);
+INTERNAL void SN_DECL kernel_scalar_mul_sse(mat_kernel const *matrix, float const scalar, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_scalar_mul_avx(mat_kernel const *matrix, float const scalar, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_scalar_mul_512(mat_kernel const *matrix, float const scalar, mat_kernel *ans);
 
 #pragma endregion
 
-#pragma region dot
+#pragma region fma
 
-INTERNAL void FORCEINLINE SN_DECL dot_41_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans);
-INTERNAL void FORCEINLINE SN_DECL dot_31_sse(__3_columnset *transpose, __m128 *vector, __m128 *ans);
-INTERNAL void FORCEINLINE SN_DECL dot_41_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans);
-INTERNAL void FORCEINLINE SN_DECL dot_31_avx(__3_columnset *transpose, __m128 *vector, __m128 *ans);
-
-INTERNAL void SN_DECL dot_32_sse(__3_columnset *transpose, __m128 *vector, __m128 *ans);
-INTERNAL void SN_DECL dot_32_avx(__3_columnset *transpose, __m128 *vector, __m128 *ans);
-INTERNAL void SN_DECL dot_42_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans);
-INTERNAL void SN_DECL dot_42_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans);
-
-INTERNAL void SN_DECL dot_43_sse(__4_columnset *transpose, __m128 *vector, __m128 *ans);
-INTERNAL void SN_DECL dot_43_avx(__4_columnset *transpose, __m128 *vector, __m128 *ans);
-//INTERNAL void SN_DECL dot_43_512(__4_columnset *transpose, __m128 *vector, __m128 *ans);
+INTERNAL void SN_DECL kernel_fma_sse(mat_kernel *left, mat_kernel *right);
 
 #pragma endregion
 
@@ -131,33 +105,17 @@ INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int lengt
 
 #pragma endregion
 
-typedef struct ssc_intrinsic {
-        MATARITHMETIC add_m2;
-        MATARITHMETIC add_m3;
-        MATARITHMETIC add_m4;
+typedef struct sn_intrinsic {
         int (*city_hash_simplify)(byte *str, int length);
-        MATRIXDETPROC det_matrix33;
-        MATRIXDETPROC det_matrix44;
-        DOTPROC dot_31;
-        DOTPROC dot_32;
-        DOTPROC dot_41;
-        DOTPROC dot_42;
-        DOTPROC dot_43;
         FACTORIALROC factorial_simd;
         int (*index_pair)(short const *str, uint32_t target, int length);
+        MATARITHMETIC kernel_add;
+        void (*kernel_fma)(void *left, void *right, void *ans);
+        SCALARMATARITHMETIC kernel_scalar_mul;
+        MATARITHMETIC kernel_sub;
+        MATTRANSPOSEPROC kernel_transpose;
         VECTORNORMALIZEPROC normalize_3;
-        MATARITHMETIC sub_m2;
-        MATARITHMETIC sub_m3;
-        MATARITHMETIC sub_m4;
-        MATRIXTRANSPOSEPROC transpose_23;
-        MATRIXTRANSPOSEPROC transpose_24;
-        MATRIXTRANSPOSEPROC transpose_32;
-        MATRIXTRANSPOSEPROC transpose_33;
-        MATRIXTRANSPOSEPROC transpose_34;
-        MATRIXTRANSPOSEPROC transpose_42;
-        MATRIXTRANSPOSEPROC transpose_43;
-        MATRIXTRANSPOSEPROC transpose_44;
-} ssc_intrinsic;
+} sn_intrinsic;
 
 typedef enum most_advanced_instruction {
 #ifdef _MSC_VER

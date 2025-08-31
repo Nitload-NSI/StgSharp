@@ -39,12 +39,6 @@ namespace StgSharp.HighPerformance.Memory
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void AcquireBucketNodeSpinLock(BucketNode* node)
-        {
-            AcquireBucketNodeBothLocks(node);
-        }
-
         /// <summary>
         ///   Initialize bucket system (called in constructor)
         /// </summary>
@@ -53,6 +47,16 @@ namespace StgSharp.HighPerformance.Memory
             _bucketHeads = new ulong[levelSizeArray.Length * 3];
         }
 
+        #region BucketNode Operations
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsNullOrEmpty(BucketNode* node)
+        {
+            return node == null || node->Magic != BucketNode.MAGIC_NUMBER;
+        }
+
+            #endregion
+
         private void PushLevel(int levelIndex, int sizeIndex, BucketNode* node)
         {
             if (node == null || node->EntryRef == null) {
@@ -60,286 +64,110 @@ namespace StgSharp.HighPerformance.Memory
             }
 
             int index = (3 * levelIndex) + sizeIndex;
-            if (Interlocked.CompareExchange(ref _bucketHeads[index], (nuint)node, EmptyHandle) == EmptyHandle)
+            if (_bucketHeads[index] == EmptyHandle)
             {
+                _bucketHeads[index] = (nuint)node;
                 node->IsInBucket = true;
                 node->Magic = BucketNode.MAGIC_NUMBER;
                 return;
             } else
             {
-                while (true)
-                {
-                    AcquireBucketNodeNextLock(node);
-                    ulong head = Volatile.Read(ref _bucketHeads[index]);
-                    node->NextLevel = head;
-                    BucketNode* headNode = (BucketNode*)head;
-
-                    try
-                    {
-                        if (Interlocked.CompareExchange(ref _bucketHeads[index], (nuint)node, head) == head)
-                        {
-                            if (headNode != null && !TryAcquireBucketNodePrevLock(headNode))
-                            {
-                                // reset state and retry
-                                _ = Interlocked.CompareExchange(ref _bucketHeads[index], head, (nuint)node);
-                                Thread.Sleep(0);
-                                continue;
-                            }
-                            try
-                            {
-                                node->IsInBucket = true;
-                                node->Magic = BucketNode.MAGIC_NUMBER;
-                                if (headNode != null) {
-                                    headNode->PreviousLevel = (ulong)node;
-                                }
-                                return;
-                            }
-                            finally
-                            {
-                                if (headNode != null) {
-                                    ReleaseBucketNodePrevLock(headNode);
-                                }
-                            }
-                        } else
-                        {
-                            Thread.Sleep(0);
-                            continue;
-                        }
-                    }
-                    finally
-                    {
-                        ReleaseBucketNodeNextLock(node);
-                    }
+                ulong head = _bucketHeads[index];
+                node->NextLevel = head;
+                BucketNode* headNode = (BucketNode*)head;
+                node->IsInBucket = true;
+                node->Magic = BucketNode.MAGIC_NUMBER;
+                if (headNode != null) {
+                    headNode->PreviousLevel = (ulong)node;
                 }
-            }
-        }
-
-        /// <summary>
-        ///   根据锁类型释放BucketNode锁
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ReleaseBucketNodeLockByType(BucketNode* node, byte lockType)
-        {
-            switch (lockType)
-            {
-                case 0:
-                    ReleaseBucketNodePrevLock(node);
-                    return;  // PrevLock
-                case 1:
-                    ReleaseBucketNodeBothLocks(node);
-                    return; // BothLocks
-                case 2:
-                    ReleaseBucketNodeNextLock(node);
-                    return;  // NextLock
-                default:
-                    return;
-            }
-        }
-
-        /// <summary>
-        ///   按地址顺序释放BucketNode锁
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ReleaseOrderedBucketLocks(BucketNode* previous, BucketNode* node, BucketNode* next)
-        {
-            if (previous != null) {
-                ReleaseBucketNodeNextLock(previous);
-            }
-            if (node != null) {
-                ReleaseBucketNodeBothLocks(node);
-            }
-            if (next != null) {
-                ReleaseBucketNodePrevLock(next);
+                return;
             }
         }
 
         private void RemoveFromBucket(int levelIndex, int sizeIndex, BucketNode* node)
         {
             int index = (3 * levelIndex) + sizeIndex;
-            while (true)
+
+            if ((BucketNode*)_bucketHeads[index] == node)
             {
-                if ((BucketNode*)Volatile.Read(ref _bucketHeads[index]) == node)
-                {
-                    if (TryPopLevel(levelIndex, sizeIndex, out _)) {
-                        return;
-                    }
-                    Thread.Sleep(0);
-                    continue;
-                }
-
-                ulong p = Volatile.Read(ref node->PreviousLevel);
-                ulong n = Volatile.Read(ref node->NextLevel);
-                BucketNode* previous = (BucketNode*)p;
-                BucketNode* next = (BucketNode*)n;
-
-                if (!TryAcquireOrderedBucketLocks(previous, node, next))
-                {
-                    Thread.Sleep(0);
-                    continue;
-                }
-
-                try
-                {
-                    if (Volatile.Read(ref node->PreviousLevel) != p || Volatile.Read(ref node->NextLevel) != n)
-                    {
-                        Thread.Sleep(0);
-                        continue;
-                    }
-
-                    if (previous != null) {
-                        previous->NextLevel = n;
-                    }
-                    if (next != null) {
-                        next->PreviousLevel = p;
-                    }
-
-                    node->NextLevel = EmptyHandle;
-                    node->PreviousLevel = EmptyHandle;
-                    node->IsInBucket = false;
+                if (TryPopLevel(levelIndex, sizeIndex, out _)) {
                     return;
                 }
-                finally
-                {
-                    ReleaseOrderedBucketLocks(previous, node, next);
-                }
             }
-        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryAcquireBucketNodeSpinLock(BucketNode* node)
-        {
-            return TryAcquireBucketNodeBothLocks(node);
-        }
+            ulong p = node->PreviousLevel;
+            ulong n = node->NextLevel;
+            BucketNode* previous = (BucketNode*)p;
+            BucketNode* next = (BucketNode*)n;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryAcquireOrderedBucketLocks(BucketNode* previous, BucketNode* node, BucketNode* next)
-        {
-            if (previous != null && node != null && next != null)
-            {
-                // previous -> node -> next
-                return TryAcquireBucketNodeNextLock(previous) &&
-                       TryAcquireBucketNodeBothLocks(node) &&
-                       TryAcquireBucketNodePrevLock(next);
-            } else if (previous != null && node != null) {
-                return TryAcquireBucketNodeNextLock(previous) && TryAcquireBucketNodeBothLocks(node);
+            if (previous != null) {
+                previous->NextLevel = n;
             }
-            return true;
+            if (next != null) {
+                next->PreviousLevel = p;
+            }
+
+            node->NextLevel = EmptyHandle;
+            node->PreviousLevel = EmptyHandle;
+            node->IsInBucket = false;
+            return;
         }
 
         private bool TryPopLevel(int levelIndex, int sizeIndex, out BucketNode* node)
         {
             int index = (3 * levelIndex) + sizeIndex;
-            while (true)
+
+            ulong h = _bucketHeads[index];
+            BucketNode* head = (BucketNode*)h;
+
+            if (head == null)
             {
-                ulong h = Volatile.Read(ref _bucketHeads[index]);
-                BucketNode* head = (BucketNode*)h;
-
-                if (head == null)
-                {
-                    node = null;
-                    return false;
-                }
-
-                if (!TryAcquireBucketNodeNextLock(head))
-                {
-                    Thread.Sleep(0);
-                    continue;
-                }
-
-                ulong n = Volatile.Read(ref head->NextLevel);
-                BucketNode* next = (BucketNode*)n;
-
-                if (next == null)
-                {
-                    if (Interlocked.CompareExchange(ref _bucketHeads[index], EmptyHandle, h) == h)
-                    {
-                        node = head;
-                        return true;
-                    }
-                    node = null;
-                    return false;
-                }
-                try
-                {
-                    if (!TryAcquireBucketNodePrevLock(next))
-                    {
-                        Thread.Sleep(0);
-                        continue;
-                    }
-
-                    try
-                    {
-                        if (Interlocked.CompareExchange(ref _bucketHeads[index], head->NextLevel, h) == h)
-                        {
-                            node = head;
-                            node->IsInBucket = false;
-                            node->NextLevel = EmptyHandle;
-                            if (next != null) {
-                                next->PreviousLevel = EmptyHandle;
-                            }
-                            return true;
-                        } else
-                        {
-                            Thread.Sleep(0);
-                            continue;
-                        }
-                    }
-                    finally
-                    {
-                        if (next != null) {
-                            ReleaseBucketNodePrevLock(next);
-                        }
-                    }
-                }
-                finally
-                {
-                    ReleaseBucketNodeNextLock(head);
-                }
+                node = null;
+                return false;
             }
+
+            ulong n = head->NextLevel;
+            BucketNode* next = (BucketNode*)n;
+
+            if (next == null)
+            {
+                _bucketHeads[index] = EmptyHandle;
+                node = head;
+                return true;
+            }
+            _bucketHeads[index] = head->NextLevel;
+            node = head;
+            node->IsInBucket = false;
+            node->NextLevel = EmptyHandle;
+            if (next != null) {
+                next->PreviousLevel = EmptyHandle;
+            }
+            return true;
         }
 
         private bool TryRemoveFromBucket(int levelIndex, int sizeIndex, BucketNode* node)
         {
             int index = (3 * levelIndex) + sizeIndex;
-            if ((BucketNode*)Volatile.Read(ref _bucketHeads[index]) == node)
-            {
-                if (TryPopLevel(levelIndex, sizeIndex, out _)) {
-                    return true;
-                }
-                return false;
+            if ((BucketNode*) _bucketHeads[index] == node) {
+                return TryPopLevel(levelIndex, sizeIndex, out _);
             }
 
-            ulong p = Volatile.Read(ref node->PreviousLevel);
-            ulong n = Volatile.Read(ref node->NextLevel);
+            ulong p = node->PreviousLevel;
+            ulong n = node->NextLevel;
             BucketNode* previous = (BucketNode*)p;
             BucketNode* next = (BucketNode*)n;
 
-            if (!TryAcquireOrderedBucketLocks(previous, node, next)) {
-                return false;
+            if (previous != null) {
+                previous->NextLevel = n;
+            }
+            if (next != null) {
+                next->PreviousLevel = p;
             }
 
-            try
-            {
-                if (Volatile.Read(ref node->PreviousLevel) != p || Volatile.Read(ref node->NextLevel) != n) {
-                    return false;
-                }
-
-                if (previous != null) {
-                    previous->NextLevel = n;
-                }
-                if (next != null) {
-                    next->PreviousLevel = p;
-                }
-
-                node->NextLevel = EmptyHandle;
-                node->PreviousLevel = EmptyHandle;
-                node->IsInBucket = false;
-                return true;
-            }
-            finally
-            {
-                ReleaseOrderedBucketLocks(previous, node, next);
-            }
+            node->NextLevel = EmptyHandle;
+            node->PreviousLevel = EmptyHandle;
+            node->IsInBucket = false;
+            return true;
         }
 
         /// <summary>
@@ -364,139 +192,5 @@ namespace StgSharp.HighPerformance.Memory
 
         }
 
-        #region BucketNode Operations
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsNullOrEmpty(BucketNode* node)
-        {
-            return node == null || node->Magic != BucketNode.MAGIC_NUMBER;
-        }
-
-        // BucketNode 前驱锁操作（控制PreviousLevel字段）
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryAcquireBucketNodePrevLock(BucketNode* node)
-        {
-            if (node == null) {
-                return true;
-            }
-
-            int thread = Environment.CurrentManagedThreadId;
-            return Interlocked.CompareExchange(ref node->PrevLock, thread, 0) == 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void AcquireBucketNodePrevLock(BucketNode* node)
-        {
-            if (node == null) {
-                return;
-            }
-
-            int thread = Environment.CurrentManagedThreadId;
-            if (Volatile.Read(ref node->PrevLock) != thread)
-            {
-                while (Interlocked.CompareExchange(ref node->PrevLock, thread, 0) != 0) {
-                    Thread.Sleep(0);
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ReleaseBucketNodePrevLock(BucketNode* node)
-        {
-            if (node == null) {
-                return;
-            }
-
-            int thread = Environment.CurrentManagedThreadId;
-            if (Volatile.Read(ref node->PrevLock) == thread) {
-                Volatile.Write(ref node->PrevLock, 0);
-            }
-        }
-
-        // BucketNode 后继锁操作（控制NextLevel字段）
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryAcquireBucketNodeNextLock(BucketNode* node)
-        {
-            if (node == null) {
-                return true;
-            }
-
-            int thread = Environment.CurrentManagedThreadId;
-            return Interlocked.CompareExchange(ref node->NextLock, thread, 0) == 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void AcquireBucketNodeNextLock(BucketNode* node)
-        {
-            if (node == null) {
-                return;
-            }
-
-            int thread = Environment.CurrentManagedThreadId;
-            if (Volatile.Read(ref node->NextLock) != thread)
-            {
-                while (Interlocked.CompareExchange(ref node->NextLock, thread, 0) != 0) {
-                    Thread.Sleep(0);
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ReleaseBucketNodeNextLock(BucketNode* node)
-        {
-            if (node == null) {
-                return;
-            }
-
-            int thread = Environment.CurrentManagedThreadId;
-            if (Volatile.Read(ref node->NextLock) == thread) {
-                Volatile.Write(ref node->NextLock, 0);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryAcquireBucketNodeBothLocks(BucketNode* node)
-        {
-            if (node == null) {
-                return true;
-            }
-
-            if (TryAcquireBucketNodePrevLock(node))
-            {
-                if (TryAcquireBucketNodeNextLock(node))
-                {
-                    return true;
-                } else
-                {
-                    ReleaseBucketNodePrevLock(node); // 回滚
-                    return false;
-                }
-            }
-            return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ReleaseBucketNodeBothLocks(BucketNode* node)
-        {
-            if (node == null) {
-                return;
-            }
-
-            ReleaseBucketNodePrevLock(node);
-            ReleaseBucketNodeNextLock(node);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void AcquireBucketNodeBothLocks(BucketNode* node)
-        {
-            if (node == null) {
-                return;
-            }
-
-            AcquireBucketNodePrevLock(node);
-            AcquireBucketNodeNextLock(node);
-        }
-
-        #endregion
     }
 }

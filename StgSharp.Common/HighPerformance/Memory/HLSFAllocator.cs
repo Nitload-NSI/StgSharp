@@ -54,7 +54,7 @@ namespace StgSharp.HighPerformance.Memory
             if (byteSize < 64) {
                 throw new InvalidOperationException();
             }
-            _entries = SlabAllocator<Entry>.Create(64, BufferLayout.Chunked);
+            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
             _size = byteSize;
             m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, 16);
             _align = 16;
@@ -62,12 +62,10 @@ namespace StgSharp.HighPerformance.Memory
             InitializeBucketSystem();
 
             _spareMemory = (Entry*)_entries.Allocate();
-            SetEntryState(_spareMemory, EntryState.ThreadOccupied);
+            _spareMemory->State = EntryState.Empty;
             _spareMemory->PreviousNear = EmptyHandle;
             _spareMemory->NextNear = EmptyHandle;
             _spareMemory->Position = (nuint)m_Buffer;
-            _spareMemory->PrevLock = 0;
-            _spareMemory->NextLock = 0;
             _spareMemory->Size = (uint)byteSize;
         }
 
@@ -77,7 +75,7 @@ namespace StgSharp.HighPerformance.Memory
                 throw new ArgumentException(
                     "Alignment must be a power of two and at least 8 bytes.");
             }
-            _entries = SlabAllocator<Entry>.Create(64, BufferLayout.Chunked);
+            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked);
             m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
             _align = align;
             _size = byteSize;
@@ -85,12 +83,10 @@ namespace StgSharp.HighPerformance.Memory
             InitializeBucketSystem();
 
             _spareMemory = (Entry*)_entries.Allocate();
-            SetEntryState(_spareMemory, EntryState.ThreadOccupied);
+            _spareMemory->State = EntryState.Empty;
             _spareMemory->PreviousNear = EmptyHandle;
             _spareMemory->NextNear = EmptyHandle;
             _spareMemory->Position = (nuint)m_Buffer;
-            _spareMemory->PrevLock = 0;
-            _spareMemory->NextLock = 0;
             _spareMemory->Size = (uint)byteSize;
         }
 

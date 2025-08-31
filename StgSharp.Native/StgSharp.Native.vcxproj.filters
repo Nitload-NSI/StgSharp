@@ -21,28 +21,19 @@
     <ClCompile Include="sn-src\dllmain.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\FactorialSIMD.c">
+    <ClCompile Include="sn-src\str_factorial.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\hash.c">
+    <ClCompile Include="sn-src\str_hash.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\intrinsic.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="sn-src\mat2.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="sn-src\mat3.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="sn-src\mat4.c">
+    <ClCompile Include="sn-src\load_intrinsic.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="sn-src\stb_image.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\string.c">
+    <ClCompile Include="sn-src\str_string.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="sn-src\vector.c">
@@ -51,10 +42,16 @@
     <ClCompile Include="sn-src\vector_dot.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\stgsharp_native.c">
+    <ClCompile Include="sn-src\sn_native.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="sn-src\load_glfw.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sn-src\k_basicop.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sn-src\k_fma.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

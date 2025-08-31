@@ -50,7 +50,14 @@ namespace StgSharp.HighPerformance
 
         internal M128(Vector4 v)
         {
+            Unsafe.SkipInit(out this);
             Vec = v.AsVector128();
+        }
+
+        internal M128(Vector128<float> v)
+        {
+            Unsafe.SkipInit(out this);
+            Vec = v;
         }
 
         public ref T AsRef<T>() where T: unmanaged, INumber<T>

@@ -57,6 +57,16 @@ namespace StgSharp
         private static uint markCount = 0;
         internal static GraphicAPI API = default;
 
+        public static int DefaultSIMDAlignment => InternalIO.IntrinsicLevel switch
+        {
+            IntrinsicLevel.SSE => 16,
+            IntrinsicLevel.AVX2 => 32,
+            IntrinsicLevel.AVX512 => 64,
+            IntrinsicLevel.NEON => 16,
+            IntrinsicLevel.Non => 8,
+            _ => 8,
+        };
+
         public static unsafe void Init()
         {
             mainTimeProvider = new StgSharpTime();
@@ -68,7 +78,7 @@ namespace StgSharp
             InternalIO.InternalAppendLog("\n\n\n");
             InternalIO.InternalWriteLog(
                 $"Program {Assembly.GetEntryAssembly()!.FullName} on {Environment.MachineName} Started.", LogType.Info);
-            _mainThreadID = Environment.CurrentManagedThreadId;
+            MainThreadID = Environment.CurrentManagedThreadId;
 
 
             Dialogue.LoadDialogue();
@@ -84,21 +94,25 @@ namespace StgSharp
             InternalIO.InternalWriteLog(ex.Message, LogType.Error);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogInfo(string log)
         {
             InternalIO.InternalWriteLog(log, LogType.Info);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogWarning(string log)
         {
             InternalIO.InternalWriteLog(log, LogType.Warning);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogWarning(Exception notVerySeriesException)
         {
             InternalIO.InternalWriteLog(notVerySeriesException.Message, LogType.Warning);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Mark(bool needConsole)
         {
             markCount++;

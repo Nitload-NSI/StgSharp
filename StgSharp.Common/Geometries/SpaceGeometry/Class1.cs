@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="VecAny.cs"
+//     file="Class1.cs"
 //     Project: StgSharp
 //     AuthorGroup: Nitload Space
 //     Copyright (c) Nitload Space. All rights reserved.
@@ -29,69 +29,10 @@
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Geometries.SpaceGeometry
 {
-    [CollectionBuilder(typeof(VecAnyBuilder), nameof(VecAnyBuilder.Build))]
-    public class VecAny : IEnumerable<float>
-    {
-
-        private float[] _values;
-
-        internal VecAny(ReadOnlySpan<float> values)
-        {
-            _values = values.ToArray();
-        }
-
-        public VecAny(int size)
-        {
-            if (size <= 0) {
-                throw new ArgumentOutOfRangeException(
-                    nameof(size), "Size must be greater than zero.");
-            }
-            _values = new float[size];
-        }
-
-        public VecAny? this[ReadOnlySpan<MatrixIndexLabel> span]
-        {
-            get
-            {
-                if (span.Length == 0) {
-                    return null;
-                }
-                int size = 0;
-                foreach (MatrixIndexLabel label in span) {
-                    size += label.Length(_values.Length);
-                }
-                return new VecAny(size);
-            }
-        }
-
-        public IEnumerator<float> GetEnumerator()
-        {
-            return ((IEnumerable<float>)_values).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _values.GetEnumerator();
-        }
-
-    }
-
-    public class VecAnyBuilder
-    {
-
-        public static VecAny Build(ReadOnlySpan<float> span)
-        {
-            return new VecAny(span);
-        }
-
-    }
+    internal class Class1 { }
 }

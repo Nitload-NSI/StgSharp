@@ -17,7 +17,7 @@ INTERNAL uint64_t SN_DECL factorial_simd_sse(int n)
         uint64_t result = (uint64_t)baseResult.m128i_i32[0] * (uint64_t)baseResult.m128i_i32[1] *
                           (uint64_t)baseResult.m128i_i32[2] * (uint64_t)baseResult.m128i_i32[3];
         for (uint64_t i = rest; i < n; i++) {
-                result *= i ;
+                result *= i;
         }
         return result;
 }

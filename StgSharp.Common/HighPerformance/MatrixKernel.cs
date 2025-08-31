@@ -33,6 +33,8 @@ using StgSharp.HighPerformance;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,7 +45,9 @@ namespace StgSharp.HighPerformance
     public unsafe struct MatrixKernel
     {
 
-        [FieldOffset(0)] internal fixed float Buffer[16];
+        [FieldOffset(0)] internal fixed byte Buffer[64];
+        [FieldOffset(0)] internal fixed double FP64Buffer[8];
+        [FieldOffset(0)] internal fixed float FP32Buffer[16];
         [FieldOffset(0)] public M128 XMM0;
         [FieldOffset(16)] public M128 XMM1;
         [FieldOffset(32)] public M128 XMM2;
@@ -51,6 +55,38 @@ namespace StgSharp.HighPerformance
         [FieldOffset(0)] public M256 YMM0;
         [FieldOffset(32)] public M256 YMM1;
         [FieldOffset(64)] public M512 ZMM0;
+
+        public MatrixKernel()
+        {
+            Unsafe.SkipInit(out this);
+        }
+
+        public MatrixKernel(bool clear)
+        {
+            if (!clear) {
+                Unsafe.SkipInit(out this);
+            }
+        }
+
+        public static MatrixKernel Fp32Unit
+        {
+            get
+            {
+                MatrixKernel kernel = new(true);
+                kernel.FP32Buffer[0] = 1f;
+                kernel.FP32Buffer[3] = 1f;
+                kernel.FP32Buffer[8] = 1f;
+                kernel.FP32Buffer[15] = 1f;
+                return kernel;
+            }
+        }
+
+        public ref T UnsafeIndex<T>(int column, int row) where T: unmanaged, INumber<T>
+        {
+            ref M128 col = ref Unsafe.As<byte, M128>(ref Buffer[0]);
+            col = ref Unsafe.Add(ref col, column);
+            return ref col.Member<T>(row);
+        }
 
     }
 }

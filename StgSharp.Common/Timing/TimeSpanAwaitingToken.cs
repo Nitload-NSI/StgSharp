@@ -45,7 +45,7 @@ namespace StgSharp.Timing
     public sealed class TimeSpanAwaitingToken : IDisposable
     {
 
-        private static readonly ConcurrentStackBuffer<int> s_unusedID = new(1);
+        private static readonly ConcurrentBufferStack<int> s_unusedID = new(1);
 
         private static int s_maxID;
 

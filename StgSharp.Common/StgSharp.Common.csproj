@@ -6,7 +6,7 @@
         <LangVersion>Preview</LangVersion>
         <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
-        <Platforms>AnyCPU;x64</Platforms>
+        <Platforms>x64;ARM64</Platforms>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression> MIT</PackageLicenseExpression>
@@ -21,11 +21,22 @@
         <Optimize>True</Optimize>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+      <Optimize>True</Optimize>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
         <Optimize>False</Optimize>
         <DebugType>portable</DebugType>
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
         <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+      <Optimize>False</Optimize>
+      <DebugType>portable</DebugType>
+      <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+      <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|x64'">
@@ -35,18 +46,11 @@
         <Deterministic>False</Deterministic>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DebugType>portable</DebugType>
-        <Optimize>False</Optimize>
-        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
-        <Deterministic>False</Deterministic>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <DebugType>none</DebugType>
-        <NoWarn>1701;1702;0649;1591;0169</NoWarn>
-        <Deterministic>False</Deterministic>
-        <Optimize>True</Optimize>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|ARM64'">
+      <Optimize>True</Optimize>
+      <DebugType>embedded</DebugType>
+      <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+      <Deterministic>False</Deterministic>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -54,6 +58,13 @@
         <NoWarn>1701;1702;0649;1591;0169</NoWarn>
         <Deterministic>False</Deterministic>
         <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+      <DebugType>none</DebugType>
+      <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+      <Deterministic>False</Deterministic>
+      <Optimize>True</Optimize>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -104,6 +115,10 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NoOps|x64'">
+      <Deterministic>False</Deterministic>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NoOps|ARM64'">
       <Deterministic>False</Deterministic>
     </PropertyGroup>
 

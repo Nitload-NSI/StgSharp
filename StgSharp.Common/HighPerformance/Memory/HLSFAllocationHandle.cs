@@ -28,17 +28,12 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Entities;
-
 using System;
-using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 using Allocator = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
 
@@ -48,7 +43,6 @@ namespace StgSharp.HighPerformance.Memory
     {
 
         internal readonly byte* BufferPointer;
-
         internal readonly Allocator.Entry* EntryHandle;
         public readonly uint AllocSize;
 

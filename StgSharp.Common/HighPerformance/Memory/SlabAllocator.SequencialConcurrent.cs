@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="SlabAllocator.Sequencial.cs"
+// file="SlabAllocator.SequencialConcurrent.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -37,18 +37,18 @@ using System.Threading;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public sealed unsafe class SequentialSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
+    public sealed unsafe class ConcurrentSequentialSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
     {
 
         private T* _buffer;
 
         private readonly BufferExpansionLock _lock = new();
-        private readonly ConcurrentStackBuffer<nuint> _stack;
+        private readonly ConcurrentBufferStack<nuint> _stack;
         private readonly int _elementSize;
         private nuint _highestAllocated;
         private ulong _capacity;
 
-        public SequentialSlabAllocator(nuint initialCapacity)
+        public ConcurrentSequentialSlabAllocator(nuint initialCapacity)
         {
             _elementSize = Unsafe.SizeOf<T>();
             _capacity = initialCapacity;
@@ -65,7 +65,7 @@ namespace StgSharp.HighPerformance.Memory
             for (int i = 0; i < initCount; i++) {
                 span[i] = (nuint)i;
             }
-            _stack = new(span);
+            _stack = BufferStackBuilder.CreateConcurrent(span);
             _highestAllocated += (nuint)initCount;
         }
 
@@ -152,7 +152,7 @@ namespace StgSharp.HighPerformance.Memory
             return new SlabAllocationHandle<T>(this, true);
         }
 
-        ~SequentialSlabAllocator()
+        ~ConcurrentSequentialSlabAllocator()
         {
             Dispose();
         }
