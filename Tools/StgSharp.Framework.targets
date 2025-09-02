@@ -1,0 +1,47 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- Enable StgSharp multi-version framework support -->
+    <EnableStgSharpFramework>true</EnableStgSharpFramework>
+    <StgSharpVersion Condition="'$(StgSharpVersion)' == ''">1.0.0</StgSharpVersion>
+    <StgSharpBuildMode Condition="'$(StgSharpBuildMode)' == ''">auto</StgSharpBuildMode>
+  </PropertyGroup>
+
+  <!-- Development mode: Reference the full framework -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' OR '$(StgSharpBuildMode)' == 'development'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../StgSharp.Common.TestFramework/StgSharp.Common.TestFramework.csproj" />
+    <Analyzer Include="$(MSBuildThisFileDirectory)../StgSharp.Generator/bin/$(Configuration)/netstandard2.0/StgSharp.Generator.dll" />
+  </ItemGroup>
+
+  <!-- Release mode: Reference only the SDK -->
+  <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(StgSharpBuildMode)' != 'development'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../SDK/StgSharp.SDK.csproj" />
+    <Analyzer Include="$(MSBuildThisFileDirectory)../StgSharp.Generator/bin/$(Configuration)/netstandard2.0/StgSharp.Generator.dll" />
+  </ItemGroup>
+
+  <!-- Define compilation symbols based on build mode -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' OR '$(StgSharpBuildMode)' == 'development'">
+    <DefineConstants>$(DefineConstants);STGSHARP_DEVELOPMENT</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' AND '$(StgSharpBuildMode)' != 'development'">
+    <DefineConstants>$(DefineConstants);STGSHARP_RELEASE_BUILD</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Copy runtime frameworks to output directory -->
+  <Target Name="CopyStgSharpRuntime" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <ItemGroup>
+      <RuntimeFiles Include="$(MSBuildThisFileDirectory)../Runtime/**/*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RuntimeFiles)" 
+          DestinationFiles="@(RuntimeFiles->'$(OutputPath)Runtime/%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+  <!-- Copy framework configuration -->
+  <Target Name="CopyStgSharpConfig" BeforeTargets="Build">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)../stgsharp.config.json" 
+          DestinationFiles="$(OutputPath)stgsharp.config.json" 
+          Condition="Exists('$(MSBuildThisFileDirectory)../stgsharp.config.json')" />
+  </Target>
+
+</Project>

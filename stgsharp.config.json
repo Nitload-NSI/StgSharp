@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "runtimePath": "./Runtime",
+  "buildMode": "auto",
+  "developmentFramework": {
+    "path": "./StgSharp.Common",
+    "enableHotReload": true,
+    "enableSourceMapping": true
+  },
+  "releaseFramework": {
+    "dynamicLoading": true,
+    "versionSelection": "latest",
+    "fallbackVersion": "1.0.0"
+  }
+}

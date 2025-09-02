@@ -47,6 +47,74 @@ namespace StgSharp.Generator
                     ).Where(static m=>m!=null);
 
             context.RegisterSourceOutput(declaration, BpNodeSyntaxReceiver.BuildNode);
+
+            // Add multi-version framework source generation
+            var frameworkUsages = context.SyntaxProvider.CreateSyntaxProvider(
+                predicate: static (s, _) => IsFrameworkUsage(s),
+                transform: static (ctx, _) => ExtractFrameworkUsage(ctx)
+            ).Where(static usage => usage != null);
+
+            context.RegisterSourceOutput(frameworkUsages, GenerateFrameworkProxy);
         }
+
+        private static bool IsFrameworkUsage(SyntaxNode node)
+        {
+            // Detect World.* calls or other framework API usage
+            if (node is InvocationExpressionSyntax invocation)
+            {
+                var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
+                if (memberAccess?.Expression is IdentifierNameSyntax identifier)
+                {
+                    return identifier.Identifier.ValueText == "World";
+                }
+            }
+            return false;
+        }
+
+        private static FrameworkUsage? ExtractFrameworkUsage(GeneratorSyntaxContext context)
+        {
+            if (context.Node is InvocationExpressionSyntax invocation)
+            {
+                var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
+                if (memberAccess != null)
+                {
+                    return new FrameworkUsage
+                    {
+                        MethodName = memberAccess.Name.Identifier.ValueText,
+                        Node = invocation
+                    };
+                }
+            }
+            return null;
+        }
+
+        private static void GenerateFrameworkProxy(SourceProductionContext context, FrameworkUsage? usage)
+        {
+            if (usage == null) return;
+
+            var source = $$"""
+// Auto-generated framework proxy code
+using StgSharp.SDK;
+
+namespace StgSharp.Generated
+{
+    public static class WorldProxy
+    {
+        public static void {{usage.MethodName}}()
+        {
+            World.{{usage.MethodName}}();
+        }
+    }
+}
+""";
+
+            context.AddSource("WorldProxy.g.cs", source);
+        }
+    }
+
+    internal class FrameworkUsage
+    {
+        public string MethodName { get; set; } = string.Empty;
+        public SyntaxNode? Node { get; set; }
     }
 }
