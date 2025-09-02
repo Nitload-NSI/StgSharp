@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "uKzOCWCMs902tLQm8SrpicQB0VHnb8PSHRXDd9yV5X+Ka37mg/OpFhVy2KQPV9r3qhLW3PRGMXLuaIaQFGNhpA==",
+  "success": true,
+  "projectFilePath": "/home/runner/work/StgSharp/StgSharp/StgSharp.Common/StgSharp.Common.csproj",
+  "expectedPackageFiles": [
+    "/home/runner/.nuget/packages/microsoft.csharp/4.7.0/microsoft.csharp.4.7.0.nupkg.sha512",
+    "/home/runner/.nuget/packages/system.runtime.compilerservices.unsafe/6.1.0/system.runtime.compilerservices.unsafe.6.1.0.nupkg.sha512"
+  ],
+  "logs": []
+}

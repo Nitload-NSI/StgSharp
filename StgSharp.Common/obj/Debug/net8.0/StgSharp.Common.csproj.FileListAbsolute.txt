@@ -1,0 +1,5 @@
+/home/runner/work/StgSharp/StgSharp/StgSharp.Common/obj/Debug/net8.0/StgSharp.Common.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/StgSharp/StgSharp/StgSharp.Common/obj/Debug/net8.0/StgSharp.Common.AssemblyInfoInputs.cache
+/home/runner/work/StgSharp/StgSharp/StgSharp.Common/obj/Debug/net8.0/StgSharp.Common.AssemblyInfo.cs
+/home/runner/work/StgSharp/StgSharp/StgSharp.Common/obj/Debug/net8.0/StgSharp.Common.csproj.CoreCompileInputs.cache
+/home/runner/work/StgSharp/StgSharp/StgSharp.Common/obj/Debug/net8.0/StgSharp.Common.sourcelink.json
