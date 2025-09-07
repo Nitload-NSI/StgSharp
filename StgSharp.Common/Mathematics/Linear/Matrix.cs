@@ -123,94 +123,94 @@ namespace StgSharp.Mathematics
             }
         }
 
-        public readonly unsafe ref struct MatrixSegmentEnumeration(
-                                          MatrixKernel* source,
-                                          int stride,
-                                          int size,
-                                          int secondaryStride,
-                                          int secondarySize)
+    }
+
+    public readonly unsafe ref struct MatrixSegmentEnumeration(
+                                      MatrixKernel* source,
+                                      int stride,
+                                      int size,
+                                      int secondaryStride,
+                                      int secondarySize)
+    {
+
+        private readonly MatrixKernel* _source = source;
+        private readonly int _secondarySize = secondarySize;
+        private readonly int _secondaryStride = secondaryStride;
+
+        private readonly int _size = size;
+        private readonly int _stride = stride;
+
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(in this);
+        }
+
+        public ref struct Enumerator(in MatrixSegmentEnumeration enumeration)
         {
 
-            private readonly MatrixKernel* _source = source;
-            private readonly int _secondarySize = secondarySize;
-            private readonly int _secondaryStride = secondaryStride;
+            private MatrixKernel* _current = enumeration._source - enumeration._stride;
+            private readonly MatrixKernel* _end = enumeration._source + enumeration._size;
+            private readonly int _secondarySize = enumeration._secondarySize;
+            private readonly int _secondaryStride = enumeration._secondaryStride;
+            private readonly int _stride = enumeration._stride;
 
-            private readonly int _size = size;
-            private readonly int _stride = stride;
-
-            public Enumerator GetEnumerator()
+            public readonly Segment Current
             {
-                return new Enumerator(in this);
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => new(_current, _secondarySize, _secondaryStride);
             }
 
-            public ref struct Enumerator(in MatrixSegmentEnumeration enumeration)
+            public bool MoveNext()
             {
-
-                private MatrixKernel* _current = enumeration._source - enumeration._stride;
-                private readonly MatrixKernel* _end = enumeration._source + enumeration._size;
-                private readonly int _secondarySize = enumeration._secondarySize;
-                private readonly int _secondaryStride = enumeration._secondaryStride;
-                private readonly int _stride = enumeration._stride;
-
-                public readonly Segment Current
-                {
-[MethodImpl(MethodImplOptions.AggressiveInlining)]
-                    get => new(_current, _secondarySize, _secondaryStride);
-                }
-
-                public bool MoveNext()
-                {
-                    _current += _stride;
-                    return _current < _end;
-                }
-
+                _current += _stride;
+                return _current < _end;
             }
 
         }
 
-        public readonly unsafe ref struct Segment(MatrixKernel* source, int size, int stride)
+    }
+
+    public readonly unsafe ref struct Segment(MatrixKernel* source, int size, int stride)
+    {
+
+        private readonly MatrixKernel* _source = source;
+        private readonly int _size = size;
+        private readonly int _stride = stride;
+
+        public ref MatrixKernel this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= _size) {
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                }
+                return ref _source[index * _stride];
+            }
+        }
+
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(_source, _size, _stride);
+        }
+
+        public ref struct Enumerator(MatrixKernel* source, int count, int stride)
         {
 
-            private readonly MatrixKernel* _source = source;
-            private readonly int _size = size;
+            private readonly MatrixKernel* _end = source + (count * stride);
             private readonly int _stride = stride;
 
-            public ref MatrixKernel this[int index]
+            public MatrixKernel* Current
             {
-                get
-                {
-                    if (index < 0 || index >= _size) {
-                        throw new ArgumentOutOfRangeException(nameof(index));
-                    }
-                    return ref _source[index * _stride];
-                }
-            }
-
-            public Enumerator GetEnumerator()
-            {
-                return new Enumerator(_source, _size, _stride);
-            }
-
-            public ref struct Enumerator(MatrixKernel* source, int count, int stride)
-            {
-
-                private readonly MatrixKernel* _end = source + (count * stride);
-                private readonly int _stride = stride;
-
-                public MatrixKernel* Current
-                {
 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                    get;
+                get;
 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                    private set;
-                } = source - stride;
+                private set;
+            } = source - stride;
 
-                public bool MoveNext()
-                {
-                    Current += _stride;
-                    return Current < _end;
-                }
-
+            public bool MoveNext()
+            {
+                Current += _stride;
+                return Current < _end;
             }
 
         }

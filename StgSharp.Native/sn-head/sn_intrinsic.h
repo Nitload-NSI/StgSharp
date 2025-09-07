@@ -23,7 +23,7 @@
                 (LAST(reset2) << 2) | (LAST(reset1) << 1) | LAST(reset0)
 #define SSE_INSERT_SIMPLE(source, target) SSE_INSERT(source, target, 0, 0, 0, 0)
 #define M256_PERMUTE(s3, s2, s1, s0) (LASTTWO(s3) << 6) | (LASTTWO(s2) << 4) | (LASTTWO(s1) << 2) | (LASTTWO(s0)
-
+#define BIT_CVRT(pack, index, T) *(T *)(pack->data + index)
 #define zero_vec _mm_setzero_ps()
 #define zero_vec_256 _mm256_setzero_ps()
 
@@ -58,6 +58,10 @@ typedef union column_4 {
         float m[4][4];
 } __4_columnset;
 
+typedef union scalar_pack {
+        uint64_t data[8];
+} scalar_pack;
+
 typedef void(SN_DECL *VECTORNORMALIZEPROC)(__m128 *source, __m128 *target);
 typedef void(SN_DECL *DOTPROC)(void *transpose, __m128 *vector, __m128 *ans);
 typedef void(SN_DECL *MATRIXTRANSPOSEPROC)(void *source, void *target);
@@ -73,24 +77,34 @@ typedef uint64_t(SN_DECL *FACTORIALROC)(int n);
 
 INTERNAL void normalize(__m128 *source, __m128 *target);
 
-INTERNAL void SN_DECL kernel_add_sse(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
-INTERNAL void SN_DECL kernel_add_avx(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
-INTERNAL void SN_DECL kernel_add_512(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
-INTERNAL void SN_DECL kernel_sub_sse(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
-INTERNAL void SN_DECL kernel_sub_avx(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
-INTERNAL void SN_DECL kernel_sub_512(mat_kernel const *left, mat_kernel const *right, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_add_sse(mat_kernel const *left, mat_kernel const *right,
+                                     mat_kernel *ans);
+INTERNAL void SN_DECL kernel_add_avx(mat_kernel const *left, mat_kernel const *right,
+                                     mat_kernel *ans);
+INTERNAL void SN_DECL kernel_add_512(mat_kernel const *left, mat_kernel const *right,
+                                     mat_kernel *ans);
+INTERNAL void SN_DECL kernel_sub_sse(mat_kernel const *left, mat_kernel const *right,
+                                     mat_kernel *ans);
+INTERNAL void SN_DECL kernel_sub_avx(mat_kernel const *left, mat_kernel const *right,
+                                     mat_kernel *ans);
+INTERNAL void SN_DECL kernel_sub_512(mat_kernel const *left, mat_kernel const *right,
+                                     mat_kernel *ans);
 INTERNAL void SN_DECL kernel_transpose_sse(mat_kernel const *source, mat_kernel *target);
 INTERNAL void SN_DECL kernel_transpose_avx(mat_kernel const *source, mat_kernel *target);
 INTERNAL void SN_DECL kernel_transpose_512(mat_kernel const *source, mat_kernel *target);
-INTERNAL void SN_DECL kernel_scalar_mul_sse(mat_kernel const *matrix, float const scalar, mat_kernel *ans);
-INTERNAL void SN_DECL kernel_scalar_mul_avx(mat_kernel const *matrix, float const scalar, mat_kernel *ans);
-INTERNAL void SN_DECL kernel_scalar_mul_512(mat_kernel const *matrix, float const scalar, mat_kernel *ans);
+INTERNAL void SN_DECL kernel_scalar_mul_sse(mat_kernel const *matrix, float const scalar,
+                                            mat_kernel *ans);
+INTERNAL void SN_DECL kernel_scalar_mul_avx(mat_kernel const *matrix, float const scalar,
+                                            mat_kernel *ans);
+INTERNAL void SN_DECL kernel_scalar_mul_512(mat_kernel const *matrix, float const scalar,
+                                            mat_kernel *ans);
 
 #pragma endregion
 
 #pragma region fma
 
-INTERNAL void SN_DECL kernel_fma_sse(mat_kernel *left, mat_kernel *right);
+INTERNAL void SN_DECL kernel_fma_sse(mat_kernel const *restrict left,
+                                     mat_kernel const *restrict right, mat_kernel *restrict ans);
 
 #pragma endregion
 

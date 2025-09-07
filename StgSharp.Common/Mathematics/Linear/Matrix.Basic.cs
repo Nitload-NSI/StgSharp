@@ -45,7 +45,18 @@ namespace StgSharp.Mathematics
             if (left.ColumnLength != right.ColumnLength || left.RowLength != right.RowLength) {
                 throw new IndexOutOfRangeException("Matrix dimensions must agree.");
             }
-            Matrix<float> result = GCMatrix<float>.FromDefault(left.ColumnLength, left.RowLength);
+            MatrixParallel.LeadParallel();
+            try
+            {
+                Matrix<float> result = GCMatrix<float>.FromDefault(left.ColumnLength, left.RowLength);
+                MatrixParallel.PublishTask();
+                MatrixParallel.LaunchParallel(SleepMode.DeepSleep);
+                return result;
+            }
+            finally
+            {
+                MatrixParallel.EndParallel();
+            }
         }
 
     }

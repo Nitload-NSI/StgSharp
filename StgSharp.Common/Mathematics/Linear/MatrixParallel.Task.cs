@@ -31,77 +31,101 @@
 using StgSharp.HighPerformance;
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace StgSharp.Mathematics
 {
-    /// <summary>
-    ///   Matrix parallel computation task structure with scalar data packet support Uses type-
-    ///   erased design for thread pool compatibility
-    /// </summary>
-    [StructLayout(LayoutKind.Explicit, Size = 48)]
-    public unsafe struct MatrixParallelTask
+    public unsafe struct ScalarPacket
     {
 
-        public const int SizeofConstantParameter = sizeof(ulong);
-        public const int SizeOfTask = 48;
+        private fixed ulong data[8];
 
-        [FieldOffset(0)] public MatrixKernel* left;
-        [FieldOffset(8)] public MatrixKernel* result;
-        [FieldOffset(16)] public MatrixKernel* right;
-        [FieldOffset(24)] public int scalerCount;
-        [FieldOffset(32)] public IntPtr executionHandle;
-
-        /// <summary>
-        ///   Pointer to the scalar data packet containing up to 8 parameters Each parameter is
-        ///   stored as ulong (8 bytes) for type erasure
-        /// </summary>
-        [FieldOffset(40)] public nint scalerDataPacket;
-
-        /// <summary>
-        ///   Execute the task using type-erased function pointer
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void Execute()
+        public ref T Data<T>(int index) where T: unmanaged,INumber<T>
         {
-            if (scalerCount == 0)
-            {
-                ((delegate*<MatrixKernel*, MatrixKernel*, MatrixKernel*, void>)executionHandle)(left, right, result);
-            } else
-            {
-                ((delegate*<MatrixKernel*, MatrixKernel*, MatrixKernel*, void*, void>)executionHandle)(left, right, result, (void*)scalerDataPacket);
+            if (index is < 0 or >= 8) {
+                throw new IndexOutOfRangeException();
             }
+
+            return ref Unsafe.As<ulong, T>(ref data[index]);
         }
 
     }
 
-    /// <summary>
-    ///   Scalar data packet for storing up to 8 parameters as type-erased ulong values Used to
-    ///   separate scalar data allocation from task allocation
-    /// </summary>
-    public unsafe struct ScalarDataPacket
+    [StructLayout(LayoutKind.Sequential)]
+    internal unsafe struct MatrixParallelTaskPackage
     {
 
-        public const int MaxScalarCount = 8;
-        public const int PacketSize = 64;
+        #region source
 
-        private fixed ulong Value[8];
+        // Group 1: Left/Right matrix kernel base address
+        public MatrixKernel* Left;    // 8
+        public MatrixKernel* Right;   // 8
 
-        public ScalarDataPacket()
-        {
-            Unsafe.SkipInit(out this);
-        }
+        #endregion
 
-        public ref T GetScalerRef<T>(int index) where T: unmanaged, INumber<T>
-        {
-            if (index is < 0 or >= MaxScalarCount) {
-                throw new IndexOutOfRangeException("ScalarDataPacket index out of range");
-            }
-            return ref Unsafe.As<ulong, T>(ref Value[index]);
-        }
+        #region ans
 
+        // Group 2: Result kernel base address + reserved
+        public MatrixKernel* Result;  // 8
+        public void* ReservedPtr0;         // 8 (extension/reserved)
+
+        #endregion
+
+        #region left enum
+
+        public int LeftPrimOffset;         // 4
+        public int LeftPrimStride;         // 4 
+        public int LeftSecOffset;          // 4
+        public int LeftSecStride;          // 4
+
+        #endregion
+
+        #region right enum
+
+        public int RightPrimOffset;        // 4
+        public int RightPrimStride;        // 4
+        public int RightSecOffset;         // 4
+        public int RightSecStride;         // 4
+
+        #endregion
+
+        #region ans enum
+
+        public int ResultPrimOffset;       // 4
+        public int ResultPrimStride;       // 4
+        public int ResultSecOffset;        // 4
+        public int ResultSecStride;        // 4
+
+        #endregion
+
+        #region scalar/compute
+
+        public ScalarPacket* Scalar;  // 8
+        public IntPtr ComputeHandle;     // 8
+
+        #endregion
+
+        #region global profile
+
+        public int PrimCount;            // 4
+        public int ComputeMode;            // 4 
+        public int SecCount;               // 4
+        private readonly int ReservedInt0; // 4
+
+        #endregion
+
+        #region reserve
+
+        public long ReservedLong0;         // 8
+        public long ReservedLong1;         // 8
+
+        #endregion
     }
 }

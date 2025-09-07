@@ -1,6 +1,8 @@
 #include "sn_intrinsic.h"
 
-void kernel_fma_sse(mat_kernel *const left, mat_kernel *const right, mat_kernel *ans)
+// ans = left * right(T) + ans
+INTERNAL void SN_DECL kernel_fma_sse(mat_kernel const *restrict left,
+                                     mat_kernel const *restrict right, mat_kernel *restrict ans)
 {
         register __m128 source0 = _mm_load_ps(&left->xmm[0]);
         register __m128 source1 = _mm_load_ps(&left->xmm[1]);
@@ -28,8 +30,13 @@ void kernel_fma_sse(mat_kernel *const left, mat_kernel *const right, mat_kernel 
                         _mm_add_ps(ans3, _mm_mul_ps(source3, broadcast));
                 }
         }
-        _mm_store_ps(&ans->xmm[0], ans0);
-        _mm_store_ps(&ans->xmm[1], ans1);
-        _mm_store_ps(&ans->xmm[2], ans2);
-        _mm_store_ps(&ans->xmm[3], ans3);
+        source0 = _mm_load_ps(&ans->xmm[0]);
+        source1 = _mm_load_ps(&ans->xmm[1]);
+        source2 = _mm_load_ps(&ans->xmm[2]);
+        source3 = _mm_load_ps(&ans->xmm[3]);
+
+        _mm_store_ps(&ans->xmm[0], _mm_add_ps(source0, ans0));
+        _mm_store_ps(&ans->xmm[1], _mm_add_ps(source1, ans1));
+        _mm_store_ps(&ans->xmm[2], _mm_add_ps(source2, ans2));
+        _mm_store_ps(&ans->xmm[3], _mm_add_ps(source3, ans3));
 }
