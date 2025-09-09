@@ -1,0 +1,5 @@
+/.vs
+/.cr
+*/bin
+*/obj
+build
