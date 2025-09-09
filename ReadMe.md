@@ -1,50 +1,141 @@
-# Stg# #
+# StgSharp
 
-![Stg#Logo](https://github.com/Nitload-NSI/StgSharp/blob/main/STG%23LOGO.png "Stg#LOGO")
+![Stg#Logo](STG%23LOGO.png "Stg#LOGO")
 
-## General Introduction ##
+## Introduction
 
-Stg# is a new generation STG game engine. STG# is written in C# based on OpenGL. It provide a both low hand high level binding to OpenGL, multimedia and device control, giving everything you need to make your own stg games.We are looking forward to provide full support on Linux and other OS platforms, but it requires a long journey to go.
+StgSharp was originally designed as a next-generation STG (shooting game) engine, but now it has evolved to cover both game development and high-performance computing (HPC) scenarios. The project includes low-level and high-level OpenGL bindings, multimedia processing, device control, and a variety of modules for math, geometry, parallel computing, and more.
 
-The Stg# engine contains the fallowing modules:
+**Note:** StgSharp is currently in an early and exploratory stage. Many features are experimental, and the project direction covers both game engine and HPC functionalities. The modules are diverse and not yet fully integrated. Usage examples are not provided at this time, as the functionality is broad and not yet stable enough for typical use cases.
 
-1. A high efficiency math library
-2. A MVVM windowed application framework
-3. A compiler to compile scripts
-4. A sets of methods to optimize performance
-5. A game resource manager
 
-The Stg# main program is in project named "StgSharp", which contains most of the math method, graphic APIs, and application resources manager.
+## Core Modules
 
-Most of the basic graphic functions are contained in the project called "StgSharpGraphic". And the functions to optimize performance, mainly to accelerate vector computing, are contained in project called "StgSharpC".
+The StgSharp engine consists of the following main modules:
 
-StgSharp provides full support of all OpenGL APIs and features, and provides a cross platform viewport manager based on [GLFW](https://www.glfw.org/).
+### 1. StgSharp.Common - Core Library
+- **High-Performance Math Library**: Scalar operations, linear algebra, matrix operations, and mathematical functions
+- **Graphics Rendering System**: Complete OpenGL support including OpenGL 4.6 core functionality
+- **MVVM Framework**: Windowed application framework based on MVVM pattern
+- **High-Performance Computing**: SIMD optimization, HLSF memory allocator, parallel computing support
+- **Geometry System**: 2D/3D geometry, collision detection, coordinate transformations
+- **Entity System**: Game entity management, particle systems, launchers
+- **Pipeline System**: Multi-threaded pipeline scheduler with concurrent processing support
 
-As well, we provide support to [EXPRESS language](https://www.expresslang.org/) (or [ISO 1303-11](https://www.iso.org/standard/38047.html)). You can use it to build a blueprint or other structured data. One thing to be noticed is that our support to EXPRESS lang is not fully implemented, some of the keywords and language feature is not available, due to complexity in C#. C# does not support multi-inheritance, so related features in EXPRESS like SUPERTYPEOF or SUBTYPEOF cannot be converted to C#　code easily unless use some tricks like LINQ.
+### 2. StgSharp.Script - Scripting System
+- **EXPRESS Language Support**: Compilation and parsing support for [EXPRESS language](https://www.expresslang.org/) (ISO 10303-11)
+- **Syntax Analyzer**: Complete lexical and syntax analysis functionality
+- **Code Generation**: Convert EXPRESS code to C# code
+- **Built-in Type System**: Support for integers, real numbers, booleans, strings, and other basic types
 
-## Install ##
+### 3. StgSharp.Model - Model System
+- **STEP File Support**: Support for STEP format 3D model files
+- **Geometry Data Processing**: Model geometry processing and optimization
 
-Package can be downloaded from [nuget](https://127.0.0.1) (not available right now, do not click).
+### 4. StgSharp.Native - Native Library
+- **GLFW Bindings**: Cross-platform viewport management based on [GLFW](https://www.glfw.org/)
+- **Native Function Interface**: Low-level system calls and hardware acceleration functionality
 
-StgSharp is a project mainly focusing on C# GUI and CG designing, so API in other languages are not available currently.
+### 5. StgSharp.TerminalDialogue - Terminal Dialogue System
+- **Command Line Interface**: Terminal interaction functionality
+- **Dialogue Management**: Support for complex dialogue flow control
 
-## Future Plan ##
+## Technical Features
 
-We are looking forward to making some optimization to provide various features.
+- **Cross-Platform Support**: Windows, Linux, and other platforms
+- **High-Performance Rendering**: Hardware-accelerated rendering based on OpenGL
+- **Memory Optimization**: HLSF memory allocator providing O(1) time complexity memory management
+- **Parallel Computing**: Multi-threaded parallel computing and SIMD instruction optimization
+- **Modern C# Features**: Uses .NET 8.0 and C# preview features
 
-We are planning to including SDL to StgSharp to improve framework managing as replacement of GLFW. We will also provide support to different graphic APIs. We are looking forward to providing Vulcan support at 2.0 version.
+## Installation and Usage
 
-StgSharp will also bew available on different OS platforms, listed in Version History. It is needed to be informed that we removed the plan on OS X series and HarmonyOS from recent plans.
+### System Requirements
 
-## Version History *
+- **.NET 8.0** or higher
+- **Windows 10/11** or **Linux** operating system
+- **OpenGL 4.6** compatible graphics drivers
+- **Visual Studio 2022** or **JetBrains Rider** (recommended)
 
-A brief introduction to all main versions are listed bellow, for more detailed info, please read our [release blog](https://github.com/Nitload-NSI/StgSharp/blob/main/UpdateBlog.md).
+### Building the Project
 
-| Version | Description                                        | Windows    | Linux      | Android    |
-|---------|----------------------------------------------------|------------|------------|------------|
-| 0.3.0   | The first usable version with min usable function  | No Release | No Release | No Release |
-| 0.4.x   | Rewrite the OpenGL api loader, more function added | No Release | No Release | No Release |
-| 0.5.x   | Support MVVM mode                                  | No Release | No Release | No Release |
-| 0.6.x   | Support script compile(Mainly EXPRESSION languages)| No Release | No Release | No Release |
+1. Clone the repository:
+```bash
+git clone https://github.com/Nitload-NSI/StgSharp.git
+cd StgSharp
+```
 
-*No current support plan for HarmonyOS, OS X series and some other mobile operating system is the result of runtime support.
+2. Open the solution in Visual Studio:
+   - Open `StgSharp.sln` in Visual Studio 2022
+   - The solution will automatically restore NuGet packages
+   - Build the solution using `Build > Build Solution` or press `Ctrl+Shift+B`
+
+**Note**: Currently, only Visual Studio build is supported. Command-line build scripts are not yet implemented.
+
+### Project Structure
+
+```
+StgSharp/
+├── StgSharp.Common/          # Core library
+├── StgSharp.Script/          # Scripting system
+├── StgSharp.Model/           # Model system
+├── StgSharp.Native/          # Native library
+├── StgSharp.TerminalDialogue/ # Terminal dialogue system
+└── StgSgharp.Generator/      # Code generator
+```
+
+
+## Development Roadmap
+
+### Short-term Goals
+
+- **Vulkan Support**: Plan to add Vulkan graphics API support in version 2.0
+- **Performance Optimization**: Further optimize memory allocation and rendering performance
+- **Documentation**: Provide more detailed API documentation and usage tutorials
+- **Sample Projects**: Create complete game sample projects
+
+### Long-term Goals
+
+- **Cross-Platform Expansion**: Enhanced support for more operating systems
+- **Graphics API Diversity**: Support for DirectX, Metal, and other graphics APIs
+- **Editor Tools**: Develop visual editor tools
+- **Community Ecosystem**: Establish plugin system and community contribution mechanisms
+
+## Contributing
+
+We welcome community contributions! If you would like to contribute to the StgSharp project, please:
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+
+- **GitHub Issues**: [Submit issues or suggestions](https://github.com/Nitload-NSI/StgSharp/issues)
+- **Update Log**: Check [UpdateBlog.md](UpdateBlog.md) for the latest updates
+
+## Documentation
+
+This section provides links to technical documents and guides for different namespaces and modules in StgSharp. For more details, please refer to the corresponding folders and files in the repository. If you have questions or suggestions about documentation, feel free to submit an issue or pull request.
+
+### Documentation Index
+
+#### General
+  [UpdateBlog.md](UpdateBlog.md): Project update log    
+  [LICENSE](LICENSE): Project license    
+  [StgSharp.Native/naming.md](StgSharp.Native/naming.md): Native module naming conventions
+
+#### StgSharp.Common
+- StgSharp.HighPerformance  
+    [HLSF Introduction](docs/HLSF.md): Details about the HLSF memory allocator
+
+#### StgSharp.Native
+
+
