@@ -1,3 +1,8 @@
+## Update 20250909
+
+1. After extensive research, we have decided not to adopt SDL and will continue using GLFW. We are confident in our ability to deliver the key features found in SDL's functional modules.
+2. Introduction of a high-performance memory allocator. Details can be found in [StgSharp.HighPerformance.Memory](StgSharp.Common\HighPerformance\Memory).
+
 ## Update 20250721
 
 We made the decision to switch window source manager from GLFW to SDL.
