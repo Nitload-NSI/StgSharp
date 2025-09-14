@@ -33,6 +33,7 @@ using StgSharp.HighPerformance.Memory;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Pipes;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -72,9 +73,6 @@ namespace StgSharp.Mathematics
          (1, 2), (0, 3), (3, 1), (2, 2), (1, 3),
          (0, 4), (3, 2), (2, 3), (1, 4), (0, 5),];
         private static volatile int RemainThreadCount = 0;
-
-        private static readonly ManualResetEventSlim _restartEvent = new(false);
-        private static readonly ManualResetEventSlim _startEvent = new(false);
 
         private static readonly object _lock = new();
         private static ThreadPriority _AfterWork = ThreadPriority.Lowest;
@@ -117,8 +115,6 @@ namespace StgSharp.Mathematics
 
         public static void LaunchParallel(SleepMode afterWork)
         {
-            _startEvent.Set();
-            _restartEvent.Reset();
             RemainThreadCount = _threads.Length;
             _AfterWork = (ThreadPriority)afterWork;
         }
@@ -131,24 +127,36 @@ namespace StgSharp.Mathematics
 
         public static void PublishTask() { }
 
+        public static void SetAllWrap()
+        {
+            foreach (MatrixParallelWrap item in _wraps) {
+                _ = item.SchedulerReset.Set();
+            }
+        }
+
         public unsafe class MatrixParallelWrap
         {
 
-            private Queue<IntPtr>[] _cache;
-            private Thread[] _threads;
+            private readonly Queue<IntPtr>[] _cache;
+            private readonly Thread[] _threads;
+            private readonly AutoResetEvent[] _workerReset;
 
             public MatrixParallelWrap(int id, int wrapSize, bool isFirst)
             {
                 ID = id;
+                int begin = isFirst ? 1 : 0, end = wrapSize - 1;
                 _cache = new Queue<IntPtr>[wrapSize];
+                _workerReset = new AutoResetEvent[end];
+                _threads = new Thread[wrapSize];
+                for (int i = 0; i < end; i++) {
+                    _workerReset[i] = new AutoResetEvent(false);
+                }
                 for (int i = 0; i < _cache.Length; i++) {
                     _cache[i] = new Queue<IntPtr>(8);
                 }
-                _threads = new Thread[wrapSize];
-                int begin = isFirst ? 0 : 1,end = wrapSize - 1;
-                for (int i = 0; i < end; i++)
+                for (int i = begin; i < end; i++)
                 {
-                    _threads[i] = new Thread(CommonMatrixParallelCycle)
+                    _threads[i] = new Thread(MatrixParallelWorker)
                     {
                         IsBackground = true,
                         Priority = ThreadPriority.BelowNormal,
@@ -156,7 +164,7 @@ namespace StgSharp.Mathematics
                     };
                     _threads[i].Start(new Handle(i, this));
                 }
-                _threads[end] = new Thread(SchedulerMatrixParallelCycle)
+                _threads[end] = new Thread(MatrixParallelScheduler)
                 {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
@@ -166,6 +174,8 @@ namespace StgSharp.Mathematics
             }
 
             public int ID { get; init; }
+
+            internal AutoResetEvent SchedulerReset { get; } = new(false);
 
             public Span<IntPtr> EnqueuePackage(Span<IntPtr> packageSpan)
             {
@@ -177,80 +187,95 @@ namespace StgSharp.Mathematics
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public AutoResetEvent GetWorkerResetEvent(int id)
+            {
+                return _workerReset[id];
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Queue<IntPtr> GetWorkerTaskQueue(int idInWrap)
             {
                 return _cache[idInWrap];
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void SetAllWorker()
+            {
+                foreach (AutoResetEvent item in _workerReset) {
+                    _ = item.Set();
+                }
+            }
+
             public record class Handle(int InWrapIndex, MatrixParallelWrap Wrap);
 
-        }
+            #region ThreadOperation
 
-        #region ThreadOperation
-
-        private static unsafe void CommonMatrixParallelCycle(object obj)
-        {
-            MatrixParallelWrap.Handle handle = (obj as MatrixParallelWrap.Handle)!;
-            MatrixParallelWrap wrap = handle.Wrap;
-            int inWrapIndex = handle.InWrapIndex;
-            Thread self = Thread.CurrentThread;
-            while (true)
+            private static unsafe void MatrixParallelWorker([AllowNull] object obj)
             {
-                self.Priority = ThreadPriority.Highest;
-                ExecuteTaskPackage(wrap.GetWorkerTaskQueue(inWrapIndex));
-                _ = Interlocked.Decrement(ref RemainThreadCount);
-                self.Priority = _AfterWork;
-                _restartEvent.Wait();
-            }
-        }
-
-        private static unsafe void ExecuteTaskPackage(Queue<IntPtr> taskQueue)
-        {
-            while (taskQueue.TryDequeue(out nint handle))
-            {
-                MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)handle;
-                switch (p->ComputeMode)
+                Handle handle = (obj as Handle)!;
+                MatrixParallelWrap wrap = handle.Wrap;
+                int inWrapIndex = handle.InWrapIndex;
+                Thread self = Thread.CurrentThread;
+                AutoResetEvent reset = wrap.GetWorkerResetEvent(inWrapIndex);
+                do
                 {
-                    case 1:
-                        Compute_Unary(p);
-                        break;
-                    case 2:
-                        Compute_UnaryScalar(p);
-                        break;
-                    case 3:
-                        Compute_Binary(p);
-                        break;
-                    case 4:
-                        Compute_BinaryScalar(p);
-                        break;
-                    default:
-                        break;
-                }
+                    _ = reset.WaitOne();
+                    self.Priority = ThreadPriority.Highest;
+                    ExecuteTaskPackage(wrap.GetWorkerTaskQueue(inWrapIndex));
+                    _ = Interlocked.Decrement(ref RemainThreadCount);
+                    self.Priority = _AfterWork;
+                } while (true);
             }
-        }
 
-        private static unsafe void SchedulerMatrixParallelCycle(object obj)
-        {
-            MatrixParallelWrap.Handle handle = (obj as MatrixParallelWrap.Handle)!;
-            MatrixParallelWrap wrap = handle.Wrap;
-            int inWrapIndex = handle.InWrapIndex;
-            Thread self = Thread.CurrentThread;
-            ref MatrixParallelTaskPackage wt = ref wrap.WrapTask, tt = ref TotalTask;
-            int l1 = wt
-
-            while (true)
+            private static unsafe void MatrixParallelScheduler([AllowNull] object obj)
             {
-                self.Priority = ThreadPriority.Highest;
-                while (wrap.GetWorkerTaskQueue(inWrapIndex, out IntPtr ptr)) {
-                    ExecuteTaskPackage((MatrixParallelTaskPackage*)ptr);
-                }
-                _ = Interlocked.Decrement(ref RemainThreadCount);
-                self.Priority = _AfterWork;
-                _restartEvent.Wait();
+                Handle handle = (obj as Handle)!;
+                MatrixParallelWrap wrap = handle.Wrap;
+                int inWrapIndex = handle.InWrapIndex;
+                Queue<IntPtr> taskQueue = wrap.GetWorkerTaskQueue(inWrapIndex);
+                AutoResetEvent resetEvent = wrap.SchedulerReset;
+                Thread self = Thread.CurrentThread;
+                do
+                {
+                    _ = resetEvent.WaitOne();
+                    self.Priority = ThreadPriority.Highest;
+
+                    // TODO task publication to worker in wrap
+                    wrap.SetAllWorker();
+                    ExecuteTaskPackage(taskQueue);
+                    self.Priority = _AfterWork;
+                } while (true);
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private static unsafe void ExecuteTaskPackage(Queue<IntPtr> taskQueue)
+            {
+                while (taskQueue.TryDequeue(out nint handle))
+                {
+                    MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)handle;
+                    switch (p->ComputeMode)
+                    {
+                        case 1:
+                            Compute_Unary(p);
+                            break;
+                        case 2:
+                            Compute_UnaryScalar(p);
+                            break;
+                        case 3:
+                            Compute_Binary(p);
+                            break;
+                        case 4:
+                            Compute_BinaryScalar(p);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            #endregion
         }
 
-        #endregion
     }
 
     public enum SleepMode

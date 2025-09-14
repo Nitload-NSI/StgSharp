@@ -53,10 +53,12 @@ namespace StgSharp.Mathematics
         public static MatrixParallelTaskPackage* FromTaskWrap(MatrixParallelTaskPackage* source, int offset)
         {
             MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)_wrapAllocator.Allocate();
+            /*
             *p = *source;
-            p->left += offset * p->leftStride;
-            p->right += offset * p->rightStride;
-            p->result += offset * p->resultStride;
+            p->Left += offset * p->LeftStride;
+            p->Right += offset * p->RightStride;
+            p->Result += offset * p->ResultStride;
+            /**/
             return p;
         }
 
@@ -67,8 +69,8 @@ namespace StgSharp.Mathematics
 
         public static void Release(MatrixParallelTaskPackage* source)
         {
-            if (source->scalerPacket != null) {
-                _scalarAllocator.Free((nuint)source->scalerPacket);
+            if (source->Scalar != null) {
+                _scalarAllocator.Free((nuint)source->Scalar);
             }
             _wrapAllocator.Free((nuint)source);
         }
@@ -77,23 +79,31 @@ namespace StgSharp.Mathematics
         {
             int count = group.Length;
             group[0] = (nint)source;
-            int l = source->leftStride, r = source->rightStride, res = source->resultStride, c = source->count / count;
-            source->leftStride *= count;
-            source->rightStride *= count;
-            source->resultStride *= count;
-            int remain = source->count - (c * count);
+            int l = source->LeftPrimStride, r = source->RightPrimStride, res = source->ResultPrimStride, c = source->PrimCount / count;
+            source->LeftPrimStride *= count;
+            source->RightPrimStride *= count;
+            source->ResultPrimStride *= count;
+            source->PrimCount = c;
+            int remain = source->PrimCount - (c * count);
             for (int i = 1; i < count; i++)
             {
                 nint handle = (nint)_wrapAllocator.Allocate();
                 MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)handle;
                 *p = *source;
-                p->left += l;
-                p->right += r;
-                p->result += res;
+                p->Left += l * i;
+                p->Right += r * i;
+                p->Result += res * i;
+                p->PrimCount = c;
                 group[i] = handle;
             }
-            for (int i = 0; i < remain; i++) {
-                ((MatrixParallelTaskPackage*)group[^i])->count++;
+
+            // Distribute remaining work to the last few tasks
+            for (int i = 0; i < remain; i++)
+            {
+                int targetIndex = count - 1 - i;
+                if (targetIndex >= 0) {
+                    ((MatrixParallelTaskPackage*)group[targetIndex])->PrimCount++;
+                }
             }
         }
 
