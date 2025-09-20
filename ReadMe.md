@@ -1,50 +1,222 @@
-# Stg# #
+# StgSharp
 
-![Stg#Logo](https://github.com/Nitload-NSI/StgSharp/blob/main/STG%23LOGO.png "Stg#LOGO")
+![StgSharp Logo](STG%23LOGO.png)
 
-## General Introduction ##
+StgSharp is a modern C# framework that combines game engine capabilities with high-performance computing features. Originally designed as a next-generation STG (Shoot 'em Up) game engine, it has evolved to include advanced mathematical libraries, parallel computing capabilities, and comprehensive graphics APIs.
 
-Stg# is a new generation STG game engine. STG# is written in C# based on OpenGL. It provide a both low hand high level binding to OpenGL, multimedia and device control, giving everything you need to make your own stg games.We are looking forward to provide full support on Linux and other OS platforms, but it requires a long journey to go.
+## Overview
 
-The Stg# engine contains the fallowing modules:
+StgSharp provides both low-level and high-level bindings to OpenGL, multimedia control, and device management, offering everything needed to create STG games and high-performance applications. The framework is built on .NET 8 and supports Windows and Linux platforms.
 
-1. A high efficiency math library
-2. A MVVM windowed application framework
-3. A compiler to compile scripts
-4. A sets of methods to optimize performance
-5. A game resource manager
+## Core Modules
 
-The Stg# main program is in project named "StgSharp", which contains most of the math method, graphic APIs, and application resources manager.
+### StgSharp.Common
+The main library containing core functionality:
 
-Most of the basic graphic functions are contained in the project called "StgSharpGraphic". And the functions to optimize performance, mainly to accelerate vector computing, are contained in project called "StgSharpC".
+- **Mathematics**: High-performance linear algebra, matrix operations, and mathematical utilities
+- **Graphics**: OpenGL bindings, rendering pipeline, and graphics framework
+- **High Performance**: SIMD operations, memory management, and parallel computing
+- **Collections**: Specialized data structures and containers
+- **MVVM**: Model-View-ViewModel framework for UI applications
+- **Entities**: Game entity system and behavior management
+- **Environment**: Platform abstraction and system integration
 
-StgSharp provides full support of all OpenGL APIs and features, and provides a cross platform viewport manager based on [GLFW](https://www.glfw.org/).
+### StgSharp.Script
+General-purpose syntax analysis framework:
 
-As well, we provide support to [EXPRESS language](https://www.expresslang.org/) (or [ISO 1303-11](https://www.iso.org/standard/38047.html)). You can use it to build a blueprint or other structured data. One thing to be noticed is that our support to EXPRESS lang is not fully implemented, some of the keywords and language feature is not available, due to complexity in C#. C# does not support multi-inheritance, so related features in EXPRESS like SUPERTYPEOF or SUBTYPEOF cannot be converted to C#　code easily unless use some tricks like LINQ.
+- **Syntax Analysis Framework**: Provides a flexible framework for parsing and analyzing various programming languages
+- **EXPRESS Language Support**: Specialized support for ISO 10303-11 EXPRESS language syntax parsing
+- **Abstract Syntax Trees**: Language parsing and analysis infrastructure
+- **Token Processing**: Lexical analysis and token management
+- **Grammar Parsing**: Extensible grammar parsing and validation system
 
-## Install ##
+### StgSharp.Model
+Geometric model loading and interpretation:
 
-Package can be downloaded from [nuget](https://127.0.0.1) (not available right now, do not click).
+- **Geometric Model Loading**: Responsible for loading and interpreting geometric models from various formats
+- **STEP Format Support**: Limited support for ISO 10303 STEP file format processing
+- **Entity Management**: Model entity parsing and geometric data interpretation
+- **Data Pipeline**: Efficient geometric data processing and transformation
+- **Schema Validation**: Model structure validation and verification
 
-StgSharp is a project mainly focusing on C# GUI and CG designing, so API in other languages are not available currently.
+### StgSharp.Native
+Native library integration:
 
-## Future Plan ##
+- **GLFW Integration**: Cross-platform window and input management
+- **SIMD Operations**: Hardware-accelerated vector operations
+- **Matrix Kernels**: Optimized matrix computation routines
+- **Context Management**: Graphics context and resource management
 
-We are looking forward to making some optimization to provide various features.
+### StgSharp.TerminalDialogue
+Terminal-based user interface:
 
-We are planning to including SDL to StgSharp to improve framework managing as replacement of GLFW. We will also provide support to different graphic APIs. We are looking forward to providing Vulcan support at 2.0 version.
+- **Interactive Terminal**: Command-line interface components
+- **Dialogue System**: User interaction and input handling
+- **Terminal Graphics**: Text-based UI rendering
 
-StgSharp will also bew available on different OS platforms, listed in Version History. It is needed to be informed that we removed the plan on OS X series and HarmonyOS from recent plans.
+## Key Features
 
-## Version History *
+### High-Performance Computing
+- **Parallel Matrix Operations**: Multi-threaded matrix computations with optimized scheduling
+- **SIMD Acceleration**: Hardware-optimized vector operations
+- **Memory Management**: Custom allocators including HLSF (Hybrid Layer Segregated Fit)
+- **Thread Pool Management**: Efficient task scheduling and execution
 
-A brief introduction to all main versions are listed bellow, for more detailed info, please read our [release blog](https://github.com/Nitload-NSI/StgSharp/blob/main/UpdateBlog.md).
+### Graphics and Rendering
+- **OpenGL Integration**: Complete OpenGL API coverage
+- **Cross-Platform Support**: Windows and Linux compatibility
+- **Rendering Pipeline**: Flexible and extensible graphics framework
+- **Shader Management**: Dynamic shader compilation and management
 
-| Version | Description                                        | Windows    | Linux      | Android    |
-|---------|----------------------------------------------------|------------|------------|------------|
-| 0.3.0   | The first usable version with min usable function  | No Release | No Release | No Release |
-| 0.4.x   | Rewrite the OpenGL api loader, more function added | No Release | No Release | No Release |
-| 0.5.x   | Support MVVM mode                                  | No Release | No Release | No Release |
-| 0.6.x   | Support script compile(Mainly EXPRESSION languages)| No Release | No Release | No Release |
+### Game Engine Capabilities
+- **Entity System**: Flexible game object management
+- **State Machine**: Game state and behavior management
+- **Input Handling**: Comprehensive input and control systems
+- **Resource Management**: Efficient asset loading and management
 
-*No current support plan for HarmonyOS, OS X series and some other mobile operating system is the result of runtime support.
+### Data Processing
+- **STEP File Support**: Industrial data format processing
+- **EXPRESS Language**: Domain-specific language compilation
+- **Pipeline Processing**: Efficient data transformation workflows
+
+## Documentation
+
+### Technical Documentation
+- [HLSF Allocator](StgSharp.Common/HighPerformance/Memory/InroductionToHLSF.md) - High-performance memory allocator documentation
+- [Native Library Naming](StgSharp.Native/naming.md) - Native library file naming conventions
+
+### Module-Specific Documentation
+- **Mathematics**: Linear algebra, matrix operations, and mathematical utilities
+- **Graphics**: OpenGL bindings, rendering, and graphics pipeline
+- **High Performance**: SIMD operations, parallel computing, and memory management
+- **Scripting**: General syntax analysis framework with EXPRESS language support
+- **Modeling**: Geometric model loading and interpretation with STEP format support
+
+## Requirements
+
+- .NET 8.0 or later
+- Windows 10/11 or Linux
+- x64 or ARM64 architecture
+- OpenGL 3.3+ support
+
+## Installation
+
+StgSharp is currently in development and requires compilation from source. **NuGet packages are not yet available** - you must build the project from source code.
+
+### Prerequisites
+
+- **Windows**: Visual Studio 2022 or later with C++ development tools
+- **Linux**: CMake and compatible C++ compiler (planned support)
+- .NET 8.0 SDK or later
+- Git for source code retrieval
+
+### Building from Source
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Nitload-NSI/StgSharp.git
+   cd StgSharp
+   ```
+
+2. **Windows (Recommended)**:
+   - Open `StgSharp.sln` in Visual Studio
+   - Build the solution (Debug or Release configuration)
+   - The native components will be automatically compiled
+
+3. **Linux (Experimental)**:
+   ```bash
+   # Build .NET components only
+   # Note: Native components are not yet supported on Linux
+   dotnet build
+   ```
+
+### Build Configuration
+
+- **Debug**: Full debugging symbols, unoptimized
+- **Release**: Optimized for performance
+
+### Notes
+
+- Windows compilation with Visual Studio is fully supported and tested
+- Linux support is experimental and limited to .NET components only
+- Native components (StgSharp.Native) are currently Windows-only and require MSVC
+- CMake support for native components is not yet implemented
+- Some features may not be available on all platforms
+
+## Quick Start
+
+### Basic Graphics Application
+
+```csharp
+
+/*To be implemented*/
+
+```
+
+### Matrix Operations
+
+```csharp
+using StgSharp.Mathematics;
+
+// Create matrices
+var matrixA = Matrix<float>.Create(4, 4);
+var matrixB = Matrix<float>.Create(4, 4);
+
+// Perform parallel matrix multiplication
+var result = matrixA * matrixB;
+```
+
+### Memory Management
+
+```csharp
+using StgSharp.HighPerformance.Memory;
+
+// Create high-performance allocator
+using var allocator = new HybridLayerSegregatedFitAllocator(64 * 1024 * 1024);
+
+// Allocate memory
+var handle = allocator.Alloc(1024);
+// Use allocated memory
+allocator.Free(handle);
+```
+
+## Architecture
+
+StgSharp follows a modular architecture where each component can be used independently or in combination:
+
+- **Core Layer**: Fundamental data structures and utilities
+- **Graphics Layer**: Rendering and graphics APIs
+- **Performance Layer**: High-performance computing and optimization
+- **Application Layer**: Game engine and application frameworks
+- **Data Layer**: File processing and data modeling
+
+## Performance Characteristics
+
+- **Matrix Operations**: Optimized for large-scale computations
+- **Memory Allocation**: O(1) allocation and deallocation with HLSF
+- **Parallel Processing**: Multi-threaded execution with intelligent scheduling
+- **SIMD Utilization**: Hardware-accelerated vector operations
+
+## Contributing
+
+StgSharp is developed by Nitload Space. Contributions are welcome, particularly in:
+
+- Performance optimizations
+- Cross-platform compatibility
+- Documentation improvements
+- New feature implementations
+
+## License
+
+StgSharp is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+## Future Plans
+
+- **Vulkan Support**: Planned for version 2.0
+- **Enhanced Cross-Platform**: Improved Linux and mobile support
+- **Performance Optimizations**: Further SIMD and parallel processing improvements
+- **Extended Language Support**: Additional domain-specific languages
+
+## Support
+
+For questions, issues, or contributions, please refer to the project repository or contact the development team.
