@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="MatrixParallel.TaskWrapFactory.cs"
+// file="MatrixParallel.TaskFactory.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -28,31 +28,58 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance;
 using StgSharp.HighPerformance.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+
+using hlsfAllocator = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
 
 namespace StgSharp.Mathematics
 {
     internal static unsafe class MatrixParallelFactory
     {
 
-        private static readonly SlabAllocator<ScalarPacket> _scalarAllocator = SlabAllocator<ScalarPacket>.Create(64, SlabBufferLayout.Chunked, true);
+        private static hlsfAllocator _intermediateResult;
 
-        private static readonly SlabAllocator<MatrixParallelTaskPackage> _wrapAllocator = SlabAllocator<MatrixParallelTaskPackage>.Create(64, SlabBufferLayout.Chunked, true);
+        private static
+#if NET9_0_OR_GREATER
+            Lock
+#else
+            object
+#endif
+            _hlsfLock = new();
 
+        private static SlabAllocator<ScalarPacket> _scalarAllocator ;
+
+        private static SlabAllocator<MatrixParallelTaskPackageNonGeneric> _wrapAllocator ;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MatrixParallelTaskPackage<T>* CreateBaseTask<T>() where T: unmanaged, INumber<T>
+        {
+            MatrixParallelTaskPackage<T>* p = (MatrixParallelTaskPackage<T>*)_wrapAllocator.Allocate();
+            Span<byte> s = new Span<byte>((byte*)p, sizeof(MatrixParallelTaskPackage<T>));
+            s.Fill(0);
+            return p;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScalarPacket* CreateScalarPacket()
         {
             ScalarPacket* p = (ScalarPacket*)_scalarAllocator.Allocate();
             return p;
         }
 
-        public static MatrixParallelTaskPackage* FromTaskWrap(MatrixParallelTaskPackage* source, int offset)
+        public static MatrixParallelTaskPackage<T>* FromTaskWrap<T>(MatrixParallelTaskPackage<T>* source, int offset)
+            where T: unmanaged, INumber<T>
         {
-            MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)_wrapAllocator.Allocate();
+            MatrixParallelTaskPackage<T>* p = (MatrixParallelTaskPackage<T>*)_wrapAllocator.Allocate();
             /*
             *p = *source;
             p->Left += offset * p->LeftStride;
@@ -62,12 +89,15 @@ namespace StgSharp.Mathematics
             return p;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+
         public static void Release(ScalarPacket* source)
         {
             _scalarAllocator.Free((nuint)source);
         }
 
-        public static void Release(MatrixParallelTaskPackage* source)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Release(MatrixParallelTaskPackageNonGeneric* source)
         {
             if (source->Scalar != null) {
                 _scalarAllocator.Free((nuint)source->Scalar);
@@ -75,35 +105,24 @@ namespace StgSharp.Mathematics
             _wrapAllocator.Free((nuint)source);
         }
 
-        public static void SliceTask(MatrixParallelTaskPackage* source, Span<IntPtr> group)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Release<T>(MatrixParallelTaskPackage<T>* source) where T: unmanaged, INumber<T>
         {
-            int count = group.Length;
-            group[0] = (nint)source;
-            int l = source->LeftPrimStride, r = source->RightPrimStride, res = source->ResultPrimStride, c = source->PrimCount / count;
-            source->LeftPrimStride *= count;
-            source->RightPrimStride *= count;
-            source->ResultPrimStride *= count;
-            source->PrimCount = c;
-            int remain = source->PrimCount - (c * count);
-            for (int i = 1; i < count; i++)
-            {
-                nint handle = (nint)_wrapAllocator.Allocate();
-                MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)handle;
-                *p = *source;
-                p->Left += l * i;
-                p->Right += r * i;
-                p->Result += res * i;
-                p->PrimCount = c;
-                group[i] = handle;
+            if (source->Scalar != null) {
+                _scalarAllocator.Free((nuint)source->Scalar);
             }
+            _wrapAllocator.Free((nuint)source);
+        }
 
-            // Distribute remaining work to the last few tasks
-            for (int i = 0; i < remain; i++)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void Init()
+        {
+            if (_intermediateResult is null)
             {
-                int targetIndex = count - 1 - i;
-                if (targetIndex >= 0) {
-                    ((MatrixParallelTaskPackage*)group[targetIndex])->PrimCount++;
-                }
+                _intermediateResult = new hlsfAllocator(64 * 16 * 16);
+                _scalarAllocator = SlabAllocator<ScalarPacket>.Create(64 * 1024, SlabBufferLayout.Chunked);
+                _wrapAllocator = SlabAllocator<MatrixParallelTaskPackageNonGeneric>.
+                    Create(128 * 1024, SlabBufferLayout.Chunked);
             }
         }
 

@@ -42,7 +42,7 @@ using System.Threading.Tasks;
 namespace StgSharp.HighPerformance
 {
     [StructLayout(LayoutKind.Explicit, Size = 64)]
-    public unsafe struct MatrixKernel
+    public unsafe struct MatrixKernel<T> where T: unmanaged, INumber<T>
     {
 
         [FieldOffset(0)] internal fixed byte Buffer[64];
@@ -68,11 +68,11 @@ namespace StgSharp.HighPerformance
             }
         }
 
-        public static MatrixKernel Fp32Unit
+        public static MatrixKernel<T> Unit
         {
             get
             {
-                MatrixKernel kernel = new(true);
+                MatrixKernel<T> kernel = new(true);
                 kernel.FP32Buffer[0] = 1f;
                 kernel.FP32Buffer[3] = 1f;
                 kernel.FP32Buffer[8] = 1f;
@@ -81,7 +81,7 @@ namespace StgSharp.HighPerformance
             }
         }
 
-        public ref T UnsafeIndex<T>(int column, int row) where T: unmanaged, INumber<T>
+        public ref T UnsafeIndex(int column, int row)
         {
             ref M128 col = ref Unsafe.As<byte, M128>(ref Buffer[0]);
             col = ref Unsafe.Add(ref col, column);

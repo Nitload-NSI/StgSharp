@@ -31,14 +31,9 @@
 using StgSharp.HighPerformance;
 
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
-using System.Threading;
 
 namespace StgSharp.Mathematics
 {
@@ -59,22 +54,106 @@ namespace StgSharp.Mathematics
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct MatrixParallelTaskPackage
+    internal readonly unsafe struct MatrixParallelTaskPackageNonGeneric
     {
 
         #region source
 
         // Group 1: Left/Right matrix kernel base address
-        public MatrixKernel* Left;    // 8
-        public MatrixKernel* Right;   // 8
+        public readonly IntPtr Left;    // 8
+        public readonly IntPtr Right;   // 8
 
         #endregion
 
         #region ans
 
         // Group 2: Result kernel base address + reserved
-        public MatrixKernel* Result;  // 8
-        public void* ReservedPtr0;         // 8 (extension/reserved)
+        public readonly IntPtr Result;  // 8
+        public readonly int ElementSize;
+        public readonly int ReservedPtr0;         // 4 (extension/reserved)
+
+        #endregion
+
+        #region left enum
+
+        public readonly int LeftPrimOffset;         // 4
+        public readonly int LeftPrimStride;         // 4 
+        public readonly int LeftSecOffset;          // 4
+        public readonly int LeftSecStride;          // 4
+
+        #endregion
+
+        #region right enum
+
+        public readonly int RightPrimOffset;        // 4
+        public readonly int RightPrimStride;        // 4
+        public readonly int RightSecOffset;         // 4
+        public readonly int RightSecStride;         // 4
+
+        #endregion
+
+        #region ans enum
+
+        public readonly int ResultPrimOffset;       // 4
+        public readonly int ResultPrimStride;       // 4
+        public readonly int ResultSecOffset;        // 4
+        public readonly int ResultSecStride;        // 4
+
+        #endregion
+
+        #region scalar/compute
+
+        public readonly ScalarPacket* Scalar;  // 8
+        public readonly IntPtr ComputeHandle;     // 8
+
+        #endregion
+
+        #region global profile
+
+        public readonly int PrimCount;            // 4
+        public readonly int ComputeMode;            // 4 
+        public readonly int SecCount;               // 4
+        private readonly int ReservedInt0; // 4
+
+        #endregion
+
+        #region reserve
+
+        public readonly long ReservedLong0;         // 8
+        public readonly long ReservedLong1;         // 8
+
+        #endregion
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal unsafe struct MatrixParallelTaskPackage<T> where T: unmanaged, INumber<T>
+    {
+
+        public MatrixParallelTaskPackage()
+        {
+            Unsafe.SkipInit(out this);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void Copy(MatrixParallelTaskPackage<T>* source, MatrixParallelTaskPackage<T>* target)
+        {
+            Buffer.MemoryCopy(source, target, sizeof(MatrixParallelTaskPackage<T>), sizeof(MatrixParallelTaskPackage<T>));
+        }
+
+        #region source
+
+        // Group 1: Left/Right matrix kernel base address
+        public MatrixKernel<T>* Left;    // 8
+        public MatrixKernel<T>* Right;   // 8
+
+        #endregion
+
+        #region ans
+
+        // Group 2: Result kernel base address + reserved
+        public MatrixKernel<T>* Result;  // 8
+        public int ElementSize = sizeof(T);
+        public int ReservedPtr0;         // 4 (extension/reserved)
 
         #endregion
 
@@ -126,6 +205,6 @@ namespace StgSharp.Mathematics
         public long ReservedLong0;         // 8
         public long ReservedLong1;         // 8
 
-        #endregion
+    #endregion
     }
 }

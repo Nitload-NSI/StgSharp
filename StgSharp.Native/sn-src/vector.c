@@ -1,7 +1,7 @@
 #include "StgSharpNative.h"
 #include "sn_internal.h"
 
-SN_API void SN_DECL normalize(__m128 *source, __m128 *target)
+SN_API void SN_DECL normalize(__m128 *restrict source, __m128 *restrict target)
 {
         __m128 a_length_sq = _mm_mul_ps(*source, *source);
         a_length_sq = _mm_add_ps(a_length_sq,

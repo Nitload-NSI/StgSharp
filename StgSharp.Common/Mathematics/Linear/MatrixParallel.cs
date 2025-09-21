@@ -33,6 +33,7 @@ using StgSharp.HighPerformance.Memory;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Pipes;
 using System.Linq;
@@ -63,15 +64,12 @@ namespace StgSharp.Mathematics
     * we allow each wrap to contain either 3 or 4 threads, providing flexibility while maintaining efficiency.
     */
 
-    internal static partial class MatrixParallel
+    public static partial class MatrixParallel
     {
 
         private static Thread[] _threads;
         private static MatrixParallelWrap[] _wraps;
-        private static readonly (int a, int b)[] LookupTable =
-        [(1, 1), (0, 2), (3, 0), (2, 1),
-         (1, 2), (0, 3), (3, 1), (2, 2), (1, 3),
-         (0, 4), (3, 2), (2, 3), (1, 4), (0, 5),];
+        private static readonly (int a, int b)[] LookupTable = [ (1, 1), (0, 2), (3, 0), (2, 1), (1, 2), (0, 3), (3, 1), (2, 2), (1, 3), (0, 4), (3, 2), (2, 3), (1, 4), (0, 5), ];
         private static volatile int RemainThreadCount = 0;
 
         private static readonly object _lock = new();
@@ -79,9 +77,13 @@ namespace StgSharp.Mathematics
 
         public static bool SupportParallel { get; } = Environment.ProcessorCount > 6;
 
-        public static bool IsParallelMeaningful { get; } = Environment.ProcessorCount > 6;
+        public static bool IsParallelMeaningful { get; } = Environment.ProcessorCount > 6 && IsInitialized;
 
-        internal static MatrixParallelWrap.Handle LeaderHandle { get; private set; }
+        public static MatrixParallelWrap.Handle LeaderHandle { get; private/**/ set; }
+
+        private static bool IsInitialized { get; set; } = false;
+
+        private static Queue<IntPtr> LeaderTask { get; set; }
 
         public static void EndParallel()
         {
@@ -105,18 +107,41 @@ namespace StgSharp.Mathematics
 
         public static void Init()
         {
+            if (IsInitialized) {
+                return;
+            }
+            MatrixParallelFactory.Init();
             int count = Environment.ProcessorCount - 4;
             count = count == 5 ? 4 : count;
-            int _3wrap = 0, _4wrap = 0;
             _threads = new Thread[count];
-            if (count < 6) { } else if (count == 6) { } else { }
+            if (count < 6)
+            {
+                _wraps = [ new MatrixParallelWrap(0, count, true) ];
+            } else if (count == 6)
+            {
+                _wraps = [ new MatrixParallelWrap(0, 3, true), new MatrixParallelWrap(3, 3, false) ];
+            } else
+            {
+                (int _3wrap, int _4wrap) = FastDecompose(count);
+                _wraps = new MatrixParallelWrap[_3wrap + _4wrap];
+                int id = 0, idx = 0;
+                for (; idx < _3wrap; idx++, id += 3) {
+                    _wraps[idx] = new MatrixParallelWrap(idx, 3, id == 0);
+                }
+                for (; idx < _3wrap + _4wrap; idx++, id += 4) {
+                    _wraps[idx] = new MatrixParallelWrap(id, 4, id == 0);
+                }
+            }
             LeaderHandle = new MatrixParallelWrap.Handle(0, _wraps[0]);
+            LeaderTask = LeaderHandle.Wrap.GetWorkerTaskQueue(0);
+            IsInitialized = true;
         }
 
         public static void LaunchParallel(SleepMode afterWork)
         {
             RemainThreadCount = _threads.Length;
             _AfterWork = (ThreadPriority)afterWork;
+            SetAllWrap();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -125,12 +150,24 @@ namespace StgSharp.Mathematics
             Monitor.Enter(_lock);
         }
 
-        public static void PublishTask() { }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void MatrixParallelLeaderWork()
+        {
+            MatrixParallelWrap.ExecuteTaskPackage(LeaderTask);
+            _ = Interlocked.Decrement(ref RemainThreadCount);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ResetThreadCount()
+        {
+            RemainThreadCount = _threads.Length;
+        }
 
         public static void SetAllWrap()
         {
+            ResetThreadCount();
             foreach (MatrixParallelWrap item in _wraps) {
-                _ = item.SchedulerReset.Set();
+                item.SchedulerReset.Set();
             }
         }
 
@@ -139,17 +176,17 @@ namespace StgSharp.Mathematics
 
             private readonly Queue<IntPtr>[] _cache;
             private readonly Thread[] _threads;
-            private readonly AutoResetEvent[] _workerReset;
+            private readonly ManualResetEventSlim[] _workerReset;
 
             public MatrixParallelWrap(int id, int wrapSize, bool isFirst)
             {
                 ID = id;
                 int begin = isFirst ? 1 : 0, end = wrapSize - 1;
                 _cache = new Queue<IntPtr>[wrapSize];
-                _workerReset = new AutoResetEvent[end];
+                _workerReset = new ManualResetEventSlim[end];
                 _threads = new Thread[wrapSize];
                 for (int i = 0; i < end; i++) {
-                    _workerReset[i] = new AutoResetEvent(false);
+                    _workerReset[i] = new ManualResetEventSlim(false);
                 }
                 for (int i = 0; i < _cache.Length; i++) {
                     _cache[i] = new Queue<IntPtr>(8);
@@ -175,7 +212,7 @@ namespace StgSharp.Mathematics
 
             public int ID { get; init; }
 
-            internal AutoResetEvent SchedulerReset { get; } = new(false);
+            internal ManualResetEventSlim SchedulerReset { get; } = new(false);
 
             public Span<IntPtr> EnqueuePackage(Span<IntPtr> packageSpan)
             {
@@ -187,7 +224,7 @@ namespace StgSharp.Mathematics
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public AutoResetEvent GetWorkerResetEvent(int id)
+            public ManualResetEventSlim GetWorkerResetEvent(int id)
             {
                 return _workerReset[id];
             }
@@ -201,8 +238,8 @@ namespace StgSharp.Mathematics
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetAllWorker()
             {
-                foreach (AutoResetEvent item in _workerReset) {
-                    _ = item.Set();
+                foreach (ManualResetEventSlim item in _workerReset) {
+                    item.Set();
                 }
             }
 
@@ -216,10 +253,11 @@ namespace StgSharp.Mathematics
                 MatrixParallelWrap wrap = handle.Wrap;
                 int inWrapIndex = handle.InWrapIndex;
                 Thread self = Thread.CurrentThread;
-                AutoResetEvent reset = wrap.GetWorkerResetEvent(inWrapIndex);
+                ManualResetEventSlim reset = wrap.GetWorkerResetEvent(inWrapIndex);
                 do
                 {
-                    _ = reset.WaitOne();
+                    reset.Wait();
+                    reset.Reset();
                     self.Priority = ThreadPriority.Highest;
                     ExecuteTaskPackage(wrap.GetWorkerTaskQueue(inWrapIndex));
                     _ = Interlocked.Decrement(ref RemainThreadCount);
@@ -233,26 +271,28 @@ namespace StgSharp.Mathematics
                 MatrixParallelWrap wrap = handle.Wrap;
                 int inWrapIndex = handle.InWrapIndex;
                 Queue<IntPtr> taskQueue = wrap.GetWorkerTaskQueue(inWrapIndex);
-                AutoResetEvent resetEvent = wrap.SchedulerReset;
+                ManualResetEventSlim resetEvent = wrap.SchedulerReset;
                 Thread self = Thread.CurrentThread;
                 do
                 {
-                    _ = resetEvent.WaitOne();
+                    resetEvent.Wait();
+                    resetEvent.Reset();
                     self.Priority = ThreadPriority.Highest;
 
                     // TODO task publication to worker in wrap
                     wrap.SetAllWorker();
                     ExecuteTaskPackage(taskQueue);
+                    _ = Interlocked.Decrement(ref RemainThreadCount);
                     self.Priority = _AfterWork;
                 } while (true);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static unsafe void ExecuteTaskPackage(Queue<IntPtr> taskQueue)
+            public static unsafe void ExecuteTaskPackage(Queue<IntPtr> taskQueue)
             {
                 while (taskQueue.TryDequeue(out nint handle))
                 {
-                    MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)handle;
+                    MatrixParallelTaskPackageNonGeneric* p = (MatrixParallelTaskPackageNonGeneric*)handle;
                     switch (p->ComputeMode)
                     {
                         case 1:

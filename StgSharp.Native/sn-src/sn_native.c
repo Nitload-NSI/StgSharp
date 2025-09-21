@@ -27,7 +27,7 @@ SN_API void SN_DECL initGL(int majorVersion, int minorVersion)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 }
 
-SN_API GLFWglproc SN_DECL loadGlfuncDefault(char *procName)
+SN_API GLFWglproc SN_DECL loadGlfuncDefault(char const *procName)
 {
         void *ret = glfwGetProcAddress(procName);
         // printf("%llu\n", (uint64_t)ret);
@@ -55,7 +55,7 @@ SN_API unsigned int linkShaderProgram(GladGLContext *context, GLuint shaderProgr
         }
 }
 
-SN_API void SN_DECL loadImageData(char *location, Image *out, imageLoader loader)
+SN_API void SN_DECL loadImageData(char const *location, Image *out, imageLoader loader)
 {
         if (loader == NULL) {
                 loader = stbi_load;
@@ -63,7 +63,7 @@ SN_API void SN_DECL loadImageData(char *location, Image *out, imageLoader loader
         out->pixelPtr = loader(location, &(out->width), &(out->height), &(out->channel), 0);
 }
 
-SN_API void SN_DECL unloadImageData(Image *out)
+SN_API void SN_DECL unloadImageData(Image *restrict out)
 {
         free(out->pixelPtr);
 }

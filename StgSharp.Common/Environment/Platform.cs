@@ -28,6 +28,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Mathematics;
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -87,6 +88,7 @@ namespace StgSharp
             }
 
             InternalIO.InitIntrinsicContext();
+            MatrixParallel.Init();
         }
 
         public static void LogError(Exception ex)

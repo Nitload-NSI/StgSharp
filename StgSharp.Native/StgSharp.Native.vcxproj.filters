@@ -83,6 +83,9 @@
     <ClInclude Include="glfw\glfw3.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="sn-head\sn_matkernel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="glfw\glfw3.lib">

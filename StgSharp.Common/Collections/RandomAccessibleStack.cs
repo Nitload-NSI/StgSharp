@@ -1,33 +1,33 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="RandomAccessibleStack.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="RandomAccessibleStack.cs"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
 //     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -60,11 +60,11 @@ namespace StgSharp.Collections
         ///   Initializes a new instance of the RandomAccessStack class that is empty and has the
         ///   specified initial capacity.
         /// </summary>
-        public RandomAccessibleStack( int capacity )
+        public RandomAccessibleStack(int capacity)
         {
-            if( capacity < 0 ) {
+            if (capacity < 0) {
                 throw new ArgumentOutOfRangeException(
-                    nameof( capacity ), "Capacity must be non-negative." );
+                    nameof(capacity), "Capacity must be non-negative.");
             }
 
             _array = new T[capacity];
@@ -74,20 +74,20 @@ namespace StgSharp.Collections
         ///   Gets or sets the element at the specified index in the stack (0 = bottom, Count-1 =
         ///   top).
         /// </summary>
-        public T this[ int index ]
+        public T this[int index]
         {
             get
             {
-                if( index < 0 || index >= _size ) {
-                    throw new ArgumentOutOfRangeException( nameof( index ) );
+                if (index < 0 || index >= _size) {
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
 
-                return _array[ index ];
+                return _array[index];
             }
             /*
             set
             {
-                if( index < 0 || index >= _size ) {
+                if( index < 0 || index >= PrimSize ) {
                     throw new ArgumentOutOfRangeException( nameof( index ) );
                 }
                 _array[ index ] = value;
@@ -106,7 +106,7 @@ namespace StgSharp.Collections
         /// </summary>
         public void Clear()
         {
-            Array.Clear( _array, 0, _size );
+            Array.Clear(_array, 0, _size);
             _size = 0;
             _version++;
         }
@@ -118,14 +118,14 @@ namespace StgSharp.Collections
         public IEnumerator<T> GetEnumerator()
         {
             int expectedVersion = _version;
-            for( int i = _size - 1; i >= 0; i-- )
+            for (int i = _size - 1; i >= 0; i--)
             {
-                if( expectedVersion != _version ) {
+                if (expectedVersion != _version) {
                     throw new InvalidOperationException(
-                        "Collection was modified during enumeration." );
+                        "Collection was modified during enumeration.");
                 }
 
-                yield return _array[ i ];
+                yield return _array[i];
             }
         }
 
@@ -134,11 +134,11 @@ namespace StgSharp.Collections
         /// </summary>
         public T Peek()
         {
-            if( _size == 0 ) {
-                throw new InvalidOperationException( "Stack is empty." );
+            if (_size == 0) {
+                throw new InvalidOperationException("Stack is empty.");
             }
 
-            return _array[ _size - 1 ];
+            return _array[_size - 1];
         }
 
         /// <summary>
@@ -146,12 +146,12 @@ namespace StgSharp.Collections
         /// </summary>
         public T Pop()
         {
-            if( _size == 0 ) {
-                throw new InvalidOperationException( "Stack is empty." );
+            if (_size == 0) {
+                throw new InvalidOperationException("Stack is empty.");
             }
 
-            T item = _array[ --_size ];
-            _array[ _size ] = default!;
+            T item = _array[--_size];
+            _array[_size] = default!;
             _version++;
             return item;
         }
@@ -159,24 +159,24 @@ namespace StgSharp.Collections
         /// <summary>
         ///   Adds an item to the top of the stack.
         /// </summary>
-        public void Push( T item )
+        public void Push(T item)
         {
-            if( _size == _array.Length ) {
-                EnsureCapacity( _size + 1 );
+            if (_size == _array.Length) {
+                EnsureCapacity(_size + 1);
             }
 
-            _array[ _size++ ] = item;
+            _array[_size++] = item;
             _version++;
         }
 
-        private void EnsureCapacity( int min )
+        private void EnsureCapacity(int min)
         {
             int newCapacity = _array.Length == 0 ? DefaultCapacity : _array.Length * 2;
-            if( newCapacity < min ) {
+            if (newCapacity < min) {
                 newCapacity = min;
             }
 
-            Array.Resize( ref _array, newCapacity );
+            Array.Resize(ref _array, newCapacity);
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

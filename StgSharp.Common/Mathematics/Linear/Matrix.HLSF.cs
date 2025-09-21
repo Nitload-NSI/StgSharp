@@ -45,7 +45,7 @@ namespace StgSharp.Mathematics
     internal unsafe partial class HlsfMatrix<T> : Matrix<T> where T: unmanaged, INumber<T>
     {
 
-        private readonly MatrixKernel* k_buffer;
+        private readonly MatrixKernel<T>* k_buffer;
         private readonly hlsfAllocator allocator;
         private readonly hlsfHandle handle;
 
@@ -53,8 +53,8 @@ namespace StgSharp.Mathematics
         {
             KernelColumnLength = (column + 3) / 4;
             KernelRowLength = (row + 3) / t_count;
-            this.handle = allocator.Alloc((uint)(KernelColumnLength * KernelRowLength * sizeof(MatrixKernel)));
-            k_buffer = (MatrixKernel*)handle.Pointer;
+            this.handle = allocator.Alloc((uint)(KernelColumnLength * KernelRowLength * sizeof(MatrixKernel<T>)));
+            k_buffer = (MatrixKernel<T>*)handle.Pointer;
         }
 
         public override ref T this[int column, int row]
@@ -64,8 +64,8 @@ namespace StgSharp.Mathematics
                 AssertIndex(column, row);
                 int kernelColumn = column / 4, c = column % 4;
                 int kernelRow = row / t_count, r = row % t_count;
-                ref MatrixKernel kernel = ref k_buffer[(kernelColumn * kernelColumn) + kernelRow];
-                return ref kernel.UnsafeIndex<T>(c, r);
+                ref MatrixKernel<T> kernel = ref k_buffer[(kernelColumn * kernelColumn) + kernelRow];
+                return ref kernel.UnsafeIndex(c, r);
             }
         }
 
@@ -75,7 +75,13 @@ namespace StgSharp.Mathematics
             set => throw new NotImplementedException();
         }
 
-        public override unsafe ref MatrixKernel GetMatrixKernel(int column, int row)
+        internal override unsafe MatrixKernel<T>* Buffer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => k_buffer;
+        }
+
+        public override unsafe ref MatrixKernel<T> GetMatrixKernel(int column, int row)
         {
             AssertIndex(column, row);
             int kernelColumn = column / 4, c = column % 4;
@@ -87,8 +93,8 @@ namespace StgSharp.Mathematics
         {
             int kernelColumn = column / 4, c = column % 4;
             int kernelRow = row / t_count, r = row % t_count;
-            ref MatrixKernel kernel = ref k_buffer[(kernelColumn * kernelColumn) + kernelRow];
-            return ref kernel.UnsafeIndex<T>(c, r);
+            ref MatrixKernel<T> kernel = ref k_buffer[(kernelColumn * kernelColumn) + kernelRow];
+            return ref kernel.UnsafeIndex(c, r);
         }
 
         ~HlsfMatrix()
@@ -99,20 +105,20 @@ namespace StgSharp.Mathematics
         #region enumeration
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override unsafe MatrixSegmentEnumeration GetColumnEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> GetColumnEnumeration()
         {
-            return new MatrixSegmentEnumeration(k_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelColumnLength);
+            return new MatrixSegmentEnumeration<T>(k_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelColumnLength);
         }
 
-        public override unsafe MatrixSegmentEnumeration GetRowEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> GetRowEnumeration()
         {
-            return new MatrixSegmentEnumeration(k_buffer, 1, KernelColumnLength, KernelColumnLength, KernelRowLength);
+            return new MatrixSegmentEnumeration<T>(k_buffer, 1, KernelColumnLength, KernelColumnLength, KernelRowLength);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override unsafe MatrixSegmentEnumeration GetSequentialEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> GetSequentialEnumeration()
         {
-            return new MatrixSegmentEnumeration(k_buffer, KernelRowLength * KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelRowLength * KernelColumnLength);
+            return new MatrixSegmentEnumeration<T>(k_buffer, KernelRowLength * KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelRowLength * KernelColumnLength);
         }
 
         #endregion

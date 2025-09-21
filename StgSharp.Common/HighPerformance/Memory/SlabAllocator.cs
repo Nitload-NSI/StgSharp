@@ -59,27 +59,26 @@ namespace StgSharp.HighPerformance.Memory
         ///   Thrown when requesting unsupported configurations.
         /// </exception>
         /// <remarks>
-        ///   <para><strong> Important Threading Considerations: </strong></para> <para>While SLAB
-        ///   ///   allocators themselves may be designed for single-threaded use, allocated objects
-        ///    are ///   frequently shared across multiple threads in real-world applications. Due
-        ///   to the ///   special  implementation of expandable concurrent sequential SLAB
-        ///   allocators, they rely ///   on internal  expansion locks to ensure that memory buffer
-        ///   expansions (which involve ///   copying the entire  buffer to a new location) do not
-        ///   occur while other threads are ///   reading from allocated regions. </para>
-        ///   <para><strong>Sequential Layout Limitations: ///</strong><br /> Sequential layout SLAB
-        ///   allocators cannot provide a single-threaded ///   version because:<list
-        ///   type="bullet"><item><description>They use contiguous memory ///   layout that requires
-        ///   buffer expansion when capacity is exceeded
-        ///   ///</description></item><item><description>Buffer expansion involves copying all ///  
-        ///   existing data to a new memory location</description></item><item><description> ///  
-        ///   Without proper synchronization, concurrent access to allocated objects during ///  
-        ///   expansion would cause memory corruption</description></item><item><description>The ///
-        ///     expansion lock mechanism is essential even if allocation itself is single-threaded
-        ///   ///</description></item></list></para> <para><strong> Chunked Layout: </strong><br />
-        ///   ///   Chunked layout allocators can optionally provide single-threaded versions since
-        ///   they ///   don't  require buffer expansion and copying. Each chunk is allocated
-        ///   independently, ///   avoiding the  memory relocation issues present in sequential
-        ///   layouts. </para>
+        ///   <para><strong> Important Threading Considerations: </strong></para> <para> While SLAB
+        ///   allocators themselves may be designed for single-threaded use, allocated objects are
+        ///   frequently shared across multiple threads in real-world applications. Due to the
+        ///   special implementation of expandable concurrent sequential SLAB allocators, they rely
+        ///   on internal  expansion locks to ensure that memory buffer expansions (which involve
+        ///   copying the entire  buffer to a new location) do not occur while other threads are
+        ///   reading from allocated regions.</para> <para><strong> Sequential Layout Limitations:
+        ///   </strong><br /> Sequential layout SLAB allocators cannot provide a single-threaded
+        ///   version because:<list type="bullet"><item><description> They use contiguous memory
+        ///   layout that requires buffer expansion when capacity is exceeded 
+        ///   </description></item><item><description> Buffer expansion involves copying all 
+        ///   existing data to a new memory location </description></item><item><description>
+        ///   Without proper synchronization, concurrent access to allocated objects during 
+        ///   expansion would cause memory corruption </description></item><item><description> The 
+        ///   expansion lock mechanism is essential even if allocation itself is single-
+        ///   threaded</description></item></list></para> <para><strong> Chunked Layout:
+        ///   </strong><br /> Chunked layout allocators can optionally provide single-threaded
+        ///   versions since they don't  require buffer expansion and copying. Each chunk is
+        ///   allocated independently, avoiding the  memory relocation issues present in sequential
+        ///   layouts.</para>
         /// </remarks>
         public static SlabAllocator<T> Create(nuint count, SlabBufferLayout layout, bool concurrentSupport = true)
         {

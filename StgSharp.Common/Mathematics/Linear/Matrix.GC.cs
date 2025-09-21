@@ -44,13 +44,13 @@ namespace StgSharp.Mathematics
     internal unsafe partial class GCMatrix<T> : Matrix<T> where T: unmanaged, INumber<T>
     {
 
-        private readonly MatrixKernel* _buffer;
+        private readonly MatrixKernel<T>* _buffer;
 
         public GCMatrix(int column, int row)
         {
             KernelColumnLength = (column + 3) / 4;
             KernelRowLength = (row + 3) / t_count;
-            _buffer = (MatrixKernel*)NativeMemory.AlignedAlloc((nuint)(column * row * sizeof(T)), (nuint)World.DefaultSIMDAlignment);
+            _buffer = (MatrixKernel<T>*)NativeMemory.AlignedAlloc((nuint)(column * row * sizeof(T)), (nuint)World.DefaultSIMDAlignment);
         }
 
         public override ref T this[int column, int row]
@@ -60,8 +60,8 @@ namespace StgSharp.Mathematics
                 AssertIndex(column, row);
                 int kernelColumn = column / 4, c = column % 4;
                 int kernelRow = row / t_count, r = row % t_count;
-                ref MatrixKernel kernel = ref _buffer[kernelColumn + KernelColumnLength * kernelRow];
-                return ref kernel.UnsafeIndex<T>(c, r);
+                ref MatrixKernel<T> kernel = ref _buffer[kernelColumn + KernelColumnLength * kernelRow];
+                return ref kernel.UnsafeIndex(c, r);
             }
         }
 
@@ -71,7 +71,13 @@ namespace StgSharp.Mathematics
             set => throw new NotImplementedException();
         }
 
-        public override unsafe ref MatrixKernel GetMatrixKernel(int column, int row)
+        internal override unsafe MatrixKernel<T>* Buffer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _buffer;
+        }
+
+        public override unsafe ref MatrixKernel<T> GetMatrixKernel(int column, int row)
         {
             AssertIndex(column, row);
             int kernelColumn = column / 4;
@@ -83,27 +89,27 @@ namespace StgSharp.Mathematics
         {
             int kernelColumn = column / 4, c = column % 4;
             int kernelRow = row / t_count, r = row % t_count;
-            ref MatrixKernel kernel = ref _buffer[kernelColumn + (KernelColumnLength * kernelRow)];
-            return ref kernel.UnsafeIndex<T>(c, r);
+            ref MatrixKernel<T> kernel = ref _buffer[kernelColumn + (KernelColumnLength * kernelRow)];
+            return ref kernel.UnsafeIndex(c, r);
         }
 
         #region enumeration
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override unsafe MatrixSegmentEnumeration GetColumnEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> GetColumnEnumeration()
         {
-            return new MatrixSegmentEnumeration(_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelColumnLength);
+            return new MatrixSegmentEnumeration<T>(_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelColumnLength);
         }
 
-        public override unsafe MatrixSegmentEnumeration GetRowEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> GetRowEnumeration()
         {
-            return new MatrixSegmentEnumeration(_buffer, 1, KernelColumnLength, KernelColumnLength, KernelRowLength);
+            return new MatrixSegmentEnumeration<T>(_buffer, 1, KernelColumnLength, KernelColumnLength, KernelRowLength);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override unsafe MatrixSegmentEnumeration GetSequentialEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> GetSequentialEnumeration()
         {
-            return new MatrixSegmentEnumeration(_buffer, KernelRowLength * KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelRowLength * KernelColumnLength);
+            return new MatrixSegmentEnumeration<T>(_buffer, KernelRowLength * KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelRowLength * KernelColumnLength);
         }
 
         #endregion

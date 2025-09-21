@@ -1,8 +1,8 @@
 #include "sn_intrinsic.h"
 
 // ans = left * right(T) + ans
-INTERNAL void SN_DECL kernel_fma_sse(mat_kernel const *restrict left,
-                                     mat_kernel const *restrict right, mat_kernel *restrict ans)
+INTERNAL void SN_DECL f32_fma_sse(MAT_KERNEL(float) const *restrict left,
+                                     MAT_KERNEL(float) const *restrict right, MAT_KERNEL(float) *restrict ans)
 {
         register __m128 source0 = _mm_load_ps(&left->xmm[0]);
         register __m128 source1 = _mm_load_ps(&left->xmm[1]);

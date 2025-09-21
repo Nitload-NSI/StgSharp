@@ -40,13 +40,13 @@ namespace StgSharp.Internal.Intrinsic
     {
 
         public delegate* unmanaged[Cdecl]<char*, int, int> city_hash_simplify;
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> f32_add;
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> f32_fma;
+        public delegate* unmanaged[Cdecl]<void*, float, void*, void> f32_scalar_mul;
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> f32_sub;
+        public delegate* unmanaged[Cdecl]<void*, void*, void> f32_transpose;
         public delegate* unmanaged[Cdecl]<int, ulong> factorial_simd;
         public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> kernel_add;
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> kernel_fma;
-        public delegate* unmanaged[Cdecl]<MatrixKernel*, float, MatrixKernel*, void> kernel_scalar_mul;
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> kernel_sub;
-        public delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, void> kernel_transpose;
         public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> normalize_3;
 
         public IntrinsicContext()

@@ -27,7 +27,7 @@ SSCAPI void SSCDECL initGL(int majorVersion, int minorVersion)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 }
 
-SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char *procName)
+SSCAPI GLFWglproc SSCDECL loadGlfuncDefault(char const *procName)
 {
         void *ret = glfwGetProcAddress(procName);
         // printf("%llu\n", (uint64_t)ret);
@@ -55,7 +55,7 @@ SSCAPI unsigned int linkShaderProgram(GladGLContext *context, GLuint shaderProgr
         }
 }
 
-SSCAPI void SSCDECL loadImageData(char *location, Image *out, imageLoader loader)
+SSCAPI void SSCDECL loadImageData(char const *location, Image *out, imageLoader loader)
 {
         if (loader == NULL) {
                 loader = stbi_load;
@@ -63,7 +63,7 @@ SSCAPI void SSCDECL loadImageData(char *location, Image *out, imageLoader loader
         out->pixelPtr = loader(location, &(out->width), &(out->height), &(out->channel), 0);
 }
 
-SSCAPI void SSCDECL unloadImageData(Image *out)
+SSCAPI void SSCDECL unloadImageData(Image *restrict out)
 {
         free(out->pixelPtr);
 }

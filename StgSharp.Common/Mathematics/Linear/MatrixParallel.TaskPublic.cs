@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="KernelParallel.cs"
+// file="MatrixParallel.TaskPublic.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -28,13 +28,52 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics
 {
-    internal class KernelParallel { }
+    public static partial class MatrixParallel
+    {
+
+        public static unsafe void PublicTask<T>(
+                                  MatrixSegmentEnumeration<T> left,
+                                  MatrixSegmentEnumeration<T> right,
+                                  MatrixSegmentEnumeration<T> ans,
+                                  delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation)
+            where T: unmanaged, INumber<T>
+        {
+            int columnCount = left.PrimSize;
+            int rowCount = right.PrimSize;
+
+            MatrixParallelTaskPackage<T> package = new()
+            {
+                Left = left.Source,
+                Right = right.Source,
+                Result = ans.Source,
+                LeftPrimOffset = left.PrimOffset,
+                RightPrimOffset = right.PrimOffset,
+                ResultPrimOffset = ans.PrimOffset,
+                LeftPrimStride = left.PrimStride,
+                RightPrimStride = right.PrimStride,
+                ResultPrimStride = ans.PrimStride,
+                LeftSecOffset = left.SecondaryOffset,
+                RightSecOffset = right.SecondaryOffset,
+                ResultSecOffset = ans.SecondaryOffset,
+                LeftSecStride = left.SecondaryStride,
+                RightSecStride = right.SecondaryStride,
+                ResultSecStride = ans.SecondaryStride,
+                PrimCount = left.PrimSize,
+                SecCount = left.SecondarySize,
+                ComputeHandle = (nint)Operation
+            };
+        }
+
+    }
 }

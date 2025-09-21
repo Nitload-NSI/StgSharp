@@ -1,6 +1,7 @@
 #include "sn_intrinsic.h"
 
-INTERNAL void SN_DECL kernel_add_sse(mat_kernel *left, mat_kernel *right, mat_kernel *ans)
+INTERNAL void SN_DECL f32_add_sse(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans)
 {
         register __m128 c0 = _mm_add_ps(left->xmm[0], right->xmm[0]);
         register __m128 c1 = _mm_add_ps(left->xmm[1], right->xmm[1]);
@@ -13,7 +14,8 @@ INTERNAL void SN_DECL kernel_add_sse(mat_kernel *left, mat_kernel *right, mat_ke
         ans->xmm[3] = c3;
 }
 
-INTERNAL void SN_DECL kernel_add_avx(mat_kernel *left, mat_kernel *right, mat_kernel *ans)
+INTERNAL void SN_DECL f32_add_avx(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans)
 {
         register __m256 c0 = _mm256_add_ps(left->ymm[0], right->ymm[0]);
         register __m256 c1 = _mm256_add_ps(left->ymm[1], right->ymm[1]);
@@ -21,13 +23,15 @@ INTERNAL void SN_DECL kernel_add_avx(mat_kernel *left, mat_kernel *right, mat_ke
         ans->ymm[1] = c1;
 }
 
-INTERNAL void SN_DECL kernel_add_512(mat_kernel *left, mat_kernel *right, mat_kernel *ans)
+INTERNAL void SN_DECL f32_add_512(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans)
 {
         register __m512 c0 = _mm512_add_ps(left->zmm[0], right->zmm[0]);
         ans->zmm[0] = c0;
 }
 
-INTERNAL void SN_DECL kernel_sub_sse(mat_kernel *left, mat_kernel *right, mat_kernel *ans)
+INTERNAL void SN_DECL f32_sub_sse(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans)
 {
         register __m128 c0 = _mm_sub_ps(left->xmm[0], right->xmm[0]);
         register __m128 c1 = _mm_sub_ps(left->xmm[1], right->xmm[1]);
@@ -40,7 +44,8 @@ INTERNAL void SN_DECL kernel_sub_sse(mat_kernel *left, mat_kernel *right, mat_ke
         ans->xmm[3] = c3;
 }
 
-INTERNAL void SN_DECL kernel_sub_avx(mat_kernel *left, mat_kernel *right, mat_kernel *ans)
+INTERNAL void SN_DECL f32_sub_avx(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans)
 {
         register __m256 c0 = _mm256_sub_ps(left->ymm[0], right->ymm[0]);
         register __m256 c1 = _mm256_sub_ps(left->ymm[1], right->ymm[1]);
@@ -48,14 +53,16 @@ INTERNAL void SN_DECL kernel_sub_avx(mat_kernel *left, mat_kernel *right, mat_ke
         ans->ymm[1] = c1;
 }
 
-INTERNAL void SN_DECL kernel_sub_512(mat_kernel *left, mat_kernel *right, mat_kernel *ans)
+INTERNAL void SN_DECL f32_sub_512(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans)
 {
         register __m512 c0 = _mm512_sub_ps(left->zmm[0], right->zmm[0]);
         ans->zmm[0] = c0;
 }
 
 // Matrix transpose implementations
-INTERNAL void SN_DECL kernel_transpose_sse(mat_kernel *source, mat_kernel *target)
+INTERNAL void SN_DECL f32_transpose_sse(MAT_KERNEL(float) const *source,
+                                        MAT_KERNEL(float) *restrict target)
 {
         register __m128 col0 = source->xmm[0];
         register __m128 col1 = source->xmm[1];
@@ -72,7 +79,8 @@ INTERNAL void SN_DECL kernel_transpose_sse(mat_kernel *source, mat_kernel *targe
         target->xmm[3] = _mm_movehl_ps(tmp3, tmp1);
 }
 
-INTERNAL void SN_DECL kernel_transpose_avx(mat_kernel *source, mat_kernel *target)
+INTERNAL void SN_DECL f32_transpose_avx(MAT_KERNEL(float) const *source,
+                                        MAT_KERNEL(float) *restrict target)
 {
         register __m256 col_low = source->ymm[0];
         register __m256 col_high = source->ymm[1];
@@ -87,7 +95,8 @@ INTERNAL void SN_DECL kernel_transpose_avx(mat_kernel *source, mat_kernel *targe
         target->ymm[1] = _mm256_shuffle_ps(col_high, col_low, _MM_SHUFFLE(3, 1, 3, 1));
 }
 
-INTERNAL void SN_DECL kernel_transpose_512(mat_kernel *source, mat_kernel *target)
+INTERNAL void SN_DECL f32_transpose_512(MAT_KERNEL(float) const *source,
+                                        MAT_KERNEL(float) *restrict target)
 {
         register __m512 matrix = source->zmm[0];
 
@@ -97,7 +106,8 @@ INTERNAL void SN_DECL kernel_transpose_512(mat_kernel *source, mat_kernel *targe
         target->zmm[0] = _mm512_permutexvar_ps(transpose_indices, matrix);
 }
 
-INTERNAL void SN_DECL kernel_scalar_mul_sse(mat_kernel *matrix, float scalar, mat_kernel *ans)
+INTERNAL void SN_DECL f32_scalar_mul_sse(MAT_KERNEL(float) const *matrix, float const scalar,
+                                         MAT_KERNEL(float) *restrict ans)
 {
         register __m128 temp = _mm_load_ss(&scalar);
         register __m128 scalar_vec = _mm_shuffle_ps(temp, temp, _MM_SHUFFLE(0, 0, 0, 0));
@@ -113,7 +123,8 @@ INTERNAL void SN_DECL kernel_scalar_mul_sse(mat_kernel *matrix, float scalar, ma
         ans->xmm[3] = c3;
 }
 
-INTERNAL void SN_DECL kernel_scalar_mul_avx(mat_kernel *matrix, float scalar, mat_kernel *ans)
+INTERNAL void SN_DECL f32_scalar_mul_avx(MAT_KERNEL(float) const *matrix, float const scalar,
+                                         MAT_KERNEL(float) *restrict ans)
 {
         register __m256 scalar_vec = _mm256_broadcast_ss(&scalar);
 
@@ -124,7 +135,8 @@ INTERNAL void SN_DECL kernel_scalar_mul_avx(mat_kernel *matrix, float scalar, ma
         ans->ymm[1] = c1;
 }
 
-INTERNAL void SN_DECL kernel_scalar_mul_512(mat_kernel *matrix, float scalar, mat_kernel *ans)
+INTERNAL void SN_DECL f32_scalar_mul_512(MAT_KERNEL(float) const *matrix, float const scalar,
+                                         MAT_KERNEL(float) *restrict ans)
 {
         __m512 scalar_vec = _mm512_broadcastss_ps(_mm_load_ss(&scalar));
 

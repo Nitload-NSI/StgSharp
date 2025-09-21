@@ -5,7 +5,10 @@
 #ifndef SSC_INTRIN
 #define SSC_INTRIN
 
+#define SSC_INTRIN_HEAD
+
 #include "StgSharpNative.h"
+#include "sn_matkernel.h"
 #include <immintrin.h>
 #include <smmintrin.h>
 
@@ -39,25 +42,6 @@ typedef union mat_kernel {
         float m[4][4];
 } mat_kernel;
 
-typedef union column_2 {
-        __m256 stream;
-        __m128 column[2];
-        float m[4][2];
-} __2_columnset;
-
-typedef union column_3 {
-        __m256 part;
-        __m128 column[3];
-        float m[4][3];
-} __3_columnset;
-
-typedef union column_4 {
-        __m512 stream;
-        __m256 half[2];
-        __m128 column[4];
-        float m[4][4];
-} __4_columnset;
-
 typedef union scalar_pack {
         uint64_t data[8];
 } scalar_pack;
@@ -77,39 +61,53 @@ typedef uint64_t(SN_DECL *FACTORIALROC)(int n);
 
 INTERNAL void normalize(__m128 *source, __m128 *target);
 
-INTERNAL void SN_DECL kernel_add_sse(mat_kernel const *left, mat_kernel const *right,
-                                     mat_kernel *ans);
-INTERNAL void SN_DECL kernel_add_avx(mat_kernel const *left, mat_kernel const *right,
-                                     mat_kernel *ans);
-INTERNAL void SN_DECL kernel_add_512(mat_kernel const *left, mat_kernel const *right,
-                                     mat_kernel *ans);
-INTERNAL void SN_DECL kernel_sub_sse(mat_kernel const *left, mat_kernel const *right,
-                                     mat_kernel *ans);
-INTERNAL void SN_DECL kernel_sub_avx(mat_kernel const *left, mat_kernel const *right,
-                                     mat_kernel *ans);
-INTERNAL void SN_DECL kernel_sub_512(mat_kernel const *left, mat_kernel const *right,
-                                     mat_kernel *ans);
-INTERNAL void SN_DECL kernel_transpose_sse(mat_kernel const *source, mat_kernel *target);
-INTERNAL void SN_DECL kernel_transpose_avx(mat_kernel const *source, mat_kernel *target);
-INTERNAL void SN_DECL kernel_transpose_512(mat_kernel const *source, mat_kernel *target);
-INTERNAL void SN_DECL kernel_scalar_mul_sse(mat_kernel const *matrix, float const scalar,
-                                            mat_kernel *ans);
-INTERNAL void SN_DECL kernel_scalar_mul_avx(mat_kernel const *matrix, float const scalar,
-                                            mat_kernel *ans);
-INTERNAL void SN_DECL kernel_scalar_mul_512(mat_kernel const *matrix, float const scalar,
-                                            mat_kernel *ans);
+INTERNAL void SN_DECL f32_add_sse(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans);
+INTERNAL void SN_DECL f32_add_avx(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans);
+INTERNAL void SN_DECL f32_add_512(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans);
+INTERNAL void SN_DECL f32_sub_sse(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans);
+INTERNAL void SN_DECL f32_sub_avx(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans);
+INTERNAL void SN_DECL f32_sub_512(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
+                                  MAT_KERNEL(float) *restrict ans);
+INTERNAL void SN_DECL f32_transpose_sse(MAT_KERNEL(float) const *source,
+                                        MAT_KERNEL(float) *restrict target);
+INTERNAL void SN_DECL f32_transpose_avx(MAT_KERNEL(float) const *source,
+                                        MAT_KERNEL(float) *restrict target);
+INTERNAL void SN_DECL f32_transpose_512(MAT_KERNEL(float) const *source,
+                                        MAT_KERNEL(float) *restrict target);
+INTERNAL void SN_DECL f32_scalar_mul_sse(MAT_KERNEL(float) const *matrix, float const scalar,
+                                         MAT_KERNEL(float) *restrict ans);
+INTERNAL void SN_DECL f32_scalar_mul_avx(MAT_KERNEL(float) const *matrix, float const scalar,
+                                         MAT_KERNEL(float) *restrict ans);
+INTERNAL void SN_DECL f32_scalar_mul_512(MAT_KERNEL(float) const *matrix, float const scalar,
+                                         MAT_KERNEL(float) *restrict ans);
 
 #pragma endregion
 
 #pragma region fma
 
-INTERNAL void SN_DECL kernel_fma_sse(mat_kernel const *restrict left,
-                                     mat_kernel const *restrict right, mat_kernel *restrict ans);
+INTERNAL void SN_DECL f32_fma_sse(MAT_KERNEL(float) const *restrict left,
+                                  MAT_KERNEL(float) const *restrict right,
+                                  MAT_KERNEL(float) *restrict ans);
 
 #pragma endregion
 
 #pragma region scaler_simd
 INTERNAL uint64_t SN_DECL factorial_simd_sse(int n);
+#pragma endregion
+
+#pragma region dot_product
+
+INTERNAL void FORCEINLINE SN_DECL dot_41_sse(MAT_KERNEL(float) const *transpose,
+                                             __m128 const *vector, __m128 *ans);
+INTERNAL void SN_DECL dot_41_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector, __m128 *ans);
+INTERNAL void SN_DECL dot_42_sse(MAT_KERNEL(float) const *transpose, __m128 const *vector, __m128 *ans);
+INTERNAL void SN_DECL dot_42_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector, __m128 *ans);
+
 #pragma endregion
 
 #pragma region string
@@ -123,11 +121,11 @@ typedef struct sn_intrinsic {
         int (*city_hash_simplify)(byte *str, int length);
         FACTORIALROC factorial_simd;
         int (*index_pair)(short const *str, uint32_t target, int length);
-        MATARITHMETIC kernel_add;
-        void (*kernel_fma)(void *left, void *right, void *ans);
-        SCALARMATARITHMETIC kernel_scalar_mul;
-        MATARITHMETIC kernel_sub;
-        MATTRANSPOSEPROC kernel_transpose;
+        MATARITHMETIC f32_add;
+        void (*f32_fma)(void *left, void *right, void *ans);
+        SCALARMATARITHMETIC f32_scalar_mul;
+        MATARITHMETIC f32_sub;
+        MATTRANSPOSEPROC f32_transpose;
         VECTORNORMALIZEPROC normalize_3;
 } sn_intrinsic;
 

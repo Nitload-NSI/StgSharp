@@ -179,6 +179,7 @@
     <ClInclude Include="sn-head\khrplatform.h" />
     <ClInclude Include="sn-head\sn_internal.h" />
     <ClInclude Include="sn-head\sn_intrinsic.h" />
+    <ClInclude Include="sn-head\sn_matkernel.h" />
     <ClInclude Include="sn-head\stb_image.h" />
     <ClInclude Include="sn-head\StgSharpNative.h" />
     <ClInclude Include="sn-head\wgl.h" />

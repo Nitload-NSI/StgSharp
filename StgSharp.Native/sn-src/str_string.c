@@ -1,6 +1,6 @@
 #include "sn_intrinsic.h"
 
-int index_pair_sse(short const *str, uint32_t target, int length)
+INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int length)
 {
         int index = 0, result = 0, size = length, end = size - 8;
         __m128i s = { 

@@ -33,42 +33,43 @@ using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics
 {
-    internal static partial class MatrixParallel
+    public static partial class MatrixParallel
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void Compute_Binary(MatrixParallelTaskPackage* p)
+        internal static unsafe void Compute_Binary(MatrixParallelTaskPackageNonGeneric* p)
         {
-            MatrixKernel* l = p->Left, r = p->Right, a = p->Result;
+            int eSize = p->ElementSize;
+            nint l = p->Left, r = p->Right, a = p->Result;
             long
-                lCount = p->LeftPrimOffset * p->LeftPrimStride,
-                rCount = p->RightPrimOffset * p->RightPrimStride,
-                aCount = p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = p->PrimCount;
-            long
+                lCount = (long)p->LeftPrimOffset * p->LeftPrimStride,
+                rCount = (long)p->RightPrimOffset * p->RightPrimStride,
+                aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
+                pCount = p->PrimCount,
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;
-            delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, MatrixKernel*, void> op =
-                    (delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, MatrixKernel*, void>)p->ComputeHandle;
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void> op =
+                    (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void>)p->ComputeHandle;
             for (long i = 0; i < pCount; i++)
             {
                 lCount = i < lLimit ? lCount + p->LeftPrimOffset : 0;
                 rCount = i < rLimit ? rCount + p->RightPrimOffset : 0;
                 aCount = i < rLimit ? aCount + p->ResultPrimOffset : 0;
-                MatrixKernel* left = l + lCount;
-                MatrixKernel* right = r + rCount;
-                MatrixKernel* ans = a + aCount;
+                nint left = l + (nint)(lCount * eSize);
+                nint right = r + (nint)(rCount * eSize);
+                nint ans = a + (nint)(aCount * eSize);
                 long
-                    lc = p->LeftSecOffset * p->LeftSecStride,
-                    rc = p->RightSecOffset * p->RightSecStride,
-                    ac = p->ResultSecOffset * p->ResultSecStride,
+                    lc = (long)p->LeftSecOffset * p->LeftSecStride,
+                    rc = (long)p->RightSecOffset * p->RightSecStride,
+                    ac = (long)p->ResultSecOffset * p->ResultSecStride,
                     sCount = p->SecCount;
                 long
                     ll = sCount - p->LeftSecOffset,
@@ -79,15 +80,15 @@ namespace StgSharp.Mathematics
                     lc = j < ll ? lc + p->LeftSecOffset : 0;
                     rc = j < rl ? rc + p->RightSecOffset : 0;
                     ac = j < al ? ac + p->ResultSecOffset : 0;
-                    op(left + lc, right + rc, ans + ac);
+                    op(left + (nint)lc, right + (nint)rc, ans + (nint)ac);
                 }
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void Compute_BinaryScalar(MatrixParallelTaskPackage* p)
+        internal static unsafe void Compute_BinaryScalar(MatrixParallelTaskPackageNonGeneric* p)
         {
-            MatrixKernel* l = p->Left, r = p->Right, a = p->Result;
+            nint l = p->Left, r = p->Right, a = p->Result;
             long
                 lCount = p->LeftPrimOffset * p->LeftPrimStride,
                 rCount = p->RightPrimOffset * p->RightPrimStride,
@@ -97,23 +98,23 @@ namespace StgSharp.Mathematics
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;
-            delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, MatrixKernel*, ScalarPacket*, void> op =
-                    (delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, MatrixKernel*, ScalarPacket*, void>)p->ComputeHandle;
+            delegate* unmanaged[Cdecl]<nint,nint,nint, ScalarPacket*, void> op =
+                    (delegate* unmanaged[Cdecl]<nint, nint, nint, ScalarPacket*, void>)p->ComputeHandle;
             ScalarPacket* scalar = p->Scalar;
             for (long i = 0; i < pCount; i++)
             {
                 lCount = i < lLimit ? lCount + p->LeftPrimOffset : 0;
                 rCount = i < rLimit ? rCount + p->RightPrimOffset : 0;
                 aCount = i < rLimit ? aCount + p->ResultPrimOffset : 0;
-                MatrixKernel* left = l + lCount;
-                MatrixKernel* right = r + rCount;
-                MatrixKernel* ans = a + aCount;
+                nint
+                    left = l + (nint)lCount,
+                    right = r + (nint)rCount,
+                    ans = a + (nint)aCount;
                 long
                     lc = p->LeftSecOffset * p->LeftSecStride,
                     rc = p->RightSecOffset * p->RightSecStride,
                     ac = p->ResultSecOffset * p->ResultSecStride,
-                    sCount = p->SecCount;
-                long
+                    sCount = p->SecCount,
                     ll = sCount - p->LeftSecOffset,
                     rl = sCount - p->RightSecOffset,
                     al = sCount - p->ResultSecOffset;
@@ -122,28 +123,27 @@ namespace StgSharp.Mathematics
                     lc = j < ll ? lc + p->LeftSecOffset : 0;
                     rc = j < rl ? rc + p->RightSecOffset : 0;
                     ac = j < al ? ac + p->ResultSecOffset : 0;
-                    op(left + lc, right + rc, ans + ac, scalar);
+                    op(left + (nint)lc, right + (nint)rc, ans + (nint)ac, scalar);
                 }
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void Compute_Unary(MatrixParallelTaskPackage* p)
+        internal static unsafe void Compute_Unary(MatrixParallelTaskPackageNonGeneric* p)
         {
-            MatrixKernel* s = p->Right, a = p->Result;
+            nint s = p->Right, a = p->Result;
             long rCount = p->RightPrimOffset * p->RightPrimStride,
-                     aCount = p->ResultPrimOffset * p->ResultPrimStride,
-                     pCount = p->PrimCount;
+                 aCount = p->ResultPrimOffset * p->ResultPrimStride,
+                 pCount = p->PrimCount;
             long rLimit = pCount - p->RightPrimOffset,
                      aLimit = pCount - p->ResultPrimOffset;
-            delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, void> op =
-                    (delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, void>)p->ComputeHandle;
+            delegate* unmanaged[Cdecl]<nint, nint, void> op =
+                    (delegate* unmanaged[Cdecl]<nint, nint, void>)p->ComputeHandle;
             for (long i = 0; i < pCount; i++)
             {
                 rCount = i < rLimit ? rCount + p->RightPrimOffset : 0;
                 aCount = i < rLimit ? aCount + p->ResultPrimOffset : 0;
-                MatrixKernel* source = s + rCount;
-                MatrixKernel* ans = a + aCount;
+                nint source = s + (nint)rCount, ans = a + (nint)aCount;
                 long rc = p->RightSecOffset * p->RightSecStride,
                          ac = p->ResultSecOffset * p->ResultSecStride,
                          sCount = p->SecCount;
@@ -153,29 +153,29 @@ namespace StgSharp.Mathematics
                 {
                     rc = j < rl ? rc + p->RightSecOffset : 0;
                     ac = j < al ? ac + p->ResultSecOffset : 0;
-                    op(source + rc, ans + ac);
+                    op(source + (nint)rc, ans + (nint)ac);
                 }
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void Compute_UnaryScalar(MatrixParallelTaskPackage* p)
+        internal static unsafe void Compute_UnaryScalar(MatrixParallelTaskPackageNonGeneric* p)
         {
-            MatrixKernel* s = p->Right, a = p->Result;
+            nint s = p->Right, a = p->Result;
             long rCount = p->RightPrimOffset * p->RightPrimStride,
                      aCount = p->ResultPrimOffset * p->ResultPrimStride,
                      pCount = p->PrimCount;
             long rLimit = pCount - p->RightPrimOffset,
                      aLimit = pCount - p->ResultPrimOffset;
-            delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, ScalarPacket*, void> op =
-                    (delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, ScalarPacket*, void>)p->ComputeHandle;
+            delegate* unmanaged[Cdecl]<nint, nint, ScalarPacket*, void> op =
+                    (delegate* unmanaged[Cdecl]<nint, nint, ScalarPacket*, void>)p->ComputeHandle;
             ScalarPacket* scalar = p->Scalar;
             for (long i = 0; i < pCount; i++)
             {
                 rCount = i < rLimit ? rCount + p->RightPrimOffset : 0;
                 aCount = i < rLimit ? aCount + p->ResultPrimOffset : 0;
-                MatrixKernel* source = s + rCount;
-                MatrixKernel* ans = a + aCount;
+                nint source = s + (nint)rCount;
+                nint ans = a + (nint)aCount;
                 long rc = p->RightSecOffset * p->RightSecStride,
                          ac = p->ResultSecOffset * p->ResultSecStride,
                          sCount = p->SecCount;
@@ -185,7 +185,7 @@ namespace StgSharp.Mathematics
                 {
                     rc = j < rl ? rc + p->RightSecOffset : 0;
                     ac = j < al ? ac + p->ResultSecOffset : 0;
-                    op(source + rc, ans + ac, scalar);
+                    op(source + (nint)rc, ans + (nint)ac, scalar);
                 }
             }
         }
