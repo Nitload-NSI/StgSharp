@@ -52,7 +52,7 @@ namespace StgSharp.HighPerformance.Memory
 
         public int Count
         {
-[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => (int)_count;
         }
 
@@ -151,7 +151,7 @@ namespace StgSharp.HighPerformance.Memory
         {
             Header* header = (Header*)_buffer;
             nuint newCap = header->Capacity * 2;
-            nuint newSize = (nuint)sizeof(Header) + newCap * (nuint)sizeof(T);
+            nuint newSize = (nuint)sizeof(Header) + (newCap * (nuint)sizeof(T));
             _buffer = (byte*)NativeMemory.Realloc(_buffer, newSize);
             header = (Header*)_buffer;
             header->Capacity = newCap;

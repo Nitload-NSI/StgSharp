@@ -28,24 +28,13 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance;
-using StgSharp.HighPerformance.Memory;
-
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.IO.Pipes;
-using System.Linq;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
     /*
     * Thread wrapping to accelerate matrix operations by dividing threads into groups (wraps).
@@ -68,16 +57,31 @@ namespace StgSharp.Mathematics
     {
 
         private static Thread[] _threads;
-        private static MatrixParallelWrap[] _wraps;
-        private static readonly (int a, int b)[] LookupTable = [ (1, 1), (0, 2), (3, 0), (2, 1), (1, 2), (0, 3), (3, 1), (2, 2), (1, 3), (0, 4), (3, 2), (2, 3), (1, 4), (0, 5), ];
-        private static volatile int RemainThreadCount = 0;
+        private static readonly (int a, int b)[] LookupTable = [
+            (1, 1), // 7
+            (0, 2), // 8  (no non-zero solution)
+            (3, 0), // 9  (no non-zero solution)
+            (2, 1), // 10
+            (1, 2), // 11
+            (0, 3), // 12 (no non-zero solution)
+            (3, 1), // 13
+            (2, 2), // 14
+            (1, 3), // 15
+            (4, 1), // 16
+            (3, 2), // 17
+            (2, 3), // 18
+            (1, 4), // 19
+            (4, 2), // 20
+        ];
+        private static bool _meaningful;
 
+        private static volatile int RemainThreadCount = 0;
         private static readonly object _lock = new();
         private static ThreadPriority _AfterWork = ThreadPriority.Lowest;
 
         public static bool SupportParallel { get; } = Environment.ProcessorCount > 6;
 
-        public static bool IsParallelMeaningful { get; } = Environment.ProcessorCount > 6 && IsInitialized;
+        public static bool IsParallelMeaningful => Environment.ProcessorCount > 6 && IsInitialized;
 
         public static MatrixParallelWrap.Handle LeaderHandle { get; private/**/ set; }
 
@@ -91,18 +95,19 @@ namespace StgSharp.Mathematics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (int a, int b) FastDecompose(int c)
+        public static (int count_3, int count_4) FastDecompose(int c)
         {
             if (c < 7) {
                 return (0, 0);
             }
-            c -= 7;
-            int c_prime = c / 14;
-            int d = c % 14;
 
-            (int a_prime, int b_prime) = LookupTable[d];
+            int t = c - 7;
+            int k = t / 14;
+            int d = t % 14;
 
-            return (a_prime + c_prime, b_prime + c_prime);
+            (int a0, int b0) = LookupTable[d];
+
+            return (a0 + (2 * k), b0 + (2 * k));
         }
 
         public static void Init()
@@ -111,37 +116,58 @@ namespace StgSharp.Mathematics
                 return;
             }
             MatrixParallelFactory.Init();
+            if (!SupportParallel)
+            {
+                IsInitialized = true;
+                return;
+            }
             int count = Environment.ProcessorCount - 4;
             count = count == 5 ? 4 : count;
             _threads = new Thread[count];
             if (count < 6)
             {
-                _wraps = [ new MatrixParallelWrap(0, count, true) ];
+                if (count == 3)
+                {
+                    Wraps = [ new MatrixParallelWrap(0, count, true) ];
+                    (LargeWrapCount, SmallWrapCount) = (0, 1);
+                    LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps[0]);
+                } else
+                {
+                    count = 4;
+                    Wraps = [ new MatrixParallelWrap(0, count, true) ];
+                    (LargeWrapCount, SmallWrapCount) = (1, 0);
+                    LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps[0]);
+                }
             } else if (count == 6)
             {
-                _wraps = [ new MatrixParallelWrap(0, 3, true), new MatrixParallelWrap(3, 3, false) ];
+                Wraps = [
+                    new MatrixParallelWrap(0, 3, true),
+                    new MatrixParallelWrap(3, 3, false)
+                ];
+                (LargeWrapCount, SmallWrapCount) = (0, 2);
+                LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps[0]);
             } else
             {
                 (int _3wrap, int _4wrap) = FastDecompose(count);
-                _wraps = new MatrixParallelWrap[_3wrap + _4wrap];
-                int id = 0, idx = 0;
+                Wraps = new MatrixParallelWrap[_4wrap + _3wrap];
+                int id = 0,idx = 0;
                 for (; idx < _3wrap; idx++, id += 3) {
-                    _wraps[idx] = new MatrixParallelWrap(idx, 3, id == 0);
+                    Wraps[idx] = new MatrixParallelWrap(idx, 3, id == 0);
                 }
                 for (; idx < _3wrap + _4wrap; idx++, id += 4) {
-                    _wraps[idx] = new MatrixParallelWrap(id, 4, id == 0);
+                    Wraps[idx] = new MatrixParallelWrap(id, 4, id == 0);
                 }
+                LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps[0]);
             }
-            LeaderHandle = new MatrixParallelWrap.Handle(0, _wraps[0]);
             LeaderTask = LeaderHandle.Wrap.GetWorkerTaskQueue(0);
             IsInitialized = true;
         }
 
-        public static void LaunchParallel(SleepMode afterWork)
+        public static void LaunchParallel(IEnumerable<MatrixParallelWrap> wraps, SleepMode afterWork)
         {
             RemainThreadCount = _threads.Length;
             _AfterWork = (ThreadPriority)afterWork;
-            SetAllWrap();
+            SetAllWrap(wraps);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -163,10 +189,10 @@ namespace StgSharp.Mathematics
             RemainThreadCount = _threads.Length;
         }
 
-        public static void SetAllWrap()
+        public static void SetAllWrap(IEnumerable<MatrixParallelWrap> wraps)
         {
             ResetThreadCount();
-            foreach (MatrixParallelWrap item in _wraps) {
+            foreach (MatrixParallelWrap item in wraps) {
                 item.SchedulerReset.Set();
             }
         }
@@ -316,6 +342,13 @@ namespace StgSharp.Mathematics
             #endregion
         }
 
+        #region wrap field
+
+        private static MatrixParallelWrap[] Wraps;
+        private static int LargeWrapCount;
+        private static int SmallWrapCount;
+
+    #endregion
     }
 
     public enum SleepMode

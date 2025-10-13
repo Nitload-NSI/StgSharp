@@ -35,7 +35,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
     public unsafe struct ScalarPacket
     {

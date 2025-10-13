@@ -2,10 +2,10 @@
 #pragma once
 #endif
 
-#include <xmmintrin.h>
-
 #ifndef SN_INTERNAL
 #define SN_INTERNAL
+
+#include <xmmintrin.h>
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS 1

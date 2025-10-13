@@ -29,20 +29,20 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.HighPerformance;
-
+using StgSharp.Mathematics.Numeric;
 using System.Net.Http.Headers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Graphic
 {
     /// <summary>
     ///   A two dimension vector defined by two elements. Vec2 in World are default used as colum
     ///   vector.
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public struct Vec2 : IFixedVector<Vec2>
+    public struct Vec2 : IUnmanagedVector<Vec2>
     {
 
         [FieldOffset(0)] internal unsafe fixed float num[2];
@@ -108,7 +108,7 @@ namespace StgSharp.Mathematics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float Cross(Vec2 right)
         {
-            return (X * right.Y) - (Y * right.X);
+            return X * right.Y - Y * right.X;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

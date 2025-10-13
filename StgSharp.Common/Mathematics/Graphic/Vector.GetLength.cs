@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Vec4HP.cs"
+// file="Vector.GetLength.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -28,43 +28,22 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance;
+using StgSharp.Mathematics.Graphic;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StgSharp.Mathematics.HighPrecision
+namespace StgSharp.Mathematics.Graphic
 {
-    [StructLayout(LayoutKind.Explicit, Pack =16)]
-    public  struct Vec4HP : IFixedVector<Vec4HP>
+    public static unsafe partial class Linear
     {
 
-        [FieldOffset(0)] private M256 buffer;
-        [FieldOffset(0)] private Vector256<float> clrBuffer;
-        [FieldOffset(3 * sizeof(double))] public double W;
-        [FieldOffset(0 * sizeof(double))] public double X;
-        [FieldOffset(1 * sizeof(double))] public double Y;
-        [FieldOffset(2 * sizeof(double))] public double Z;
-
-        public Vec4HP(double x, double y, double z, double w)
+        public static float GetLength(this Vec3 vec)
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            this.W = w;
-            Unsafe.SkipInit(out buffer);
-            Unsafe.SkipInit(out clrBuffer);
+            return Scaler.Sqrt(vec.Dot(vec));
         }
 
-        public static Vec4HP Zero => new Vec4HP(0, 0, 0, 0);
-
-        public static Vec4HP One => new Vec4HP(1, 1, 1, 1);
+        public static float GetLength(this Vec2 vec)
+        {
+            return Scaler.Sqrt(vec.Dot(vec));
+        }
 
     }
 }

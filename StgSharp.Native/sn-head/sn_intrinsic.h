@@ -59,7 +59,7 @@ typedef uint64_t(SN_DECL *FACTORIALROC)(int n);
 
 #pragma region matix function
 
-INTERNAL void normalize(__m128 *source, __m128 *target);
+INTERNAL void f32_normalize(VEC(float) * source, VEC(float) * target);
 
 INTERNAL void SN_DECL f32_add_sse(MAT_KERNEL(float) const *left, MAT_KERNEL(float) const *right,
                                   MAT_KERNEL(float) *restrict ans);
@@ -85,7 +85,6 @@ INTERNAL void SN_DECL f32_scalar_mul_avx(MAT_KERNEL(float) const *matrix, float 
                                          MAT_KERNEL(float) *restrict ans);
 INTERNAL void SN_DECL f32_scalar_mul_512(MAT_KERNEL(float) const *matrix, float const scalar,
                                          MAT_KERNEL(float) *restrict ans);
-
 #pragma endregion
 
 #pragma region fma
@@ -104,9 +103,12 @@ INTERNAL uint64_t SN_DECL factorial_simd_sse(int n);
 
 INTERNAL void FORCEINLINE SN_DECL dot_41_sse(MAT_KERNEL(float) const *transpose,
                                              __m128 const *vector, __m128 *ans);
-INTERNAL void SN_DECL dot_41_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector, __m128 *ans);
-INTERNAL void SN_DECL dot_42_sse(MAT_KERNEL(float) const *transpose, __m128 const *vector, __m128 *ans);
-INTERNAL void SN_DECL dot_42_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector, __m128 *ans);
+INTERNAL void SN_DECL dot_41_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector,
+                                 __m128 *ans);
+INTERNAL void SN_DECL dot_42_sse(MAT_KERNEL(float) const *transpose, __m128 const *vector,
+                                 __m128 *ans);
+INTERNAL void SN_DECL dot_42_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector,
+                                 __m128 *ans);
 
 #pragma endregion
 

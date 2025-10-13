@@ -39,7 +39,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
     internal unsafe partial class GCMatrix<T> : Matrix<T> where T: unmanaged, INumber<T>
     {
@@ -61,7 +61,7 @@ namespace StgSharp.Mathematics
                 int kernelColumn = column / 4, c = column % 4;
                 int kernelRow = row / t_count, r = row % t_count;
                 ref MatrixKernel<T> kernel = ref _buffer[kernelColumn + KernelColumnLength * kernelRow];
-                return ref kernel.UnsafeIndex(c, r);
+                return ref kernel[c, r];
             }
         }
 
@@ -90,7 +90,7 @@ namespace StgSharp.Mathematics
             int kernelColumn = column / 4, c = column % 4;
             int kernelRow = row / t_count, r = row % t_count;
             ref MatrixKernel<T> kernel = ref _buffer[kernelColumn + (KernelColumnLength * kernelRow)];
-            return ref kernel.UnsafeIndex(c, r);
+            return ref kernel[c, r];
         }
 
         #region enumeration

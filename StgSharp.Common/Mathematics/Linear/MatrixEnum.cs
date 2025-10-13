@@ -34,7 +34,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
     public enum MatrixAllocation
     {

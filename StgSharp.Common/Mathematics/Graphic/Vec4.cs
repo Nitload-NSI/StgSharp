@@ -30,18 +30,17 @@
 // -----------------------------------------------------------------------
 using StgSharp.HighPerformance;
 using StgSharp.Internal.Intrinsic;
-using StgSharp.Mathematics;
-
+using StgSharp.Mathematics.Numeric;
 using System;
 using System.Data.Common;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Graphic
 {
     [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public struct Vec4 : IEquatable<Vec4>, IFixedVector<Vec4>
+    public struct Vec4 : IEquatable<Vec4>, IUnmanagedVector<Vec4>
     {
 
         [FieldOffset(0)] internal unsafe fixed float num[4];
@@ -131,7 +130,7 @@ namespace StgSharp.Mathematics
 
         public override bool Equals(object obj)
         {
-            return (obj is Vec4 v) ? (v == this) : false;
+            return obj is Vec4 v ? v == this : false;
         }
 
         public override int GetHashCode()

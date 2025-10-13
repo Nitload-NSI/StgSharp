@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Vec2HP.cs"
+// file="Vector.GetAngle.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -28,40 +28,23 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance;
+using StgSharp.Mathematics.Graphic;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StgSharp.Mathematics.HighPrecision
+namespace StgSharp.Mathematics.Graphic
 {
-    [StructLayout(LayoutKind.Explicit, Pack = 16)]
-    public struct Vec2HP : IFixedVector<Vec2HP>
+    public static unsafe partial class Linear
     {
 
-        [FieldOffset(0)] private M256 buffer;
-        [FieldOffset(0)] private Vector256<float> clrBuffer;
-
-        [FieldOffset(0 * sizeof(double))] public double X;
-        [FieldOffset(1 * sizeof(double))] public double Y;
-
-        public Vec2HP(double x, double y)
+        public static float GetAngle(Vec2 vec1, Vec2 vec2)
         {
-            this.X = x;
-            this.Y = y;
-            Unsafe.SkipInit(out buffer);
-            Unsafe.SkipInit(out clrBuffer);
+            return Scaler.ACos(
+                1 / (vec1.GetLength() * vec2.GetLength()));
         }
 
-        public static Vec2HP Zero => new Vec2HP(0, 0);
-
-        public static Vec2HP One => new Vec2HP(1, 1);
+        public static float GetAngle(Vec3 vec1, Vec3 vec2)
+        {
+            return Scaler.ACos((vec1 * vec2) / (vec1.GetLength() * vec2.GetLength()));
+        }
 
     }
 }

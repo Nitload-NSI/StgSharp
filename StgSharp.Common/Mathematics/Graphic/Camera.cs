@@ -28,20 +28,12 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
 using StgSharp.Graphics.ShaderEdit;
-using StgSharp.HighPerformance;
-using StgSharp.Mathematics;
 
 using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
 
-namespace StgSharp.Graphics
+namespace StgSharp.Mathematics.Graphic
 {
     public sealed class Camera : IglConvertable
     {
@@ -150,7 +142,7 @@ namespace StgSharp.Graphics
         public unsafe void SetAllUniforms()
         {
             // Console.WriteLine(Projection * ViewBase);
-            OpenGL.OpenGLFunction.CurrentGL.SetUniformValue(convertedUniform, Projection * View);
+            OpenGLFunction.CurrentGL.SetUniformValue(convertedUniform, Projection * View);
         }
 
         public void SetViewDirection(Vec3 position, Vec3 target, Vec3 up)
@@ -172,7 +164,7 @@ namespace StgSharp.Graphics
 
             _isLookAtAvailable = false;
 
-            Linear.Orthogonalize(ref direction, ref up);
+            direction.Orthogonalize(ref up);
 
             Vec3 right = Linear.Orthogonalize(Linear.Cross(up, direction));
 
@@ -186,24 +178,24 @@ namespace StgSharp.Graphics
             InternalYaw();
         }
 
-        public void SetViewRange(Radius fovRadius, Vec2 size, Vec2 offset, (float front, float back) dephRange)
+        public void SetViewRange(Radius fovRadius, Vec2 size, Vec2 offset, (float front, float back) depthRange)
         {
             float
                 distance = _target.GetLength(),
-                near = distance - dephRange.front,
-                far = distance + dephRange.back,
+                near = distance - depthRange.front,
+                far = distance + depthRange.back,
                 offsetX = offset.X,
                 offsetY = offset.Y,
                 width = Scaler.Abs(GeometryScaler.Tan(fovRadius / 2) * near * 2),
-                height = (width * size.Y) / size.X;
+                height = width * size.Y / size.X;
 
-            _projection.colum0.X = (2 * near) / width;
-            _projection.colum1.Y = (2 * near) / height;
-            _projection.colum2.X = (2 * offsetX) / width;
-            _projection.colum2.Y = (2 * offsetY) / height;
+            _projection.colum0.X = 2 * near / width;
+            _projection.colum1.Y = 2 * near / height;
+            _projection.colum2.X = 2 * offsetX / width;
+            _projection.colum2.Y = 2 * offsetY / height;
             _projection.colum2.Z = (far + near) / (near - far);
             _projection.colum2.W = -1;
-            _projection.colum3.Z = (2 * near * far) / (near - far);
+            _projection.colum3.Z = 2 * near * far / (near - far);
         }
 
         public void Test(params Vec4[] vec)

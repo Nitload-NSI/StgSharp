@@ -40,7 +40,7 @@ using System.Threading.Tasks;
 using hlsfAllocator = global::StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
 using hlsfHandle = global::StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocationHandle;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
     internal unsafe partial class HlsfMatrix<T> : Matrix<T> where T: unmanaged, INumber<T>
     {
@@ -65,7 +65,7 @@ namespace StgSharp.Mathematics
                 int kernelColumn = column / 4, c = column % 4;
                 int kernelRow = row / t_count, r = row % t_count;
                 ref MatrixKernel<T> kernel = ref k_buffer[(kernelColumn * kernelColumn) + kernelRow];
-                return ref kernel.UnsafeIndex(c, r);
+                return ref kernel[c, r];
             }
         }
 
@@ -94,7 +94,7 @@ namespace StgSharp.Mathematics
             int kernelColumn = column / 4, c = column % 4;
             int kernelRow = row / t_count, r = row % t_count;
             ref MatrixKernel<T> kernel = ref k_buffer[(kernelColumn * kernelColumn) + kernelRow];
-            return ref kernel.UnsafeIndex(c, r);
+            return ref kernel[c, r];
         }
 
         ~HlsfMatrix()

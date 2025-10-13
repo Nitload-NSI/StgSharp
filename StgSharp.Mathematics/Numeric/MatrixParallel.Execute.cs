@@ -28,17 +28,10 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance;
 using System;
-using System.Collections.Generic;
-using System.Formats.Asn1;
-using System.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
     public static partial class MatrixParallel
     {
@@ -98,7 +91,7 @@ namespace StgSharp.Mathematics
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;
-            delegate* unmanaged[Cdecl]<nint,nint,nint, ScalarPacket*, void> op =
+            delegate* unmanaged[Cdecl]<nint, nint, nint, ScalarPacket*, void> op =
                     (delegate* unmanaged[Cdecl]<nint, nint, nint, ScalarPacket*, void>)p->ComputeHandle;
             ScalarPacket* scalar = p->Scalar;
             for (long i = 0; i < pCount; i++)

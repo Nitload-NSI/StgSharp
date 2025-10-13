@@ -41,7 +41,7 @@ using System.Threading.Tasks;
 
 using hlsfAllocator = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
     internal static unsafe class MatrixParallelFactory
     {
@@ -58,7 +58,7 @@ namespace StgSharp.Mathematics
 
         private static SlabAllocator<ScalarPacket> _scalarAllocator ;
 
-        private static SlabAllocator<MatrixParallelTaskPackageNonGeneric> _wrapAllocator ;
+        private static SlabAllocator<MatrixParallelTaskPackageNonGeneric> _wrapAllocator;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MatrixParallelTaskPackage<T>* CreateBaseTask<T>() where T: unmanaged, INumber<T>
@@ -76,17 +76,13 @@ namespace StgSharp.Mathematics
             return p;
         }
 
-        public static MatrixParallelTaskPackage<T>* FromTaskWrap<T>(MatrixParallelTaskPackage<T>* source, int offset)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe MatrixParallelTaskPackage<T>* FromExistPackage<T>(MatrixParallelTaskPackage<T>* exist)
             where T: unmanaged, INumber<T>
         {
-            MatrixParallelTaskPackage<T>* p = (MatrixParallelTaskPackage<T>*)_wrapAllocator.Allocate();
-            /*
-            *p = *source;
-            p->Left += offset * p->LeftStride;
-            p->Right += offset * p->RightStride;
-            p->Result += offset * p->ResultStride;
-            /**/
-            return p;
+            MatrixParallelTaskPackage<T>* ptr = (MatrixParallelTaskPackage<T>*)_wrapAllocator.Allocate();
+            MatrixParallelTaskPackage<T>.Copy(exist, ptr);
+            return ptr;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

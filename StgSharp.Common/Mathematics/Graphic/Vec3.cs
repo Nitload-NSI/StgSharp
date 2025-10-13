@@ -29,6 +29,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.HighPerformance;
+using StgSharp.Mathematics.Numeric;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,11 +37,11 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Graphic
 {
-    [CollectionBuilder(typeof(Vec3), nameof(Vec3.FromSpan))]
+    [CollectionBuilder(typeof(Vec3), nameof(FromSpan))]
     [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public struct Vec3 : IEquatable<Vec3>, IFixedVector<Vec3>, IEnumerable<float>
+    public struct Vec3 : IEquatable<Vec3>, IUnmanagedVector<Vec3>, IEnumerable<float>
     {
 
         [FieldOffset(0)] internal unsafe fixed float num[3];
@@ -93,7 +94,7 @@ namespace StgSharp.Mathematics
 
         public unsafe Vec2 XY
         {
-            get => new Vec2(this.reg);
+            get => new Vec2(reg);
             set
             {
                 fixed (Vector3* vptr = &v) {
@@ -132,7 +133,7 @@ namespace StgSharp.Mathematics
 
         public bool Equals(Vec3 other)
         {
-            return this.reg == other.reg;
+            return reg == other.reg;
         }
 
         public override bool Equals(object obj)
@@ -171,8 +172,8 @@ namespace StgSharp.Mathematics
         public float GetMaxValue()
         {
             float ret = X;
-            ret = (ret > Y) ? ret : Y;
-            ret = (ret > Z) ? ret : Z;
+            ret = ret > Y ? ret : Y;
+            ret = ret > Z ? ret : Z;
             return ret;
         }
 

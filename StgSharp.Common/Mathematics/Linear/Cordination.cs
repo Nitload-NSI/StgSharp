@@ -28,7 +28,7 @@
 //     
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
     public enum CoordinatePlain
     {

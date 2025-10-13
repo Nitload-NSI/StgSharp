@@ -43,7 +43,7 @@ namespace StgSharp.HighPerformance
 
         public string Name
         {
-[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get;
             init;
         }
@@ -61,6 +61,7 @@ namespace StgSharp.HighPerformance
     public static class DataLabelBuilder
     {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DataLabel AsLabel(this string name)
         {
             return new DataLabel(name);

@@ -35,9 +35,9 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
-    public static class Matrix
+    public static class MatrixCompute
     {
 
         public static Matrix<float> Add(Matrix<float> left, Matrix<float> right)
@@ -48,33 +48,7 @@ namespace StgSharp.Mathematics
             MatrixParallel.LeadParallel();
             try
             {
-                Matrix<float> result = GCMatrix<float>.FromDefault(left.ColumnLength, left.RowLength);
-                unsafe
-                {
-                    MatrixParallelTaskPackage<float>* handle = MatrixParallelFactory.CreateBaseTask<float>();
-                    handle->Left = left.Buffer;
-                    handle->Right = right.Buffer;
-                    handle->Result = result.Buffer;
-                    handle->ComputeHandle = (IntPtr)InternalIO.Intrinsic.f32_add;
-                    handle->LeftPrimOffset = 0;
-                    handle->RightPrimOffset = 0;
-                    handle->LeftPrimStride = left.KernelColumnLength;
-                    handle->LeftSecOffset = 1;
-                    handle->LeftPrimOffset = 0;
-                    handle->RightPrimOffset = 0;
-                    handle->RightPrimStride = right.KernelColumnLength;
-                    handle->RightSecOffset = 1;
-                    handle->RightPrimOffset = 0;
-                    handle->ResultPrimOffset = 0;
-                    handle->ResultPrimStride = result.KernelColumnLength;
-                    handle->ResultSecOffset = 1;
-                    handle->ResultPrimOffset = 0;
-                    handle->PrimCount = left.KernelRowLength;
-                    handle->SecCount = left.KernelColumnLength;
-                }
-
-                MatrixParallel.LaunchParallel(SleepMode.DeepSleep);
-                return result;
+                throw new NotImplementedException();
             }
             finally
             {

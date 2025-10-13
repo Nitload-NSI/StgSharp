@@ -29,7 +29,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Internal.Intrinsic;
-
+using StgSharp.Mathematics.Numeric;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -37,9 +37,9 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Graphic
 {
-    [StructLayout(LayoutKind.Explicit, Size = (2 * 16 * sizeof(float)) + sizeof(bool), Pack = 16)]
+    [StructLayout(LayoutKind.Explicit, Size = 2 * 16 * sizeof(float) + sizeof(bool), Pack = 16)]
     public unsafe struct Matrix44 : IEquatable<Matrix44>, IMatrix<Matrix44>
     {
 
@@ -115,9 +115,9 @@ namespace StgSharp.Mathematics
                 }
                 #endif
                 InternalTranspose();
-                fixed (float* p = &this.transpose.m00)
+                fixed (float* p = &transpose.m00)
                 {
-                    ulong pBit = ((ulong)p) + (((ulong)sizeof(Vector4)) * ((ulong)rowNum)) + (((ulong)sizeof(float)) * ((ulong)columNum));
+                    ulong pBit = (ulong)p + (ulong)sizeof(Vector4) * (ulong)rowNum + sizeof(float) * (ulong)columNum;
                     return *(float*)pBit;
                 }
             }
@@ -133,9 +133,9 @@ namespace StgSharp.Mathematics
                 }
                 #endif
                 InternalTranspose();
-                fixed (float* p = &this.transpose.m00)
+                fixed (float* p = &transpose.m00)
                 {
-                    ulong pbit = ((ulong)p) + (((ulong)sizeof(Vector4)) * ((ulong)rowNum)) + (((ulong)sizeof(float)) * ((ulong)columNum));
+                    ulong pbit = (ulong)p + (ulong)sizeof(Vector4) * (ulong)rowNum + sizeof(float) * (ulong)columNum;
                     *(float*)pbit = value;
                 }
                 isTransposed = false;
@@ -147,7 +147,7 @@ namespace StgSharp.Mathematics
             get
             {
                 InternalTranspose();
-                return new Matrix44(this.transpose);
+                return new Matrix44(transpose);
             }
         }
 
@@ -169,7 +169,7 @@ namespace StgSharp.Mathematics
 
         public override bool Equals(object? obj)
         {
-            return (obj is Matrix44 x) && Equals(x);
+            return obj is Matrix44 x && Equals(x);
         }
 
         public bool Equals(Matrix44 other)
@@ -197,6 +197,8 @@ namespace StgSharp.Mathematics
             {
                 fixed (ColumnSet4* source = &mat, target = &transpose)
                 {
+                    InternalIO.Intrinsic.f32_transpose(source, target);
+
                     // InternalIO.Intrinsic.transpose44(source, target);
                 }
                 isTransposed = true;

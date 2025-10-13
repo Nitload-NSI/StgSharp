@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Vec3HP.cs"
-// Project: StgSharp
+// file="Vector.Orthogonalize.cs"
+// Project: World
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
 //     
@@ -28,58 +28,67 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance;
+using StgSharp.Mathematics.Graphic;
+using System.Numerics;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StgSharp.Mathematics.HighPrecision
+namespace StgSharp.Mathematics.Graphic
 {
-    [StructLayout(LayoutKind.Explicit, Pack = 16)]
-    public struct Vec3HP : IFixedVector<Vec3HP>
+    public static partial class Linear
     {
 
-        [FieldOffset(0)] internal M256 buffer;
-        [FieldOffset(0)] internal Vector256<float> clrBuffer;
-        [FieldOffset(0 * sizeof(double))] public double X;
-        [FieldOffset(1 * sizeof(double))] public double Y;
-        [FieldOffset(2 * sizeof(double))] public double Z;
-
-        public Vec3HP() : this(0, 0, 0) { }
-
-        public Vec3HP(Vector256<float> clrBuffer)
+        public static Vec4 Orthogonalize(this Vec4 vec)
         {
-            this.X = 0;
-            this.Y = 0;
-            this.Z = 0;
-            Unsafe.SkipInit(out buffer);
-            Unsafe.SkipInit(out this.clrBuffer);
-            this.clrBuffer = clrBuffer;
+            return new Vec4
+            {
+                vec = Vector4.Normalize(vec.vec)
+            };
         }
 
-        public Vec3HP(double x, double y, double z)
+        public static Vec3 Orthogonalize(Vec3 vec)
         {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
-            Unsafe.SkipInit(out buffer);
-            Unsafe.SkipInit(out clrBuffer);
+            return new Vec3
+            {
+                v = Vector3.Normalize(vec.v)
+            };
         }
 
-        public static Vec3HP Zero => new Vec3HP(1, 1, 1);
-
-        public static Vec3HP One => throw new NotImplementedException();
-
-        public override string ToString()
+        public static unsafe void Orthogonalize(this Vec4 source, ref Vec4 target)
         {
-            return $"Double precision 3D Vector<{X},{Y},{Z}>";
+            Vector4 s = source.vec;
+            Vector4 t = target.vec;
+
+            s = Vector4.Normalize(s);
+
+            Vector4 projection = Vector4.Multiply(s, t);
+
+            t -= projection;
+
+            source.vec = s;
+            target.vec = t;
+        }
+
+        /// <summary>
+        ///   Orthogonalize two <see cref="Vec3" />s, let their length be 1 and perpendicular to
+        ///   each other.
+        /// </summary>
+        /// <param _label="source">
+        ///
+        /// </param>
+        /// <param _label="target">
+        ///
+        /// </param>
+        public static unsafe void Orthogonalize(this Vec3 source, ref Vec3 target)
+        {
+            Vector3 s = source.v;
+            Vector3 t = target.v;
+
+            s = Vector3.Normalize(s);
+            Vector3 projection = Vector3.Dot(t, s) / Vector3.Dot(s, s) * s;
+            t -= projection;
+            t = Vector3.Normalize(t);
+
+            source.v = s;
+            target.v = t;
         }
 
     }

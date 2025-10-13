@@ -3,12 +3,7 @@
 INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int length)
 {
         int index = 0, result = 0, size = length, end = size - 8;
-        __m128i s = { 
-                                   target,
-                                   target,
-                                   target,
-                                   target,
-                           };
+        __m128i s = _mm_set1_epi32(target);
         __m128i vec, com;
 
         while (index < end) {

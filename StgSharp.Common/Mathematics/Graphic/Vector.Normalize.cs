@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="IFixedVector.cs"
+// file="Vector.Normalize.cs"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -28,22 +28,58 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using StgSharp.Mathematics.Graphic;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Graphic
 {
-    public interface IFixedVector<TSelf> where TSelf: unmanaged, IFixedVector<TSelf>
+    public static partial class Linear
     {
 
-        public static abstract TSelf Zero { get; }
+        public static Vec4 Normalize(Vec4 vec)
+        {
+            return new Vec4
+            {
+                vec = Vector4.Normalize(vec.vec)
+            };
+        }
 
-        public static abstract TSelf One { get; }
+        public static Vec3 Normalize(Vec3 vec)
+        {
+            return new Vec3
+            {
+                v = Vector3.Normalize(vec.v)
+            };
+        }
+
+        public static unsafe void Normalize(ref Vec4 source, ref Vec4 target)
+        {
+            Vector4 s = source.vec;
+            Vector4 t = target.vec;
+
+            s = Vector4.Normalize(s);
+
+            Vector4 projection = Vector4.Multiply(s, t);
+
+            t -= projection;
+
+            source.vec = s;
+            target.vec = t;
+        }
+
+        public static unsafe void Normalize(ref Vec3 source, ref Vec3 target)
+        {
+            Vector3 s = source.v;
+            Vector3 t = target.v;
+
+            s = Vector3.Normalize(s);
+            Vector3 projection = Vector3.Dot(t, s) / Vector3.Dot(s, s) * s;
+            t -= projection;
+            t = Vector3.Normalize(t);
+
+            source.v = s;
+            target.v = t;
+        }
 
     }
 }

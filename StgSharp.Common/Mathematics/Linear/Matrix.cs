@@ -38,7 +38,7 @@ using hlsfAllocator = global::StgSharp.HighPerformance.Memory.HybridLayerSegrega
 
 // using hlsfHandle = global::StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocationHandle;
 
-namespace StgSharp.Mathematics
+namespace StgSharp.Mathematics.Numeric
 {
     public abstract unsafe partial class Matrix<T> where T: unmanaged, INumber<T>
     {
@@ -147,13 +147,13 @@ namespace StgSharp.Mathematics
     {
 
         private readonly MatrixKernel<T>* _source = source;
-        internal readonly int SecondaryStride = secondaryStride;
         internal readonly int PrimOffset = primOffset;
 
         internal readonly int PrimSize = primSize;
         internal readonly int PrimStride = primStride;
         internal readonly int SecondaryOffset = secondaryOffset;
         internal readonly int SecondarySize = secondarySize;
+        internal readonly int SecondaryStride = secondaryStride;
 
         internal readonly MatrixKernel<T>* Source
         {
