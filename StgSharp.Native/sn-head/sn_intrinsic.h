@@ -1,7 +1,3 @@
-#ifdef _MSC_VER
-#pragma once
-#endif
-
 #ifndef SSC_INTRIN
 #define SSC_INTRIN
 
@@ -128,7 +124,7 @@ typedef struct sn_intrinsic {
         SCALARMATARITHMETIC f32_scalar_mul;
         MATARITHMETIC f32_sub;
         MATTRANSPOSEPROC f32_transpose;
-        VECTORNORMALIZEPROC normalize_3;
+        VECTORNORMALIZEPROC f32_normalize_3;
 } sn_intrinsic;
 
 typedef enum most_advanced_instruction {
@@ -145,4 +141,4 @@ typedef enum most_advanced_instruction {
 #endif
 } most_advanced_instruction;
 
-#endif // !SSC_INTRIN
+#endif

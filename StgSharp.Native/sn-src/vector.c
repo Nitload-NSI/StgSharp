@@ -1,7 +1,7 @@
 #include "sn_intrinsic.h"
 #include "sn_internal.h"
 
-SN_API void SN_DECL normalize(VEC(float) *restrict source, VEC(float) *restrict target)
+INTERNAL void SN_DECL f32_normalize(VEC(float) *restrict source, VEC(float) *restrict target)
 {
         register __m128 s = _mm_load_ps(&source->xmm);
         register __m128 a_length_sq = _mm_mul_ps(s, s);

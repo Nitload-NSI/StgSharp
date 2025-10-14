@@ -32,6 +32,7 @@ using StgSharp.Geometries;
 using StgSharp.Graphics;
 
 using StgSharp.Mathematics;
+using StgSharp.Mathematics.Graphic;
 
 using System;
 using System.Collections.Generic;

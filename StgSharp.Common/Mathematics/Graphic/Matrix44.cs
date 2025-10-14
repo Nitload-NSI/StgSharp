@@ -1,38 +1,32 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Matrix44.cs"
+// file="Matrix44"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-// Permission is hereby granted, free of charge, to any person 
-// obtaining a copy of this software and associated documentation 
-// files (the “Software”), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge,
-// publish, distribute, sublicense, and/or sell copies of the Software, 
-// and to permit persons to whom the Software is furnished to do so, 
-// subject to the following conditions:
-//     
-// The above copyright notice and 
-// this permission notice shall be included in all copies 
-// or substantial portions of the Software.
-//     
-// THE SOFTWARE IS PROVIDED “AS IS”, 
-// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-// ARISING FROM, OUT OF OR IN CONNECTION WITH 
-// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Internal.Intrinsic;
 using StgSharp.Mathematics.Numeric;
 using System;
-using System.ComponentModel;
-using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -40,17 +34,17 @@ using System.Runtime.InteropServices;
 namespace StgSharp.Mathematics.Graphic
 {
     [StructLayout(LayoutKind.Explicit, Size = 2 * 16 * sizeof(float) + sizeof(bool), Pack = 16)]
-    public unsafe struct Matrix44 : IEquatable<Matrix44>, IMatrix<Matrix44>
+    public unsafe struct Matrix44 : IEquatable<Matrix44>, IMatrix<float>
     {
 
         [FieldOffset(2 * 64 * sizeof(float))] internal bool isTransposed;
 
         [FieldOffset(0)] internal ColumnSet4 mat;
         [FieldOffset(16 * sizeof(float))] internal ColumnSet4 transpose;
-        [FieldOffset(0 * sizeof(float))] internal Vec4 colum0;
-        [FieldOffset(4 * sizeof(float))] internal Vec4 colum1;
-        [FieldOffset(8 * sizeof(float))] internal Vec4 colum2;
-        [FieldOffset(12 * sizeof(float))] internal Vec4 colum3;
+        [FieldOffset(0 * sizeof(float))] internal Vec4 column0;
+        [FieldOffset(4 * sizeof(float))] internal Vec4 column1;
+        [FieldOffset(8 * sizeof(float))] internal Vec4 column2;
+        [FieldOffset(12 * sizeof(float))] internal Vec4 column3;
 
         internal Matrix44(ColumnSet4 mat)
         {
@@ -161,6 +155,11 @@ namespace StgSharp.Mathematics.Graphic
 
         public static Matrix44 ZNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1);
 
+        public ReadOnlySpan<float> AsSpan()
+        {
+            return MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ColumnSet4, float>(ref mat), 16);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe float Det()
         {
@@ -208,9 +207,13 @@ namespace StgSharp.Mathematics.Graphic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix44 operator -(Matrix44 left, Matrix44 right)
         {
-            return new Matrix44(
-                right.mat.colum0 - left.mat.colum0, right.mat.colum1 - left.mat.colum1,
-                right.mat.colum2 - left.mat.colum2, right.mat.colum3 - left.mat.colum3);
+            return new Matrix44
+            {
+                column0 = right.column0 - left.column0,
+                column1 = right.column1 - left.column1,
+                column2 = right.column2 - left.column2,
+                column3 = right.column3 - left.column3
+            };
         }
 
         public static bool operator !=(Matrix44 left, Matrix44 right)
@@ -255,9 +258,13 @@ namespace StgSharp.Mathematics.Graphic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix44 operator +(Matrix44 left, Matrix44 right)
         {
-            Matrix44 ret = new Matrix44();
-
-            // InternalIO.Intrinsic.add_mat_4(&left.mat, &right.mat, &ret.mat);
+            Matrix44 ret = new()
+            {
+                column0 = left.column0 + right.column0,
+                column1 = left.column1 + right.column1,
+                column2 = left.column2 + right.column2,
+                column3 = left.column3 + right.column3
+            };
             return ret;
         }
 

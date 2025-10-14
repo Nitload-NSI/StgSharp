@@ -1,30 +1,27 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Camera.cs"
+// file="Camera"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-// Permission is hereby granted, free of charge, to any person 
-// obtaining a copy of this software and associated documentation 
-// files (the “Software”), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge,
-// publish, distribute, sublicense, and/or sell copies of the Software, 
-// and to permit persons to whom the Software is furnished to do so, 
-// subject to the following conditions:
-//     
-// The above copyright notice and 
-// this permission notice shall be included in all copies 
-// or substantial portions of the Software.
-//     
-// THE SOFTWARE IS PROVIDED “AS IS”, 
-// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-// ARISING FROM, OUT OF OR IN CONNECTION WITH 
-// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
@@ -82,7 +79,7 @@ namespace StgSharp.Mathematics.Graphic
                     return _lookAt;
                 }
                 Matrix44 move = Matrix44.Unit;
-                move.colum3.vec -= cameraAtt.colum3.vec;
+                move.column3.vec -= cameraAtt.column3.vec;
                 _lookAt = rotationAtt.Transpose * move;
                 _isLookAtAvailable = true;
                 return _lookAt;
@@ -123,19 +120,19 @@ namespace StgSharp.Mathematics.Graphic
 
         public void MoveNear(float distance)
         {
-            cameraAtt.colum3.Z -= distance;
+            cameraAtt.column3.Z -= distance;
             _isLookAtAvailable = false;
         }
 
         public void MoveRight(float distance)
         {
-            cameraAtt.colum3.X -= distance;
+            cameraAtt.column3.X -= distance;
             _isLookAtAvailable = false;
         }
 
         public void MoveUp(float distance)
         {
-            cameraAtt.colum3.Y -= distance;
+            cameraAtt.column3.Y -= distance;
             _isLookAtAvailable = false;
         }
 
@@ -148,7 +145,7 @@ namespace StgSharp.Mathematics.Graphic
         public void SetViewDirection(Vec3 position, Vec3 target, Vec3 up)
         {
             Vec3 direction = position - target;
-            if ((position.reg == cameraAtt.colum3.reg) && (this.up == up) && (cameraAtt.colum2.reg == direction.reg)) {
+            if ((position.reg == cameraAtt.column3.reg) && (this.up == up) && (cameraAtt.column2.reg == direction.reg)) {
                 return;
             }
             if (direction.GetLength() == 0)
@@ -168,10 +165,10 @@ namespace StgSharp.Mathematics.Graphic
 
             Vec3 right = Linear.Orthogonalize(Linear.Cross(up, direction));
 
-            cameraAtt.colum0.reg = right.reg;
-            cameraAtt.colum1.reg = up.reg;
-            cameraAtt.colum2.reg = direction.reg;
-            cameraAtt.colum3.reg = position.reg;
+            cameraAtt.column0.reg = right.reg;
+            cameraAtt.column1.reg = up.reg;
+            cameraAtt.column2.reg = direction.reg;
+            cameraAtt.column3.reg = position.reg;
 
             InternalPitch();
             InternalRow();
@@ -189,13 +186,13 @@ namespace StgSharp.Mathematics.Graphic
                 width = Scaler.Abs(GeometryScaler.Tan(fovRadius / 2) * near * 2),
                 height = width * size.Y / size.X;
 
-            _projection.colum0.X = 2 * near / width;
-            _projection.colum1.Y = 2 * near / height;
-            _projection.colum2.X = 2 * offsetX / width;
-            _projection.colum2.Y = 2 * offsetY / height;
-            _projection.colum2.Z = (far + near) / (near - far);
-            _projection.colum2.W = -1;
-            _projection.colum3.Z = 2 * near * far / (near - far);
+            _projection.column0.X = 2 * near / width;
+            _projection.column1.Y = 2 * near / height;
+            _projection.column2.X = 2 * offsetX / width;
+            _projection.column2.Y = 2 * offsetY / height;
+            _projection.column2.Z = (far + near) / (near - far);
+            _projection.column2.W = -1;
+            _projection.column3.Z = 2 * near * far / (near - far);
         }
 
         public void Test(params Vec4[] vec)

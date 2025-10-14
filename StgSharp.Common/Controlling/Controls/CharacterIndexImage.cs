@@ -1,36 +1,34 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="CharacterIndexImage.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="CharacterIndexImage"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Geometries;
 using StgSharp.Graphics;
 using StgSharp.Mathematics;
+using StgSharp.Mathematics.Graphic;
 
 using System;
 using System.Collections;
@@ -55,12 +53,12 @@ namespace StgSharp.Controls
                int length,
                char defaultChar,
                PlainGeometryMesh tittleMesh,
-               IEnumerable<(char, PlainGeometryMesh)> indexEnumeration )
+               IEnumerable<(char, PlainGeometryMesh)> indexEnumeration)
         {
             this.length = length;
             displayIndex = new char[length];
             _tittleMesh = tittleMesh;
-            texIndex = indexEnumeration.ToDictionary( item => item.Item1, item => item.Item2 );
+            texIndex = indexEnumeration.ToDictionary(item => item.Item1, item => item.Item2);
         }
 
         public bool IsEntity
@@ -85,15 +83,16 @@ namespace StgSharp.Controls
             set => throw new NotImplementedException();
         }
 
-        public void Display( string message )
+        public void Display(string message)
         {
-            if( string.IsNullOrEmpty( message ) ) {
+            if (string.IsNullOrEmpty(message)) {
                 message = string.Empty;
             }
 
-            string result = ( message.Length >= length ) ?
-                    message.Substring( message.Length - displayIndex.Length ) : message.PadLeft(
-                        length, defaultChar );
+            string result = (message.Length >= length) ?
+                            message.Substring(message.Length - displayIndex.Length) :
+                            message.PadLeft(
+                        length, defaultChar);
 
             displayIndex = result.ToCharArray();
         }
@@ -101,8 +100,8 @@ namespace StgSharp.Controls
         public IEnumerator<PlainGeometryMesh> GetEnumerator()
         {
             yield return _tittleMesh;
-            foreach( char item in displayIndex ) {
-                yield return texIndex[ item ];
+            foreach (char item in displayIndex) {
+                yield return texIndex[item];
             }
         }
 

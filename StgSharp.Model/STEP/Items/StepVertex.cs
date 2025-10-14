@@ -29,6 +29,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Mathematics;
+using StgSharp.Mathematics.Graphic;
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;

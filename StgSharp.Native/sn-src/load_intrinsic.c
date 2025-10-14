@@ -1,7 +1,6 @@
 #include "StgSharpNative.h"
 #include "sn_intrinsic.h"
 
-
 #if defined(_MSC_VER) && !defined(__clang__)
 #include <intrin.h>
 #include <isa_availability.h>
@@ -71,7 +70,7 @@ void load_intrinsic_sse(sn_intrinsic *context)
         context->f32_scalar_mul = f32_scalar_mul_sse;
         context->f32_sub = (MATARITHMETIC)f32_sub_sse;
         context->f32_transpose = (MATTRANSPOSEPROC)f32_transpose_sse;
-        context->normalize_3 = normalize;
+        context->f32_normalize_3 = f32_normalize;
 }
 
 void load_intrinsic_avx(sn_intrinsic *context)
@@ -80,11 +79,11 @@ void load_intrinsic_avx(sn_intrinsic *context)
         context->factorial_simd = factorial_simd_sse;
         context->index_pair = index_pair_sse;
         context->f32_add = (MATARITHMETIC)f32_add_avx;
-        context->f32_fma = (void(*)(void*, void*, void*))f32_fma_sse;
+        context->f32_fma = (void (*)(void *, void *, void *))f32_fma_sse;
         context->f32_scalar_mul = f32_scalar_mul_avx;
         context->f32_sub = (MATARITHMETIC)f32_sub_avx;
         context->f32_transpose = (MATTRANSPOSEPROC)f32_transpose_avx;
-        context->normalize_3 = normalize;
+        context->f32_normalize_3 = f32_normalize;
 }
 
 void load_intrinsic_512(sn_intrinsic *context)
@@ -93,9 +92,9 @@ void load_intrinsic_512(sn_intrinsic *context)
         context->factorial_simd = factorial_simd_sse;
         context->index_pair = index_pair_sse;
         context->f32_add = (MATARITHMETIC)f32_add_512;
-        context->f32_fma = (void(*)(void*, void*, void*))f32_fma_sse;
+        context->f32_fma = (void (*)(void *, void *, void *))f32_fma_sse;
         context->f32_scalar_mul = f32_scalar_mul_512;
         context->f32_sub = (MATARITHMETIC)f32_sub_512;
         context->f32_transpose = (MATTRANSPOSEPROC)f32_transpose_512;
-        context->normalize_3 = normalize;
+        context->f32_normalize_3 = f32_normalize;
 }

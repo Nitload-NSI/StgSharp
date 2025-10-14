@@ -1,36 +1,34 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="glFunction.cs"
+// file="glFunction"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
 //     
-// Permission is hereby granted, free of charge, to any person 
-// obtaining a copy of this software and associated documentation 
-// files (the “Software”), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge,
-// publish, distribute, sublicense, and/or sell copies of the Software, 
-// and to permit persons to whom the Software is furnished to do so, 
-// subject to the following conditions:
-//     
-// The above copyright notice and 
-// this permission notice shall be included in all copies 
-// or substantial portions of the Software.
-//     
-// THE SOFTWARE IS PROVIDED “AS IS”, 
-// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-// ARISING FROM, OUT OF OR IN CONNECTION WITH 
-// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Internal;
 using StgSharp.Mathematics;
+using StgSharp.Mathematics.Numeric;
 
 using System;
 using System.Collections.Concurrent;
@@ -62,9 +60,7 @@ namespace StgSharp.Graphics.OpenGL
             unusedTextureImageUintInitilizing = new Lazy<ConcurrentQueue<TextureUnit>>(
                 InitializeUnusedTextureImageUint);
             _attachmentColorRange = new Lazy<int>(
-                () => {
-                    return GetMaskInteger((uint)glConst.MAX_COLOR_ATTACHMENTS);
-                });
+                () => { return GetMaskInteger((uint)glConst.MAX_COLOR_ATTACHMENTS); });
         }
 
         public int AttachmentColorRange
@@ -126,7 +122,7 @@ namespace StgSharp.Graphics.OpenGL
 
         /// <summary>
         ///   Bind a frame BufferHandle to a frame BufferHandle target Same function as <see
-        ///   href="https://docs._gl/gl3/glBindFramebuffer"> glBindFramebuffer </see>.
+        ///   href="https://docs._gl/gl3/glBindFramebuffer">glBindFramebuffer</see>.
         /// </summary>
         /// <param _label="target">
         ///   The frame BufferHandle target of the binding operation.
@@ -202,9 +198,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CombineFrameBufferRenderBuffer(
-                    FrameBufferAttachment attachment,
-                    GlHandle rboHandle)
+        public void CombineFrameBufferRenderBuffer(FrameBufferAttachment attachment, GlHandle rboHandle)
         {
             Context.glFramebufferRenderbuffer(
                 glConst.FRAMEBUFFER, (uint)attachment, glConst.RENDERBUFFER, rboHandle.Value);
@@ -279,9 +273,8 @@ namespace StgSharp.Graphics.OpenGL
 
         /// <summary>
         ///   Delete a render BufferHandle object Very simlilar function as <see
-        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers"> glDeleteRenderbuffers </see>. The
-        ///   only deifference is that this mehtod can only delete one renderbuffer at the same
-        ///   time.
+        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers">glDeleteRenderbuffers</see>. The only
+        ///   deifference is that this mehtod can only delete one renderbuffer at the same time.
         /// </summary>
         /// <param _label="bufferHandle">
         ///   Handle to BufferHandle to delete.
@@ -336,12 +329,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawElementsInstanced(
-                    GeometryType mode,
-                    uint count,
-                    TypeCode type,
-                    IntPtr ptr,
-                    uint amount)
+        public void DrawElementsInstanced(GeometryType mode, uint count, TypeCode type, IntPtr ptr, uint amount)
         {
             uint a;
             switch (type)
@@ -458,8 +446,7 @@ namespace StgSharp.Graphics.OpenGL
         {
             IntPtr sptr = IntPtr.Zero;
             if (InternalIO.glCheckShaderStatus(ref Context, s.handle[index].Value, key,
-                                               ref sptr) ==
-                0) {
+                                               ref sptr) == 0) {
                 return Marshal.PtrToStringAnsi(sptr);
             }
             return string.Empty;
@@ -484,11 +471,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GetTextureLevelProperty(
-                    uint textureTypeMask,
-                    int level,
-                    uint propertyMask,
-                    out int propertyValue)
+        public void GetTextureLevelProperty(uint textureTypeMask, int level, uint propertyMask, out int propertyValue)
         {
             fixed (int* iptr = &propertyValue) {
                 Context.glGetTexLevelParameteriv(textureTypeMask, level, propertyMask, iptr);
@@ -563,8 +546,7 @@ namespace StgSharp.Graphics.OpenGL
         {
             fixed (byte* bptr = stream) {
                 Context.glReadPixels(
-                    beginPosition.X, beginPosition.Y, size.width, size.height, (uint)format,
-                    (uint)dataType, bptr);
+                    beginPosition.X, beginPosition.Y, size.width, size.height, (uint)format, (uint)dataType, bptr);
             }
         }
 
@@ -580,15 +562,14 @@ namespace StgSharp.Graphics.OpenGL
             }
             fixed (byte* bptr = pixels) {
                 Context.glReadPixels(
-                    beginPosition.X, beginPosition.Y, i.Width, i.Height, (uint)format,
-                    (uint)dataType, bptr);
+                    beginPosition.X, beginPosition.Y, i.Width, i.Height, (uint)format, (uint)dataType, bptr);
             }
             i.PixelUpdateCount++;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void SetBufferData<T>(BufferType bufferType, T bufferData, BufferUsage usage)
-            where T: unmanaged
+            where T: unmanaged,INumber<T>
         {
             int size = Marshal.SizeOf<T>();
             #pragma warning disable CS8500
@@ -598,10 +579,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferData<T>(
-                           BufferType bufferType,
-                           T[] bufferArray,
-                           BufferUsage usage)
+        public unsafe void SetBufferData<T>(BufferType bufferType, T[] bufferArray, BufferUsage usage)
             where T: unmanaged,INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
@@ -618,10 +596,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferData<T>(
-                           BufferType bufferType,
-                           ReadOnlySpan<T> bufferSpan,
-                           BufferUsage usage)
+        public unsafe void SetBufferData<T>(BufferType bufferType, ReadOnlySpan<T> bufferSpan, BufferUsage usage)
             where T: unmanaged,INumber<T>
         {
             int size = bufferSpan.Length * Marshal.SizeOf(typeof(T));
@@ -638,10 +613,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferData<T>(
-                           BufferType bufferType,
-                           Span<T> bufferArray,
-                           BufferUsage usage)
+        public unsafe void SetBufferData<T>(BufferType bufferType, Span<T> bufferArray, BufferUsage usage)
             where T: unmanaged, INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
@@ -659,11 +631,8 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferVectorData<T>(
-                           BufferType bufferType,
-                           ReadOnlySpan<T> bufferSpan,
-                           BufferUsage usage)
-            where T: unmanaged, IFixedVector<T>
+        public unsafe void SetBufferVectorData<T>(BufferType bufferType, ReadOnlySpan<T> bufferSpan, BufferUsage usage)
+            where T: unmanaged, IUnmanagedVector<T>
         {
             int size = bufferSpan.Length * Marshal.SizeOf(typeof(T));
             #pragma warning disable CS8500
@@ -676,11 +645,8 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferVectorData<T>(
-                           BufferType bufferType,
-                           T[] bufferArray,
-                           BufferUsage usage)
-            where T: unmanaged, IFixedVector<T>
+        public unsafe void SetBufferVectorData<T>(BufferType bufferType, T[] bufferArray, BufferUsage usage)
+            where T: unmanaged, IUnmanagedVector<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
             if (bufferArray == null) {
@@ -714,17 +680,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetVertexAttribute(
-                    uint index,
-                    int size,
-                    TypeCode t,
-                    bool normalized,
-                    uint stride,
-                    int pointer)
+        public void SetVertexAttribute(uint index, int size, TypeCode t, bool normalized, uint stride, int pointer)
         {
             uint type = InternalIO.GLtype[t];
-            Context.glVertexAttribPointer(
-                index, size, type, normalized ? 1 : 0, stride, (void*)pointer);
+            Context.glVertexAttribPointer(index, size, type, normalized ? 1 : 0, stride, (void*)pointer);
             Context.glEnableVertexAttribArray(index);
         }
 
@@ -745,8 +704,7 @@ namespace StgSharp.Graphics.OpenGL
             {
                 T* ptr = ((pixels == null) || (pixels.Length == 0)) ? (T*)IntPtr.Zero : tptr;
                 Context.glTexImage2D(
-                    (uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel,
-                    (uint)type, tptr);
+                    (uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel, (uint)type, tptr);
             }
             #pragma warning restore CS8500
         }
@@ -767,8 +725,7 @@ namespace StgSharp.Graphics.OpenGL
             fixed (T* tptr = pixelSpan)
             {
                 Context.glTexImage2D(
-                    (uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel,
-                    (uint)type, tptr);
+                    (uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel, (uint)type, tptr);
             }
             #pragma warning restore CS8500
         }

@@ -1,30 +1,27 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="CollisionTexture.cs"
+// file="CollisionTexture"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
 //     
-// Permission is hereby granted, free of charge, to any person 
-// obtaining a copy of this software and associated documentation 
-// files (the “Software”), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge,
-// publish, distribute, sublicense, and/or sell copies of the Software, 
-// and to permit persons to whom the Software is furnished to do so, 
-// subject to the following conditions:
-//     
-// The above copyright notice and 
-// this permission notice shall be included in all copies 
-// or substantial portions of the Software.
-//     
-// THE SOFTWARE IS PROVIDED “AS IS”, 
-// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-// ARISING FROM, OUT OF OR IN CONNECTION WITH 
-// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
@@ -34,6 +31,7 @@ using StgSharp.Graphics.OpenGL;
 using StgSharp.Internal;
 
 using StgSharp.Mathematics;
+using StgSharp.Mathematics.Graphic;
 using StgSharp.MVVM;
 
 using System;
@@ -94,8 +92,7 @@ namespace StgSharp.Stg
 
                 vbo.WriteVectorData<Vec4>(0, item.CoordAndRotationSpan, BufferUsage.StreamDraw);
                 vao.SetVertexAttribute(1, 3, TypeCode.Single, false, 4 * sizeof(float), 0);
-                vao.SetVertexAttribute(
-                    2, 1, TypeCode.Single, false, 4 * sizeof(float), 3 * sizeof(float));
+                vao.SetVertexAttribute(2, 1, TypeCode.Single, false, 4 * sizeof(float), 3 * sizeof(float));
 
                 vbo.WriteScalerData<float>(2, item.ScalingSpan, BufferUsage.StreamDraw);
                 vao.SetVertexAttribute(3, 1, TypeCode.Single, false, sizeof(float), 0);
@@ -159,9 +156,8 @@ namespace StgSharp.Stg
             t = CreateTexture(1);
             t.Bind2D(0);
             GL.TextureImage2d<byte>(
-                Texture2DTarget.Texture2D, 0, ImageChannel.WithAlphaChannel, (uint)Width,
-                (uint)Height, ImageChannel.WithAlphaChannel, PixelChannelLayout.Byte,
-                Array.Empty<byte>());
+                Texture2DTarget.Texture2D, 0, ImageChannel.WithAlphaChannel, (uint)Width, (uint)Height,
+                ImageChannel.WithAlphaChannel, PixelChannelLayout.Byte, Array.Empty<byte>());
 
             t.Set2dWrapProperty(0, TextureWrap.Repeat, TextureWrap.Repeat);
             t.Set2dFilterProperty(0, TextureFilter.Nearest, TextureFilter.Nearest);

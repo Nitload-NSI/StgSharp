@@ -1,36 +1,34 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ButtonGroup.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ButtonGroup"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Geometries;
 using StgSharp.Graphics;
 using StgSharp.Mathematics;
+using StgSharp.Mathematics.Graphic;
 
 using System;
 using System.Collections.Generic;
@@ -77,16 +75,16 @@ namespace StgSharp.Controls
             get => buttonList;
         }
 
-        public void AddButton( TriggerButton button )
+        public void AddButton(TriggerButton button)
         {
-            buttonList.Add( button );
+            buttonList.Add(button);
         }
 
         public abstract void Confirm();
 
         public IEnumerator<PlainGeometryMesh> GetEnumerator()
         {
-            foreach( TriggerButton item in buttonList ) {
+            foreach (TriggerButton item in buttonList) {
                 yield return item.Single();
             }
         }
@@ -94,10 +92,10 @@ namespace StgSharp.Controls
         public void MoveDown()
         {
             TriggerButton button = current;
-            while( ( button.Down != null ) && button.Down.IsDisabled ) {
+            while ((button.Down != null) && button.Down.IsDisabled) {
                 button = button.Right;
             }
-            if( current == button ) {
+            if (current == button) {
                 return;
             }
             current.DeHighlight();
@@ -108,10 +106,10 @@ namespace StgSharp.Controls
         public void MoveLeft()
         {
             TriggerButton button = current;
-            while( ( button.Left != null ) && button.Left.IsDisabled ) {
+            while ((button.Left != null) && button.Left.IsDisabled) {
                 button = button.Left;
             }
-            if( current == button ) {
+            if (current == button) {
                 return;
             }
             current.DeHighlight();
@@ -122,10 +120,10 @@ namespace StgSharp.Controls
         public void MoveRight()
         {
             TriggerButton button = current;
-            while( ( button.Right != null ) && button.Right.IsDisabled ) {
+            while ((button.Right != null) && button.Right.IsDisabled) {
                 button = button.Right;
             }
-            if( current == button ) {
+            if (current == button) {
                 return;
             }
             current.DeHighlight();
@@ -136,10 +134,10 @@ namespace StgSharp.Controls
         public void MoveUp()
         {
             TriggerButton button = current;
-            while( ( button.Up != null ) && button.Up.IsDisabled ) {
+            while ((button.Up != null) && button.Up.IsDisabled) {
                 button = button.Right;
             }
-            if( current == button ) {
+            if (current == button) {
                 return;
             }
             current.DeHighlight();

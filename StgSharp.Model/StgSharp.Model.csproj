@@ -4,11 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
       <LangVersion>preview</LangVersion>
-      <Platforms>AnyCPU;x64</Platforms>
+      <Platforms>x64</Platforms>
       <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	  <Deterministic>False</Deterministic>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <ProjectReference Include="..\StgSharp.Common\StgSharp.Common.csproj" />
     <ProjectReference Include="..\StgSharp.Script\StgSharp.Script.csproj" />
   </ItemGroup>

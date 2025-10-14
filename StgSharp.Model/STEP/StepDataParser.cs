@@ -31,6 +31,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using StgSharp.Mathematics;
+using StgSharp.Mathematics.Graphic;
 using StgSharp.Script.Express;
 
 using System;
@@ -48,9 +49,7 @@ namespace StgSharp.Model.Step
         private static Regex _vectorParser = GetVectorParser();
         private static Type _implementorInterface = typeof(IExpConvertableFrom<>);
 
-        public static StepRepresentationItem Implement(
-                                             StepRepresentationItem left,
-                                             StepRepresentationItem right)
+        public static StepRepresentationItem Implement(StepRepresentationItem left, StepRepresentationItem right)
         {
             Type tLeft = left.GetType(),
                 tRight = right.GetType(),

@@ -29,7 +29,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Mathematics;
-
+using StgSharp.Mathematics.Graphic;
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
@@ -79,11 +79,7 @@ namespace StgSharp.Model.Step
                 return false;
             }
 
-            return ItemType == other.ItemType &&
-                   X == other.X &&
-                   Y == other.Y &&
-                   Z == other.Z &&
-                   Name == other.Name;
+            return ItemType == other.ItemType && X == other.X && Y == other.Y && Z == other.Z && Name == other.Name;
         }
 
         public override bool Equals(object obj)

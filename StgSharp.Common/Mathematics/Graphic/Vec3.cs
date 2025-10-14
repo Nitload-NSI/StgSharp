@@ -1,30 +1,27 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Vec3.cs"
+// file="Vec3"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-// Permission is hereby granted, free of charge, to any person 
-// obtaining a copy of this software and associated documentation 
-// files (the “Software”), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge,
-// publish, distribute, sublicense, and/or sell copies of the Software, 
-// and to permit persons to whom the Software is furnished to do so, 
-// subject to the following conditions:
-//     
-// The above copyright notice and 
-// this permission notice shall be included in all copies 
-// or substantial portions of the Software.
-//     
-// THE SOFTWARE IS PROVIDED “AS IS”, 
-// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-// ARISING FROM, OUT OF OR IN CONNECTION WITH 
-// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
@@ -55,10 +52,7 @@ namespace StgSharp.Mathematics.Graphic
 
         internal Vec3(M128 vector)
         {
-            Unsafe.SkipInit(out X);
-            Unsafe.SkipInit(out Y);
-            Unsafe.SkipInit(out Z);
-            Unsafe.SkipInit(out v);
+            Unsafe.SkipInit(out this);
             reg = vector;
             reg.Member<uint>(3) = 0;
         }
@@ -75,49 +69,42 @@ namespace StgSharp.Mathematics.Graphic
 
         public Vec3(Vec2 xy, float z)
         {
-            Unsafe.SkipInit(out X);
-            Unsafe.SkipInit(out Y);
-            Unsafe.SkipInit(out Z);
-            Unsafe.SkipInit(out v);
+            Unsafe.SkipInit(out this);
             reg = xy.reg;
             Z = z;
         }
 
         public Vec3(float x, float y, float z)
         {
-            Unsafe.SkipInit(out reg);
-            Unsafe.SkipInit(out X);
-            Unsafe.SkipInit(out Y);
-            Unsafe.SkipInit(out Z);
+            Unsafe.SkipInit(out this);
             v = new Vector3(x, y, z);
         }
 
         public unsafe Vec2 XY
         {
-            get => new Vec2(reg);
-            set
-            {
-                fixed (Vector3* vptr = &v) {
-                    *(Vector2*)vptr = value.v;
-                }
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            readonly get => new(reg);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => Unsafe.As<Vector3, Vector2>(ref v) = value.v;
         }
 
         public Vec3 XYZ
         {
-            get => new(v);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            readonly get => new(v);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => this = value;
         }
 
-        public static Vec3 Zero => new Vec3(0, 0, 0);
+        public static Vec3 Zero => new(0, 0, 0);
 
-        public static Vec3 One => new Vec3(1, 1, 1);
+        public static Vec3 One => new(1, 1, 1);
 
-        public static Vec3 UnitX => new Vec3(1, 0, 0);
+        public static Vec3 UnitX => new(1, 0, 0);
 
-        public static Vec3 UnitY => new Vec3(0, 1, 0);
+        public static Vec3 UnitY => new(0, 1, 0);
 
-        public static Vec3 UnitZ => new Vec3(0, 0, 1);
+        public static Vec3 UnitZ => new(0, 0, 1);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vec3 Cross(Vec3 left, Vec3 right)
@@ -126,30 +113,24 @@ namespace StgSharp.Mathematics.Graphic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float Dot(Vec3 right)
+        public readonly float Dot(Vec3 right)
         {
             return Vector3.Dot(v, right.v);
         }
 
-        public bool Equals(Vec3 other)
+        public readonly bool Equals(Vec3 other)
         {
             return reg == other.reg;
         }
 
-        public override bool Equals(object obj)
+        public override readonly bool Equals(object obj)
         {
-            if (obj is Vec3)
-            {
-                return this == (Vec3)obj;
-            } else
-            {
-                return false;
-            }
+            return obj is not null && obj is Vec3 vec && this == vec;
         }
 
         public static Vec3 FromSpan(ReadOnlySpan<float> span)
         {
-            Vec3 v = new Vec3();
+            Vec3 v = new();
             span.CopyTo(MemoryMarshal.CreateSpan(ref v.X, 3));
             return v;
         }
@@ -169,7 +150,7 @@ namespace StgSharp.Mathematics.Graphic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float GetMaxValue()
+        public readonly float GetMaxValue()
         {
             float ret = X;
             ret = ret > Y ? ret : Y;
@@ -182,12 +163,12 @@ namespace StgSharp.Mathematics.Graphic
             return Cross(left, right) == Zero;
         }
 
-        public override string ToString()
+        public override readonly string ToString()
         {
             return $"[{X},{Y},{Z}]";
         }
 
-        public string ToString(string sample)
+        public readonly string ToString(string sample)
         {
             return $"[{X.ToString(sample)},{Y.ToString(sample)},{Z.ToString(sample)}]";
         }
@@ -243,8 +224,7 @@ namespace StgSharp.Mathematics.Graphic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe implicit operator Vec3((float, float, float) tuple)
         {
-            Vec3 vec = new Vec3(*(Vector3*)&tuple);
-            return vec;
+            return Unsafe.As<(float,float,float), Vec3>(ref tuple);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
