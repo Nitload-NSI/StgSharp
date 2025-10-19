@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ExpExceptions.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ExpExceptions"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -44,17 +41,17 @@ namespace StgSharp.Script.Express
 
         private Token _pos;
 
-        public ExpException( string message ) : base( message ) { }
+        public ExpException(string message) : base(message) { }
 
-        public ExpException( Token position, string message )
-            : base( $"Express compile error at {position.Line}-{position.Column}:\n{message}" )
+        public ExpException(Token position, string message)
+            : base($"Express compile error at {position.Line}-{position.Column}:\n{message}")
         {
             _pos = position;
         }
 
-        public ExpException( ExpSyntaxNode node, string message )
+        public ExpException(ExpSyntaxNode node, string message)
             : base(
-            $"Express compile error at {node.Source.Line}-{node.Source.Column}:\n{message}" )
+            $"Express compile error at {node.Source.Line}-{node.Source.Column}:\n{message}")
         {
             _pos = node._source;
         }
@@ -64,36 +61,34 @@ namespace StgSharp.Script.Express
     public class ExpInvalidCharException : ExpException
     {
 
-        public ExpInvalidCharException( char c ) : base( $"An unknown char {c} occurred." ) { }
+        public ExpInvalidCharException(char c) : base($"An unknown char {c} occurred.") { }
 
-        public ExpInvalidCharException( int index )
-            : base( $"Cannot read a token from line at {index}" ) { }
+        public ExpInvalidCharException(int index) : base($"Cannot read a token from line at {index}") { }
 
     }
 
     public class ExpStringNotCloseException : ExpException
     {
 
-        public ExpStringNotCloseException( int linenum )
-            : base( $"A string does not closed at end of line {linenum}." ) { }
+        public ExpStringNotCloseException(int linenum) : base($"A string does not closed at end of line {linenum}.") { }
 
     }
 
     public class ExpInvalidSyntaxException : ExpException
     {
 
-        public ExpInvalidSyntaxException( string message ) : base( message ) { }
+        public ExpInvalidSyntaxException(string message) : base(message) { }
 
-        public static void ThrowNonCollectionIndex( Token t )
+        public static void ThrowNonCollectionIndex(Token t)
         {
             throw new ExpInvalidSyntaxException(
-                $"Use a collection indexer to a non-collection variable at line {t.Line} column {t.Column}" );
+                $"Use a collection indexer to a non-collection variable at line {t.Line} column {t.Column}");
         }
 
-        public static void ThrowNoOperator( Token t )
+        public static void ThrowNoOperator(Token t)
         {
             throw new ExpInvalidSyntaxException(
-                $"No operator but more than one operand before line {t.Line} column {t.Column}" );
+                $"No operator but more than one operand before line {t.Line} column {t.Column}");
         }
 
     }
@@ -101,70 +96,68 @@ namespace StgSharp.Script.Express
     public class ExpInvalidElementDeclareEndingExceptions : ExpException
     {
 
-        public ExpInvalidElementDeclareEndingExceptions( string declaredName, string endedName )
+        public ExpInvalidElementDeclareEndingExceptions(string declaredName, string endedName)
             : base(
-            $"The datatype is declared with name {declaredName} but ended with {endedName}" ) { }
+            $"The datatype is declared with name {declaredName} but ended with {endedName}") { }
 
     }
 
     public class ExpInvalidElementNameException : ExpException
     {
 
-        public ExpInvalidElementNameException( string elementName, ExpSchema schema )
-            : base( $"Cannot find any element named {elementName} in {schema.Name}" ) { }
+        public ExpInvalidElementNameException(string elementName, ExpSchema schema)
+            : base($"Cannot find any element named {elementName} in {schema.Name}") { }
 
     }
 
     public class ExpInvalidTypeException : ExpException
     {
 
-        public ExpInvalidTypeException( ExpSyntaxNode node, string required, string provided )
+        public ExpInvalidTypeException(ExpSyntaxNode node, string required, string provided)
             : base(
             node,
-            $"Type {required} is required at position, but a {provided} instance is provided." ) { }
+            $"Type {required} is required at position, but a {provided} instance is provided.") { }
 
-        public ExpInvalidTypeException( Token t, string required, string provided )
+        public ExpInvalidTypeException(Token t, string required, string provided)
             : base(
             t,
-            $"Type {required} is required at position, but a {provided} instance is provided." ) { }
+            $"Type {required} is required at position, but a {provided} instance is provided.") { }
 
     }
 
     public class ExpCaseNotFoundException : ArgumentOutOfRangeException
     {
 
-        public ExpCaseNotFoundException( ExpSwitchNode token, ExpSyntaxNode label )
+        public ExpCaseNotFoundException(ExpSwitchNode token, ExpSyntaxNode label)
             : base(
-            $"Attempt to read or write the label at ({token.Line},{token.Column}), that does not exist in SWITCH expression at ({token.Line},{token.Column})" ) { }
+            $"Attempt to read or write the label at ({token.Line},{token.Column}), that does not exist in SWITCH expression at ({token.Line},{token.Column})") { }
 
     }
 
     public class ExpInvalidCollectionMemberTypeException : InvalidCastException
     {
 
-        public ExpInvalidCollectionMemberTypeException(
-               ExpElementInstance elementInstance,
-               ExpCollectionBase collection )
+        public ExpInvalidCollectionMemberTypeException(ExpElementInstance elementInstance, ExpCollectionBase collection)
             : base(
-            $"Attempt to add or remove an element of type: {elementInstance.ElementType} from a collection collects {collection.MemberType}" ) { }
+            $"Attempt to add or remove an element of type: {elementInstance.ElementType} from a collection collects {collection.MemberType}") { }
 
     }
 
     public class ExpInvalidSchemaIncludeException : InvalidOperationException
     {
 
-        public ExpInvalidSchemaIncludeException( ExpSchema context, ExpSchema source )
+        public ExpInvalidSchemaIncludeException(ExpSchema context, ExpSchema source)
             : base(
-            $"Attempted to refer to an EXPRESS language expression in the current schema context '{context.Name}', but this expression comes from another schema '{source.Name}' that has not been included." ) { }
+            $"Attempted to refer to an EXPRESS language expression in the current schema context '{context.Name}', but this expression comes from another schema '{source.Name}' that has not been included.") { }
 
     }
 
     public class ExpElementLoadException : TypeLoadException
     {
 
-        public ExpElementLoadException( string typeName, ExpSchema context )
+        public ExpElementLoadException(string typeName, ExpSchema context)
             : base(
-            $"Cannot find the element {typeName} in schema {context.Name} and its included schemas" ) { }
+            $"Cannot find the element {typeName} in schema {context.Name} and its included schemas") { }
 
     }
 
@@ -172,16 +165,16 @@ namespace StgSharp.Script.Express
     {
 
         public ExpCompileNotInitializedException()
-            : base( "Attempt to compile an EXPRESS script before the init of compiler." ) { }
+            : base("Attempt to compile an EXPRESS script before the init of compiler.") { }
 
     }
 
     public class  ExpCompileException : ExpException
     {
 
-        public ExpCompileException( Token pos, string message )
+        public ExpCompileException(Token pos, string message)
             : base(
-            $"Compiler exception occur when processing token at line {pos.Line}, column {pos.Column}. Detailed message:{Environment.NewLine}{message} " ) { }
+            $"Compiler exception occur when processing token at line {pos.Line}, column {pos.Column}. Detailed message:{Environment.NewLine}{message} ") { }
 
     }
 }

@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ShaderGenerator.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ShaderGenerator"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
 using StgSharp.Mathematics;
@@ -48,12 +45,12 @@ namespace StgSharp.Graphics.ShaderEdit
         private List<string> codeList;
         private List<ShaderFunction> usedShaderFunctions;
 
-        public Uniform<T> DefineUniform<T>( string name, int index ) where T:unmanaged
+        public Uniform<T> DefineUniform<T>(string name, int index) where T: unmanaged
         {
-            ShaderParameter p = new ShaderParameter( name, ShaderParameter.TypeMarshal<T>() );
-            uniformDefine.Add( index, p );
+            ShaderParameter p = new ShaderParameter(name, ShaderParameter.TypeMarshal<T>());
+            uniformDefine.Add(index, p);
 
-            //return new Uniform<TView>();
+            // return new Uniform<TView>();
             throw new NotImplementedException();
         }
 
@@ -69,42 +66,39 @@ namespace StgSharp.Graphics.ShaderEdit
 
         public int ParameterCount => inputList.Count;
 
-        public void EmitCall(
-                    ShaderFunction function,
-                    ShaderParameter outPut,
-                    params ShaderParameter[] inputParams )
+        public void EmitCall(ShaderFunction function, ShaderParameter outPut, params ShaderParameter[] inputParams)
         {
-            if( inputParams.Length != function.ParameterCount )
+            if (inputParams.Length != function.ParameterCount)
             {
                 // Param list length not equal
                 throw new ArgumentException(
-                    "Provided parameters does not match function's parameter list." );
+                    "Provided parameters does not match function's parameter list.");
             }
-            if( !ShaderParameter.IsSameType( outPut, function.outPut ) )
+            if (!ShaderParameter.IsSameType(outPut, function.outPut))
             {
                 // Type of returning value not equal
                 throw new ArgumentException(
-                    "Provided parameters does not match function's parameter list." );
+                    "Provided parameters does not match function's parameter list.");
             }
-            for( int i = 0; i < inputParams.Length; i++ )
+            for (int i = 0; i < inputParams.Length; i++)
             {
-                if( !ShaderParameter.IsSameType( function.inputList[ i ], inputParams[ i ] ) )
+                if (!ShaderParameter.IsSameType(function.inputList[i], inputParams[i]))
                 {
                     // Input type not match
                     throw new InvalidCastException(
-                        "Provided parameters does not match function's parameter list." );
+                        "Provided parameters does not match function's parameter list.");
                 }
             }
             string codeLine = string.Empty;    // adding a line like " outvalue = Func(input1, input2,...); "
-            if( outPut != ShaderParameter.Void ) {
+            if (outPut != ShaderParameter.Void) {
                 codeLine += $"{outPut.name} = ";
             }
             codeLine += $"{function.name}(";
-            foreach( ShaderParameter inputParam in inputParams ) {
+            foreach (ShaderParameter inputParam in inputParams) {
                 codeLine += inputParam.name;
             }
             codeLine += ");\n";
-            codeList.Add( codeLine );
+            codeList.Add(codeLine);
         }
 
     }
@@ -113,32 +107,32 @@ namespace StgSharp.Graphics.ShaderEdit
     {
 
         public static readonly ShaderParameter Void = new ShaderParameter(
-            string.Empty, InternalShaderType.Void );
+            string.Empty, InternalShaderType.Void);
         internal readonly bool isReadOnly;
         internal readonly InternalShaderType type;
         internal readonly string name;
 
-        public ShaderParameter( string name, InternalShaderType type )
+        public ShaderParameter(string name, InternalShaderType type)
         {
             this.name = name;
             this.type = type;
             isReadOnly = false;
         }
 
-        public static bool IsSameType( ShaderParameter param1, ShaderParameter param2 )
+        public static bool IsSameType(ShaderParameter param1, ShaderParameter param2)
         {
-            if( param1.type != InternalShaderType.Struct )
+            if (param1.type != InternalShaderType.Struct)
             {
                 return param1.type == param2.type;
             } else
             {
-                throw new Exception( "Struct is currently not supported." );
+                throw new Exception("Struct is currently not supported.");
             }
         }
 
-        public static InternalShaderType TypeMarshal<T>() where T:unmanaged
+        public static InternalShaderType TypeMarshal<T>() where T: unmanaged
         {
-            switch( Type.GetTypeCode( typeof( T ) ) )
+            switch (Type.GetTypeCode(typeof(T)))
             {
                 case TypeCode.Single:
                     return InternalShaderType.Float;
@@ -151,7 +145,7 @@ namespace StgSharp.Graphics.ShaderEdit
                 default:
                     break;
             }
-            switch( typeof( T ).Name )
+            switch (typeof(T).Name)
             {
                 case "vec4d":
                     return InternalShaderType.Vector4;
@@ -174,7 +168,7 @@ namespace StgSharp.Graphics.ShaderEdit
                 case "Matrix4x4":
                     return InternalShaderType.Matrix4x4;
                 default:
-                    throw new ArgumentException( "Not supported shader data type." );
+                    throw new ArgumentException("Not supported shader data type.");
             }
         }
 

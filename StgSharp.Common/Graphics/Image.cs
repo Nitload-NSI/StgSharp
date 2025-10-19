@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="Image.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="Image"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Graphics.OpenGL;
 using StgSharp.Internal;
 using StgSharp.Mathematics;
@@ -56,12 +53,12 @@ namespace StgSharp.Graphics
             _rawInfo = new ImageInfo();
         }
 
-        internal Image( ImageInfo information )
+        internal Image(ImageInfo information)
         {
             _rawInfo = information;
             _data = Array.Empty<byte>();
 
-            //int length = _rawInfo.width * _rawInfo.height * _rawInfo.channel;
+            // int length = _rawInfo.width * _rawInfo.height * _rawInfo.channel;
         }
 
         public (int width, int height) Size
@@ -73,7 +70,7 @@ namespace StgSharp.Graphics
         {
             get
             {
-                if( ( _data.Length == 0 ) || ( _data == null ) )
+                if ((_data.Length == 0) || (_data == null))
                 {
                     GetBytes();
                     return _data!;
@@ -107,7 +104,7 @@ namespace StgSharp.Graphics
             internal set => _rawInfo.Width = value;
         }
 
-        public int PixelSize => ImageInfo.GetPixelSize( _rawInfo.pixelLayout, _rawInfo.Channel );
+        public int PixelSize => ImageInfo.GetPixelSize(_rawInfo.pixelLayout, _rawInfo.Channel);
 
         public PixelChannelLayout PixelLayout
         {
@@ -122,21 +119,18 @@ namespace StgSharp.Graphics
             get => ref _data;
         }
 
-        public void FromBytes( byte[] stream ) { }
+        public void FromBytes(byte[] stream) { }
 
-        public static unsafe Image FromFile( string route, ImageLoader loader )
+        public static unsafe Image FromFile(string route, ImageLoader loader)
         {
             Image ret = new Image();
-            fixed( ImageInfo* iptr = &ret._rawInfo ) {
-                InternalIO.InternalLoadImage( route, iptr, loader );
+            fixed (ImageInfo* iptr = &ret._rawInfo) {
+                InternalIO.InternalLoadImage(route, iptr, loader);
             }
             return ret;
         }
 
-        public static Image FromMemory(
-                            (int width, int height) size,
-                            ImageChannel channel,
-                            byte[] stream )
+        public static Image FromMemory((int width, int height) size, ImageChannel channel, byte[] stream)
         {
             ImageInfo _info = new ImageInfo
             {
@@ -145,7 +139,7 @@ namespace StgSharp.Graphics
                 Channel = channel,
                 StreamPtr = IntPtr.Zero
             };
-            Image ret = new Image( _info );
+            Image ret = new Image(_info);
             ret.PixelLayout = PixelChannelLayout.Byte;
             ret._data = stream;
             return ret;
@@ -155,7 +149,7 @@ namespace StgSharp.Graphics
                             (int width, int height) size,
                             ImageChannel channel,
                             PixelChannelLayout layout,
-                            byte[] stream )
+                            byte[] stream)
         {
             ImageInfo _info = new ImageInfo
             {
@@ -164,7 +158,7 @@ namespace StgSharp.Graphics
                 Channel = channel,
                 StreamPtr = IntPtr.Zero
             };
-            Image ret = new Image( _info );
+            Image ret = new Image(_info);
             ret.PixelLayout = layout;
             ret._data = stream;
             return ret;
@@ -172,12 +166,12 @@ namespace StgSharp.Graphics
 
         public unsafe byte[] GetBytes()
         {
-            if( _data.Length == 0 )
+            if (_data.Length == 0)
             {
-                int size = Width * Height * ImageInfo.GetPixelSize( PixelLayout, Channel );
-                _data = new Span<byte>( ( byte* )_rawInfo.StreamPtr, size ).ToArray();
-                fixed( ImageInfo* pptr = &_rawInfo ) {
-                    InternalIO.InternalUnloadImage( pptr );
+                int size = Width * Height * ImageInfo.GetPixelSize(PixelLayout, Channel);
+                _data = new Span<byte>((byte*)_rawInfo.StreamPtr, size).ToArray();
+                fixed (ImageInfo* pptr = &_rawInfo) {
+                    InternalIO.InternalUnloadImage(pptr);
                 }
                 _rawInfo.StreamPtr = IntPtr.Zero;
             }
@@ -186,7 +180,7 @@ namespace StgSharp.Graphics
 
         public Image ProvideImage() => this;
 
-        internal static Image FromMemory( ImageInfo info, byte[] data, int operationCount )
+        internal static Image FromMemory(ImageInfo info, byte[] data, int operationCount)
         {
             return new Image
             {

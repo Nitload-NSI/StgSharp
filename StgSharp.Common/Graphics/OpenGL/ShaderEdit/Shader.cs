@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="Shader.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="Shader"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp;
 using StgSharp.Internal;
 
@@ -52,13 +49,13 @@ namespace StgSharp.Graphics.OpenGL
         ///   New instance of <see cref="Shader" /> instance.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override sealed ShaderProgram CreateShaderProgram()
+        protected sealed override ShaderProgram CreateShaderProgram()
         {
             return new ShaderProgram(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override sealed Shader CreateShaderSegment(ShaderType type, int count)
+        protected sealed override Shader CreateShaderSegment(ShaderType type, int count)
         {
             return new Shader(GL.CreateShaderSet(count, type), type, this);
         }
@@ -221,8 +218,7 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///
         /// </returns>
-        public unsafe Uniform<T, U, V> GetUniform<T, U, V>(string name) where T: unmanaged
-            where U: struct
+        public unsafe Uniform<T, U, V> GetUniform<T, U, V>(string name) where T: unmanaged where U: struct
             where V: struct
         {
             return new Uniform<T, U, V>(GL.GetUniformLocation(this.handle, name));
@@ -237,8 +233,7 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///
         /// </returns>
-        public unsafe Uniform<T, U, V, W> GetUniform<T, U, V, W>(string name) where T: unmanaged
-            where U: struct
+        public unsafe Uniform<T, U, V, W> GetUniform<T, U, V, W>(string name) where T: unmanaged where U: struct
             where V: struct
             where W: struct
         {
@@ -251,8 +246,7 @@ namespace StgSharp.Graphics.OpenGL
         public unsafe void Link()
         {
             if (InternalIO.InternalLinkShaderProgram(
-                (OpenglContext*)this.GL.ContextHandle, handle.Value) ==
-                0)
+                (OpenglContext*)this.GL.ContextHandle, handle.Value) == 0)
             {
                 IntPtr logPtr = InternalIO.InternalReadSSCLog();
                 try
@@ -281,7 +275,7 @@ namespace StgSharp.Graphics.OpenGL
 
         ~ShaderProgram()
         {
-            //handle.Dispose();
+            // handle.Dispose();
         }
 
     }

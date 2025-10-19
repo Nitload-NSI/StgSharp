@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ViewBase.cs"
-//     Project: StepVisualizer
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ViewBase"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Mathematics;
 using StgSharp.MVVM.ViewModel;
@@ -73,16 +70,16 @@ namespace StgSharp.MVVM
 
         private ViewPort context;
 
-        private delegate bool GetDataBindingEntryDelegate( string name, out DataBindingEntry entry );
+        private delegate bool GetDataBindingEntryDelegate(string name, out DataBindingEntry entry);
 
-        public DataBindingEntry this[ string name ]
+        public DataBindingEntry this[string name]
         {
             get
             {
-                if( getDataBindingEntry( name, out DataBindingEntry entry ) ) {
+                if (getDataBindingEntry(name, out DataBindingEntry entry)) {
                     return entry;
                 }
-                if( TryGetObjectReference( name, out entry ) ) {
+                if (TryGetObjectReference(name, out entry)) {
                     return entry;
                 }
                 throw new KeyNotFoundException();
@@ -142,7 +139,7 @@ namespace StgSharp.MVVM
             set => _responder = value;
         }
 
-        public abstract void CustomizedInitialize( [NotNull]ViewModelBase viewModelBinding );
+        public abstract void CustomizedInitialize([NotNull]ViewModelBase viewModelBinding);
 
         /// <summary>
         ///   Get the status of a certain key on the keyboard.
@@ -153,16 +150,13 @@ namespace StgSharp.MVVM
         /// <returns>
         ///   <see cref="KeyStatus" /> representing if a key is pressed or released.
         /// </returns>
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public KeyStatus GetKeyStatus( KeyboardKey key )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public KeyStatus GetKeyStatus(KeyboardKey key)
         {
-            return InternalIO.glfwGetKey( context.ViewPortHandle, ( int )key );
+            return InternalIO.glfwGetKey(context.ViewPortHandle, (int)key);
         }
 
-        public void InternalInitialize(
-                    string name,
-                    (int, int, int) cubeSize,
-                    [NotNull]ViewModelBase viewModelBinding )
+        public void InternalInitialize(string name, (int, int, int) cubeSize, [NotNull]ViewModelBase viewModelBinding)
         {
             SelfName = name;
             unitCubeSize = cubeSize;
@@ -170,18 +164,18 @@ namespace StgSharp.MVVM
             context = viewModelBinding.ViewPortBinding;
             time = viewModelBinding.frameTimeProvider;
 
-            CustomizedInitialize( viewModelBinding );
+            CustomizedInitialize(viewModelBinding);
         }
 
-        public abstract bool TryGetObjectReference( string name, out DataBindingEntry entry );
+        public abstract bool TryGetObjectReference(string name, out DataBindingEntry entry);
 
         public void Use()
         {
-            if( usedFrame == 0 )
+            if (usedFrame == 0)
             {
-                if( !ValidateInitialization() ) {
+                if (!ValidateInitialization()) {
                     throw new InvalidOperationException(
-                        "This view is not correctly initialized before rendering." );
+                        "This view is not correctly initialized before rendering.");
                 }
             }
             Show();
@@ -190,10 +184,10 @@ namespace StgSharp.MVVM
 
         public bool ValidateInitialization()
         {
-            return ( _design != null ) &&
-                   ( _render != null ) &&
-                   ( getDataBindingEntry != null ) &&
-                   ( _responder != null ) &&
+            return (_design != null) &&
+                   (_render != null) &&
+                   (getDataBindingEntry != null) &&
+                   (_responder != null) &&
                    _design.ValidateInitializing() &&
                    _responder.ValidateInitializing() &&
                    _render.ValidateInitializing();

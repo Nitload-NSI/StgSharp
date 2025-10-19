@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="glFunction"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -121,8 +121,8 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        ///   Bind a frame BufferHandle to a frame BufferHandle target Same function as <see
-        ///   href="https://docs._gl/gl3/glBindFramebuffer">glBindFramebuffer</see>.
+        ///   Bind a frame BufferHandle to a frame BufferHandle target Same function as <see ///  
+        ///   href="https://docs._gl/gl3/glBindFramebuffer"> glBindFramebuffer </see>.
         /// </summary>
         /// <param _label="target">
         ///   The frame BufferHandle target of the binding operation.
@@ -272,9 +272,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         /// <summary>
-        ///   Delete a render BufferHandle object Very simlilar function as <see
-        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers">glDeleteRenderbuffers</see>. The only
-        ///   deifference is that this mehtod can only delete one renderbuffer at the same time.
+        ///   Delete a render BufferHandle object Very simlilar function as <see ///  
+        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers"> glDeleteRenderbuffers </see>. The
+        ///   only deifference is that this mehtod can only delete one renderbuffer at the same
+        ///   time.
         /// </summary>
         /// <param _label="bufferHandle">
         ///   Handle to BufferHandle to delete.

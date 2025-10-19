@@ -1,33 +1,31 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="MatrixParallel.Publish.cs"
+// file="MatrixParallel.Publish"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
 //     
-// Permission is hereby granted, free of charge, to any person 
-// obtaining a copy of this software and associated documentation 
-// files (the “Software”), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge,
-// publish, distribute, sublicense, and/or sell copies of the Software, 
-// and to permit persons to whom the Software is furnished to do so, 
-// subject to the following conditions:
-//     
-// The above copyright notice and 
-// this permission notice shall be included in all copies 
-// or substantial portions of the Software.
-//     
-// THE SOFTWARE IS PROVIDED “AS IS”, 
-// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-// ARISING FROM, OUT OF OR IN CONNECTION WITH 
-// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Commom.Collections;
 using StgSharp.HighPerformance;
 
 using System;
@@ -822,11 +820,27 @@ namespace StgSharp.Mathematics.Numeric
             int tileWidth = (1024 / secCount) + 1;
             int tileCount = (primCount / tileWidth) + 1;
 
-            int tilePerThreadLess = tileCount / Wraps.Length;
-            int tileToSlice = tileCount % Wraps.Length;
+            CapacityFixedStack<MatrixParallelWrap> wraps = LeadParallel();
 
-            // TODO 这个方法依然是独占，需要一个新的缓存类型用来辅助复用空线程束
-            for (int i = 0; i < Wraps.Length; i++) { }
+            int tilePerThreadLess = tileCount / Wraps.Count;
+            int tileToSlice = tileCount % Wraps.Count;
+            int slicingPerWrap = tileToSlice / Wraps.Count;
+            int extraTiles = tileToSlice % Wraps.Count;
+
+            int total = tileCount;
+            List<MatrixParallelWrap> w = new List<MatrixParallelWrap>(Wraps.Count);
+
+            int baseTile = 0;
+
+            // TODO 干脆用四个掩码分别表示各种部分算了。
+            for (int i = 0; i < Wraps.Count; i++)
+            {
+                MatrixParallelWrap wrap = Wraps.Pop();
+                wrap.WrapTask = (MatrixParallelTaskPackageNonGeneric*)package;
+                wrap.WrapTaskCapacity = tilePerThreadLess + (i < extraTiles ? 1 : 0);
+                wrap.WrapTaskSliceCount = (i * tilePerThreadLess) + Math.Min(i, extraTiles);
+                w.Add(wrap);
+            }
         }
 
     }

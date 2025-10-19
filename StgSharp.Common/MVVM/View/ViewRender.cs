@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ViewRender.cs"
-//     Project: StepVisualizer
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ViewRender"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Graphics;
 
 using StgSharp.HighPerformance;
@@ -44,7 +41,7 @@ namespace StgSharp.MVVM
         protected internal interface IViewRender<out TView> where TView: ViewBase
         {
 
-            RenderStream this[ DataLabel renderName ] { get; }
+            RenderStream this[DataLabel renderName] { get; }
 
             void CustomizedInitialize();
 
@@ -59,24 +56,23 @@ namespace StgSharp.MVVM
         protected abstract class ViewRender<TView> : IViewRender<TView> where TView: ViewBase
         {
 
-            protected ViewRender( TView binding )
+            protected ViewRender(TView binding)
             {
                 _binding = binding;
                 _render = new Dictionary<DataLabel, RenderStream>();
             }
 
-            public RenderStream this[ DataLabel renderName ]
+            public RenderStream this[DataLabel renderName]
             {
-                get => _render.TryGetValue( renderName, out RenderStream stream ) ?
-                        stream : ( null! );
+                get => _render.TryGetValue(renderName, out RenderStream stream) ? stream : (null!);
                 protected set
                 {
-                    if( _render.ContainsKey( renderName ) )
+                    if (_render.ContainsKey(renderName))
                     {
-                        _render[ renderName ] = value;
+                        _render[renderName] = value;
                     } else
                     {
-                        _render.Add( renderName, value );
+                        _render.Add(renderName, value);
                     }
                 }
             }
@@ -85,26 +81,26 @@ namespace StgSharp.MVVM
 
             protected ViewPort ContextBinding => _binding.context;
 
-            protected ViewDesigner<TView> Design => ( _binding.Designer as ViewDesigner<TView> )!;
+            protected ViewDesigner<TView> Design => (_binding.Designer as ViewDesigner<TView>)!;
 
             protected Dictionary<DataLabel, RenderStream> Render
             {
                 get => _render;
             }
 
-            protected ViewResponder<TView> Responder => ( _binding.Responder as ViewResponder<TView> )!;
+            protected ViewResponder<TView> Responder => (_binding.Responder as ViewResponder<TView>)!;
 
             public T CreateRenderStream<T>() where T: RenderStream, new()
             {
                 T ret = new T();
-                ret.Initialize( _binding.context, Binding.TimeProvider );
+                ret.Initialize(_binding.context, Binding.TimeProvider);
                 return ret;
             }
 
-            public T CreateRenderStream<T>( ViewPort vp ) where T: RenderStream, new()
+            public T CreateRenderStream<T>(ViewPort vp) where T: RenderStream, new()
             {
                 T ret = new T();
-                ret.Initialize( vp, Binding.TimeProvider );
+                ret.Initialize(vp, Binding.TimeProvider);
                 return ret;
             }
 
@@ -112,7 +108,7 @@ namespace StgSharp.MVVM
 
             public IEnumerator<ViewPort> GetEnumerator()
             {
-                foreach( RenderStream item in Render.Values ) {
+                foreach (RenderStream item in Render.Values) {
                     yield return item.BindedViewPortContext;
                 }
             }

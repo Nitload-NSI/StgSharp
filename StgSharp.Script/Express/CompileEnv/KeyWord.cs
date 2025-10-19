@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="KeyWord.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="KeyWord"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,16 +43,16 @@ namespace StgSharp.Script.Express
         {
             _keywordSet = new();
 
-            FieldInfo[] fields = typeof( Keyword ).GetFields( BindingFlags.Public );
+            FieldInfo[] fields = typeof(Keyword).GetFields(BindingFlags.Public);
             ParallelLoopResult result = Parallel.ForEach(
-                fields, static( field ) => {
-                    if( field.FieldType == typeof( string ) && field.GetValue( null ) is string str )
-                    {
-                        _compileStringCache.GetOrAdd( str );
-                        _keywordSet.Add( str );
-                    }
-                } );
-            while( !result.IsCompleted ) { }
+                fields, static(field) => {
+                if (field.FieldType == typeof(string) && field.GetValue(null) is string str)
+                {
+                    _compileStringCache.GetOrAdd(str);
+                    _keywordSet.Add(str);
+                }
+            });
+            while (!result.IsCompleted) { }
         }
 
         public static class Keyword
@@ -65,64 +62,29 @@ namespace StgSharp.Script.Express
                 EndAlias, EndCase, EndConstant, EndEntity, EndFunction, EndIf, EndLocal, EndProcedure, EndRepeat, EndRule, EndSchema, EndSubtypeConstraint, EndType
             };
 
-            public static HashSet<string> Symbols = [
-                Dot, Comma, Semicolon, Colon, Percent, Apostrophe,
-                Backslash, IndexOf, RightBracket, LeftBrace,
-                RightBrace, Pipe, LeftParen, RightParen, LeftAsterisk,
-                Assignment, DoublePipe, ExpSymbol, CommentSingleLine,
-                CommentStart, CommentEnd, InstanceEqual, InstanceNotEqual
-            ];
+            public static HashSet<string> Symbols = [ Dot, Comma, Semicolon, Colon, Percent, Apostrophe, Backslash, IndexOf, RightBracket, LeftBrace, RightBrace, Pipe, LeftParen, RightParen, LeftAsterisk, Assignment, DoublePipe, ExpSymbol, CommentSingleLine, CommentStart, CommentEnd, InstanceEqual, InstanceNotEqual ];
 
-            public static HashSet<string> DataTypes { get; } = [
-                Array, Bag, Binary, Boolean, Enumeration, Integer, List, Logical, Number, Of, Real, Set, String
-            ];
+            public static HashSet<string> DataTypes { get; } = [ Array, Bag, Binary, Boolean, Enumeration, Integer, List, Logical, Number, Of, Real, Set, String ];
 
-            public static HashSet<string> InternalProcess { get; } = [
-                Insert, Remove
-            ];
+            public static HashSet<string> InternalProcess { get; } = [ Insert, Remove ];
 
-            public static HashSet<string> BuiltinFunctions { get; } = [
-                Abs, Acos, Asin, Atan, BLength, Cos, Exists, Exp,
-                Format, HiBound, HiIndex, Length, LoBound, Log,
-                Log2, Log10, LoIndex, Nvl, Odd, Rolesof, Sin,
-                Sizeof, Sqrt, Tan, Typeof, Usedin, Value,
-                ValueIn, ValueUnique
-            ];
+            public static HashSet<string> BuiltinFunctions { get; } = [ Abs, Acos, Asin, Atan, BLength, Cos, Exists, Exp, Format, HiBound, HiIndex, Length, LoBound, Log, Log2, Log10, LoIndex, Nvl, Odd, Rolesof, Sin, Sizeof, Sqrt, Tan, Typeof, Usedin, Value, ValueIn, ValueUnique ];
 
-            public static HashSet<string> Literals { get; } = [
-                QuestionMark, Self, Const, E, Pi, False, True, Unknown
-            ];
+            public static HashSet<string> Literals { get; } = [ QuestionMark, Self, Const, E, Pi, False, True, Unknown ];
 
-            public static HashSet<string> Operators { get; } = [
-                And, AndOr, Div, In, Like, Mod, Not, Or, Xor,
-                Add, Sub, Mul, Slash, Equal, NotEqual,
-                LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual
-            ];
+            public static HashSet<string> Operators { get; } = [ And, AndOr, Div, In, Like, Mod, Not, Or, Xor, Add, Sub, Mul, Slash, Equal, NotEqual, LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual ];
 
-            public static HashSet<string> Aliasing { get; } = [
-                Alias, Renamed
-            ];
+            public static HashSet<string> Aliasing { get; } = [ Alias, Renamed ];
 
-            public static HashSet<string> ModifiersAttributes { get; } = [
-                Abstract, Aggregate, As, BasedOn, By, Escape, Fixed, From, Use, With
-            ];
+            public static HashSet<string> ModifiersAttributes { get; } = [ Abstract, Aggregate, As, BasedOn, By, Escape, Fixed, From, Use, With ];
 
-            public static HashSet<string> QueryReference { get; } = [
-                Query, Reference, Select
-            ];
+            public static HashSet<string> QueryReference { get; } = [ Query, Reference, Select ];
 
-            public static HashSet<string> ConstraintsInheritance { get; } = [
-                Oneof, Optional, Subtype, SubtypeConstraint, Supertype, TotalOver, Unique, Where
-            ];
+            public static HashSet<string> ConstraintsInheritance { get; } = [ Oneof, Optional, Subtype, SubtypeConstraint, Supertype, TotalOver, Unique, Where ];
 
-            public static HashSet<string> Declarations { get; } = [
-                Constant, Derive, Entity, Extensible, Fixed, Function, Generic, 
-                GenericEntity, Inverse, Local, Procedure, Rule, Schema, Type, Var
-            ];
+            public static HashSet<string> Declarations { get; } = [ Constant, Derive, Entity, Extensible, Fixed, Function, Generic, GenericEntity, Inverse, Local, Procedure, Rule, Schema, Type, Var ];
 
-            public static HashSet<string> FlowControl { get; } = [
-                Begin, Case, Else, End, For, If, Otherwise, Repeat, Return, Skip, Then, To, Until, While
-            ];
+            public static HashSet<string> FlowControl { get; } = [ Begin, Case, Else, End, For, If, Otherwise, Repeat, Return, Skip, Then, To, Until, While ];
 
             #region Basic Data Type
 

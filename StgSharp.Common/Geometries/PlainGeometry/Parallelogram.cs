@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="Parallelogram"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -43,12 +43,12 @@ namespace StgSharp.Geometries
         public Parallelogram(float v0x, float v0y, float v1x, float v1y, float v2x, float v2y, float v3x, float v3y)
             : base(v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y)
         {
-        #if DEBUG
-            if( this[ 0 ].Coord + this[ 2 ].Coord != this[ 1 ].Coord + this[ 3 ].Coord )
+            #if DEBUG
+            if (this[0].Coord + this[2].Coord != this[1].Coord + this[3].Coord)
             {
                 InternalIO.InternalWriteLog(
                     "Init of geometry item failed, because four vertices cannot form a rectangle.",
-                    LogType.Warning );
+                    LogType.Warning);
             }
             #endif
         }
@@ -65,12 +65,12 @@ namespace StgSharp.Geometries
                float v3y)
             : base(coordination, v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y)
         {
-        #if DEBUG
-            if( this[ 0 ].Coord + this[ 2 ].Coord != this[ 1 ].Coord + this[ 3 ].Coord )
+            #if DEBUG
+            if (this[0].Coord + this[2].Coord != this[1].Coord + this[3].Coord)
             {
                 InternalIO.InternalWriteLog(
                     "Init of geometry item failed, because four vertices cannot form a rectangle.",
-                    LogType.Warning );
+                    LogType.Warning);
             }
             #endif
         }

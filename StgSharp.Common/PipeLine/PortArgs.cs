@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="PortArgs.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="PortArgs"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,11 +45,11 @@ namespace StgSharp.PipeLine
         private protected PipelineNodeOutPort input;
         private protected SemaphoreSlim formerCompleteSemaphore;
 
-        public PipelineConnector( PipelineNodeOutPort former, PipelineNodeInPort after )
+        public PipelineConnector(PipelineNodeOutPort former, PipelineNodeInPort after)
         {
             this.input = former;
             this.output = after;
-            formerCompleteSemaphore = new SemaphoreSlim( initialCount: 0, maxCount: 1 );
+            formerCompleteSemaphore = new SemaphoreSlim(initialCount:0, maxCount:1);
         }
 
         public IPipeLineConnectionPayload Args
@@ -65,36 +62,36 @@ namespace StgSharp.PipeLine
 
         public PipelineNodeOutPort Input => input;
 
-        public static void SkipAll( Dictionary<string, PipelineConnector> ports )
+        public static void SkipAll(Dictionary<string, PipelineConnector> ports)
         {
-            if( ports == null ) {
+            if (ports == null) {
                 return;
             }
-            foreach( KeyValuePair<string, PipelineConnector> item in ports )
+            foreach (KeyValuePair<string, PipelineConnector> item in ports)
             {
-                if( item.Value != null ) {
+                if (item.Value != null) {
                     item.Value.CompleteAndSkip();
                 }
             }
         }
 
-        public static void WaitAll( Dictionary<string, PipelineConnector> ports )
+        public static void WaitAll(Dictionary<string, PipelineConnector> ports)
         {
-            if( ports == null ) {
+            if (ports == null) {
                 return;
             }
-            foreach( KeyValuePair<string, PipelineConnector> item in ports )
+            foreach (KeyValuePair<string, PipelineConnector> item in ports)
             {
-                if( item.Value != null ) {
+                if (item.Value != null) {
                     item.Value.WaitForStart();
                 }
             }
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void WaitForStart()
         {
-            //Console.WriteLine($"Waiting   \t{input.ContextName}\t->\t{output.ContextName}");
+            // Console.WriteLine($"Waiting   \t{input.ContextName}\t->\t{output.ContextName}");
             formerCompleteSemaphore.Wait();
         }
 
@@ -105,15 +102,15 @@ namespace StgSharp.PipeLine
 
         #region pipline op
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CompleteAndSkip()
         {
-            //Console.WriteLine($"Complete\t{input.Name}\t->\t{output.Name}");
+            // Console.WriteLine($"Complete\t{input.Name}\t->\t{output.Name}");
             formerCompleteSemaphore.Release();
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void CompleteAndWriteData( IPipeLineConnectionPayload args )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void CompleteAndWriteData(IPipeLineConnectionPayload args)
         {
             this.args = args;
             CompleteAndSkip();

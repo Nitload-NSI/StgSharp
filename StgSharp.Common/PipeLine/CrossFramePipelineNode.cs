@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="CrossFramePipelineNode.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="CrossFramePipelineNode"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.PipeLine;
 
 using System;
@@ -41,18 +38,19 @@ namespace StgSharp.PipeLine
     public class CrossFrameOperation : IConvertableToPipelineNode
     {
 
-        private static string[] _inputName = ["TaskIn"];
-        private static string[] _outputName = ["TaskOut"];
+        private static string[] _inputName = [ "TaskIn" ];
+        private static string[] _outputName = [ "TaskOut" ];
         private Action _mainExecution;
         private int currentCount;
         private readonly int cycleCount;
 
-        public CrossFrameOperation( Action startup, int cycleCount )
+        public CrossFrameOperation(Action startup, int cycleCount)
         {
             MainExecution = startup;
-            this.cycleCount = ( cycleCount > 1 ) ?
-                    cycleCount : throw new ArgumentException(
-                        $"{$"The {typeof(CrossFrameOperation).Name} crosses only one cycle, "}{$"please use a {typeof(PipelineNode).Name} instead."}" );
+            this.cycleCount = (cycleCount > 1) ?
+                              cycleCount :
+                              throw new ArgumentException(
+                        $"{$"The {typeof(CrossFrameOperation).Name} crosses only one cycle, "}{$"please use a {typeof(PipelineNode).Name} instead."}");
             this.cycleCount = cycleCount;
             currentCount = cycleCount;
         }
@@ -74,19 +72,19 @@ namespace StgSharp.PipeLine
 
         public void NodeMain(
                     in Dictionary<string, PipelineNodeInPort> input,
-                    in Dictionary<string, PipelineNodeOutPort> output )
+                    in Dictionary<string, PipelineNodeOutPort> output)
         {
-            if( currentCount < cycleCount )
+            if (currentCount < cycleCount)
             {
-                Interlocked.Increment( ref currentCount );
+                Interlocked.Increment(ref currentCount);
             } else
             {
-                Interlocked.Exchange( ref currentCount, 0 );
-                Task.Run( MainExecution );
+                Interlocked.Exchange(ref currentCount, 0);
+                Task.Run(MainExecution);
             }
 
-            //Console.WriteLine(currentCount);
-            PipelineNodeOutPort.SkipAll( output );
+            // Console.WriteLine(currentCount);
+            PipelineNodeOutPort.SkipAll(output);
         }
 
     }

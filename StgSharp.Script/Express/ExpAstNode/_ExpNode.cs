@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="_ExpNode.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="_ExpNode"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using CommunityToolkit.HighPerformance.Buffers;
 
 using System;
@@ -45,7 +42,7 @@ namespace StgSharp.Script.Express
         protected internal ExpNodeFlag _nodeFlag;
         protected internal Token _source;
 
-        protected ExpSyntaxNode( Token source )
+        protected ExpSyntaxNode(Token source)
         {
             _source = source;
             Next = this;
@@ -54,7 +51,7 @@ namespace StgSharp.Script.Express
 
         public bool IsNumber
         {
-            get { return ( _nodeFlag | ExpNodeFlag.BuiltinType_Number ) != 0; }
+            get { return (_nodeFlag | ExpNodeFlag.BuiltinType_Number) != 0; }
         }
 
         public abstract ExpSyntaxNode Left { get; }
@@ -76,7 +73,7 @@ namespace StgSharp.Script.Express
 
         public int Column => _source.Column;
 
-        public long NodeFlag => ( long )_nodeFlag;
+        public long NodeFlag => (long)_nodeFlag;
 
         public string CodeConvertTemplate { get; init; }
 
@@ -85,7 +82,7 @@ namespace StgSharp.Script.Express
             get => _source;
         }
 
-        public void AppendNode( ExpSyntaxNode nextNode )
+        public void AppendNode(ExpSyntaxNode nextNode)
         {
             Next.Previous = nextNode;
             nextNode.Next = Next;
@@ -93,24 +90,24 @@ namespace StgSharp.Script.Express
             Next.Previous = this;
         }
 
-        public static bool IsNullOrEmpty( [AllowNull]ExpSyntaxNode node )
+        public static bool IsNullOrEmpty([AllowNull]ExpSyntaxNode node)
         {
             return  node == ExpEmptyNode._only || node == null;
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static ExpSyntaxNode NonOperation( Token source )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ExpSyntaxNode NonOperation(Token source)
         {
-            return new ExpEmptyNode( source.Line, source.Column );
+            return new ExpEmptyNode(source.Line, source.Column);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public static ExpSyntaxNode NonOperation( int line, int column )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ExpSyntaxNode NonOperation(int line, int column)
         {
-            return new ExpEmptyNode( line, column );
+            return new ExpEmptyNode(line, column);
         }
 
-        public void PrependNode( ExpSyntaxNode previousNode )
+        public void PrependNode(ExpSyntaxNode previousNode)
         {
             Previous.Next = previousNode;
             previousNode.Previous = Previous;
@@ -118,19 +115,17 @@ namespace StgSharp.Script.Express
             previousNode.Next = this;
         }
 
-        public static bool VerifyTypeConvertable( ExpSyntaxNode left, ExpSyntaxNode right )
+        public static bool VerifyTypeConvertable(ExpSyntaxNode left, ExpSyntaxNode right)
         {
             IExpElementSource tLeft = left.EqualityTypeConvert,
                 tRight = right.EqualityTypeConvert;
-            if( tLeft is not ExpInstantiableElement tLeftIns ||
-                tRight is not ExpInstantiableElement tRightIns ) {
+            if (tLeft is not ExpInstantiableElement tLeftIns || tRight is not ExpInstantiableElement tRightIns) {
                 return false;
             }
-            if( ExpInstantiableElement.IsNullOrVoid( tLeftIns ) ||
-                ExpInstantiableElement.IsNullOrVoid( tLeftIns ) ) {
+            if (ExpInstantiableElement.IsNullOrVoid(tLeftIns) || ExpInstantiableElement.IsNullOrVoid(tLeftIns)) {
                 return false;
             }
-            return tLeft.IsConvertable( tRight );
+            return tLeft.IsConvertable(tRight);
         }
 
         private class ExpEmptyNode : ExpSyntaxNode
@@ -138,10 +133,9 @@ namespace StgSharp.Script.Express
 
             internal static readonly ExpEmptyNode _only = new();
 
-            public ExpEmptyNode() : base( Token.Empty ) { }
+            public ExpEmptyNode() : base(Token.Empty) { }
 
-            public ExpEmptyNode( int line, int column )
-                : base( new Token( string.Empty, line, column, TokenFlag.None ) ) { }
+            public ExpEmptyNode(int line, int column) : base(new Token(string.Empty, line, column, TokenFlag.None)) { }
 
             public override ExpInstantiableElement EqualityTypeConvert => ExpInstantiableElement.Void;
 

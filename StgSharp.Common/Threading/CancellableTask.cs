@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="CancellableTask.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="CancellableTask"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,9 +48,9 @@ namespace StgSharp.Threading
             cts = new CancellationTokenSource();
         }
 
-        private protected CancellableTask( Action<CancellationToken> action )
+        private protected CancellableTask(Action<CancellationToken> action)
         {
-            _internalTask = new Task( InternalAction );
+            _internalTask = new Task(InternalAction);
             cts = new CancellationTokenSource();
         }
 
@@ -85,22 +82,22 @@ namespace StgSharp.Threading
 
         // ~CancellableTask()
         // {
-        //     Dispose(disposing: false);
+        // Dispose(disposing: false);
         // }
 
         public void Dispose()
         {
-            Dispose( disposing: true );
-            GC.SuppressFinalize( this );
+            Dispose(disposing:true);
+            GC.SuppressFinalize(this);
         }
 
-        public static CancellableTask Run( Action<CancellationToken> startup )
+        public static CancellableTask Run(Action<CancellationToken> startup)
         {
             CancellableTask ret = new CancellableTask
             {
                 _startup = startup
             };
-            ret._internalTask = Task.Run( ret.InternalAction );
+            ret._internalTask = Task.Run(ret.InternalAction);
             return ret;
         }
 
@@ -109,33 +106,33 @@ namespace StgSharp.Threading
             _internalTask.Wait();
         }
 
-        public static void WaitAll( IEnumerable<CancellableTask> tasks )
+        public static void WaitAll(IEnumerable<CancellableTask> tasks)
         {
             IEnumerable<Task> convertedTasks = tasks.Select<CancellableTask, Task>(
-                ct => ct._internalTask );
-            Task.WaitAll( convertedTasks.ToArray() );
+                ct => ct._internalTask);
+            Task.WaitAll(convertedTasks.ToArray());
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void InternalAction()
         {
-            _startup( Cts.Token );
+            _startup(Cts.Token);
         }
 
-        protected virtual void Dispose( bool disposing )
+        protected virtual void Dispose(bool disposing)
         {
-            if( !disposedValue )
+            if (!disposedValue)
             {
-                if( disposing )
+                if (disposing)
                 {
-                    if( IsCompleted )
+                    if (IsCompleted)
                     {
                         cts.Dispose();
                         _internalTask.Dispose();
                     } else
                     {
                         throw new InvalidOperationException(
-                            "Cannot dispose a cancellable task before completed" );
+                            "Cannot dispose a cancellable task before completed");
                     }
                 }
 
@@ -143,7 +140,7 @@ namespace StgSharp.Threading
             }
         }
 
-        public static implicit operator Task( CancellableTask task )
+        public static implicit operator Task(CancellableTask task)
         {
             return task._internalTask;
         }

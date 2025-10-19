@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="TextureGL.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="TextureGL"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.HighPerformance;
 
 using System;
@@ -46,16 +43,16 @@ namespace StgSharp.Graphics.OpenGL
         private OpenGLFunction _gl;
         internal GlHandle[] _textureHandle;
 
-        internal TextureGL( int count, glRender binding )
+        internal TextureGL(int count, glRender binding)
         {
-            //sourceList = new Image[count];
+            // sourceList = new Image[count];
             this._gl = binding.GL;
-            _textureHandle = _gl.GenTextures( count );
+            _textureHandle = _gl.GenTextures(count);
         }
 
-        public GlHandle this[ int index ]
+        public GlHandle this[int index]
         {
-            get => _textureHandle[ index ];
+            get => _textureHandle[index];
         }
 
         public int Count
@@ -63,7 +60,7 @@ namespace StgSharp.Graphics.OpenGL
             get => _textureHandle.Length;
         }
 
-        //internal Image[] sourceList;
+        // internal Image[] sourceList;
 
         public int IndexOfCurrentTexture
         {
@@ -72,15 +69,15 @@ namespace StgSharp.Graphics.OpenGL
 
         internal OpenGLFunction GL => _gl;
 
-        public void ActivateAs( TextureUnit unit )
+        public void ActivateAs(TextureUnit unit)
         {
-            _gl.ActiveTextureUnit( ( uint )unit );
+            _gl.ActiveTextureUnit((uint)unit);
         }
 
-        public void Bind2D( int index )
+        public void Bind2D(int index)
         {
             currentEditingTextureIndex = index;
-            _gl.BindTexture( glConst.TEXTURE_2D, _textureHandle[ index ] );
+            _gl.BindTexture(glConst.TEXTURE_2D, _textureHandle[index]);
         }
 
         /// <summary>
@@ -92,79 +89,73 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="i">
         ///
         /// </param>
-        public unsafe void LoadTexture( int index, Image i )
+        public unsafe void LoadTexture(int index, Image i)
         {
             byte[] handle = i.PixelBuffer;
             _gl.TextureImage2d(
-                Texture2DTarget.Texture2D, 0, i.Channel, ( uint )i.Width, ( uint )i.Height,
-                i.Channel, i.PixelLayout, pixels: handle );
-            _gl.GenerateMipmap( Texture2DTarget.Texture2D );
+                Texture2DTarget.Texture2D, 0, i.Channel, (uint)i.Width, (uint)i.Height, i.Channel, i.PixelLayout,
+                pixels:handle);
+            _gl.GenerateMipmap(Texture2DTarget.Texture2D);
         }
 
         #region texture setting
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void Set2dFilterProperty(
-                    int index,
-                    TextureFilter onMinify,
-                    TextureFilter onMagnify )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Set2dFilterProperty(int index, TextureFilter onMinify, TextureFilter onMagnify)
         {
             #if DEBUG
-            if( index != currentEditingTextureIndex )
+            if (index != currentEditingTextureIndex)
             {
                 throw new InvalidOperationException(
-                    "Texture to be editted is not the one being activated." );
+                    "Texture to be editted is not the one being activated.");
             }
             #endif
-            _gl.TextureParameter( glConst.TEXTURE_2D, glConst.TEXTURE_MIN_FILTER, ( int )onMinify );
-            _gl.TextureParameter( glConst.TEXTURE_2D, glConst.TEXTURE_MAG_FILTER,
-                                  ( int )onMagnify );
+            _gl.TextureParameter(glConst.TEXTURE_2D, glConst.TEXTURE_MIN_FILTER, (int)onMinify);
+            _gl.TextureParameter(glConst.TEXTURE_2D, glConst.TEXTURE_MAG_FILTER,
+                                  (int)onMagnify);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void Set2dWrapProperty(
-                    int index,
-                    TextureWrap onHorizontial,
-                    TextureWrap onVertical )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Set2dWrapProperty(int index, TextureWrap onHorizontial, TextureWrap onVertical)
         {
             #if DEBUG
-            if( index != currentEditingTextureIndex )
+            if (index != currentEditingTextureIndex)
             {
                 throw new InvalidOperationException(
-                    "Texture to be editted is not the one being activated." );
+                    "Texture to be editted is not the one being activated.");
             }
             #endif
-            _gl.TextureParameter( glConst.TEXTURE_2D, glConst.TEXTURE_WRAP_S,
-                                  ( int )onHorizontial );
-            _gl.TextureParameter( glConst.TEXTURE_2D, glConst.TEXTURE_WRAP_T, ( int )onVertical );
+            _gl.TextureParameter(glConst.TEXTURE_2D, glConst.TEXTURE_WRAP_S,
+                                  (int)onHorizontial);
+            _gl.TextureParameter(glConst.TEXTURE_2D, glConst.TEXTURE_WRAP_T, (int)onVertical);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void Set2dProperty( int index, TextureProperty property )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Set2dProperty(int index, TextureProperty property)
         {
-            Set2dFilterProperty( index, property.FilterOnMinify, property.FilterOnMagnify );
-            Set2dWrapProperty( index, property.WrapOnHorizontial, property.WrapOnVertical );
+            Set2dFilterProperty(index, property.FilterOnMinify, property.FilterOnMagnify);
+            Set2dWrapProperty(index, property.WrapOnHorizontial, property.WrapOnVertical);
         }
 
         #endregion texture setting
     }
 
-    [StructLayout( LayoutKind.Explicit )]
+    [StructLayout(LayoutKind.Explicit)]
     public struct TextureProperty
     {
 
-        [FieldOffset( 0 )] private M128 mask;
-        [FieldOffset( 0 )] private TextureFilter mag;
-        [FieldOffset( 4 )] private TextureFilter min;
+        [FieldOffset(0)] private M128 mask;
+        [FieldOffset(0)] private TextureFilter mag;
+        [FieldOffset(4)] private TextureFilter min;
 
-        [FieldOffset( 8 )] private  TextureWrap hori;
-        [FieldOffset( 12 )] private TextureWrap vert;
+        [FieldOffset(8)] private  TextureWrap hori;
+        [FieldOffset(12)] private TextureWrap vert;
 
         public TextureProperty(
                TextureFilter onMagnify,
                TextureFilter onMinify,
                TextureWrap onHorizontial,
-               TextureWrap onVertical )
+               TextureWrap onVertical)
         {
             FilterOnMagnify = onMagnify;
             FilterOnMinify = onMinify;
@@ -196,15 +187,15 @@ namespace StgSharp.Graphics.OpenGL
             set => vert = value;
         }
 
-        public override bool Equals( [NotNullWhen( true )] object obj )
+        public override bool Equals([NotNullWhen(true)] object obj)
         {
-            return base.Equals( obj );
+            return base.Equals(obj);
         }
 
         public override int GetHashCode()
         {
             return HashCode.Combine(
-                FilterOnMagnify, FilterOnMagnify, WrapOnHorizontial, WrapOnVertical );
+                FilterOnMagnify, FilterOnMagnify, WrapOnHorizontial, WrapOnVertical);
         }
 
         public override string ToString()
@@ -212,12 +203,12 @@ namespace StgSharp.Graphics.OpenGL
             return $"FilterOnMagnify:{FilterOnMagnify}, " + $"FilterOnMagnify:{FilterOnMagnify}, " + $"WrapOnHorizontial:{WrapOnHorizontial}, " + $"WrapOnVertical:{WrapOnVertical}";
         }
 
-        public static bool operator !=( TextureProperty left, TextureProperty right )
+        public static bool operator !=(TextureProperty left, TextureProperty right)
         {
             return left.mask != right.mask;
         }
 
-        public static bool operator ==( TextureProperty left, TextureProperty right )
+        public static bool operator ==(TextureProperty left, TextureProperty right)
         {
             return left.mask == right.mask;
         }
@@ -226,11 +217,11 @@ namespace StgSharp.Graphics.OpenGL
                                         (
             TextureFilter onMagnify, TextureFilter onMinify,
             TextureWrap onHorizontial, TextureWrap onVertical
-            ) propertyValueTuple )
+            ) propertyValueTuple)
         {
             return new TextureProperty(
                 propertyValueTuple.onMagnify, propertyValueTuple.onMinify,
-                propertyValueTuple.onHorizontial, propertyValueTuple.onVertical );
+                propertyValueTuple.onHorizontial, propertyValueTuple.onVertical);
         }
 
     }

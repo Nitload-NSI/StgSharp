@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ISSDSerializable.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ISSDSerializable"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +40,7 @@ namespace StgSharp.Internal
 
         public byte[] GetBytes();
 
-        internal void FromBytes( byte[] stream );
+        internal void FromBytes(byte[] stream);
 
     }
 
@@ -65,16 +62,16 @@ namespace StgSharp.Internal
     public static partial class Serializer
     {
 
-        public static T Deserialize<T>( byte[] stream ) where T: ISSDSerializable
+        public static T Deserialize<T>(byte[] stream) where T: ISSDSerializable
         {
             T serializableObject = Activator.CreateInstance<T>();
-            serializableObject.FromBytes( stream );
+            serializableObject.FromBytes(stream);
             return serializableObject;
         }
 
-        public static string GetNameTail( SerializableTypeCode typeCode )
+        public static string GetNameTail(SerializableTypeCode typeCode)
         {
-            switch( typeCode )
+            switch (typeCode)
             {
                 case SerializableTypeCode.IndexTable:
                     return "_idt";
@@ -93,11 +90,11 @@ namespace StgSharp.Internal
                 case SerializableTypeCode.VirtualFolder:
                     return "_fod";
                 default:
-                    throw new ArgumentException( "Unknown file type" );
+                    throw new ArgumentException("Unknown file type");
             }
         }
 
-        public static byte[] Serialize( ISSDSerializable serializableObject )
+        public static byte[] Serialize(ISSDSerializable serializableObject)
         {
             return serializableObject.GetBytes();
         }

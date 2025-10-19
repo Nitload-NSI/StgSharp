@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="PipelineNodePort.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="PipelineNodePort"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +40,7 @@ namespace StgSharp.PipeLine
 
         private HashSet<PipelineNodeOutPort> _linkerSet = new HashSet<PipelineNodeOutPort>();
 
-        public PipelineNodeInPort( PipelineNode container, string label )
+        public PipelineNodeInPort(PipelineNode container, string label)
         {
             Container = container;
             Label = label;
@@ -59,45 +56,45 @@ namespace StgSharp.PipeLine
 
         internal HashSet<PipelineNodeOutPort> Linkers => _linkerSet;
 
-        public void Connect( PipelineNodeOutPort port )
+        public void Connect(PipelineNodeOutPort port)
         {
-            ArgumentNullException.ThrowIfNull( port );
-            if( _linkerSet.Add( port ) )
+            ArgumentNullException.ThrowIfNull(port);
+            if (_linkerSet.Add(port))
             {
-                port.Linkers.Add( this );
-                Container.Previous.Add( port.Container );
-                port.Container.Next.Add( Container );
+                port.Linkers.Add(this);
+                Container.Previous.Add(port.Container);
+                port.Container.Next.Add(Container);
             }
         }
 
         public IEnumerator<PipelineNode> GetFormerNodes()
         {
-            foreach( PipelineNodeOutPort port in _linkerSet ) {
+            foreach (PipelineNodeOutPort port in _linkerSet) {
                 yield return port.Container;
             }
         }
 
         public void Wait()
         {
-            PipelineNodeOutPort.WaitAll( _linkerSet );
+            PipelineNodeOutPort.WaitAll(_linkerSet);
         }
 
-        public static void WaitAll( IDictionary<string, PipelineNodeInPort> ports )
+        public static void WaitAll(IDictionary<string, PipelineNodeInPort> ports)
         {
-            if( ports is null ) {
+            if (ports is null) {
                 return;
             }
-            foreach( PipelineNodeInPort port in ports.Values ) {
+            foreach (PipelineNodeInPort port in ports.Values) {
                 port.Wait();
             }
         }
 
-        public static void WaitAll( IEnumerable<PipelineNodeInPort> ports )
+        public static void WaitAll(IEnumerable<PipelineNodeInPort> ports)
         {
-            if( ports is null ) {
+            if (ports is null) {
                 return;
             }
-            foreach( PipelineNodeInPort port in ports ) {
+            foreach (PipelineNodeInPort port in ports) {
                 port.Wait();
             }
         }
@@ -111,11 +108,11 @@ namespace StgSharp.PipeLine
         private volatile int _passCount;
         private SemaphoreSlim formerCompleteSemaphore;
 
-        public PipelineNodeOutPort( PipelineNode container, string label )
+        public PipelineNodeOutPort(PipelineNode container, string label)
         {
             Container = container;
             Label = label;
-            formerCompleteSemaphore = new SemaphoreSlim( initialCount: 0, maxCount: 1 );
+            formerCompleteSemaphore = new SemaphoreSlim(initialCount:0, maxCount:1);
         }
 
         public PipelineNode Container { get; init; }
@@ -126,20 +123,20 @@ namespace StgSharp.PipeLine
 
         private SemaphoreSlim Waiter => formerCompleteSemaphore;
 
-        public void Connect( PipelineNodeInPort port )
+        public void Connect(PipelineNodeInPort port)
         {
-            ArgumentNullException.ThrowIfNull( port );
-            if( _linkerSet.Add( port ) )
+            ArgumentNullException.ThrowIfNull(port);
+            if (_linkerSet.Add(port))
             {
-                port.Linkers.Add( this );
-                Container.Next.Add( port.Container );
-                port.Container.Previous.Add( Container );
+                port.Linkers.Add(this);
+                Container.Next.Add(port.Container);
+                port.Container.Previous.Add(Container);
             }
         }
 
         public void Release()
         {
-            if( _passCount == 0 )
+            if (_passCount == 0)
             {
                 Waiter.Release();
             } else
@@ -148,27 +145,27 @@ namespace StgSharp.PipeLine
             }
         }
 
-        public static void SkipAll( Dictionary<string, PipelineNodeOutPort> ports )
+        public static void SkipAll(Dictionary<string, PipelineNodeOutPort> ports)
         {
-            if( ports is null ) {
+            if (ports is null) {
                 return;
             }
-            foreach( PipelineNodeOutPort port in ports.Values ) {
+            foreach (PipelineNodeOutPort port in ports.Values) {
                 port.Release();
             }
         }
 
-        public void TransmitValue( IPipeLineConnectionPayload value )
+        public void TransmitValue(IPipeLineConnectionPayload value)
         {
-            foreach( PipelineNodeInPort item in _linkerSet ) { }
+            foreach (PipelineNodeInPort item in _linkerSet) { }
         }
 
-        public static void WaitAll( IEnumerable<PipelineNodeOutPort> ports )
+        public static void WaitAll(IEnumerable<PipelineNodeOutPort> ports)
         {
-            if( ports is null ) {
+            if (ports is null) {
                 return;
             }
-            foreach( PipelineNodeOutPort port in ports ) {
+            foreach (PipelineNodeOutPort port in ports) {
                 port.Wait();
             }
         }
@@ -176,12 +173,12 @@ namespace StgSharp.PipeLine
         internal void Wait()
         {
             Waiter.Wait();
-            if( _passCount >= _linkerSet.Count )
+            if (_passCount >= _linkerSet.Count)
             {
-                Interlocked.Exchange( ref _passCount, 0 );
+                Interlocked.Exchange(ref _passCount, 0);
             } else
             {
-                Interlocked.Increment( ref _passCount );
+                Interlocked.Increment(ref _passCount);
                 Waiter.Release();
             }
         }

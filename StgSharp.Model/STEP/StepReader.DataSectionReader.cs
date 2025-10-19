@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="StepReader.DataSectionReader.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="StepReader.DataSectionReader"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Model.Step;
 using StgSharp.Script;
@@ -53,15 +50,15 @@ namespace StgSharp.Model.Step
 
         internal async void ReadDataSection()
         {
-            using( MemoryMappedViewStream ms = _memoryFile.CreateViewStream(
-                0, _size, MemoryMappedFileAccess.Read ) )
+            using (MemoryMappedViewStream ms = _memoryFile.CreateViewStream(
+                0, _size, MemoryMappedFileAccess.Read))
             {
-                StreamReader sr = new StreamReader( ms );
+                StreamReader sr = new StreamReader(ms);
                 ms.Position = _dataStart;
                 DataTransmitter.Begin = _dataBeginLine;
                 string line;
-                while( !string.IsNullOrEmpty( line = sr.ReadLine()! ) ) {
-                    DataTransmitter.WriteLine( line );
+                while (!string.IsNullOrEmpty(line = sr.ReadLine()!)) {
+                    DataTransmitter.WriteLine(line);
                 }
                 sr.Dispose();
             }
@@ -69,7 +66,7 @@ namespace StgSharp.Model.Step
 
         [GeneratedRegex(
                 @"^#(?<id>[0-9]+)\s*?=\s*?(?<expression>\S.*?)\s*;$",
-                RegexOptions.Compiled | RegexOptions.Singleline )]
+                RegexOptions.Compiled | RegexOptions.Singleline)]
         private static partial Regex GetExpressionSplitter();
 
     }

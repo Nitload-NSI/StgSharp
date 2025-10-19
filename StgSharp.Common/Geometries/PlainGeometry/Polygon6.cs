@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="Polygon6"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,20 @@ namespace StgSharp.Geometries
     public class Polygon6 : PlainGeometry
     {
 
-        internal static int[] Indices = [ 0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5 ];
+        internal static int[] Indices = [
+            0,
+            1,
+            2,
+            0,
+            2,
+            3,
+            0,
+            3,
+            4,
+            0,
+            4,
+            5
+        ];
 
         public Polygon6()
             : base(PlainCoordinate.StandardPlainCoordination)

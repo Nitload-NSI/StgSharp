@@ -1,33 +1,31 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="MatrixParallel.cs"
+// file="MatrixParallel"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-// Permission is hereby granted, free of charge, to any person 
-// obtaining a copy of this software and associated documentation 
-// files (the “Software”), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge,
-// publish, distribute, sublicense, and/or sell copies of the Software, 
-// and to permit persons to whom the Software is furnished to do so, 
-// subject to the following conditions:
-//     
-// The above copyright notice and 
-// this permission notice shall be included in all copies 
-// or substantial portions of the Software.
-//     
-// THE SOFTWARE IS PROVIDED “AS IS”, 
-// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-// ARISING FROM, OUT OF OR IN CONNECTION WITH 
-// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Commom.Collections;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -130,13 +128,13 @@ namespace StgSharp.Mathematics.Numeric
                 {
                     Wraps = [ new MatrixParallelWrap(0, count, true) ];
                     (LargeWrapCount, SmallWrapCount) = (0, 1);
-                    LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps[0]);
+                    LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps.Peek());
                 } else
                 {
                     count = 4;
                     Wraps = [ new MatrixParallelWrap(0, count, true) ];
                     (LargeWrapCount, SmallWrapCount) = (1, 0);
-                    LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps[0]);
+                    LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps.Peek());
                 }
             } else if (count == 6)
             {
@@ -145,19 +143,19 @@ namespace StgSharp.Mathematics.Numeric
                     new MatrixParallelWrap(3, 3, false)
                 ];
                 (LargeWrapCount, SmallWrapCount) = (0, 2);
-                LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps[0]);
+                LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps.Peek());
             } else
             {
                 (int _3wrap, int _4wrap) = FastDecompose(count);
-                Wraps = new MatrixParallelWrap[_4wrap + _3wrap];
-                int id = 0,idx = 0;
+                Wraps = new(_4wrap + _3wrap);
+                int id = 0, idx = 0;
                 for (; idx < _3wrap; idx++, id += 3) {
-                    Wraps[idx] = new MatrixParallelWrap(idx, 3, id == 0);
+                    Wraps.Push(new MatrixParallelWrap(idx, 3, id == 0));
                 }
                 for (; idx < _3wrap + _4wrap; idx++, id += 4) {
-                    Wraps[idx] = new MatrixParallelWrap(id, 4, id == 0);
+                    Wraps.Push(new MatrixParallelWrap(id, 4, id == 0));
                 }
-                LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps[0]);
+                LeaderHandle = new MatrixParallelWrap.Handle(0, Wraps.Peek());
             }
             LeaderTask = LeaderHandle.Wrap.GetWorkerTaskQueue(0);
             IsInitialized = true;
@@ -168,12 +166,6 @@ namespace StgSharp.Mathematics.Numeric
             RemainThreadCount = _threads.Length;
             _AfterWork = (ThreadPriority)afterWork;
             SetAllWrap(wraps);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void LeadParallel()
-        {
-            Monitor.Enter(_lock);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -271,6 +263,17 @@ namespace StgSharp.Mathematics.Numeric
 
             public record class Handle(int InWrapIndex, MatrixParallelWrap Wrap);
 
+            #region wrap task
+
+            internal MatrixParallelTaskPackageNonGeneric* WrapTask { get; set; }
+
+            internal int WrapTaskSliceCount { get; set; }
+
+            internal int WrapTaskCapacity { get; set; }
+
+                #endregion
+
+
             #region ThreadOperation
 
             private static unsafe void MatrixParallelWorker([AllowNull] object obj)
@@ -342,21 +345,39 @@ namespace StgSharp.Mathematics.Numeric
             #endregion
         }
 
+        public enum SleepMode
+        {
+
+            QuickWakeup = ThreadPriority.AboveNormal,
+            NormalSleep = ThreadPriority.BelowNormal,
+            DeepSleep = ThreadPriority.Lowest,
+
+        }
+
         #region wrap field
 
-        private static MatrixParallelWrap[] Wraps;
+        private static CapacityFixedStack<MatrixParallelWrap> Wraps;
         private static int LargeWrapCount;
         private static int SmallWrapCount;
 
-    #endregion
-    }
+        public static CapacityFixedStack<MatrixParallelWrap> LeadParallel()
+        {
+#if NET9_0_OR_GREATER
+#else
+            Monitor.Enter(_lock);
+#endif
+            return Wraps;
+        }
 
-    public enum SleepMode
-    {
+        public static void ReleaseParallelLeadership(ref CapacityFixedStack<MatrixParallelWrap> wraps)
+        {
+#if NET9_0_OR_GREATER
+#else
+            Monitor.Exit(_lock);
+#endif
+            wraps = null!;
+        }
 
-        QuickWakeup = ThreadPriority.AboveNormal,
-        NormalSleep = ThreadPriority.BelowNormal,
-        DeepSleep = ThreadPriority.Lowest,
-
+        #endregion
     }
 }

@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ExpSyntaxAnalyzer.RepeatLoop.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ExpSyntaxAnalyzer.RepeatLoop"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using System;
@@ -49,83 +46,81 @@ namespace StgSharp.Script.Express
         private Dictionary<string, ExpElementInstance> _tempVariableInLoops { get; } 
             = new Dictionary<string, ExpElementInstance>();
 
-        private bool AppendToken_RepeatLoop( Token t )
+        private bool AppendToken_RepeatLoop(Token t)
         {
             RepeatLoopState state = _cache.StateOfCurrentDepth<RepeatLoopState>();
-            if( state == null )
+            if (state == null)
             {
-                state = new RepeatLoopState( t );
+                state = new RepeatLoopState(t);
                 _cache.CurrentDepthMark.StateCache = state;
                 state.CurrentState = t.Value;
                 return true;
             }
-            switch( state.CurrentState )
+            switch (state.CurrentState)
             {
                 case ExpKeyword.Repeat:
-                    return TryParseRepeatVariable( state, t );
+                    return TryParseRepeatVariable(state, t);
                 case ExpKeyword.To:
-                    return TryParseRepeatEnding( state, t );
+                    return TryParseRepeatEnding(state, t);
                 case ExpKeyword.By:
-                    return TryParseRepeatVariable( state, t );
+                    return TryParseRepeatVariable(state, t);
                 case ExpKeyword.Until:
-                    return TryParseRepeatUntilRegulation( state, t );
+                    return TryParseRepeatUntilRegulation(state, t);
                 case ExpKeyword.Assignment:
-                    return TryParseRepeatBeginning( state, t );
+                    return TryParseRepeatBeginning(state, t);
                 case ExpKeyword.While:
-                    return TryParseRepeatWhileRegulation( state, t );
+                    return TryParseRepeatWhileRegulation(state, t);
                 case ExpKeyword.Semicolon:
-                    if( t.Value != ExpKeyword.EndRepeat )
+                    if (t.Value != ExpKeyword.EndRepeat)
                     {
-                        AppendToken_Common( t );
+                        AppendToken_Common(t);
                         return true;
                     }
                     break;
                 default:
-                    AppendToken_Common( t );
+                    AppendToken_Common(t);
                     return false;
             }
             ExpSyntaxNode root = _cache.PackAllStatements();
             state.Body = root;
             _cache.DecreaseDepth();
-            if( ExpTypeSource.IsNullOrVoid( state.IncrementVariableType ) )
+            if (ExpTypeSource.IsNullOrVoid(state.IncrementVariableType))
             {
                 root = ExpRepeatNode.Create(
-                    state.Position, state.IncrementVariable, state.Begin, state.End,
-                    state.IncrementVariable, state.Body, state.UntilExpression,
-                    state.WhileExpression );
+                    state.Position, state.IncrementVariable, state.Begin, state.End, state.IncrementVariable,
+                    state.Body, state.UntilExpression, state.WhileExpression);
             } else
             {
                 root = ExpRepeatNode.Create(
                     state.Position, state.IncrementVariable.OriginObject, state.Begin, state.End,
-                    state.IncrementVariable, state.Body, state.UntilExpression,
-                    state.WhileExpression );
+                    state.IncrementVariable, state.Body, state.UntilExpression, state.WhileExpression);
             }
-            _cache.StatementsInDepth.Push( root );
-            _tempVariableInLoops.Remove( state.IncrementVariable.CodeConvertTemplate );
+            _cache.StatementsInDepth.Push(root);
+            _tempVariableInLoops.Remove(state.IncrementVariable.CodeConvertTemplate);
             return true;
         }
 
-        private bool TryParseRepeatBeginning( RepeatLoopState state, Token t )
+        private bool TryParseRepeatBeginning(RepeatLoopState state, Token t)
         {
-            switch( t.Value )
+            switch (t.Value)
             {
                 case ExpKeyword.To:
                     state.CurrentState = ExpKeyword.To;
-                    while( _cache.TryPopOperator( out Token op ) ) {
-                        ConvertAndPushOneOperator( op );
+                    while (_cache.TryPopOperator(out Token op)) {
+                        ConvertAndPushOneOperator(op);
                     }
-                    _cache.PopOperand( out _, out ExpSyntaxNode? root );
+                    _cache.PopOperand(out _, out ExpSyntaxNode? root);
                     state.Begin = root;
                     return true;
                 default:
-                    AppendToken_Common( t );
+                    AppendToken_Common(t);
                     return true;
             }
         }
 
-        private bool TryParseRepeatEnding( RepeatLoopState state, Token t )
+        private bool TryParseRepeatEnding(RepeatLoopState state, Token t)
         {
-            switch( t.Value )
+            switch (t.Value)
             {
                 case ExpKeyword.By:
                     state.CurrentState = ExpKeyword.By;
@@ -137,20 +132,20 @@ namespace StgSharp.Script.Express
                     state.CurrentState = ExpKeyword.While;
                     break;
                 default:
-                    AppendToken_Common( t );
+                    AppendToken_Common(t);
                     return true;
             }
-            while( _cache.TryPopOperator( out Token op ) ) {
-                ConvertAndPushOneOperator( op );
+            while (_cache.TryPopOperator(out Token op)) {
+                ConvertAndPushOneOperator(op);
             }
-            _cache.PopOperand( out _, out ExpSyntaxNode? root );
+            _cache.PopOperand(out _, out ExpSyntaxNode? root);
             state.End = root;
             return true;
         }
 
-        private bool TryParseRepeatIncrement( RepeatLoopState state, Token t )
+        private bool TryParseRepeatIncrement(RepeatLoopState state, Token t)
         {
-            switch( t.Value )
+            switch (t.Value)
             {
                 case ExpKeyword.Semicolon:
                     state.CurrentState = ExpKeyword.Semicolon;
@@ -162,39 +157,39 @@ namespace StgSharp.Script.Express
                     state.CurrentState = ExpKeyword.While;
                     break;
                 default:
-                    AppendToken_Common( t );
+                    AppendToken_Common(t);
                     return true;
             }
-            while( _cache.TryPopOperator( out Token op ) ) {
-                ConvertAndPushOneOperator( op );
+            while (_cache.TryPopOperator(out Token op)) {
+                ConvertAndPushOneOperator(op);
             }
-            _cache.PopOperand( out _, out ExpSyntaxNode? root );
+            _cache.PopOperand(out _, out ExpSyntaxNode? root);
             state.StepIncrement = root;
             return true;
         }
 
-        private bool TryParseRepeatUntilRegulation( RepeatLoopState state, Token t )
+        private bool TryParseRepeatUntilRegulation(RepeatLoopState state, Token t)
         {
-            switch( t.Value )
+            switch (t.Value)
             {
                 case ExpKeyword.Semicolon:
                     state.CurrentState = ExpKeyword.Semicolon;
                     break;
                 default:
-                    AppendToken_Common( t );
+                    AppendToken_Common(t);
                     return true;
             }
-            while( _cache.TryPopOperator( out Token op ) ) {
-                ConvertAndPushOneOperator( op );
+            while (_cache.TryPopOperator(out Token op)) {
+                ConvertAndPushOneOperator(op);
             }
-            _cache.PopOperand( out _, out ExpSyntaxNode? root );
+            _cache.PopOperand(out _, out ExpSyntaxNode? root);
             state.UntilExpression = root;
             return true;
         }
 
-        private bool TryParseRepeatVariable( RepeatLoopState state, Token t )
+        private bool TryParseRepeatVariable(RepeatLoopState state, Token t)
         {
-            switch( t.Value )
+            switch (t.Value)
             {
                 case ExpKeyword.Integer:
                     state.IncrementVariableType = ExpressCompile.ExpInt;
@@ -207,48 +202,47 @@ namespace StgSharp.Script.Express
                     state.CurrentState = ExpKeyword.Assignment;
                     return true;
                 default:
-                    if( ExpTypeSource.IsNullOrVoid( state.IncrementVariableType ) )
+                    if (ExpTypeSource.IsNullOrVoid(state.IncrementVariableType))
                     {
-                        if( ( _local.TryGetMember( t.Value,
-                                                   out ExpSyntaxNode? node ) &&
-                              node is ExpElementInstance instance ) ||
-                            _tempVariableInLoops.TryGetValue( t.Value, out instance ) )
+                        if ((_local.TryGetMember(t.Value,
+                                                   out ExpSyntaxNode? node) &&
+                             node is ExpElementInstance instance) ||
+                            _tempVariableInLoops.TryGetValue(t.Value, out instance))
                         {
                             state.IncrementVariable = ExpInstanceReferenceNode.MakeReferenceFrom(
-                                t, instance );
+                                t, instance);
                             return true;
                         } else
                         {
                             throw new ExpInvalidSyntaxException(
-                                $"Variable {t.Value} is not declared or initialized." );
+                                $"Variable {t.Value} is not declared or initialized.");
                         }
                     } else
                     {
-                        ExpElementInstance variable = state.IncrementVariableType
-                                                           .CreateInstanceNode( t );
-                        _tempVariableInLoops.Add( t.Value, variable );
+                        ExpElementInstance variable = state.IncrementVariableType.CreateInstanceNode(t);
+                        _tempVariableInLoops.Add(t.Value, variable);
                         state.IncrementVariable = ExpInstanceReferenceNode.MakeReferenceFrom(
-                            t, variable );
+                            t, variable);
                         return true;
                     }
             }
         }
 
-        private bool TryParseRepeatWhileRegulation( RepeatLoopState state, Token t )
+        private bool TryParseRepeatWhileRegulation(RepeatLoopState state, Token t)
         {
-            switch( t.Value )
+            switch (t.Value)
             {
                 case ExpKeyword.Until:
                     state.CurrentState = ExpKeyword.Until;
                     break;
                 default:
-                    AppendToken_Common( t );
+                    AppendToken_Common(t);
                     return true;
             }
-            while( _cache.TryPopOperator( out Token op ) ) {
-                ConvertAndPushOneOperator( op );
+            while (_cache.TryPopOperator(out Token op)) {
+                ConvertAndPushOneOperator(op);
             }
-            _cache.PopOperand( out _, out ExpSyntaxNode? root );
+            _cache.PopOperand(out _, out ExpSyntaxNode? root);
             state.WhileExpression = root;
             return true;
         }
@@ -256,7 +250,7 @@ namespace StgSharp.Script.Express
         private class RepeatLoopState : ICompileDepthState
         {
 
-            public RepeatLoopState( Token t )
+            public RepeatLoopState(Token t)
             {
                 Position = t;
                 UntilExpression = ExpSyntaxNode.Empty;

@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ViewDesigner.cs"
-//     Project: StepVisualizer
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ViewDesigner"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Controlling.UsrActivity;
 using StgSharp.Controls;
 using StgSharp.Geometries;
@@ -69,7 +66,7 @@ namespace StgSharp.MVVM
             private List<ControllingItem> _controlList;
             protected TView _binding;
 
-            public ViewDesigner( TView binding )
+            public ViewDesigner(TView binding)
             {
                 _binding = binding;
                 _controlList = new List<ControllingItem>();
@@ -84,23 +81,23 @@ namespace StgSharp.MVVM
                                            int length,
                                            char blankFilling,
                                            PlainGeometryMesh tittle,
-                                           IEnumerable<(char, PlainGeometryMesh)> charList )
+                                           IEnumerable<(char, PlainGeometryMesh)> charList)
             {
                 CharacterLineIndexImage ret = new CharacterLineIndexImage(
-                    length, blankFilling, tittle, charList );
-                _controlList.Add( ret );
+                    length, blankFilling, tittle, charList);
+                _controlList.Add(ret);
                 return ret;
             }
 
             public TriggerButton CreateKeyboardButton(
                                  Rectangle bonding,
                                  TextureProvider defaultAnimation,
-                                 bool isEnable )
+                                 bool isEnable)
             {
                 TriggerButton ret = new TriggerButton();
                 ret.BoundingBox = bonding;
                 ret.Texture = defaultAnimation;
-                if( isEnable )
+                if (isEnable)
                 {
                     ret.IsDisabled = false;
                     ret.Enable();
@@ -109,7 +106,7 @@ namespace StgSharp.MVVM
                     ret.IsDisabled = true;
                     ret.Disable();
                 }
-                currentButtonGroup.AddButton( ret );
+                currentButtonGroup.AddButton(ret);
                 return ret;
             }
 
@@ -118,17 +115,17 @@ namespace StgSharp.MVVM
                                 IClickTrigger rightBinding,
                                 IClickTrigger upBinding,
                                 IClickTrigger downBinding,
-                                IClickTrigger confirmBinding )
+                                IClickTrigger confirmBinding)
                 where TButtonGroup: KeyboardButtonGroup, new()
             {
                 TButtonGroup ret = new TButtonGroup();
-                _controlList.Add( ret );
+                _controlList.Add(ret);
                 currentButtonGroup = ret;
-                _binding.Responder[ leftBidning ] = ret.MoveLeft;
-                _binding.Responder[ rightBinding ] = ret.MoveRight;
-                _binding.Responder[ upBinding ] = ret.MoveUp;
-                _binding.Responder[ downBinding ] = ret.MoveDown;
-                _binding.Responder[ confirmBinding ] = ret.Confirm;
+                _binding.Responder[leftBidning] = ret.MoveLeft;
+                _binding.Responder[rightBinding] = ret.MoveRight;
+                _binding.Responder[upBinding] = ret.MoveUp;
+                _binding.Responder[downBinding] = ret.MoveDown;
+                _binding.Responder[confirmBinding] = ret.Confirm;
                 return ret;
             }
 

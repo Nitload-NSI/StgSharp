@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ExpElementInstance.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ExpElementInstance"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,8 +53,8 @@ namespace StgSharp.Script.Express
     public abstract class ExpElementInstance : ExpSyntaxNode
     {
 
-        protected ExpElementInstance( Token source )
-            : base( source )
+        protected ExpElementInstance(Token source)
+            : base(source)
         {
             CodeConvertTemplate = source.Value;
         }
@@ -72,61 +69,61 @@ namespace StgSharp.Script.Express
 
         public abstract string TypeName { get; }
 
-        public static ExpElementInstance CreateLiteral( Token t )
+        public static ExpElementInstance CreateLiteral(Token t)
         {
-            if( int.TryParse( t.Value, out int _int ) )
+            if (int.TryParse(t.Value, out int _int))
             {
-                return new ExpIntNode( t, _int, true );
-            } else if( float.TryParse( t.Value, out float _float ) )
+                return new ExpIntNode(t, _int, true);
+            } else if (float.TryParse(t.Value, out float _float))
             {
-                return new ExpRealNumberNode( t, _float, true );
-            } else if( bool.TryParse( t.Value, out bool _bool ) )
+                return new ExpRealNumberNode(t, _float, true);
+            } else if (bool.TryParse(t.Value, out bool _bool))
             {
-                return new ExpBoolNode( t, _bool, true );
-            } else if( ExpLogic.TryParse( t.Value, out ExpLogic _logic ) )
+                return new ExpBoolNode(t, _bool, true);
+            } else if (ExpLogic.TryParse(t.Value, out ExpLogic _logic))
             {
-                return new ExpLogicValueNode( t, _logic, true );
+                return new ExpLogicValueNode(t, _logic, true);
             } else
             {
-                return new ExpStringNode( t, t.Value, true );
+                return new ExpStringNode(t, t.Value, true);
             }
         }
 
-        public ExpInstanceReferenceNode MakeReference( Token t )
+        public ExpInstanceReferenceNode MakeReference(Token t)
         {
-            return new ExpInstanceReferenceNode( t, this );
+            return new ExpInstanceReferenceNode(t, this);
         }
 
-        public static bool TryCreateLiteral( Token t, out ExpElementInstance instance )
+        public static bool TryCreateLiteral(Token t, out ExpElementInstance instance)
         {
-            if( int.TryParse( t.Value, out int _int ) )
+            if (int.TryParse(t.Value, out int _int))
             {
-                instance = new ExpIntNode( t, _int, true );
+                instance = new ExpIntNode(t, _int, true);
                 return true;
-            } else if( float.TryParse( t.Value, out float _float ) )
+            } else if (float.TryParse(t.Value, out float _float))
             {
-                instance = new ExpRealNumberNode( t, _float, true );
+                instance = new ExpRealNumberNode(t, _float, true);
                 return true;
-            } else if( bool.TryParse( t.Value, out bool _bool ) )
+            } else if (bool.TryParse(t.Value, out bool _bool))
             {
-                instance = new ExpBoolNode( t, _bool, true );
+                instance = new ExpBoolNode(t, _bool, true);
                 return true;
-            } else if( ExpLogic.TryParse( t.Value, out ExpLogic _logic ) )
+            } else if (ExpLogic.TryParse(t.Value, out ExpLogic _logic))
             {
-                instance = new ExpLogicValueNode( t, _logic, true );
+                instance = new ExpLogicValueNode(t, _logic, true);
                 return true;
-            } else if( t.Flag == TokenFlag.String )
+            } else if (t.Flag == TokenFlag.String)
             {
-                instance = new ExpStringNode( t, t.Value, true );
+                instance = new ExpStringNode(t, t.Value, true);
                 return true;
             }
             instance = null!;
             return false;
         }
 
-        public bool TryGetMember( string name, out ExpSyntaxNode node )
+        public bool TryGetMember(string name, out ExpSyntaxNode node)
         {
-            return EqualityTypeConvert.TryGetMember( name, out node );
+            return EqualityTypeConvert.TryGetMember(name, out node);
         }
 
     }

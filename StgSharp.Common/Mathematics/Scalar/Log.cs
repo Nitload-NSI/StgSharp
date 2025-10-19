@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="Log.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="Log"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 
 namespace StgSharp.Mathematics
@@ -48,35 +45,35 @@ namespace StgSharp.Mathematics
         /// <returns>
         ///   Returns the value of ln(x).
         /// </returns>
-        public static unsafe float Log( float x )
+        public static unsafe float Log(float x)
         {
-            if( x < 0 ) {
+            if (x < 0) {
                 throw new ArgumentOutOfRangeException();
             }
-            uint input = *( uint* )&x;
+            uint input = *(uint*)&x;
 
-            int f = ( int )input;
+            int f = (int)input;
             f >>= 23;
             f -= 127;
             input <<= 9;
             input >>= 9;
             input += 0b_0011_1111_1000_0000_0000_0000_0000_0000;
-            float result = *( float* )&input;
-            uint order = ( ( uint )( result * 100 ) ) - 100;
+            float result = *(float*)&input;
+            uint order = ((uint)(result * 100)) - 100;
 
-            float cache = ( result / ( 1f + ( 0.01f * order ) ) ) - 1;
-            result = ( cache * ( -0.25f ) ) + 0.3333333333333f;
-            result = ( result * cache ) - 0.5f;
-            result = ( result * cache ) + 1.0f;
+            float cache = (result / (1f + (0.01f * order))) - 1;
+            result = (cache * (-0.25f)) + 0.3333333333333f;
+            result = (result * cache) - 0.5f;
+            result = (result * cache) + 1.0f;
             result *= cache;
 
             return
-                ( f * 0.6931471806f ) + result + logArray[ order ];
+                (f * 0.6931471806f) + result + logArray[order];
         }
 
-        public static float Log( float x, float y )
+        public static float Log(float x, float y)
         {
-            return Log( x ) / Log( y );
+            return Log(x) / Log(y);
         }
 
     }

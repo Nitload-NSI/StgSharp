@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="PipelineScheduler.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="PipelineScheduler"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Stg;
 
 using System;
@@ -54,21 +51,21 @@ namespace StgSharp.PipeLine
 
         private int mtLevel, cLevel,mtIndex, cIndex;
         private List<List<PipelineNode>> _concurrentNodes, _mainThreadNodes ;
-        private SemaphoreSlim runningStat,_concurrentLock = new SemaphoreSlim( 1, 1 );
+        private SemaphoreSlim runningStat,_concurrentLock = new SemaphoreSlim(1, 1);
         internal Dictionary<PipelineNodeLabel, PipelineNode> _allNode;
 
         public PipelineScheduler()
         {
             _allNode = new Dictionary<PipelineNodeLabel, PipelineNode>();
-            runningStat = new SemaphoreSlim( 1, 1 );
-            _beginning = new BeginningNode( this );
-            _ending = new EndingNode( this );
+            runningStat = new SemaphoreSlim(1, 1);
+            _beginning = new BeginningNode(this);
+            _ending = new EndingNode(this);
         }
         /**/
 
-        public PipelineNode this[ PipelineNodeLabel label ]
+        public PipelineNode this[PipelineNodeLabel label]
         {
-            get { return _allNode[ label ]; }
+            get { return _allNode[label]; }
         }
 
         public bool IsRunning
@@ -92,7 +89,7 @@ namespace StgSharp.PipeLine
 
         public PipelineNodeOperation Operation
         {
-            get => ( this as IConvertableToPipelineNode ).NodeMain;
+            get => (this as IConvertableToPipelineNode).NodeMain;
         }
 
         /**/
@@ -102,85 +99,83 @@ namespace StgSharp.PipeLine
             get => runningStat;
         }
 
-        public void AddNode( PipelineNode node, bool isNative )
+        public void AddNode(PipelineNode node, bool isNative)
         {
-            ArgumentNullException.ThrowIfNull( node );
+            ArgumentNullException.ThrowIfNull(node);
             node.IsNative = isNative;
-            _allNode.TryAdd( node.Label, node );
+            _allNode.TryAdd(node.Label, node);
         }
 
         public void ArrangeNodes()
         {
-            if( _isAvailable ) {
+            if (_isAvailable) {
                 return;
             }
             int maxLevel = 1;
             Queue<PipelineNode> completedNodes = new Queue<PipelineNode>();
-            foreach( PipelineNode item in _beginning.Next )
+            foreach (PipelineNode item in _beginning.Next)
             {
-                item.TryIncreaseLevelTo( 1 );
-                completedNodes.Enqueue( item );
+                item.TryIncreaseLevelTo(1);
+                completedNodes.Enqueue(item);
             }
 
-            //calc level of nodes O(V)
-            while( completedNodes.Count > 0 )
+            // calc level of nodes O(V)
+            while (completedNodes.Count > 0)
             {
                 PipelineNode u = completedNodes.Dequeue();
-                foreach( PipelineNode v in u.Next )
+                foreach (PipelineNode v in u.Next)
                 {
-                    if( !v.TryIncreaseLevelTo( u.Level + 1 ) ) {
-                        throw new InvalidOperationException( "Ring in DAG detected." );
+                    if (!v.TryIncreaseLevelTo(u.Level + 1)) {
+                        throw new InvalidOperationException("Ring in DAG detected.");
                     }
-                    if( v.RemainingIncreaseCount == 0 )
+                    if (v.RemainingIncreaseCount == 0)
                     {
-                        completedNodes.Enqueue( v );
-                        maxLevel = int.Max( maxLevel, v.Level );
+                        completedNodes.Enqueue(v);
+                        maxLevel = int.Max(maxLevel, v.Level);
                     }
                 }
             }
 
-            //bucket sort of nodes, O(E)
-            _concurrentNodes = new List<List<PipelineNode>>( maxLevel + 1 );
-            _mainThreadNodes = new List<List<PipelineNode>>( maxLevel + 1 );
-            for( int i = 0; i <= maxLevel; i++ )
+            // bucket sort of nodes, O(E)
+            _concurrentNodes = new List<List<PipelineNode>>(maxLevel + 1);
+            _mainThreadNodes = new List<List<PipelineNode>>(maxLevel + 1);
+            for (int i = 0; i <= maxLevel; i++)
             {
-                _concurrentNodes.Add( [] );
-                _mainThreadNodes.Add( [] );
+                _concurrentNodes.Add([]);
+                _mainThreadNodes.Add([]);
             }
-            foreach( PipelineNode item in _allNode.Values )
+            foreach (PipelineNode item in _allNode.Values)
             {
-                if( item.IsNative )
+                if (item.IsNative)
                 {
-                    _mainThreadNodes[ item.Level ].Add( item );
+                    _mainThreadNodes[item.Level].Add(item);
                 } else
                 {
-                    _concurrentNodes[ item.Level ].Add( item );
+                    _concurrentNodes[item.Level].Add(item);
                 }
             }
-            foreach( List<PipelineNode> item in _concurrentNodes ) {
+            foreach (List<PipelineNode> item in _concurrentNodes) {
                 item.TrimExcess();
             }
-            foreach( List<PipelineNode> item in _mainThreadNodes ) {
+            foreach (List<PipelineNode> item in _mainThreadNodes) {
                 item.TrimExcess();
             }
             _isAvailable = true;
         }
 
-        public PipelineNode Create(
-                            PipelineNodeLabel label,
-                            [NotNull] IConvertableToPipelineNode body )
+        public PipelineNode Create(PipelineNodeLabel label, [NotNull] IConvertableToPipelineNode body)
         {
-            if( _allNode.TryGetValue( label, out PipelineNode? node ) ) {
-                throw new InvalidOperationException( "Label has exist in scheduler." );
+            if (_allNode.TryGetValue(label, out PipelineNode? node)) {
+                throw new InvalidOperationException("Label has exist in scheduler.");
             }
-            node = new PipelineNode( label, body, false );
-            _allNode.Add( label, node );
+            node = new PipelineNode(label, body, false);
+            _allNode.Add(label, node);
             return node;
         }
 
-        public PipelineNode GetNode( PipelineNodeLabel label )
+        public PipelineNode GetNode(PipelineNodeLabel label)
         {
-            if( _allNode.TryGetValue( label, out PipelineNode? node ) )
+            if (_allNode.TryGetValue(label, out PipelineNode? node))
             {
                 return node;
             } else
@@ -189,24 +184,24 @@ namespace StgSharp.PipeLine
             }
         }
 
-        public void LinkToInput( PipelineNodeInPort port )
+        public void LinkToInput(PipelineNodeInPort port)
         {
-            ArgumentNullException.ThrowIfNull( port );
+            ArgumentNullException.ThrowIfNull(port);
             PipelineNodeOutPort p = _beginning.DefaultOut;
-            p.Connect( port );
+            p.Connect(port);
         }
 
-        public void LinkToInput( PipelineNodeInPort port, string inputPortName )
+        public void LinkToInput(PipelineNodeInPort port, string inputPortName)
         {
-            ArgumentNullException.ThrowIfNull( port );
-            PipelineNodeOutPort p = _beginning.DefineCertainOutputPort( inputPortName );
-            p.Connect( port );
+            ArgumentNullException.ThrowIfNull(port);
+            PipelineNodeOutPort p = _beginning.DefineCertainOutputPort(inputPortName);
+            p.Connect(port);
         }
 
-        [MethodImpl( MethodImplOptions.AggressiveInlining )]
-        public void SetInput( params (string label, IPipeLineConnectionPayload arg)[] parameters )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetInput(params (string label, IPipeLineConnectionPayload arg)[] parameters)
         {
-            _beginning.SetInputData( parameters );
+            _beginning.SetInputData(parameters);
         }
 
         public void Terminate()
@@ -218,9 +213,9 @@ namespace StgSharp.PipeLine
 
         public bool TryGetAllNode(
                     out List<List<PipelineNode>> mainThreadNodes,
-                    out List<List<PipelineNode>> concurrentNodes )
+                    out List<List<PipelineNode>> concurrentNodes)
         {
-            if( _isAvailable )
+            if (_isAvailable)
             {
                 mainThreadNodes = _mainThreadNodes;
                 concurrentNodes = _concurrentNodes;
@@ -231,20 +226,20 @@ namespace StgSharp.PipeLine
             return false;
         }
 
-        internal bool RequestNexConcurrentNode( out PipelineNode node )
+        internal bool RequestNexConcurrentNode(out PipelineNode node)
         {
             int index, level;
-            if( cLevel >= _concurrentNodes.Count )
+            if (cLevel >= _concurrentNodes.Count)
             {
                 node = null!;
                 return false;
             }
             _concurrentLock.Wait();
-            while( cIndex >= _concurrentNodes[ cLevel ].Count )
+            while (cIndex >= _concurrentNodes[cLevel].Count)
             {
-                Interlocked.Increment( ref cLevel );
-                Interlocked.Exchange( ref cIndex, 0 );
-                if( cLevel >= _concurrentNodes.Count )
+                Interlocked.Increment(ref cLevel);
+                Interlocked.Exchange(ref cIndex, 0);
+                if (cLevel >= _concurrentNodes.Count)
                 {
                     node = null!;
                     return false;
@@ -252,30 +247,30 @@ namespace StgSharp.PipeLine
             }
             index = cIndex;
             level = cLevel;
-            Interlocked.Increment( ref cIndex );
+            Interlocked.Increment(ref cIndex);
             _concurrentLock.Release();
-            node = _concurrentNodes[ level ][ index ];
+            node = _concurrentNodes[level][index];
             return true;
         }
 
-        internal bool RequestNextMainThreadNode( out PipelineNode node )
+        internal bool RequestNextMainThreadNode(out PipelineNode node)
         {
-            if( mtLevel >= _mainThreadNodes.Count )
+            if (mtLevel >= _mainThreadNodes.Count)
             {
                 node = null!;
                 return false;
             }
-            while( mtIndex >= _mainThreadNodes[ cLevel ].Count )
+            while (mtIndex >= _mainThreadNodes[cLevel].Count)
             {
-                Interlocked.Increment( ref mtLevel );
-                Interlocked.Exchange( ref mtIndex, 0 );
-                if( mtLevel >= _mainThreadNodes.Count )
+                Interlocked.Increment(ref mtLevel);
+                Interlocked.Exchange(ref mtIndex, 0);
+                if (mtLevel >= _mainThreadNodes.Count)
                 {
                     node = null!;
                     return false;
                 }
             }
-            node = _mainThreadNodes[ mtLevel ][ mtIndex ];
+            node = _mainThreadNodes[mtLevel][mtIndex];
             return true;
         }
 
@@ -287,10 +282,10 @@ namespace StgSharp.PipeLine
 
         void IConvertableToPipelineNode.NodeMain(
                                         in Dictionary<string, PipelineNodeInPort> input,
-                                        in Dictionary<string, PipelineNodeOutPort> output )
+                                        in Dictionary<string, PipelineNodeOutPort> output)
         {
-            PipeLineRunner.Run( this );
-            PipelineNodeOutPort.SkipAll( output );
+            PipeLineRunner.Run(this);
+            PipelineNodeOutPort.SkipAll(output);
         }
 
         ~PipelineScheduler()

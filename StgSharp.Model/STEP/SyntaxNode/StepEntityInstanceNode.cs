@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="StepEntityInstanceNode.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="StepEntityInstanceNode"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
@@ -44,7 +41,7 @@ namespace StgSharp.Model.Step
     public class StepEntityInstanceNode : ExpSyntaxNode
     {
 
-        private StepEntityInstanceNode( Token source ) : base( source ) { }
+        private StepEntityInstanceNode(Token source) : base(source) { }
 
         public override ExpSyntaxNode Left => Empty;
 
@@ -54,38 +51,38 @@ namespace StgSharp.Model.Step
 
         public int Id { get; init; }
 
-        public static StepEntityInstanceNode Register( Token t )
+        public static StepEntityInstanceNode Register(Token t)
         {
-            if( t.Value[ 0 ] != '#' ) {
-                throw new ExpInvalidSyntaxException( "Entity label in STEP should be # + number" );
+            if (t.Value[0] != '#') {
+                throw new ExpInvalidSyntaxException("Entity label in STEP should be # + number");
             }
-            StepEntityInstanceNode node = new StepEntityInstanceNode( t )
+            StepEntityInstanceNode node = new StepEntityInstanceNode(t)
             {
-                Id = int.Parse( t.Value.AsSpan( 1 ) ),
+                Id = int.Parse(t.Value.AsSpan(1)),
             };
             return node;
         }
 
-        public static StepEntityInstanceNode RegisterNull( Token t )
+        public static StepEntityInstanceNode RegisterNull(Token t)
         {
-            if( t.Value != "$" ) {
+            if (t.Value != "$") {
                 throw new ExpInvalidSyntaxException(
-                    $"Token {t.Value} does not represent a null entity" );
+                    $"Token {t.Value} does not represent a null entity");
             }
-            StepEntityInstanceNode node = new StepEntityInstanceNode( t )
+            StepEntityInstanceNode node = new StepEntityInstanceNode(t)
             {
                 Id = 0,
             };
             return node;
         }
 
-        public static StepEntityInstanceNode RegisterRuntimeInference( Token t )
+        public static StepEntityInstanceNode RegisterRuntimeInference(Token t)
         {
-            if( t.Value != "*" ) {
+            if (t.Value != "*") {
                 throw new ExpInvalidSyntaxException(
-                    $"Token {t.Value} does not represent a runtime inferences entity" );
+                    $"Token {t.Value} does not represent a runtime inferences entity");
             }
-            StepEntityInstanceNode node = new StepEntityInstanceNode( t )
+            StepEntityInstanceNode node = new StepEntityInstanceNode(t)
             {
                 Id = -1,
             };
@@ -97,9 +94,9 @@ namespace StgSharp.Model.Step
     internal class StepEntityType : ExpTypeSource
     {
 
-        private StepEntityType( string typeName ) : base( typeName ) { }
+        private StepEntityType(string typeName) : base(typeName) { }
 
-        public static StepEntityType Source { get; } = new StepEntityType( "ENTITY" );
+        public static StepEntityType Source { get; } = new StepEntityType("ENTITY");
 
     }
 }

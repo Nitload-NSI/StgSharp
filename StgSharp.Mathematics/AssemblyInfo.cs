@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="OpenGLControllingItemRender"
+// file="AssemblyInfo"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,30 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics.OpenGL;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
-namespace StgSharp.MVVM
-{
-    public class OpenGLControllingItemRender : glRender
-    {
-
-        public override bool IsContextSharable => true;
-
-        protected override void CustomizeDeinit()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void CustomizeInit()
-        {
-            throw new NotImplementedException();
-        }
-
-    }
-}
+[assembly: InternalsVisibleTo("StgSharpDebug")]

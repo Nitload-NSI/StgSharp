@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="glContext.cs"
-//     Project: StepVisualizer
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="glContext"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.HighPerformance;
 using StgSharp.Internal;
 using StgSharp.Internal.Intrinsic;
@@ -40,30 +37,30 @@ using System.Text;
 
 namespace StgSharp.Graphics.OpenGL
 {
-    [StructLayout( LayoutKind.Sequential )]
+    [StructLayout(LayoutKind.Sequential)]
     public struct OpenglContext
     {
 
-        public override bool Equals( object obj )
+        public override bool Equals(object obj)
         {
             return false;
         }
 
         public override unsafe int GetHashCode()
         {
-            fixed( OpenglContext* sptr = &this ) {
+            fixed (OpenglContext* sptr = &this) {
                 return sptr->GetHashCode();
             }
         }
 
-        public static bool operator !=( OpenglContext left, OpenglContext right )
+        public static bool operator !=(OpenglContext left, OpenglContext right)
         {
-            return !( left == right );
+            return !(left == right);
         }
 
-        public static bool operator ==( OpenglContext left, OpenglContext right )
+        public static bool operator ==(OpenglContext left, OpenglContext right)
         {
-            return left.Equals( right );
+            return left.Equals(right);
         }
 
         #region glapi
@@ -208,7 +205,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, IntPtr, UIntPtr, uint, ulong, bool, void> glBufferPageCommitmentMemNV;
         internal unsafe delegate*<uint, uint, int, void> glBufferParameteriAPPLE;
         internal unsafe delegate*<uint, UIntPtr, void*, uint, void> glBufferStorage;
-        [Obsolete( "Param type uncertain", true )] internal unsafe delegate*<uint, IntPtr, UIntPtr, int, uint, void> glBufferStorageExternalEXT;
+        [Obsolete("Param type uncertain", true)] internal unsafe delegate*<uint, IntPtr, UIntPtr, int, uint, void> glBufferStorageExternalEXT;
         internal unsafe delegate*<uint, UIntPtr, uint, ulong, void> glBufferStorageMemEXT;
         internal unsafe delegate*<uint, IntPtr, UIntPtr, void*, void> glBufferSubData;
         internal unsafe delegate*<uint, IntPtr, UIntPtr, void*, void> glBufferSubDataARB;
@@ -1389,7 +1386,7 @@ namespace StgSharp.Graphics.OpenGL
         internal unsafe delegate*<uint, IntPtr, UIntPtr, uint, ulong, bool, void> glNamedBufferPageCommitmentMemNV;
         internal unsafe delegate*<uint, UIntPtr, void*, uint, void> glNamedBufferStorage;
         internal unsafe delegate*<uint, UIntPtr, void*, uint, void> glNamedBufferStorageEXT;
-        [Obsolete( "Param type uncertain", true )] internal unsafe delegate*<uint, IntPtr, UIntPtr, int, uint, void> glNamedBufferStorageExternalEXT;
+        [Obsolete("Param type uncertain", true)] internal unsafe delegate*<uint, IntPtr, UIntPtr, int, uint, void> glNamedBufferStorageExternalEXT;
         internal unsafe delegate*<uint, UIntPtr, uint, ulong, void> glNamedBufferStorageMemEXT;
         internal unsafe delegate*<uint, IntPtr, UIntPtr, void*, void> glNamedBufferSubData;
         internal unsafe delegate*<uint, IntPtr, UIntPtr, void*, void> glNamedBufferSubDataEXT;

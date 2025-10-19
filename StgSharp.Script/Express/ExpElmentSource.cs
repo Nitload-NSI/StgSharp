@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ExpElmentSource.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ExpElmentSource"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,11 +42,11 @@ namespace StgSharp.Script.Express
 
         string Name { get; }
 
-        public void AddMember( string name, ExpSyntaxNode memberNode );
+        public void AddMember(string name, ExpSyntaxNode memberNode);
 
         public void Analyse();
 
-        public bool TryGetMember( string name, out ExpSyntaxNode memberNode );
+        public bool TryGetMember(string name, out ExpSyntaxNode memberNode);
 
     }
 
@@ -70,29 +67,29 @@ namespace StgSharp.Script.Express
 
         public abstract string Name { get; }
 
-        public void AddMember( string name, ExpSyntaxNode memberNode )
+        public void AddMember(string name, ExpSyntaxNode memberNode)
         {
             throw new NotImplementedException();
         }
 
         public abstract void Analyse();
 
-        public abstract ExpSyntaxNode CreateInstanceNode( Token t );
+        public abstract ExpSyntaxNode CreateInstanceNode(Token t);
 
-        public bool IsConvertable( IExpElementSource targetType )
+        public bool IsConvertable(IExpElementSource targetType)
         {
-            if( targetType == null ) {
+            if (targetType == null) {
                 return false;
             }
             throw new NotImplementedException();
         }
 
-        public static bool IsNullOrVoid( ExpInstantiableElement element )
+        public static bool IsNullOrVoid(ExpInstantiableElement element)
         {
             return element == null || element == ExpVoidElement.Only;
         }
 
-        public abstract bool TryGetMember( string name, out ExpSyntaxNode memberNode );
+        public abstract bool TryGetMember(string name, out ExpSyntaxNode memberNode);
 
         private sealed class ExpVoidElement : ExpInstantiableElement
         {
@@ -112,12 +109,12 @@ namespace StgSharp.Script.Express
                 return;
             }
 
-            public override ExpSyntaxNode CreateInstanceNode( Token t )
+            public override ExpSyntaxNode CreateInstanceNode(Token t)
             {
                 return ExpSyntaxNode.Empty;
             }
 
-            public override bool TryGetMember( string name, out ExpSyntaxNode memberNode )
+            public override bool TryGetMember(string name, out ExpSyntaxNode memberNode)
             {
                 memberNode = ExpSyntaxNode.Empty;
                 return false;
@@ -136,21 +133,21 @@ namespace StgSharp.Script.Express
 
         public abstract string Name { get; }
 
-        public void AddMember( string name, ExpSyntaxNode memberNode )
+        public void AddMember(string name, ExpSyntaxNode memberNode)
         {
             throw new NotImplementedException();
         }
 
         public abstract void Analyse();
 
-        public bool IsConvertable( IExpElementSource targetType )
+        public bool IsConvertable(IExpElementSource targetType)
         {
             return false;
         }
 
-        public abstract ExpSyntaxNode MakeReference( params object[] options );
+        public abstract ExpSyntaxNode MakeReference(params object[] options);
 
-        public abstract bool TryGetMember( string name, out ExpSyntaxNode memberNode );
+        public abstract bool TryGetMember(string name, out ExpSyntaxNode memberNode);
 
     }
 }

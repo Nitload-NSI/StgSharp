@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="StepHeaderLineConstructor.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="StepHeaderLineConstructor"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -43,22 +40,22 @@ namespace StgSharp.Model.Step
 
         private static Regex regex = new Regex(
             @"(?<param1>.+?(\)|'\s?\)|'))\s?(?<sepcomma>,)\s?(?<other>(.|\(|\(\s?').+)",
-            RegexOptions.Compiled );
+            RegexOptions.Compiled);
 
         private readonly int _id;
         private readonly List<string> _paramList;
         private string _caller;
 
-        public StepHeaderLineConstructor( int id, string caller, string parameters )
+        public StepHeaderLineConstructor(int id, string caller, string parameters)
         {
             _caller = caller;
             _paramList = new List<string>();
-            SplitParameter( parameters );
+            SplitParameter(parameters);
         }
 
-        public string this[ int paramIndex ]
+        public string this[int paramIndex]
         {
-            get => _paramList[ paramIndex ];
+            get => _paramList[paramIndex];
         }
 
         public ReadOnlyCollection<string> ParamList
@@ -77,24 +74,24 @@ namespace StgSharp.Model.Step
             internal set => _caller = value;
         }
 
-        public static StepHeaderLineConstructor CreateTempExpression( int id )
+        public static StepHeaderLineConstructor CreateTempExpression(int id)
         {
-            return new StepHeaderLineConstructor( id, "TEMPCALLER", string.Empty );
+            return new StepHeaderLineConstructor(id, "TEMPCALLER", string.Empty);
         }
 
-        private void SplitParameter( string parameters )
+        private void SplitParameter(string parameters)
         {
-            if( string.IsNullOrEmpty( parameters ) || string.IsNullOrWhiteSpace( parameters ) ) {
+            if (string.IsNullOrEmpty(parameters) || string.IsNullOrWhiteSpace(parameters)) {
                 return;
             }
-            Match match = regex.Match( parameters );
-            while( match.Success )
+            Match match = regex.Match(parameters);
+            while (match.Success)
             {
-                _paramList.Add( match.Groups[ "param1" ].Value );
-                parameters = match.Groups[ "other" ].Value;
-                match = regex.Match( parameters );
+                _paramList.Add(match.Groups["param1"].Value);
+                parameters = match.Groups["other"].Value;
+                match = regex.Match(parameters);
             }
-            _paramList.Add( parameters );
+            _paramList.Add(parameters);
         }
 
     }

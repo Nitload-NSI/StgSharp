@@ -1,33 +1,30 @@
 ﻿//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="ExpCollection.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="ExpCollection"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -42,7 +39,7 @@ namespace StgSharp.Script.Express
 
         protected internal string _accurateType;
 
-        protected ExpCollectionBase( string accurateType )
+        protected ExpCollectionBase(string accurateType)
         {
             _accurateType = accurateType;
         }
@@ -51,7 +48,7 @@ namespace StgSharp.Script.Express
 
         public abstract int Count { get; }
 
-        public override sealed IScriptSourceProvider SourceProvider => ScriptSourceTransmitter.Empty;
+        public sealed override IScriptSourceProvider SourceProvider => ScriptSourceTransmitter.Empty;
 
         public string MemberType
         {
@@ -65,7 +62,7 @@ namespace StgSharp.Script.Express
 
         public abstract IEnumerator<ExpElementInstance> GetEnumerator();
 
-        public override bool TryGetMember( string name, out ExpSyntaxNode memberNode )
+        public override bool TryGetMember(string name, out ExpSyntaxNode memberNode)
         {
             memberNode = ExpSyntaxNode.Empty;
             return false;
@@ -83,32 +80,32 @@ namespace StgSharp.Script.Express
 
         private ExpElementInstance[] _collection;
 
-        public ExpArray( string accurateType ) : base( accurateType ) { }
+        public ExpArray(string accurateType) : base(accurateType) { }
 
-        public ExpElementInstance this[ int index ]
+        public ExpElementInstance this[int index]
         {
-            get { return _collection[ index ]; }
+            get { return _collection[index]; }
             set
             {
-                if( value.TypeName != MemberType ) {
-                    throw new ExpInvalidCollectionMemberTypeException( value, this );
+                if (value.TypeName != MemberType) {
+                    throw new ExpInvalidCollectionMemberTypeException(value, this);
                 }
-                _collection[ index ] = value;
+                _collection[index] = value;
             }
         }
 
         public override int Count => _collection.Length;
 
-        public override string Name => ExpressCompile.PoolString( "ARRAY" );
+        public override string Name => ExpressCompile.PoolString("ARRAY");
 
-        public override ExpSyntaxNode CreateInstanceNode( Token t )
+        public override ExpSyntaxNode CreateInstanceNode(Token t)
         {
             throw new NotImplementedException();
         }
 
         public override IEnumerator<ExpElementInstance> GetEnumerator()
         {
-            return ( ( IEnumerable<ExpElementInstance> )_collection )
+            return ((IEnumerable<ExpElementInstance>)_collection)
                 .GetEnumerator();
         }
 
@@ -120,13 +117,13 @@ namespace StgSharp.Script.Express
         private ConcurrentBag<ExpElementInstance> _collection = new ConcurrentBag<ExpElementInstance>(
             );
 
-        public ExpBag( string accurateType ) : base( accurateType ) { }
+        public ExpBag(string accurateType) : base(accurateType) { }
 
         public override int Count => _collection.Count;
 
-        public override string Name => ExpressCompile.PoolString( "BAG" );
+        public override string Name => ExpressCompile.PoolString("BAG");
 
-        public override ExpSyntaxNode CreateInstanceNode( Token t )
+        public override ExpSyntaxNode CreateInstanceNode(Token t)
         {
             throw new NotImplementedException();
         }
@@ -143,13 +140,13 @@ namespace StgSharp.Script.Express
 
         private List<ExpElementInstance> _collection = new List<ExpElementInstance>();
 
-        public ExpList( string accurateType ) : base( accurateType ) { }
+        public ExpList(string accurateType) : base(accurateType) { }
 
         public override int Count => _collection.Count;
 
-        public override string Name => ExpressCompile.PoolString( "LIST" );
+        public override string Name => ExpressCompile.PoolString("LIST");
 
-        public override ExpSyntaxNode CreateInstanceNode( Token t )
+        public override ExpSyntaxNode CreateInstanceNode(Token t)
         {
             throw new NotImplementedException();
         }
@@ -166,28 +163,28 @@ namespace StgSharp.Script.Express
 
         private HashSet<ExpElementInstance> _collection = new();
 
-        public ExpSet( string accurateType ) : base( accurateType ) { }
+        public ExpSet(string accurateType) : base(accurateType) { }
 
         public override int Count => _collection.Count;
 
-        public override string Name => ExpressCompile.PoolString( "SET" );
+        public override string Name => ExpressCompile.PoolString("SET");
 
-        public void Add( ExpElementInstance token )
+        public void Add(ExpElementInstance token)
         {
-            if( token.TypeName != MemberType ) {
-                throw new ExpInvalidCollectionMemberTypeException( token, this );
+            if (token.TypeName != MemberType) {
+                throw new ExpInvalidCollectionMemberTypeException(token, this);
             }
-            _collection.Add( token );
+            _collection.Add(token);
         }
 
-        public override ExpSyntaxNode CreateInstanceNode( Token t )
+        public override ExpSyntaxNode CreateInstanceNode(Token t)
         {
             throw new NotImplementedException();
         }
 
-        public override sealed IEnumerator<ExpElementInstance> GetEnumerator()
+        public sealed override IEnumerator<ExpElementInstance> GetEnumerator()
         {
-            return ( ( IEnumerable<ExpElementInstance> )_collection )
+            return ((IEnumerable<ExpElementInstance>)_collection)
                 .GetEnumerator();
         }
 

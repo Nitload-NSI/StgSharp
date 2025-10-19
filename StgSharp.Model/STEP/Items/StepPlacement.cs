@@ -1,33 +1,30 @@
 //-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
-//     file="StepPlacement.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="StepPlacement"
+// Project: StgSharp
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the ¡°Software¡±), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED ¡°AS IS¡±, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using StgSharp.Model.Step;
 using StgSharp.Script;
 using StgSharp.Script.Express;
@@ -41,10 +38,10 @@ namespace StgSharp.Model.Step
 
         private StepCartesianPoint _location;
 
-        public StepPlacement( StepModel model ) : base( model ) { }
+        public StepPlacement(StepModel model) : base(model) { }
 
-        public StepPlacement( StepModel model, StepCartesianPoint location )
-            : base( model )
+        public StepPlacement(StepModel model, StepCartesianPoint location)
+            : base(model)
         {
             _location = location;
         }
@@ -54,20 +51,20 @@ namespace StgSharp.Model.Step
             get { return _location; }
             set
             {
-                ArgumentNullException.ThrowIfNull( value );
+                ArgumentNullException.ThrowIfNull(value);
                 _location = value;
             }
         }
 
-        public void FromInstance( StepPlacement entity )
+        public void FromInstance(StepPlacement entity)
         {
-            base.FromInstance( entity );
+            base.FromInstance(entity);
             this.Location = entity.Location;
         }
 
-        public override bool IsConvertableTo( string entityName )
+        public override bool IsConvertableTo(string entityName)
         {
-            return base.IsConvertableTo( entityName ) || entityName == "StepPlacement";
+            return base.IsConvertableTo(entityName) || entityName == "StepPlacement";
         }
 
     }
