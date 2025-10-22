@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallel.Publish"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Commom.Collections;
+using StgSharp.Collections;
 using StgSharp.HighPerformance;
 
 using System;
@@ -812,7 +812,7 @@ namespace StgSharp.Mathematics.Numeric
             PublicTaskPrivate<T>(package);
         }
 
-        private static unsafe void PublicTaskPrivate<T>(MatrixParallelTaskPackage<T>* package)
+        private static unsafe Stack<MatrixParallelWrap> PublicTaskPrivate<T>(MatrixParallelTaskPackage<T>* package)
             where T: unmanaged, INumber<T>
         {
             int primCount = package->PrimCount;
@@ -820,27 +820,46 @@ namespace StgSharp.Mathematics.Numeric
             int tileWidth = (1024 / secCount) + 1;
             int tileCount = (primCount / tileWidth) + 1;
 
-            CapacityFixedStack<MatrixParallelWrap> wraps = LeadParallel();
+            MatrixParallelPool pool = LeadParallel();
 
-            int tilePerThreadLess = tileCount / Wraps.Count;
-            int tileToSlice = tileCount % Wraps.Count;
-            int slicingPerWrap = tileToSlice / Wraps.Count;
-            int extraTiles = tileToSlice % Wraps.Count;
+            int tilePerThreadLess = tileCount / pool.SpareThreadCount;
+            int tileToSlice = tileCount % pool.SpareThreadCount;
+            int slicingPerWrap = tileToSlice / pool.SpareThreadCount;
+            int extraTiles = tileToSlice % pool.SpareThreadCount;
 
             int total = tileCount;
-            List<MatrixParallelWrap> w = new List<MatrixParallelWrap>(Wraps.Count);
-
-            int baseTile = 0;
-
-            // TODO 干脆用四个掩码分别表示各种部分算了。
-            for (int i = 0; i < Wraps.Count; i++)
+            int begin = 0;
+            Stack<MatrixParallelWrap> taskBunch = new Stack<MatrixParallelWrap>(pool.SpareThreadCount);
+            while (tileCount > 0)
             {
-                MatrixParallelWrap wrap = Wraps.Pop();
-                wrap.WrapTask = (MatrixParallelTaskPackageNonGeneric*)package;
-                wrap.WrapTaskCapacity = tilePerThreadLess + (i < extraTiles ? 1 : 0);
-                wrap.WrapTaskSliceCount = (i * tilePerThreadLess) + Math.Min(i, extraTiles);
-                w.Add(wrap);
+                _ = pool.TryRequestWrap(out MatrixParallelWrap? wrap);
+                bool hasSlice = tileToSlice > 0;
+                bool isLargeSlice = extraTiles > 0;
+
+                // count tiles for wrap
+                // TODO 此处应该是线程数量而不是线程束数量
+                // TODO 需要想办法正确同步线程数量信息
+                int toSlice = hasSlice ? wrap!.WrapTaskCapacity * slicingPerWrap : 0;
+                int baseTile = wrap!.WrapTaskCapacity * tilePerThreadLess;
+                int tileInWrap = baseTile + toSlice + (isLargeSlice ? 1 : 0);
+                int columnInWrap = tileInWrap * tileWidth;
+
+                // set tasks
+                MatrixParallelTaskPackage<T>* task = MatrixParallelFactory.FromExistPackage(package);
+                wrap.WrapTask = (MatrixParallelTaskPackageNonGeneric*)task;
+                task->LeftPrimOffset += columnInWrap;
+                task->PrimCount = columnInWrap;
+
+                // remove tiles count
+                extraTiles--;
+                tileToSlice -= toSlice;
+                tileCount -= tileInWrap;
+                begin += tileInWrap;
+                taskBunch.Push(wrap);
             }
+            ReleaseParallelLeadership(ref pool);
+
+            return taskBunch;
         }
 
     }

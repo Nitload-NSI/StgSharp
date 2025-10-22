@@ -31,7 +31,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace StgSharp.Commom.Collections
+namespace StgSharp.Collections
 {
     [CollectionBuilder(typeof(CapacityFixedStackBuilder), nameof(CapacityFixedStackBuilder.Create))]
     public class CapacityFixedStack<T> : IEnumerable<T>
@@ -72,13 +72,7 @@ namespace StgSharp.Commom.Collections
 
         public T Peek()
         {
-            if (_index >= 0)
-            {
-                return _values[_index];
-            } else
-            {
-                throw new InvalidOperationException("Stack is empty.");
-            }
+            return _index >= 0 ? _values[_index] : throw new InvalidOperationException("Stack is empty.");
         }
 
         public T Pop()
@@ -86,6 +80,7 @@ namespace StgSharp.Commom.Collections
             if (_index >= 0)
             {
                 T item = _values[_index];
+                _index--;
                 return item;
             } else
             {
@@ -95,13 +90,9 @@ namespace StgSharp.Commom.Collections
 
         public void Push(T item)
         {
-            if (_index < _values.Length - 1)
-            {
-                _values[++_index] = item;
-            } else
-            {
-                throw new InvalidOperationException("Stack is full.");
-            }
+            _values[++_index] = _index < _values.Length - 1 ?
+                                item :
+                                throw new InvalidOperationException("Stack is full.");
         }
 
         public void PushRange(ReadOnlySpan<T> span)
@@ -113,6 +104,21 @@ namespace StgSharp.Commom.Collections
             Span<T> sp = _values.AsSpan(_index + 1, span.Length);
             span.CopyTo(sp);
             _index += span.Length;
+        }
+
+        public  bool TryPop(out T value)
+        {
+            if (_index >= 0)
+            {
+                T item = _values[_index];
+                _index--;
+                value = item;
+                return true;
+            } else
+            {
+                value = default!;
+                return false;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

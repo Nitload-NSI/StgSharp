@@ -28,11 +28,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 
-namespace StgSharp.Commom.Collections
+namespace StgSharp.Collections
 {
     public static class CapacityFixedListBuilder
     {

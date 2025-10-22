@@ -32,7 +32,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace StgSharp.Commom.Collections
+namespace StgSharp.Collections
 {
     public sealed class BidirectionalDictionary<TFirst, TSecond> : IBidirectionalDictionary<TFirst, TSecond>
     {

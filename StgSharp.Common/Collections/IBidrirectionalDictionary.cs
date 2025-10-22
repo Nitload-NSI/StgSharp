@@ -30,7 +30,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace StgSharp.Commom.Collections
+namespace StgSharp.Collections
 {
     public interface IBidirectionalDictionary<TFirst, TSecond> : IDictionary<TFirst, TSecond>
     {
