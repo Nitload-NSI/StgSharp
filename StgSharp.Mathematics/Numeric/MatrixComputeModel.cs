@@ -42,21 +42,22 @@ namespace StgSharp.Mathematics.Numeric
             nint l = p->Left, r = p->Right, a = p->Result;
             long
 
+
                 // set beginning value to counters for primary offsets
                 lCount = (long)p->LeftPrimOffset * p->LeftPrimStride,
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = p->PrimCount,
+                pCount = int.Min(p->PrimCount, p->PrimColumnCountInTile + p->PrimTileOffset)/*count of tile may be too much*/,
                 //edge to reset counters
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;
             delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void> op =
                     (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void>)p->ComputeHandle;
-            for (long i = 0; i < pCount; i++)
+            for (long i = p->PrimTileOffset; i < pCount; i++)
             {
                 // update primary counters
-                // if reachs edge, reset to zero
+                // if reaches edge, reset to zero
                 lCount = i < lLimit ? lCount + p->LeftPrimOffset : 0;
                 rCount = i < rLimit ? rCount + p->RightPrimOffset : 0;
                 aCount = i < rLimit ? aCount + p->ResultPrimOffset : 0;
@@ -69,12 +70,12 @@ namespace StgSharp.Mathematics.Numeric
                     lc = (long)p->LeftSecOffset * p->LeftSecStride,
                     rc = (long)p->RightSecOffset * p->RightSecStride,
                     ac = (long)p->ResultSecOffset * p->ResultSecStride,
-                    sCount = p->SecCount;
+                    sCount = int.Min(p->SecCount, p->SecColumnCountInTile + p->SecTileOffset);
                 long
                     ll = sCount - p->LeftSecOffset,
                     rl = sCount - p->RightSecOffset,
                     al = sCount - p->ResultSecOffset;
-                for (int j = 0; j < sCount; j++)
+                for (int j = p->SecTileOffset; j < sCount; j++)
                 {
                     lc = j < ll ? lc + p->LeftSecOffset : 0;
                     rc = j < rl ? rc + p->RightSecOffset : 0;

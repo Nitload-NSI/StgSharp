@@ -114,10 +114,12 @@ namespace StgSharp.Mathematics.Numeric
 
         #endregion
 
-        #region reserve
+        #region count offset
 
-        public readonly long ReservedLong0;         // 8
-        public readonly long ReservedLong1;         // 8
+        public readonly int PrimTileOffset;         // 4
+        public readonly int SecTileOffset;         // 4
+        public readonly int PrimColumnCountInTile;          // 4
+        public readonly int SecColumnCountInTile;           // 4
 
         #endregion
     }
@@ -134,7 +136,11 @@ namespace StgSharp.Mathematics.Numeric
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(MatrixParallelTaskPackage<T>* source, MatrixParallelTaskPackage<T>* target)
         {
-            Buffer.MemoryCopy(source, target, sizeof(MatrixParallelTaskPackage<T>), sizeof(MatrixParallelTaskPackage<T>));
+            Buffer.MemoryCopy(
+                source,
+                target,
+                sizeof(MatrixParallelTaskPackage<T>),
+                sizeof(MatrixParallelTaskPackage<T>));
         }
 
         #region source
@@ -197,10 +203,12 @@ namespace StgSharp.Mathematics.Numeric
 
         #endregion
 
-        #region reserve
+        #region count offset
 
-        public long ReservedLong0;         // 8
-        public long ReservedLong1;         // 8
+        public int PrimTileBegin;          // 4
+        public int SecTileBegin;           // 4
+        public int PrimColumnCountInTile;          // 4
+        public int SecColumnCountInTile;           // 4
 
     #endregion
     }
