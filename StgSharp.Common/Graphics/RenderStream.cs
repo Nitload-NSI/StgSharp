@@ -158,12 +158,12 @@ namespace StgSharp.Graphics
         /**/
         protected internal static void PollEvents()
         {
-            InternalIO.glfwPollEvents();
+            GraphicFramework.glfwPollEvents();
         }
 
         private protected void SwapBuffers()
         {
-            InternalIO.glfwSwapBuffers(CanvasHandle);
+            GraphicFramework.glfwSwapBuffers(CanvasHandle);
         }
 
         /**/
@@ -209,7 +209,7 @@ namespace StgSharp.Graphics
             nativeCamera = new Camera();
             PlatformSpecifiedInitialize();
             CustomizeInit();
-            InternalIO.glfwMakeContextCurrent(IntPtr.Zero);
+            GraphicFramework.glfwMakeContextCurrent(IntPtr.Zero);
         }
 
         internal abstract void PlatformSpecifiedInitialize();

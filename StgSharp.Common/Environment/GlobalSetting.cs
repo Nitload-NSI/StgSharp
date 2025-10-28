@@ -85,7 +85,7 @@ namespace StgSharp
             if (API != GraphicAPI.GL) {
                 return;
             }
-            InternalIO.InternalInitGL(majorVersion, minorVersion);
+            GraphicFramework.InternalInitGL(majorVersion, minorVersion);
         }
 
         public static class GlobalSetting
@@ -98,7 +98,7 @@ namespace StgSharp
                 get => vsyncActivated;
                 set
                 {
-                    InternalIO.glfwSwapInterval(value ? 1 : 0);
+                    GraphicFramework.glfwSwapInterval(value ? 1 : 0);
                     vsyncActivated = value;
                 }
             }

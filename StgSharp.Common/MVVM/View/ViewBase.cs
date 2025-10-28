@@ -153,7 +153,7 @@ namespace StgSharp.MVVM
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public KeyStatus GetKeyStatus(KeyboardKey key)
         {
-            return InternalIO.glfwGetKey(context.ViewPortHandle, (int)key);
+            return GraphicFramework.glfwGetKey(context.ViewPortHandle, (int)key);
         }
 
         public void InternalInitialize(string name, (int, int, int) cubeSize, [NotNull]ViewModelBase viewModelBinding)

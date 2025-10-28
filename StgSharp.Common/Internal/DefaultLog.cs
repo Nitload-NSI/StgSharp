@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="InternalIO"
+// file="DefaultLog"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,62 +25,37 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
-using System.Text;
 using System.Threading;
 
 namespace StgSharp.Internal
 {
-    internal static unsafe partial class InternalIO
+    internal static unsafe partial class DefaultLog
     {
 
         private const long MaxLogFileSize = 10 * 1024 * 1024; // 10 MB
 
-        internal const string NativeLibName =
-            "StgSharp.Native";
-
-        internal const string SS_errorLog =
-            "SS_errorlog.log";
-
         private static LogType _currentLogLevel = LogType.Info;
-
-        internal static Dictionary<TypeCode, uint> GLtype = [];
 
         internal static readonly GCHandle ssc_logHandle =
             GCHandle.Alloc(new byte[512], GCHandleType.Pinned);
 
-        internal static IntPtr _nativeLibPtr = IntPtr.Zero;
-
         internal static SemaphoreSlim logSyncSemaphore = new(1, 1);
-
-        static InternalIO()
-        {
-            GLtype.Add(TypeCode.Single, glConst.FLOAT);
-            GLtype.Add(TypeCode.Int32, glConst.INT);
-            GLtype.Add(TypeCode.UInt32, glConst.UNSIGNED_INT);
-            GLtype.Add(TypeCode.Int16, glConst.SHORT);
-            GLtype.Add(TypeCode.UInt16, glConst.UNSIGNED_SHORT);
-            GLtype.Add(TypeCode.SByte, glConst.BYTE);
-            GLtype.Add(TypeCode.Byte, glConst.UNSIGNED_BYTE);
-        }
 
         internal static void InternalAppendLog(string log)
         {
-            if (!File.Exists(SS_errorLog))
+            if (!File.Exists(Native.LogPath))
             {
-                FileStream stream = File.Create(SS_errorLog);
+                FileStream stream = File.Create(Native.LogPath);
                 stream.Close();
             }
 
-            using (StreamWriter logStream = File.AppendText(SS_errorLog)) {
+            using (StreamWriter logStream = File.AppendText(Native.LogPath)) {
                 logStream.WriteLine(log);
             }
         }
@@ -96,32 +71,32 @@ namespace StgSharp.Internal
             {
                 RotateLogFile();
 
-                if (!File.Exists(SS_errorLog))
+                if (!File.Exists(Native.LogPath))
                 {
-                    FileStream stream = File.Create(SS_errorLog);
+                    FileStream stream = File.Create(Native.LogPath);
                     stream.Close();
                 }
 
-                using (StreamWriter logStream = File.AppendText(SS_errorLog)) {
+                using (StreamWriter logStream = File.AppendText(Native.LogPath)) {
                     logStream.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{logType}] {logLine}");
                 }
             }
             finally
             {
-                logSyncSemaphore.Release();
+                _ = logSyncSemaphore.Release();
             }
         }
 
         internal static void InternalWriteLog(string beforeTime, string logLine, LogType logType)
         {
             logSyncSemaphore.Wait();
-            if (!File.Exists(SS_errorLog))
+            if (!File.Exists(Native.LogPath))
             {
-                FileStream stream = File.Create(SS_errorLog);
+                FileStream stream = File.Create(Native.LogPath);
                 stream.Close();
             }
 
-            using (StreamWriter logStream = File.AppendText(SS_errorLog))
+            using (StreamWriter logStream = File.AppendText(Native.LogPath))
             {
                 logStream.WriteLine(beforeTime);
                 logStream.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{logType}] {logLine}");
@@ -136,13 +111,13 @@ namespace StgSharp.Internal
 
         private static void RotateLogFile()
         {
-            if (File.Exists(SS_errorLog) && new FileInfo(SS_errorLog).Length > MaxLogFileSize)
+            if (File.Exists(Native.LogPath) && new FileInfo(Native.LogPath).Length > MaxLogFileSize)
             {
-                string backupFile = SS_errorLog + ".backup";
+                string backupFile = Native.LogPath + ".backup";
                 if (File.Exists(backupFile)) {
                     File.Delete(backupFile);
                 }
-                File.Move(SS_errorLog, backupFile);
+                File.Move(Native.LogPath, backupFile);
             }
         }
 

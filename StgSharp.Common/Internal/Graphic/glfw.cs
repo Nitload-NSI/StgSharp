@@ -25,24 +25,21 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics;
-
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace StgSharp.Internal
 {
-    internal unsafe partial class InternalIO
+    internal static unsafe partial class GraphicFramework
     {
 
         private static readonly GLFWFunction _glfw = new GLFWFunction();
 
         public static GLFWFunction glfwContext => _glfw;
 
-        [LibraryImport(NativeLibName, EntryPoint = "load_glfw_functions")]
+        [LibraryImport(Native.LibName, EntryPoint = "load_glfw_functions")]
         internal static unsafe partial void glfwLoadLibrary(GLFWFunction* context);
 
         internal static unsafe void LoadGlfw()
@@ -116,14 +113,14 @@ namespace StgSharp.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void glfwGetMonitorWorkarea(
+        internal static unsafe void glfwGetMonitorWorkArea(
                                     IntPtr monitor,
-                                    int* xpos,
-                                    int* ypos,
+                                    int* xPos,
+                                    int* yPos,
                                     int* width,
                                     int* height)
         {
-            _glfw.glfwGetMonitorWorkarea(monitor, xpos, ypos, width, height);
+            _glfw.glfwGetMonitorWorkarea(monitor, xPos, yPos, width, height);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -275,12 +272,12 @@ namespace StgSharp.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe void glfwSetWindowSizeLimits(
                                     IntPtr window,
-                                    int minwidth,
-                                    int minheight,
-                                    int maxwidth,
-                                    int maxheight)
+                                    int minWidth,
+                                    int minHeight,
+                                    int maxWidth,
+                                    int maxHeight)
         {
-            _glfw.glfwSetWindowSizeLimits(window, minwidth, minheight, maxwidth, maxheight);
+            _glfw.glfwSetWindowSizeLimits(window, minWidth, minHeight, maxWidth, maxHeight);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -797,6 +794,12 @@ namespace StgSharp.Internal
         internal static unsafe IntPtr glfwGetProcAddress(string procName)
         {
             return glfwGetProcAddress(Encoding.UTF8.GetBytes(procName));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe IntPtr glfwGetProcAddress(ReadOnlySpan<byte> procName)
+        {
+            return glfwGetProcAddress(procName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

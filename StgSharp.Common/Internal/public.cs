@@ -1,6 +1,6 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Lable"
+// file="public"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -26,43 +26,21 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance
+namespace StgSharp
 {
-    public class DataLabel
+    public enum LogType
     {
 
-        public DataLabel(string labelName)
-        {
-            Name = labelName;
-        }
-
-        public string Name
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get;
-            init;
-        }
-
-        public override unsafe int GetHashCode()
-        {
-            ReadOnlySpan<char> nameSpan = Name.AsSpan();
-            fixed (char* cptr = nameSpan) {
-                return NativeIntrinsic.Intrinsic.city_hash_simplify(cptr, Name.Length);
-            }
-        }
-
-    }
-
-    public static class DataLabelBuilder
-    {
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DataLabel AsLabel(this string name)
-        {
-            return new DataLabel(name);
-        }
+        Error,
+        Warning,
+        Info,
+        InfoError,
+        InfoWarning,
 
     }
 }

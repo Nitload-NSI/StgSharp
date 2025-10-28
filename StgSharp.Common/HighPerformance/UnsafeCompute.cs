@@ -35,19 +35,19 @@ namespace StgSharp.HighPerformance
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe int CityHashSimplify(char* span, int length)
         {
-            return InternalIO.Intrinsic.city_hash_simplify(span, length);
+            return NativeIntrinsic.Intrinsic.city_hash_simplify(span, length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe int CityHashSimplify(char* span, int begin, int length)
         {
-            return InternalIO.Intrinsic.city_hash_simplify(span + begin, length);
+            return NativeIntrinsic.Intrinsic.city_hash_simplify(span + begin, length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe int IndexOfCharPair(char* source, int pairValue, int length)
         {
-            return InternalIO.Intrinsic.index_pair(source, pairValue, length);
+            return NativeIntrinsic.Intrinsic.index_pair(source, pairValue, length);
         }
 
     }

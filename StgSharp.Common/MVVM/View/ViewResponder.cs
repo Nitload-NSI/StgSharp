@@ -116,7 +116,7 @@ namespace StgSharp.MVVM
             {
                 foreach (KeyValuePair<IClickTrigger, Action> pair in keyCallbackIndex)
                 {
-                    if (InternalIO.glfwGetKey(_binding.ViewHandle,
+                    if (GraphicFramework.glfwGetKey(_binding.ViewHandle,
                                                pair.Key.TargetKeyOrButtonID) == pair.Key.TriggeredStatus) {
                         pair.Value();
                     }

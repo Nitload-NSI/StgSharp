@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="publicType"
+// file="Native"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,23 +25,24 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics.OpenGL;
-
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp
+namespace StgSharp.Internal
 {
-    public enum LogType
+    internal static unsafe partial class Native
     {
 
-        Error,
-        Warning,
-        Info,
-        InfoError,
-        InfoWarning,
+        internal const string LibName =
+            "StgSharp.Native";
+
+        internal const string LogPath =
+            "SS_error.log";
+
+        internal static IntPtr _libPtr = IntPtr.Zero;
 
     }
 }

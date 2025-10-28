@@ -71,7 +71,7 @@ namespace StgSharp.Collections
         {
             int hash;
             fixed (char* cPtr = obj.AsSpan()) {
-                hash = InternalIO.Intrinsic.city_hash_simplify(cPtr, obj.Length);
+                hash = NativeIntrinsic.Intrinsic.city_hash_simplify(cPtr, obj.Length);
             }
             return hash;
         }
@@ -129,21 +129,21 @@ namespace StgSharp.Collections
 
         public void ExtendCache(int count)
         {
-            _multiplexers.Value.ExtendCache(count);
+            _multiplexers.Value!.ExtendCache(count);
         }
 
         public unsafe int ForceComputeHash([NotNull] string obj)
         {
             int hash;
             fixed (char* cPtr = obj.AsSpan()) {
-                hash = InternalIO.Intrinsic.city_hash_simplify(cPtr, obj.Length);
+                hash = NativeIntrinsic.Intrinsic.city_hash_simplify(cPtr, obj.Length);
             }
             return hash;
         }
 
         public int GetHashCode(string obj)
         {
-            return _multiplexers.Value.GetHashCode(obj);
+            return _multiplexers.Value!.GetHashCode(obj);
         }
 
         private void Dispose(bool disposing)

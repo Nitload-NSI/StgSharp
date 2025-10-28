@@ -48,7 +48,7 @@ namespace StgSharp
                 if (monitorsArray == null)
                 {
                     int count = 0;
-                    IntPtr* arrayhandle = InternalIO.glfwGetMonitors(&count);
+                    IntPtr* arrayhandle = GraphicFramework.glfwGetMonitors(&count);
                     monitorsArray = new IntPtr[count];
                     Marshal.Copy((IntPtr)arrayhandle, monitorsArray, 0, count);
                     Marshal.FreeHGlobal((IntPtr)arrayhandle);

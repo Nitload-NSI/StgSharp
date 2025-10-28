@@ -116,10 +116,10 @@ namespace StgSharp.Mathematics.Numeric
 
         #region count offset
 
-        public readonly int PrimTileOffset;         // 4
-        public readonly int SecTileOffset;         // 4
-        public readonly int PrimColumnCountInTile;          // 4
-        public readonly int SecColumnCountInTile;           // 4
+        public readonly int PrimTileOffset;          // 4
+        public readonly int SecTileOffset;           // 4
+        public readonly int PrimCountInTile;          // 4
+        public readonly int SecCountInTile;           // 4
 
         #endregion
     }
@@ -205,8 +205,8 @@ namespace StgSharp.Mathematics.Numeric
 
         #region count offset
 
-        public int PrimTileBegin;          // 4
-        public int SecTileBegin;           // 4
+        public int PrimTileOffset;          // 4
+        public int SecTileOffset;           // 4
         public int PrimColumnCountInTile;          // 4
         public int SecColumnCountInTile;           // 4
 

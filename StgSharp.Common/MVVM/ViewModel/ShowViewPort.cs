@@ -61,7 +61,7 @@ namespace StgSharp.MVVM.ViewModel
             fpsCountingToken.TimeSpanRefreshed += CountFps;
             fpsCountingToken.MissTimeSpanRefreshed += CountFps;
             if (_nextView != _currentView) {
-                Interlocked.Exchange(ref _currentView, _nextView);
+                _ = Interlocked.Exchange(ref _currentView, _nextView);
             }
             Thread renderThread = new Thread((token) => {
                 try
@@ -70,7 +70,7 @@ namespace StgSharp.MVVM.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    InternalIO.InternalWriteLog(
+                    DefaultLog.InternalWriteLog(
                             $"Critical error when rendering:\n" + $"{ex}", LogType.Error);
                     ShouldClose = true;
                     throw;
@@ -84,9 +84,9 @@ namespace StgSharp.MVVM.ViewModel
                 while (_closed)
                 {
                     if (_nextView != _currentView) {
-                        Interlocked.Exchange(ref _currentView, _nextView);
+                        _ = Interlocked.Exchange(ref _currentView, _nextView);
                     }
-                    InternalIO.glfwPollEvents();
+                    GraphicFramework.glfwPollEvents();
                     eventAwaitingToken.WaitNextSpan();
                     _closed = !ShouldClose;
                 }
@@ -115,7 +115,7 @@ namespace StgSharp.MVVM.ViewModel
 
         private unsafe void PrivateShow()
         {
-            if (0 == InternalIO.glfwWindowShouldClose(this.viewPortDisplay.ViewPortHandle))
+            if (0 == GraphicFramework.glfwWindowShouldClose(this.viewPortDisplay.ViewPortHandle))
             {
                 CurrentView.Use();
                 RenderStream.PollEvents();

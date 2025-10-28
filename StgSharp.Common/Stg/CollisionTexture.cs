@@ -82,7 +82,7 @@ namespace StgSharp.Stg
             {
                 IGeometry g = item.TypicalShape;
 
-                if (!(g is PlainGeometry)) {
+                if (g is not PlainGeometry) {
                     throw new InvalidOperationException(
                         "The current particle buffer contains non-planar geometry,");
                 }
@@ -135,8 +135,8 @@ namespace StgSharp.Stg
             Shader vertexShader = CreateShaderSegment(ShaderType.Vertex, 1);
             Shader fragmentShader = CreateShaderSegment(ShaderType.Fragment, 1);
 
-            vertexShader.Compile(0, InternalIO.CollisionTextureVertexShader);
-            fragmentShader.Compile(0, InternalIO.CollisionTextureFragmentShader);
+            vertexShader.Compile(0, BuiltInShader.CollisionTextureVertexShader);
+            fragmentShader.Compile(0, BuiltInShader.CollisionTextureFragmentShader);
             vertexShader.AttachTo(0, generatingShader);
             fragmentShader.AttachTo(0, generatingShader);
 
@@ -155,9 +155,9 @@ namespace StgSharp.Stg
 
             t = CreateTexture(1);
             t.Bind2D(0);
-            GL.TextureImage2d<byte>(
-                Texture2DTarget.Texture2D, 0, ImageChannel.WithAlphaChannel, (uint)Width, (uint)Height,
-                ImageChannel.WithAlphaChannel, PixelChannelLayout.Byte, Array.Empty<byte>());
+            GL.TextureImage2d<byte>
+                (Texture2DTarget.Texture2D, 0, ImageChannel.WithAlphaChannel, (uint)Width, (uint)Height
+                 , ImageChannel.WithAlphaChannel, PixelChannelLayout.Byte, Array.Empty<byte>());
 
             t.Set2dWrapProperty(0, TextureWrap.Repeat, TextureWrap.Repeat);
             t.Set2dFilterProperty(0, TextureFilter.Nearest, TextureFilter.Nearest);

@@ -81,7 +81,7 @@ namespace StgSharp.Graphics.OpenGL
         /// </exception>
         public unsafe void MakeAsCurrentContext()
         {
-            InternalIO.glfwMakeContextCurrent(CanvasHandle);
+            GraphicFramework.glfwMakeContextCurrent(CanvasHandle);
             OpenGLFunction.CurrentGL = this.GL;
         }
 
@@ -94,7 +94,7 @@ namespace StgSharp.Graphics.OpenGL
             }
             SwapBuffers();
             renderToThread[this] = ThreadHelper.EmptyThread;
-            InternalIO.glfwMakeContextCurrent(IntPtr.Zero);
+            GraphicFramework.glfwMakeContextCurrent(IntPtr.Zero);
             OpenGLFunction.CurrentGL = null;
         }
 
@@ -117,7 +117,7 @@ namespace StgSharp.Graphics.OpenGL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight)
         {
-            InternalIO.glfwSetWindowSizeLimits(
+            GraphicFramework.glfwSetWindowSizeLimits(
                 this.CanvasHandle, minWidth, minHeight, maxWidth, maxHeight);
         }
 
@@ -160,17 +160,17 @@ namespace StgSharp.Graphics.OpenGL
 
         protected KeyStatus CheckKey(KeyboardKey key)
         {
-            return InternalIO.glfwGetKey(this.CanvasHandle, (int)key);
+            return GraphicFramework.glfwGetKey(this.CanvasHandle, (int)key);
         }
 
         protected KeyStatus CheckKey(Mouse key)
         {
-            return InternalIO.glfwGetKey(this.CanvasHandle, (int)key);
+            return GraphicFramework.glfwGetKey(this.CanvasHandle, (int)key);
         }
 
         protected KeyStatus CheckKey(Joystick key)
         {
-            return InternalIO.glfwGetKey(this.CanvasHandle, (int)key);
+            return GraphicFramework.glfwGetKey(this.CanvasHandle, (int)key);
         }
 
         #endregion

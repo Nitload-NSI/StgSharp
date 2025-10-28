@@ -55,7 +55,7 @@ namespace StgSharp
         private static uint markCount = 0;
         internal static GraphicAPI API = default;
 
-        public static int DefaultSIMDAlignment => InternalIO.IntrinsicLevel switch
+        public static int DefaultSIMDAlignment => NativeIntrinsic.IntrinsicLevel switch
         {
             IntrinsicLevel.SSE => 16,
             IntrinsicLevel.AVX2 => 32,
@@ -69,12 +69,12 @@ namespace StgSharp
         {
             mainTimeProvider = new StgSharpTime();
             MainTimeProvider.StartProvidingTime();
-            InternalIO.LoadGlfw();
-            if (InternalIO.glfwInit() == 0) {
+            GraphicFramework.LoadGlfw();
+            if (GraphicFramework.glfwInit() == 0) {
                 throw new Exception("Failed to init system graphic environment.");
             }
-            InternalIO.InternalAppendLog("\n\n\n");
-            InternalIO.InternalWriteLog(
+            DefaultLog.InternalAppendLog("\n\n\n");
+            DefaultLog.InternalWriteLog(
                 $"Program {Assembly.GetEntryAssembly()!.FullName} on {Environment.MachineName} Started.", LogType.Info);
             MainThreadID = Environment.CurrentManagedThreadId;
 
@@ -84,30 +84,31 @@ namespace StgSharp
                 Dialogue.CreateDialogueProcessIfNotExist();
             }
 
-            InternalIO.InitIntrinsicContext();
+            NativeIntrinsic.InitIntrinsicContext();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogError(Exception ex)
         {
-            InternalIO.InternalWriteLog(ex.Message, LogType.Error);
+            DefaultLog.InternalWriteLog(ex.Message, LogType.Error);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogInfo(string log)
         {
-            InternalIO.InternalWriteLog(log, LogType.Info);
+            DefaultLog.InternalWriteLog(log, LogType.Info);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogWarning(string log)
         {
-            InternalIO.InternalWriteLog(log, LogType.Warning);
+            DefaultLog.InternalWriteLog(log, LogType.Warning);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogWarning(Exception notVerySeriesException)
         {
-            InternalIO.InternalWriteLog(notVerySeriesException.Message, LogType.Warning);
+            DefaultLog.InternalWriteLog(notVerySeriesException.Message, LogType.Warning);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,7 +123,7 @@ namespace StgSharp
         public static void Terminate(int exitCode)
         {
             MainTimeProvider.StopProvidingTime();
-            InternalIO.glfwTerminate();
+            GraphicFramework.glfwTerminate();
             Environment.Exit(exitCode);
         }
 
@@ -149,7 +150,7 @@ namespace StgSharp
                 Console.WriteLine(log);
             } else
             {
-                InternalIO.InternalWriteLog(log, LogType.Info);
+                DefaultLog.InternalWriteLog(log, LogType.Info);
             }
         }
 
@@ -165,7 +166,7 @@ namespace StgSharp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteLog(string message, LogType logType)
         {
-            InternalIO.InternalWriteLog(message, logType);
+            DefaultLog.InternalWriteLog(message, logType);
         }
 
         internal static TDele ConvertAPI<TDele>(IntPtr funcPtr)

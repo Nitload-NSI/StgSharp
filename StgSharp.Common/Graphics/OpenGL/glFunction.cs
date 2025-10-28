@@ -347,7 +347,7 @@ namespace StgSharp.Graphics.OpenGL
                     a = glConst.UNSIGNED_BYTE;
                     break;
                 default:
-                    InternalIO.InternalWriteLog(
+                    DefaultLog.InternalWriteLog(
                         $"{$"Parameter error in parameter {nameof(type)} method DrawElements. "}{$"Only {typeof(uint).Name},{typeof(ushort).Name},{typeof(byte).Name} types are supported."}",
                         LogType.Error);
                     return;
@@ -446,7 +446,7 @@ namespace StgSharp.Graphics.OpenGL
         public string GetShaderStatus(Shader s, int index, int key)
         {
             IntPtr sptr = IntPtr.Zero;
-            if (InternalIO.glCheckShaderStatus(ref Context, s.handle[index].Value, key,
+            if (GraphicFramework.glCheckShaderStatus(ref Context, s.handle[index].Value, key,
                                                ref sptr) == 0) {
                 return Marshal.PtrToStringAnsi(sptr);
             }
@@ -546,8 +546,8 @@ namespace StgSharp.Graphics.OpenGL
                     ref byte[] stream)
         {
             fixed (byte* bptr = stream) {
-                Context.glReadPixels(
-                    beginPosition.X, beginPosition.Y, size.width, size.height, (uint)format, (uint)dataType, bptr);
+                Context.glReadPixels
+                    (beginPosition.X, beginPosition.Y, size.width, size.height, (uint)format, (uint)dataType, bptr);
             }
         }
 
@@ -562,8 +562,8 @@ namespace StgSharp.Graphics.OpenGL
                 throw new GlArrayFormatException(dataType, "i.PixelArray");
             }
             fixed (byte* bptr = pixels) {
-                Context.glReadPixels(
-                    beginPosition.X, beginPosition.Y, i.Width, i.Height, (uint)format, (uint)dataType, bptr);
+                Context.glReadPixels
+                    (beginPosition.X, beginPosition.Y, i.Width, i.Height, (uint)format, (uint)dataType, bptr);
             }
             i.PixelUpdateCount++;
         }
@@ -683,7 +683,7 @@ namespace StgSharp.Graphics.OpenGL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetVertexAttribute(uint index, int size, TypeCode t, bool normalized, uint stride, int pointer)
         {
-            uint type = InternalIO.GLtype[t];
+            uint type = GraphicFramework.GLtype[(int)t];
             Context.glVertexAttribPointer(index, size, type, normalized ? 1 : 0, stride, (void*)pointer);
             Context.glEnableVertexAttribArray(index);
         }
@@ -704,8 +704,8 @@ namespace StgSharp.Graphics.OpenGL
             fixed (T* tptr = pixels)
             {
                 T* ptr = ((pixels == null) || (pixels.Length == 0)) ? (T*)IntPtr.Zero : tptr;
-                Context.glTexImage2D(
-                    (uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel, (uint)type, tptr);
+                Context.glTexImage2D
+                    ((uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel, (uint)type, tptr);
             }
             #pragma warning restore CS8500
         }
@@ -725,8 +725,8 @@ namespace StgSharp.Graphics.OpenGL
             #pragma warning disable CS8500
             fixed (T* tptr = pixelSpan)
             {
-                Context.glTexImage2D(
-                    (uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel, (uint)type, tptr);
+                Context.glTexImage2D
+                    ((uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel, (uint)type, tptr);
             }
             #pragma warning restore CS8500
         }

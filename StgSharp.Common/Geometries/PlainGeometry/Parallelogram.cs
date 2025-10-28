@@ -35,8 +35,7 @@ namespace StgSharp.Geometries
     public class Parallelogram : Polygon4
     {
 
-        internal readonly Func<int, Vec3> movCenterOperation =
-            new Func<int, Vec3>(GeometryOperation.DefaultMotion);
+        internal readonly Func<int, Vec3> movCenterOperation = GeometryOperation.DefaultMotion;
 
         internal Point center;
 
@@ -46,7 +45,7 @@ namespace StgSharp.Geometries
             #if DEBUG
             if (this[0].Coord + this[2].Coord != this[1].Coord + this[3].Coord)
             {
-                InternalIO.InternalWriteLog(
+                DefaultLog.InternalWriteLog(
                     "Init of geometry item failed, because four vertices cannot form a rectangle.",
                     LogType.Warning);
             }
@@ -68,7 +67,7 @@ namespace StgSharp.Geometries
             #if DEBUG
             if (this[0].Coord + this[2].Coord != this[1].Coord + this[3].Coord)
             {
-                InternalIO.InternalWriteLog(
+                DefaultLog.InternalWriteLog(
                     "Init of geometry item failed, because four vertices cannot form a rectangle.",
                     LogType.Warning);
             }

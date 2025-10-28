@@ -34,7 +34,7 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.Internal
 {
-    internal static unsafe partial class InternalIO
+    internal static unsafe partial class NativeIntrinsic
     {
 
         private static readonly IntrinsicContext _intrinsicContext = new();
@@ -68,7 +68,7 @@ namespace StgSharp.Internal
             }
         }
 
-        [LibraryImport(NativeLibName, EntryPoint = "load_intrinsic_function")]
+        [LibraryImport(Native.LibName, EntryPoint = "load_intrinsic_function")]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         private static partial int LoadIntrinsicFunction(IntrinsicContext* context);
 

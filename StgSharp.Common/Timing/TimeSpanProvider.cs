@@ -189,13 +189,13 @@ namespace StgSharp.Timing
                 return true;
             }
             foreach (TimeSpanAwaitingToken tokenAdd in _tokenToAdd) {
-                _awaitingTokens.Add(tokenAdd);
+                _ = _awaitingTokens.Add(tokenAdd);
             }
             _tokenToAdd.Clear();
             foreach (TimeSpanAwaitingToken tokenQuit in _tokenToQuit)
             {
-                _awaitingTokens.Remove(tokenQuit);
-                InternalIO.InternalWriteLog(
+                _ = _awaitingTokens.Remove(tokenQuit);
+                DefaultLog.InternalWriteLog(
                     $"Awaiting token {tokenQuit!.TokenID} has been removed.", LogType.Info);
             }
             _tokenToQuit.Clear();

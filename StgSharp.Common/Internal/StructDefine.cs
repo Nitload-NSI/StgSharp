@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
 
 using System;
@@ -55,7 +56,7 @@ namespace StgSharp.Internal
     #region GLFW3 struct
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct GLFWcontext
+    public unsafe struct glfwContext
     {
 
         private delegate*<byte*> extensionSupported;
@@ -286,8 +287,8 @@ namespace StgSharp.Internal
         private IntPtr cursor; // _GLFWcursor* cursor;
         // glfwVideomode videoMode; // 根据GLFWvidmode的定义转换
         private IntPtr monitor; // _GLFWmonitor* monitor;
-        public fixed byte keys[glConst.GLFW_KEY_LAST + 1];
-        public fixed byte mouseButtons[glConst.GLFW_MOUSE_BUTTON_LAST + 1];
+        public fixed byte keys[Constant.GLFW_KEY_LAST + 1];
+        public fixed byte mouseButtons[Constant.GLFW_MOUSE_BUTTON_LAST + 1];
 
         // _GLFWcontext viewPortDisplay; // 根据_GLFWcontext的定义转换
 
@@ -496,8 +497,8 @@ namespace StgSharp.Internal
     internal unsafe struct GLFWlibrary
     {
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = glConst.GLFW_JOYSTICK_LAST + 1)]
-        private GLFWjoystick[] joysticks = new GLFWjoystick[glConst.GLFW_JOYSTICK_LAST + 1];
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = Constant.GLFW_JOYSTICK_LAST + 1)]
+        private GLFWjoystick[] joysticks = new GLFWjoystick[Constant.GLFW_JOYSTICK_LAST + 1];
 
         private GLFWallocator allocator;
 

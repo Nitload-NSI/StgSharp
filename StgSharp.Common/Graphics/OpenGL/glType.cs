@@ -46,21 +46,21 @@ namespace StgSharp.Internal.OpenGL
             {
                 if (value.GetType().Name != "Uint32")
                 {
-                    goto errorlog;
+                    goto errorLog;
                 }
                 this.value = value;
             } else
             {
                 if (value.GetType().Name != "IntPtr")
                 {
-                    goto errorlog;
+                    goto errorLog;
                 }
                 this.value = value;
             }
 
-            errorlog:
+            errorLog:
             {
-                InternalIO.InternalWriteLog(
+                DefaultLog.InternalWriteLog(
                     $"{value.GetType().Name} does not match definination of GLhandlARB on OS {Environment.OSVersion.Platform} ",
                     LogType.Error);
             }

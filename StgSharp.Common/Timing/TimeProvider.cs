@@ -131,7 +131,7 @@ namespace StgSharp
                         if (!subscriber.CheckTime(totalMS))
                         {
                             toRemoveList.Add(subscriber);
-                            InternalIO.InternalWriteLog(
+                            DefaultLog.InternalWriteLog(
                                 $"Time subscriber {subscriber} is to be removed.", LogType.Info);
                         }
                         ;

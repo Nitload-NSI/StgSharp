@@ -26,10 +26,6 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics
 {
@@ -59,7 +55,7 @@ namespace StgSharp.Mathematics
                 return factorialResult[n];
             }
             if (n < 30) {
-                return InternalIO.Intrinsic.factorial_simd(n);
+                return NativeIntrinsic.Intrinsic.factorial_simd(n);
             }
             double 
                 dn = n,

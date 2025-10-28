@@ -40,10 +40,10 @@ namespace StgSharp.Mathematics.Numeric
     public static partial class MatrixParallel
     {
 
-        public static unsafe void PublicTask<T>(
-            MatrixSegmentEnumeration<T> source,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T>(
+                                                       MatrixSegmentEnumeration<T> source,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation)
             where T: unmanaged, INumber<T>
         {
             MatrixParallelTaskPackage<T>* package = MatrixParallelFactory.CreateBaseTask<T>();
@@ -63,14 +63,14 @@ namespace StgSharp.Mathematics.Numeric
             package->ElementSize = sizeof(T);
             package->ComputeMode = 1; // Unary
 
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T>(
-            MatrixSegmentEnumeration<T> left,
-            MatrixSegmentEnumeration<T> right,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T>(
+                                                       MatrixSegmentEnumeration<T> left,
+                                                       MatrixSegmentEnumeration<T> right,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation)
             where T: unmanaged, INumber<T>
         {
             MatrixParallelTaskPackage<T>* package = MatrixParallelFactory.CreateBaseTask<T>();
@@ -95,15 +95,15 @@ namespace StgSharp.Mathematics.Numeric
             package->ElementSize = sizeof(T);
             package->ComputeMode = 3; // Binary
 
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
         // Unary with 1..8 scalars (each scalar is independent generic type)
-        public static unsafe void PublicTask<T, TScalar0>(
-            MatrixSegmentEnumeration<T> source,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0>(
+                                                       MatrixSegmentEnumeration<T> source,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
         {
@@ -127,15 +127,15 @@ namespace StgSharp.Mathematics.Numeric
 
             sp->Data<TScalar0>(0) = s0;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1>(
-            MatrixSegmentEnumeration<T> source,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1>(
+                                                       MatrixSegmentEnumeration<T> source,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -161,16 +161,16 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar0>(0) = s0;
             sp->Data<TScalar1>(1) = s1;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
         // Binary with 1..8 scalars (each scalar is independent generic type)
-        public static unsafe void PublicTask<T, TScalar0>(
-            MatrixSegmentEnumeration<T> left,
-            MatrixSegmentEnumeration<T> right,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0>(
+                                                       MatrixSegmentEnumeration<T> left,
+                                                       MatrixSegmentEnumeration<T> right,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
         {
@@ -199,16 +199,16 @@ namespace StgSharp.Mathematics.Numeric
 
             sp->Data<TScalar0>(0) = s0;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2>(
-            MatrixSegmentEnumeration<T> source,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2>(
+                                                       MatrixSegmentEnumeration<T> source,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -236,16 +236,16 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar1>(1) = s1;
             sp->Data<TScalar2>(2) = s2;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1>(
-            MatrixSegmentEnumeration<T> left,
-            MatrixSegmentEnumeration<T> right,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1>(
+                                                       MatrixSegmentEnumeration<T> left,
+                                                       MatrixSegmentEnumeration<T> right,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -276,17 +276,17 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar0>(0) = s0;
             sp->Data<TScalar1>(1) = s1;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3>(
-            MatrixSegmentEnumeration<T> source,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3>(
+                                                       MatrixSegmentEnumeration<T> source,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -316,17 +316,17 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar2>(2) = s2;
             sp->Data<TScalar3>(3) = s3;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2>(
-            MatrixSegmentEnumeration<T> left,
-            MatrixSegmentEnumeration<T> right,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2>(
+                                                       MatrixSegmentEnumeration<T> left,
+                                                       MatrixSegmentEnumeration<T> right,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -359,18 +359,18 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar1>(1) = s1;
             sp->Data<TScalar2>(2) = s2;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4>(
-            MatrixSegmentEnumeration<T> source,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3,
-            TScalar4 s4)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4>(
+                                                       MatrixSegmentEnumeration<T> source,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3,
+                                                       TScalar4 s4)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -402,18 +402,18 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar3>(3) = s3;
             sp->Data<TScalar4>(4) = s4;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3>(
-            MatrixSegmentEnumeration<T> left,
-            MatrixSegmentEnumeration<T> right,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3>(
+                                                       MatrixSegmentEnumeration<T> left,
+                                                       MatrixSegmentEnumeration<T> right,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -448,19 +448,19 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar2>(2) = s2;
             sp->Data<TScalar3>(3) = s3;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5>(
-            MatrixSegmentEnumeration<T> source,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3,
-            TScalar4 s4,
-            TScalar5 s5)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5>(
+                                                       MatrixSegmentEnumeration<T> source,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3,
+                                                       TScalar4 s4,
+                                                       TScalar5 s5)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -494,19 +494,19 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar4>(4) = s4;
             sp->Data<TScalar5>(5) = s5;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4>(
-            MatrixSegmentEnumeration<T> left,
-            MatrixSegmentEnumeration<T> right,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3,
-            TScalar4 s4)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4>(
+                                                       MatrixSegmentEnumeration<T> left,
+                                                       MatrixSegmentEnumeration<T> right,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3,
+                                                       TScalar4 s4)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -543,20 +543,20 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar3>(3) = s3;
             sp->Data<TScalar4>(4) = s4;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5, TScalar6>(
-            MatrixSegmentEnumeration<T> source,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3,
-            TScalar4 s4,
-            TScalar5 s5,
-            TScalar6 s6)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5, TScalar6>(
+                                                       MatrixSegmentEnumeration<T> source,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3,
+                                                       TScalar4 s4,
+                                                       TScalar5 s5,
+                                                       TScalar6 s6)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -592,20 +592,20 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar5>(5) = s5;
             sp->Data<TScalar6>(6) = s6;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5>(
-            MatrixSegmentEnumeration<T> left,
-            MatrixSegmentEnumeration<T> right,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3,
-            TScalar4 s4,
-            TScalar5 s5)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5>(
+                                                       MatrixSegmentEnumeration<T> left,
+                                                       MatrixSegmentEnumeration<T> right,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3,
+                                                       TScalar4 s4,
+                                                       TScalar5 s5)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -644,21 +644,21 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar4>(4) = s4;
             sp->Data<TScalar5>(5) = s5;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5, TScalar6, TScalar7>(
-            MatrixSegmentEnumeration<T> source,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3,
-            TScalar4 s4,
-            TScalar5 s5,
-            TScalar6 s6,
-            TScalar7 s7)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5, TScalar6, TScalar7>(
+                                                       MatrixSegmentEnumeration<T> source,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3,
+                                                       TScalar4 s4,
+                                                       TScalar5 s5,
+                                                       TScalar6 s6,
+                                                       TScalar7 s7)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -696,21 +696,21 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar6>(6) = s6;
             sp->Data<TScalar7>(7) = s7;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5, TScalar6>(
-            MatrixSegmentEnumeration<T> left,
-            MatrixSegmentEnumeration<T> right,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3,
-            TScalar4 s4,
-            TScalar5 s5,
-            TScalar6 s6)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5, TScalar6>(
+                                                       MatrixSegmentEnumeration<T> left,
+                                                       MatrixSegmentEnumeration<T> right,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3,
+                                                       TScalar4 s4,
+                                                       TScalar5 s5,
+                                                       TScalar6 s6)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -751,22 +751,22 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar5>(5) = s5;
             sp->Data<TScalar6>(6) = s6;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
-        public static unsafe void PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5, TScalar6, TScalar7>(
-            MatrixSegmentEnumeration<T> left,
-            MatrixSegmentEnumeration<T> right,
-            MatrixSegmentEnumeration<T> ans,
-            delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
-            TScalar0 s0,
-            TScalar1 s1,
-            TScalar2 s2,
-            TScalar3 s3,
-            TScalar4 s4,
-            TScalar5 s5,
-            TScalar6 s6,
-            TScalar7 s7)
+        public static unsafe Stack<MatrixParallelWrap> PublicTask<T, TScalar0, TScalar1, TScalar2, TScalar3, TScalar4, TScalar5, TScalar6, TScalar7>(
+                                                       MatrixSegmentEnumeration<T> left,
+                                                       MatrixSegmentEnumeration<T> right,
+                                                       MatrixSegmentEnumeration<T> ans,
+                                                       delegate*<MatrixKernel<T>*, MatrixKernel<T>*, MatrixKernel<T>*, void> Operation,
+                                                       TScalar0 s0,
+                                                       TScalar1 s1,
+                                                       TScalar2 s2,
+                                                       TScalar3 s3,
+                                                       TScalar4 s4,
+                                                       TScalar5 s5,
+                                                       TScalar6 s6,
+                                                       TScalar7 s7)
             where T: unmanaged, INumber<T>
             where TScalar0: unmanaged, INumber<TScalar0>
             where TScalar1: unmanaged, INumber<TScalar1>
@@ -809,7 +809,7 @@ namespace StgSharp.Mathematics.Numeric
             sp->Data<TScalar6>(6) = s6;
             sp->Data<TScalar7>(7) = s7;
             package->Scalar = sp;
-            PublicTaskPrivate<T>(package);
+            return PublicTaskPrivate<T>(package);
         }
 
         private static unsafe Stack<MatrixParallelWrap> PublicTaskPrivate<T>(MatrixParallelTaskPackage<T>* package)
@@ -860,7 +860,7 @@ namespace StgSharp.Mathematics.Numeric
                 // update current task
                 current->PrimColumnCountInTile = columnInWrap;
                 current->SecColumnCountInTile = current->SecCount;
-                current->SecTileBegin = 0;
+                current->SecTileOffset = 0;
 
                 // remove tiles count
                 extraColumnCount--;
@@ -877,7 +877,7 @@ namespace StgSharp.Mathematics.Numeric
                     break;
                 }
                 current = MatrixParallelFactory.FromExistPackage(current);
-                current->PrimTileBegin += columnInWrap;
+                current->PrimTileOffset += columnInWrap;
             }
             ReleaseParallelLeadership(ref pool);
 

@@ -45,8 +45,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-using static StgSharp.Internal.InternalIO;
-
 namespace StgSharp.MVVM.ViewModel
 {
     public abstract partial class ViewModelBase
@@ -72,7 +70,7 @@ namespace StgSharp.MVVM.ViewModel
             _frameCount = 0;
             long frameLength = (FrameSpeed > 0) ? (1000L * 1000L / FrameSpeed) : 0;
             frameTimeProvider = new TimeSpanProvider(frameLength, TimeSpanProvider.DefaultProvider);
-            SetFrameSizeCallback(DefaultFrameRewsizeCallback);
+            SetFrameSizeCallback(DefaultFrameResizeCallback);
         }
 
         protected ViewModelBase(float frameLength)
@@ -85,7 +83,7 @@ namespace StgSharp.MVVM.ViewModel
             long _frameLength = (FrameSpeed > 0) ? ((long)(1000 * frameLength)) : 0;
             frameTimeProvider = new TimeSpanProvider(_frameLength,
                                                      TimeSpanProvider.DefaultProvider);
-            SetFrameSizeCallback(DefaultFrameRewsizeCallback);
+            SetFrameSizeCallback(DefaultFrameResizeCallback);
         }
 
         public ViewModelBase(ViewPort vBinding, int frameSpeed)
@@ -97,7 +95,7 @@ namespace StgSharp.MVVM.ViewModel
             _frameCount = 0;
             long frameLength = (frameSpeed > 0) ? (1000L * 1000L / frameSpeed) : 0;
             frameTimeProvider = new TimeSpanProvider(frameLength, TimeSpanProvider.DefaultProvider);
-            SetFrameSizeCallback(DefaultFrameRewsizeCallback);
+            SetFrameSizeCallback(DefaultFrameResizeCallback);
         }
 
         public ViewModelBase(ViewPort vBinding, float frameLength)
@@ -110,7 +108,7 @@ namespace StgSharp.MVVM.ViewModel
             long _frameLength = (frameLength > 0) ? ((long)(1000 * frameLength)) : 0;
             frameTimeProvider = new TimeSpanProvider(_frameLength,
                                                      TimeSpanProvider.DefaultProvider);
-            SetFrameSizeCallback(DefaultFrameRewsizeCallback);
+            SetFrameSizeCallback(DefaultFrameResizeCallback);
         }
 
         public DataBindingEntry this[string name]
@@ -126,8 +124,8 @@ namespace StgSharp.MVVM.ViewModel
 
         public bool ShouldClose
         {
-            get => InternalIO.glfwWindowShouldClose(viewPortDisplay.ViewPortHandle) != 0;
-            set => InternalIO.glfwSetWindowShouldClose(
+            get => GraphicFramework.glfwWindowShouldClose(viewPortDisplay.ViewPortHandle) != 0;
+            set => GraphicFramework.glfwSetWindowShouldClose(
                 viewPortDisplay.ViewPortHandle, value ? 1 : 0);
         }
 
@@ -195,7 +193,7 @@ namespace StgSharp.MVVM.ViewModel
         public void SetSizeLimit(Vec2 minSize, Vec2 maxSize)
         {
             ThreadHelper.MainThreadAssert();
-            InternalIO.glfwSetWindowSizeLimits(
+            GraphicFramework.glfwSetWindowSizeLimits(
                 this.viewPortDisplay.ViewPortHandle, (int)minSize.X, (int)minSize.Y, (int)maxSize.X,
                 (int)maxSize.Y);
         }
@@ -219,7 +217,7 @@ namespace StgSharp.MVVM.ViewModel
         public void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight)
         {
             ThreadHelper.MainThreadAssert();
-            InternalIO.glfwSetWindowSizeLimits(
+            GraphicFramework.glfwSetWindowSizeLimits(
                 this.viewPortDisplay.ViewPortHandle, minWidth, minHeight, maxWidth, maxHeight);
         }
 
@@ -229,11 +227,11 @@ namespace StgSharp.MVVM.ViewModel
         {
             _resizeCallback = callback;
             IntPtr handlerPtr = Marshal.GetFunctionPointerForDelegate(callback);
-            InternalIO.glfwSetFrameBufferSizeCallback(
-                    viewPortDisplay.ViewPortHandle, (delegate* unmanaged[Cdecl]<IntPtr,int,int,void>)handlerPtr);
+            _ = GraphicFramework.glfwSetFrameBufferSizeCallback(
+                    viewPortDisplay.ViewPortHandle, (delegate* unmanaged[Cdecl]<IntPtr, int, int, void>)handlerPtr);
         }
 
-        private void DefaultFrameRewsizeCallback(IntPtr windowHandle, int width, int height)
+        private void DefaultFrameResizeCallback(IntPtr windowHandle, int width, int height)
         {
             ViewPort.GetExistedViewPort(windowHandle, out ViewPort vp);
             vp.RequestFlushSizeInNextFrame(width, height);

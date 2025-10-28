@@ -167,7 +167,7 @@ namespace StgSharp.Mathematics.Numeric
         {
 
             private readonly MatrixKernel<T>* _source = enumeration._source;
-            private int _indexCount = 0;
+            private int _indexCount = -1;
             private readonly int _stride = enumeration.PrimStride;
             private readonly long _bound = (long)enumeration.PrimSize * enumeration.PrimStride;
             private long _index = (long)enumeration.PrimOffset * enumeration.PrimStride;
@@ -230,7 +230,7 @@ namespace StgSharp.Mathematics.Numeric
 
             private readonly int _end = segment._size;
 
-            private int _indexCount = 0;
+            private int _indexCount = -1;
             private readonly long _bound = (long)segment._size * segment._stride;
             private long _index = (long)segment._offset * segment._stride;
             private readonly MatrixSegment<T> _segment = segment;

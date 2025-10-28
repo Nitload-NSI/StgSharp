@@ -196,7 +196,7 @@ namespace StgSharp.Mathematics.Graphic
             {
                 fixed (ColumnSet4* source = &mat, target = &transpose)
                 {
-                    InternalIO.Intrinsic.f32_transpose(source, target);
+                    NativeIntrinsic.Intrinsic.f32_transpose(source, target);
 
                     // InternalIO.Intrinsic.transpose44(source, target);
                 }

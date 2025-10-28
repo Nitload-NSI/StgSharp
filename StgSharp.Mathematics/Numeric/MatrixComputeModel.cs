@@ -42,25 +42,24 @@ namespace StgSharp.Mathematics.Numeric
             nint l = p->Left, r = p->Right, a = p->Result;
             long
 
-
                 // set beginning value to counters for primary offsets
                 lCount = (long)p->LeftPrimOffset * p->LeftPrimStride,
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = int.Min(p->PrimCount, p->PrimColumnCountInTile + p->PrimTileOffset)/*count of tile may be too much*/,
+                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*count of tile may be too much*/,
                 //edge to reset counters
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;
             delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void> op =
                     (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void>)p->ComputeHandle;
-            for (long i = p->PrimTileOffset; i < pCount; i++)
+            for (long i = p->PrimTileOffset % pCount; i < pCount; i++)
             {
                 // update primary counters
                 // if reaches edge, reset to zero
-                lCount = i < lLimit ? lCount + p->LeftPrimOffset : 0;
-                rCount = i < rLimit ? rCount + p->RightPrimOffset : 0;
-                aCount = i < rLimit ? aCount + p->ResultPrimOffset : 0;
+                lCount = i < lLimit ? lCount + p->LeftPrimStride : 0;
+                rCount = i < rLimit ? rCount + p->RightPrimStride : 0;
+                aCount = i < rLimit ? aCount + p->ResultPrimStride : 0;
 
                 // get kernel column pointers
                 nint left = l + (nint)(lCount * eSize);
@@ -70,16 +69,16 @@ namespace StgSharp.Mathematics.Numeric
                     lc = (long)p->LeftSecOffset * p->LeftSecStride,
                     rc = (long)p->RightSecOffset * p->RightSecStride,
                     ac = (long)p->ResultSecOffset * p->ResultSecStride,
-                    sCount = int.Min(p->SecCount, p->SecColumnCountInTile + p->SecTileOffset);
+                    sCount = int.Min(p->SecCount, p->SecCountInTile * p->SecTileOffset);
                 long
                     ll = sCount - p->LeftSecOffset,
                     rl = sCount - p->RightSecOffset,
                     al = sCount - p->ResultSecOffset;
-                for (int j = p->SecTileOffset; j < sCount; j++)
+                for (long j = p->SecTileOffset % sCount; j < sCount; j++)
                 {
-                    lc = j < ll ? lc + p->LeftSecOffset : 0;
-                    rc = j < rl ? rc + p->RightSecOffset : 0;
-                    ac = j < al ? ac + p->ResultSecOffset : 0;
+                    lc = j < ll ? lc + p->LeftSecStride : 0;
+                    rc = j < rl ? rc + p->RightSecStride : 0;
+                    ac = j < al ? ac + p->ResultSecStride : 0;
                     op(left + (nint)lc, right + (nint)rc, ans + (nint)ac);
                 }
             }
@@ -88,42 +87,50 @@ namespace StgSharp.Mathematics.Numeric
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe void Compute_BinaryScalar(MatrixParallelTaskPackageNonGeneric* p)
         {
+            int eSize = p->ElementSize;
+
+            // base pointer to matrix kernels
             nint l = p->Left, r = p->Right, a = p->Result;
             long
-                lCount = p->LeftPrimOffset * p->LeftPrimStride,
-                rCount = p->RightPrimOffset * p->RightPrimStride,
-                aCount = p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = p->PrimCount;
-            long
+
+                // set beginning value to counters for primary offsets
+                lCount = (long)p->LeftPrimOffset * p->LeftPrimStride,
+                rCount = (long)p->RightPrimOffset * p->RightPrimStride,
+                aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
+                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*count of tile may be too much*/,
+                //edge to reset counters
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;
-            delegate* unmanaged[Cdecl]<nint, nint, nint, ScalarPacket*, void> op =
-                    (delegate* unmanaged[Cdecl]<nint, nint, nint, ScalarPacket*, void>)p->ComputeHandle;
-            ScalarPacket* scalar = p->Scalar;
-            for (long i = 0; i < pCount; i++)
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, ScalarPacket*, void> op =
+                    (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, ScalarPacket*, void>)p->ComputeHandle;
+            for (long i = p->PrimTileOffset % pCount; i < pCount; i++)
             {
-                lCount = i < lLimit ? lCount + p->LeftPrimOffset : 0;
-                rCount = i < rLimit ? rCount + p->RightPrimOffset : 0;
-                aCount = i < rLimit ? aCount + p->ResultPrimOffset : 0;
-                nint
-                    left = l + (nint)lCount,
-                    right = r + (nint)rCount,
-                    ans = a + (nint)aCount;
+                // update primary counters
+                // if reaches edge, reset to zero
+                lCount = i < lLimit ? lCount + p->LeftPrimStride : 0;
+                rCount = i < rLimit ? rCount + p->RightPrimStride : 0;
+                aCount = i < rLimit ? aCount + p->ResultPrimStride : 0;
+
+                // get kernel column pointers
+                nint left = l + (nint)(lCount * eSize);
+                nint right = r + (nint)(rCount * eSize);
+                nint ans = a + (nint)(aCount * eSize);
                 long
-                    lc = p->LeftSecOffset * p->LeftSecStride,
-                    rc = p->RightSecOffset * p->RightSecStride,
-                    ac = p->ResultSecOffset * p->ResultSecStride,
-                    sCount = p->SecCount,
+                    lc = (long)p->LeftSecOffset * p->LeftSecStride,
+                    rc = (long)p->RightSecOffset * p->RightSecStride,
+                    ac = (long)p->ResultSecOffset * p->ResultSecStride,
+                    sCount = int.Min(p->SecCount, p->SecCountInTile * p->SecTileOffset);
+                long
                     ll = sCount - p->LeftSecOffset,
                     rl = sCount - p->RightSecOffset,
                     al = sCount - p->ResultSecOffset;
-                for (int j = 0; j < sCount; j++)
+                for (long j = p->SecTileOffset % sCount; j < sCount; j++)
                 {
-                    lc = j < ll ? lc + p->LeftSecOffset : 0;
-                    rc = j < rl ? rc + p->RightSecOffset : 0;
-                    ac = j < al ? ac + p->ResultSecOffset : 0;
-                    op(left + (nint)lc, right + (nint)rc, ans + (nint)ac, scalar);
+                    lc = j < ll ? lc + p->LeftSecStride : 0;
+                    rc = j < rl ? rc + p->RightSecStride : 0;
+                    ac = j < al ? ac + p->ResultSecStride : 0;
+                    op(left + (nint)lc, right + (nint)rc, ans + (nint)ac, p->Scalar);
                 }
             }
         }
@@ -131,29 +138,43 @@ namespace StgSharp.Mathematics.Numeric
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe void Compute_Unary(MatrixParallelTaskPackageNonGeneric* p)
         {
-            nint s = p->Right, a = p->Result;
-            long rCount = p->RightPrimOffset * p->RightPrimStride,
-                 aCount = p->ResultPrimOffset * p->ResultPrimStride,
-                 pCount = p->PrimCount;
-            long rLimit = pCount - p->RightPrimOffset,
-                     aLimit = pCount - p->ResultPrimOffset;
-            delegate* unmanaged[Cdecl]<nint, nint, void> op =
-                    (delegate* unmanaged[Cdecl]<nint, nint, void>)p->ComputeHandle;
-            for (long i = 0; i < pCount; i++)
+            int eSize = p->ElementSize;
+
+            // base pointer to matrix kernels
+            nint r = p->Right, a = p->Result;
+            long
+
+                // set beginning value to counters for primary offsets
+                rCount = (long)p->RightPrimOffset * p->RightPrimStride,
+                aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
+                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*count of tile may be too much*/,
+                //edge to reset counters
+                rLimit = pCount - p->RightPrimOffset,
+                aLimit = pCount - p->ResultPrimOffset;
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void> op =
+                    (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void>)p->ComputeHandle;
+            for (long i = p->PrimTileOffset % pCount; i < pCount; i++)
             {
-                rCount = i < rLimit ? rCount + p->RightPrimOffset : 0;
-                aCount = i < rLimit ? aCount + p->ResultPrimOffset : 0;
-                nint source = s + (nint)rCount, ans = a + (nint)aCount;
-                long rc = p->RightSecOffset * p->RightSecStride,
-                         ac = p->ResultSecOffset * p->ResultSecStride,
-                         sCount = p->SecCount;
-                long rl = sCount - p->RightSecOffset,
-                         al = sCount - p->ResultSecOffset;
-                for (int j = 0; j < sCount; j++)
+                // update primary counters
+                // if reaches edge, reset to zero
+                rCount = i < rLimit ? rCount + p->RightPrimStride : 0;
+                aCount = i < rLimit ? aCount + p->ResultPrimStride : 0;
+
+                // get kernel column pointers
+                nint right = r + (nint)(rCount * eSize);
+                nint ans = a + (nint)(aCount * eSize);
+                long
+                    rc = (long)p->RightSecOffset * p->RightSecStride,
+                    ac = (long)p->ResultSecOffset * p->ResultSecStride,
+                    sCount = int.Min(p->SecCount, p->SecCountInTile * p->SecTileOffset);
+                long
+                    rl = sCount - p->RightSecOffset,
+                    al = sCount - p->ResultSecOffset;
+                for (long j = p->SecTileOffset % sCount; j < sCount; j++)
                 {
-                    rc = j < rl ? rc + p->RightSecOffset : 0;
-                    ac = j < al ? ac + p->ResultSecOffset : 0;
-                    op(source + (nint)rc, ans + (nint)ac);
+                    rc = j < rl ? rc + p->RightSecStride : 0;
+                    ac = j < al ? ac + p->ResultSecStride : 0;
+                    op(right + (nint)rc, ans + (nint)ac);
                 }
             }
         }
@@ -161,31 +182,43 @@ namespace StgSharp.Mathematics.Numeric
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe void Compute_UnaryScalar(MatrixParallelTaskPackageNonGeneric* p)
         {
-            nint s = p->Right, a = p->Result;
-            long rCount = p->RightPrimOffset * p->RightPrimStride,
-                     aCount = p->ResultPrimOffset * p->ResultPrimStride,
-                     pCount = p->PrimCount;
-            long rLimit = pCount - p->RightPrimOffset,
-                     aLimit = pCount - p->ResultPrimOffset;
-            delegate* unmanaged[Cdecl]<nint, nint, ScalarPacket*, void> op =
-                    (delegate* unmanaged[Cdecl]<nint, nint, ScalarPacket*, void>)p->ComputeHandle;
-            ScalarPacket* scalar = p->Scalar;
-            for (long i = 0; i < pCount; i++)
+            int eSize = p->ElementSize;
+
+            // base pointer to matrix kernels
+            nint r = p->Right, a = p->Result;
+            long
+
+                // set beginning value to counters for primary offsets
+                rCount = (long)p->RightPrimOffset * p->RightPrimStride,
+                aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
+                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*count of tile may be too much*/,
+                //edge to reset counters
+                rLimit = pCount - p->RightPrimOffset,
+                aLimit = pCount - p->ResultPrimOffset;
+            delegate* unmanaged[Cdecl]<IntPtr, IntPtr, ScalarPacket*, void> op =
+                    (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, ScalarPacket*, void>)p->ComputeHandle;
+            for (long i = p->PrimTileOffset % pCount; i < pCount; i++)
             {
-                rCount = i < rLimit ? rCount + p->RightPrimOffset : 0;
-                aCount = i < rLimit ? aCount + p->ResultPrimOffset : 0;
-                nint source = s + (nint)rCount;
-                nint ans = a + (nint)aCount;
-                long rc = p->RightSecOffset * p->RightSecStride,
-                         ac = p->ResultSecOffset * p->ResultSecStride,
-                         sCount = p->SecCount;
-                long rl = sCount - p->RightSecOffset,
-                         al = sCount - p->ResultSecOffset;
-                for (int j = 0; j < sCount; j++)
+                // update primary counters
+                // if reaches edge, reset to zero
+                rCount = i < rLimit ? rCount + p->RightPrimStride : 0;
+                aCount = i < rLimit ? aCount + p->ResultPrimStride : 0;
+
+                // get kernel column pointers
+                nint right = r + (nint)(rCount * eSize);
+                nint ans = a + (nint)(aCount * eSize);
+                long
+                    rc = (long)p->RightSecOffset * p->RightSecStride,
+                    ac = (long)p->ResultSecOffset * p->ResultSecStride,
+                    sCount = int.Min(p->SecCount, p->SecCountInTile * p->SecTileOffset);
+                long
+                    rl = sCount - p->RightSecOffset,
+                    al = sCount - p->ResultSecOffset;
+                for (long j = p->SecTileOffset % sCount; j < sCount; j++)
                 {
-                    rc = j < rl ? rc + p->RightSecOffset : 0;
-                    ac = j < al ? ac + p->ResultSecOffset : 0;
-                    op(source + (nint)rc, ans + (nint)ac, scalar);
+                    rc = j < rl ? rc + p->RightSecStride : 0;
+                    ac = j < al ? ac + p->ResultSecStride : 0;
+                    op(right + (nint)rc, ans + (nint)ac, p->Scalar);
                 }
             }
         }

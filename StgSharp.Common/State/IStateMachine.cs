@@ -1,6 +1,6 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Lable"
+// file="IStateMachine"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -26,43 +26,21 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance
+namespace StgSharp.State
 {
-    public class DataLabel
+    public interface IStateMachine<TState, TLabel, TInput> where TState: IState
     {
 
-        public DataLabel(string labelName)
-        {
-            Name = labelName;
-        }
+        TState CurrentState { get; set; }
 
-        public string Name
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get;
-            init;
-        }
+        TState RootState { get; }
 
-        public override unsafe int GetHashCode()
-        {
-            ReadOnlySpan<char> nameSpan = Name.AsSpan();
-            fixed (char* cptr = nameSpan) {
-                return NativeIntrinsic.Intrinsic.city_hash_simplify(cptr, Name.Length);
-            }
-        }
-
-    }
-
-    public static class DataLabelBuilder
-    {
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DataLabel AsLabel(this string name)
-        {
-            return new DataLabel(name);
-        }
+        void GotoNextState(TInput input);
 
     }
 }

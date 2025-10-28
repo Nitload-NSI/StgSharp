@@ -31,7 +31,7 @@ using System.Text;
 
 namespace StgSharp.Internal
 {
-    internal partial class InternalIO
+    internal static class BuiltInShader
     {
 
         #region ControllingItemRender
@@ -46,9 +46,7 @@ namespace StgSharp.Internal
 
         #region CollisionTexture
 
-        internal static ReadOnlySpan<byte> CollisionTextureVertexShader
-        {
-            get => """
+        internal static ReadOnlySpan<byte> CollisionTextureVertexShader => """
             #version 430 core
             layout(location = 0) in vec2 localCollisionCoord;
             layout(location = 1) in vec2 spaceCoord;
@@ -75,11 +73,8 @@ namespace StgSharp.Internal
                 gl_Position = vec4(angle, realCoord.y, dist, 1);
             }
             """u8;
-        }
 
-        internal static ReadOnlySpan<byte> CollisionTextureFragmentShader
-        {
-            get => """
+        internal static ReadOnlySpan<byte> CollisionTextureFragmentShader => """
             #version 430 core
             out vec4 Color;
             
@@ -96,8 +91,7 @@ namespace StgSharp.Internal
                 Color = vec4(dist,0,0,1);
             }
             """u8;
-        }
 
-        #endregion
+    #endregion
     }
 }

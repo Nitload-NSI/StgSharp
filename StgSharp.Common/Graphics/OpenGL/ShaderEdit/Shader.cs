@@ -245,21 +245,21 @@ namespace StgSharp.Graphics.OpenGL
         /// </summary>
         public unsafe void Link()
         {
-            if (InternalIO.InternalLinkShaderProgram(
+            if (GraphicFramework.InternalLinkShaderProgram(
                 (OpenglContext*)this.GL.ContextHandle, handle.Value) == 0)
             {
-                IntPtr logPtr = InternalIO.InternalReadSSCLog();
+                IntPtr logPtr = GraphicFramework.InternalReadSSCLog();
                 try
                 {
                     byte[] logByte = new byte[512];
                     Marshal.Copy(logPtr, logByte, 0, 512);
                     string log = Encoding.UTF8.GetString(logByte);
                     log = log.Replace("\0", string.Empty);
-                    InternalIO.InternalWriteLog(log, LogType.Error);
+                    DefaultLog.InternalWriteLog(log, LogType.Error);
                 }
                 catch (Exception ex)
                 {
-                    InternalIO.InternalWriteLog(ex.Message, LogType.Error);
+                    DefaultLog.InternalWriteLog(ex.Message, LogType.Error);
                 }
             }
         }

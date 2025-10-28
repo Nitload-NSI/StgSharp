@@ -49,7 +49,7 @@ namespace StgSharp.MVVM
             Name = new StackFrame(1, false).
                 GetMethod()!.DeclaringType!.Name;
             Monitor = IntPtr.Zero;
-            ViewPortHandle = InternalIO.glfwCreateWindow(
+            ViewPortHandle = GraphicFramework.glfwCreateWindow(
                 _newWidth, _newHeight, Encoding.UTF8.GetBytes(Name), Monitor, IntPtr.Zero);
             if (ViewPortHandle == IntPtr.Zero) {
                 throw new InvalidOperationException("Unable to create viewport handle.");
@@ -64,7 +64,7 @@ namespace StgSharp.MVVM
             FlushSize();
             Name = name;
             Monitor = monitor;
-            ViewPortHandle = InternalIO.glfwCreateWindow(
+            ViewPortHandle = GraphicFramework.glfwCreateWindow(
                 _newWidth, _newHeight, Encoding.UTF8.GetBytes(Name), Monitor, IntPtr.Zero);
             if (ViewPortHandle == IntPtr.Zero) {
                 throw new InvalidOperationException("Unable to create viewport handle.");

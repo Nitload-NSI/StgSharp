@@ -114,10 +114,7 @@ namespace StgSharp.Graphics
 
         public SerializableTypeCode SSDTypeCode => SerializableTypeCode.PixelImage;
 
-        internal ref byte[] Data
-        {
-            get => ref _data;
-        }
+        internal ref byte[] Data => ref _data;
 
         public void FromBytes(byte[] stream) { }
 
@@ -125,7 +122,7 @@ namespace StgSharp.Graphics
         {
             Image ret = new Image();
             fixed (ImageInfo* iptr = &ret._rawInfo) {
-                InternalIO.InternalLoadImage(route, iptr, loader);
+                GraphicFramework.InternalLoadImage(route, iptr, loader);
             }
             return ret;
         }
@@ -171,7 +168,7 @@ namespace StgSharp.Graphics
                 int size = Width * Height * ImageInfo.GetPixelSize(PixelLayout, Channel);
                 _data = new Span<byte>((byte*)_rawInfo.StreamPtr, size).ToArray();
                 fixed (ImageInfo* pptr = &_rawInfo) {
-                    InternalIO.InternalUnloadImage(pptr);
+                    GraphicFramework.InternalUnloadImage(pptr);
                 }
                 _rawInfo.StreamPtr = IntPtr.Zero;
             }

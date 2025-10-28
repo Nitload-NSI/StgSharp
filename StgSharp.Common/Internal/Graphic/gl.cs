@@ -32,14 +32,26 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace StgSharp.Internal
 {
-    internal partial class InternalIO
+    internal static partial class GraphicFramework
     {
 
-        [LibraryImport(NativeLibName, EntryPoint = "glCheckShaderStat")]
+        internal static uint[] GLtype = [];
+
+        static GraphicFramework()
+        {
+            GLtype[(int)TypeCode.Single] = glConst.FLOAT;
+            GLtype[(int)TypeCode.Int32] = glConst.INT;
+            GLtype[(int)TypeCode.UInt32] = glConst.UNSIGNED_INT;
+            GLtype[(int)TypeCode.Int16] = glConst.SHORT;
+            GLtype[(int)TypeCode.UInt16] = glConst.UNSIGNED_SHORT;
+            GLtype[(int)TypeCode.SByte] = glConst.BYTE;
+            GLtype[(int)TypeCode.Byte] = glConst.UNSIGNED_BYTE;
+        }
+
+        [LibraryImport(Native.LibName, EntryPoint = "glCheckShaderStat")]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         #pragma warning disable CA5392
         internal static partial int glCheckShaderStatus(
@@ -52,27 +64,27 @@ namespace StgSharp.Internal
 
         #region ssgc api define
 
-        [LibraryImport(NativeLibName, EntryPoint = "initGL")]
+        [LibraryImport(Native.LibName, EntryPoint = "initGL")]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         internal static partial void InternalInitGL(int majorVersion, int minorVersion);
 
-        [LibraryImport(NativeLibName, EntryPoint = "loadGlfuncDefault", StringMarshalling = StringMarshalling.Utf8)]
+        [LibraryImport(Native.LibName, EntryPoint = "loadGlfuncDefault", StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         internal static partial IntPtr InternalLoadGlfuncDefault(string name);
 
-        [LibraryImport(NativeLibName, EntryPoint = "linkShaderProgram")]
+        [LibraryImport(Native.LibName, EntryPoint = "linkShaderProgram")]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         internal static unsafe partial uint InternalLinkShaderProgram(OpenglContext* context, uint shaderProgram);
 
-        [LibraryImport(NativeLibName, EntryPoint = "readLog")]
+        [LibraryImport(Native.LibName, EntryPoint = "readLog")]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         internal static unsafe partial IntPtr InternalReadSSCLog();
 
-        [LibraryImport(NativeLibName, EntryPoint = "loadImageData", StringMarshalling = StringMarshalling.Utf8)]
+        [LibraryImport(Native.LibName, EntryPoint = "loadImageData", StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         internal static unsafe partial void InternalLoadImage(string fileName, ImageInfo* output, ImageLoader loader);
 
-        [LibraryImport(NativeLibName, EntryPoint = "unloadImageData")]
+        [LibraryImport(Native.LibName, EntryPoint = "unloadImageData")]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         internal static unsafe partial void InternalUnloadImage(ImageInfo* output);
 
