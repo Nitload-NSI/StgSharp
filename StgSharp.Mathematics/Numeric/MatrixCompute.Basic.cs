@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Collections;
 using StgSharp.HighPerformance;
 using StgSharp.Internal;
 using System;
@@ -48,8 +49,8 @@ namespace StgSharp.Mathematics.Numeric
             long count = (long)left.KernelColumnLength * left.KernelRowLength;
             if (count <= 1024)
             {
-                MatrixParallelPool pool = MatrixParallel.LeadParallel();
-                if (!pool.TryRentIndividualHandle(out MatrixParallelWrap.Handle? handle))
+                CapacityFixedStack<MatrixParallelThread> pool = MatrixParallel.LeadParallel();
+                if (!pool.TryPop(out MatrixParallelThread thread))
                 {
                     /*
                      * wait
@@ -65,6 +66,8 @@ namespace StgSharp.Mathematics.Numeric
             }
             Stack<MatrixParallelWrap> taskGroup = MatrixParallel.PublicTask(left.GetColumnEnumeration(), right.GetColumnEnumeration(), ans.GetColumnEnumeration(),
                 (delegate*<MatrixKernel<float>*, MatrixKernel<float>*, MatrixKernel<float>*, void>)NativeIntrinsic.Intrinsic.f32_add);
+
+            MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);
             /*
              * run parallel
              */
@@ -80,8 +83,9 @@ namespace StgSharp.Mathematics.Numeric
             long count = (long)left.KernelColumnLength * left.KernelRowLength;
             if (count <= 1024)
             {
-                MatrixParallelPool pool = MatrixParallel.LeadParallel();
-                if (!pool.TryRentIndividualHandle(out MatrixParallelWrap.Handle? handle))
+                // TODO: this is very awkward, blocking thread renting, need a better way to handle small tasks
+                CapacityFixedStack<MatrixParallelThread> pool = MatrixParallel.LeadParallel();
+                if (!pool.TryPop(out MatrixParallelThread thread))
                 {
                     /*
                      * wait
@@ -93,6 +97,7 @@ namespace StgSharp.Mathematics.Numeric
                 for (int i = 0; i < count; i++) {
                     NativeIntrinsic.Intrinsic.f32_sub(leftPtr + i, rightPtr + i, ansPtr + i);
                 }
+
                 return ans;
             }
             Stack<MatrixParallelWrap> taskGroup = MatrixParallel.PublicTask(left.GetColumnEnumeration(), right.GetColumnEnumeration(), ans.GetColumnEnumeration(),

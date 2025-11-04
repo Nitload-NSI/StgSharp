@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallel"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -54,8 +54,8 @@ namespace StgSharp.Mathematics.Numeric
     public static partial class MatrixParallel
     {
 
-        private static Thread[] _threads;
-        private static readonly (int a, int b)[] LookupTable = [ (1, 1), // 7
+        private static readonly (int a, int b)[] LookupTable = [
+            (1, 1), // 7
             (0, 2), // 8  (no non-zero solution)
             (3, 0), // 9  (no non-zero solution)
             (2, 1), // 10
@@ -71,6 +71,8 @@ namespace StgSharp.Mathematics.Numeric
             (4, 2), // 20
         ];
         private static bool _meaningful;
+
+        private static CapacityFixedStack<MatrixParallelThread> _threads;
 
         private static volatile int RemainThreadCount = 0;
         private static readonly object _lock = new();
@@ -117,85 +119,42 @@ namespace StgSharp.Mathematics.Numeric
                 return;
             }
             int count = Environment.ProcessorCount - 4;
-            count = count == 5 ? 4 : count;
-            _threads = new Thread[count];
-            if (count < 6)
-            {
-                if (count == 3)
-                {
-                    Pool = new(3, [ new MatrixParallelWrap(0, count) ]);
-                    (LargeWrapCount, SmallWrapCount) = (0, 1);
-                } else
-                {
-                    count = 4;
-                    Pool = new(4, [ new MatrixParallelWrap(0, count) ]);
-                    (LargeWrapCount, SmallWrapCount) = (1, 0);
-                }
-            } else if (count == 6)
-            {
-                Pool = new(6, [ new MatrixParallelWrap(0, 3), new MatrixParallelWrap(3, 3) ]);
-                (LargeWrapCount, SmallWrapCount) = (0, 2);
-            } else
-            {
-                (int _3wrap, int _4wrap) = FastDecompose(count);
-                CapacityFixedStack<MatrixParallelWrap> stack = new(_4wrap + _3wrap);
-                int id = 0, idx = 0;
-                for (; idx < _3wrap; idx++, id += 3) {
-                    stack.Push(new MatrixParallelWrap(idx, 3));
-                }
-                for (; idx < _3wrap + _4wrap; idx++, id += 4) {
-                    stack.Push(new MatrixParallelWrap(id, 4));
-                }
-                Pool = new MatrixParallelPool(count, stack);
+            _threads = new(count);
+            for (int i = 0; i < count; i++) {
+                _threads.Push(new());
             }
             IsInitialized = true;
         }
 
         public static void LaunchParallel(IEnumerable<MatrixParallelWrap> wraps, SleepMode afterWork)
         {
-            RemainThreadCount = _threads.Length;
+            RemainThreadCount = _threads.Count;
             _AfterWork = (ThreadPriority)afterWork;
-            SetAllWrap(wraps);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void MatrixParallelLeaderWork()
-        {
-            MatrixParallelWrap.ExecuteTaskPackage(LeaderTask);
-            _ = Interlocked.Decrement(ref RemainThreadCount);
+            ResetThreadCount();
+            foreach (MatrixParallelWrap w in wraps) {
+                w.SchedulerReset.Set();
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ResetThreadCount()
         {
-            RemainThreadCount = _threads.Length;
-        }
-
-        public static void SetAllWrap(IEnumerable<MatrixParallelWrap> wraps)
-        {
-            ResetThreadCount();
-            foreach (MatrixParallelWrap item in wraps) {
-                item.SchedulerReset.Set();
-            }
+            RemainThreadCount = _threads.Count;
         }
 
         #region wrap field
 
-        private static MatrixParallelPool Pool;
-        private static int LargeWrapCount;
-        private static int SmallWrapCount;
-
-        public static MatrixParallelPool LeadParallel()
+        public static CapacityFixedStack<MatrixParallelThread> LeadParallel()
         {
 #if NET9_0_OR_GREATER
 #else
             Monitor.Enter(_lock);
 #endif
 
-            return Pool;
+            return _threads;
         }
 
-        public static void ReleaseParallelLeadership(ref MatrixParallelPool pool)
+        public static void ReleaseParallelLeadership(ref CapacityFixedStack<MatrixParallelThread> pool)
         {
 #if NET9_0_OR_GREATER
 #else

@@ -29,12 +29,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace StgSharp.Collections
 {
     public sealed class BidirectionalDictionary<TFirst, TSecond> : IBidirectionalDictionary<TFirst, TSecond>
+        where TFirst: notnull
+        where TSecond: notnull
     {
 
         private readonly Dictionary<TFirst, TSecond> _forward;
@@ -42,25 +43,21 @@ namespace StgSharp.Collections
 
         public BidirectionalDictionary()
         {
-            _forward = new Dictionary<TFirst, TSecond>();
-            _reverse = new Dictionary<TSecond, TFirst>();
+            _forward = [];
+            _reverse = [];
         }
 
         public TFirst this[TSecond key]
         {
-            get
-            {
-                if (_reverse.TryGetValue(key, out TFirst value)) {
-                    return value;
-                }
-                throw new ArgumentException($"Cannot find key {key!.ToString()} in dictionary.");
-            }
+            get => _reverse.TryGetValue(key, out TFirst value) ?
+                   value :
+                   throw new ArgumentException($"Cannot find key {key} in dictionary.");
             set
             {
                 if (_reverse.TryGetValue(key, out TFirst origin))
                 {
                     _reverse[key] = value;
-                    _forward.Remove(origin);
+                    _ = _forward.Remove(origin);
                 } else
                 {
                     _reverse.Add(key, value);
@@ -71,19 +68,15 @@ namespace StgSharp.Collections
 
         public TSecond this[TFirst key]
         {
-            get
-            {
-                if (_forward.TryGetValue(key, out TSecond value)) {
-                    return value;
-                }
-                throw new ArgumentException($"Cannot find key {key!.ToString()} in dictionary.");
-            }
+            get => _forward.TryGetValue(key, out TSecond value) ?
+                   value :
+                   throw new ArgumentException($"Cannot find key {key} in dictionary.");
             set
             {
                 if (_forward.TryGetValue(key, out TSecond origin))
                 {
                     _forward[key] = value;
-                    _reverse.Remove(origin);
+                    _ = _reverse.Remove(origin);
                 } else
                 {
                     _forward.Add(key, value);

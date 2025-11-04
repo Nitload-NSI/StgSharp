@@ -51,77 +51,89 @@ namespace StgSharp.Mathematics.Numeric
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal readonly unsafe struct MatrixParallelTaskPackageNonGeneric
+    internal unsafe struct MatrixParallelTaskPackageNonGeneric
     {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void Copy(
+                                  MatrixParallelTaskPackageNonGeneric* source,
+                                  MatrixParallelTaskPackageNonGeneric* target)
+        {
+            Buffer.MemoryCopy(
+                source,
+                target,
+                sizeof(MatrixParallelTaskPackageNonGeneric),
+                sizeof(MatrixParallelTaskPackageNonGeneric));
+        }
 
         #region source
 
         // Group 1: Left/Right matrix kernel base address
-        public readonly IntPtr Left;    // 8
-        public readonly IntPtr Right;   // 8
+        public IntPtr Left;    // 8
+        public IntPtr Right;   // 8
 
         #endregion
 
         #region ans
 
         // Group 2: Result kernel base address + reserved
-        public readonly IntPtr Result;  // 8
-        public readonly int ElementSize;
-        public readonly int ReservedPtr0;         // 4 (extension/reserved)
+        public IntPtr Result;  // 8
+        public int ElementSize;
+        public int ReservedPtr0;         // 4 (extension/reserved)
 
         #endregion
 
         #region left enum
 
-        public readonly int LeftPrimOffset;         // 4
-        public readonly int LeftPrimStride;         // 4 
-        public readonly int LeftSecOffset;          // 4
-        public readonly int LeftSecStride;          // 4
+        public int LeftPrimOffset;         // 4
+        public int LeftPrimStride;         // 4 
+        public int LeftSecOffset;          // 4
+        public int LeftSecStride;          // 4
 
         #endregion
 
         #region right enum
 
-        public readonly int RightPrimOffset;        // 4
-        public readonly int RightPrimStride;        // 4
-        public readonly int RightSecOffset;         // 4
-        public readonly int RightSecStride;         // 4
+        public int RightPrimOffset;        // 4
+        public int RightPrimStride;        // 4
+        public int RightSecOffset;         // 4
+        public int RightSecStride;         // 4
 
         #endregion
 
         #region ans enum
 
-        public readonly int ResultPrimOffset;       // 4
-        public readonly int ResultPrimStride;       // 4
-        public readonly int ResultSecOffset;        // 4
-        public readonly int ResultSecStride;        // 4
+        public int ResultPrimOffset;       // 4
+        public int ResultPrimStride;       // 4
+        public int ResultSecOffset;        // 4
+        public int ResultSecStride;        // 4
 
         #endregion
 
         #region scalar/compute
 
-        public readonly ScalarPacket* Scalar;  // 8
-        public readonly IntPtr ComputeHandle;     // 8
+        public ScalarPacket* Scalar;  // 8
+        public IntPtr ComputeHandle;     // 8
 
         #endregion
 
         #region global profile
 
-        public readonly int PrimCount;            // 4
-        public readonly int ComputeMode;            // 4 
-        public readonly int SecCount;               // 4
-        private readonly int ReservedInt0; // 4
+        public  int PrimCount;            // 4
+        public  int ComputeMode;            // 4 
+        public  int SecCount;               // 4
+        private int ReservedInt0; // 4
 
         #endregion
 
         #region count offset
 
-        public readonly int PrimTileOffset;          // 4
-        public readonly int SecTileOffset;           // 4
-        public readonly int PrimCountInTile;          // 4
-        public readonly int SecCountInTile;           // 4
+        public int PrimTileOffset;          // 4
+        public int SecTileOffset;           // 4
+        public int PrimCountInTile;          // 4
+        public int SecCountInTile;           // 4
 
-        #endregion
+    #endregion
     }
 
     [StructLayout(LayoutKind.Sequential)]

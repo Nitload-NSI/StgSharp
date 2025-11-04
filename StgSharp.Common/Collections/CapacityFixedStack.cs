@@ -28,7 +28,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace StgSharp.Collections
@@ -86,6 +85,13 @@ namespace StgSharp.Collections
             {
                 throw new InvalidOperationException("Stack is empty.");
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ReadOnlySpan<T> PopRange(int count)
+        {
+            int i = int.Min(count, _index) - 1;
+            return _values[0..i];
         }
 
         public void Push(T item)

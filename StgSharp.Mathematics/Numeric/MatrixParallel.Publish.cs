@@ -837,6 +837,8 @@ namespace StgSharp.Mathematics.Numeric
                 {
 #if DEBUG
                     throw new InvalidOperationException("Someone steal parallel wraps from the pool.");
+#else
+                    break;
 #endif
                 }
 
@@ -854,6 +856,8 @@ namespace StgSharp.Mathematics.Numeric
                 {
 #if DEBUG
                     throw new InvalidOperationException("Zero tasks published.");
+#else
+                    break;
 #endif
                 }
 

@@ -25,60 +25,60 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace StgSharp.Collections
 {
     public interface IBidirectionalDictionary<TFirst, TSecond> : IDictionary<TFirst, TSecond>
     {
 
-        public TFirst this[TSecond key] { get; set; }
+        TFirst this[TSecond key] { get; set; }
 
-        public ICollection<TFirst> FirstIndex { get; }
+        ICollection<TFirst> FirstIndex { get; }
 
-        public ICollection<TSecond> SecondIndex { get; }
+        ICollection<TSecond> SecondIndex { get; }
 
-        public IReadOnlyDictionary<TFirst, TSecond> Forward { get; }
+        IReadOnlyDictionary<TFirst, TSecond> Forward { get; }
 
-        public IReadOnlyDictionary<TSecond, TFirst> Reverse { get; }
+        IReadOnlyDictionary<TSecond, TFirst> Reverse { get; }
 
         /// <summary>
-        ///   Determines whether the <see cref="IBidirectionalDictionary{TFirst, TSecond}" />
-        ///   contains the specified key.
+        ///   Determines whether the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains the
+        ///   specified key.
         /// </summary>
         /// <param _label="key">
         ///   The value to locate in the <see cref="IBidirectionalDictionary{TFirst, TSecond}" />.
         /// </param>
         /// <returns>
-        ///   true if the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains an
-        ///   element with the specified key; otherwise, false.
+        ///   true if the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains an element with
+        ///   the specified key; otherwise, false.
         /// </returns>
-        public bool Contains(TSecond key);
+        bool Contains(TSecond key);
 
         /// <summary>
-        ///   Determines whether the <see cref="IBidirectionalDictionary{TFirst, TSecond}" />
-        ///   contains the specified key.
+        ///   Determines whether the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains the
+        ///   specified key.
         /// </summary>
         /// <param _label="key">
         ///   The value to locate in the <see cref="IBidirectionalDictionary{TFirst, TSecond}" />.
         /// </param>
         /// <returns>
-        ///   true if the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains an
-        ///   element with the specified key; otherwise, false.
+        ///   true if the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains an element with
+        ///   the specified key; otherwise, false.
         /// </returns>
-        public bool Contains(TFirst key);
+        bool Contains(TFirst key);
 
-        public bool TryGetValue(TSecond key, out TFirst value);
+        bool TryGetValue(TSecond key, out TFirst value);
 
         #pragma warning disable CA1033
         ICollection<TFirst> IDictionary<TFirst, TSecond>.Keys => FirstIndex;
 
         ICollection<TSecond> IDictionary<TFirst, TSecond>.Values => SecondIndex;
 
-        bool IDictionary<TFirst, TSecond>.ContainsKey(TFirst key) => Contains(key);
-#pragma warning restore CA1033 
+        bool IDictionary<TFirst, TSecond>.ContainsKey(TFirst key)
+        {
+            return Contains(key);
+        }
+#pragma warning restore CA1033
     }
 }

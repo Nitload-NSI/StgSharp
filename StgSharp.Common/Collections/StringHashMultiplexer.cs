@@ -102,8 +102,8 @@ namespace StgSharp.Collections
 
         public int RemainedMultiplexCount
         {
-            get => _multiplexers.Value.RemainedMultiplexCount;
-            set => _multiplexers.Value.RemainedMultiplexCount = value;
+            get => _multiplexers.Value!.RemainedMultiplexCount;
+            set => _multiplexers.Value!.RemainedMultiplexCount = value;
         }
 
         public void CacheHash(string obj, int count)
