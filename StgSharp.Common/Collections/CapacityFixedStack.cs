@@ -29,6 +29,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace StgSharp.Collections
 {
@@ -44,6 +45,8 @@ namespace StgSharp.Collections
             _values = new T[size];
             _index = -1;
         }
+
+        public T? First => Volatile.Read(ref _index) > 0 ? _values[0] : default;
 
         public bool IsEmpty => _index == -1;
 

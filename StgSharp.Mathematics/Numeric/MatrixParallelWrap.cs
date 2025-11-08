@@ -40,6 +40,15 @@ namespace StgSharp.Mathematics.Numeric
     {
 
         private readonly MatrixParallelThread[] _threads;
+        private int _begin;
+
+        internal MatrixParallelWrap(MatrixParallelThread[] threads, int begin, int count)
+        {
+            _threads = threads;
+            _begin = begin;
+            Count = threads.Length;
+            _threads[_begin].Role = 1;
+        }
 
         public MatrixParallelWrap()
         {
@@ -83,7 +92,7 @@ namespace StgSharp.Mathematics.Numeric
             int primAverage = primCount / Count;
             int secAverage = secCount / Count;
             bool shouldSliceSec = secAverage > 512;
-            for (int i = 0; i < Count; i++)
+            for (int i = _begin; i < _begin + Count; i++)
             {
                 Queue<IntPtr> tasks = _threads[i].Tasks;
                 MatrixParallelTaskPackageNonGeneric* subTask = MatrixParallelFactory.FromExistPackage(taskPackage);

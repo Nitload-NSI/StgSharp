@@ -27,14 +27,17 @@
 // -----------------------------------------------------------------------
 using StgSharp.Mathematics.Numeric;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace StgSharp.Mathematics.Graphic
 {
-    [StructLayout(LayoutKind.Explicit, Size = 2 * 16 * sizeof(float) + sizeof(bool), Pack = 16)]
-    public unsafe struct Matrix44 : IEquatable<Matrix44>, IMatrix<float>
+    [CollectionBuilder(builderType:typeof(Matrix44), methodName: nameof(Matrix44.FromSpan))]
+    [StructLayout(LayoutKind.Explicit, Size = (2 * 16 * sizeof(float)) + sizeof(bool), Pack = 16)]
+    public unsafe struct Matrix44 : IEquatable<Matrix44>, IMatrix<float>, IEnumerable<Vec4>
     {
 
         [FieldOffset(2 * 64 * sizeof(float))] internal bool isTransposed;
@@ -160,12 +163,6 @@ namespace StgSharp.Mathematics.Graphic
             return MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ColumnSet4, float>(ref mat), 16);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe float Det()
-        {
-            return 0;
-        }
-
         public override bool Equals(object? obj)
         {
             return obj is Matrix44 x && Equals(x);
@@ -176,11 +173,24 @@ namespace StgSharp.Mathematics.Graphic
             return mat.Equals(other.mat);
         }
 
+        public static Matrix44 FromSpan(ReadOnlySpan<Vec4> rowSpan)
+        {
+            Matrix44 mat = new Matrix44();
+
+            mat.transpose.colum0 = rowSpan[0].vec;
+            mat.transpose.colum1 = rowSpan[1].vec;
+            mat.transpose.colum2 = rowSpan[2].vec;
+            mat.transpose.colum3 = rowSpan[3].vec;
+
+            NativeIntrinsic.Intrinsic.f32_transpose(&mat.transpose, &mat.mat);
+            mat.isTransposed = false;
+            return mat;
+        }
+
         public override int GetHashCode()
         {
-            return HashCode.Combine(
-                mat.colum0.GetHashCode(), mat.colum1.GetHashCode(), mat.colum2.GetHashCode(),
-                mat.colum3.GetHashCode());
+            return HashCode.Combine(mat.colum0.GetHashCode(), mat.colum1.GetHashCode(), mat.colum2.GetHashCode(),
+                                    mat.colum3.GetHashCode());
         }
 
         public override string ToString()
@@ -194,11 +204,8 @@ namespace StgSharp.Mathematics.Graphic
         {
             if (!isTransposed)
             {
-                fixed (ColumnSet4* source = &mat, target = &transpose)
-                {
+                fixed (ColumnSet4* source = &mat, target = &transpose) {
                     NativeIntrinsic.Intrinsic.f32_transpose(source, target);
-
-                    // InternalIO.Intrinsic.transpose44(source, target);
                 }
                 isTransposed = true;
             }
@@ -207,13 +214,9 @@ namespace StgSharp.Mathematics.Graphic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix44 operator -(Matrix44 left, Matrix44 right)
         {
-            return new Matrix44
-            {
-                column0 = right.column0 - left.column0,
-                column1 = right.column1 - left.column1,
-                column2 = right.column2 - left.column2,
-                column3 = right.column3 - left.column3
-            };
+            Matrix44 ret = new();
+            NativeIntrinsic.Intrinsic.f32_sub(&left, &right, &ret);
+            return ret;
         }
 
         public static bool operator !=(Matrix44 left, Matrix44 right)
@@ -224,53 +227,56 @@ namespace StgSharp.Mathematics.Graphic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix44 operator *(Matrix44 mat, float value)
         {
-            return new Matrix44(
-                mat.mat.colum0 * value, mat.mat.colum1 * value, mat.mat.colum2 * value,
-                mat.mat.colum3 * value);
+            return new Matrix44(mat.mat.colum0 * value, mat.mat.colum1 * value, mat.mat.colum2 * value,
+                                mat.mat.colum3 * value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix44 operator *(Matrix44 left, Matrix44 right)
         {
             left.InternalTranspose();
-            return new Matrix44(
-                Vector4.Dot(left.transpose.colum0, right.mat.colum0),
-                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
-                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
-                Vector4.Dot(left.transpose.colum0, right.mat.colum3),
-
-                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
-                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
-                Vector4.Dot(left.transpose.colum1, right.mat.colum2),
-                Vector4.Dot(left.transpose.colum1, right.mat.colum3),
-
-                Vector4.Dot(left.transpose.colum2, right.mat.colum0),
-                Vector4.Dot(left.transpose.colum2, right.mat.colum1),
-                Vector4.Dot(left.transpose.colum2, right.mat.colum2),
-                Vector4.Dot(left.transpose.colum2, right.mat.colum3),
-
-                Vector4.Dot(left.transpose.colum3, right.mat.colum0),
-                Vector4.Dot(left.transpose.colum3, right.mat.colum1),
-                Vector4.Dot(left.transpose.colum3, right.mat.colum2),
-                Vector4.Dot(left.transpose.colum3, right.mat.colum3));
+            return new Matrix44(Vector4.Dot(left.transpose.colum0, right.mat.colum0),
+                                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
+                                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
+                                Vector4.Dot(left.transpose.colum0, right.mat.colum3),
+                                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
+                                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
+                                Vector4.Dot(left.transpose.colum1, right.mat.colum2),
+                                Vector4.Dot(left.transpose.colum1, right.mat.colum3),
+                                Vector4.Dot(left.transpose.colum2, right.mat.colum0),
+                                Vector4.Dot(left.transpose.colum2, right.mat.colum1),
+                                Vector4.Dot(left.transpose.colum2, right.mat.colum2),
+                                Vector4.Dot(left.transpose.colum2, right.mat.colum3),
+                                Vector4.Dot(left.transpose.colum3, right.mat.colum0),
+                                Vector4.Dot(left.transpose.colum3, right.mat.colum1),
+                                Vector4.Dot(left.transpose.colum3, right.mat.colum2),
+                                Vector4.Dot(left.transpose.colum3, right.mat.colum3));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix44 operator +(Matrix44 left, Matrix44 right)
         {
-            Matrix44 ret = new()
-            {
-                column0 = left.column0 + right.column0,
-                column1 = left.column1 + right.column1,
-                column2 = left.column2 + right.column2,
-                column3 = left.column3 + right.column3
-            };
+            Matrix44 ret = new();
+            NativeIntrinsic.Intrinsic.f32_add(&left, &right, &ret);
             return ret;
         }
 
         public static bool operator ==(Matrix44 left, Matrix44 right)
         {
             return left.Equals(right);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator<Vec4> IEnumerable<Vec4>.GetEnumerator()
+        {
+            ref Vec4 col0 = ref column0;
+            for (int i = 0; i < 4; i++) {
+                yield return Unsafe.Add(ref col0, i);
+            }
         }
 
     }

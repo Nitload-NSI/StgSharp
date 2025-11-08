@@ -96,6 +96,11 @@ namespace StgSharp.Mathematics.Numeric
             _resetEvent.Set();
         }
 
+        public void ReturnToPool()
+        {
+            // MatrixParallel.(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -113,30 +118,27 @@ namespace StgSharp.Mathematics.Numeric
         private unsafe void MatrixParallelWorker()
         {
             // Thread self = Thread.CurrentThread;
-            do
+            _resetEvent.Wait();
+            _resetEvent.Reset();
+            _managedThread.Priority = ThreadPriority.Highest;
+            switch (Role)
             {
-                _resetEvent.Wait();
-                _resetEvent.Reset();
-                _managedThread.Priority = ThreadPriority.Highest;
-                switch (Role)
-                {
-                    case 0://worker
-                        // _ = Interlocked.Decrement(ref RemainThreadCount);
-                        ExecuteTaskPackage(Tasks);
-                        break;
-                    case 1://scheduler
-                        BindedWrap.PublishTaskToWorkers(Tasks);
-                        BindedWrap.SetAllWorker();
-                        ExecuteTaskPackage(Tasks);
+                case 0://worker
+                    // _ = Interlocked.Decrement(ref RemainThreadCount);
+                    ExecuteTaskPackage(Tasks);
+                    break;
+                case 1://scheduler
+                    BindedWrap.PublishTaskToWorkers(Tasks);
+                    BindedWrap.SetAllWorker();
+                    ExecuteTaskPackage(Tasks);
 
-                        break;
-                    case 2://leader, error because leader should be at outer thread but not here
-                        break;
-                    default:
-                        break;
-                }
-                _managedThread.Priority = AfterWork;
-            } while (true);
+                    break;
+                case 2://leader, error because leader should be at outer thread but not here
+                    break;
+                default:
+                    break;
+            }
+            _managedThread.Priority = AfterWork;
         }
 
         #region wrap belong
@@ -145,10 +147,10 @@ namespace StgSharp.Mathematics.Numeric
 
         internal Queue<IntPtr> Tasks { get; } = [];
 
-        internal int Role
+        public int Role
         {
             get;
-            set
+            internal set
             {
                 if ((Role & (~3u)) == 0)
                 {

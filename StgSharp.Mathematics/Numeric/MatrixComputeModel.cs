@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixComputeModel"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ namespace StgSharp.Mathematics.Numeric
                 lCount = (long)p->LeftPrimOffset * p->LeftPrimStride,
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*count of tile may be too much*/,
+                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
                 //edge to reset counters
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
@@ -97,7 +97,7 @@ namespace StgSharp.Mathematics.Numeric
                 lCount = (long)p->LeftPrimOffset * p->LeftPrimStride,
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*count of tile may be too much*/,
+                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
                 //edge to reset counters
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
@@ -147,7 +147,7 @@ namespace StgSharp.Mathematics.Numeric
                 // set beginning value to counters for primary offsets
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*count of tile may be too much*/,
+                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
                 //edge to reset counters
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;
@@ -191,7 +191,7 @@ namespace StgSharp.Mathematics.Numeric
                 // set beginning value to counters for primary offsets
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*count of tile may be too much*/,
+                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
                 //edge to reset counters
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;

@@ -47,7 +47,7 @@ namespace StgSharp.HighPerformance.Memory
                 return new BufferStack<T>(4); // Default small capacity
             }
 
-            BufferStack<T> stack = new BufferStack<T>(span.Length);
+            BufferStack<T> stack = new(span.Length);
 
 
             // Use internal method for efficient bulk initialization
@@ -65,7 +65,7 @@ namespace StgSharp.HighPerformance.Memory
                 return new ConcurrentBufferStack<T>(4); // Default small capacity
             }
 
-            ConcurrentBufferStack<T> stack = new ConcurrentBufferStack<T>(span.Length);
+            ConcurrentBufferStack<T> stack = new(span.Length);
 
 
             // Use internal method for efficient bulk initialization
@@ -82,7 +82,7 @@ namespace StgSharp.HighPerformance.Memory
 
         private byte* _buffer;
         private readonly BufferExpansionLock _lock = new();
-        private ulong _count;
+        private long _count;
 
         public ConcurrentBufferStack()
         {
@@ -101,17 +101,25 @@ namespace StgSharp.HighPerformance.Memory
         public ulong Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Volatile.Read(ref _count);
+            get => (ulong)Volatile.Read(ref _count);
         }
 
         public void Clear()
         {
-            Header* header = (Header*)_buffer;
             _lock.EnterExpansionProcess();
             try
             {
-                header->Top = 0;
-                Volatile.Write(ref _count, 0);
+                _lock.EnterBufferCopy(); // exclusive while mutating Top
+                try
+                {
+                    Header* header = (Header*)_buffer;
+                    header->Top = 0;
+                    Volatile.Write(ref _count, 0);
+                }
+                finally
+                {
+                    _lock.ExitBufferCopy();
+                }
             }
             finally
             {
@@ -127,29 +135,29 @@ namespace StgSharp.HighPerformance.Memory
 
         public T Pop()
         {
-            Header* header = (Header*)_buffer;
             while (true)
             {
-                nuint oldTop = Volatile.Read(ref header->Top);
-                if (oldTop <= 0) {
-                    throw new InvalidOperationException("Stack underflow");
-                }
-
-                if (Interlocked.CompareExchange(ref header->Top, oldTop - 1, oldTop) == oldTop)
+                _lock.EnterBufferRead(); // prevent buffer being reallocated while reading/modifying Top
+                try
                 {
-                    _lock.EnterBufferRead();
-                    try
+                    Header* header = (Header*)_buffer;
+                    int oldTop = Volatile.Read(ref header->Top);
+                    if (oldTop <= 0) {
+                        throw new InvalidOperationException("Stack underflow");
+                    }
+
+                    if (Interlocked.CompareExchange(ref header->Top, oldTop - 1, oldTop) == oldTop)
                     {
                         T* dataStart = (T*)(_buffer + sizeof(Header));
                         _ = Interlocked.Decrement(ref _count);
                         return dataStart[oldTop - 1];
                     }
-                    finally
-                    {
-                        _lock.ExitBufferRead();
-                    }
                 }
-                Thread.Sleep(0); // Yield to avoid busy waiting
+                finally
+                {
+                    _lock.ExitBufferRead();
+                }
+                Thread.Sleep(0);
             }
         }
 
@@ -157,14 +165,16 @@ namespace StgSharp.HighPerformance.Memory
         {
             while (true)
             {
+                // Ensure capacity, expanding if needed
                 _lock.EnterMetaDataRead();
                 try
                 {
                     Header* header = (Header*)_buffer;
-                    nuint oldTop = Volatile.Read(ref header->Top);
-                    nuint cap = Volatile.Read(ref header->Capacity);
-                    if (oldTop >= cap)
+                    int topSnapshot = Volatile.Read(ref header->Top);
+                    int cap = Volatile.Read(ref header->Capacity);
+                    if (topSnapshot >= cap)
                     {
+                        // Need expansion
                         _lock.ExitMetaDataRead();
                         _lock.EnterExpansionProcess();
                         try
@@ -172,8 +182,8 @@ namespace StgSharp.HighPerformance.Memory
                             header = (Header*)_buffer;
                             if (header->Top >= header->Capacity)
                             {
-                                nuint newCap = header->Capacity * 2;
-                                nuint newSize = (nuint)sizeof(Header) + (newCap * (nuint)sizeof(T));
+                                int newCap = header->Capacity * 2;
+                                nuint newSize = (nuint)sizeof(Header) + ((nuint)newCap * (nuint)sizeof(T));
 
                                 _lock.EnterBufferCopy();
                                 try
@@ -193,22 +203,6 @@ namespace StgSharp.HighPerformance.Memory
                         }
                         continue;
                     }
-
-                    if (Interlocked.CompareExchange(ref header->Top, oldTop + 1, oldTop) == oldTop)
-                    {
-                        _lock.EnterBufferRead();
-                        try
-                        {
-                            T* dataStart = (T*)(_buffer + sizeof(Header));
-                            dataStart[oldTop] = item;
-                            _ = Interlocked.Increment(ref _count);
-                            return;
-                        }
-                        finally
-                        {
-                            _lock.ExitBufferRead();
-                        }
-                    }
                 }
                 finally
                 {
@@ -216,38 +210,60 @@ namespace StgSharp.HighPerformance.Memory
                         _lock.ExitMetaDataRead();
                     }
                 }
-                Thread.Sleep(0); // Yield to avoid busy waiting
+
+                // Reserve and write under exclusive buffer lock to avoid consumers reading unwritten data
+                _lock.EnterBufferCopy();
+                try
+                {
+                    Header* header = (Header*)_buffer;
+                    int idx = header->Top; // reserve next slot
+                    if (idx >= header->Capacity)
+                    {
+                        // lost race against expander or other producer; retry
+                        continue;
+                    }
+
+                    T* dataStart = (T*)(_buffer + sizeof(Header));
+                    dataStart[idx] = item; // write first
+                    header->Top = idx + 1; // then publish by increasing top
+                    _ = Interlocked.Increment(ref _count);
+                    return;
+                }
+                finally
+                {
+                    _lock.ExitBufferCopy();
+                }
             }
         }
 
         public bool TryPop(out T value)
         {
-            Header* header = (Header*)_buffer;
             while (true)
             {
-                nuint oldTop = Volatile.Read(ref header->Top);
-                if (oldTop <= 0)
+                _lock.EnterBufferRead();
+                try
                 {
-                    value = default;
-                    return false;
-                }
+                    Header* header = (Header*)_buffer;
+                    int oldTop = Volatile.Read(ref header->Top);
+                    if (oldTop <= 0)
+                    {
+                        value = default;
+                        return false;
+                    }
 
-                if (Interlocked.CompareExchange(ref header->Top, oldTop - 1, oldTop) == oldTop)
-                {
-                    _lock.EnterBufferRead();
-                    try
+                    if (Interlocked.CompareExchange(ref header->Top, oldTop - 1, oldTop) == oldTop)
                     {
                         T* dataStart = (T*)(_buffer + sizeof(Header));
                         value = dataStart[oldTop - 1];
                         _ = Interlocked.Decrement(ref _count);
+                        return true;
                     }
-                    finally
-                    {
-                        _lock.ExitBufferRead();
-                    }
-                    return true;
                 }
-                Thread.Sleep(0); // Yield to avoid busy waiting
+                finally
+                {
+                    _lock.ExitBufferRead();
+                }
+                Thread.Sleep(0);
             }
         }
 
@@ -264,28 +280,28 @@ namespace StgSharp.HighPerformance.Memory
 
             fixed (T* sourcePtr = span) {
                 Buffer.MemoryCopy(sourcePtr, dataStart,
-                    header->Capacity * (nuint)sizeof(T),
+                    (nuint)header->Capacity * (nuint)sizeof(T),
                     (nuint)span.Length * (nuint)sizeof(T));
             }
 
-            header->Top = (nuint)span.Length;
-            Volatile.Write(ref _count, (ulong)span.Length);
+            header->Top = span.Length;
+            Volatile.Write(ref _count, span.Length);
         }
 
         private void AllocateBuffer(int capacity)
         {
-            nuint size = (nuint)sizeof(Header) + ((nuint)capacity * (nuint)sizeof(T));
+            nuint size = (nuint)sizeof(Header) + (nuint)capacity * (nuint)sizeof(T);
             _buffer = (byte*)NativeMemory.Alloc(size);
             Header* header = (Header*)_buffer;
             header->Top = 0;
-            header->Capacity = (nuint)capacity;
+            header->Capacity = capacity;
         }
 
         private struct Header
         {
 
-            public nuint Capacity;   // max capacity of the stack (number of elements)
-            public nuint Top;        // next available index in the stack
+            public int Capacity;   // max capacity of the stack (number of elements)
+            public int Top;        // next available index in the stack
 
         }
 

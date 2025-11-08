@@ -38,7 +38,7 @@ namespace StgSharp.Internal
     internal static partial class GraphicFramework
     {
 
-        internal static uint[] GLtype = [];
+        internal static uint[] GLtype = new uint[16];
 
         static GraphicFramework()
         {

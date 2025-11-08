@@ -36,8 +36,9 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.Mathematics.Graphic
 {
+    [CollectionBuilder(builderType:typeof(Vec4), methodName: nameof(Vec4.FromSpan))]
     [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public struct Vec4 : IEquatable<Vec4>, IUnmanagedVector<Vec4>
+    public unsafe struct Vec4 : IEquatable<Vec4>, IUnmanagedVector<Vec4, float>
     {
 
         [FieldOffset(0)] internal unsafe fixed float num[4];
@@ -127,9 +128,31 @@ namespace StgSharp.Mathematics.Graphic
             return left + right;
         }
 
+        public ReadOnlySpan<float> AsSpan()
+        {
+            return MemoryMarshal.CreateReadOnlySpan(ref reg.Member<float>(0), 4);
+        }
+
         public override bool Equals(object obj)
         {
             return obj is Vec4 v && v == this;
+        }
+
+        public static Vec4 FromSpan(ReadOnlySpan<float> span)
+        {
+            return new Vec4
+            {
+                X = span[0],
+                Y = span[1],
+                Z = span[2],
+                W = span[3]
+            };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ReadOnlySpan<float>.Enumerator GetEnumerator()
+        {
+            return AsSpan().GetEnumerator();
         }
 
         public override int GetHashCode()
@@ -163,11 +186,8 @@ namespace StgSharp.Mathematics.Graphic
         public static Vec4 operator *(Matrix44 mat, Vec4 vec)
         {
             mat.InternalTranspose();
-            return new Vec4(
-                Vector4.Dot(mat.transpose.colum0, vec.vec),
-                Vector4.Dot(mat.transpose.colum1, vec.vec),
-                Vector4.Dot(mat.transpose.colum2, vec.vec),
-                Vector4.Dot(mat.transpose.colum3, vec.vec));
+            return new Vec4(Vector4.Dot(mat.transpose.colum0, vec.vec), Vector4.Dot(mat.transpose.colum1, vec.vec),
+                            Vector4.Dot(mat.transpose.colum2, vec.vec), Vector4.Dot(mat.transpose.colum3, vec.vec));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
