@@ -37,21 +37,18 @@ namespace StgSharp.Mathematics.Numeric
 {
     public static partial class MatrixParallel
     {
+        /*
+         * Because caller of this class has its own sync object
+         * this queue will use no sync object internally.
+        */
 
         private class AwaitingQueue
         {
 
-            private readonly ConcurrentQueue<WaitHandle> _fallback = [];
             private Element _quickElements = new();
             private volatile int _count;
             private volatile int _lastGeneration;
-            private readonly
-#if NET9_0_OR_GREATER
-                Lock
-#else
-                object
-#endif
-                sync = new();
+            private readonly Queue<WaitHandle> _fallback = [];
 
             public AwaitingQueue() { }
 
@@ -63,17 +60,8 @@ namespace StgSharp.Mathematics.Numeric
                     Interlocked.Increment(ref _count);
                     return;
                 }
-                lock (sync)
-                {
-                    if (_count > 7)
-                    {
-                        _fallback.Enqueue(handle);
-                        Interlocked.Increment(ref _count);
-                        return;
-                    }
-                    _quickElements[_count] = handle;
-                    Interlocked.Increment(ref _count);
-                }
+                _quickElements[_count] = handle;
+                Interlocked.Increment(ref _count);
             }
 
             public bool TryDequeue(int generation, out WaitHandle handle)
@@ -84,25 +72,22 @@ namespace StgSharp.Mathematics.Numeric
                     handle = null!;
                     return false;
                 }
-                lock (sync)
+                if (_lastGeneration == generation)
                 {
-                    if (_lastGeneration == generation)
-                    {
-                        for (int i = 0; i < _count; i++) {
-                            _quickElements[i].UpdatePriority(generation);
-                        }
-                        Element.Sort(_quickElements);
-                    } else
-                    {
-                        _lastGeneration = generation;
+                    for (int i = 0; i < _count; i++) {
+                        _quickElements[i].UpdatePriority(generation);
                     }
-                    handle = _quickElements[0];
-                    _count--;
-                    if (_count > 7) {
-                        _ = _fallback.TryDequeue(out _quickElements[0]!);
-                    }
-                    return true;
+                    Element.Sort(_quickElements);
+                } else
+                {
+                    _lastGeneration = generation;
                 }
+                handle = _quickElements[0];
+                _count--;
+                if (_count > 7) {
+                    _ = _fallback.TryDequeue(out _quickElements[0]!);
+                }
+                return true;
             }
 
             public bool TryPeek(int generation, out WaitHandle handle)
@@ -113,20 +98,17 @@ namespace StgSharp.Mathematics.Numeric
                     handle = null!;
                     return false;
                 }
-                lock (sync)
-                {
-                    for (int i = 0; i < _count; i++) {
-                        _quickElements[i].UpdatePriority(generation);
-                    }
-                    Element.Sort(_quickElements);
-                    _lastGeneration = generation;
-                    handle = _quickElements[0];
-                    _count--;
-                    if (_count > 7) {
-                        _ = _fallback.TryDequeue(out _quickElements[0]!);
-                    }
-                    return true;
+                for (int i = 0; i < _count; i++) {
+                    _quickElements[i].UpdatePriority(generation);
                 }
+                Element.Sort(_quickElements);
+                _lastGeneration = generation;
+                handle = _quickElements[0];
+                _count--;
+                if (_count > 7) {
+                    _ = _fallback.TryDequeue(out _quickElements[0]!);
+                }
+                return true;
             }
 
             public bool TryPopIfRefEqual(int generation, ref WaitHandle handle)
@@ -136,24 +118,21 @@ namespace StgSharp.Mathematics.Numeric
                     handle = null!;
                     return false;
                 }
-                lock (sync)
-                {
-                    for (int i = 0; i < _count; i++) {
-                        _quickElements[i].UpdatePriority(generation);
-                    }
-                    Element.Sort(_quickElements);
-                    _lastGeneration = generation;
-                    handle = _quickElements[0];
-                    _count--;
-                    if (!ReferenceEquals(_quickElements[0], handle)) {
-                        return false;
-                    }
-                    _quickElements[0] = null!;
-                    if (_count > 7) {
-                        _ = _fallback.TryDequeue(out _quickElements[0]!);
-                    }
-                    return true;
+                for (int i = 0; i < _count; i++) {
+                    _quickElements[i].UpdatePriority(generation);
                 }
+                Element.Sort(ref _quickElements);
+                _lastGeneration = generation;
+                handle = _quickElements[0];
+                _count--;
+                if (!ReferenceEquals(_quickElements[0], handle)) {
+                    return false;
+                }
+                _quickElements[0] = null!;
+                if (_count > 7) {
+                    _ = _fallback.TryDequeue(out _quickElements[0]!);
+                }
+                return true;
             }
 
         }
@@ -164,11 +143,26 @@ namespace StgSharp.Mathematics.Numeric
 
             private WaitHandle value;
 
-            public static void Sort(Element e)
+            public static void Sort(ref Element e)
             {
-                /*
-                 * yet to do
-                 */
+                int maxIdx = 0;
+                WaitHandle first = e[0];
+                int maxPr = first?.Priority ?? int.MaxValue;
+
+                for (int i = 1; i < 8; i++)
+                {
+                    WaitHandle cur = e[i];
+                    int p = cur?.Priority ?? int.MinValue;
+                    if (p > maxPr)
+                    {
+                        maxPr = p;
+                        maxIdx = i;
+                    }
+                }
+
+                if (maxIdx != 0) {
+                    (e[0], e[maxIdx]) = (e[maxIdx], e[0]);
+                }
             }
 
         }
