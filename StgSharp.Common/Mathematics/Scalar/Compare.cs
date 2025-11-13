@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics
 {
-    public static partial class Scaler
+    public static partial class Scalar
     {
 
         public static float MaxOf(params float[] stream)

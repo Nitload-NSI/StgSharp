@@ -25,37 +25,31 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics;
-
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StgSharp
 {
     public static partial class World
     {
 
-        private static unsafe IntPtr[] monitorsArray = [];
-
         public static unsafe IntPtr[] MonitorsHandleArray
         {
             get
             {
-                if (monitorsArray == null)
+                if (MonitorsArray == null)
                 {
                     int count = 0;
-                    IntPtr* arrayhandle = GraphicFramework.glfwGetMonitors(&count);
-                    monitorsArray = new IntPtr[count];
-                    Marshal.Copy((IntPtr)arrayhandle, monitorsArray, 0, count);
-                    Marshal.FreeHGlobal((IntPtr)arrayhandle);
+                    IntPtr* arrayHandle = GraphicFramework.glfwGetMonitors(&count);
+                    MonitorsArray = new IntPtr[count];
+                    Marshal.Copy((IntPtr)arrayHandle, MonitorsArray, 0, count);
+                    Marshal.FreeHGlobal((IntPtr)arrayHandle);
                 }
-                return monitorsArray;
+                return MonitorsArray;
             }
         }
+
+        public static nint[] MonitorsArray { get; set; } = [];
 
         public static IntPtr DefaultMonitor => MonitorsHandleArray[0];
 

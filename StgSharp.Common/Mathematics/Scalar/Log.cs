@@ -29,7 +29,7 @@ using System;
 
 namespace StgSharp.Mathematics
 {
-    public static partial class Scaler
+    public static partial class Scalar
     {
 
         private static readonly float[] logArray = {

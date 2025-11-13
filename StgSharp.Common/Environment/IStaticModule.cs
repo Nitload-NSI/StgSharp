@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="EntityPartical"
+// file="IStaticModule"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,7 +25,60 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-namespace StgSharp.Entities
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace StgSharp
 {
-    public abstract class EntityPartical : IEntity { }
+    public interface IStaticModule
+    {
+
+        string ModuleName { get; }
+
+        void InitializeModule();
+
+    }
+
+    public class ModuleToInitializeCollection : IEnumerable<IStaticModule>, IStaticModule
+    {
+
+        private readonly List<IStaticModule> _modules = [];
+
+        internal ModuleToInitializeCollection(World.Initializer i)
+        {
+            _modules.Add(i);
+        }
+
+        public IEnumerator<IStaticModule> GetEnumerator()
+        {
+            return ((IEnumerable<IStaticModule>)_modules).GetEnumerator();
+        }
+
+        public void InitializeModule()
+        {
+            foreach (IStaticModule module in _modules) {
+                module.InitializeModule();
+            }
+        }
+
+        public ModuleToInitializeCollection UseModule<T>() where T: IStaticModule, new()
+        {
+            _modules.Add(new T());
+            return this;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)_modules).GetEnumerator();
+        }
+
+        void IStaticModule.InitializeModule()
+        {
+            throw new NotImplementedException();
+        }
+
+        string IStaticModule.ModuleName => "Module Initializer";
+
+    }
 }

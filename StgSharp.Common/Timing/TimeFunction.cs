@@ -27,6 +27,7 @@
 // -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace StgSharp.Timing
@@ -35,7 +36,6 @@ namespace StgSharp.Timing
     {
 
         private float _beginning, _ending;
-        private Func<float, float> _timeRelatedCalculation;
         private TimeSpanProvider _timeProvider;
 
         internal TimeFunction() { }
@@ -43,7 +43,7 @@ namespace StgSharp.Timing
         public TimeFunction(TimeSpanProvider timeSpanProvider, Func<float, float> timeRelatedCalculation, float range)
         {
             _timeProvider = timeSpanProvider;
-            _timeRelatedCalculation = timeRelatedCalculation;
+            TimeRelatedCalculation = timeRelatedCalculation;
             if (timeSpanProvider == null) {
                 return;
             }
@@ -53,24 +53,24 @@ namespace StgSharp.Timing
 
         public virtual bool IsComplete
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _timeProvider.CurrentSecond > _ending;
         }
 
-        public Func<float, float> TimeRelatedCalculation
-        {
-            get { return _timeRelatedCalculation; }
-            set { _timeRelatedCalculation = value; }
-        }
+        public Func<float, float> TimeRelatedCalculation { get; set; }
 
         public static TimeFunction One
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => new TimeFunctionOne();
         }
 
         public TimeSpanProvider TimeSpanProvider
         {
-            get { return _timeProvider; }
-            set { _timeProvider = value; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _timeProvider;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => _timeProvider = value;
         }
 
         public virtual float Calculate()
@@ -78,7 +78,7 @@ namespace StgSharp.Timing
             if (_timeProvider.CurrentSecond < _ending) {
                 return 0;
             }
-            return _timeRelatedCalculation(_timeProvider.CurrentSecond - _beginning);
+            return TimeRelatedCalculation(_timeProvider.CurrentSecond - _beginning);
         }
 
         public static TimeFunction Proportional(TimeSpanProvider time, float begin, float range)
@@ -96,7 +96,7 @@ namespace StgSharp.Timing
             return new TimeFunction(_timeProvider, func, range);
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             float range = _ending - _beginning;
             _beginning = _timeProvider.CurrentSecond;
@@ -107,7 +107,7 @@ namespace StgSharp.Timing
         {
             float range = _ending - _beginning;
             return new TimeFunction(
-                _timeProvider, p => _timeRelatedCalculation(range - p), range);
+                _timeProvider, p => TimeRelatedCalculation(range - p), range);
         }
 
     }
@@ -117,10 +117,7 @@ namespace StgSharp.Timing
 
         internal TimeFunctionOne() : base() { }
 
-        public override bool IsComplete
-        {
-            get => true;
-        }
+        public override bool IsComplete => true;
 
         public override float Calculate()
         {
@@ -138,9 +135,9 @@ namespace StgSharp.Timing
         }
 
         #pragma warning disable CA1822 
-        public new void Reset()
+        public override void Reset()
+        {
+        }
  #pragma warning restore CA1822 
- { }
-
     }
 }

@@ -46,26 +46,26 @@ namespace StgSharp.Geometries
 
         public virtual Point LocalOrigin
         {
-            get => new Point(coordMat.column3.XYZ);
-            internal set => coordMat.column3.XYZ = value.Coord;
+            get => new Point(coordMat.column[3].XYZ);
+            internal set => coordMat.column[3].XYZ = value.Coord;
         }
 
         public virtual Vec3 LocalX
         {
-            get => coordMat.column0.XYZ;
-            internal set => coordMat.column0.XYZ = value;
+            get => coordMat.column[3].XYZ;
+            internal set => coordMat.column[3].XYZ = value;
         }
 
         public virtual Vec3 LocalY
         {
-            get => coordMat.column1.XYZ;
-            internal set => coordMat.column1.XYZ = value;
+            get => coordMat.column[3].XYZ;
+            internal set => coordMat.column[3].XYZ = value;
         }
 
         public virtual Vec3 LocalZ
         {
-            get => coordMat.column2.XYZ;
-            set => coordMat.column2.XYZ = value;
+            get => coordMat.column[3].XYZ;
+            set => coordMat.column[3].XYZ = value;
         }
 
         protected ref Matrix44 CoordMat

@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="glHalfNV"
+// file="TimeSequence"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,44 +25,68 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Graphics.OpenGL
+namespace StgSharp.Common.Timing
 {
-    [StructLayout(LayoutKind.Explicit, Size = 16)]
-    public struct glHalfNV
+    public abstract class TimeSequence
     {
 
-        [FieldOffset(0)] public short binary;
+        public ulong BeginningTick { get; protected set; }
 
-        public glHalfNV(short bin)
+        public ulong EndingTick { get; protected set; }
+
+        public ulong FrameLength { get; protected set; }
+
+        public static TimeSequence CreateLinear(ulong timeout, ulong length)
         {
-            binary = bin;
+            return new LinearTimeSequence(timeout, timeout + length, length);
         }
 
-        public static glHalfNV FromInt16(short x)
+        public abstract bool IsNextFrameReady(ulong currentTick);
+
+    }
+
+    internal sealed class LogTimeSequence : TimeSequence
+    {
+
+        private float _rate ;
+
+        public LogTimeSequence(ulong beginningTick, ulong endingTick, ulong tickPerDecade)
         {
-            return new glHalfNV(x);
+            BeginningTick = beginningTick;
+            EndingTick = endingTick;
+            _rate = Scalar.Pow(10, 1 / tickPerDecade);
         }
 
-        public static short ToInt16(glHalfNV half)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsNextFrameReady(ulong currentTick)
         {
-            return half.binary;
+            return (ulong)Math.Log(currentTick - BeginningTick + 1) >= FrameLength;
         }
 
-        public static explicit operator glHalfNV(short x)
+    }
+
+    internal sealed class LinearTimeSequence : TimeSequence
+    {
+
+        public LinearTimeSequence(ulong beginningTick, ulong endingTick, ulong tickPerFrame)
         {
-            return new glHalfNV(x);
+            BeginningTick = beginningTick;
+            EndingTick = endingTick;
+            FrameLength = tickPerFrame;
         }
 
-        public static explicit operator short(glHalfNV x)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsNextFrameReady(ulong currentTick)
         {
-            return x.binary;
+            return currentTick - BeginningTick >= FrameLength;
         }
 
     }

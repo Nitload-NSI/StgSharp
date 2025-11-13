@@ -65,26 +65,9 @@ namespace StgSharp
             _ => 8,
         };
 
-        public static unsafe void Init()
+        public static ModuleToInitializeCollection Initialize()
         {
-            mainTimeProvider = new StgSharpTime();
-            MainTimeProvider.StartProvidingTime();
-            GraphicFramework.LoadGlfw();
-            if (GraphicFramework.glfwInit() == 0) {
-                throw new Exception("Failed to init system graphic environment.");
-            }
-            DefaultLog.InternalAppendLog("\n\n\n");
-            DefaultLog.InternalWriteLog(
-                $"Program {Assembly.GetEntryAssembly()!.FullName} on {Environment.MachineName} Started.", LogType.Info);
-            MainThreadID = Environment.CurrentManagedThreadId;
-
-
-            Dialogue.LoadDialogue();
-            if (Dialogue.NeedShowWhenStartup) {
-                Dialogue.CreateDialogueProcessIfNotExist();
-            }
-
-            NativeIntrinsic.InitIntrinsicContext();
+            return new ModuleToInitializeCollection(new Initializer());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -199,6 +182,41 @@ namespace StgSharp
             {
                 throw;
             }
+        }
+
+        internal static unsafe void InternalInitialize()
+        {
+            mainTimeProvider = new StgSharpTime();
+            MainTimeProvider.StartProvidingTime();
+            GraphicFramework.LoadGlfw();
+            if (GraphicFramework.glfwInit() == 0) {
+                throw new Exception("Failed to init system graphic environment.");
+            }
+            DefaultLog.InternalAppendLog("\n\n\n");
+            DefaultLog.InternalWriteLog(
+                $"Program {Assembly.GetEntryAssembly()!.FullName} on {Environment.MachineName} Started.", LogType.Info);
+            MainThreadID = System.Environment.CurrentManagedThreadId;
+
+
+            Dialogue.LoadDialogue();
+            if (Dialogue.NeedShowWhenStartup) {
+                Dialogue.CreateDialogueProcessIfNotExist();
+            }
+
+            NativeIntrinsic.InitIntrinsicContext();
+        }
+
+        internal class Initializer : IStaticModule
+        {
+
+            public string ModuleName => "StgSharp";
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void InitializeModule()
+            {
+                World.InternalInitialize();
+            }
+
         }
 
     }

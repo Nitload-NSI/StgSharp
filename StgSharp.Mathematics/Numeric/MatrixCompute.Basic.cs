@@ -31,6 +31,7 @@ using StgSharp.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,23 +60,21 @@ namespace StgSharp.Mathematics.Numeric
             }
             if (count <= 1024)
             {
-                ReadOnlySpan<MatrixParallelThread> pool = MatrixParallel.LeadParallel(1);
-                if (pool.Length == 0)
-                {
-                    /*
-                     * wait
-                     */
-                }
+                MatrixParallelThread[] pool = MatrixParallel.LeadParallel(1);
+
                 MatrixKernel<float>* leftPtr = left.Buffer;
                 MatrixKernel<float>* rightPtr = right.Buffer;
                 MatrixKernel<float>* ansPtr = ans.Buffer;
                 for (int i = 0; i < count; i++) {
                     NativeIntrinsic.Intrinsic.f32_add(leftPtr + i, rightPtr + i, ansPtr + i);
                 }
+                MatrixParallel.ReturnParallelResources(ref pool);
                 return ans;
             }
-            MatrixParallelHandle taskGroup = MatrixParallel.PublicTask(left.GetColumnEnumeration(), right.GetColumnEnumeration(), ans.GetColumnEnumeration(),
-                (delegate*<MatrixKernel<float>*, MatrixKernel<float>*, MatrixKernel<float>*, void>)NativeIntrinsic.Intrinsic.f32_add);
+            MatrixParallelHandle taskGroup = MatrixParallel.PublicTask(left.GetColumnEnumeration(),
+                                                                       right.GetColumnEnumeration(),
+                                                                       ans.GetColumnEnumeration(),
+                                                                       (delegate*<MatrixKernel<float>*, MatrixKernel<float>*, MatrixKernel<float>*, void>)NativeIntrinsic.Intrinsic.f32_add);
 
             MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);
             /*
@@ -83,6 +82,38 @@ namespace StgSharp.Mathematics.Numeric
              */
             taskGroup.Dispose();
             return ans;
+        }
+
+        public static unsafe void Fill<T>(Matrix<float> left, T value) where T: unmanaged, INumber<T>
+        {
+            long count = (long)left.KernelColumnLength * left.KernelRowLength;
+            ScalarPacket* scaler = MatrixParallelFactory.CreateScalarPacket();
+            scaler->BroadCast<T, M512>(0, value);
+            if (count <= 256)
+            {
+                MatrixKernel<float>* leftPtr = left.Buffer;
+                for (int i = 0; i < count; i++) {
+                    NativeIntrinsic.Intrinsic.f32_fill(leftPtr + i, scaler);
+                }
+            }
+            if (count <= 1024)
+            {
+                MatrixParallelThread[] pool = MatrixParallel.LeadParallel(1);
+
+                MatrixKernel<float>* leftPtr = left.Buffer;
+                for (int i = 0; i < count; i++) {
+                    NativeIntrinsic.Intrinsic.f32_fill(leftPtr + i, scaler);
+                }
+                MatrixParallel.ReturnParallelResources(ref pool);
+            }
+            MatrixParallelHandle taskGroup = MatrixParallel.PublicNoAnswerTask(left.GetColumnEnumeration(), scaler,
+                (delegate* unmanaged[Cdecl]<MatrixKernel<float>*, ScalarPacket*, void>)NativeIntrinsic.Intrinsic.f32_add);
+
+            MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);
+            /*
+             * run parallel
+             */
+            taskGroup.Dispose();
         }
 
     }

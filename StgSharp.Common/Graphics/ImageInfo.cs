@@ -90,9 +90,9 @@ namespace StgSharp.Graphics
         public override int GetHashCode()
         {
             int hash = 17;
-            hash = hash * 17 + width;
-            hash = hash * 17 + height;
-            hash = hash * 17 + (int)channel;
+            hash = (hash * 17) + width;
+            hash = (hash * 17) + height;
+            hash = (hash * 17) + (int)channel;
             return hash;
         }
 

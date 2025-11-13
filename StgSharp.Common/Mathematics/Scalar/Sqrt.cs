@@ -30,7 +30,7 @@ using System.Runtime.CompilerServices;
 
 namespace StgSharp.Mathematics
 {
-    public static partial class Scaler
+    public static partial class Scalar
     {
 
         public static unsafe float SeedSqrt(float x)

@@ -34,13 +34,13 @@ namespace StgSharp.Mathematics.Graphic
 
         public static float GetAngle(Vec2 vec1, Vec2 vec2)
         {
-            return Scaler.ACos(
+            return Scalar.ACos(
                 1 / (vec1.GetLength() * vec2.GetLength()));
         }
 
         public static float GetAngle(Vec3 vec1, Vec3 vec2)
         {
-            return Scaler.ACos((vec1 * vec2) / (vec1.GetLength() * vec2.GetLength()));
+            return Scalar.ACos((vec1 * vec2) / (vec1.GetLength() * vec2.GetLength()));
         }
 
     }

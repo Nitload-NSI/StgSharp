@@ -41,13 +41,10 @@ namespace StgSharp.Mathematics.Graphic
     {
 
         [FieldOffset(2 * 64 * sizeof(float))] internal bool isTransposed;
+        [FieldOffset(0 * sizeof(float))] internal Column column;
 
         [FieldOffset(0)] internal ColumnSet4 mat;
         [FieldOffset(16 * sizeof(float))] internal ColumnSet4 transpose;
-        [FieldOffset(0 * sizeof(float))] internal Vec4 column0;
-        [FieldOffset(4 * sizeof(float))] internal Vec4 column1;
-        [FieldOffset(8 * sizeof(float))] internal Vec4 column2;
-        [FieldOffset(12 * sizeof(float))] internal Vec4 column3;
 
         internal Matrix44(ColumnSet4 mat)
         {
@@ -273,10 +270,17 @@ namespace StgSharp.Mathematics.Graphic
 
         IEnumerator<Vec4> IEnumerable<Vec4>.GetEnumerator()
         {
-            ref Vec4 col0 = ref column0;
             for (int i = 0; i < 4; i++) {
-                yield return Unsafe.Add(ref col0, i);
+                yield return column[i];
             }
+        }
+
+        [InlineArray(4)]
+        internal struct Column
+        {
+
+            private Vec4 value;
+
         }
 
     }

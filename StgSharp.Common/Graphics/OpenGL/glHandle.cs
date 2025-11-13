@@ -46,8 +46,16 @@ namespace StgSharp.Graphics.OpenGL
         [FieldOffset(0)] internal int SignedValue;
         [FieldOffset(0)] internal uint Value;
 
+        public GlHandle()
+        {
+            Unsafe.SkipInit(out Value);
+            Unsafe.SkipInit(out SignedValue);
+            Unsafe.SkipInit(out this);
+        }
+
         public static GlHandle Zero
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => new GlHandle
             {
                 Value = 0
@@ -55,7 +63,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static GlHandle Alloc(uint value)
+        public static GlHandle Create(uint value)
         {
             return new GlHandle
             {
@@ -64,7 +72,7 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static GlHandle SignedAlloc(int value)
+        public static GlHandle CreateSigned(int value)
         {
             return new GlHandle
             {

@@ -115,7 +115,7 @@ namespace StgSharp.Stg
         public void Init(Radius angleStride, string name)
         {
             primeArgs = new ViewPort(
-                1, (int)((new Radius(Scaler.Pi)) / angleStride), name, IntPtr.Zero);
+                1, (int)((new Radius(Scalar.Pi)) / angleStride), name, IntPtr.Zero);
 
             PlatformSpecifiedInitialize();
             CustomizeInit();

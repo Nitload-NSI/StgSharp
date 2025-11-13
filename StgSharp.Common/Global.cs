@@ -27,7 +27,7 @@
 // -----------------------------------------------------------------------
 global using StgSharp.Internal;
 global using StgSharp.Internal.Intrinsic;
-global using StgSharp.Internal.OpenGL;
+global 
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;

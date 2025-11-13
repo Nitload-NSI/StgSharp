@@ -31,7 +31,7 @@ using System.Runtime.CompilerServices;
 
 namespace StgSharp.Mathematics
 {
-    public static unsafe partial class Scaler
+    public static unsafe partial class Scalar
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

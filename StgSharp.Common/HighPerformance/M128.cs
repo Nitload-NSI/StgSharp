@@ -68,6 +68,11 @@ namespace StgSharp.HighPerformance
             return Vec.AsVector4();
         }
 
+        public void BroadCastFrom<T>(T value) where T: unmanaged, INumber<T>
+        {
+            Vec = Vector128.Create<T>(value).AsSingle();
+        }
+
         public override readonly bool Equals([NotNullWhen(true)] object obj)
         {
             return obj is M128 other && this == other;

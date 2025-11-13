@@ -29,6 +29,7 @@ using StgSharp.Mathematics.Graphic;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace StgSharp.Graphics
 {
@@ -46,11 +47,13 @@ namespace StgSharp.Graphics
 
         public ref Vec2 this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => ref _texCoord[index];
         }
 
         public Span<Vec2> TextureCoordinate
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => new Span<Vec2>(_texCoord);
         }
 

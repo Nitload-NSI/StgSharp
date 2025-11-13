@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Collections;
 using StgSharp.Timing;
 
 using System;
@@ -48,7 +49,7 @@ namespace StgSharp
     public sealed class StgSharpTime : TimeSourceProviderBase
     {
 
-        private static List<TimeSpanProvider> subscriberList = [];
+        private static readonly LinearBag<TimeSpanProvider> _subscribers = new();
         private static long accuracy;
         private static readonly Stopwatch mainProvider = new();
         private static Thread timeProvideThread;
@@ -65,21 +66,21 @@ namespace StgSharp
             mainProvider.Start();
 
             // speed test
-            long totalMS, internalFrequncy = Stopwatch.Frequency;
+            long totalMS, internalFrequency = Stopwatch.Frequency;
             for (int i = 0; i < 100; i++)
             {
-                totalMS = mainProvider.ElapsedTicks / (internalFrequncy / (1000L * 1000L));
+                totalMS = mainProvider.ElapsedTicks / (internalFrequency / (1000L * 1000L));
                 for (int t = 0; t < 10; t++)
                 {
                     if (totalMS < 1000) {
-                        subscriberList.Add(
+                        _subscribers.Add(
                             new TimeSpanProvider(100L, TimeSpanProvider.DefaultProvider));
                     }
                 }
             }
             mainProvider.Stop();
-            subscriberList.Clear();
-            totalMS = mainProvider.ElapsedTicks / (internalFrequncy / (1000L * 1000L)) / 100L;
+            _subscribers.Clear();
+            totalMS = mainProvider.ElapsedTicks / (internalFrequency / (1000L * 1000L)) / 100L;
             accuracy = totalMS * 2 / 3;
             mainProvider.Reset();
             timeProvideThread = new Thread(new ThreadStart(ProvideTime));
@@ -102,44 +103,36 @@ namespace StgSharp
 
         protected sealed override void AddSubscriberUnsynced(TimeSpanProvider subscriber)
         {
-            subscriberList.Add(subscriber);
+            _subscribers.Add(subscriber);
         }
 
         protected sealed override void RemoveSubscriberUnsynced(TimeSpanProvider subscriber)
         {
-            _ = subscriberList.Remove(subscriber);
+            _subscribers.Remove(subscriber);
         }
 
         private void ProvideTime()
         {
-            long totalMS, internalFrequncy = Stopwatch.Frequency;
+            long totalMS, internalFrequency = Stopwatch.Frequency;
             lock (mainProvider) {
                 mainProvider.Restart();
             }
             while (mainProvider.IsRunning)
             {
-                totalMS = mainProvider.ElapsedTicks / (internalFrequncy / (1000L * 1000L));
-                if (subscriberList.Count == 0)
+                totalMS = mainProvider.ElapsedTicks / (internalFrequency / (1000L * 1000L));
+                if (_subscribers.Count == 0)
                 {
                     continue;
                 }
                 lock (SubscribeLock)
                 {
-                    List<TimeSpanProvider> toRemoveList = [];
-                    foreach (TimeSpanProvider subscriber in subscriberList)
+                    for (int i = 0; i < _subscribers.Count; i++)
                     {
-                        if (!subscriber.CheckTime(totalMS))
+                        if (!_subscribers[i].CheckTime(totalMS))
                         {
-                            toRemoveList.Add(subscriber);
+                            _subscribers.RemoveAt(i);
                             DefaultLog.InternalWriteLog(
-                                $"Time subscriber {subscriber} is to be removed.", LogType.Info);
-                        }
-                        ;
-                    }
-                    if (toRemoveList.Count != 0)
-                    {
-                        foreach (TimeSpanProvider subscriber in toRemoveList) {
-                            _ = subscriberList.Remove(subscriber);
+                                $"Time subscriber {_subscribers[i]} is to be removed.", LogType.Info);
                         }
                     }
                 }

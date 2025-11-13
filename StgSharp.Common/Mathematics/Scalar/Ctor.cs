@@ -32,7 +32,7 @@ namespace StgSharp.Mathematics
 {
     public unsafe delegate float ScalarCalcHandler(float* x);
 
-    public static unsafe partial class Scaler
+    public static unsafe partial class Scalar
     {
 
         private const uint MEM_COMMIT = 0x1000;
@@ -40,7 +40,7 @@ namespace StgSharp.Mathematics
         private const uint MEM_RESERVE = 0x2000;
         private const uint PAGE_EXECUTE_READWRITE = 0x40;
 
-        static Scaler() { }
+        static Scalar() { }
 
         [DllImport("Kernel32.dll", EntryPoint = "VirtualAlloc")]
         private static extern IntPtr VirtualAlloc(IntPtr address, int size, uint allocType, uint protect);

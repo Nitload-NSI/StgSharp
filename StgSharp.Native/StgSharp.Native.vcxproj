@@ -104,12 +104,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="k_bufop.c" />
     <ClCompile Include="sn-src\k_basicop.c" />
     <ClCompile Include="sn-src\dllmain.c" />
     <ClCompile Include="sn-src\str_factorial.c" />
     <ClCompile Include="sn-src\k_fma.c" />
     <ClCompile Include="sn-src\str_hash.c" />
-    <ClCompile Include="sn-src\load_intrinsic.c" />
+    <ClCompile Include="sn-src\load_intrinsic.c">
+      <FileType>CppCode</FileType>
+    </ClCompile>
     <ClCompile Include="sn-src\load_glfw.c" />
     <ClCompile Include="sn-src\stb_image.c" />
     <ClCompile Include="sn-src\sn_native.c" />

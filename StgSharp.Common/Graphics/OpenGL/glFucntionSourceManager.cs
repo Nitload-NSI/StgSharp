@@ -30,24 +30,26 @@ using StgSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace StgSharp.Graphics.OpenGL
 {
     public partial class OpenGLFunction
     {
 
-        private Lazy<int> textureUnitCountGetter;
-        private Lazy<ConcurrentQueue<TextureUnit>> unusedTextureImageUintInitilizing;
+        private readonly int textureUnitCountGetter;
 
         public int TextureUnitCount
         {
-            get => textureUnitCountGetter.Value;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => textureUnitCountGetter;
         }
 
         private ConcurrentQueue<TextureUnit> UnusedTextureImageUint
         {
-            get => unusedTextureImageUintInitilizing.Value;
-        }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        } = [];
 
         internal void ReturnAvailableUnit(IEnumerable<TextureUnit> source)
         {

@@ -30,6 +30,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,22 +40,19 @@ namespace StgSharp.Threading
     public class FrameworkSyncContext : SynchronizationContext
     {
 
-        private static readonly FrameworkSyncContext _mainThreadContext = new FrameworkSyncContext();
-
-        private readonly BlockingCollection<SendOrPostCallback> _syncContexts = new BlockingCollection<SendOrPostCallback>(
-            );
+        private readonly BlockingCollection<SendOrPostCallback> _syncContexts = [];
         private readonly Thread _mainThread = Thread.CurrentThread;
 
         public FrameworkSyncContext()
         {
-            _syncContexts = new BlockingCollection<SendOrPostCallback>();
             _mainThread = Thread.CurrentThread;
         }
 
         public static FrameworkSyncContext MainThreadContext
         {
-            get => _mainThreadContext;
-        }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        } = new FrameworkSyncContext();
 
         public override void Post(SendOrPostCallback d, object state)
         {

@@ -34,12 +34,12 @@ namespace StgSharp.Mathematics.Graphic
 
         public static float GetLength(this Vec3 vec)
         {
-            return Scaler.Sqrt(vec.Dot(vec));
+            return Scalar.Sqrt(vec.Dot(vec));
         }
 
         public static float GetLength(this Vec2 vec)
         {
-            return Scaler.Sqrt(vec.Dot(vec));
+            return Scalar.Sqrt(vec.Dot(vec));
         }
 
     }

@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Graphics;
 using StgSharp.Mathematics;
 using StgSharp.Mathematics.Numeric;
 

@@ -26,6 +26,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Collections;
+using StgSharp.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

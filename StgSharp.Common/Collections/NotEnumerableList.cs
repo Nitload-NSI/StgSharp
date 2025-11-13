@@ -30,20 +30,37 @@ using System.Runtime.CompilerServices;
 
 namespace StgSharp.Collections
 {
-    public sealed class NotEnumerableList<T>(int capacity = 4)
+    public static class LinearBagBuilder
+    {
+
+        public static LinearBag<T> FromSpan<T>(ReadOnlySpan<T> values)
+        {
+            if (values.IsEmpty || values.Length == 0) {
+                return new LinearBag<T>(4);
+            }
+            LinearBag<T> bag = new(values.Length);
+            for (int i = 0; i < values.Length; i++) {
+                bag.Add(values[i]);
+            }
+            return bag;
+        }
+
+    }
+
+    [CollectionBuilder(typeof(LinearBagBuilder), nameof(LinearBagBuilder.FromSpan))]
+    public class LinearBag<T>(int capacity = 4)
     {
 
         private T[] _items = new T[capacity];
-        private int _size = 0;
 
         public T this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (uint)index >= (uint)_size ? throw new ArgumentOutOfRangeException(nameof(index)) : _items[index];
+            get => (uint)index >= (uint)Count ? throw new ArgumentOutOfRangeException(nameof(index)) : _items[index];
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                if ((uint)index >= (uint)_size) {
+                if ((uint)index >= (uint)Count) {
                     throw new ArgumentOutOfRangeException(nameof(index));
                 }
 
@@ -51,31 +68,67 @@ namespace StgSharp.Collections
             }
         }
 
-        public int Count => _size;
-
         public int Capacity => _items.Length;
+
+        public int Count { get; private set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(T item)
         {
-            if (_size == _items.Length) {
-                EnsureCapacity(_size + 1);
+            if (Count == _items.Length) {
+                EnsureCapacity(Count + 1);
             }
 
-            _items[_size++] = item;
+            _items[Count++] = item;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Span<T> AsSpan()
         {
-            return new Span<T>(_items, 0, _size);
+            return new Span<T>(_items, 0, Count);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear()
+        {
+            Array.Clear(_items, 0, Count);
+            Count = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastClear()
         {
             // 只重置size，不清理数组内容
-            _size = 0;
+            Count = 0;
+        }
+
+        public void Remove(T value)
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                if (_items[i]?.Equals(value) ?? false)
+                {
+                    RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void RemoveAt(int index)
+        {
+            if ((uint)index >= (uint)Count) {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            int last = Count - 1;
+            if (index != last)
+            {
+                _items[index] = _items[last]; // swap back from tail
+            }
+
+            _items[last] = default!; // clear last slot to avoid ref retention
+            Count = last;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

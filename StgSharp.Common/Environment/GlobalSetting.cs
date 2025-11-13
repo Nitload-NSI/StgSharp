@@ -44,7 +44,6 @@ namespace StgSharp
         private static byte[] _currentHash = [];
 
         private static bool _inited;
-        private static int _mainThreadID = -1;
 
         public static byte[] CurrentAssemblyHash
         {
@@ -72,6 +71,8 @@ namespace StgSharp
                    _mainThreadID;
             internal set => _mainThreadID = value;
         }
+
+        private static int _mainThreadID { get; set; } = -1;
 
         /// <summary>
         ///   CustomizeInit an instance of OpenGL program, This method should be called before any

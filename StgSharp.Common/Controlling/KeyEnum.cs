@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="KeyEnum"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,6 @@
 // -----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
-using StgSharp.Internal.OpenGL;
 
 using System;
 
@@ -171,22 +170,22 @@ namespace StgSharp
     #pragma warning restore CA1027
     {
 
-        Joystick_1 = Constant.GLFW_JOYSTICK_1,
-        Joystick_2 = Constant.GLFW_JOYSTICK_2,
-        Joystick_3 = Constant.GLFW_JOYSTICK_3,
-        Joystick_4 = Constant.GLFW_JOYSTICK_4,
-        Joystick_5 = Constant.GLFW_JOYSTICK_5,
-        Joystick_6 = Constant.GLFW_JOYSTICK_6,
-        Joystick_7 = Constant.GLFW_JOYSTICK_7,
-        Joystick_8 = Constant.GLFW_JOYSTICK_8,
-        Joystick_9 = Constant.GLFW_JOYSTICK_9,
-        Joystick_10 = Constant.GLFW_JOYSTICK_10,
-        Joystick_11 = Constant.GLFW_JOYSTICK_11,
-        Joystick_12 = Constant.GLFW_JOYSTICK_12,
-        Joystick_13 = Constant.GLFW_JOYSTICK_13,
-        Joystick_14 = Constant.GLFW_JOYSTICK_14,
-        Joystick_15 = Constant.GLFW_JOYSTICK_15,
-        Joystick_16 = Constant.GLFW_JOYSTICK_16,
+        Joystick_1 = FrameworkConstant. JOYSTICK_1,
+        Joystick_2 = FrameworkConstant. JOYSTICK_2,
+        Joystick_3 = FrameworkConstant. JOYSTICK_3,
+        Joystick_4 = FrameworkConstant. JOYSTICK_4,
+        Joystick_5 = FrameworkConstant. JOYSTICK_5,
+        Joystick_6 = FrameworkConstant. JOYSTICK_6,
+        Joystick_7 = FrameworkConstant. JOYSTICK_7,
+        Joystick_8 = FrameworkConstant. JOYSTICK_8,
+        Joystick_9 = FrameworkConstant. JOYSTICK_9,
+        Joystick_10 = FrameworkConstant.JOYSTICK_10,
+        Joystick_11 = FrameworkConstant.JOYSTICK_11,
+        Joystick_12 = FrameworkConstant.JOYSTICK_12,
+        Joystick_13 = FrameworkConstant.JOYSTICK_13,
+        Joystick_14 = FrameworkConstant.JOYSTICK_14,
+        Joystick_15 = FrameworkConstant.JOYSTICK_15,
+        Joystick_16 = FrameworkConstant.JOYSTICK_16,
         First = Joystick_1,
         Last = Joystick_16
 

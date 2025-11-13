@@ -30,7 +30,7 @@ using System.Runtime.CompilerServices;
 
 namespace StgSharp.Mathematics
 {
-    public static unsafe partial class Scaler
+    public static unsafe partial class Scalar
     {
 
         public const float E = 2.718281828f;

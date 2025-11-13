@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallel.AwaitingQueue"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,6 @@ namespace StgSharp.Mathematics.Numeric
 
             private Element _quickElements = new();
             private volatile int _count;
-            private volatile int _lastGeneration;
             private readonly Queue<WaitHandle> _fallback = [];
 
             public AwaitingQueue() { }
@@ -68,22 +67,16 @@ namespace StgSharp.Mathematics.Numeric
             {
                 if (_count == 0)
                 {
-                    _lastGeneration = generation;
                     handle = null!;
                     return false;
                 }
-                if (_lastGeneration == generation)
-                {
-                    for (int i = 0; i < _count; i++) {
-                        _quickElements[i].UpdatePriority(generation);
-                    }
-                    Element.Sort(_quickElements);
-                } else
-                {
-                    _lastGeneration = generation;
+                for (int i = 0; i < _count; i++) {
+                    _quickElements[i].UpdatePriority(generation);
                 }
+                Element.Sort(ref _quickElements);
                 handle = _quickElements[0];
                 _count--;
+                _quickElements[0] = default!;
                 if (_count > 7) {
                     _ = _fallback.TryDequeue(out _quickElements[0]!);
                 }
@@ -94,40 +87,31 @@ namespace StgSharp.Mathematics.Numeric
             {
                 if (_count == 0)
                 {
-                    _lastGeneration = generation;
                     handle = null!;
                     return false;
                 }
                 for (int i = 0; i < _count; i++) {
                     _quickElements[i].UpdatePriority(generation);
                 }
-                Element.Sort(_quickElements);
-                _lastGeneration = generation;
+
+                Element.Sort(ref _quickElements);
                 handle = _quickElements[0];
-                _count--;
-                if (_count > 7) {
-                    _ = _fallback.TryDequeue(out _quickElements[0]!);
-                }
                 return true;
             }
 
-            public bool TryPopIfRefEqual(int generation, ref WaitHandle handle)
+            public bool TryPopIfRefEqual(int generation, in WaitHandle handle)
             {
-                if (_count == 0)
-                {
-                    handle = null!;
+                if (_count == 0) {
                     return false;
                 }
                 for (int i = 0; i < _count; i++) {
                     _quickElements[i].UpdatePriority(generation);
                 }
                 Element.Sort(ref _quickElements);
-                _lastGeneration = generation;
-                handle = _quickElements[0];
-                _count--;
                 if (!ReferenceEquals(_quickElements[0], handle)) {
                     return false;
                 }
+                _count--;
                 _quickElements[0] = null!;
                 if (_count > 7) {
                     _ = _fallback.TryDequeue(out _quickElements[0]!);
@@ -147,7 +131,7 @@ namespace StgSharp.Mathematics.Numeric
             {
                 int maxIdx = 0;
                 WaitHandle first = e[0];
-                int maxPr = first?.Priority ?? int.MaxValue;
+                int maxPr = first?.Priority ?? int.MinValue;
 
                 for (int i = 1; i < 8; i++)
                 {

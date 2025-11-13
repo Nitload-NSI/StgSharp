@@ -37,7 +37,7 @@ namespace StgSharp.Mathematics
     public static partial class GeometryScaler
     {
 
-        internal const float DegToRad = 180 / Scaler.Pi;
+        internal const float DegToRad = 180 / Scalar.Pi;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Cos(Radius r)
@@ -168,7 +168,7 @@ namespace StgSharp.Mathematics
 
         public static implicit operator Degree(Radius r)
         {
-            return new Degree((r._radius * 180) / Scaler.Pi);
+            return new Degree((r._radius * 180) / Scalar.Pi);
         }
 
     }

@@ -26,6 +26,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Graphics;
+using StgSharp.Graphics;
 using StgSharp.Internal;
 using StgSharp.Mathematics;
 using StgSharp.Mathematics.Numeric;
@@ -46,32 +47,32 @@ namespace StgSharp.Graphics.OpenGL
     public unsafe partial class OpenGLFunction
     {
 
-        private static Dictionary<IntPtr, OpenGLFunction> contextToGLMap = new Dictionary<IntPtr, OpenGLFunction>(
-            );
-        private static ThreadLocal<OpenGLFunction> _currentGL = new ThreadLocal<OpenGLFunction>();
+        private static readonly Dictionary<IntPtr, OpenGLFunction> contextToGLMap = [];
+        private static readonly ThreadLocal<OpenGLFunction> _currentGL = new ThreadLocal<OpenGLFunction>();
         private OpenglContext* _context;
 
         private Lazy<int> _attachmentColorRange;
 
         private OpenGLFunction()
         {
-            textureUnitCountGetter = new Lazy<int>(
-                () => GetMaskInteger(glConst.MAX_TEXTURE_IMAGE_UNITS));
-            unusedTextureImageUintInitilizing = new Lazy<ConcurrentQueue<TextureUnit>>(
-                InitializeUnusedTextureImageUint);
+            textureUnitCountGetter = glConst.MAX_TEXTURE_IMAGE_UNITS;
+            UnusedTextureImageUint = [];
             _attachmentColorRange = new Lazy<int>(
                 () => { return GetMaskInteger((uint)glConst.MAX_COLOR_ATTACHMENTS); });
         }
 
         public int AttachmentColorRange
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _attachmentColorRange.Value;
         }
 
         public static OpenGLFunction CurrentGL
         {
-            get { return _currentGL.Value; }
-            internal set { _currentGL.Value = value; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _currentGL.Value!;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal set => _currentGL.Value = value;
         }
 
         internal IntPtr ContextHandle => (IntPtr)_context;
@@ -122,7 +123,7 @@ namespace StgSharp.Graphics.OpenGL
 
         /// <summary>
         ///   Bind a frame BufferHandle to a frame BufferHandle target Same function as <see ///  
-        ///   href="https://docs._gl/gl3/glBindFramebuffer"> glBindFramebuffer </see>.
+        ///   href="https://docs._gl/gl3/glBindFramebuffer">glBindFramebuffer</see>.
         /// </summary>
         /// <param _label="target">
         ///   The frame BufferHandle target of the binding operation.
@@ -200,8 +201,8 @@ namespace StgSharp.Graphics.OpenGL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CombineFrameBufferRenderBuffer(FrameBufferAttachment attachment, GlHandle rboHandle)
         {
-            Context.glFramebufferRenderbuffer(
-                glConst.FRAMEBUFFER, (uint)attachment, glConst.RENDERBUFFER, rboHandle.Value);
+            Context.glFramebufferRenderbuffer(glConst.FRAMEBUFFER, (uint)attachment, glConst.RENDERBUFFER,
+                                              rboHandle.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -213,13 +214,13 @@ namespace StgSharp.Graphics.OpenGL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe GlHandle CreateGraphicProgram()
         {
-            return GlHandle.Alloc(Context.glCreateProgram());
+            return GlHandle.Create(Context.glCreateProgram());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public GlHandle CreateProgram()
         {
-            return GlHandle.Alloc(Context.glCreateProgram());
+            return GlHandle.Create(Context.glCreateProgram());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -245,7 +246,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint error = Context.glGetError();
                     throw new InvalidOperationException($"Failed in creating shader: {error}");
                 }
-                ret[i] = GlHandle.Alloc(id);
+                ret[i] = GlHandle.Create(id);
             }
             return ret;
         }
@@ -273,9 +274,8 @@ namespace StgSharp.Graphics.OpenGL
 
         /// <summary>
         ///   Delete a render BufferHandle object Very simlilar function as <see ///  
-        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers"> glDeleteRenderbuffers </see>. The
-        ///   only deifference is that this mehtod can only delete one renderbuffer at the same
-        ///   time.
+        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers">glDeleteRenderbuffers</see>. The only
+        ///   deifference is that this mehtod can only delete one renderbuffer at the same time.
         /// </summary>
         /// <param _label="bufferHandle">
         ///   Handle to BufferHandle to delete.
@@ -369,8 +369,7 @@ namespace StgSharp.Graphics.OpenGL
                     GlHandle textureHandle,
                     int level)
         {
-            Context.glFramebufferTexture2D(
-                (uint)target, attachment, (uint)texTarget, textureHandle.Value, level);
+            Context.glFramebufferTexture2D((uint)target, attachment, (uint)texTarget, textureHandle.Value, level);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -446,8 +445,7 @@ namespace StgSharp.Graphics.OpenGL
         public string GetShaderStatus(Shader s, int index, int key)
         {
             IntPtr sptr = IntPtr.Zero;
-            if (GraphicFramework.glCheckShaderStatus(ref Context, s.handle[index].Value, key,
-                                               ref sptr) == 0) {
+            if (GraphicFramework.glCheckShaderStatus(ref Context, s.handle[index].Value, key, ref sptr) == 0) {
                 return Marshal.PtrToStringAnsi(sptr);
             }
             return string.Empty;
@@ -462,13 +460,9 @@ namespace StgSharp.Graphics.OpenGL
                            T[] dataStream)
             where T: unmanaged,INumber<T>
         {
-            #pragma warning disable CS8500
-            fixed (T* tptr = dataStream)
-            {
-                Context.glGetTexImage((uint)target, level, (uint)channel, (uint)channelLayout,
-                                      tptr);
+            fixed (T* tptr = dataStream) {
+                Context.glGetTexImage((uint)target, level, (uint)channel, (uint)channelLayout, tptr);
             }
-            #pragma warning restore CS8500
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -495,7 +489,7 @@ namespace StgSharp.Graphics.OpenGL
                     throw new UniformEmptyReferenceException(nameof(program), name);
                 }
                 #endif
-                return GlHandle.SignedAlloc(ret);
+                return GlHandle.CreateSigned(ret);
             }
         }
 
@@ -546,8 +540,8 @@ namespace StgSharp.Graphics.OpenGL
                     ref byte[] stream)
         {
             fixed (byte* bptr = stream) {
-                Context.glReadPixels
-                    (beginPosition.X, beginPosition.Y, size.width, size.height, (uint)format, (uint)dataType, bptr);
+                Context.glReadPixels(beginPosition.X, beginPosition.Y, size.width, size.height, (uint)format,
+                                     (uint)dataType, bptr);
             }
         }
 
@@ -562,8 +556,8 @@ namespace StgSharp.Graphics.OpenGL
                 throw new GlArrayFormatException(dataType, "i.PixelArray");
             }
             fixed (byte* bptr = pixels) {
-                Context.glReadPixels
-                    (beginPosition.X, beginPosition.Y, i.Width, i.Height, (uint)format, (uint)dataType, bptr);
+                Context.glReadPixels(beginPosition.X, beginPosition.Y, i.Width, i.Height, (uint)format, (uint)dataType,
+                                     bptr);
             }
             i.PixelUpdateCount++;
         }
@@ -573,9 +567,9 @@ namespace StgSharp.Graphics.OpenGL
             where T: unmanaged,INumber<T>
         {
             int size = Marshal.SizeOf<T>();
-            #pragma warning disable CS8500
+
             T* p = &bufferData;
-            #pragma warning restore CS8500
+
             Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)p, (uint)usage);
         }
 
@@ -587,12 +581,9 @@ namespace StgSharp.Graphics.OpenGL
             if (bufferArray == null) {
                 return;
             }
-            #pragma warning disable CS8500
-            fixed (void* bufferPtr = bufferArray)
-            #pragma warning restore CS8500
-            {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr,
-                                     (uint)usage);
+
+            fixed (void* bufferPtr = bufferArray) {
+                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
             }
         }
 
@@ -604,12 +595,9 @@ namespace StgSharp.Graphics.OpenGL
             if (bufferSpan == null) {
                 return;
             }
-            #pragma warning disable CS8500
-            fixed (void* bufferPtr = bufferSpan)
-            #pragma warning restore CS8500
-            {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr,
-                                     (uint)usage);
+
+            fixed (void* bufferPtr = bufferSpan) {
+                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
             }
         }
 
@@ -622,12 +610,9 @@ namespace StgSharp.Graphics.OpenGL
                 return;
             }
 
-            #pragma warning disable CS8500
-            fixed (void* bufferPtr = bufferArray)
-            #pragma warning restore CS8500
-            {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr,
-                                     (uint)usage);
+
+            fixed (void* bufferPtr = bufferArray) {
+                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
             }
         }
 
@@ -636,12 +621,9 @@ namespace StgSharp.Graphics.OpenGL
             where T: unmanaged, IUnmanagedVector<T>
         {
             int size = bufferSpan.Length * Marshal.SizeOf(typeof(T));
-            #pragma warning disable CS8500
-            fixed (void* bufferPtr = bufferSpan)
-            #pragma warning restore CS8500
-            {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr,
-                                     (uint)usage);
+
+            fixed (void* bufferPtr = bufferSpan) {
+                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
             }
         }
 
@@ -653,12 +635,8 @@ namespace StgSharp.Graphics.OpenGL
             if (bufferArray == null) {
                 return;
             }
-            #pragma warning disable CS8500
-            fixed (void* bufferPtr = bufferArray)
-            #pragma warning restore CS8500
-            {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr,
-                                     (uint)usage);
+            fixed (void* bufferPtr = bufferArray) {
+                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
             }
         }
 
@@ -667,8 +645,7 @@ namespace StgSharp.Graphics.OpenGL
                            RenderBufferInternalFormat internalFormat,
                            (int width, int height) size)
         {
-            Context.glRenderbufferStorage(
-                glConst.RENDERBUFFER, (uint)internalFormat, size.width, size.height);
+            Context.glRenderbufferStorage(glConst.RENDERBUFFER, (uint)internalFormat, size.width, size.height);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -676,8 +653,8 @@ namespace StgSharp.Graphics.OpenGL
                            RenderBufferInternalFormat internalFormat,
                            (uint width, uint height) size)
         {
-            Context.glRenderbufferStorage(
-                glConst.RENDERBUFFER, (uint)internalFormat, (int)size.width, (int)size.height);
+            Context.glRenderbufferStorage(glConst.RENDERBUFFER, (uint)internalFormat, (int)size.width,
+                                          (int)size.height);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -700,14 +677,12 @@ namespace StgSharp.Graphics.OpenGL
                     T[] pixels)
             where T: unmanaged, INumber<T>
         {
-            #pragma warning disable CS8500
             fixed (T* tptr = pixels)
             {
                 T* ptr = ((pixels == null) || (pixels.Length == 0)) ? (T*)IntPtr.Zero : tptr;
-                Context.glTexImage2D
-                    ((uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel, (uint)type, tptr);
+                Context.glTexImage2D((uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel,
+                                     (uint)type, tptr);
             }
-            #pragma warning restore CS8500
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -722,13 +697,10 @@ namespace StgSharp.Graphics.OpenGL
                     Span<T> pixelSpan)
             where T: unmanaged, INumber<T>
         {
-            #pragma warning disable CS8500
-            fixed (T* tptr = pixelSpan)
-            {
-                Context.glTexImage2D
-                    ((uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel, (uint)type, tptr);
+            fixed (T* tPtr = pixelSpan) {
+                Context.glTexImage2D((uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel,
+                                     (uint)type, tPtr);
             }
-            #pragma warning restore CS8500
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -768,8 +740,7 @@ namespace StgSharp.Graphics.OpenGL
 
         internal static OpenGLFunction BuildGlFunctionPackage(IntPtr handle)
         {
-            OpenGLFunction pack;
-            if (contextToGLMap.TryGetValue(handle, out pack)) {
+            if (contextToGLMap.TryGetValue(handle, out OpenGLFunction pack)) {
                 return pack;
             }
             pack = new OpenGLFunction
@@ -782,7 +753,7 @@ namespace StgSharp.Graphics.OpenGL
 
         ~OpenGLFunction()
         {
-            contextToGLMap.Remove(ContextHandle);
+            _ = contextToGLMap.Remove(ContextHandle);
         }
 
     }

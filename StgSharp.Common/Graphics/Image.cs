@@ -26,18 +26,9 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Graphics.OpenGL;
-using StgSharp.Internal;
-using StgSharp.Mathematics;
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StgSharp.Graphics
 {
@@ -56,13 +47,14 @@ namespace StgSharp.Graphics
         internal Image(ImageInfo information)
         {
             _rawInfo = information;
-            _data = Array.Empty<byte>();
+            _data = [];
 
             // int length = _rawInfo.width * _rawInfo.height * _rawInfo.channel;
         }
 
         public (int width, int height) Size
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => (_rawInfo.Width, _rawInfo.Height);
         }
 
@@ -175,7 +167,10 @@ namespace StgSharp.Graphics
             return _data;
         }
 
-        public Image ProvideImage() => this;
+        public Image ProvideImage()
+        {
+            return this;
+        }
 
         internal static Image FromMemory(ImageInfo info, byte[] data, int operationCount)
         {
@@ -193,9 +188,4 @@ namespace StgSharp.Graphics
         }
 
     }
-}
-
-namespace StgSharp.Graphics.OpenGL
-{
-    public static partial class GlHelper { }
 }

@@ -43,15 +43,15 @@ namespace StgSharp.Geometries
         {
             CoordMat = Matrix44.Unit;
 
-            CoordMat.column0 = new Vec4(xAxis, 0);
-            CoordMat.column1 = new Vec4(yAxis, 0);
-            CoordMat.column2 = new Vec4(Linear.Normalize(Vec3.Cross(xAxis, yAxis)), 0);
+            CoordMat.column[0] = new Vec4(xAxis, 0);
+            CoordMat.column[1] = new Vec4(yAxis, 0);
+            CoordMat.column[2] = new Vec4(Linear.Normalize(Vec3.Cross(xAxis, yAxis)), 0);
 
             LocalOrigin = origin;
         }
 
-        public static PlainCoordinate StandardPlainCoordination { get; } = new(
-            null, new Point(0, 0, 0), new Vec3(1, 0, 0), new Vec3(0, 1, 0));
+        public static PlainCoordinate StandardPlainCoordination { get; } = new(null, new Point(0, 0, 0),
+                                                                               new Vec3(1, 0, 0), new Vec3(0, 1, 0));
 
     }
 }

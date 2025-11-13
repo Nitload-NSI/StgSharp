@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="StepLine"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -85,7 +85,7 @@ namespace StgSharp.Model.Step
             float dx = x2 - x1;
             float dy = y2 - y1;
             float dz = z2 - z1;
-            float length = Scaler.Sqrt(dx * dx + dy * dy + dz * dz);
+            float length = Scalar.Sqrt(dx * dx + dy * dy + dz * dz);
             float dxn = dx / length;
             float dyn = dy / length;
             float dzn = dz / length;

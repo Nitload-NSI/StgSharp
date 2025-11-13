@@ -40,6 +40,27 @@ namespace StgSharp.Mathematics.Numeric
     public static partial class MatrixParallel
     {
 
+        public static unsafe MatrixParallelHandle PublicNoAnswerTask<T>(
+                                                  MatrixSegmentEnumeration<T> source,
+                                                  ScalarPacket* additional,
+                                                  delegate* unmanaged[Cdecl]<MatrixKernel<T>*, ScalarPacket*, void> computeHandle)
+            where T: unmanaged, INumber<T>
+        {
+            MatrixParallelTaskPackage<T>* package = MatrixParallelFactory.CreateBaseTask<T>();
+            package->Scalar = additional;
+            package->Right = source.Source;
+            package->RightPrimOffset = source.PrimOffset;
+            package->RightPrimStride = source.PrimStride;
+            package->RightSecOffset = source.SecondaryOffset;
+            package->RightSecStride = source.SecondaryStride;
+            package->PrimCount = source.PrimSize;
+            package->SecCount = source.SecondarySize;
+            package->ElementSize = sizeof(T);
+            package->ComputeHandle = (nint)computeHandle;
+            package->ComputeMode = 6; // no ans
+            return PublicTaskPrivate(package);
+        }
+
         public static unsafe MatrixParallelHandle PublicTask<T>(
                                                   MatrixSegmentEnumeration<T> source,
                                                   MatrixSegmentEnumeration<T> ans,

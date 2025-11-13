@@ -29,7 +29,7 @@ using System.Runtime.CompilerServices;
 
 namespace StgSharp.Mathematics
 {
-    public static unsafe partial class Scaler
+    public static unsafe partial class Scalar
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,7 +81,7 @@ namespace StgSharp.Mathematics
                 return 0;
             }
 
-            z = Scaler.Log(x) * y;
+            z = Scalar.Log(x) * y;
 
             bool sign = false;
             if (z < 0)

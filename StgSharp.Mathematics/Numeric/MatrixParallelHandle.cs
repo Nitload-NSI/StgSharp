@@ -1,9 +1,9 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="MatrixParallelTask"
+// file="MatrixParallelPool"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,203 +25,153 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance;
-
+using StgSharp.Collections;
 using System;
-using System.Numerics;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    public unsafe struct ScalarPacket
+    public struct MatrixParallelHandle : IDisposable
     {
 
-        private fixed ulong data[8];
+        private static readonly (int a, int b)[] LookupTable = [ (1, 1), // 7
+            (0, 2), // 8  (no non-zero solution)
+            (3, 0), // 9  (no non-zero solution)
+            (2, 1), // 10
+            (1, 2), // 11
+            (0, 3), // 12 (no non-zero solution)
+            (3, 1), // 13
+            (2, 2), // 14
+            (1, 3), // 15
+            (4, 1), // 16
+            (3, 2), // 17
+            (2, 3), // 18
+            (1, 4), // 19
+            (4, 2), // 20
+        ];
 
-        public ref T Data<T>(int index) where T: unmanaged,INumber<T>
+        private MatrixParallelThread[] _threads;
+        private bool _disposed = false;
+        private CapacityFixedStack<MatrixParallelWrap> _wraps;
+
+        internal MatrixParallelHandle(MatrixParallelThread[] threadArray)
         {
-            if (index is < 0 or >= 8) {
-                throw new IndexOutOfRangeException();
+            _threads = threadArray;
+            IsMultithread = threadArray.Length > 1;
+            SliceToWraps();
+        }
+
+        public ReadOnlySpan<MatrixParallelThread> Threads
+        {
+            get
+            {
+                if (_disposed) {
+                    throw new ObjectDisposedException(typeof(MatrixParallelHandle).Name);
+                }
+                return _threads;
+            }
+        }
+
+        internal IEnumerable<MatrixParallelWrap> Wraps
+        {
+            get
+            {
+                if (_disposed) {
+                    throw new ObjectDisposedException(typeof(MatrixParallelHandle).Name);
+                }
+                return _wraps;
+            }
+        }
+
+        internal ReadOnlySpan<MatrixParallelThread> ThreadsUnsafe
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _threads;
+        }
+
+        private bool IsMultithread { get; init; }
+
+        public void Dispose()
+        {
+            if (_disposed) {
+                return;
+            }
+            MatrixParallel.ReturnParallelResources(ref _threads);
+            _disposed = true;
+        }
+
+        public MatrixParallelThread GetLeader()
+        {
+            Threads[0].Role = 2;
+            return Threads[0];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static (int count_3, int count_4) FastDecompose(int c)
+        {
+            /*
+            * Thread wrapping to accelerate matrix operations by dividing threads into groups (pool).
+            * For M pool, each containing an average of N threads, we satisfy the condition M * N = T - 4,
+            * where T is the total thread _count of the CPU. Typically, for modern consumer CPUs, T is around 16.
+            * For simplicity, let M * N = 16.
+            *
+            * The total time complexity for publishing tasks is O(M + N):
+            * - O(M) accounts for distributing tasks across M pool.
+            * - O(N) accounts for threads within each wrap fetching tasks from the wrap queue.
+            *
+            * Using the inequality Sqrt(M * N) <= (M + N) / 2 (derived from the arithmetic-geometric mean inequality),
+            * the optimal configuration occurs when M = N. For M * N = 16, this gives M = N = 4.
+            * 
+            * To ensure compatibility across a wide range of CPU architectures, 
+            * we allow each wrap to contain either 3 or 4 threads, providing flexibility while maintaining efficiency.
+            */
+            if (c < 7)
+            {
+                return (0, 0);
             }
 
-            return ref Unsafe.As<ulong, T>(ref data[index]);
+            int t = c - 7;
+            int k = t / 14;
+            int d = t % 14;
+
+            (int a0, int b0) = LookupTable[d];
+
+            return (a0 + (2 * k), b0 + (2 * k));
         }
 
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct MatrixParallelTaskPackageNonGeneric
-    {
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Copy(
-                                  MatrixParallelTaskPackageNonGeneric* source,
-                                  MatrixParallelTaskPackageNonGeneric* target)
+        private void SliceToWraps()
         {
-            Buffer.MemoryCopy(
-                source,
-                target,
-                sizeof(MatrixParallelTaskPackageNonGeneric),
-                sizeof(MatrixParallelTaskPackageNonGeneric));
+            if (_disposed) {
+                throw new ObjectDisposedException(typeof(MatrixParallelHandle).Name);
+            }
+            if (_wraps is not null) {
+                return;
+            }
+            int count = _threads.Length;
+            if (count < 6)
+            {
+                MatrixParallelWrap wrap = new MatrixParallelWrap(_threads, 0, count);
+                _wraps = [ wrap ];
+            }
+            (int c3,int c4) = FastDecompose(_threads.Length);
+            _wraps = new(c3 + c4);
+            int begin = 0;
+            for (int i = 0; i < c3; i++)
+            {
+                _wraps.Push(new MatrixParallelWrap(_threads, begin, 3));
+                begin += 3;
+            }
+            for (int i = 0; i < c4; i++)
+            {
+                _wraps.Push(new MatrixParallelWrap(_threads, begin, 4));
+                begin += 4;
+            }
         }
 
-        #region source
-
-        // Group 1: Left/Right matrix kernel base address
-        public IntPtr Left;    // 8
-        public IntPtr Right;   // 8
-
-        #endregion
-
-        #region ans
-
-        // Group 2: Result kernel base address + reserved
-        public IntPtr Result;  // 8
-        public int ElementSize;
-        public int ReservedPtr0;         // 4 (extension/reserved)
-
-        #endregion
-
-        #region left enum
-
-        public int LeftPrimOffset;         // 4
-        public int LeftPrimStride;         // 4 
-        public int LeftSecOffset;          // 4
-        public int LeftSecStride;          // 4
-
-        #endregion
-
-        #region right enum
-
-        public int RightPrimOffset;        // 4
-        public int RightPrimStride;        // 4
-        public int RightSecOffset;         // 4
-        public int RightSecStride;         // 4
-
-        #endregion
-
-        #region ans enum
-
-        public int ResultPrimOffset;       // 4
-        public int ResultPrimStride;       // 4
-        public int ResultSecOffset;        // 4
-        public int ResultSecStride;        // 4
-
-        #endregion
-
-        #region scalar/compute
-
-        public ScalarPacket* Scalar;  // 8
-        public IntPtr ComputeHandle;     // 8
-
-        #endregion
-
-        #region global profile
-
-        public  int PrimCount;            // 4
-        public  int ComputeMode;            // 4 
-        public  int SecCount;               // 4
-        private int ReservedInt0; // 4
-
-        #endregion
-
-        #region count offset
-
-        public int PrimTileOffset;          // 4
-        public int SecTileOffset;           // 4
-        public int PrimCountInTile;          // 4
-        public int SecCountInTile;           // 4
-
-    #endregion
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct MatrixParallelTaskPackage<T> where T: unmanaged, INumber<T>
-    {
-
-        public MatrixParallelTaskPackage()
-        {
-            Unsafe.SkipInit(out this);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Copy(MatrixParallelTaskPackage<T>* source, MatrixParallelTaskPackage<T>* target)
-        {
-            Buffer.MemoryCopy(
-                source,
-                target,
-                sizeof(MatrixParallelTaskPackage<T>),
-                sizeof(MatrixParallelTaskPackage<T>));
-        }
-
-        #region source
-
-        // Group 1: Left/Right matrix kernel base address
-        public MatrixKernel<T>* Left;    // 8
-        public MatrixKernel<T>* Right;   // 8
-
-        #endregion
-
-        #region ans
-
-        // Group 2: Result kernel base address + reserved
-        public MatrixKernel<T>* Result;  // 8
-        public int ElementSize = sizeof(T);
-        public int ReservedPtr0;         // 4 (extension/reserved)
-
-        #endregion
-
-        #region left enum
-
-        public int LeftPrimOffset;         // 4
-        public int LeftPrimStride;         // 4 
-        public int LeftSecOffset;          // 4
-        public int LeftSecStride;          // 4
-
-        #endregion
-
-        #region right enum
-
-        public int RightPrimOffset;        // 4
-        public int RightPrimStride;        // 4
-        public int RightSecOffset;         // 4
-        public int RightSecStride;         // 4
-
-        #endregion
-
-        #region ans enum
-
-        public int ResultPrimOffset;       // 4
-        public int ResultPrimStride;       // 4
-        public int ResultSecOffset;        // 4
-        public int ResultSecStride;        // 4
-
-        #endregion
-
-        #region scalar/compute
-
-        public ScalarPacket* Scalar;  // 8
-        public IntPtr ComputeHandle;     // 8
-
-        #endregion
-
-        #region global profile
-
-        public int PrimCount;            // 4
-        public int ComputeMode;            // 4 
-        public int SecCount;               // 4
-        private readonly int ReservedInt0; // 4
-
-        #endregion
-
-        #region count offset
-
-        public int PrimTileOffset;          // 4
-        public int SecTileOffset;           // 4
-        public int PrimColumnCountInTile;          // 4
-        public int SecColumnCountInTile;           // 4
-
-    #endregion
     }
 }

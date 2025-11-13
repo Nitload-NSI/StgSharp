@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallel"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,7 @@ namespace StgSharp.Mathematics.Numeric
 
         private static bool _meaningful;
 
-        private static ConcurrentCapacityFixedStack<MatrixParallelThread> _threads;
+        private static CapacityFixedStack<MatrixParallelThread> _threads;
 
         private static volatile int RemainThreadCount = 0;
         private static readonly object _lock = new();
@@ -59,7 +59,16 @@ namespace StgSharp.Mathematics.Numeric
             Monitor.Exit(_lock);
         }
 
-        public static void Init()
+        public static void LaunchParallel(MatrixParallelHandle handle, SleepMode afterWork)
+        {
+            RemainThreadCount = _threads.Count;
+            _AfterWork = (ThreadPriority)afterWork;
+            foreach (MatrixParallelWrap w in handle.Wraps) {
+                w.SchedulerReset.Set();
+            }
+        }
+
+        internal static void Init()
         {
             if (IsInitialized) {
                 return;
@@ -77,15 +86,6 @@ namespace StgSharp.Mathematics.Numeric
             }
             _awaitingLeaderHandle = new AwaitingQueue();
             IsInitialized = true;
-        }
-
-        public static void LaunchParallel(MatrixParallelHandle handle, SleepMode afterWork)
-        {
-            RemainThreadCount = _threads.Count;
-            _AfterWork = (ThreadPriority)afterWork;
-            foreach (MatrixParallelWrap w in handle.Wraps) {
-                w.SchedulerReset.Set();
-            }
         }
 
     }

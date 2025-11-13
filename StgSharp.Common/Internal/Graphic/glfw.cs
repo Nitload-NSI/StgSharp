@@ -32,10 +32,23 @@ using System.Text;
 
 namespace StgSharp.Internal
 {
+    public class GraphicModule : IStaticModule
+    {
+
+        public string ModuleName => "Graphic";
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void InitializeModule()
+        {
+            GraphicFramework.LoadGlfw();
+        }
+
+    }
+
     internal static unsafe partial class GraphicFramework
     {
 
-        private static readonly GLFWFunction _glfw = new GLFWFunction();
+        private static GLFWFunction _glfw ;
 
         public static GLFWFunction glfwContext => _glfw;
 
@@ -44,6 +57,7 @@ namespace StgSharp.Internal
 
         internal static unsafe void LoadGlfw()
         {
+            _glfw = new GLFWFunction();
             fixed (GLFWFunction* func = &_glfw) {
                 glfwLoadLibrary(func);
             }

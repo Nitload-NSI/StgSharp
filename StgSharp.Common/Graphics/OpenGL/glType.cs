@@ -31,44 +31,64 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace StgSharp.Internal.OpenGL
+namespace StgSharp.Graphics.OpenGL
 {
     internal delegate void GLVULKANPROCNV();
 
-    public unsafe struct glHandleARB
+    public unsafe struct glHandleARB(IntPtr value) { }
+
+    /// <summary>
+    ///   OpenGL numeric type. An IEEE-754 floating-point value, clamped to the range [0,1].
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct GlClampF
     {
 
-        private dynamic value;
+        public float value;
 
-        public unsafe glHandleARB(dynamic value)
+        public GlClampF(float a)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                if (value.GetType().Name != "Uint32")
-                {
-                    goto errorLog;
-                }
-                this.value = value;
-            } else
-            {
-                if (value.GetType().Name != "IntPtr")
-                {
-                    goto errorLog;
-                }
-                this.value = value;
-            }
-
-            errorLog:
-            {
-                DefaultLog.InternalWriteLog(
-                    $"{value.GetType().Name} does not match definination of GLhandlARB on OS {Environment.OSVersion.Platform} ",
-                    LogType.Error);
-            }
+            value = a;
         }
 
-        public static implicit operator uint(glHandleARB value)
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 16)]
+    public struct glHalfNv(Half bin)
+    {
+
+        [FieldOffset(0)] public Half binary = bin;
+
+        public float ToSingle()
         {
-            return (uint)value;
+            return (float)binary;
+        }
+
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    public struct GlFixed
+    {
+
+        [FieldOffset(0)] public int All;
+        [FieldOffset(0)] public short Decimals;
+        [FieldOffset(4)] public short Integer;
+
+    }
+
+    /// <summary>
+    ///   OpenGL numeric type. An IEEE-754 double precision floating-point value, clamped to the
+    ///   range [0,1].
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct GlClampD
+    {
+
+        public double value;
+
+        public GlClampD(double a)
+        {
+            value = a;
         }
 
     }

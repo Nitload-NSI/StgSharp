@@ -91,7 +91,7 @@ namespace StgSharp.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ReadOnlySpan<T> PopRange(int count)
+        public T[] PopRange(int count)
         {
             int i = int.Min(count, _index) - 1;
             return _values[0..i];

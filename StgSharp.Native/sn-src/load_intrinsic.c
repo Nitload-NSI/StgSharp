@@ -65,11 +65,11 @@ void load_intrinsic_sse(sn_intrinsic *context)
         context->city_hash_simplify = city_hash_simplify_sse;
         context->factorial_simd = factorial_simd_sse;
         context->index_pair = index_pair_sse;
-        context->f32_add = (MATARITHMETIC)f32_add_sse;
-        context->f32_fma = (void (*)(void *, void *, void *))f32_fma_sse;
-        context->f32_scalar_mul = f32_scalar_mul_sse;
-        context->f32_sub = (MATARITHMETIC)f32_sub_sse;
-        context->f32_transpose = (MATTRANSPOSEPROC)f32_transpose_sse;
+        context->f32_kernel_add = KER_PROC(float, sse, add);
+        context->f32_panel_fma = KER_PROC(float, sse, fma);
+        context->f32_kernel_scalar_mul = KER_PROC(float, sse, scalar_mul);
+        context->f32_kernel_sub = KER_PROC(float, sse, sub);
+        context->f32_kernel_transpose = KER_PROC(float, sse, transpose);
         context->f32_normalize_3 = f32_normalize;
 }
 
@@ -78,11 +78,11 @@ void load_intrinsic_avx(sn_intrinsic *context)
         context->city_hash_simplify = city_hash_simplify_sse;
         context->factorial_simd = factorial_simd_sse;
         context->index_pair = index_pair_sse;
-        context->f32_add = (MATARITHMETIC)f32_add_avx;
-        context->f32_fma = (void (*)(void *, void *, void *))f32_fma_sse;
-        context->f32_scalar_mul = f32_scalar_mul_avx;
-        context->f32_sub = (MATARITHMETIC)f32_sub_avx;
-        context->f32_transpose = (MATTRANSPOSEPROC)f32_transpose_avx;
+        context->f32_kernel_add = KER_PROC(float, avx, add);
+        context->f32_panel_fma = KER_PROC(float, sse, fma);
+        context->f32_kernel_scalar_mul = KER_PROC(float, avx, scalar_mul);
+        context->f32_kernel_sub = KER_PROC(float, avx, sub);
+        context->f32_kernel_transpose = KER_PROC(float, avx, transpose);
         context->f32_normalize_3 = f32_normalize;
 }
 
@@ -91,10 +91,10 @@ void load_intrinsic_512(sn_intrinsic *context)
         context->city_hash_simplify = city_hash_simplify_sse;
         context->factorial_simd = factorial_simd_sse;
         context->index_pair = index_pair_sse;
-        context->f32_add = (MATARITHMETIC)f32_add_512;
-        context->f32_fma = (void (*)(void *, void *, void *))f32_fma_sse;
-        context->f32_scalar_mul = f32_scalar_mul_512;
-        context->f32_sub = (MATARITHMETIC)f32_sub_512;
-        context->f32_transpose = (MATTRANSPOSEPROC)f32_transpose_512;
+        context->f32_kernel_add = KER_PROC(float, 512, add);
+        context->f32_panel_fma = KER_PROC(float, sse, fma);
+        context->f32_kernel_scalar_mul = KER_PROC(float, 512, scalar_mul);
+        context->f32_kernel_sub = KER_PROC(float, 512, sub);
+        context->f32_kernel_transpose = KER_PROC(float, 512, transpose);
         context->f32_normalize_3 = f32_normalize;
 }

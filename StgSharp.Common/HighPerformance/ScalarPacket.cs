@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="PlainGeometryCollisionSensor"
+// file="ScalarPacket"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,56 +25,39 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Geometries;
-
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp
+namespace StgSharp.HighPerformance
 {
-    public class CollisionEventArgs : EventArgs
+    public unsafe struct ScalarPacket
     {
 
-        public CollisionEventArgs(IGeometry target, IGeometry boarder)
+        private fixed ulong data[8];
+
+        public void BroadCast<TScalar, TRegister>(int slotIndex, TScalar value)
+            where TScalar: unmanaged, INumber<TScalar>
+            where TRegister: unmanaged, IRegisterPresentation
         {
-            Target = target;
-            Boarder = boarder;
-        }
-
-        public IGeometry Target { get; set; }
-
-        public IGeometry Boarder { get; set; }
-
-    }
-
-    public class PlainGeometryCollisionSensor<TBoarder, TTarget> where TBoarder: IGeometry where TTarget: IGeometry
-    {
-
-        internal EventHandler<CollisionEventArgs> _rule;
-        internal PlainGeometry _boarder;
-        internal PlainGeometry _target;
-
-        public event EventHandler<CollisionEventArgs> Rule
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            add => _rule += value;
-            remove
-            {
-                if (value == null) {
-                    return;
-                }
-#pragma warning disable CS8601
-                _rule -= value;
-#pragma warning restore CS8601
+            if (slotIndex is < 0 or >= 8) {
+                throw new IndexOutOfRangeException();
             }
+            ref TRegister register = ref Unsafe.As<ulong, TRegister>(ref data[slotIndex]);
+            register.BroadCastFrom(value);
         }
 
-        public PlainGeometry boarder => _boarder;
-
-        public PlainGeometry target
+        public ref T Data<T>(int index) where T: unmanaged, INumber<T>
         {
-            get => _target;
-            set => _target = value;
+            if (index is < 0 or >= 8) {
+                throw new IndexOutOfRangeException();
+            }
+
+            return ref Unsafe.As<ulong, T>(ref data[index]);
         }
 
     }

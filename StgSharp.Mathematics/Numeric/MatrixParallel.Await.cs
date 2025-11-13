@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallel.Await"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,16 @@ namespace StgSharp.Mathematics.Numeric
                     min,
                     recommendCount
                 );
-                _awaitingLeaderHandle.Enqueue(handle);
+                do
+                {
+                    if (Interlocked.Exchange(ref _sortState, 1) == 0)
+                    {
+                        _awaitingLeaderHandle.Enqueue(handle);
+                        _ = Interlocked.Exchange(ref _sortState, 0);
+                        Interlocked.Increment(ref _createGeneration);
+                        break;
+                    }
+                } while (true);
                 int cycleGeneration = _createGeneration;
                 do
                 {
@@ -66,7 +75,7 @@ namespace StgSharp.Mathematics.Numeric
                     {
                         if (Interlocked.Exchange(ref _sortState, 1) == 0)
                         {
-                            if (_awaitingLeaderHandle.TryPopIfRefEqual(cycleGeneration, ref handle))
+                            if (_awaitingLeaderHandle.TryPopIfRefEqual(cycleGeneration, in handle))
                             {
                                 // Sort is implemented in TryPopIfRefEqual
                                 ret = _threads.PopRange(handle.BestCount);
@@ -101,7 +110,16 @@ namespace StgSharp.Mathematics.Numeric
 
         public static void ReturnParallelResources(ref MatrixParallelThread[] pool)
         {
-            _threads.PushRange(pool);
+            while (true)
+            {
+                if (Interlocked.Exchange(ref _sortState, 1) == 0)
+                {
+                    _threads.PushRange(pool);
+                    Interlocked.Exchange(ref _sortState, 0);
+                    break;
+                }
+            }
+
             pool = null!;
         }
 

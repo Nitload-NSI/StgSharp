@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics
 {
-    public static unsafe partial class Scaler
+    public static unsafe partial class Scalar
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

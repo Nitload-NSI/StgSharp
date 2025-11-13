@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="BehaviorArgs"
+// file="NumericalModule"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,7 +25,23 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-namespace StgSharp.Entities
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace StgSharp.Mathematics.Numeric
 {
-    public abstract class BehaviorArgs { }
+    public class NumericalModule : IStaticModule
+    {
+
+        public string ModuleName => "Math.Numerical";
+
+        public void InitializeModule()
+        {
+            MatrixParallel.Init();
+        }
+
+    }
 }

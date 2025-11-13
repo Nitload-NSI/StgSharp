@@ -36,20 +36,18 @@ namespace StgSharp.Timing
     public abstract class TimeSourceProviderBase
     {
 
-        private readonly object _subscriberLock = new();
-
-        protected object SubscribeLock => _subscriberLock;
+        protected object SubscribeLock { get; } = new();
 
         public void AddSubscriber(TimeSpanProvider subscriber)
         {
-            lock (_subscriberLock) {
+            lock (SubscribeLock) {
                 AddSubscriberUnsynced(subscriber);
             }
         }
 
         public void RemoveSubscriber(TimeSpanProvider subscriber)
         {
-            lock (_subscriberLock) {
+            lock (SubscribeLock) {
                 RemoveSubscriberUnsynced(subscriber);
             }
         }

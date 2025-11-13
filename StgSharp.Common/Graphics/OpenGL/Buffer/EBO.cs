@@ -27,7 +27,7 @@
 // -----------------------------------------------------------------------
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
-using StgSharp.Internal.OpenGL;
+
 using StgSharp.Mathematics;
 
 using System;

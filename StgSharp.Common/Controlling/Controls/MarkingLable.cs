@@ -35,6 +35,7 @@ using StgSharp.Timing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace StgSharp.Controls
@@ -58,6 +59,7 @@ namespace StgSharp.Controls
 
         public ReadOnlySpan<Vec4> TextureBox
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => marker.TextureCoord;
         }
 

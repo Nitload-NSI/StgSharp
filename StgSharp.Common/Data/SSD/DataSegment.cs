@@ -88,7 +88,7 @@ namespace StgSharp.Internal
                 return;
             }
             for (int i = begin; i < 255; i++) {
-                Data[i] = Scaler.Random<byte>();
+                Data[i] = Scalar.Random<byte>();
             }
         }
 

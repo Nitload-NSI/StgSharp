@@ -38,7 +38,7 @@ using System.Text;
 
 namespace StgSharp.Mathematics
 {
-    public static unsafe partial class Scaler
+    public static unsafe partial class Scalar
     {
 
         private static byte[] randomSeed;
@@ -61,9 +61,9 @@ namespace StgSharp.Mathematics
         {
             float seed = currentSeed;
 
-            float sample = Scaler.Pow(Scaler.SeedSqrt(seed), 2);
+            float sample = Scalar.Pow(Scalar.SeedSqrt(seed), 2);
             float sample2 = (sample - seed) / seed;
-            sample2 = Scaler.Abs(sample2);
+            sample2 = Scalar.Abs(sample2);
 
             if (sample == 1) {
                 sample = sample2;
@@ -76,7 +76,7 @@ namespace StgSharp.Mathematics
             if (result == 0)
             {
                 currentSeed = sample2 + 0.1f;
-                result = Scaler.LowProceisionRandom();
+                result = Scalar.LowProceisionRandom();
             }
             return result;
         }

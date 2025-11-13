@@ -79,7 +79,7 @@ namespace StgSharp.Mathematics.Graphic
                     return _lookAt;
                 }
                 Matrix44 move = Matrix44.Unit;
-                move.column3.vec -= cameraAtt.column3.vec;
+                move.column[3].vec -= cameraAtt.column[3].vec;
                 _lookAt = rotationAtt.Transpose * move;
                 _isLookAtAvailable = true;
                 return _lookAt;
@@ -120,19 +120,19 @@ namespace StgSharp.Mathematics.Graphic
 
         public void MoveNear(float distance)
         {
-            cameraAtt.column3.Z -= distance;
+            cameraAtt.column[3].Z -= distance;
             _isLookAtAvailable = false;
         }
 
         public void MoveRight(float distance)
         {
-            cameraAtt.column3.X -= distance;
+            cameraAtt.column[3].X -= distance;
             _isLookAtAvailable = false;
         }
 
         public void MoveUp(float distance)
         {
-            cameraAtt.column3.Y -= distance;
+            cameraAtt.column[3].Y -= distance;
             _isLookAtAvailable = false;
         }
 
@@ -145,7 +145,9 @@ namespace StgSharp.Mathematics.Graphic
         public void SetViewDirection(Vec3 position, Vec3 target, Vec3 up)
         {
             Vec3 direction = position - target;
-            if ((position.reg == cameraAtt.column3.reg) && (this.up == up) && (cameraAtt.column2.reg == direction.reg)) {
+            if ((position.reg == cameraAtt.column[3].reg) &&
+                (this.up == up) &&
+                (cameraAtt.column[3].reg == direction.reg)) {
                 return;
             }
             if (direction.GetLength() == 0)
@@ -165,10 +167,10 @@ namespace StgSharp.Mathematics.Graphic
 
             Vec3 right = Linear.Orthogonalize(Linear.Cross(up, direction));
 
-            cameraAtt.column0.reg = right.reg;
-            cameraAtt.column1.reg = up.reg;
-            cameraAtt.column2.reg = direction.reg;
-            cameraAtt.column3.reg = position.reg;
+            cameraAtt.column[0].reg = right.reg;
+            cameraAtt.column[1].reg = up.reg;
+            cameraAtt.column[2].reg = direction.reg;
+            cameraAtt.column[3].reg = position.reg;
 
             InternalPitch();
             InternalRow();
@@ -183,16 +185,16 @@ namespace StgSharp.Mathematics.Graphic
                 far = distance + depthRange.back,
                 offsetX = offset.X,
                 offsetY = offset.Y,
-                width = Scaler.Abs(GeometryScaler.Tan(fovRadius / 2) * near * 2),
+                width = Scalar.Abs(GeometryScaler.Tan(fovRadius / 2) * near * 2),
                 height = width * size.Y / size.X;
 
-            _projection.column0.X = 2 * near / width;
-            _projection.column1.Y = 2 * near / height;
-            _projection.column2.X = 2 * offsetX / width;
-            _projection.column2.Y = 2 * offsetY / height;
-            _projection.column2.Z = (far + near) / (near - far);
-            _projection.column2.W = -1;
-            _projection.column3.Z = 2 * near * far / (near - far);
+            _projection.column[0].X = 2 * near / width;
+            _projection.column[1].Y = 2 * near / height;
+            _projection.column[2].X = 2 * offsetX / width;
+            _projection.column[2].Y = 2 * offsetY / height;
+            _projection.column[2].Z = (far + near) / (near - far);
+            _projection.column[2].W = -1;
+            _projection.column[3].Z = 2 * near * far / (near - far);
         }
 
         public void Test(params Vec4[] vec)

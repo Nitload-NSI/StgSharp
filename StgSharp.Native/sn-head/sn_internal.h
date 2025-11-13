@@ -1,6 +1,3 @@
-#ifdef _MSC_VER
-#pragma once
-#endif
 
 #ifndef SN_INTERNAL
 #define SN_INTERNAL
@@ -22,6 +19,12 @@
 #define SN_API
 #define SN_DECL
 #define FORCEINLINE
+#endif
+
+#if defined(_MSC_VER)
+#define SN_ALIGNAS(n) __declspec(align(n))
+#else
+#define SN_ALIGNAS(n) __attribute__((aligned(n)))
 #endif
 
 #define SN_APIDEF

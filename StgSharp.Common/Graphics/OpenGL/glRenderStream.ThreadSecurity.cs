@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Enemy"
+// file="glRenderThreadSecurity"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,26 +25,22 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-namespace StgSharp.Entities
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace StgSharp.Graphics.OpenGL
 {
-    public class Enemy : IEntity
+    public partial class glRender
     {
 
-        internal Launcher<EntityPartical> _awardLauncher;
-        internal Launcher<EntityPartical> _commonBulletLauncher;
-        internal Launcher<EntityPartical> _dieBulletLauncher;
-        public bool _selectalbe;
-
-        public Launcher<EntityPartical> AwardLauncher { get; set; }
-
-        public Launcher<EntityPartical> CommonBulletLauncher { get; set; }
-
-        public Launcher<EntityPartical> DieBulletLauncher { get; set; }
-
-        public override void OnRenderFrame()
-        {
-            CommonBulletLauncher.Launch();
-        }
+        private static ConcurrentDictionary<Thread, glRender> threadLocalIndex
+            = new();
+        private readonly SynchronizationContext mainThreadContext = SynchronizationContext.Current;
 
     }
 }

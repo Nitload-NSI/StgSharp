@@ -28,6 +28,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 
 namespace StgSharp.HighPerformance
 {
@@ -37,6 +38,7 @@ namespace StgSharp.HighPerformance
 
         [FieldOffset(0)] private fixed byte buffer[8];
         [FieldOffset(0)] private ulong value;
+        [FieldOffset(0)] private Vector64<float> vec;
 
         public M64()
         {
@@ -49,12 +51,17 @@ namespace StgSharp.HighPerformance
             return ref Unsafe.As<byte, T>(ref buffer[0]);
         }
 
+        public void BroadCastFrom<T>(T value) where T: unmanaged, INumber<T>
+        {
+            vec = Vector64.Create(value).AsSingle();
+        }
+
         public override bool Equals(object obj)
         {
             return obj is M64 m64 && this == m64;
         }
 
-        public override int GetHashCode()
+        public override readonly int GetHashCode()
         {
             return value.GetHashCode();
         }

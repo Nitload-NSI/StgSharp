@@ -30,6 +30,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -43,11 +44,10 @@ namespace StgSharp.Timing
 
         private bool _subscribed;
 
-        private ConcurrentQueue<TimeSpanAwaitingToken> _tokenToAdd = new ConcurrentQueue<TimeSpanAwaitingToken>(
-            );
-        private ConcurrentQueue<TimeSpanAwaitingToken> _tokenToQuit;
-        private Counter<int> timeSpanCount = new Counter<int>(-1, 1, 1);
-        private HashSet<TimeSpanAwaitingToken> _awaitingTokens;
+        private readonly ConcurrentQueue<TimeSpanAwaitingToken> _tokenToAdd = new();
+        private readonly ConcurrentQueue<TimeSpanAwaitingToken> _tokenToQuit;
+        private Counter<int> timeSpanCount = new(-1, 1, 1);
+        private readonly HashSet<TimeSpanAwaitingToken> _awaitingTokens;
         private long _maxSpanCount;
         private long _spanBegin;
         private readonly long _spanLength;
@@ -71,7 +71,7 @@ namespace StgSharp.Timing
             _maxSpanCount = int.MaxValue;
             provider.AddSubscriber(this);
             _subscribed = true;
-            _awaitingTokens = new HashSet<TimeSpanAwaitingToken>();
+            _awaitingTokens = [];
             _tokenToQuit = new ConcurrentQueue<TimeSpanAwaitingToken>();
         }
 
@@ -94,7 +94,7 @@ namespace StgSharp.Timing
             _maxSpanCount = long.MaxValue;
             provider.AddSubscriber(this);
             _subscribed = true;
-            _awaitingTokens = new HashSet<TimeSpanAwaitingToken>();
+            _awaitingTokens = [];
             _tokenToQuit = new ConcurrentQueue<TimeSpanAwaitingToken>();
         }
 
@@ -128,21 +128,25 @@ namespace StgSharp.Timing
 
         public double SpanLength
         {
-            get => (_spanLength * 1.0) / (1000L * 1000L);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _spanLength * 1.0 / (1000L * 1000L);
         }
 
         public float CurrentSecond
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => timeSpanCount.Value * SpanLengthLowPrecession;
         }
 
         public float SpanLengthLowPrecession
         {
-            get => (_spanLength * 1.0f) / (1000 * 1000);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _spanLength * 1.0f / (1000 * 1000);
         }
 
         public int CurrentSpan
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => timeSpanCount.Value;
         }
 
@@ -153,7 +157,7 @@ namespace StgSharp.Timing
 
         public TimeSpanAwaitingToken ParticipantSpanAwaiting(int count)
         {
-            TimeSpanAwaitingToken token = new TimeSpanAwaitingToken(this, count);
+            TimeSpanAwaitingToken token = new(this, count);
             _tokenToAdd.Enqueue(token);
             return token;
         }
@@ -165,7 +169,7 @@ namespace StgSharp.Timing
 
         public void StopSpanProviding()
         {
-            Interlocked.Exchange(ref _maxSpanCount, 0);
+            _ = Interlocked.Exchange(ref _maxSpanCount, 0);
         }
 
         public void SubscribeToTimeSource(TimeSourceProviderBase serviceHandler)
@@ -207,7 +211,7 @@ namespace StgSharp.Timing
             {
                 if (item.AwaitingSemaphoreSlim.CurrentCount == 0)
                 {
-                    item.AwaitingSemaphoreSlim.Release();
+                    _ = item.AwaitingSemaphoreSlim.Release();
                     item.Refresh();
                 } else
                 {

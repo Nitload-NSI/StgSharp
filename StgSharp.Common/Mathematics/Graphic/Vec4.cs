@@ -38,7 +38,7 @@ namespace StgSharp.Mathematics.Graphic
 {
     [CollectionBuilder(builderType:typeof(Vec4), methodName: nameof(Vec4.FromSpan))]
     [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public unsafe struct Vec4 : IEquatable<Vec4>, IUnmanagedVector<Vec4, float>
+    public unsafe struct Vec4 : IEquatable<Vec4>, IUnmanagedVector<Vec4>
     {
 
         [FieldOffset(0)] internal unsafe fixed float num[4];
