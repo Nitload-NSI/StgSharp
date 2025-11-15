@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="IntrinsicContext"
+// file="NumaBuffer"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,34 +25,23 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance;
 using System;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.Internal.Intrinsic
+namespace StgSharp.Common.Threading
 {
-    [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct IntrinsicContext
+    public unsafe struct NumaBuffer<T> where T : unmanaged
     {
 
-        public delegate* unmanaged[Cdecl]<char*, int, int> city_hash_simplify;
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> f32_add;
-        public delegate* unmanaged[Cdecl]<void*, ScalarPacket*,long, void> f32_fill;
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> f32_fma;
-        public delegate* unmanaged[Cdecl]<void*, void*, ScalarPacket*, long, void> f32_scalar_mul;
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> f32_sub;
-        public delegate* unmanaged[Cdecl]<void*, void*, void> f32_transpose;
-        public delegate* unmanaged[Cdecl]<int, ulong> factorial_simd;
-        public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;
-        public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> normalize_3;
+        public readonly T* Buffers;
+        public readonly int BufferColumnCapacity;
+        public readonly int BufferRowCapacity;
 
-        public IntrinsicContext()
-        {
-            Unsafe.SkipInit(out this);
-        }
+        public int CurrentColumnCount;
+        public int CurrentRowCount;
 
     }
 }

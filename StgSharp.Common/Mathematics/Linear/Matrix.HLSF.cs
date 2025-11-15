@@ -39,7 +39,7 @@ using hlsfHandle = global::StgSharp.HighPerformance.Memory.HybridLayerSegregated
 
 namespace StgSharp.Mathematics.Numeric
 {
-    internal unsafe partial class HlsfMatrix<T> : Matrix<T> where T: unmanaged, INumber<T>
+    internal unsafe partial class HlsfMatrix<T> : Matrix<T> where T : unmanaged, INumber<T>
     {
 
         private readonly MatrixKernel<T>* k_buffer;
@@ -50,6 +50,8 @@ namespace StgSharp.Mathematics.Numeric
         {
             KernelColumnLength = (column + 3) / 4;
             KernelRowLength = (row + 3) / t_count;
+            ColumnLength = column;
+            RowLength = row;
             this.handle = allocator.Alloc((uint)(KernelColumnLength * KernelRowLength * sizeof(MatrixKernel<T>)));
             k_buffer = (MatrixKernel<T>*)handle.Pointer;
         }
@@ -104,18 +106,22 @@ namespace StgSharp.Mathematics.Numeric
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override unsafe MatrixSegmentEnumeration<T> GetColumnEnumeration()
         {
-            return new MatrixSegmentEnumeration<T>(k_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelColumnLength);
+            return new MatrixSegmentEnumeration<T>(k_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength,
+                                                   1, KernelColumnLength);
         }
 
         public override unsafe MatrixSegmentEnumeration<T> GetRowEnumeration()
         {
-            return new MatrixSegmentEnumeration<T>(k_buffer, 1, KernelColumnLength, KernelColumnLength, KernelRowLength);
+            return new MatrixSegmentEnumeration<T>(k_buffer, 1, KernelColumnLength, KernelColumnLength,
+                                                   KernelRowLength);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override unsafe MatrixSegmentEnumeration<T> GetSequentialEnumeration()
         {
-            return new MatrixSegmentEnumeration<T>(k_buffer, KernelRowLength * KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelRowLength * KernelColumnLength);
+            return new MatrixSegmentEnumeration<T>(k_buffer, KernelRowLength * KernelColumnLength,
+                                                   KernelColumnLength * KernelRowLength, 1,
+                                                   KernelRowLength * KernelColumnLength);
         }
 
         #endregion

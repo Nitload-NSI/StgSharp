@@ -34,7 +34,54 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.Mathematics.Numeric
 {
+    /*
+     * #define PANEL_OP 1
+     * #define BUFFER_OP 2
+     * #define KERNEL_OP 3
+     * 
+     * #define RIGHT_ANS_PARAM 1
+     * #define LEFT_RIGHT_ANS_PARAM 2
+     * #define RIGHT_ANS_SCALAR_PARAM 3
+     * #define LEFT_RIGHT_ANS_SCALAR_PARAM 4
+     * #define ANS_SCALAR_PARAM 5
+     * 
+     * typedef struct matrix_op_mode {
+     *         int16_t operation_style; // PANEL_OP, BUFFER_OP, KERNEL_OP
+     *     int16_t parameter_style; // RIGHT_ANS_PARAM, LEFT_RIGHT_ANS_PARAM, e.g.
+     * }
+     * matrix_op_mode;
+     */
+
+    public enum MatrixOperationStyle : short
+    {
+
+        PANEL_OP = 1,
+        BUFFER_OP = 2,
+        KERNEL_OP = 3,
+
+    }
+
+    public enum MatrixOperationParam : short
+    {
+
+        RIGHT_ANS_PARAM = 1,
+        LEFT_RIGHT_ANS_PARAM = 2,
+        RIGHT_ANS_SCALAR_PARAM = 3,
+        LEFT_RIGHT_ANS_SCALAR_PARAM = 4,
+        ANS_SCALAR_PARAM = 5,
+
+    }
+
     [StructLayout(LayoutKind.Sequential)]
+    public struct MatrixOpMode
+    {
+
+        public MatrixOperationParam ParameterStyle;
+        public MatrixOperationStyle OperationStyle;
+
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 128)]
     internal unsafe struct MatrixParallelTaskPackageNonGeneric
     {
 
@@ -50,69 +97,69 @@ namespace StgSharp.Mathematics.Numeric
         #region source
 
         // Group 1: Left/Right matrix kernel base address
-        public IntPtr Left;    // 8
-        public IntPtr Right;   // 8
+        [FieldOffset(0)]public IntPtr Left;    // 8
+        [FieldOffset(8)] public IntPtr Right;   // 8
 
         #endregion
 
         #region ans
 
         // Group 2: Result kernel base address + reserved
-        public IntPtr Result;  // 8
-        public int ElementSize;
-        public int ReservedPtr0;         // 4 (extension/reserved)
+        [FieldOffset(16)] public IntPtr Result;  // 8
+        [FieldOffset(24)]public int ElementSize;
+        [FieldOffset(28)] public int ReservedPtr0;         // 4 (extension/reserved)
 
         #endregion
 
         #region left enum
 
-        public int LeftPrimOffset;         // 4
-        public int LeftPrimStride;         // 4 
-        public int LeftSecOffset;          // 4
-        public int LeftSecStride;          // 4
+        [FieldOffset(32)] public int LeftPrimOffset;         // 4
+        [FieldOffset(36)]public int LeftPrimStride;         // 4 
+        [FieldOffset(40)]public int LeftSecOffset;          // 4
+        [FieldOffset(44)]public int LeftSecStride;          // 4
 
         #endregion
 
         #region right enum
 
-        public int RightPrimOffset;        // 4
-        public int RightPrimStride;        // 4
-        public int RightSecOffset;         // 4
-        public int RightSecStride;         // 4
+        [FieldOffset(32)] public int RightPrimOffset;        // 4
+        [FieldOffset(36)]public int RightPrimStride;        // 4
+        [FieldOffset(40)]public int RightSecOffset;         // 4
+        [FieldOffset(44)]public int RightSecStride;         // 4
 
         #endregion
 
         #region ans enum
 
-        public int ResultPrimOffset;       // 4
-        public int ResultPrimStride;       // 4
-        public int ResultSecOffset;        // 4
-        public int ResultSecStride;        // 4
+        [FieldOffset(48)]public int ResultPrimOffset;       // 4
+        [FieldOffset(52)]public int ResultPrimStride;       // 4
+        [FieldOffset(56)]public int ResultSecOffset;        // 4
+        [FieldOffset(60)] public int ResultSecStride;        // 4
 
         #endregion
 
         #region scalar/compute
 
-        public ScalarPacket* Scalar;  // 8
-        public IntPtr ComputeHandle;     // 8
+        [FieldOffset(80)]public ScalarPacket* Scalar;  // 8
+        [FieldOffset(88)]public IntPtr ComputeHandle;     // 8
 
         #endregion
 
         #region global profile
 
-        public  int PrimCount;            // 4
-        public  int ComputeMode;            // 4 
-        public  int SecCount;               // 4
-        private int ReservedInt0; // 4
+        [FieldOffset(96)]public  int PrimCount;            // 4
+        [FieldOffset(100)]public MatrixOpMode ComputeMode;            // 4 
+        [FieldOffset(104)]public  int SecCount;               // 4
+        [FieldOffset(108)]private int ReservedInt0; // 4
 
         #endregion
 
         #region count offset
 
-        public int PrimTileOffset;          // 4
-        public int SecTileOffset;           // 4
-        public int PrimCountInTile;          // 4
-        public int SecCountInTile;           // 4
+        [FieldOffset(112)]public int PrimTileOffset;          // 4
+        [FieldOffset(116)]public int SecTileOffset;           // 4
+        [FieldOffset(120)]public int PrimCountInTile;          // 4
+        [FieldOffset(124)]public int SecCountInTile;           // 4
 
     #endregion
     }
@@ -186,8 +233,8 @@ namespace StgSharp.Mathematics.Numeric
 
         #region global profile
 
-        [FieldOffset(96)]public int PrimCount;            // 4
-        [FieldOffset(100)]public int ComputeMode;            // 4 
+        [FieldOffset(96)] public int PrimCount;            // 4
+        [FieldOffset(100)]public MatrixOpMode ComputeMode;            // 4 
         [FieldOffset(104)]public int SecCount;               // 4
         [FieldOffset(108)] private readonly int ReservedInt0; // 4
 

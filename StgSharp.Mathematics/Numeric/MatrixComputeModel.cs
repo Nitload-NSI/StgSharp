@@ -34,6 +34,29 @@ namespace StgSharp.Mathematics.Numeric
     internal static class MatrixComputeModel
     {
 
+        internal static unsafe void BufferComputeBinary(MatrixParallelTaskPackageNonGeneric* p)
+        {
+            int size = p->ElementSize * 16;
+            int count = p->PrimCount * p->SecCount;
+            int offset = p->LeftPrimOffset * p->SecCount;
+
+            ((delegate* unmanaged[Cdecl]<void*, void*, void*, int, void>)p->ComputeHandle)((void*)(p->Left + offset * size),
+                                                                                           (void*)(p->Right + offset * size),
+                                                                                           (void*)(p->Result + offset * size),
+                                                                                           count);
+        }
+
+        internal static unsafe void BufferComputeUnaryScalar(MatrixParallelTaskPackageNonGeneric* p)
+        {
+            int size = p->ElementSize * 16;
+            int count = p->PrimCount * p->SecCount;
+            int offset = p->LeftPrimOffset * p->SecCount;
+
+            ((delegate* unmanaged[Cdecl]<void*, void*, int, void>)p->ComputeHandle)((void*)(p->Right + offset * size),
+                                                                                           (void*)(p->Result + offset * size),
+                                                                                           count);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe void Compute_Binary(MatrixParallelTaskPackageNonGeneric* p)
         {

@@ -212,7 +212,7 @@ namespace StgSharp.Mathematics.Graphic
         public static unsafe Matrix44 operator -(Matrix44 left, Matrix44 right)
         {
             Matrix44 ret = new();
-            NativeIntrinsic.Intrinsic.f32_sub(&left, &right, &ret);
+            NativeIntrinsic.Intrinsic.f32_sub(&left, &right, &ret, 1);
             return ret;
         }
 
@@ -254,7 +254,7 @@ namespace StgSharp.Mathematics.Graphic
         public static unsafe Matrix44 operator +(Matrix44 left, Matrix44 right)
         {
             Matrix44 ret = new();
-            NativeIntrinsic.Intrinsic.f32_add(&left, &right, &ret);
+            NativeIntrinsic.Intrinsic.f32_add(&left, &right, &ret, 1);
             return ret;
         }
 

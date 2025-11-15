@@ -99,9 +99,7 @@ namespace StgSharp.Collections
 
         public void Push(T item)
         {
-            _values[++_index] = _index < _values.Length - 1 ?
-                                item :
-                                throw new InvalidOperationException("Stack is full.");
+            _values[++_index] = _index < _values.Length ? item : throw new InvalidOperationException("Stack is full.");
         }
 
         public void PushRange(ReadOnlySpan<T> span)

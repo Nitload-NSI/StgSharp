@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    internal unsafe partial class GCMatrix<T> : Matrix<T> where T: unmanaged, INumber<T>
+    internal unsafe partial class GCMatrix<T> : Matrix<T> where T : unmanaged, INumber<T>
     {
 
         private readonly MatrixKernel<T>* _buffer;
@@ -47,6 +47,8 @@ namespace StgSharp.Mathematics.Numeric
         {
             KernelColumnLength = (column + 3) / 4;
             KernelRowLength = (row + 3) / t_count;
+            ColumnLength = column;
+            RowLength = row;
             _buffer = (MatrixKernel<T>*)NativeMemory.AlignedAlloc((nuint)(column * row * sizeof(T)), (nuint)World.DefaultSIMDAlignment);
         }
 
@@ -95,7 +97,8 @@ namespace StgSharp.Mathematics.Numeric
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override unsafe MatrixSegmentEnumeration<T> GetColumnEnumeration()
         {
-            return new MatrixSegmentEnumeration<T>(_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelColumnLength);
+            return new MatrixSegmentEnumeration<T>(_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength, 1,
+                                                   KernelColumnLength);
         }
 
         public override unsafe MatrixSegmentEnumeration<T> GetRowEnumeration()
@@ -106,7 +109,9 @@ namespace StgSharp.Mathematics.Numeric
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override unsafe MatrixSegmentEnumeration<T> GetSequentialEnumeration()
         {
-            return new MatrixSegmentEnumeration<T>(_buffer, KernelRowLength * KernelColumnLength, KernelColumnLength * KernelRowLength, 1, KernelRowLength * KernelColumnLength);
+            return new MatrixSegmentEnumeration<T>(_buffer, KernelRowLength * KernelColumnLength,
+                                                   KernelColumnLength * KernelRowLength, 1,
+                                                   KernelRowLength * KernelColumnLength);
         }
 
         #endregion

@@ -41,41 +41,41 @@ namespace StgSharp.Mathematics.Numeric
     public static class MatrixCompute
     {
 
-        public static unsafe Matrix<float> Add(Matrix<float> left, Matrix<float> right)
+        public static unsafe Matrix<float> Add(this Matrix<float> left, Matrix<float> right)
         {
             if (left.ColumnLength != right.ColumnLength || left.RowLength != right.RowLength) {
                 throw new IndexOutOfRangeException("Matrix dimensions must agree.");
             }
-            Matrix<float> ans = Matrix<float>.FromDefault(left.ColumnLength, left.RowLength);
             long count = (long)left.KernelColumnLength * left.KernelRowLength;
+            Matrix<float> ans = Matrix<float>.FromDefault(left.ColumnLength, left.RowLength);
             if (count <= 256)
             {
                 MatrixKernel<float>* leftPtr = left.Buffer;
                 MatrixKernel<float>* rightPtr = right.Buffer;
                 MatrixKernel<float>* ansPtr = ans.Buffer;
-                for (int i = 0; i < count; i++) {
-                    NativeIntrinsic.Intrinsic.f32_add(leftPtr + i, rightPtr + i, ansPtr + i);
-                }
+                NativeIntrinsic.Intrinsic.f32_add(leftPtr, rightPtr, ansPtr, count);
+
                 return ans;
-            }
-            if (count <= 1024)
+            } else if (count <= 1024)
             {
                 MatrixParallelThread[] pool = MatrixParallel.LeadParallel(1);
 
                 MatrixKernel<float>* leftPtr = left.Buffer;
                 MatrixKernel<float>* rightPtr = right.Buffer;
                 MatrixKernel<float>* ansPtr = ans.Buffer;
-                for (int i = 0; i < count; i++) {
-                    NativeIntrinsic.Intrinsic.f32_add(leftPtr + i, rightPtr + i, ansPtr + i);
-                }
+                NativeIntrinsic.Intrinsic.f32_add(leftPtr, rightPtr, ansPtr, count);
+
                 MatrixParallel.ReturnParallelResources(ref pool);
                 return ans;
             }
-            MatrixParallelHandle taskGroup = MatrixParallel.PublicTask(left.GetColumnEnumeration(),
+            MatrixParallelHandle taskGroup = /**/ default
+                /*
+                MatrixParallel.PublicTask(left.GetColumnEnumeration(),
                                                                        right.GetColumnEnumeration(),
                                                                        ans.GetColumnEnumeration(),
-                                                                       (delegate*<MatrixKernel<float>*, MatrixKernel<float>*, MatrixKernel<float>*, void>)NativeIntrinsic.Intrinsic.f32_add);
-
+                                                                       (delegate*<MatrixKernel<float>*, MatrixKernel<float>*, MatrixKernel<float>*, void>)NativeIntrinsic.Intrinsic.f32_add)
+                /**/
+                ;
             MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);
             /*
              * run parallel
@@ -84,35 +84,33 @@ namespace StgSharp.Mathematics.Numeric
             return ans;
         }
 
-        public static unsafe void Fill<T>(Matrix<float> left, T value) where T: unmanaged, INumber<T>
+        public static unsafe void Fill<T>(this Matrix<float> right, T value) where T : unmanaged, INumber<T>
         {
-            long count = (long)left.KernelColumnLength * left.KernelRowLength;
+            long count = (long)right.KernelColumnLength * right.KernelRowLength;
             ScalarPacket* scaler = MatrixParallelFactory.CreateScalarPacket();
-            scaler->BroadCast<T, M512>(0, value);
+            scaler->Data<T>(0) = value;
             if (count <= 256)
             {
-                MatrixKernel<float>* leftPtr = left.Buffer;
-                for (int i = 0; i < count; i++) {
-                    NativeIntrinsic.Intrinsic.f32_fill(leftPtr + i, scaler);
-                }
-            }
-            if (count <= 1024)
+                NativeIntrinsic.Intrinsic.f32_fill(right.Buffer, scaler, count);
+                return;
+            } else if (count <= 1024)
             {
                 MatrixParallelThread[] pool = MatrixParallel.LeadParallel(1);
 
-                MatrixKernel<float>* leftPtr = left.Buffer;
-                for (int i = 0; i < count; i++) {
-                    NativeIntrinsic.Intrinsic.f32_fill(leftPtr + i, scaler);
-                }
-                MatrixParallel.ReturnParallelResources(ref pool);
-            }
-            MatrixParallelHandle taskGroup = MatrixParallel.PublicNoAnswerTask(left.GetColumnEnumeration(), scaler,
-                (delegate* unmanaged[Cdecl]<MatrixKernel<float>*, ScalarPacket*, void>)NativeIntrinsic.Intrinsic.f32_add);
+                NativeIntrinsic.Intrinsic.f32_fill(right.Buffer, scaler, count);
 
+                MatrixParallel.ReturnParallelResources(ref pool);
+                return;
+            }
+            MatrixParallelHandle taskGroup =/**/ default
+                /*MatrixParallel.PublicNoAnswerTask(left.GetColumnEnumeration(), scaler,
+                (delegate* unmanaged[Cdecl]<MatrixKernel<float>*, ScalarPacket*, void>)NativeIntrinsic.Intrinsic.f32_add)
+                /**/;
             MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);
             /*
              * run parallel
              */
+            MatrixParallelFactory.Release(scaler);
             taskGroup.Dispose();
         }
 

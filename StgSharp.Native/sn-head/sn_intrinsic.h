@@ -39,6 +39,23 @@ typedef union scalar_pack {
         uint64_t data[8];
 } scalar_pack;
 
+// define operation style:
+
+#define PANEL_OP 1
+#define BUFFER_OP 2
+#define KERNEL_OP 3
+
+#define RIGHT_ANS_PARAM 1
+#define LEFT_RIGHT_ANS_PARAM 2
+#define RIGHT_ANS_SCALAR_PARAM 3
+#define LEFT_RIGHT_ANS_SCALAR_PARAM 4
+#define ANS_SCALAR_PARAM 5
+
+typedef struct matrix_op_mode {
+        int16_t operation_style; /* PANEL_OP, BUFFER_OP, KERNEL_OP */
+        int16_t parameter_style; /* RIGHT_ANS_PARAM, LEFT_RIGHT_ANS_PARAM, e.g. */
+} matrix_op_mode;
+
 /* Mirrors StgSharp.Mathematics.Numeric.MatrixParallelTaskPackage<T> (128 bytes). */
 #define MAT_TASK(T)                                                                \
         struct {                                                                   \
@@ -62,7 +79,7 @@ typedef union scalar_pack {
                 scalar_pack *scalar; /* Offset 80 */                               \
                 void *compute_handle; /* Offset 88 */                              \
                 int32_t prim_count; /* Offset 96 */                                \
-                int32_t compute_mode; /* Offset 100 */                             \
+                matrix_op_mode compute_mode; /* Offset 100 */                      \
                 int32_t sec_count; /* Offset 104 */                                \
                 int32_t reserved_int0; /* Offset 108 */                            \
                 int32_t prim_tile_offset; /* Offset 112 */                         \
@@ -93,7 +110,7 @@ typedef void(SN_DECL *BUF_PROC_LRA)(mat_kernel *left, mat_kernel *right, mat_ker
 
 #define DECLARE_BUF_PROC_ANS_SCALAR(T_type, T_arch, T_op_name)     \
         INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)( \
-                MAT_KERNEL(T_type) *restrict ans, scalar_pack const *scalar, int count)
+                MAT_KERNEL(T_type) *restrict ans, scalar_pack const *scalar, size_t count)
 #define DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name)               \
         INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)(                 \
                 MAT_KERNEL(T_type) const *right, MAT_KERNEL(T_type) *restrict ans, \
@@ -101,14 +118,14 @@ typedef void(SN_DECL *BUF_PROC_LRA)(mat_kernel *left, mat_kernel *right, mat_ker
 #define DECLARE_BUF_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name)        \
         INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)(               \
                 MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right, \
-                MAT_KERNEL(T_type) *restrict ans, scalar_pack const *scalar, int count)
+                MAT_KERNEL(T_type) *restrict ans, scalar_pack const *scalar, size_t count)
 #define DECLARE_BUF_PROC_RIGHT_ANS(T_type, T_arch, T_op_name)      \
         INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)( \
-                MAT_KERNEL(T_type) const *right, MAT_KERNEL(T_type) *restrict ans, int count)
+                MAT_KERNEL(T_type) const *right, MAT_KERNEL(T_type) *restrict ans, size_t count)
 #define DECLARE_BUF_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)               \
         INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)(               \
                 MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right, \
-                MAT_KERNEL(T_type) *restrict ans, int count)
+                MAT_KERNEL(T_type) *restrict ans, size_t count)
 
 #pragma endregion
 
@@ -176,23 +193,25 @@ typedef uint64_t(SN_DECL *FACTORIALROC)(int n);
 
 INTERNAL void f32_normalize(VEC(float) * source, VEC(float) * target);
 
-DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, sse, add);
-DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, avx, add);
-DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, 512, add);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, add);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, add);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, add);
 
-DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, sse, sub);
-DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, avx, sub);
-DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, 512, sub);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, sub);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, sub);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, sub);
 
 DECLARE_KER_PROC_RIGHT_ANS(float, sse, transpose);
 DECLARE_KER_PROC_RIGHT_ANS(float, avx, transpose);
 DECLARE_KER_PROC_RIGHT_ANS(float, 512, transpose);
 
-DECLARE_KER_PROC_RIGHT_ANS_SCALAR(float, sse, scalar_mul);
-DECLARE_KER_PROC_RIGHT_ANS_SCALAR(float, avx, scalar_mul);
-DECLARE_KER_PROC_RIGHT_ANS_SCALAR(float, 512, scalar_mul);
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, sse, scalar_mul);
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, avx, scalar_mul);
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, 512, scalar_mul);
 
 DECLARE_BUF_PROC_ANS_SCALAR(float, sse, fill);
+DECLARE_BUF_PROC_ANS_SCALAR(float, avx, fill);
+DECLARE_BUF_PROC_ANS_SCALAR(float, 512, fill);
 
 #pragma endregion
 
@@ -231,17 +250,19 @@ INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int lengt
 
 #pragma endregion
 
+// Reordered to match C# IntrinsicContext field order
+// C# order: city_hash_simplify, f32_add, f32_fill, f32_fma, f32_scalar_mul, f32_sub, f32_transpose, factorial_simd, index_pair, normalize_3
 typedef struct sn_intrinsic {
-        HASH city_hash_simplify;
-        FACTORIALROC factorial_simd;
-        INDEX_PAIR index_pair;
-        KER_PROC_LRA f32_kernel_add;
-        KER_PROC_AS f32_kernel_fill;
-        PNL_PROC_LRA f32_panel_fma;
-        KER_PROC_LRA f32_kernel_scalar_mul;
-        KER_PROC_LRA f32_kernel_sub;
-        KER_PROC_RA f32_kernel_transpose;
-        VECTORNORMALIZEPROC f32_normalize_3;
+        HASH city_hash_simplify; // city_hash_simplify
+        BUF_PROC_LRA f32_buffer_add; // f32_add
+        BUF_PROC_AS f32_buffer_fill; // f32_fill
+        PNL_PROC_LRA f32_panel_fma; // f32_fma (panel variant)
+        BUF_PROC_LRA f32_kernel_scalar_mul; // f32_scalar_mul (right+ans+scalar variant mapped here)
+        BUF_PROC_LRA f32_kernel_sub; // f32_sub
+        KER_PROC_RA f32_kernel_transpose; // f32_transpose
+        FACTORIALROC factorial_simd; // factorial_simd
+        INDEX_PAIR index_pair; // index_pair
+        VECTORNORMALIZEPROC f32_normalize_3; // normalize_3
 } sn_intrinsic;
 
 typedef enum most_advanced_instruction {

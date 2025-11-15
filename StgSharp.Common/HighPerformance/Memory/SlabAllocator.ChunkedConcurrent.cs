@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    internal sealed unsafe class ConcurrentChunkedSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
+    internal sealed unsafe class ConcurrentChunkedSlabAllocator<T> : SlabAllocator<T> where T : unmanaged
     {
 
         private readonly BufferExpansionLock _lock = new();
