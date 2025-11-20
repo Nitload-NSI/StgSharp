@@ -55,13 +55,13 @@ namespace StgSharp.Mathematics.Numeric
 
         private static SlabAllocator<ScalarPacket> _scalarAllocator ;
 
-        private static SlabAllocator<MatrixParallelTaskPackageNonGeneric> _wrapAllocator;
+        private static SlabAllocator<MatrixParallelTaskPackage> _wrapAllocator;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MatrixParallelTaskPackage<T>* CreateBaseTask<T>() where T: unmanaged, INumber<T>
+        public static MatrixParallelTaskPackage* CreateBaseTask<T>() where T : unmanaged, INumber<T>
         {
-            MatrixParallelTaskPackage<T>* p = (MatrixParallelTaskPackage<T>*)_wrapAllocator.Allocate();
-            Span<byte> s = new Span<byte>((byte*)p, sizeof(MatrixParallelTaskPackage<T>));
+            MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)_wrapAllocator.Allocate();
+            Span<byte> s = new Span<byte>((byte*)p, sizeof(MatrixParallelTaskPackage));
             s.Fill(0);
             return p;
         }
@@ -74,20 +74,19 @@ namespace StgSharp.Mathematics.Numeric
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe MatrixParallelTaskPackage<T>* FromExistPackage<T>(MatrixParallelTaskPackage<T>* exist)
-            where T: unmanaged, INumber<T>
+        public static unsafe MatrixParallelTaskPackage* FromExistPackage<T>(MatrixParallelTaskPackage* exist)
+            where T : unmanaged, INumber<T>
         {
-            MatrixParallelTaskPackage<T>* ptr = (MatrixParallelTaskPackage<T>*)_wrapAllocator.Allocate();
-            MatrixParallelTaskPackage<T>.Copy(exist, ptr);
+            MatrixParallelTaskPackage* ptr = (MatrixParallelTaskPackage*)_wrapAllocator.Allocate();
+            MatrixParallelTaskPackage.Copy(exist, ptr);
             return ptr;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe MatrixParallelTaskPackageNonGeneric* FromExistPackage(
-                                                                  MatrixParallelTaskPackageNonGeneric* exist)
+        public static unsafe MatrixParallelTaskPackage* FromExistPackage(MatrixParallelTaskPackage* exist)
         {
-            MatrixParallelTaskPackageNonGeneric* ptr = (MatrixParallelTaskPackageNonGeneric*)_wrapAllocator.Allocate();
-            MatrixParallelTaskPackageNonGeneric.Copy(exist, ptr);
+            MatrixParallelTaskPackage* ptr = (MatrixParallelTaskPackage*)_wrapAllocator.Allocate();
+            MatrixParallelTaskPackage.Copy(exist, ptr);
             return ptr;
         }
 
@@ -99,7 +98,7 @@ namespace StgSharp.Mathematics.Numeric
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Release(MatrixParallelTaskPackageNonGeneric* source)
+        public static void Release(MatrixParallelTaskPackage* source)
         {
             if (source->Scalar != null) {
                 _scalarAllocator.Free((nuint)source->Scalar);
@@ -108,7 +107,7 @@ namespace StgSharp.Mathematics.Numeric
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Release<T>(MatrixParallelTaskPackage<T>* source) where T: unmanaged, INumber<T>
+        public static void Release<T>(MatrixParallelTaskPackage* source) where T : unmanaged, INumber<T>
         {
             if (source->Scalar != null) {
                 _scalarAllocator.Free((nuint)source->Scalar);
@@ -123,7 +122,7 @@ namespace StgSharp.Mathematics.Numeric
             {
                 _intermediateResult = new hlsfAllocator(64 * 16 * 16);
                 _scalarAllocator = SlabAllocator<ScalarPacket>.Create(64 * 1024, SlabBufferLayout.Chunked);
-                _wrapAllocator = SlabAllocator<MatrixParallelTaskPackageNonGeneric>.
+                _wrapAllocator = SlabAllocator<MatrixParallelTaskPackage>.
                     Create(128 * 1024, SlabBufferLayout.Chunked);
             }
         }

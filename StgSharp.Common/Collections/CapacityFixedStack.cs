@@ -38,94 +38,109 @@ namespace StgSharp.Collections
     {
 
         private readonly T[] _values;
+
+        // _index points to the next free slot (top empty position). Therefore Count == _index.
         private int _index;
 
         public CapacityFixedStack(int size)
         {
+            ArgumentOutOfRangeException.ThrowIfNegative(size);
             _values = new T[size];
-            _index = -1;
+            _index = 0; // empty stack
         }
 
         public T? First => Volatile.Read(ref _index) > 0 ? _values[0] : default;
 
-        public bool IsEmpty => _index == -1;
+        public bool IsEmpty => Volatile.Read(ref _index) == 0;
 
-        public int Count => _index + 1;
+        public int Count => Volatile.Read(ref _index);
 
         public int Capacity => _values.Length;
 
-        public ReadOnlySpan<T> AsSpan()
-        {
-            return _values.AsSpan(0, _index + 1);
-        }
+        public ReadOnlySpan<T> AsSpan() => _values.AsSpan(0, _index);
 
         public void Clear()
         {
-            Array.Clear(_values, 0, _values.Length);
-            _index = -1;
+            if (_index > 0)
+            {
+                Array.Clear(_values, 0, _index);
+                _index = 0;
+            }
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            for (int i = _index; i >= 0; i--) {
+            for (int i = _index - 1; i >= 0; i--) {
                 yield return _values[i];
             }
         }
 
         public T Peek()
         {
-            return _index >= 0 ? _values[_index] : throw new InvalidOperationException("Stack is empty.");
+            if (_index == 0) {
+                throw new InvalidOperationException("Stack is empty.");
+            }
+            return _values[_index - 1];
         }
 
         public T Pop()
         {
-            if (_index >= 0)
-            {
-                T item = _values[_index];
-                _index--;
-                return item;
-            } else
-            {
+            if (_index == 0) {
                 throw new InvalidOperationException("Stack is empty.");
             }
+            _index--;
+            T item = _values[_index];
+            _values[_index] = default!; // Clear reference for GC
+            return item;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T[] PopRange(int count)
         {
-            int i = int.Min(count, _index) - 1;
-            return _values[0..i];
+            if (count <= 0 || _index == 0) {
+                return Array.Empty<T>();
+            }
+            int n = Math.Min(count, _index);
+            int start = _index - n;
+            T[] ret = new T[n];
+            Array.Copy(_values, start, ret, 0, n);
+            Array.Clear(_values, start, n);
+            _index -= n;
+            return ret;
         }
 
         public void Push(T item)
         {
-            _values[++_index] = _index < _values.Length ? item : throw new InvalidOperationException("Stack is full.");
+            if (_index >= _values.Length) {
+                throw new InvalidOperationException("Stack is full.");
+            }
+            _values[_index] = item;
+            _index++;
         }
 
         public void PushRange(ReadOnlySpan<T> span)
         {
-            if (_index + span.Length >= _values.Length) {
+            if (span.Length == 0) {
+                return;
+            }
+            if (_index + span.Length > _values.Length) {
                 throw new InvalidOperationException("Not enough space in the stack to push the entire span.");
             }
-
-            Span<T> sp = _values.AsSpan(_index + 1, span.Length);
-            span.CopyTo(sp);
+            span.CopyTo(_values.AsSpan(_index, span.Length));
             _index += span.Length;
         }
 
-        public  bool TryPop(out T value)
+        public bool TryPop(out T value)
         {
-            if (_index >= 0)
-            {
-                T item = _values[_index];
-                _index--;
-                value = item;
-                return true;
-            } else
+            if (_index == 0)
             {
                 value = default!;
                 return false;
             }
+            _index--;
+            value = _values[_index];
+            _values[_index] = default!;
+            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -147,8 +162,7 @@ namespace StgSharp.Collections
         public static CapacityFixedStack<T> Create<T>(ReadOnlySpan<T> values)
         {
             CapacityFixedStack<T> stack = new(values.Length);
-            Span<T> sp = stack.GetValueLayout();
-            values.CopyTo(sp);
+            stack.PushRange(values); // Push in order
             return stack;
         }
 

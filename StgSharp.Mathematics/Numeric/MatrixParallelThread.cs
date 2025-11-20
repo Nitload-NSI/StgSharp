@@ -27,6 +27,7 @@
 // -----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -36,7 +37,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    public class MatrixParallelThread : IDisposable
+    public partial class MatrixParallelThread : IDisposable
     {
 
         // Affinity binding info for this thread
@@ -53,8 +54,12 @@ namespace StgSharp.Mathematics.Numeric
             _affinity = AffinityAllocator.Allocate();
 
             _managedThread = new Thread(MatrixParallelWorker);
+            _managedThread.Start();
             _resetEvent = new ManualResetEventSlim(false);
         }
+
+        // Global runtime switch: true => UMA/no-affinity; false => NUMA/affinity (auto-detected)
+        public static bool UseUmaAffinityPath { get; } = DetectUmaAffinityPath();
 
         // ~MatrixComputeThread()
         // {
@@ -67,6 +72,8 @@ namespace StgSharp.Mathematics.Numeric
             set => field = value;
         }
 
+        internal ManualResetEventSlim? LeaderEvent { get; set; }
+
         public void Dispose()
         {
             Dispose(disposing:true);
@@ -78,7 +85,7 @@ namespace StgSharp.Mathematics.Numeric
         {
             while (taskQueue.TryDequeue(out nint handle))
             {
-                MatrixParallelTaskPackageNonGeneric* p = (MatrixParallelTaskPackageNonGeneric*)handle;
+                MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)handle;
                 switch (p->ComputeMode.OperationStyle)
                 {
                     case MatrixOperationStyle.PANEL_OP:
@@ -97,6 +104,7 @@ namespace StgSharp.Mathematics.Numeric
                             case MatrixOperationParam.LEFT_RIGHT_ANS_SCALAR_PARAM:
                                 break;
                             case MatrixOperationParam.ANS_SCALAR_PARAM:
+                                MatrixComputeModel.BufferComputeNoOperatorScalar(p);
                                 break;
                             default:
                                 break;
@@ -127,14 +135,53 @@ namespace StgSharp.Mathematics.Numeric
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Restart()
         {
-            _resetEvent.Set();
+            if (Role == RoleType.Leader)
+            {
+                LeaderEvent?.Set();
+            } else
+            {
+                _resetEvent.Set();
+            }
         }
 
-        public void ReturnToPool()
+        internal void MatrixParallelLeader()
         {
-            // MatrixParallel.(this);
+            Thread current = Thread.CurrentThread;
+            current.Priority = ThreadPriority.Highest;
+            LeaderEvent?.Wait();
+            LeaderEvent?.Reset();
+
+            // Console.WriteLine("Leader is computing");
+#if WINDOWS
+            if (!UseUmaAffinityPath)
+            {
+                // NUMA/affinity path: bind to this thread's reserved mask, then restore
+                nuint previousMask = SetThreadAffinityMask(GetCurrentThread(), _affinity.Mask);
+                bool affinityChanged = previousMask != 0; // nonzero => success
+                Thread.Sleep(0);
+                ExecuteTaskPackage(Tasks);
+                if (affinityChanged) {
+                    _ = SetThreadAffinityMask(GetCurrentThread(), previousMask);
+                }
+            } else
+            {
+                // UMA path: no affinity binding
+                ExecuteTaskPackage(Tasks);
+            }
+#else
+            // Non-Windows: no affinity control
+            ExecuteTaskPackage(Tasks);
+#endif
+
+            BindedWrap.ReportThreadAccomplished();
+
+            // Console.WriteLine("leader's computing is done");
+            Role = RoleType.Worker;
+            LeaderEvent = null;
+            current.Priority = ThreadPriority.Normal;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -154,33 +201,76 @@ namespace StgSharp.Mathematics.Numeric
             }
         }
 
+        private static bool DetectUmaAffinityPath()
+        {
+#if WINDOWS
+            try
+            {
+                // Quick heuristic: single CPU looks like UMA
+                if (Environment.ProcessorCount <= 1)
+                {
+                    return true;
+                }
+
+                // Query NUMA topology: highest node number 0 => single node => UMA
+                uint highest = 0;
+                if (GetNumaHighestNodeNumber(out highest)) {
+                    return highest == 0;
+                }
+
+                // If query fails, prefer UMA (safer: no affinity changes)
+                return true;
+            }
+            catch
+            {
+                return true;
+            }
+#else
+            // Non-Windows: treat as UMA (no affinity API available)
+            return true;
+#endif
+        }
+
         private unsafe void MatrixParallelWorker()
         {
             // Bind OS-thread affinity once when the worker starts running
             ApplyAffinityIfNeeded();
 
-            // Thread self = Thread.CurrentThread;
-            _resetEvent.Wait();
-            _resetEvent.Reset();
-            _managedThread.Priority = ThreadPriority.Highest;
-            switch (Role)
+            while (true)
             {
-                case 0://worker
-                    // _ = Interlocked.Decrement(ref RemainThreadCount);
-                    ExecuteTaskPackage(Tasks);
-                    break;
-                case 1://scheduler
-                    BindedWrap.PublishTaskToWorkers(Tasks);
-                    BindedWrap.SetAllWorker();
-                    ExecuteTaskPackage(Tasks);
+                // Thread self = Thread.CurrentThread;
+                _managedThread.Priority = ThreadPriority.Highest;
+                _resetEvent.Wait();
+                _resetEvent.Reset();
+                switch (Role)
+                {
+                    case RoleType.Worker://worker
+                        // _ = Interlocked.Decrement(ref RemainThreadCount);
+                        // Console.WriteLine("worker start");
+                        ExecuteTaskPackage(Tasks);
+                        BindedWrap.ReportThreadAccomplished();
 
-                    break;
-                case 2://leader, error because leader should be at outer thread but not here
-                    break;
-                default:
-                    break;
+                        // Console.WriteLine("worker end");
+                        break;
+                    case RoleType.Scheduler://scheduler
+                        // Console.WriteLine("scheduler start");
+                        BindedWrap.PublishTaskToWorkers();
+                        BindedWrap.SetAllWorker();
+
+                        // Console.WriteLine("scheduler done");
+                        ExecuteTaskPackage(Tasks);
+                        BindedWrap.ReportThreadAccomplished();
+                        BindedWrap.WaitAllWorker();
+                        BindedWrap.ReportWrapAccomplished();
+                        Role = RoleType.Worker;
+                        break;
+                    case RoleType.Leader://leader, error because leader should be at outer thread but not here
+                        break;
+                    default:
+                        break;
+                }
+                _managedThread.Priority = AfterWork;
             }
-            _managedThread.Priority = AfterWork;
         }
 
         #region core affinity
@@ -312,6 +402,10 @@ namespace StgSharp.Mathematics.Numeric
         [DllImport("kernel32.dll")]
         private static extern nuint SetThreadAffinityMask(IntPtr hThread, nuint dwThreadAffinityMask);
 
+        [LibraryImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static partial bool GetNumaHighestNodeNumber(out uint HighestNodeNumber);
+
 #elif LINUX
 
 #endif
@@ -322,21 +416,23 @@ namespace StgSharp.Mathematics.Numeric
 
         internal Queue<IntPtr> Tasks { get; } = [];
 
-        public int Role
+        public RoleType Role
         {
             get;
             internal set
             {
-                if ((Role & (~3u)) == 0)
-                {
-                    field = value;
-                } else
-                {
-#if DEBUG
-                    throw new ArgumentOutOfRangeException(nameof(Role));
-#endif
-                }
+                // Console.WriteLine($"Thread {_managedThread.ManagedThreadId} set to {value}, from thread {Environment.CurrentManagedThreadId}");
+                field = value;
             }
+        }
+
+        public enum RoleType : int
+        {
+
+            Worker = 0,
+            Scheduler = 1,
+            Leader = 2,
+
         }
 
         #endregion

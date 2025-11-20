@@ -230,9 +230,18 @@ namespace StgSharp.Internal
                                       IntPtr monitor,
                                       IntPtr share)
         {
+            nint handle;
             fixed (byte* titlePtr = title) {
-                return _glfw.glfwCreateWindow(width, height, titlePtr, monitor, share);
+                handle = _glfw.glfwCreateWindow(width, height, titlePtr, monitor, share);
             }
+            if (handle == 0)
+            {
+                byte* desc;
+                int code = _glfw.glfwGetError(&desc);
+                string msg = $"{code}: {Marshal.PtrToStringUTF8((nint)desc)}";
+                throw new InvalidOperationException(msg);
+            }
+            return handle;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -813,7 +822,9 @@ namespace StgSharp.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe IntPtr glfwGetProcAddress(ReadOnlySpan<byte> procName)
         {
-            return glfwGetProcAddress(procName);
+            fixed (byte* sPtr = procName) {
+                return _glfw.glfwGetProcAddress(sPtr);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

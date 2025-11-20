@@ -66,7 +66,7 @@
       <BrowseInformation>true</BrowseInformation>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>$(ProjectDir)sdl-head;$(ProjectDir)sn-head;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)sn-head;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,7 +91,7 @@
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <CompileAs>CompileAsC</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)sdl-head;$(ProjectDir)sn-head;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)sn-head;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -104,9 +104,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="k_bufop.c" />
     <ClCompile Include="sn-src\k_basicop.c" />
     <ClCompile Include="sn-src\dllmain.c" />
+    <ClCompile Include="sn-src\k_bufop.c" />
     <ClCompile Include="sn-src\str_factorial.c" />
     <ClCompile Include="sn-src\k_fma.c" />
     <ClCompile Include="sn-src\str_hash.c" />
@@ -114,26 +114,27 @@
       <FileType>CppCode</FileType>
     </ClCompile>
     <ClCompile Include="sn-src\load_glfw.c" />
-    <ClCompile Include="sn-src\stb_image.c" />
     <ClCompile Include="sn-src\sn_native.c" />
     <ClCompile Include="sn-src\str_string.c" />
     <ClCompile Include="sn-src\vector.c" />
     <ClCompile Include="sn-src\vector_dot.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="glfw\glfw3.h" />
+    <ClInclude Include="lib\glfw\glfw3.h" />
+    <ClInclude Include="lib\glfw\glfw3native.h" />
+    <ClInclude Include="lib\stbi\stb_image.h" />
     <ClInclude Include="sn-head\gl.h" />
     <ClInclude Include="sn-head\glfw_function.h" />
     <ClInclude Include="sn-head\khrplatform.h" />
     <ClInclude Include="sn-head\sn_internal.h" />
     <ClInclude Include="sn-head\sn_intrinsic.h" />
     <ClInclude Include="sn-head\sn_matkernel.h" />
-    <ClInclude Include="sn-head\stb_image.h" />
     <ClInclude Include="sn-head\StgSharpNative.h" />
     <ClInclude Include="sn-head\wgl.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="glfw\glfw3.lib" />
+    <Library Include="lib\glfw\glfw3.lib" />
+    <Library Include="lib\glfw\glfw3_mt.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

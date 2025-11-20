@@ -73,31 +73,28 @@ namespace StgSharp.Mathematics.Numeric
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct MatrixOpMode
+    public struct MatrixOpMode(MatrixOperationStyle style, MatrixOperationParam paramLayout)
     {
 
-        public MatrixOperationParam ParameterStyle;
-        public MatrixOperationStyle OperationStyle;
+        public MatrixOperationParam ParameterStyle = paramLayout;
+        public MatrixOperationStyle OperationStyle = style;
 
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 128)]
-    internal unsafe struct MatrixParallelTaskPackageNonGeneric
+    public unsafe struct MatrixParallelTaskPackage
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Copy(
-                                  MatrixParallelTaskPackageNonGeneric* source,
-                                  MatrixParallelTaskPackageNonGeneric* target)
+        public static unsafe void Copy(MatrixParallelTaskPackage* source, MatrixParallelTaskPackage* target)
         {
-            Buffer.MemoryCopy(source, target, sizeof(MatrixParallelTaskPackageNonGeneric),
-                              sizeof(MatrixParallelTaskPackageNonGeneric));
+            Buffer.MemoryCopy(source, target, sizeof(MatrixParallelTaskPackage), sizeof(MatrixParallelTaskPackage));
         }
 
         #region source
 
         // Group 1: Left/Right matrix kernel base address
-        [FieldOffset(0)]public IntPtr Left;    // 8
+        [FieldOffset(0)] public IntPtr Left;    // 8
         [FieldOffset(8)] public IntPtr Right;   // 8
 
         #endregion
@@ -106,93 +103,7 @@ namespace StgSharp.Mathematics.Numeric
 
         // Group 2: Result kernel base address + reserved
         [FieldOffset(16)] public IntPtr Result;  // 8
-        [FieldOffset(24)]public int ElementSize;
-        [FieldOffset(28)] public int ReservedPtr0;         // 4 (extension/reserved)
-
-        #endregion
-
-        #region left enum
-
-        [FieldOffset(32)] public int LeftPrimOffset;         // 4
-        [FieldOffset(36)]public int LeftPrimStride;         // 4 
-        [FieldOffset(40)]public int LeftSecOffset;          // 4
-        [FieldOffset(44)]public int LeftSecStride;          // 4
-
-        #endregion
-
-        #region right enum
-
-        [FieldOffset(32)] public int RightPrimOffset;        // 4
-        [FieldOffset(36)]public int RightPrimStride;        // 4
-        [FieldOffset(40)]public int RightSecOffset;         // 4
-        [FieldOffset(44)]public int RightSecStride;         // 4
-
-        #endregion
-
-        #region ans enum
-
-        [FieldOffset(48)]public int ResultPrimOffset;       // 4
-        [FieldOffset(52)]public int ResultPrimStride;       // 4
-        [FieldOffset(56)]public int ResultSecOffset;        // 4
-        [FieldOffset(60)] public int ResultSecStride;        // 4
-
-        #endregion
-
-        #region scalar/compute
-
-        [FieldOffset(80)]public ScalarPacket* Scalar;  // 8
-        [FieldOffset(88)]public IntPtr ComputeHandle;     // 8
-
-        #endregion
-
-        #region global profile
-
-        [FieldOffset(96)]public  int PrimCount;            // 4
-        [FieldOffset(100)]public MatrixOpMode ComputeMode;            // 4 
-        [FieldOffset(104)]public  int SecCount;               // 4
-        [FieldOffset(108)]private int ReservedInt0; // 4
-
-        #endregion
-
-        #region count offset
-
-        [FieldOffset(112)]public int PrimTileOffset;          // 4
-        [FieldOffset(116)]public int SecTileOffset;           // 4
-        [FieldOffset(120)]public int PrimCountInTile;          // 4
-        [FieldOffset(124)]public int SecCountInTile;           // 4
-
-    #endregion
-    }
-
-    [StructLayout(LayoutKind.Explicit, Size =128)]
-    internal unsafe struct MatrixParallelTaskPackage<T> where T : unmanaged, INumber<T>
-    {
-
-        public MatrixParallelTaskPackage()
-        {
-            Unsafe.SkipInit(out this);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Copy(MatrixParallelTaskPackage<T>* source, MatrixParallelTaskPackage<T>* target)
-        {
-            Buffer.MemoryCopy(source, target, sizeof(MatrixParallelTaskPackage<T>),
-                              sizeof(MatrixParallelTaskPackage<T>));
-        }
-
-        #region source
-
-        // Group 1: Left/Right matrix kernel base address
-        [FieldOffset(0)]public MatrixKernel<T>* Left;    // 8
-        [FieldOffset(8)] public MatrixKernel<T>* Right;   // 8
-
-        #endregion
-
-        #region ans
-
-        // Group 2: Result kernel base address + reserved
-        [FieldOffset(16)] public MatrixKernel<T>* Result;  // 8
-        [FieldOffset(24)] public int ElementSize = sizeof(T);
+        [FieldOffset(24)] public int ElementSize;
         [FieldOffset(28)] public int ReservedPtr0;         // 4 (extension/reserved)
 
         #endregion
@@ -202,7 +113,7 @@ namespace StgSharp.Mathematics.Numeric
         [FieldOffset(32)]public int LeftPrimOffset;         // 4
         [FieldOffset(36)]public int LeftPrimStride;         // 4 
         [FieldOffset(40)]public int LeftSecOffset;          // 4
-        [FieldOffset(44)] public int LeftSecStride;          // 4
+        [FieldOffset(44)]public int LeftSecStride;          // 4
 
         #endregion
 
@@ -226,17 +137,17 @@ namespace StgSharp.Mathematics.Numeric
 
         #region scalar/compute
 
-        [FieldOffset(80)] public ScalarPacket* Scalar;  // 8
+        [FieldOffset(80)]public ScalarPacket* Scalar;  // 8
         [FieldOffset(88)]public IntPtr ComputeHandle;     // 8
 
         #endregion
 
         #region global profile
 
-        [FieldOffset(96)] public int PrimCount;            // 4
-        [FieldOffset(100)]public MatrixOpMode ComputeMode;            // 4 
-        [FieldOffset(104)]public int SecCount;               // 4
-        [FieldOffset(108)] private readonly int ReservedInt0; // 4
+        [FieldOffset(96)]public  int PrimCount;            // 4 
+        [FieldOffset(100)]public  int SecCount;               // 4
+        [FieldOffset(104)]public MatrixOpMode ComputeMode;            // 4
+        [FieldOffset(108)]private int ReservedInt0; // 4
 
         #endregion
 
@@ -244,8 +155,8 @@ namespace StgSharp.Mathematics.Numeric
 
         [FieldOffset(112)]public int PrimTileOffset;          // 4
         [FieldOffset(116)]public int SecTileOffset;           // 4
-        [FieldOffset(120)]public int PrimColumnCountInTile;          // 4
-        [FieldOffset(124)]public int SecColumnCountInTile;           // 4
+        [FieldOffset(120)] public int PrimColumnCountInTile;          // 4
+        [FieldOffset(124)] public int SecColumnCountInTile;           // 4
 
     #endregion
     }

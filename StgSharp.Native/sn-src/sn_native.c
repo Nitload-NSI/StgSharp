@@ -1,6 +1,9 @@
-﻿#include "StgSharpNative.h"
+﻿#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#endif
+#include "StgSharpNative.h"
 #include "gl.h"
-#include "../glfw/glfw3.h"
+#include "../lib/glfw/glfw3.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -32,7 +35,7 @@ SN_API GLFWglproc SN_DECL loadGlfuncDefault(char const *procName)
         void *ret = glfwGetProcAddress(procName);
         // printf("%llu\n", (uint64_t)ret);
         if (ret == NULL) {
-                strcpy_s(infolog,30, "Failed to load OpenGL api:");
+                strcpy_s(infolog, 30, "Failed to load OpenGL api:");
                 for (size_t i = 0; i < sizeof(procName); i++) {
                         infolog[30 + i] = procName[i];
                 }
@@ -62,8 +65,7 @@ SN_API void SN_DECL loadImageData(char const *location, Image *out, imageLoader 
         }
         out->pixelPtr = loader(location, &(out->width), &(out->height), &(out->channel), 0);
 }
-
-SN_API void SN_DECL unloadImageData(Image *restrict out)
+SN_API void SN_DECL unloadImageData(Image *out)
 {
         free(out->pixelPtr);
 }

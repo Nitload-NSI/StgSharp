@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Common.Timing;
 using StgSharp.Controlling.UsrActivity;
 using StgSharp.Graphics;
 using StgSharp.Graphics.OpenGL;
@@ -65,24 +66,23 @@ namespace StgSharp.MVVM.ViewModel
         {
             viewPortDisplay = new ViewPort();
             allView = [];
-            fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
+            fpsCountProvider = new TimeSpanProvider(TimeSequence.CreateLinear(double.MaxValue, 1.0 / frameSpeed), TimeSpanProvider.DefaultProvider);
             _frameSpeed = 0;
             _frameCount = 0;
             long frameLength = (FrameSpeed > 0) ? (1000L * 1000L / FrameSpeed) : 0;
-            frameTimeProvider = new TimeSpanProvider(frameLength, TimeSpanProvider.DefaultProvider);
+            frameTimeProvider = new TimeSpanProvider(TimeSequence.CreateLinear(double.MaxValue, 1.0 / frameSpeed), TimeSpanProvider.DefaultProvider);
             SetFrameSizeCallback(DefaultFrameResizeCallback);
         }
 
-        protected ViewModelBase(float frameLength)
+        protected ViewModelBase(double frameLength)
         {
             viewPortDisplay = new ViewPort();
             allView = [];
-            fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
+            fpsCountProvider = new TimeSpanProvider(TimeSequence.CreateLinear(double.MaxValue, frameLength), TimeSpanProvider.DefaultProvider);
             _frameSpeed = 0;
             _frameCount = 0;
             long _frameLength = (FrameSpeed > 0) ? ((long)(1000 * frameLength)) : 0;
-            frameTimeProvider = new TimeSpanProvider(_frameLength,
-                                                     TimeSpanProvider.DefaultProvider);
+            frameTimeProvider = new TimeSpanProvider(TimeSequence.CreateLinear(double.MaxValue, frameLength), TimeSpanProvider.DefaultProvider);
             SetFrameSizeCallback(DefaultFrameResizeCallback);
         }
 
@@ -90,24 +90,23 @@ namespace StgSharp.MVVM.ViewModel
         {
             viewPortDisplay = vBinding;
             allView = [];
-            fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
+            fpsCountProvider = new TimeSpanProvider(TimeSequence.CreateLinear(double.MaxValue, 1.0), TimeSpanProvider.DefaultProvider);
             _frameSpeed = 0;
             _frameCount = 0;
             long frameLength = (frameSpeed > 0) ? (1000L * 1000L / frameSpeed) : 0;
-            frameTimeProvider = new TimeSpanProvider(frameLength, TimeSpanProvider.DefaultProvider);
+            frameTimeProvider = new TimeSpanProvider(TimeSequence.CreateLinear(double.MaxValue, 1.0 / frameSpeed), TimeSpanProvider.DefaultProvider);
             SetFrameSizeCallback(DefaultFrameResizeCallback);
         }
 
-        public ViewModelBase(ViewPort vBinding, float frameLength)
+        public ViewModelBase(ViewPort vBinding, double frameLength)
         {
             viewPortDisplay = vBinding;
             allView = [];
-            fpsCountProvider = new TimeSpanProvider(1.0, TimeSpanProvider.DefaultProvider);
+            fpsCountProvider = new TimeSpanProvider(TimeSequence.CreateLinear(double.MaxValue, 1.0), TimeSpanProvider.DefaultProvider);
             _frameSpeed = 0;
             _frameCount = 0;
-            long _frameLength = (frameLength > 0) ? ((long)(1000 * frameLength)) : 0;
-            frameTimeProvider = new TimeSpanProvider(_frameLength,
-                                                     TimeSpanProvider.DefaultProvider);
+            long _frameLength = (FrameSpeed > 0) ? ((long)(1000 * frameLength)) : 0;
+            frameTimeProvider = new TimeSpanProvider(TimeSequence.CreateLinear(double.MaxValue, frameLength), TimeSpanProvider.DefaultProvider);
             SetFrameSizeCallback(DefaultFrameResizeCallback);
         }
 
@@ -193,9 +192,8 @@ namespace StgSharp.MVVM.ViewModel
         public void SetSizeLimit(Vec2 minSize, Vec2 maxSize)
         {
             ThreadHelper.MainThreadAssert();
-            GraphicFramework.glfwSetWindowSizeLimits(
-                this.viewPortDisplay.ViewPortHandle, (int)minSize.X, (int)minSize.Y, (int)maxSize.X,
-                (int)maxSize.Y);
+            GraphicFramework.glfwSetWindowSizeLimits(this.viewPortDisplay.ViewPortHandle, (int)minSize.X,
+                                                     (int)minSize.Y, (int)maxSize.X, (int)maxSize.Y);
         }
 
         /// <summary>
@@ -217,8 +215,8 @@ namespace StgSharp.MVVM.ViewModel
         public void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight)
         {
             ThreadHelper.MainThreadAssert();
-            GraphicFramework.glfwSetWindowSizeLimits(
-                this.viewPortDisplay.ViewPortHandle, minWidth, minHeight, maxWidth, maxHeight);
+            GraphicFramework.glfwSetWindowSizeLimits(this.viewPortDisplay.ViewPortHandle, minWidth, minHeight, maxWidth,
+                                                     maxHeight);
         }
 
         public abstract bool TryGetObjectReference(string name, out DataBindingEntry entry);

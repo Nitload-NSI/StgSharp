@@ -1,7 +1,7 @@
 #ifndef GLFW_FUNCTION_TABLE_H
 #define GLFW_FUNCTION_TABLE_H
 
-#include "../glfw/glfw3.h"
+#include "../lib/glfw/glfw3.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +20,7 @@ typedef struct GLFWFunctionTable {
         GLFWwindow *(*glfwGetCurrentContext)(void);
         void (*glfwGetCursorPos)(GLFWwindow *window, double *xpos, double *ypos);
         int (*glfwGetError)(const char **description);
-        void (*glfwGetFramebufferSize)(GLFWwindow *window, int *width, int *height);
+        void (*glfwGetFrameBufferSize)(GLFWwindow *window, int *width, int *height);
         const char *(*glfwGetGamepadName)(int jid);
         int (*glfwGetGamepadState)(int jid, GLFWgamepadstate *state);
         const GLFWgammaramp *(*glfwGetGammaRamp)(GLFWmonitor *monitor);
@@ -38,10 +38,10 @@ typedef struct GLFWFunctionTable {
         const char *(*glfwGetMonitorName)(GLFWmonitor *monitor);
         void (*glfwGetMonitorPhysicalSize)(GLFWmonitor *monitor, int *widthMM, int *heightMM);
         void (*glfwGetMonitorPos)(GLFWmonitor *monitor, int *xpos, int *ypos);
+        GLFWmonitor **(*glfwGetMonitors)(int *count);
         void *(*glfwGetMonitorUserPointer)(GLFWmonitor *monitor);
         void (*glfwGetMonitorWorkarea)(GLFWmonitor *monitor, int *xpos, int *ypos, int *width,
                                        int *height);
-        GLFWmonitor **(*glfwGetMonitors)(int *count);
         int (*glfwGetMouseButton)(GLFWwindow *window, int button);
         GLFWmonitor *(*glfwGetPrimaryMonitor)(void);
         GLFWglproc (*glfwGetProcAddress)(const char *procname);
@@ -66,7 +66,7 @@ typedef struct GLFWFunctionTable {
         void (*glfwIconifyWindow)(GLFWwindow *window);
         int (*glfwInit)(void);
         void (*glfwInitHint)(int hint, int value);
-        int (*glfwJoystickIsGamepad)(int jid);
+        int (*glfwJoystickIsGamePad)(int jid);
         int (*glfwJoystickPresent)(int jid);
         void (*glfwMakeContextCurrent)(GLFWwindow *window);
         void (*glfwMaximizeWindow)(GLFWwindow *window);
@@ -75,13 +75,13 @@ typedef struct GLFWFunctionTable {
         int (*glfwRawMouseMotionSupported)(void);
         void (*glfwRequestWindowAttention)(GLFWwindow *window);
         void (*glfwRestoreWindow)(GLFWwindow *window);
-        void (*glfwSetClipboardString)(GLFWwindow *window, const char *str);
-        void (*glfwSetCursor)(GLFWwindow *window, GLFWcursor *cursor);
-        void (*glfwSetCursorPos)(GLFWwindow *window, double xpos, double ypos);
         GLFWcharfun (*glfwSetCharCallback)(GLFWwindow *window, GLFWcharfun callback);
         GLFWcharmodsfun (*glfwSetCharModsCallback)(GLFWwindow *window, GLFWcharmodsfun callback);
+        void (*glfwSetClipboardString)(GLFWwindow *window, const char *str);
+        void (*glfwSetCursor)(GLFWwindow *window, GLFWcursor *cursor);
         GLFWcursorenterfun (*glfwSetCursorEnterCallback)(GLFWwindow *window,
                                                          GLFWcursorenterfun callback);
+        void (*glfwSetCursorPos)(GLFWwindow *window, double xpos, double ypos);
         GLFWcursorposfun (*glfwSetCursorPosCallback)(GLFWwindow *window, GLFWcursorposfun callback);
         GLFWdropfun (*glfwSetDropCallback)(GLFWwindow *window, GLFWdropfun callback);
         GLFWerrorfun (*glfwSetErrorCallback)(GLFWerrorfun callback);
@@ -91,6 +91,7 @@ typedef struct GLFWFunctionTable {
         void (*glfwSetGammaRamp)(GLFWmonitor *monitor, const GLFWgammaramp *ramp);
         void (*glfwSetInputMode)(GLFWwindow *window, int mode, int value);
         GLFWjoystickfun (*glfwSetJoystickCallback)(GLFWjoystickfun callback);
+        void (*glfwSetJoystickUserPointer)(int jid, void *pointer);
         GLFWkeyfun (*glfwSetKeyCallback)(GLFWwindow *window, GLFWkeyfun callback);
         GLFWmonitorfun (*glfwSetMonitorCallback)(GLFWmonitorfun callback);
         void (*glfwSetMonitorUserPointer)(GLFWmonitor *monitor, void *pointer);
@@ -130,7 +131,7 @@ typedef struct GLFWFunctionTable {
         void (*glfwSwapBuffers)(GLFWwindow *window);
         void (*glfwSwapInterval)(int interval);
         void (*glfwTerminate)(void);
-        int (*glfwUpdateGamepadMappings)(const char *str);
+        int (*glfwUpdateGamePadMappings)(const char *str);
         int (*glfwVulkanSupported)(void);
         void (*glfwWaitEvents)(void);
         void (*glfwWaitEventsTimeout)(double timeout);

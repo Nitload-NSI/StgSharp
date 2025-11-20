@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="TimeProvider"
+// file="StgSharpTime"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -27,12 +27,8 @@
 // -----------------------------------------------------------------------
 using StgSharp.Collections;
 using StgSharp.Timing;
-
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace StgSharp
@@ -40,9 +36,7 @@ namespace StgSharp
     public static partial class World
     {
 
-        internal static StgSharpTime mainTimeProvider = new StgSharpTime();
-
-        internal static TimeSourceProviderBase MainTimeProvider => mainTimeProvider;
+        public static TimeSourceProviderBase MainTimeProvider => StgSharpTime.OnlyInstance;
 
     }
 
@@ -50,40 +44,30 @@ namespace StgSharp
     {
 
         private static readonly LinearBag<TimeSpanProvider> _subscribers = new();
-        private static long accuracy;
         private static readonly Stopwatch mainProvider = new();
         private static Thread timeProvideThread;
 
-        internal StgSharpTime() { }
+        private StgSharpTime() { }
 
-        public static TimeSourceProviderBase OnlyInstance => World.MainTimeProvider;
+        // Use Stopwatch frequency as base tick frequency (ticks per second).
+        public override long Frequency => Stopwatch.Frequency;
+
+        public static StgSharpTime OnlyInstance { get; } = new StgSharpTime();
+
+        public override long GetCurrentTimeSpanTick() => mainProvider.ElapsedTicks;
 
         public sealed override void StartProvidingTime()
         {
             if (mainProvider.IsRunning) {
                 return;
             }
-            mainProvider.Start();
 
-            // speed test
-            long totalMS, internalFrequency = Stopwatch.Frequency;
-            for (int i = 0; i < 100; i++)
+            mainProvider.Start();
+            timeProvideThread = new Thread(ProvideTime)
             {
-                totalMS = mainProvider.ElapsedTicks / (internalFrequency / (1000L * 1000L));
-                for (int t = 0; t < 10; t++)
-                {
-                    if (totalMS < 1000) {
-                        _subscribers.Add(
-                            new TimeSpanProvider(100L, TimeSpanProvider.DefaultProvider));
-                    }
-                }
-            }
-            mainProvider.Stop();
-            _subscribers.Clear();
-            totalMS = mainProvider.ElapsedTicks / (internalFrequency / (1000L * 1000L)) / 100L;
-            accuracy = totalMS * 2 / 3;
-            mainProvider.Reset();
-            timeProvideThread = new Thread(new ThreadStart(ProvideTime));
+                IsBackground = true,
+                Name = "StgSharpTime"
+            };
             timeProvideThread.Start();
         }
 
@@ -113,29 +97,36 @@ namespace StgSharp
 
         private void ProvideTime()
         {
-            long totalMS, internalFrequency = Stopwatch.Frequency;
+            long internalFrequency = Stopwatch.Frequency; // ticks per second
             lock (mainProvider) {
                 mainProvider.Restart();
             }
+
             while (mainProvider.IsRunning)
             {
-                totalMS = mainProvider.ElapsedTicks / (internalFrequency / (1000L * 1000L));
+                long elapsedTicks;
+                lock (mainProvider) {
+                    elapsedTicks = mainProvider.ElapsedTicks;
+                }
                 if (_subscribers.Count == 0)
                 {
+                    Thread.SpinWait(50);
                     continue;
                 }
                 lock (SubscribeLock)
                 {
                     for (int i = 0; i < _subscribers.Count; i++)
                     {
-                        if (!_subscribers[i].CheckTime(totalMS))
+                        if (!_subscribers[i].OnSpanTick(elapsedTicks))
                         {
                             _subscribers.RemoveAt(i);
-                            DefaultLog.InternalWriteLog(
-                                $"Time subscriber {_subscribers[i]} is to be removed.", LogType.Info);
+                            i--; // adjust index after removal
                         }
                     }
                 }
+
+                // Optional: brief spin to avoid tight loop if frame lengths are large.
+                Thread.SpinWait(20);
             }
         }
 

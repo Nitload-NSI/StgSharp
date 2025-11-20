@@ -45,14 +45,11 @@ namespace StgSharp.Controls
 
         private PlainGeometryMesh marker;
 
-        private TimeFunction _movement;
-
         private Vec2 _currentPosition, _movementVec;
 
-        public MarkingLabel(PlainGeometryMesh marker, TimeFunction movement)
+        public MarkingLabel(PlainGeometryMesh marker)
         {
             this.marker = marker;
-            _movement = movement;
         }
 
         public bool IsEntity => true;
@@ -74,9 +71,7 @@ namespace StgSharp.Controls
 
         public void Move(Vec2 movement)
         {
-            if (!_movement.IsComplete) {
-                Position = _currentPosition + (_movement.Calculate() * _movementVec);
-            }
+            throw new NotImplementedException();
         }
 
         public void MoveTo(Vec2 target)

@@ -36,6 +36,8 @@ namespace StgSharp.Timing
     public abstract class TimeSourceProviderBase
     {
 
+        public abstract long Frequency { get; }
+
         protected object SubscribeLock { get; } = new();
 
         public void AddSubscriber(TimeSpanProvider subscriber)
@@ -44,6 +46,8 @@ namespace StgSharp.Timing
                 AddSubscriberUnsynced(subscriber);
             }
         }
+
+        public abstract long GetCurrentTimeSpanTick();
 
         public void RemoveSubscriber(TimeSpanProvider subscriber)
         {

@@ -57,9 +57,8 @@ namespace StgSharp.MVVM.ViewModel
         {
             CustomizeInitialize();
             UseViewInNextFrame(viewEntryName);
-            TimeSpanAwaitingToken fpsCountingToken = fpsCountProvider.ParticipantSpanAwaiting(1);
-            fpsCountingToken.TimeSpanRefreshed += CountFps;
-            fpsCountingToken.MissTimeSpanRefreshed += CountFps;
+            fpsCountProvider.TimeSpanRefreshed += CountFps;
+            fpsCountProvider.MissTimeSpanRefreshed += CountFps;
             if (_nextView != _currentView) {
                 _ = Interlocked.Exchange(ref _currentView, _nextView);
             }
@@ -78,24 +77,19 @@ namespace StgSharp.MVVM.ViewModel
             });
             renderThread.Start();
             /**/
-            using (TimeSpanAwaitingToken eventAwaitingToken = frameTimeProvider.ParticipantSpanAwaiting(
-                1))
+            while (_closed)
             {
-                while (_closed)
-                {
-                    if (_nextView != _currentView) {
-                        _ = Interlocked.Exchange(ref _currentView, _nextView);
-                    }
-                    GraphicFramework.glfwPollEvents();
-                    eventAwaitingToken.WaitNextSpan();
-                    _closed = !ShouldClose;
+                if (_nextView != _currentView) {
+                    _ = Interlocked.Exchange(ref _currentView, _nextView);
                 }
+                GraphicFramework.glfwPollEvents();
+                frameTimeProvider.WaitNextSpan();
+                _closed = !ShouldClose;
             }
             /**/
             renderThread.Join();
-            fpsCountingToken.Dispose();
-            fpsCountProvider.StopSpanProviding();
-            frameTimeProvider.StopSpanProviding();
+            fpsCountProvider.Dispose();
+            frameTimeProvider.Dispose();
         }
 
         protected void UseViewInNextFrame(string name)
@@ -124,19 +118,15 @@ namespace StgSharp.MVVM.ViewModel
 
         private void ProcessFrameWithoutEvent()
         {
-            using (TimeSpanAwaitingToken renderAwaitingToken = frameTimeProvider.ParticipantSpanAwaiting(
-                1))
+            frameTimeProvider.TimeSpanRefreshed += (_, _) => { };
+            while (_closed)
             {
-                renderAwaitingToken.TimeSpanRefreshed += (_, _) => { };
-                while (_closed)
-                {
-                    foreach (ViewPort context in CurrentView.Render) {
-                        context.FlushSize();
-                    }
-                    CurrentView.Use();
-                    renderAwaitingToken.WaitNextSpan();
-                    Interlocked.Add(ref _frameCount, 1);
+                foreach (ViewPort context in CurrentView.Render) {
+                    context.FlushSize();
                 }
+                CurrentView.Use();
+                frameTimeProvider.WaitNextSpan();
+                Interlocked.Add(ref _frameCount, 1);
             }
         }
 

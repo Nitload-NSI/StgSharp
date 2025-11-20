@@ -25,207 +25,53 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Common.Timing;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace StgSharp.Timing
 {
     /// <summary>
-    ///   A microsecond-accuracy timer. It will refresh every a certain time span.
+    ///   TimeSpanProvider: uses a bound TimeSequence and TimeSourceProviderBase to publish span
+    ///   ticks. Each OnSpanTick advances the sequence; when sequence ends provider unsubscribes.
     /// </summary>
-    public class TimeSpanProvider
+    public partial class TimeSpanProvider
     {
 
         private bool _subscribed;
-
-        private readonly ConcurrentQueue<TimeSpanAwaitingToken> _tokenToAdd = new();
-        private readonly ConcurrentQueue<TimeSpanAwaitingToken> _tokenToQuit;
-        private Counter<int> timeSpanCount = new(-1, 1, 1);
-        private readonly HashSet<TimeSpanAwaitingToken> _awaitingTokens;
-        private long _maxSpanCount;
-        private long _spanBegin;
-        private readonly long _spanLength;
+        private int _emittedSpanCount; // legacy counter
+        private readonly TimeSequence _sequence;
         private readonly TimeSourceProviderBase _timeSource;
 
-        /// <summary>
-        ///   Create a new <see cref="TimeSpanProvider" /> and define the length of time span.
-        ///   Length of a single time span is defined in microseconds.
-        /// </summary>
-        /// <param _label="spanMicroSeconds">
-        ///
-        /// </param>
-        /// <param _label="provider">
-        ///
-        /// </param>
-        public TimeSpanProvider(long spanMicroSeconds, TimeSourceProviderBase provider)
+        public TimeSpanProvider(TimeSequence sequence, TimeSourceProviderBase provider, int maxWaitCount = 1)
         {
             ArgumentNullException.ThrowIfNull(provider);
+            ArgumentNullException.ThrowIfNull(sequence);
             _timeSource = provider;
-            _spanLength = spanMicroSeconds;
-            _maxSpanCount = int.MaxValue;
+            _sequence = sequence;
+            _sequence.StartFrom(provider);
             provider.AddSubscriber(this);
             _subscribed = true;
-            _awaitingTokens = [];
-            _tokenToQuit = new ConcurrentQueue<TimeSpanAwaitingToken>();
-        }
-
-        /// <summary>
-        ///   Create a new <see cref="TimeSpanProvider" /> and define the length of time span. 
-        ///   Length of a single time span is defined in seconds.
-        /// </summary>
-        /// <param _label="spanSeconds">
-        ///
-        /// </param>
-        /// <param _label="provider">
-        ///
-        /// </param>
-        public TimeSpanProvider(double spanSeconds, TimeSourceProviderBase provider)
-        {
-            ArgumentNullException.ThrowIfNull(provider);
-            _timeSource = provider;
-            _spanLength = (long)(spanSeconds * 1000L * 1000L);
-            _spanBegin = -_spanLength;
-            _maxSpanCount = long.MaxValue;
-            provider.AddSubscriber(this);
-            _subscribed = true;
-            _awaitingTokens = [];
-            _tokenToQuit = new ConcurrentQueue<TimeSpanAwaitingToken>();
-        }
-
-        /// <summary>
-        ///   Create a new <see cref="TimeSpanProvider" /> and define the length of time span.
-        ///   Length of a single time span is defined in microseconds.
-        /// </summary>
-        /// <param _label="spanLength">
-        ///
-        /// </param>
-        /// <param _label="maxSpan">
-        ///
-        /// </param>
-        /// <param _label="provider">
-        ///
-        /// </param>
-        public TimeSpanProvider(long spanLength, long maxSpan, TimeSourceProviderBase provider)
-        {
-            ArgumentNullException.ThrowIfNull(provider);
-            if (maxSpan <= 0) {
-                throw new ArgumentException("Sapn count cannot be smaller than zero");
+            if (!s_unusedID.TryPop(out int id)) {
+                id = Interlocked.Increment(ref s_maxID);
             }
-            _timeSource = provider;
-            _spanLength = spanLength;
-            _spanBegin = -_spanLength;
-            provider.AddSubscriber(this);
-            _subscribed = true;
-            _awaitingTokens = new HashSet<TimeSpanAwaitingToken>();
-            _tokenToQuit = new ConcurrentQueue<TimeSpanAwaitingToken>();
+            TokenID = id;
+            _size = maxWaitCount > 0 ? maxWaitCount : 1;
+            _event = new ManualResetEventSlim(initialState:false, spinCount:0);
+            _pendingSpans = 0;
         }
 
-        public double SpanLength
+        public double CurrentSecond
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _spanLength * 1.0 / (1000L * 1000L);
+            get => (double)_sequence.PreviousFrameTick / _timeSource.Frequency;
         }
 
-        public float CurrentSecond
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => timeSpanCount.Value * SpanLengthLowPrecession;
-        }
+        public int CurrentSpan => _emittedSpanCount;
 
-        public float SpanLengthLowPrecession
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _spanLength * 1.0f / (1000 * 1000);
-        }
+        public static TimeSourceProviderBase DefaultProvider => World.MainTimeProvider;
 
-        public int CurrentSpan
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => timeSpanCount.Value;
-        }
-
-        /// <summary>
-        ///   Time source provider provided in <see cref="World" /> internal framework.
-        /// </summary>
-        public static TimeSourceProviderBase DefaultProvider => StgSharpTime.OnlyInstance;
-
-        public TimeSpanAwaitingToken ParticipantSpanAwaiting(int count)
-        {
-            TimeSpanAwaitingToken token = new(this, count);
-            _tokenToAdd.Enqueue(token);
-            return token;
-        }
-
-        public void QuitSpanAwaiting(TimeSpanAwaitingToken token)
-        {
-            _tokenToQuit.Enqueue(token);
-        }
-
-        public void StopSpanProviding()
-        {
-            _ = Interlocked.Exchange(ref _maxSpanCount, 0);
-        }
-
-        public void SubscribeToTimeSource(TimeSourceProviderBase serviceHandler)
-        {
-            ArgumentNullException.ThrowIfNull(serviceHandler);
-            if (_subscribed) {
-                return;
-            }
-            _subscribed = true;
-            serviceHandler.AddSubscriber(this);
-        }
-
-        public int ToInt32()
-        {
-            return timeSpanCount.Value;
-        }
-
-        internal bool CheckTime(long microseconds)
-        {
-            if (microseconds - _spanBegin < _spanLength) {
-                return true;
-            }
-            foreach (TimeSpanAwaitingToken tokenAdd in _tokenToAdd) {
-                _ = _awaitingTokens.Add(tokenAdd);
-            }
-            _tokenToAdd.Clear();
-            foreach (TimeSpanAwaitingToken tokenQuit in _tokenToQuit)
-            {
-                _ = _awaitingTokens.Remove(tokenQuit);
-                DefaultLog.InternalWriteLog(
-                    $"Awaiting token {tokenQuit!.TokenID} has been removed.", LogType.Info);
-            }
-            _tokenToQuit.Clear();
-
-            _spanBegin = microseconds;
-            timeSpanCount++;
-
-            foreach (TimeSpanAwaitingToken item in _awaitingTokens)
-            {
-                if (item.AwaitingSemaphoreSlim.CurrentCount == 0)
-                {
-                    _ = item.AwaitingSemaphoreSlim.Release();
-                    item.Refresh();
-                } else
-                {
-                    item.MissRefresh();
-                }
-            }
-
-            return timeSpanCount < _maxSpanCount;
-        }
-
-        public static explicit operator int([NotNull]TimeSpanProvider provider)
-        {
-            return provider.ToInt32();
-        }
+        public static explicit operator int(TimeSpanProvider provider) => provider?._emittedSpanCount ?? 0;
 
     }
 }

@@ -34,31 +34,43 @@ namespace StgSharp.Mathematics.Numeric
     internal static class MatrixComputeModel
     {
 
-        internal static unsafe void BufferComputeBinary(MatrixParallelTaskPackageNonGeneric* p)
+        internal static unsafe void BufferComputeBinary(MatrixParallelTaskPackage* p)
         {
             int size = p->ElementSize * 16;
-            int count = p->PrimCount * p->SecCount;
-            int offset = p->LeftPrimOffset * p->SecCount;
+            long count = Unsafe.As<int, long>(ref p->PrimCount);
+            long offset = Unsafe.As<int, long>(ref p->PrimTileOffset) * size;
 
-            ((delegate* unmanaged[Cdecl]<void*, void*, void*, int, void>)p->ComputeHandle)((void*)(p->Left + offset * size),
-                                                                                           (void*)(p->Right + offset * size),
-                                                                                           (void*)(p->Result + offset * size),
-                                                                                           count);
+            ((delegate* unmanaged[Cdecl]<void*, void*, void*, long, void>)p->ComputeHandle)((void*)(p->Left + offset),
+                                                                                            (void*)(p->Right + offset),
+                                                                                            (void*)(p->Result + offset),
+                                                                                            count);
+            MatrixParallelFactory.Release(p);
         }
 
-        internal static unsafe void BufferComputeUnaryScalar(MatrixParallelTaskPackageNonGeneric* p)
+        internal static unsafe void BufferComputeNoOperatorScalar(MatrixParallelTaskPackage* p)
         {
             int size = p->ElementSize * 16;
-            int count = p->PrimCount * p->SecCount;
-            int offset = p->LeftPrimOffset * p->SecCount;
+            long count = Unsafe.As<int, long>(ref p->PrimCount);
+            long offset = Unsafe.As<int, long>(ref p->PrimTileOffset) * size;
+            ((delegate* unmanaged[Cdecl]<void*, ScalarPacket*,long, void>)p->ComputeHandle)((void*)(p->Result + offset),
+                                                                                                     p->Scalar, count);
+            MatrixParallelFactory.Release(p);
+        }
 
-            ((delegate* unmanaged[Cdecl]<void*, void*, int, void>)p->ComputeHandle)((void*)(p->Right + offset * size),
-                                                                                           (void*)(p->Result + offset * size),
+        internal static unsafe void BufferComputeUnaryScalar(MatrixParallelTaskPackage* p)
+        {
+            int size = p->ElementSize * 16;
+            long count = Unsafe.As<int, long>(ref p->PrimCount);
+            long offset = Unsafe.As<int, long>(ref p->PrimTileOffset) * size;
+
+            ((delegate* unmanaged[Cdecl]<void*, void*, long, void>)p->ComputeHandle)((void*)(p->Right + offset),
+                                                                                           (void*)(p->Result + offset),
                                                                                            count);
+            MatrixParallelFactory.Release(p);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void Compute_Binary(MatrixParallelTaskPackageNonGeneric* p)
+        internal static unsafe void Compute_Binary(MatrixParallelTaskPackage* p)
         {
             int eSize = p->ElementSize;
 
@@ -70,7 +82,7 @@ namespace StgSharp.Mathematics.Numeric
                 lCount = (long)p->LeftPrimOffset * p->LeftPrimStride,
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
+                pCount = int.Min(p->PrimCount, p->PrimColumnCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
                 //edge to reset counters
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
@@ -93,7 +105,7 @@ namespace StgSharp.Mathematics.Numeric
                     lc = (long)p->LeftSecOffset * p->LeftSecStride,
                     rc = (long)p->RightSecOffset * p->RightSecStride,
                     ac = (long)p->ResultSecOffset * p->ResultSecStride,
-                    sCount = int.Min(p->SecCount, p->SecCountInTile * p->SecTileOffset);
+                    sCount = int.Min(p->SecCount, p->PrimColumnCountInTile * p->SecTileOffset);
                 long
                     ll = sCount - p->LeftSecOffset,
                     rl = sCount - p->RightSecOffset,
@@ -106,10 +118,11 @@ namespace StgSharp.Mathematics.Numeric
                     op(left + (nint)lc, right + (nint)rc, ans + (nint)ac);
                 }
             }
+            MatrixParallelFactory.Release(p);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void Compute_BinaryScalar(MatrixParallelTaskPackageNonGeneric* p)
+        internal static unsafe void Compute_BinaryScalar(MatrixParallelTaskPackage* p)
         {
             int eSize = p->ElementSize;
 
@@ -121,7 +134,7 @@ namespace StgSharp.Mathematics.Numeric
                 lCount = (long)p->LeftPrimOffset * p->LeftPrimStride,
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
+                pCount = int.Min(p->PrimCount, p->PrimColumnCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
                 //edge to reset counters
                 lLimit = pCount - p->LeftPrimOffset,
                 rLimit = pCount - p->RightPrimOffset,
@@ -144,7 +157,7 @@ namespace StgSharp.Mathematics.Numeric
                     lc = (long)p->LeftSecOffset * p->LeftSecStride,
                     rc = (long)p->RightSecOffset * p->RightSecStride,
                     ac = (long)p->ResultSecOffset * p->ResultSecStride,
-                    sCount = int.Min(p->SecCount, p->SecCountInTile * p->SecTileOffset);
+                    sCount = int.Min(p->SecCount, p->PrimColumnCountInTile * p->SecTileOffset);
                 long
                     ll = sCount - p->LeftSecOffset,
                     rl = sCount - p->RightSecOffset,
@@ -157,10 +170,11 @@ namespace StgSharp.Mathematics.Numeric
                     op(left + (nint)lc, right + (nint)rc, ans + (nint)ac, p->Scalar);
                 }
             }
+            MatrixParallelFactory.Release(p);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void Compute_Unary(MatrixParallelTaskPackageNonGeneric* p)
+        internal static unsafe void Compute_Unary(MatrixParallelTaskPackage* p)
         {
             int eSize = p->ElementSize;
 
@@ -171,7 +185,7 @@ namespace StgSharp.Mathematics.Numeric
                 // set beginning value to counters for primary offsets
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
+                pCount = int.Min(p->PrimCount, p->PrimColumnCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
                 //edge to reset counters
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;
@@ -190,7 +204,7 @@ namespace StgSharp.Mathematics.Numeric
                 long
                     rc = (long)p->RightSecOffset * p->RightSecStride,
                     ac = (long)p->ResultSecOffset * p->ResultSecStride,
-                    sCount = int.Min(p->SecCount, p->SecCountInTile * p->SecTileOffset);
+                    sCount = int.Min(p->SecCount, p->PrimColumnCountInTile * p->SecTileOffset);
                 long
                     rl = sCount - p->RightSecOffset,
                     al = sCount - p->ResultSecOffset;
@@ -201,10 +215,11 @@ namespace StgSharp.Mathematics.Numeric
                     op(right + (nint)rc, ans + (nint)ac);
                 }
             }
+            MatrixParallelFactory.Release(p);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void Compute_UnaryScalar(MatrixParallelTaskPackageNonGeneric* p)
+        internal static unsafe void Compute_UnaryScalar(MatrixParallelTaskPackage* p)
         {
             int eSize = p->ElementSize;
 
@@ -215,7 +230,7 @@ namespace StgSharp.Mathematics.Numeric
                 // set beginning value to counters for primary offsets
                 rCount = (long)p->RightPrimOffset * p->RightPrimStride,
                 aCount = (long)p->ResultPrimOffset * p->ResultPrimStride,
-                pCount = int.Min(p->PrimCount, p->PrimCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
+                pCount = int.Min(p->PrimCount, p->PrimColumnCountInTile + p->PrimTileOffset) /*_count of tile may be too much*/,
                 //edge to reset counters
                 rLimit = pCount - p->RightPrimOffset,
                 aLimit = pCount - p->ResultPrimOffset;
@@ -234,7 +249,7 @@ namespace StgSharp.Mathematics.Numeric
                 long
                     rc = (long)p->RightSecOffset * p->RightSecStride,
                     ac = (long)p->ResultSecOffset * p->ResultSecStride,
-                    sCount = int.Min(p->SecCount, p->SecCountInTile * p->SecTileOffset);
+                    sCount = int.Min(p->SecCount, p->PrimColumnCountInTile * p->SecTileOffset);
                 long
                     rl = sCount - p->RightSecOffset,
                     al = sCount - p->ResultSecOffset;
@@ -245,6 +260,7 @@ namespace StgSharp.Mathematics.Numeric
                     op(right + (nint)rc, ans + (nint)ac, p->Scalar);
                 }
             }
+            MatrixParallelFactory.Release(p);
         }
 
     }

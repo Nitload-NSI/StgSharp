@@ -42,8 +42,14 @@ namespace StgSharp.Mathematics.Numeric
 
         private static CapacityFixedStack<MatrixParallelThread> _threads;
 
-        private static volatile int RemainThreadCount = 0;
-        private static readonly object _lock = new();
+        private static readonly
+#if NET10_0_OR_GREATER
+            Lock
+#else
+            object
+#endif
+            _lock = new();
+
         private static ThreadPriority _AfterWork = ThreadPriority.Lowest;
 
         public static bool SupportParallel { get; } = Environment.ProcessorCount > 6;
@@ -61,11 +67,13 @@ namespace StgSharp.Mathematics.Numeric
 
         public static void LaunchParallel(MatrixParallelHandle handle, SleepMode afterWork)
         {
-            RemainThreadCount = _threads.Count;
             _AfterWork = (ThreadPriority)afterWork;
+            MatrixParallelThread leader = handle.GetLeader();
             foreach (MatrixParallelWrap w in handle.Wraps) {
-                w.SchedulerReset.Set();
+                w.SetScheduler();
             }
+            leader.MatrixParallelLeader();
+            handle.WaitAllWraps();
         }
 
         internal static void Init()

@@ -1,9 +1,9 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="MatrixParallelPool"
+// file="MatrixParallelHandle"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@
 using StgSharp.Collections;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -36,10 +37,11 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    public struct MatrixParallelHandle : IDisposable
+    public class MatrixParallelHandle : IDisposable
     {
 
-        private static readonly (int a, int b)[] LookupTable = [ (1, 1), // 7
+        private static readonly (int a, int b)[] LookupTable = [
+            (1, 1), // 7
             (0, 2), // 8  (no non-zero solution)
             (3, 0), // 9  (no non-zero solution)
             (2, 1), // 10
@@ -54,10 +56,11 @@ namespace StgSharp.Mathematics.Numeric
             (1, 4), // 19
             (4, 2), // 20
         ];
-
         private MatrixParallelThread[] _threads;
+        private MatrixParallelWrap[] _wraps;
         private bool _disposed = false;
-        private CapacityFixedStack<MatrixParallelWrap> _wraps;
+        private int _count;
+        private ManualResetEventSlim _leaderEvent = new ManualResetEventSlim(false);
 
         internal MatrixParallelHandle(MatrixParallelThread[] threadArray)
         {
@@ -77,7 +80,7 @@ namespace StgSharp.Mathematics.Numeric
             }
         }
 
-        internal IEnumerable<MatrixParallelWrap> Wraps
+        internal ReadOnlySpan<MatrixParallelWrap> Wraps
         {
             get
             {
@@ -86,12 +89,6 @@ namespace StgSharp.Mathematics.Numeric
                 }
                 return _wraps;
             }
-        }
-
-        internal ReadOnlySpan<MatrixParallelThread> ThreadsUnsafe
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _threads;
         }
 
         private bool IsMultithread { get; init; }
@@ -107,8 +104,27 @@ namespace StgSharp.Mathematics.Numeric
 
         public MatrixParallelThread GetLeader()
         {
-            Threads[0].Role = 2;
-            return Threads[0];
+            MatrixParallelThread leader = Threads[1];
+            leader.Role = MatrixParallelThread.RoleType.Leader;
+            leader.LeaderEvent = _leaderEvent;
+            return leader;
+        }
+
+        public void WaitAllWraps()
+        {
+            if (_disposed) {
+                throw new ObjectDisposedException(typeof(MatrixParallelHandle).Name);
+            }
+            SpinWait.SpinUntil(() => Volatile.Read(ref _count) == 0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ReportWrapAccomplished()
+        {
+            if (_disposed) {
+                throw new ObjectDisposedException(typeof(MatrixParallelHandle).Name);
+            }
+            Interlocked.Decrement(ref _count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -155,22 +171,26 @@ namespace StgSharp.Mathematics.Numeric
             int count = _threads.Length;
             if (count < 6)
             {
-                MatrixParallelWrap wrap = new MatrixParallelWrap(_threads, 0, count);
+                MatrixParallelWrap wrap = new MatrixParallelWrap(this, 0, count);
                 _wraps = [ wrap ];
-            }
-            (int c3,int c4) = FastDecompose(_threads.Length);
-            _wraps = new(c3 + c4);
-            int begin = 0;
-            for (int i = 0; i < c3; i++)
+            } else
             {
-                _wraps.Push(new MatrixParallelWrap(_threads, begin, 3));
-                begin += 3;
+                (int c3, int c4) = FastDecompose(_threads.Length);
+                _wraps = new MatrixParallelWrap[c3 + c4];
+                int begin = 0;
+                int i = 0;
+                for (; i < c3; i++)
+                {
+                    _wraps[i] = new MatrixParallelWrap(this, begin, 3);
+                    begin += 3;
+                }
+                for (; i < c3 + c4; i++)
+                {
+                    _wraps[i] = new MatrixParallelWrap(this, begin, 4);
+                    begin += 4;
+                }
             }
-            for (int i = 0; i < c4; i++)
-            {
-                _wraps.Push(new MatrixParallelWrap(_threads, begin, 4));
-                begin += 4;
-            }
+            _count = _wraps.Length;
         }
 
     }

@@ -120,7 +120,7 @@ namespace StgSharp.Graphics
         protected float TimePassed
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _timeProvider.CurrentSecond;
+            get => (float)_timeProvider.CurrentSecond;
         }
 
         protected TimeSpanProvider TimeProvider
@@ -147,8 +147,8 @@ namespace StgSharp.Graphics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight);
 
-        public static TTarget ShareContextFrom<TSource, TTarget>([NotNull]TSource source) where TSource: RenderStream
-            where TTarget: RenderStream, new()
+        public static TTarget ShareContextFrom<TSource, TTarget>([NotNull]TSource source) where TSource : RenderStream
+            where TTarget : RenderStream, new()
         {
             TTarget target = new TTarget();
             target.Initialize(source.BindedViewPortContext, source._timeProvider);

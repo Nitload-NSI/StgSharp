@@ -24,9 +24,6 @@
     <ClCompile Include="sn-src\str_hash.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\stb_image.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="sn-src\str_string.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -51,7 +48,7 @@
     <ClCompile Include="sn-src\load_intrinsic.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="k_bufop.c">
+    <ClCompile Include="sn-src\k_bufop.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -63,9 +60,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="sn-head\sn_internal.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="sn-head\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="sn-head\StgSharpNative.h">
@@ -80,15 +74,24 @@
     <ClInclude Include="sn-head\glfw_function.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="glfw\glfw3.h">
+    <ClInclude Include="sn-head\sn_matkernel.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="sn-head\sn_matkernel.h">
+    <ClInclude Include="lib\glfw\glfw3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glfw\glfw3native.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\stbi\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="glfw\glfw3.lib">
+    <Library Include="lib\glfw\glfw3.lib">
+      <Filter>资源文件</Filter>
+    </Library>
+    <Library Include="lib\glfw\glfw3_mt.lib">
       <Filter>资源文件</Filter>
     </Library>
   </ItemGroup>

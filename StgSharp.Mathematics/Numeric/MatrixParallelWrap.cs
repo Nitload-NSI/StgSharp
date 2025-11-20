@@ -30,6 +30,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,20 +40,22 @@ namespace StgSharp.Mathematics.Numeric
     public unsafe class MatrixParallelWrap
     {
 
-        private readonly MatrixParallelThread[] _threads;
         private int _begin;
 
-        internal MatrixParallelWrap(MatrixParallelThread[] threads, int begin, int count)
-        {
-            _threads = threads;
-            _begin = begin;
-            Count = threads.Length;
-            _threads[_begin].Role = 1;
-        }
+        private int _remainThreadCount;
+        private readonly MatrixParallelHandle _handle;
 
-        public MatrixParallelWrap()
+        internal MatrixParallelWrap(MatrixParallelHandle handle, int begin, int count)
         {
-            _threads = new MatrixParallelThread[5];
+            WrapTaskCapacity = count;
+            _handle = handle;
+            _begin = begin;
+            for (int i = 0; i < WrapTaskCapacity; i++)
+            {
+                Threads[i].Role = MatrixParallelThread.RoleType.Worker;
+                Threads[i].BindedWrap = this;
+            }
+            Threads[0].Role = MatrixParallelThread.RoleType.Scheduler;
         }
 
         public static SleepMode AfterWork
@@ -63,73 +66,181 @@ namespace StgSharp.Mathematics.Numeric
 
         internal int Magic { get; set; }
 
-        internal ManualResetEventSlim SchedulerReset { get; } = new(false);
+        private ReadOnlySpan<MatrixParallelThread> Threads
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _handle.Threads[_begin..(_begin + WrapTaskCapacity)];
+        }
 
-        private int Count { get; set; }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ReportThreadAccomplished()
+        {
+            Interlocked.Decrement(ref _remainThreadCount);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ReportWrapAccomplished()
+        {
+            _handle.ReportWrapAccomplished();
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetAllWorker()
         {
-            foreach (MatrixParallelThread t in _threads) {
-                t.Restart();
+            for (int i = 1; i < WrapTaskCapacity; i++) {
+                Threads[i].Restart();
             }
         }
 
-        internal void PublishTaskToWorkers(Queue<IntPtr> tasks)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void WaitAllWorker()
         {
+            SpinWait.SpinUntil(() => Volatile.Read(ref _remainThreadCount) == 0);
+        }
+
+        internal void PublishTaskToWorkers()
+        {
+            Queue<nint> tasks = WrapTask;
             while (tasks.TryDequeue(out nint handle))
             {
-                MatrixParallelTaskPackageNonGeneric* task = (MatrixParallelTaskPackageNonGeneric*)handle;
-                PublishTaskToWorkers(task);
+                MatrixParallelTaskPackage* task = (MatrixParallelTaskPackage*)handle;
+                switch (task->ComputeMode.OperationStyle)
+                {
+                    case MatrixOperationStyle.PANEL_OP:
+                        break;
+                    case MatrixOperationStyle.BUFFER_OP:
+                        PublishBufferTaskToWorkers(task);
+                        break;
+                    case MatrixOperationStyle.KERNEL_OP:
+                        PublishBufferTaskToWorkers(task);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
-        internal void PublishTaskToWorkers(MatrixParallelTaskPackageNonGeneric* taskPackage)
+        internal void SetScheduler()
         {
-            int primCount = taskPackage->PrimCount;
-            int secCount = taskPackage->SecCount;
+            MatrixParallelThread thread = Threads[0];
+            thread.Restart();
+            _ = Interlocked.Exchange(ref _remainThreadCount, WrapTaskCapacity);
+        }
 
-            int primAverage = primCount / Count;
-            int secAverage = secCount / Count;
-            bool shouldSliceSec = secAverage > 512;
-            for (int i = _begin; i < _begin + Count; i++)
+        private void PublishBufferTaskToWorkers(MatrixParallelTaskPackage* package)
+        {
+            ReadOnlySpan<MatrixParallelThread> pool = Threads;
+            if (pool.Length == 1)
             {
-                Queue<IntPtr> tasks = _threads[i].Tasks;
-                MatrixParallelTaskPackageNonGeneric* subTask = MatrixParallelFactory.FromExistPackage(taskPackage);
-                subTask->PrimTileOffset = i * primAverage;
+                pool[0].Tasks.Enqueue((nint)package);
+                return;
             }
+            long count = Unsafe.As<int, long>(ref package->PrimCount);
+            long actual = count / pool.Length;
+            long extra = count % pool.Length;
+
+            long offset = 0;
+            MatrixParallelTaskPackage* current = package;
+            /*
+            string msg = $"""
+                Total: count={count}, length={Threads.Length}{Environment.NewLine}
+                """;
+            /**/
+            foreach (MatrixParallelThread thread in pool)
+            {
+                long wrapTaskLength = actual;
+                long ex = extra > 0 ? 1 : 0;
+                long length = wrapTaskLength + ex;
+                extra -= ex;
+                ref long offsetRef = ref Unsafe.As<int, long>(ref current->PrimTileOffset);
+                offsetRef += offset;
+                ref long lengthRef = ref Unsafe.As<int, long>(ref current->PrimCount);
+                lengthRef = length;
+                thread.Tasks.Enqueue((nint)current);
+                /*
+                msg += $"""
+                    Slice to thread: total offset={offsetRef} local offset={offset}, length={lengthRef}{Environment.NewLine}
+                    """;
+                /**/
+                current = MatrixParallelFactory.FromExistPackage(current);
+                offset = length;
+            }
+
+            // Console.WriteLine(msg);
         }
 
-        public class Handle(int inWrapIndex, MatrixParallelWrap wrap)
+        private void PublishKernelTaskToWorkers(MatrixParallelTaskPackage* package)
         {
+            int primCount = package->PrimCount;
+            int secCount = package->SecCount;
+            ReadOnlySpan<MatrixParallelThread> pool = Threads;
 
-            public int InWrapIndex { get; } = inWrapIndex;
+            if (pool.Length == 1)
+            {
+                pool[0].Tasks.Enqueue((nint)package);
+                return;
+            }
+            throw new NotImplementedException();
+            /*
+            int threadCount = pool.Length;
+            int tilePerThreadLess = tileCount / threadCount;                           // tiles per thread without extra slice
+            int columnAfterBaseTile = tileCount % threadCount * tileWidth;             // tile sliced into columns
+            int extraColumnPerThread = columnAfterBaseTile / threadCount;
+            int extraColumnCount = columnAfterBaseTile % threadCount;                  // columns to be sliced
 
-            /// <summary>
-            ///   Role of the thread in the wrap. 1 is Scheduler, 0 are Workers. 2 is leader, beyond
-            ///   wrap's control.
-            /// </summary>
-            public int Role { get; internal set; }
+            int total = primCount;
+            Stack<MatrixParallelWrap> taskBunch = new Stack<MatrixParallelWrap>(threadCount);
+            MatrixParallelTaskPackageNonGeneric* current = package;
+            foreach (MatrixParallelWrap wrap in pool.Wraps)
+            {
+                bool hasSlice = columnAfterBaseTile > 0;
+                bool isLargeSlice = extraColumnCount > 0;
 
-            public Queue<IntPtr> TaskCache { get; } = [];
+                // _count tiles for wrap
+                int wrapWidth = wrap!.WrapTaskCapacity;
+                int columnFromSlicingCount = (hasSlice ? extraColumnPerThread : 0) * wrapWidth;
+                int baseColumn = wrapWidth * tilePerThreadLess * tileWidth;
+                int columnInWrap = baseColumn + columnFromSlicingCount + (isLargeSlice ? 1 : 0);
 
-            internal ManualResetEventSlim ResetEvent { get; } = new(false);
+                // set tasks
+                if (columnInWrap == 0)
+                {
+#if DEBUG
+                    throw new InvalidOperationException("Zero tasks published.");
+#else
+                    break;
+#endif
+                }
 
-            internal MatrixParallelWrap Wrap { get; } = wrap;
+                // update current task
+                current->PrimColumnCountInTile = columnInWrap;
+                current->SecColumnCountInTile = current->SecCount;
+                current->SecTileOffset = 0;
 
+                // remove tiles _count
+                extraColumnCount--;
+                columnAfterBaseTile -= columnFromSlicingCount;
+                total -= columnInWrap;
+
+                // set to wrap and push
+                wrap.WrapTask = current;
+
+                if (total <= 0)
+                {
+                    break;
+                }
+                current = MatrixParallelFactory.FromExistPackage(current);
+                current->PrimTileOffset += columnInWrap;
+            }
+            /**/
+            return;
         }
 
         #region wrap task
 
-        internal MatrixParallelTaskPackageNonGeneric* WrapTask { get; set; }
+        internal unsafe Queue<nint> WrapTask { get; set; } = [];
 
-        internal int WrapTaskSliceCount { get; set; }
-
-        internal int WrapTaskCapacity
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _threads.Length;
-        }
+        internal int WrapTaskCapacity { get ; init; }
 
         #endregion
     }

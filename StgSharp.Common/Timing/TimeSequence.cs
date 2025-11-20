@@ -25,69 +25,193 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Mathematics;
+using StgSharp.Timing;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StgSharp.Common.Timing
 {
     public abstract class TimeSequence
     {
 
-        public ulong BeginningTick { get; protected set; }
+        public long BeginningTick { get; protected set; }
 
-        public ulong EndingTick { get; protected set; }
+        public long EndingTick { get; protected set; }
 
-        public ulong FrameLength { get; protected set; }
+        public long PreviousFrameTick { get; protected set; }
 
-        public static TimeSequence CreateLinear(ulong timeout, ulong length)
-        {
-            return new LinearTimeSequence(timeout, timeout + length, length);
-        }
+        public static TimeSequence CreateLinear(double totalSeconds, double frameSeconds) => new LinearTimeSequence(totalSeconds, frameSeconds);
 
-        public abstract bool IsNextFrameReady(ulong currentTick);
+        public static TimeSequence CreateLogarithmic(
+                                   double initialSliceSeconds,
+                                   double totalSeconds,
+                                   double growthMultiplier,
+                                   double minSliceSeconds) => new LogTimeSequence(initialSliceSeconds, totalSeconds,
+                                                                                  growthMultiplier, minSliceSeconds);
 
-    }
+        public abstract bool EndsAt(long currentTick);
 
-    internal sealed class LogTimeSequence : TimeSequence
-    {
+        public abstract bool IsNextFrameReady(long currentTick);
 
-        private float _rate ;
-
-        public LogTimeSequence(ulong beginningTick, ulong endingTick, ulong tickPerDecade)
-        {
-            BeginningTick = beginningTick;
-            EndingTick = endingTick;
-            _rate = Scalar.Pow(10, 1 / tickPerDecade);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsNextFrameReady(ulong currentTick)
-        {
-            return (ulong)Math.Log(currentTick - BeginningTick + 1) >= FrameLength;
-        }
+        public abstract void StartFrom(TimeSourceProviderBase source);
 
     }
 
     internal sealed class LinearTimeSequence : TimeSequence
     {
 
-        public LinearTimeSequence(ulong beginningTick, ulong endingTick, ulong tickPerFrame)
+        private readonly double _frameSeconds;
+        private readonly double _totalSeconds;
+        private long _frameLengthTicks;
+
+        public LinearTimeSequence(double totalSeconds, double frameSeconds)
         {
-            BeginningTick = beginningTick;
-            EndingTick = endingTick;
-            FrameLength = tickPerFrame;
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(totalSeconds);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameSeconds);
+            if (frameSeconds > totalSeconds) {
+                throw new ArgumentException("Frame length greater than total length.");
+            }
+
+            _totalSeconds = totalSeconds;
+            _frameSeconds = frameSeconds;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsNextFrameReady(ulong currentTick)
+        public override bool EndsAt(long currentTick) => currentTick >= EndingTick;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsNextFrameReady(long currentTick)
         {
-            return currentTick - BeginningTick >= FrameLength;
+            long span = currentTick - PreviousFrameTick;
+            if (span >= _frameLengthTicks && currentTick < EndingTick)
+            {
+                PreviousFrameTick += _frameLengthTicks; // advance start of next frame
+                return true;
+            }
+            return false;
         }
+
+        public override void StartFrom(TimeSourceProviderBase source)
+        {
+            long f = source?.Frequency ?? throw new ArgumentNullException(nameof(source));
+            _frameLengthTicks = (long)Math.Max(1, _frameSeconds * f);
+            long totalTicks = (long)Math.Max(_frameLengthTicks, Math.Round(_totalSeconds * f, MidpointRounding.AwayFromZero));
+            BeginningTick = source.GetCurrentTimeSpanTick();
+            EndingTick = BeginningTick + totalTicks;
+            EndingTick = EndingTick < 0 ? long.MaxValue : EndingTick;
+            PreviousFrameTick = BeginningTick;
+        }
+
+    }
+
+    /// <summary>
+    ///   Logarithmic time sequence with growth factor. Boundaries (cumulative times since start)
+    ///   follow initial * multiplier^k, but each slice duration (difference between adjusted
+    ///   boundaries) is at least minSliceSeconds. First slice uses the exact initial length even if
+    ///   below minSliceSeconds, subsequent slices enforce minimum. Example: initial=2,
+    ///   multiplier=2, total>=8, min=3 => boundaries: 2,5,8 (durations:2,3,3).
+    /// </summary>
+    internal sealed class LogTimeSequence : TimeSequence
+    {
+
+        private readonly double _initialSeconds;
+        private double _lastBoundarySecondsAdjusted; // adjusted cumulative seconds of last emitted boundary (0 at start)
+        private readonly double _minSliceSeconds;
+        private readonly double _multiplier;
+        private double _nextBoundarySecondsAdjusted; // adjusted cumulative seconds for next boundary
+        private readonly double _totalSeconds;
+
+        private int _sliceIndex; // index of next boundary (0 => first boundary at initialSeconds)
+        private long _freq;
+        private long _nextBoundaryTick; // absolute tick for next boundary
+        private long _totalTicks;
+
+        public LogTimeSequence(
+               double initialSliceSeconds,
+               double totalSeconds,
+               double growthMultiplier,
+               double minSliceSeconds)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(initialSliceSeconds);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(totalSeconds);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(growthMultiplier);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(minSliceSeconds);
+            if (growthMultiplier < 1.0) {
+                throw new ArgumentException("growthMultiplier must be >= 1");
+            }
+
+            if (initialSliceSeconds > totalSeconds) {
+                throw new ArgumentException("Initial slice length greater than total length.");
+            }
+
+            _initialSeconds = initialSliceSeconds;
+            _totalSeconds = totalSeconds;
+            _multiplier = growthMultiplier;
+            _minSliceSeconds = minSliceSeconds;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool EndsAt(long currentTick) => currentTick >= EndingTick ||
+                                                         _nextBoundarySecondsAdjusted >= _totalSeconds;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsNextFrameReady(long currentTick)
+        {
+            if (currentTick < _nextBoundaryTick || currentTick >= EndingTick) {
+                return false;
+            }
+
+            // Emit frame: update previous frame tick and prepare next boundary.
+            PreviousFrameTick = _nextBoundaryTick; // boundary just reached
+            _lastBoundarySecondsAdjusted = _nextBoundarySecondsAdjusted;
+            _sliceIndex++;
+
+            // Compute original (unadjusted) next cumulative boundary in seconds.
+            double originalNext = _initialSeconds * Math.Pow(_multiplier, _sliceIndex);
+
+            // Enforce total cap.
+            if (originalNext > _totalSeconds)
+            {
+                originalNext = _totalSeconds;
+            }
+
+            // Compute slice duration based on adjusted previous boundary.
+            double delta = originalNext - _lastBoundarySecondsAdjusted;
+            if (_sliceIndex > 0 && delta < _minSliceSeconds)
+            {
+                // Enforce minimum (except for first slice which uses initial value)
+                originalNext = _lastBoundarySecondsAdjusted + _minSliceSeconds;
+                if (originalNext > _totalSeconds) {
+                    originalNext = _totalSeconds;
+                }
+            }
+            _nextBoundarySecondsAdjusted = originalNext;
+
+            if (_nextBoundarySecondsAdjusted >= _totalSeconds)
+            {
+                _nextBoundaryTick = EndingTick; // sequence will end after this boundary
+            } else
+            {
+                _nextBoundaryTick = BeginningTick + SecondsToTicks(_nextBoundarySecondsAdjusted);
+            }
+            return true;
+        }
+
+        public override void StartFrom(TimeSourceProviderBase source)
+        {
+            _freq = source?.Frequency ?? throw new ArgumentNullException(nameof(source));
+            BeginningTick = source.GetCurrentTimeSpanTick();
+            _totalTicks = SecondsToTicks(_totalSeconds);
+            EndingTick = BeginningTick + _totalTicks;
+            _sliceIndex = 0;
+            _lastBoundarySecondsAdjusted = 0.0;
+            _nextBoundarySecondsAdjusted = _initialSeconds; // first boundary uses exact initial length
+            _nextBoundaryTick = BeginningTick + SecondsToTicks(_nextBoundarySecondsAdjusted);
+            PreviousFrameTick = BeginningTick; // start point
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private long SecondsToTicks(double seconds) => (long)Math.Max(1L, Math.Round(seconds * _freq, MidpointRounding.AwayFromZero));
 
     }
 }

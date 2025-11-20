@@ -8,12 +8,12 @@
 #include "sn_internal.h"
 
 #define STBIDEF SN_API
-#include "stb_image.h"
+#include "../lib/stbi/stb_image.h"
 
 #include "gl.h"
 #include "wgl.h"
 #define GLFWAPI INTERNAL
-#include "..\glfw\glfw3.h"
+#include "glfw\glfw3.h"
 #include <immintrin.h>
 #include <assert.h>
 #include <glfw_function.h>

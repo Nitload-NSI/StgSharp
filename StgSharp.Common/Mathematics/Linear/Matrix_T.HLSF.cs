@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Matrix.HLSF"
+// file="Matrix_T.HLSF"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -103,10 +103,10 @@ namespace StgSharp.Mathematics.Numeric
 
         #region enumeration
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override unsafe MatrixSegmentEnumeration<T> GetColumnEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> ColumnEnumeration
         {
-            return new MatrixSegmentEnumeration<T>(k_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength,
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new MatrixSegmentEnumeration<T>(k_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength,
                                                    1, KernelColumnLength);
         }
 
@@ -116,10 +116,11 @@ namespace StgSharp.Mathematics.Numeric
                                                    KernelRowLength);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override unsafe MatrixSegmentEnumeration<T> GetSequentialEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> SequentialEnumeration
         {
-            return new MatrixSegmentEnumeration<T>(k_buffer, KernelRowLength * KernelColumnLength,
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+
+            get => new MatrixSegmentEnumeration<T>(k_buffer, KernelRowLength * KernelColumnLength,
                                                    KernelColumnLength * KernelRowLength, 1,
                                                    KernelRowLength * KernelColumnLength);
         }

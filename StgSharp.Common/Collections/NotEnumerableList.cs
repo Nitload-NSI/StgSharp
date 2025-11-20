@@ -26,6 +26,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace StgSharp.Collections
@@ -33,9 +34,13 @@ namespace StgSharp.Collections
     public static class LinearBagBuilder
     {
 
+        /// <summary>
+        ///   Build a <see cref="LinearBag{T}" /> from a read-only span. Capacity will exactly fit
+        ///   the input.
+        /// </summary>
         public static LinearBag<T> FromSpan<T>(ReadOnlySpan<T> values)
         {
-            if (values.IsEmpty || values.Length == 0) {
+            if (values.IsEmpty) {
                 return new LinearBag<T>(4);
             }
             LinearBag<T> bag = new(values.Length);
@@ -47,12 +52,24 @@ namespace StgSharp.Collections
 
     }
 
+    /// <summary>
+    ///   A very lightweight contiguous storage structure: unordered, not enumerable by design.
+    ///   Provides O(1) Add and O(1) RemoveAt (by swapping with the tail). Intended for high-
+    ///   performance scenarios where element ordering does not matter. NOT thread-safe.
+    /// </summary>
+    /// <typeparam name="T">
+    ///   Element type.
+    /// </typeparam>
     [CollectionBuilder(typeof(LinearBagBuilder), nameof(LinearBagBuilder.FromSpan))]
     public class LinearBag<T>(int capacity = 4)
     {
 
-        private T[] _items = new T[capacity];
+        // Invariant: valid elements occupy indexes [0, Count-1]. Count is the number of live elements.
+        private T[] _items = new T[Math.Max(0, capacity)];
 
+        /// <summary>
+        ///   Access element by index (0..Count-1). Throws if out of range.
+        /// </summary>
         public T this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -68,10 +85,19 @@ namespace StgSharp.Collections
             }
         }
 
+        /// <summary>
+        ///   Total allocated slots.
+        /// </summary>
         public int Capacity => _items.Length;
 
+        /// <summary>
+        ///   Number of currently stored elements (valid index range 0..Count-1).
+        /// </summary>
         public int Count { get; private set; }
 
+        /// <summary>
+        ///   Adds an item (unordered). Expands internal array if needed.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(T item)
         {
@@ -79,15 +105,19 @@ namespace StgSharp.Collections
                 EnsureCapacity(Count + 1);
             }
 
-            _items[Count++] = item;
+            _items[Count] = item;
+            Count++;
         }
 
+        /// <summary>
+        ///   Returns a span over the live portion of the bag (0..Count-1).
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Span<T> AsSpan()
-        {
-            return new Span<T>(_items, 0, Count);
-        }
+        public Span<T> AsSpan() => new Span<T>(_items, 0, Count);
 
+        /// <summary>
+        ///   Clears all elements and zeroes out references to avoid retention. Count becomes 0.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
@@ -95,18 +125,22 @@ namespace StgSharp.Collections
             Count = 0;
         }
 
+        /// <summary>
+        ///   Fast clear: only resets Count (leaves underlying array unchanged). References are NOT
+        ///   released. Use only when you are certain old references can remain.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void FastClear()
-        {
-            // 只重置size，不清理数组内容
-            Count = 0;
-        }
+        public void FastClear() => Count = 0;
 
+        /// <summary>
+        ///   Removes the first occurrence of value (unordered). Does nothing if not found.
+        /// </summary>
         public void Remove(T value)
         {
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
             for (int i = 0; i < Count; i++)
             {
-                if (_items[i]?.Equals(value) ?? false)
+                if (comparer.Equals(_items[i], value))
                 {
                     RemoveAt(i);
                     return;
@@ -114,6 +148,10 @@ namespace StgSharp.Collections
             }
         }
 
+        /// <summary>
+        ///   Removes element at index by swapping the last element into its slot (unless already
+        ///   last). Preserves O(1) removal at cost of ordering.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveAt(int index)
         {
@@ -122,27 +160,30 @@ namespace StgSharp.Collections
             }
 
             int last = Count - 1;
-            if (index != last)
-            {
-                _items[index] = _items[last]; // swap back from tail
+            if (index != last) {
+                _items[index] = _items[last];
             }
 
-            _items[last] = default!; // clear last slot to avoid ref retention
+            _items[last] = default!; // release reference / reset value
             Count = last;
         }
 
+        /// <summary>
+        ///   Ensures capacity is at least <paramref name="min" />. Doubles size when growing.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureCapacity(int min)
         {
-            if (_items.Length < min)
-            {
-                int newCapacity = _items.Length == 0 ? 4 : _items.Length * 2;
-                if (newCapacity < min) {
-                    newCapacity = min;
-                }
-
-                Array.Resize(ref _items, newCapacity);
+            if (_items.Length >= min) {
+                return;
             }
+
+            int newCapacity = _items.Length == 0 ? 4 : _items.Length * 2;
+            if (newCapacity < min) {
+                newCapacity = min;
+            }
+
+            Array.Resize(ref _items, newCapacity);
         }
 
     }

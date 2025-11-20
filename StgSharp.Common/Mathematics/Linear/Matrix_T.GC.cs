@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Matrix.GC"
+// file="Matrix_T.GC"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -92,12 +92,17 @@ namespace StgSharp.Mathematics.Numeric
             return ref kernel[c, r];
         }
 
+        ~GCMatrix()
+        {
+            NativeMemory.AlignedFree(_buffer);
+        }
+
         #region enumeration
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override unsafe MatrixSegmentEnumeration<T> GetColumnEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> ColumnEnumeration
         {
-            return new MatrixSegmentEnumeration<T>(_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength, 1,
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new MatrixSegmentEnumeration<T>(_buffer, KernelColumnLength, KernelColumnLength * KernelRowLength, 1,
                                                    KernelColumnLength);
         }
 
@@ -106,10 +111,10 @@ namespace StgSharp.Mathematics.Numeric
             return new MatrixSegmentEnumeration<T>(_buffer, 1, KernelColumnLength, KernelColumnLength, KernelRowLength);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override unsafe MatrixSegmentEnumeration<T> GetSequentialEnumeration()
+        public override unsafe MatrixSegmentEnumeration<T> SequentialEnumeration
         {
-            return new MatrixSegmentEnumeration<T>(_buffer, KernelRowLength * KernelColumnLength,
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new MatrixSegmentEnumeration<T>(_buffer, KernelRowLength * KernelColumnLength,
                                                    KernelColumnLength * KernelRowLength, 1,
                                                    KernelRowLength * KernelColumnLength);
         }

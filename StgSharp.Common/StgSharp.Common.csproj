@@ -84,6 +84,10 @@
     </PropertyGroup>
     <ItemGroup>
       <None Remove=".nuspec" />
+      <None Remove="StgSharp.Common.deps.json" />
+      <None Remove="StgSharp.Common.dll" />
+      <None Remove="StgSharp.Common.pdb" />
+      <None Remove="StgSharp.Common.xml" />
     </ItemGroup>
 
     <ItemGroup>

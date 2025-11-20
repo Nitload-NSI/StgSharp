@@ -186,7 +186,7 @@ namespace StgSharp
 
         internal static unsafe void InternalInitialize()
         {
-            mainTimeProvider = new StgSharpTime();
+            // Initialize time provider and start providing time
             MainTimeProvider.StartProvidingTime();
             GraphicFramework.LoadGlfw();
             if (GraphicFramework.glfwInit() == 0) {
