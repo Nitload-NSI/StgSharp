@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixCompute.Basic"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -41,13 +41,15 @@ namespace StgSharp.Mathematics.Numeric
     public static class MatrixCompute
     {
 
-        public static unsafe Matrix<float> Add(this Matrix<float> left, Matrix<float> right)
+        public static unsafe Matrix<float> Add(Matrix<float> left, Matrix<float> right, Matrix<float> ans)
         {
-            if (left.ColumnLength != right.ColumnLength || left.RowLength != right.RowLength) {
+            if (left.ColumnLength != right.ColumnLength ||
+                left.RowLength != right.RowLength ||
+                left.ColumnLength != ans.ColumnLength ||
+                left.RowLength != ans.RowLength) {
                 throw new IndexOutOfRangeException("Matrix dimensions must agree.");
             }
             long count = (long)left.KernelColumnLength * left.KernelRowLength;
-            Matrix<float> ans = Matrix.FromDefault<float>(left.ColumnLength, left.RowLength);
             if (count <= 256)
             {
                 MatrixKernel<float>* leftPtr = left.Buffer;
@@ -84,7 +86,7 @@ namespace StgSharp.Mathematics.Numeric
             return ans;
         }
 
-        public static unsafe void Fill<T>(this Matrix<float> ans, T value) where T : unmanaged, INumber<T>
+        public static unsafe void Fill<T>(Matrix<float> ans, T value) where T: unmanaged, INumber<T>
         {
             long count = (long)ans.KernelColumnLength * ans.KernelRowLength;
             ScalarPacket* scalar = MatrixParallelFactory.CreateScalarPacket();
@@ -114,10 +116,12 @@ namespace StgSharp.Mathematics.Numeric
             taskGroup.Dispose();
         }
 
-        public static unsafe Matrix<float> Mul(this Matrix<float> left, float right)
+        public static unsafe Matrix<float> Mul(Matrix<float> left, float right, Matrix<float> ans)
         {
+            if (left.ColumnLength != ans.ColumnLength || left.RowLength != ans.RowLength) {
+                throw new IndexOutOfRangeException("Matrix dimensions must agree.");
+            }
             long count = (long)left.KernelColumnLength * left.KernelRowLength;
-            Matrix<float> ans = Matrix.FromDefault<float>(left.ColumnLength, left.RowLength);
             ScalarPacket* scalar = MatrixParallelFactory.CreateScalarPacket();
             scalar->Data<float>(0) = right;
             if (count <= 256)
@@ -155,13 +159,15 @@ namespace StgSharp.Mathematics.Numeric
             return ans;
         }
 
-        public static unsafe Matrix<float> Sub(this Matrix<float> left, Matrix<float> right)
+        public static unsafe Matrix<float> Sub(Matrix<float> left, Matrix<float> right, Matrix<float> ans)
         {
-            if (left.ColumnLength != right.ColumnLength || left.RowLength != right.RowLength) {
+            if (left.ColumnLength != right.ColumnLength ||
+                left.RowLength != right.RowLength ||
+                left.ColumnLength != ans.ColumnLength ||
+                left.RowLength != ans.RowLength) {
                 throw new IndexOutOfRangeException("Matrix dimensions must agree.");
             }
             long count = (long)left.KernelColumnLength * left.KernelRowLength;
-            Matrix<float> ans = Matrix.FromDefault<float>(left.ColumnLength, left.RowLength);
             if (count <= 256)
             {
                 MatrixKernel<float>* leftPtr = left.Buffer;

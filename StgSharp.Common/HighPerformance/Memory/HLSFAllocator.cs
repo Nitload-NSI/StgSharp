@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocator"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ namespace StgSharp.HighPerformance.Memory
     public unsafe partial class HybridLayerSegregatedFitAllocator : IDisposable
     {
 
-        private static readonly nuint EmptyHandle = (nuint)(void*)null;
+        private const nuint EmptyHandle = 0;
 
         // Bucket system field - directly in main allocator class
         private ulong[] _bucketHeads;

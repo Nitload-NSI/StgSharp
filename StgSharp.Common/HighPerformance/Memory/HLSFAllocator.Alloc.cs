@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Alloc"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -74,6 +74,7 @@ namespace StgSharp.HighPerformance.Memory
                 SliceMemory(handle, (segmentIndex + 1) * levelSizeArray[level]);
             }
             handle->State = EntryState.Allocated;
+            Console.WriteLine($"handle alloced at {handle->Position}");
             return new hlsfHandle(handle, size);
         }
 
@@ -199,6 +200,7 @@ namespace StgSharp.HighPerformance.Memory
             {
                 newPos = (nuint)m_Buffer + _size; // Clamp to maximum buffer size
                 blockSize = _spareMemory->Size;
+                p = 0;
             }
 
             // Try to allocate new Entry from slab allocator
@@ -208,7 +210,7 @@ namespace StgSharp.HighPerformance.Memory
             handle->Level = GetLevelFromSize((uint)blockSize);
 
             // Update spare memory position
-            _spareMemory->Position = newPos; // Replace Volatile.Write with direct access
+            _spareMemory->Position = newPos;
             BucketNode* b = (BucketNode*)handle->Position;
             b->EntryRef = handle;
             PushLevel(handle->Level, DetermineSegmentIndex((uint)blockSize, handle->Level), b);

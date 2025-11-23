@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.BucketNode"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +26,8 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace StgSharp.HighPerformance.Memory
 {
@@ -41,7 +39,7 @@ namespace StgSharp.HighPerformance.Memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsNullOrEmpty(BucketNode* node)
         {
-            return node == null || node->Magic != BucketNode.MAGIC_NUMBER;
+            return node == null;
         }
 
             #endregion
@@ -57,7 +55,6 @@ namespace StgSharp.HighPerformance.Memory
             {
                 _bucketHeads[index] = (nuint)node;
                 node->IsInBucket = true;
-                node->Magic = BucketNode.MAGIC_NUMBER;
                 return;
             } else
             {
@@ -65,7 +62,6 @@ namespace StgSharp.HighPerformance.Memory
                 node->NextLevel = head;
                 BucketNode* headNode = (BucketNode*)head;
                 node->IsInBucket = true;
-                node->Magic = BucketNode.MAGIC_NUMBER;
                 if (headNode != null) {
                     headNode->PreviousLevel = (ulong)node;
                 }
@@ -115,8 +111,7 @@ namespace StgSharp.HighPerformance.Memory
                 return false;
             }
 
-            ulong n = head->NextLevel;
-            BucketNode* next = (BucketNode*)n;
+            BucketNode* next = (BucketNode*)head->NextLevel;
 
             if (next == null)
             {
@@ -128,8 +123,14 @@ namespace StgSharp.HighPerformance.Memory
             node = head;
             node->IsInBucket = false;
             node->NextLevel = EmptyHandle;
-            if (next != null) {
+            if (next != null)
+            {
+                Console.WriteLine("////////////// catching error ///////////////");
+                Console.WriteLine($"ref next: {(ulong)next}");
+                Console.WriteLine($"base pos: {(ulong)m_Buffer}");
+                Console.WriteLine(_size);
                 next->PreviousLevel = EmptyHandle;
+                Console.WriteLine("///////////// no error caught ///////////////");
             }
             return true;
         }
@@ -167,17 +168,26 @@ namespace StgSharp.HighPerformance.Memory
         internal struct BucketNode
         {
 
-            public const uint MAGIC_NUMBER = 0xBEEFCAFE; // Magic number for node integrity verification
+            [FieldOffset(0)] internal Entry* EntryRef;     // Pointer to corresponding Entry
+            [FieldOffset(32)] internal bool IsInBucket;     // Whether in bucket
 
-            [FieldOffset(16)] internal Entry* EntryRef;     // Pointer to corresponding Entry
-            [FieldOffset(28)] internal bool IsInBucket;     // Whether in bucket
-            [FieldOffset(36)] internal int NextLock;
-            [FieldOffset(32)] internal int PrevLock;
-            [FieldOffset(24)] internal uint Magic;          // Magic number verification
-            [FieldOffset(32)] internal ulong LockBuffer;
+            [FieldOffset(8)]  internal ulong _nextLevel;     // Bucket stack linked list: next pointer
+            [FieldOffset(16)] internal ulong LockBuffer;
+            [FieldOffset(24)]  internal ulong PreviousLevel; // Bucket stack linked list: previous pointer
 
-            [FieldOffset(0)]  internal ulong NextLevel;     // Bucket stack linked list: next pointer
-            [FieldOffset(8)]  internal ulong PreviousLevel; // Bucket stack linked list: previous pointer
+            internal ulong NextLevel
+            {
+                get
+                {
+                    Console.WriteLine($"get next level {_nextLevel}");
+                    return _nextLevel;
+                }
+                set
+                {
+                    Console.WriteLine($"NextLevel set to {value}.");
+                    _nextLevel = value;
+                }
+            }
 
         }
 

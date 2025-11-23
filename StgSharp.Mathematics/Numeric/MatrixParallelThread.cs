@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallelThread"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,17 +45,16 @@ namespace StgSharp.Mathematics.Numeric
         private bool _affinityApplied;
 
         private bool disposedValue;
-        private ManualResetEventSlim _resetEvent;
-        private Thread _managedThread;
+        private readonly ManualResetEventSlim _resetEvent;
+        private readonly Thread _managedThread;
 
         public MatrixParallelThread()
         {
             // Allocate a unique logical processor for this worker (mutually exclusive)
             _affinity = AffinityAllocator.Allocate();
-
+            _resetEvent = new ManualResetEventSlim(false);
             _managedThread = new Thread(MatrixParallelWorker);
             _managedThread.Start();
-            _resetEvent = new ManualResetEventSlim(false);
         }
 
         // Global runtime switch: true => UMA/no-affinity; false => NUMA/affinity (auto-detected)
