@@ -1,271 +1,109 @@
 # HLSF (Hybrid Layer Segregated Fit) Allocator
 
-A high-performance, O(1) memory allocator designed for real-time applications that demand predictable allocation and deallocation performance.
+A constant-time (O(1)) allocator for real-time, high-throughput scenarios. It uses layered size classes with segmented buckets and stores all metadata externally for clean user memory and better cache locality.
 
-## Overview
+## Key Points
+- O(1) allocate/free with 10 levels: 64B ¡ú 16MB; each level split into 1¡Á/2¡Á/3¡Á segments
+- External metadata (`Entry`, `BucketNode`) in dedicated SLABs; user blocks have no headers
+- Configurable alignment (¡Ý16B); large block cap per allocation: 32MB
+- Single-threaded implementation (external sync required for multi-threaded use)
 
-The Hybrid Layer Segregated Fit (HLSF) allocator is a sophisticated memory management system that combines the benefits of segregated free lists with layered size classification. It provides constant-time allocation and deallocation operations while maintaining excellent memory utilization and low fragmentation.
-
-## Key Features
-
-### Performance Characteristics
-- **O(1) Time Complexity**: Both allocation and deallocation operations execute in constant time
-- **High Throughput**: Capable of handling millions of operations per second
-- **Low Latency**: Predictable performance suitable for real-time applications
-- **Excellent Deallocation Speed**: Superior free performance compared to traditional allocators
-
-### Memory Management
-- **External Metadata Storage**: All allocation metadata is stored in external SLAB allocators, keeping the main allocation area clean
-- **Native Byte Alignment Control**: Configurable alignment (minimum 16 bytes) with hardware-optimized defaults
-- **Large Block Support**: Single allocation limit of 32MB per request
-- **Efficient Memory Utilization**: Low overhead with intelligent block merging
-
-### Architecture
-- **10-Level Hierarchy**: Size classes from 64 bytes to 16MB (64, 256, 1KB, 4KB, 16KB, 64KB, 256KB, 1MB, 4MB, 16MB)
-- **3-Segment Segregation**: Each level is divided into 3 segments for better size distribution
-- **Hybrid Approach**: Combines best aspects of segregated fit and layered allocation strategies
-
-## Architecture Details
-
-### Size Classification System
-
-The allocator uses a logarithmic size classification system with 10 levels:
-
-```
-Level 0: 64 bytes      (2^6)
-Level 1: 256 bytes     (2^8)  
-Level 2: 1KB           (2^10)
-Level 3: 4KB           (2^12)
-Level 4: 16KB          (2^14)
-Level 5: 64KB          (2^16)
-Level 6: 256KB         (2^18)
-Level 7: 1MB           (2^20)
-Level 8: 4MB           (2^22)
-Level 9: 16MB          (2^24)
-```
-
-Each level follows the pattern: `size = 64 * 4^level`
-
-### Bucket Organization
-
-Each size level is further divided into 3 segments based on exact size requirements:
-- **Segment 0**: 1x level size
-- **Segment 1**: 2x level size  
-- **Segment 2**: 3x level size
-
-This provides fine-grained size matching while maintaining O(1) lookup performance.
-
-### External Metadata Design
-
-Unlike traditional allocators that embed metadata within allocated blocks, HLSF stores all metadata externally:
-
-- **Entry Structure (36 bytes)**: Contains position, size, level, and linkage information
-- **BucketNode Structure (32 bytes)**: Manages free block organization with integrity verification
-- **SLAB Storage**: Both structures are allocated from separate SLAB allocators for optimal cache performance
-
-This design provides several advantages:
-- Clean allocation areas free from metadata corruption
-- Better cache locality for metadata operations
-- Simplified debugging and memory inspection
-- No metadata overhead in allocated blocks
-
-## Performance Benchmarks
-
-*Note: The following results are from informal testing and should be considered preliminary.*
-
-### Single-threaded Performance (65,536 operations)
-
-| Operation | Average Time | Throughput | Performance Rating |
-|-----------|--------------|------------|-------------------|
-| Allocation | 31-40ms | ~2M allocs/sec | Good |
-| Free | 2-3ms | ~25M frees/sec | Excellent |
-
-**Test Configuration:**
-- Pool Size: 16MB
-- Block Sizes: 64-1024 bytes (mixed)
-- Platform: x64, .NET 8
-- Iterations: 5 rounds
-
-### Memory Efficiency
-
-- **Metadata Overhead**: ~2.8% of total allocation
-- **Alignment**: 16-byte default (configurable)
-- **Fragmentation**: Low due to intelligent merging algorithms
-
-## Usage Examples
-
-### Basic Allocation
-
+## Quick Use
 ```csharp
-// Create allocator with 64MB pool
-using var allocator = new HybridLayerSegregatedFitAllocator(64 * 1024 * 1024);
-
-// Allocate 1KB block
-var handle = allocator.Alloc(1024);
-
-// Use the allocated memory
-Span<byte> memory = handle.BufferHandle;
-memory[0] = 42;
-
-// Free the block
-allocator.Free(handle);
+using var hlsf = new HybridLayerSegregatedFitAllocator(64 * 1024 * 1024);
+var h = hlsf.Alloc(1024);
+Span<byte> s = h.BufferHandle; s[0] = 42;
+hlsf.Free(h);
 ```
 
-### Custom Alignment
+## Benchmarks (this run)
+Environment: .NET 8 (Release), x64, single-thread, arena=3072 MiB. Results from `StgSharpDebug/HlsfStressTest`.
 
-```csharp
-// Create allocator with 32-byte alignment
-using var allocator = new HybridLayerSegregatedFitAllocator(
-    byteSize: 32 * 1024 * 1024,
-    align: 32
-);
+- Free throughput: 1KB ¡Á 262,144 ¡ú 27,062,260.6 free/s
+- Alloc+free pairs: 256B ¡Á 5,000,000 ¡ú 19,256,409.9 ops/s
+- Fragmentation cycle (¡Ö512MB): fast recovery in short cycle (see test for details)
 
-var handle = allocator.Alloc(256);
-// Memory is guaranteed to be 32-byte aligned
-```
+Representative allocation throughput (higher is better):
 
-### Bulk Operations
+| Size | Ops | alloc/s (no touch) | alloc/s (touch) |
+|------|----:|--------------------:|----------------:|
+| 64B   | 2,000,000 | 7,902,555.2  | 14,176,544.8 |
+| 1KB   | 1,572,864 | 5,794,161.6  | 7,293,856.5  |
+| 4KB   |   393,216 | 5,210,132.6  | 6,646,372.3  |
+| 32KB  |    49,152 | 5,931,432.3  | 7,719,199.1  |
+| 256KB |     6,144 | 14,663,484.5 | 10,425,929.1 |
+| 512KB |     3,072 | 11,054,336.1 | 16,245,372.8 |
+| 1MB   |     1,536 | 13,391,456.0 | 9,159,212.9  |
+| 2MB   |       768 | 17,028,824.8 | 11,962,616.8 |
+| 8MB   |       192 | 13,061,224.5 | 9,142,857.1  |
+| 32MB  |        48 | 11,707,317.1 | 9,411,764.7  |
 
-```csharp
-var handles = new List<HybridLayerSegregatedFitAllocationHandle>();
+Notes:
+- Peak no-touch at 2MB (¡Ö17.0M alloc/s). Peak touch at 512KB (¡Ö16.25M alloc/s).
+- Non-aligned sizes (e.g., 768B, 3KB) typically lower due to slicing/boundary handling.
 
-// Allocate multiple blocks
-for (int i = 0; i < 1000; i++)
-{
-    handles.Add(allocator.Alloc((uint)(64 + i % 960))); // 64-1023 bytes
-}
+## Detailed Design
 
-// Free all blocks
-foreach (var handle in handles)
-{
-    allocator.Free(handle);
-}
-```
+### Size Classes and Segments
+- Level sizes: `levelSizeArray = [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216]` (64B ¡¤ 4^L)
+- Level selection:
+  - `GetLevelFromSize(uint S)`: `level = max(0, (log2(S) - 6) / 2)` using `BitOperations.LeadingZeroCount`
+- Segment selection (within a level):
+  - `DetermineSegmentIndex(size, level) = (int)((size - 1) / levelSizeArray[level])` ¡ú 0/1/2
+- Bucket index: `index = 3*level + segment` (for L ¡Ü 9); overflow bucket at `^1` for level > 9
 
-## API Reference
+### Metadata Structures
+- `Entry` (external SLAB): linkage in position chain, `Position`, `Size`, `Level`, `State`
+  - Invariants: near neighbors must form a consistent double-linked ring; `Level` setter validates size vs. level window
+- `BucketNode` (in user region): `EntryRef`, `NextLevel`, `PreviousLevel`, `IsInBucket`
+- Position chain: circular doubly linked list anchored by sentinel `_spareMemory` (`State.Spare`)
 
-### HybridLayerSegregatedFitAllocator
+### Allocation Flow
+1) Compute `level` and `segment` from requested `size`
+2) Try pop bucket (`TryPopLevelForAllocation(level, segment, out entry)`) and escalate:
+   - Advance `segment` 0¡ú1¡ú2, then `level++`, until `MaxLevel`
+   - If still empty: try pop from overflow bucket (L=10, seg=1) or `TryAllocateNew32MBBlock`
+3) On success: bound-check the slice offset; set `entry` to `Alloc` using `SetEntryLevel`
+4) If remainder exists in the source region, call `SliceMemory(entry->NextNear, remainder)` to produce free chunks into buckets
 
-Main allocator class providing memory management functionality.
+### Slicing Logic (`SliceMemory`)
+- Inputs: `next` entry position, `sizeToSlice`
+- Compute `offset` and `end` relative to base buffer; pick starting level by trailing-zero count of `offset`:
+  - `i = (BitOperations.TrailingZeroCount(offset) - 6) / 2`, clamped to `¡Ü MaxLevel`
+- Three phases to cover [offset, end):
+  1) Forward levels i..N-1: for each level size `size` and `upper=size*4`, align to `edge=((offset+upper-1)/upper)*upper`, pack `count = ((min(edge,end) - offset) / size)` blocks
+  2) If `i > MaxLevel`: pack in largest upper window on tail
+  3) Backward i-1..0: fill remaining tail with smaller sizes
+- For each packed region: allocate new `Entry`, insert before `next`, mark `Empty`, and push corresponding `BucketNode` into the `(level, segment)` bucket (`PushBucketToLevel(i, count-1, b)`)
 
-#### Constructors
+### Free and Merge (`MergeAndRemoveFromBuckets`)
+- Given an `Entry` to free (turned `Empty` by caller):
+  - Merge left while neighbor `p` is `Empty`, same `Level`, and within boundary (`AssertBoundary`)
+    - Remove `p` from bucket (`RemoveFromBucket`), expand current, fix `Position`, unlink `p`
+  - Merge right with neighbor `n` by the same rule
+  - Optionally promote `Level` if `Size ¡Ý levelSizeArray[originLevel] * 4`
+  - Ensure `BucketNode.EntryRef` points to the merged entry; caller re-enqueues into the proper bucket
 
-```csharp
-public HybridLayerSegregatedFitAllocator(nuint byteSize)
-public HybridLayerSegregatedFitAllocator(nuint byteSize, int align)
-```
+### Buckets
+- `PushBucketToLevel(level, segment, node)`: push to bucket head, set `IsInBucket`, maintain prev/next
+- `TryPopLevel(level, segment, out node)`: pop head; if empty, return false
+- `RemoveFromBucket(level, segment, node)`: unlink from middle or use `TryPopLevel` if it is the head
 
-#### Methods
+### Large Allocations and Spare Memory
+- Requests > 32MB use `NativeMemory.AlignedAlloc(size, align)` and mark `State.Large`
+- When buckets are empty, `TryAllocateNew32MBBlock` carves a 32MB region from `_spareMemory`, builds an `Empty` entry, and advances the spare pointer
 
-```csharp
-public HybridLayerSegregatedFitAllocationHandle Alloc(uint size)
-public void Free(HybridLayerSegregatedFitAllocationHandle handle)
-public void Dispose()
-```
+### Alignment
+- Default `_align = 16`; `AlignOfLevel(level)` returns `min(levelSizeArray[level], _align)`
+- Internal blocks align to level boundaries by design of slicing/edge calculations
 
-### HybridLayerSegregatedFitAllocationHandle
+### Complexity and Invariants
+- Allocate/free are O(1) on average with bounded levels (¡Ü10) and constant-time bucket ops
+- Invariants guarded by exceptions (e.g., `HLSFPositionChainBreakException`) and pointer consistency checks
 
-Handle representing an allocated memory block.
+## Profiling (hotspots, current workloads)
+- `SliceMemory` ¡Ö22% (self ¡Ö17%) ¡ª slicing and bucket enqueue dominate allocation path
+- `MergeAndRemoveFromBuckets` ¡Ö13% (self ¡Ö12%) ¡ª merge + removal dominate free path
+- `Collect` ¡Ö7.6% (self ¡Ö7.5%) ¡ª low overall cost
 
-#### Properties
-
-```csharp
-public readonly byte* Pointer { get; }
-public readonly Span<byte> BufferHandle { get; }
-public readonly uint AllocSize { get; }
-public readonly ref byte this[int index] { get; }
-```
-
-## Thread Safety
-
-The current implementation is **single-threaded**. For multi-threaded applications, external synchronization is required. A concurrent version is planned for future releases.
-
-## Comparison with Other Allocators
-
-### vs TLSF (Two-Level Segregated Fit)
-
-| Aspect | HLSF | TLSF | Notes |
-|--------|------|------|-------|
-| Allocation Speed | ~2M ops/sec | ~3-5M ops/sec | HLSF has optimization potential |
-| Deallocation Speed | ~25M ops/sec | ~10-15M ops/sec | **HLSF advantage** |
-| Memory Overhead | ~2.8% | ~1-2% | HLSF uses external metadata |
-| Time Complexity | O(1) | O(1) | Equal |
-| Code Complexity | Moderate | Low | HLSF more sophisticated |
-
-### Strengths
-- Superior deallocation performance
-- Clean separation of data and metadata
-- Configurable alignment support
-- Excellent for allocation-heavy workloads
-
-### Areas for Improvement
-- Allocation speed optimization
-- Memory overhead reduction
-- Concurrent implementation
-
-## Implementation Notes
-
-### Alignment Guarantees
-
-- Minimum alignment: 16 bytes
-- All allocations respect specified alignment
-- Internal blocks aligned to 64-byte boundaries for optimal cache performance
-
-### Merging Strategy
-
-The allocator employs an aggressive merging strategy:
-
-1. **Immediate Merging**: Adjacent free blocks are merged during deallocation
-2. **Boundary Checking**: Ensures merging respects level boundaries
-3. **Bidirectional Merging**: Checks both forward and backward neighbors
-4. **Level Promotion**: Merged blocks may be promoted to higher levels
-
-## Future Roadmap
-
-### Planned Optimizations
-
-1. **Performance Enhancements**
-   - Lookup table optimization for size classification
-   - Bucket operation improvements
-   - SIMD utilization for bulk operations
-
-2. **Concurrent Support**
-   - Thread-local caches
-   - Lock-free bucket operations
-   - NUMA-aware allocation
-
-3. **Advanced Features**
-   - Adaptive size level adjustment
-   - Memory pressure handling
-   - Statistics and profiling support
-
-### Target Performance Goals
-
-- Allocation Speed: 4-6M ops/sec (single-threaded)
-- Memory Overhead: <1.5%
-- Fragmentation Rate: <3%
-- Concurrent Scaling: Linear up to 16 threads
-
-## Building and Testing
-
-The HLSF allocator is part of the StgSharp.Common library and requires:
-
-- .NET 8 or later
-- x64 architecture (no x86 support planned)
-- Windows/Linux
-
-### Running Benchmarks
-
-```csharp
-// See StgSharpDebug/Program.cs for comprehensive benchmark suite
-var allocator = new HybridLayerSegregatedFitAllocator(16 * 1024 * 1024);
-// Run allocation/deallocation cycles...
-```
-
-## License
-
-This implementation is part of the StgSharp project and follows the project's licensing terms.
-
-## Contributing
-
-Performance improvements, bug fixes, and documentation enhancements are welcome. Please ensure all changes maintain the O(1) performance guarantees and include appropriate benchmarks.
+Suggested focus: reduce per-slice math and bucket ops; add fast-paths for fully aligned regions; batch/lazy removals after merges.

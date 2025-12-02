@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocator"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,18 +27,19 @@
 // -----------------------------------------------------------------------
 using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace StgSharp.HighPerformance.Memory
 {
     public unsafe partial class HybridLayerSegregatedFitAllocator : IDisposable
     {
 
-        private const nuint EmptyHandle = 0;
-
         // Bucket system field - directly in main allocator class
-        private ulong[] _bucketHeads;
+        private readonly BucketNode*[] _bucketHeads;
 
+        // _spareMemory is also the beginning position of allocator
         private Entry* _spareMemory;
         private readonly byte* m_Buffer;
         private bool disposedValue;
@@ -56,35 +57,35 @@ namespace StgSharp.HighPerformance.Memory
             m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, 16);
             _align = 16;
 
-            _bucketHeads = new ulong[levelSizeArray.Length * 3];
+            _bucketHeads = new BucketNode*[levelSizeArray.Length * 3 + 1];
 
             _spareMemory = (Entry*)_entries.Allocate();
-            _spareMemory->State = EntryState.Empty;
-            _spareMemory->PreviousNear = EmptyHandle;
-            _spareMemory->NextNear = EmptyHandle;
+            _spareMemory->State = EntryState.Spare;
+            _spareMemory->PreviousNear = _spareMemory;
+            _spareMemory->NextNear = _spareMemory;
             _spareMemory->Position = (nuint)m_Buffer;
-            _spareMemory->Size = (uint)byteSize;
+            _spareMemory->Size = (long)byteSize;
         }
 
         public HybridLayerSegregatedFitAllocator(nuint byteSize, int align)
         {
             if (align < 16 || (align & (align - 1)) != 0) {
                 throw new ArgumentException(
-                    "Alignment must be a power of two and at least 8 bytes.");
+                    "Alignment must be a power of two and at least 16 bytes.");
             }
             _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked);
             m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
             _align = align;
             _size = byteSize;
 
-            _bucketHeads = new ulong[levelSizeArray.Length * 3];
+            _bucketHeads = new BucketNode*[levelSizeArray.Length * 3 + 1];
 
             _spareMemory = (Entry*)_entries.Allocate();
             _spareMemory->State = EntryState.Empty;
-            _spareMemory->PreviousNear = EmptyHandle;
-            _spareMemory->NextNear = EmptyHandle;
+            _spareMemory->PreviousNear = _spareMemory;
+            _spareMemory->NextNear = _spareMemory;
             _spareMemory->Position = (nuint)m_Buffer;
-            _spareMemory->Size = (uint)byteSize;
+            _spareMemory->Size = (long)byteSize;
         }
 
         public void Dispose()

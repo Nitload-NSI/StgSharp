@@ -43,15 +43,16 @@ namespace StgSharp.HighPerformance
         public M64()
         {
             Unsafe.SkipInit(out this);
-            value = 0;
+            Unsafe.SkipInit(out vec);
+            Unsafe.SkipInit(out value);
         }
 
-        public ref T AsRef<T>() where T: unmanaged,INumber<T>
+        public ref T AsRef<T>() where T : unmanaged,INumber<T>
         {
             return ref Unsafe.As<byte, T>(ref buffer[0]);
         }
 
-        public void BroadCastFrom<T>(T value) where T: unmanaged, INumber<T>
+        public void BroadCastFrom<T>(T value) where T : unmanaged, INumber<T>
         {
             vec = Vector64.Create(value).AsSingle();
         }
@@ -67,7 +68,7 @@ namespace StgSharp.HighPerformance
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T Member<T>(int index) where T: unmanaged, INumber<T>
+        public ref T Member<T>(int index) where T : unmanaged, INumber<T>
         {
             return ref Unsafe.As<byte, T>(ref buffer[index * sizeof(T)]);
         }
@@ -77,27 +78,22 @@ namespace StgSharp.HighPerformance
             return !(left == right);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static M64 operator <<(M64 m, int shift)
+        public static M64 operator <<(M64 value, int shift)
         {
-            return new M64
-            {
-                value = m.value << shift
-            };
+            M64 result = new M64();
+            result.value = value.value << shift;
+            return result;
         }
 
         public static bool operator ==(M64 left, M64 right)
         {
             return left.value == right.value;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static M64 operator >>(M64 m, int shift)
+        public static M64 operator >>(M64 value, int shift)
         {
-            return new M64
-            {
-                value = m.value >> shift
-            };
+            M64 result = new M64();
+            result.value = value.value << shift;
+            return result;
         }
 
     }

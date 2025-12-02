@@ -10,6 +10,7 @@
       <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	  <Deterministic>False</Deterministic>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	  <Configurations>Debug;Release;PerformanceDebug</Configurations>
   </PropertyGroup>
 
 	<ItemGroup>

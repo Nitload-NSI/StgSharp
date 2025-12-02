@@ -36,36 +36,37 @@ using Allocator = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAlloca
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public unsafe struct HybridLayerSegregatedFitAllocationHandle
+    public readonly unsafe struct HybridLayerSegregatedFitAllocationHandle
     {
 
-        internal readonly byte* BufferPointer;
         internal readonly Allocator.Entry* EntryHandle;
         public readonly uint AllocSize;
 
         internal HybridLayerSegregatedFitAllocationHandle(Allocator.Entry* handle, uint s)
         {
             EntryHandle = handle;
-            BufferPointer = (byte*)handle->Position;
+            Pointer = (byte*)handle->Position;
             AllocSize = s;
+
+            // Console.WriteLine($"{(ulong)handle->PreviousNear}<->{(ulong)handle->NextNear},\t{handle->Size}");
         }
 
-        public readonly ref byte this[int index]
+        public readonly ref byte this[uint index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => ref BufferPointer[index];
+            get
+            {
+                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual<uint>(index, AllocSize);
+                return ref Pointer[index];
+            }
         }
 
-        public readonly byte* Pointer
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => BufferPointer;
-        }
+        public readonly byte* Pointer { get; init; }
 
         public readonly Span<byte> BufferHandle
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new((byte*) EntryHandle->Position, (int)AllocSize);
+            get => new(Pointer, (int)AllocSize);
         }
 
         public readonly Enumerator GetEnumerator()
@@ -78,7 +79,7 @@ namespace StgSharp.HighPerformance.Memory
 
             private HybridLayerSegregatedFitAllocationHandle _handle;
 
-            private int _index = -1;
+            private uint _index = ~0u;
 
             internal Enumerator(HybridLayerSegregatedFitAllocationHandle span)
             {

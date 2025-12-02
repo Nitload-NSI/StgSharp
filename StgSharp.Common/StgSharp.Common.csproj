@@ -14,7 +14,7 @@
         <AnalysisLevel>preview-all</AnalysisLevel>
         <OutputType>Library</OutputType>
         <Nullable>enable</Nullable>
-        <Configurations>Debug;Release;</Configurations>
+        <Configurations>Debug;Release;PerformanceDebug</Configurations>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -60,7 +60,21 @@
         <Optimize>True</Optimize>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PerformanceDebug|x64'">
+      <DebugType>none</DebugType>
+      <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+      <Deterministic>False</Deterministic>
+      <Optimize>True</Optimize>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+      <DebugType>none</DebugType>
+      <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+      <Deterministic>False</Deterministic>
+      <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PerformanceDebug|ARM64'">
       <DebugType>none</DebugType>
       <NoWarn>1701;1702;0649;1591;0169</NoWarn>
       <Deterministic>False</Deterministic>

@@ -35,7 +35,7 @@ using System.Threading;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    internal sealed unsafe class ChunkedSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
+    internal sealed unsafe class ChunkedSlabAllocator<T> : SlabAllocator<T> where T : unmanaged
     {
 
         private BufferStack<nuint> _buffers;
@@ -48,6 +48,7 @@ namespace StgSharp.HighPerformance.Memory
         public ChunkedSlabAllocator(nuint count)
         {
             _currentBuffer = (nuint)NativeMemory.Alloc(count * (nuint)_elementSize);
+
             _currentCapacity = count;
             int initCount = count switch
             {
@@ -60,6 +61,7 @@ namespace StgSharp.HighPerformance.Memory
                 span[i] = _currentBuffer + (nuint)(i * _elementSize);
             }
             _buffers = new(4);
+            _buffers.Push(_currentBuffer);
             _recycle = BufferStackBuilder.Create(span);
             _currentCapacity = count;
             _currentIndex = (nuint)initCount;
@@ -70,26 +72,27 @@ namespace StgSharp.HighPerformance.Memory
             if (_recycle.TryPop(out nuint handle)) {
                 return handle;
             }
-            nuint bufferHandle = _currentBuffer;
+
+            // nuint bufferHandle = _currentBuffer;
             nuint curIndex = _currentIndex;
             if (curIndex >= _currentCapacity)
             {
                 nuint cap = _currentCapacity;
                 nuint newBuffer = (nuint)NativeMemory.Alloc(cap * (nuint)_elementSize);
-                _buffers.Push(bufferHandle);
+                _buffers.Push(newBuffer);
                 _currentBuffer = newBuffer;
                 _currentIndex = 0;
             }
             curIndex = _currentIndex;
-            _ = Interlocked.Add(
-                ref Unsafe.As<nuint, ulong>(ref _currentIndex), (ulong)_elementSize);
+            _currentIndex += 1;
             return _currentBuffer + ((nuint)_elementSize * curIndex);
         }
 
         public override void Dispose()
         {
-            NativeMemory.Free((void*)_currentBuffer);
-            while (_buffers.TryPop(out nuint buffer)) {
+            // NativeMemory.Free((void*)_currentBuffer);
+            while (_buffers.TryPop(out nuint buffer))
+            {
                 NativeMemory.Free((void*)buffer);
             }
             _buffers.Dispose();

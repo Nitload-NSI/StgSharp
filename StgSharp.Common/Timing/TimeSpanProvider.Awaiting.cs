@@ -85,6 +85,12 @@ namespace StgSharp.Timing
 
         public void Dispose()
         {
+            // mark provider as ended so external users can observe terminal state
+            try
+            {
+                Volatile.Write(ref _endedFlag, 1);
+            }
+            catch { }
             s_unusedID.Push(TokenID);
             _event.Dispose();
             GC.SuppressFinalize(this);
@@ -147,6 +153,46 @@ namespace StgSharp.Timing
             }
         }
 
+        /// <summary>
+        ///   Wait for the next timespan tick, but honor the provided cancellation token. Throws
+        ///   OperationCanceledException when token is cancelled. If the provider is disposed during
+        ///   wait an OperationCanceledException is thrown to indicate end.
+        /// </summary>
+        public Task WaitNextSpanAsync(CancellationToken ct)
+        {
+            try
+            {
+                // Block the current thread until the event is signaled or cancellation requested.
+                _event.Wait(ct);
+            }
+            catch (ObjectDisposedException)
+            {
+                // provider disposed while waiting - treat as cancellation/ended
+                throw new OperationCanceledException(ct);
+            }
+
+            // consume one pending span (same logic as non-cancellable variant)
+            while (true)
+            {
+                int cur = Volatile.Read(ref _pendingSpans);
+                if (cur == 0)
+                {
+                    break;
+                }
+
+                if (Interlocked.CompareExchange(ref _pendingSpans, cur - 1, cur) == cur)
+                {
+                    if (cur - 1 == 0) {
+                        _event.Reset();
+                    }
+
+                    break;
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
         internal void MissRefresh() => _missHandler?.Invoke(this, EventArgs.Empty); // Legacy compatibility.
 
         /// <summary>
@@ -163,13 +209,16 @@ namespace StgSharp.Timing
         {
             if (_sequence.EndsAt(currentTick))
             {
+                // mark ended due to sequence timeout, then dispose
+                Volatile.Write(ref _endedFlag, 1);
                 Dispose();
                 return false;
             }
             if (!_sequence.IsNextFrameReady(currentTick)) {
                 return true;
             }
-            Console.WriteLine("Frame hit!");
+
+            // Console.WriteLine("Frame hit!");
 
             // Fast path: if no pending consumers, initialize the counter to current capacity (_size).
             if (Volatile.Read(ref _pendingSpans) == 0)

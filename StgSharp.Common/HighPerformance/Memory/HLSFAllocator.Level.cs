@@ -60,19 +60,25 @@ namespace StgSharp.HighPerformance.Memory
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int GetLevelFromSize(uint size)
+        private static int GetLevelFromSize(long size)
+        {
+            return GetLevelFromSize((uint)size);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetLevelFromSize(uint size)
         {
             /*
-            * Level sizes: [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216]
-            * Pattern: 64 * 4^level = 2^6 * 2^(2*level) = 2^(6+2*level)
-            * 
-            * For size S, we need: 2^(6+2*level) >= S
-            * So: 6+2*level >= log2(S)
-            * Therefore: level >= (log2(S) - 6) / 2
-            * 
-            * We use hardware LZCNT instruction via BitOperations.LeadingZeroCount
-            * log2(S) = 31 - LeadingZeroCount(S) for 32-bit values
-            */
+                * Level sizes: [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216]
+                * Pattern: 64 * 4^level = 2^6 * 2^(2*level) = 2^(6+2*level)
+                * 
+                * For size S, we need: 2^(6+2*level) >= S
+                * So: 6+2*level >= log2(S)
+                * Therefore: level >= (log2(S) - 6) / 2
+                * 
+                * We use hardware LZCNT instruction via BitOperations.LeadingZeroCount
+                * log2(S) = 31 - LeadingZeroCount(S) for 32-bit values
+                */
             int log2Size = 31 - BitOperations.LeadingZeroCount(size);
 
             // Calculate level: level = max(0, (log2Size - 6) / 2)

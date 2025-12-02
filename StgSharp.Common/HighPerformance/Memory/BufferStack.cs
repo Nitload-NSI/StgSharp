@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 namespace StgSharp.HighPerformance.Memory
 {
     [CollectionBuilder(typeof(BufferStackBuilder), nameof(BufferStackBuilder.Create))]
-    public unsafe class BufferStack<T> : IDisposable where T: unmanaged
+    public unsafe class BufferStack<T> : IDisposable where T : unmanaged
     {
 
         private byte* _buffer;
@@ -40,9 +40,7 @@ namespace StgSharp.HighPerformance.Memory
 
         public BufferStack(int capacity)
         {
-            if (capacity <= 0) {
-                throw new ArgumentOutOfRangeException(nameof(capacity));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
 
             AllocateBuffer(capacity);
         }
@@ -124,9 +122,8 @@ namespace StgSharp.HighPerformance.Memory
             T* dataStart = (T*)(_buffer + sizeof(Header));
 
             fixed (T* sourcePtr = span) {
-                Buffer.MemoryCopy(sourcePtr, dataStart,
-                    header->Capacity * (nuint)sizeof(T),
-                    (nuint)span.Length * (nuint)sizeof(T));
+                Buffer.MemoryCopy(sourcePtr, dataStart, header->Capacity * (nuint)sizeof(T),
+                                  (nuint)span.Length * (nuint)sizeof(T));
             }
 
             header->Top = (nuint)span.Length;

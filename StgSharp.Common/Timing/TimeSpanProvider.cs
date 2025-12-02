@@ -41,6 +41,9 @@ namespace StgSharp.Timing
 
         private bool _subscribed;
         private int _emittedSpanCount; // legacy counter
+
+        // internal ended flag (0 = running, 1 = ended)
+        private int _endedFlag = 0;
         private readonly TimeSequence _sequence;
         private readonly TimeSourceProviderBase _timeSource;
 
@@ -61,6 +64,11 @@ namespace StgSharp.Timing
             _event = new ManualResetEventSlim(initialState:false, spinCount:0);
             _pendingSpans = 0;
         }
+
+        /// <summary>
+        ///   True when the provider has reached its end and will not emit further spans.
+        /// </summary>
+        public bool IsEnded => Volatile.Read(ref _endedFlag) != 0;
 
         public double CurrentSecond
         {

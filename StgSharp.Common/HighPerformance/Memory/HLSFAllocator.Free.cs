@@ -28,7 +28,10 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,6 +41,38 @@ namespace StgSharp.HighPerformance.Memory
 {
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
+
+        /// <summary>
+        ///   Minimal collect: linear scan, merge contiguous empty Blocks into one, push merged head
+        ///   back to bucket. Caller-responsible design: no slicing or redistribution.
+        /// </summary>
+        public void Collect()
+        {
+            Entry* cur = _spareMemory->NextNear;
+            long size = 0;
+            while (cur != null && cur != _spareMemory)
+            {
+                // cur is not empty, skip
+                if (cur->State != EntryState.Empty)
+                {
+                    cur = cur->NextNear;
+                    continue;
+                }
+
+                // remove cur from bucket
+                do
+                {
+                    size += cur->Size;
+                    Entry* next = cur->NextNear;
+                    RemoveFromBucket(cur->Level, DetermineSegmentIndex(cur->Size, cur->Level), (BucketNode*)cur->Position);
+                    RemoveFromPositionChain(cur);
+                    cur = next;
+                } while (cur != null && cur != _spareMemory && cur->State == EntryState.Empty);
+                if (size > 0) {
+                    SliceMemory(cur, size);
+                }
+            }
+        }
 
         /// <summary>
         ///   Free allocated memory block and perform adjacent block merging
@@ -51,26 +86,32 @@ namespace StgSharp.HighPerformance.Memory
             if (e == null) {
                 return;
             }
-            if (e->State != EntryState.Allocated) {
+            if (e->State == EntryState.Large)
+            {
+                NativeMemory.AlignedFree((void*)e->Position);
+                _entries.Free((nuint)e);
+                return;
+            }
+            if (e->State != EntryState.Alloc) {
                 return;
             }
 
-            // Set to ThreadOccupied to prevent other operations
+            // Mark as empty so it can be merged
             e->State = EntryState.Empty;
 
             // Try merge with adjacent free blocks and remove them from buckets
             MergeAndRemoveFromBuckets(e);
 
             // Calculate final level and segment for the merged block
-            uint finalSize = e->Size;
+            long finalSize = e->Size;
             int finalLevel = GetLevelFromSize(finalSize);
+            e->Level = finalLevel;
             int finalSegment = DetermineSegmentIndex(finalSize, finalLevel);
 
-            // Set the merged entry state to Empty (ready to be reused)
-            e->State = EntryState.Empty;
-
             // Push the merged entry back to appropriate bucket
-            PushLevel(finalLevel, finalSegment, (BucketNode*)e->Position);
+            PushBucketToLevel(finalLevel, finalSegment, (BucketNode*)e->Position);
+
+            // Console.WriteLine("one block freed");
         }
 
     }

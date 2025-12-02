@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixCompute.Basic"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -86,7 +86,7 @@ namespace StgSharp.Mathematics.Numeric
             return ans;
         }
 
-        public static unsafe void Fill<T>(Matrix<float> ans, T value) where T: unmanaged, INumber<T>
+        public static unsafe void Fill<T>(Matrix<float> ans, T value) where T : unmanaged, INumber<T>
         {
             long count = (long)ans.KernelColumnLength * ans.KernelRowLength;
             ScalarPacket* scalar = MatrixParallelFactory.CreateScalarPacket();

@@ -26,56 +26,71 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System;
-using System.Linq.Expressions;
-using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Threading;
 
 namespace StgSharp.HighPerformance.Memory
 {
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
-        private bool AssertBackwardBoundary(ulong currentOffset, Entry* target, int level)
+        /// <summary>
+        ///   Check if two Entries are adjacent in memory
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool AssertAdjacentTo(Entry* current, Entry* other)
         {
-            int nextLevelSize = levelSizeArray[level] * 4;
-            ulong targetHead = target->Position - (ulong)m_Buffer;
-            return (currentOffset / (ulong)nextLevelSize) == (targetHead / (ulong)nextLevelSize);
+            // Only a predicate; never throw here. Callers rely on false to skip merging.
+            return other->Position + (nuint)other->Size == current->Position ||
+                   current->Position + (nuint)current->Size == other->Position;
         }
 
-        private bool AssertForwardBoundary(ulong currentOffset, Entry* target, int level)
+        /// <summary>
+        ///   check out if a bucket is within the same higher-level boundary as currentOffset
+        /// </summary>
+        private bool AssertBoundary(Entry* previous, Entry* current, int level)
         {
+            level = int.Min(level, MaxLevel);
             int nextLevelSize = levelSizeArray[level] * 4;
-            ulong targetTail = target->Position - (ulong)m_Buffer + target->Size - 1;
-            return (currentOffset / (ulong)nextLevelSize) == (targetTail / (ulong)nextLevelSize);
+            ulong prevHead = previous->Position - (ulong)m_Buffer,
+                currHead = current->Position - (ulong)m_Buffer;
+            return (currHead / (ulong)nextLevelSize) == (prevHead / (ulong)nextLevelSize);
         }
 
         /// <summary>
         ///   Determine segment index based on size and originLevel
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int DetermineSegmentIndex(uint size, int level)
+        private static int DetermineSegmentIndex(long size, int level)
         {
-            return (int)(size - 1) / levelSizeArray[level];
+            level = int.Min(level, MaxLevel);
+            return (int)((size - 1) / levelSizeArray[level]);
         }
 
-        /// <summary>
-        ///   Check if two Entries are adjacent in memory
-        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsAdjacentTo(Entry* current, Entry* other)
+        private static void InsertEntryAfter(Entry* entry, Entry* position)
         {
-            // Check if this immediately follows other
-            return other->Position + other->Size == current->Position ||
-                   current->Position + current->Size == other->Position;
+            Entry* next = position->NextNear;
+            entry->NextNear = next;
+            entry->PreviousNear = position;
+            next->PreviousNear = entry;
+            position->NextNear = entry;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void InsertEntryBefore(Entry* entry, Entry* position)
+        {
+            Entry* prev = position->PreviousNear;
+            entry->NextNear = position;
+            entry->PreviousNear = prev;
+            prev->NextNear = entry;
+            position->PreviousNear = entry;
         }
 
         /// <summary>
         ///   Used in Free operations, efficiently remove from buckets and merge adjacent blocks.
         ///   Current Entry will serve as the final merged block. The Merge will be in lazy
-        ///   strategy, any fail in acquiring spin lock will end a merging process.
+        ///   strategy.
         /// </summary>
         private void MergeAndRemoveFromBuckets(Entry* entry)
         {
@@ -83,137 +98,165 @@ namespace StgSharp.HighPerformance.Memory
                 return;
             }
 
-            Entry* result = entry;
-            uint size = entry->Size;
+            /*
+            Console.WriteLine("============ Merge start =======================");
+            try
+            {
+                Console.WriteLine("forward from entry");
+                Entry* __cur = entry;
+                int __cnt = 0;
+                while (__cur != null && __cur != _spareMemory && __cnt < 512)
+                {
+                    Console.WriteLine(EntryToString(__cur));
+                    __cur = __cur->NextNear;
+                    __cnt++;
+                    if (__cur == entry)
+                    {
+                        Console.WriteLine("(looped back to start)");
+                        break;
+                    }
+                }
+                Console.WriteLine(EntryToString(__cur));
+                Console.WriteLine("MergeAndRemoveFromBuckets: backward from entry");
+                __cur = entry;
+                __cnt = 0;
+                while (__cur != null && __cur != _spareMemory && __cnt < 512)
+                {
+                    Console.WriteLine(EntryToString(__cur));
+                    __cur = __cur->PreviousNear;
+                    __cnt++;
+                    if (__cur == entry)
+                    {
+                        Console.WriteLine("(looped back to start)");
+                        break;
+                    }
+                }
+                Console.WriteLine(EntryToString(__cur));
+            }
+            catch { }
+            finally
+            {
+                Console.WriteLine("==========================================");
+            }
+            /**/
+
+            long size = entry->Size;
             int originLevel = entry->Level;
             int segment = DetermineSegmentIndex(size, originLevel);
+            do
+            {
+                // previous direction merge
+                Entry* p = entry->PreviousNear;
+                if (p == null ||
+                    p == _spareMemory ||
+                    p->State != EntryState.Empty ||
+                    p->Level != entry->Level ||
+                    !AssertBoundary(p, entry, originLevel))
+                {
+                    break;
+                }
 
-            RemoveFromBucket(originLevel, segment, (BucketNode*)entry->Position);
+                // Console.WriteLine($"{(ulong)p->Size} merged to {(ulong)entry->Size} previous");
+                entry->Size += p->Size;
+                entry->Position = p->Position;
+                RemoveFromBucket(originLevel, DetermineSegmentIndex(p->Size, originLevel), (BucketNode*)p->Position);
+                RemoveFromPositionChain(p);
+            } while (true);
 
             do
             {
-                originLevel = entry->Level;
-                while (true)
+                // next direction merge
+                Entry* n = entry->NextNear;
+                if (n == null ||
+                    n == _spareMemory ||
+                    n->State != EntryState.Empty ||
+                    n->Level != entry->Level ||
+                    !AssertBoundary(n, entry, originLevel))
                 {
-                    // backward merging - simplified to single attempt
-                    ulong p = entry->PreviousNear;
-                    Entry* prev = (Entry*)p;
-
-
-                    // 计算当前块相对于分配空间基址的偏移量
-                    ulong currentOffset = entry->Position - (ulong)m_Buffer;
-
-                    if (prev == null ||
-                        prev == _spareMemory ||
-                        !AssertBackwardBoundary(currentOffset, prev, originLevel) ||
-                        !IsAdjacentTo(entry, prev) ||
-                        entry->Level != prev->Level ||
-                        !TryRemoveFromBucket(originLevel, DetermineSegmentIndex(prev->Size, originLevel), (BucketNode*)prev->Position))
-                    {
-                        break;
-                    }
-
-                    // Update linked list
-                    Entry* prevPrev = (Entry*)prev->PreviousNear;
-                    if (prevPrev != null) {
-                        prevPrev->NextNear = (ulong)entry;
-                    }
-                    entry->PreviousNear = (ulong)prevPrev;
-
-                    // Merge
-                    entry->Position = prev->Position;
-                    entry->Size += prev->Size;
-                    RecycleEntry(prev);
+                    break;
                 }
 
-                while (true)
-                {
-                    // forward merging - simplified to single attempt
-                    ulong n = entry->NextNear;
-                    Entry* next = (Entry*)n;
+                // Console.WriteLine($"{(ulong)n->Size} merged to {(ulong)entry->Size} next");
+                entry->Size += n->Size;
+                RemoveFromBucket(originLevel, DetermineSegmentIndex(n->Size, originLevel), (BucketNode*)n->Position);
+                RemoveFromPositionChain(n);
+            } while (true);
+            originLevel = int.Min(9, originLevel);
+            entry->Level += entry->Size >= levelSizeArray[originLevel] * 4 ? 1 : 0;
+            entry->Level &= 15;
 
-                    ulong currentOffset = entry->Position - (ulong)m_Buffer;
-
-                    if (next == null ||
-                        next == _spareMemory ||
-                        !AssertForwardBoundary(currentOffset, next, entry->Level) ||
-                        !IsAdjacentTo(entry, next) ||
-                        entry->Level != next->Level ||
-                        !TryRemoveFromBucket(originLevel, DetermineSegmentIndex(next->Size, originLevel), (BucketNode*)next->Position))
-                    {
-                        break;
-                    }
-
-                    // Update linked list
-                    Entry* nextNext = (Entry*)next->NextNear;
-                    if (nextNext != null) {
-                        nextNext->PreviousNear = (ulong)entry;
-                    }
-                    entry->NextNear = (ulong)nextNext;
-
-                    // Merge
-                    entry->Size += next->Size;
-                    RecycleEntry(next);
-                }
-                entry->Level = GetLevelFromSize(entry->Size);
-            } while (originLevel < entry->Level);
-        }
-
-        private void RecycleEntry(Entry* entry)
-        {
-            if (entry is null) {
-                return;
-            }
-
-            entry->PreviousNear = EmptyHandle;
-            entry->NextNear = EmptyHandle;
-            _entries.Free((nuint)entry);
+            BucketNode* bucket = (BucketNode*)entry->Position;
+            bucket->EntryRef = entry;
         }
 
         /// <summary>
-        ///   Remove node from position linked list
+        ///   Remove node from position linked list, this method does not recycle a BucketNode from
+        ///   size bucket
         /// </summary>
         private void RemoveFromPositionChain(Entry* entry)
         {
-            Entry* prev = (Entry*)entry->PreviousNear;
-            Entry* next = (Entry*)entry->NextNear;
+            Entry* prev = entry->PreviousNear;
+            Entry* next = entry->NextNear;
 
-            if (prev != null) {
-                prev->NextNear = entry->NextNear;
-            }
-            if (next != null) {
-                next->PreviousNear = entry->PreviousNear;
-            }
+            prev->NextNear = next;
+            next->PreviousNear = prev;
 
             // Clear node pointers
-            entry->NextNear = EmptyHandle;
-            entry->PreviousNear = EmptyHandle;
+            entry->NextNear = null;
+            entry->PreviousNear = null;
+
+            // Console.WriteLine("entry recycled.");
             _entries.Free((nuint)entry);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void SetEntryLevel(Entry* entry, nuint position, long size)
+        {
+            entry ->Position = position;
+            entry->Size = size;
+            entry->Level = GetLevelFromSize(size);
         }
 
         /// <summary>
         ///   Entry structure - streamlined version (only position and state information) Stored in
         ///   external SLAB
         /// </summary>
-        [StructLayout(LayoutKind.Explicit, Size = 36)]
+        [StructLayout(LayoutKind.Explicit, Size = 40)]
         internal struct Entry
         {
 
-            [FieldOffset(28)] internal int Level;           // Level of the block in the allocator
-            [FieldOffset(24)] internal uint Size;           // Block size information
-            [FieldOffset(32)] internal ulong LockBuffer;
-            [FieldOffset(8)]  internal ulong NextNear;      // Position linked list: next pointer
-            [FieldOffset(16)] internal ulong PreviousNear;  // Position linked list: previous pointer
-            [FieldOffset(32)] public EntryState State;
-            [FieldOffset(0)]  public nuint Position;        // Memory block position
+            [FieldOffset(0)]  internal Entry* NextNear;      // Position linked list: next pointer
+            [FieldOffset(8)] internal Entry* PreviousNear;  // Position linked list: previous pointer
+
+            [FieldOffset(24)] internal int _Level;           // Level of the block in the allocator
+            [FieldOffset(16)] internal long Size;           // Block size information
+            [FieldOffset(36)] public EntryState State;
+            [FieldOffset(28)]  public nuint Position;        // Memory block position
+
+            public int Level
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => _Level;
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                set
+                {
+                    int size = 64 * (1 << (value * 2));
+                    if (Size / size > 3 && Size < 64 * 1024 * 1024L) {
+                        throw new HLSFPositionChainBreakException();
+                    }
+                    _Level = value;
+                }
+            }
 
         }
 
         internal enum EntryState : uint
         {
 
+            Spare,
             Empty,
-            Allocated
+            Alloc,
+            Large
 
         }
 
@@ -222,7 +265,7 @@ namespace StgSharp.HighPerformance.Memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsNullOrEmptyEntryIndex(ulong index)
         {
-            return index == EmptyHandle;
+            return index == 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

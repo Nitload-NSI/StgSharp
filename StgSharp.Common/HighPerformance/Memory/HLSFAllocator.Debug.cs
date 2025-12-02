@@ -33,6 +33,14 @@ using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
+    public sealed class HLSFPositionChainBreakException : Exception
+    {
+
+        public HLSFPositionChainBreakException()
+            : base("Position chain of an HLSF allocator is broken") { }
+
+    }
+
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
@@ -46,10 +54,46 @@ namespace StgSharp.HighPerformance.Memory
                 while (cur != null)
                 {
                     Console.WriteLine(EntryToString(cur));
-                    cur = (Entry*)cur->PreviousNear;
+                    cur = cur->PreviousNear;
                     if (singleStep) {
                         Console.ReadKey();
                     }
+                }
+            }
+        }
+
+        public void DumpPositionChain(bool singleStep = false, int maxCount = 4096)
+        {
+            lock (_lock)
+            {
+                try
+                {
+                    Entry* cur = _spareMemory;
+                    int cnt = 0;
+                    if (cur != null) {
+                        cur = cur->NextNear;
+                    }
+                    Console.WriteLine(EntryToString(_spareMemory));
+                    while (cur != null && cur != _spareMemory && cnt < maxCount)
+                    {
+                        Console.WriteLine(EntryToString(cur));
+                        cnt++;
+                        if (singleStep) {
+                            Console.ReadKey();
+                        }
+
+                        cur = cur->NextNear;
+                    }
+                    if (cur == _spareMemory)
+                    {
+                        Console.WriteLine("(reached sentinel)");
+                    } else if (cnt >= maxCount) {
+                        Console.WriteLine("(stopped at maxCount)");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[DumpPositionChain-forward] Exception: {ex.Message}");
                 }
             }
         }
@@ -63,7 +107,7 @@ namespace StgSharp.HighPerformance.Memory
                 while (cur != null)
                 {
                     layout.Push(EntryToString(cur));
-                    cur = (Entry*)cur->PreviousNear;
+                    cur = cur->PreviousNear;
                 }
                 return layout;
             }
@@ -72,7 +116,7 @@ namespace StgSharp.HighPerformance.Memory
         private static string EntryToString(Entry* e)
         {
             BucketNode* b = (BucketNode*)e->Position;
-            return $"{e->PreviousNear}<-- Position{(ulong)e} Bucket:{{{e->Position},{e->Level},{e->Size}}} -->{e->NextNear}";
+            return $"{(ulong)e->PreviousNear}<-prev- Position:{(ulong)e} Bucket:{{{(ulong)e->Position},{e->Level},{e->Size}}} -next->{(ulong)e->NextNear}";
         }
 
     }

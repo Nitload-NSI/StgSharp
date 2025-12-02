@@ -57,7 +57,7 @@ namespace StgSharp.Mathematics.Numeric
             MatrixParallelFactory.Release(p);
         }
 
-        internal static unsafe void BufferComputeUnaryScalar(MatrixParallelTaskPackage* p)
+        internal static unsafe void BufferComputeUnary(MatrixParallelTaskPackage* p)
         {
             int size = p->ElementSize * 16;
             long count = Unsafe.As<int, long>(ref p->PrimCount);
@@ -66,6 +66,17 @@ namespace StgSharp.Mathematics.Numeric
             ((delegate* unmanaged[Cdecl]<void*, void*, long, void>)p->ComputeHandle)((void*)(p->Right + offset),
                                                                                            (void*)(p->Result + offset),
                                                                                            count);
+            MatrixParallelFactory.Release(p);
+        }
+
+        internal static unsafe void BufferComputeUnaryScalar(MatrixParallelTaskPackage* p)
+        {
+            int size = p->ElementSize * 16;
+            long count = Unsafe.As<int, long>(ref p->PrimCount);
+            long offset = Unsafe.As<int, long>(ref p->PrimTileOffset) * size;
+            ((delegate* unmanaged[Cdecl]< void*, void*, ScalarPacket*, long, void>)p->ComputeHandle)((void*)(p->Right + offset),
+                                                                                                     (void*)(p->Result + offset),
+                                                                                                     p->Scalar, count);
             MatrixParallelFactory.Release(p);
         }
 

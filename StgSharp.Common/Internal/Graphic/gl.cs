@@ -68,21 +68,32 @@ namespace StgSharp.Internal
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         internal static partial void InternalInitGL(int majorVersion, int minorVersion);
 
-        [LibraryImport(Native.LibName, EntryPoint = "loadGlfuncDefault", StringMarshalling = StringMarshalling.Utf8)]
+        [LibraryImport(
+                Native.LibName,
+                EntryPoint = "loadGlfuncDefault",
+                StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
-        internal static partial IntPtr InternalLoadGlfuncDefault(string name);
+        internal static partial IntPtr InternalLoadGlFuncDefault(string name);
 
         [LibraryImport(Native.LibName, EntryPoint = "linkShaderProgram")]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
-        internal static unsafe partial uint InternalLinkShaderProgram(OpenglContext* context, uint shaderProgram);
+        internal static unsafe partial uint InternalLinkShaderProgram(
+                                            OpenglContext* context,
+                                            uint shaderProgram);
 
         [LibraryImport(Native.LibName, EntryPoint = "readLog")]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
         internal static unsafe partial IntPtr InternalReadSSCLog();
 
-        [LibraryImport(Native.LibName, EntryPoint = "loadImageData", StringMarshalling = StringMarshalling.Utf8)]
+        [LibraryImport(
+                Native.LibName,
+                EntryPoint = "loadImageData",
+                StringMarshalling = StringMarshalling.Utf8)]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
-        internal static unsafe partial void InternalLoadImage(string fileName, ImageInfo* output, ImageLoader loader);
+        internal static unsafe partial void InternalLoadImage(
+                                            string fileName,
+                                            ImageInfo* output,
+                                            ImageLoader loader);
 
         [LibraryImport(Native.LibName, EntryPoint = "unloadImageData")]
         [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]

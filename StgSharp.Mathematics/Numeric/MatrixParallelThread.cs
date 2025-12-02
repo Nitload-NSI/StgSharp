@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallelThread"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -93,6 +93,7 @@ namespace StgSharp.Mathematics.Numeric
                         switch (p->ComputeMode.ParameterStyle)
                         {
                             case MatrixOperationParam.RIGHT_ANS_PARAM:
+                                MatrixComputeModel.BufferComputeUnary(p);
                                 break;
                             case MatrixOperationParam.LEFT_RIGHT_ANS_PARAM:
                                 MatrixComputeModel.BufferComputeBinary(p);
