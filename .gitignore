@@ -1,3 +1,4 @@
 /.cr
 /.vs
 */.vs
+/StgSharp.Native/lib
