@@ -98,47 +98,6 @@ namespace StgSharp.HighPerformance.Memory
                 return;
             }
 
-            /*
-            Console.WriteLine("============ Merge start =======================");
-            try
-            {
-                Console.WriteLine("forward from entry");
-                Entry* __cur = entry;
-                int __cnt = 0;
-                while (__cur != null && __cur != _spareMemory && __cnt < 512)
-                {
-                    Console.WriteLine(EntryToString(__cur));
-                    __cur = __cur->NextNear;
-                    __cnt++;
-                    if (__cur == entry)
-                    {
-                        Console.WriteLine("(looped back to start)");
-                        break;
-                    }
-                }
-                Console.WriteLine(EntryToString(__cur));
-                Console.WriteLine("MergeAndRemoveFromBuckets: backward from entry");
-                __cur = entry;
-                __cnt = 0;
-                while (__cur != null && __cur != _spareMemory && __cnt < 512)
-                {
-                    Console.WriteLine(EntryToString(__cur));
-                    __cur = __cur->PreviousNear;
-                    __cnt++;
-                    if (__cur == entry)
-                    {
-                        Console.WriteLine("(looped back to start)");
-                        break;
-                    }
-                }
-                Console.WriteLine(EntryToString(__cur));
-            }
-            catch { }
-            finally
-            {
-                Console.WriteLine("==========================================");
-            }
-            /**/
 
             long size = entry->Size;
             int originLevel = entry->Level;
@@ -228,25 +187,10 @@ namespace StgSharp.HighPerformance.Memory
             [FieldOffset(0)]  internal Entry* NextNear;      // Position linked list: next pointer
             [FieldOffset(8)] internal Entry* PreviousNear;  // Position linked list: previous pointer
 
-            [FieldOffset(24)] internal int _Level;           // Level of the block in the allocator
+            [FieldOffset(24)] internal int Level;           // Level of the block in the allocator
             [FieldOffset(16)] internal long Size;           // Block size information
             [FieldOffset(36)] public EntryState State;
             [FieldOffset(28)]  public nuint Position;        // Memory block position
-
-            public int Level
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => _Level;
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                set
-                {
-                    int size = 64 * (1 << (value * 2));
-                    if (Size / size > 3 && Size < 64 * 1024 * 1024L) {
-                        throw new HLSFPositionChainBreakException();
-                    }
-                    _Level = value;
-                }
-            }
 
         }
 
@@ -260,20 +204,5 @@ namespace StgSharp.HighPerformance.Memory
 
         }
 
-        #region Entry Operations
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsNullOrEmptyEntryIndex(ulong index)
-        {
-            return index == 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsNullOrEmptyEntryIndex(Entry* entry)
-        {
-            return entry == null;
-        }
-
-        #endregion
     }
 }

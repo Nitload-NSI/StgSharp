@@ -32,10 +32,16 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.HighPerformance
 {
-    public interface IMatrixPanel<T> : IDisposable where T: unmanaged,INumber<T>
+    #pragma warning disable CA1000
+
+    public interface IMatrixPanel<T> : IDisposable where T : unmanaged,INumber<T>
     {
 
+        ref T this[int column, int row] { get; }
+
         static abstract int MaxElementCount { get; }
+
+        static abstract int ElementSideLength { get; }
 
         static abstract nuint Size { get; }
 
@@ -50,26 +56,39 @@ namespace StgSharp.HighPerformance
     /// <typeparam name="T">
     ///   Type of matrix element.
     /// </typeparam>
-    [InlineArray(16)]
-    public unsafe struct MatrixPanelSSE<T> : IMatrixPanel<T> where T: unmanaged, INumber<T>
+    public unsafe struct MatrixPanelSSE<T> : IMatrixPanel<T> where T : unmanaged, INumber<T>
     {
 
-        private M128 vector;
+        private T element;
 
         [Obsolete("Compute kernel should not be created from new(), use Create instead", true)]
         public MatrixPanelSSE() { }
 
-        public static int MaxElementCount
+        public ref T this[int column, int row]
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                int size = sizeof(T);
-                return 16 * 16 / size;
+                int index = row * ElementSideLength + column;
+                return ref Unsafe.Add(ref element, index);
             }
         }
 
-        public static unsafe nuint Size { get; } = 16 * 16;
+        public static int ElementSideLength
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        } = int.Max(4, 16 / sizeof(T));
+
+        public static int MaxElementCount
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        } = ElementSideLength * ElementSideLength;
+
+        public static unsafe nuint Size { get; } = (nuint)(MaxElementCount * sizeof(T));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ChunkCount() => (ElementSideLength + LanesPerVector() - 1) / LanesPerVector();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MatrixPanelSSE<T>* Create()
@@ -91,6 +110,25 @@ namespace StgSharp.HighPerformance
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref M128 GetVectorChunk(int column, int chunk)
+        {
+            int lanes = LanesPerVector();
+            int rowStart = chunk * lanes;
+            ref T colBase = ref this[column, 0];
+            return ref Unsafe.As<T, M128>(ref Unsafe.Add(ref colBase, rowStart));
+        }
+
+        // SIMD access helpers (column-major)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LanesPerVector() => 16 / sizeof(T);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetVectorChunk(int column, int chunk, in M128 value)
+        {
+            GetVectorChunk(column, chunk) = value;
+        }
+
     }
 
     /// <summary>
@@ -100,31 +138,44 @@ namespace StgSharp.HighPerformance
     /// <typeparam name="T">
     ///   Type of matrix element.
     /// </typeparam>
-    [InlineArray(16)]
-    public unsafe struct MatrixPanelAVX<T> : IMatrixPanel<T> where T: unmanaged, INumber<T>
+    public unsafe struct MatrixPanelAVX<T> : IMatrixPanel<T> where T : unmanaged, INumber<T>
     {
 
-        private M256 _buffer;
+        private T element;
 
         [Obsolete("Compute kernel should not be created from new(), use Create instead", true)]
         public MatrixPanelAVX() { }
 
-        public static unsafe int MaxElementCount
+        public ref T this[int column, int row]
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                int size = sizeof(T);
-                return size < 4 ? 128 / size : 16;
+                int index = row * ElementSideLength + column;
+                return ref Unsafe.Add(ref element, index);
             }
         }
 
-        public static unsafe nuint Size { get; } = 32 * 16;
+        public static int ElementSideLength
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        } = int.Max(8, 32 / sizeof(T));
+
+        public static unsafe int MaxElementCount
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        } = ElementSideLength * ElementSideLength;
+
+        public static unsafe nuint Size { get; } = (nuint)(MaxElementCount * sizeof(T));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ChunkCount() => (ElementSideLength + LanesPerVector() - 1) / LanesPerVector();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MatrixPanelAVX<T>* Create()
         {
-            MatrixPanelAVX<T>* kernel = (MatrixPanelAVX<T>*)NativeMemory.AlignedAlloc(Size, 16);
+            MatrixPanelAVX<T>* kernel = (MatrixPanelAVX<T>*)NativeMemory.AlignedAlloc(Size, 32);
             return kernel;
         }
 
@@ -141,6 +192,25 @@ namespace StgSharp.HighPerformance
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref M256 GetVectorChunk(int column, int chunk)
+        {
+            int lanes = LanesPerVector();
+            int rowStart = chunk * lanes;
+            ref T colBase = ref this[column, 0];
+            return ref Unsafe.As<T, M256>(ref Unsafe.Add(ref colBase, rowStart));
+        }
+
+        // SIMD access helpers for AVX (column-major)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LanesPerVector() => 32 / sizeof(T);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetVectorChunk(int column, int chunk, in M256 value)
+        {
+            GetVectorChunk(column, chunk) = value;
+        }
+
     }
 
     /// <summary>
@@ -150,31 +220,45 @@ namespace StgSharp.HighPerformance
     /// <typeparam name="T">
     ///   Type of matrix element.
     /// </typeparam>
-    [InlineArray(16)]
-    public unsafe struct MatrixComputeKernelAVX512<T> : IMatrixPanel<T> where T: unmanaged, INumber<T>
+    public unsafe struct MatrixComputeKernelAVX512<T> : IMatrixPanel<T>
+        where T : unmanaged, INumber<T>
     {
 
-        private M512 _buffer;
+        private T element;
 
         [Obsolete("Compute kernel should not be created from new(), use Create instead", true)]
         public MatrixComputeKernelAVX512() { }
 
-        public static unsafe int MaxElementCount
+        public ref T this[int column, int row]
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                int size = sizeof(T);
-                return size < 4 ? 128 / size : 16;
+                int index = row * ElementSideLength + column;
+                return ref Unsafe.Add(ref element, index);
             }
         }
 
-        public static unsafe nuint Size { get; } = 32 * 16;
+        public static int ElementSideLength
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        } = int.Max(8, 64 / sizeof(T));
+
+        public static unsafe int MaxElementCount
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        } = ElementSideLength * ElementSideLength;
+
+        public static unsafe nuint Size { get; } = (nuint)(MaxElementCount * sizeof(T));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ChunkCount() => (ElementSideLength + LanesPerVector() - 1) / LanesPerVector();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MatrixComputeKernelAVX512<T>* Create()
         {
-            MatrixComputeKernelAVX512<T>* kernel = (MatrixComputeKernelAVX512<T>*)NativeMemory.AlignedAlloc(Size, 16);
+            MatrixComputeKernelAVX512<T>* kernel = (MatrixComputeKernelAVX512<T>*)NativeMemory.AlignedAlloc(Size, 64);
             return kernel;
         }
 
@@ -191,5 +275,24 @@ namespace StgSharp.HighPerformance
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref M512 GetVectorChunk(int column, int chunk)
+        {
+            int lanes = LanesPerVector();
+            int rowStart = chunk * lanes;
+            ref T colBase = ref this[column, 0];
+            return ref Unsafe.As<T, M512>(ref Unsafe.Add(ref colBase, rowStart));
+        }
+
+        // SIMD access helpers for AVX-512 (column-major)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LanesPerVector() => 64 / sizeof(T);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetVectorChunk(int column, int chunk, in M512 value)
+        {
+            GetVectorChunk(column, chunk) = value;
+        }
+#pragma warning restore CA1000
     }
 }

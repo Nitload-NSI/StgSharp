@@ -41,7 +41,10 @@ namespace StgSharp.Mathematics.Numeric
     public static class MatrixCompute
     {
 
-        public static unsafe Matrix<float> Add(Matrix<float> left, Matrix<float> right, Matrix<float> ans)
+        public static unsafe Matrix<float> Add(
+                                           Matrix<float> left,
+                                           Matrix<float> right,
+                                           Matrix<float> ans)
         {
             if (left.ColumnLength != right.ColumnLength ||
                 left.RowLength != right.RowLength ||
@@ -86,11 +89,11 @@ namespace StgSharp.Mathematics.Numeric
             return ans;
         }
 
-        public static unsafe void Fill<T>(Matrix<float> ans, T value) where T : unmanaged, INumber<T>
+        public static unsafe void Fill(Matrix<float> ans, float value)
         {
             long count = (long)ans.KernelColumnLength * ans.KernelRowLength;
             ScalarPacket* scalar = MatrixParallelFactory.CreateScalarPacket();
-            scalar->Data<T>(0) = value;
+            scalar->Data<float>(0) = value;
             if (count <= 256)
             {
                 NativeIntrinsic.Intrinsic.f32_fill(ans.Buffer, scalar, count);
@@ -114,6 +117,19 @@ namespace StgSharp.Mathematics.Numeric
             MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);
             MatrixParallelFactory.Release(scalar);
             taskGroup.Dispose();
+        }
+
+        public static unsafe Matrix<float> Mul(
+                                           Matrix<float> left,
+                                           Matrix<float> right,
+                                           Matrix<float> ans)
+        {
+            if (left.RowLength != right.ColumnLength ||
+                left.RowLength != ans.RowLength ||
+                right.ColumnLength != ans.ColumnLength) {
+                throw new IndexOutOfRangeException("Matrix dimensions must agree.");
+            }
+            throw new NotImplementedException();
         }
 
         public static unsafe Matrix<float> Mul(Matrix<float> left, float right, Matrix<float> ans)
@@ -159,7 +175,10 @@ namespace StgSharp.Mathematics.Numeric
             return ans;
         }
 
-        public static unsafe Matrix<float> Sub(Matrix<float> left, Matrix<float> right, Matrix<float> ans)
+        public static unsafe Matrix<float> Sub(
+                                           Matrix<float> left,
+                                           Matrix<float> right,
+                                           Matrix<float> ans)
         {
             if (left.ColumnLength != right.ColumnLength ||
                 left.RowLength != right.RowLength ||

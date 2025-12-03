@@ -250,6 +250,9 @@ INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int lengt
 
 #pragma endregion
 
+typedef void(SN_DECL *BUILD_PANEL_PROC)(mat_panel *panel, mat_kernel *kernel, int col_length,
+                                        int row_length, int col_index, int row_index);
+
 // Reordered to match C# IntrinsicContext field order
 // C# order: city_hash_simplify, f32_add, f32_fill, f32_fma, f32_scalar_mul, f32_sub, f32_transpose, factorial_simd, index_pair, normalize_3
 typedef struct sn_intrinsic {

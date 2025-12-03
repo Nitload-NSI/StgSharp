@@ -86,9 +86,6 @@ namespace StgSharp.HighPerformance.Memory
                     SliceMemory(handle->NextNear, remainder);
                 }
             }
-            if (handle->PreviousNear == null || handle->NextNear == null) {
-                throw new HLSFPositionChainBreakException();
-            }
             return new hlsfHandle(handle, size);
         }
 

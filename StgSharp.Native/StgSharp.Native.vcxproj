@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="sn-src\k_build_panel.c" />
     <ClCompile Include="sn-src\k_basicop.c" />
     <ClCompile Include="sn-src\dllmain.c" />
     <ClCompile Include="sn-src\k_bufop.c" />

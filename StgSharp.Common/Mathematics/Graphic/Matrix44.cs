@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance;
 using StgSharp.Mathematics.Numeric;
 using System;
 using System.Collections;
@@ -45,6 +46,7 @@ namespace StgSharp.Mathematics.Graphic
 
         [FieldOffset(0)] internal ColumnSet4 mat;
         [FieldOffset(16 * sizeof(float))] internal ColumnSet4 transpose;
+        [FieldOffset(0)] internal MatrixKernel<float> kernel;
 
         internal Matrix44(ColumnSet4 mat)
         {
@@ -147,13 +149,17 @@ namespace StgSharp.Mathematics.Graphic
 
         public static Matrix44 Unit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-        public static Matrix44 WNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1);
+        public static Matrix44 WNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
+                                                             0, 0, -1);
 
-        public static Matrix44 XNegativeUnit => new Matrix44(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        public static Matrix44 XNegativeUnit => new Matrix44(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
+                                                             0, 0, 1);
 
-        public static Matrix44 YNegativeUnit => new Matrix44(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        public static Matrix44 YNegativeUnit => new Matrix44(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0,
+                                                             0, 0, 1);
 
-        public static Matrix44 ZNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1);
+        public static Matrix44 ZNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0,
+                                                             0, 0, 1);
 
         public ReadOnlySpan<float> AsSpan()
         {
@@ -186,8 +192,8 @@ namespace StgSharp.Mathematics.Graphic
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(mat.colum0.GetHashCode(), mat.colum1.GetHashCode(), mat.colum2.GetHashCode(),
-                                    mat.colum3.GetHashCode());
+            return HashCode.Combine(mat.colum0.GetHashCode(), mat.colum1.GetHashCode(),
+                                    mat.colum2.GetHashCode(), mat.colum3.GetHashCode());
         }
 
         public override string ToString()
@@ -224,8 +230,8 @@ namespace StgSharp.Mathematics.Graphic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix44 operator *(Matrix44 mat, float value)
         {
-            return new Matrix44(mat.mat.colum0 * value, mat.mat.colum1 * value, mat.mat.colum2 * value,
-                                mat.mat.colum3 * value);
+            return new Matrix44(mat.mat.colum0 * value, mat.mat.colum1 * value,
+                                mat.mat.colum2 * value, mat.mat.colum3 * value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

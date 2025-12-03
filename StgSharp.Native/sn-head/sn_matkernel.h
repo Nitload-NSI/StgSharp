@@ -7,6 +7,7 @@
 #define ZMMCOUNT(T) sizeof(T) / 4
 
 #include <immintrin.h>
+#include <stdint.h>
 
 #define MAT_KERNEL(T)                        \
         union {                              \
@@ -77,7 +78,29 @@
    - Column c occupies vec[c][0..CH-1].
    - Row r inside column c is located at vec[c][r / R] with lane (r % R).
 */
+
+/* Global zero kernel declaration (defined in dllmain.c), aligned to 64 bytes */
+#ifdef __cplusplus
+extern "C" {
+#endif
+__declspec(align(64)) extern MAT_KERNEL(uint64_t) SN_ZERO_KERNEL;
+#ifdef __cplusplus
+}
+#endif
+
 #define PANEL_COL_VEC(panel_obj, c, chunk) ((panel_obj).vec[(int)(c)][(int)(chunk)])
 /* Scalar flat index helper for column-major addressing */
 #define PANEL_ELEM(panel_obj, T, T_VEC, MINQ, r, c) \
         ((panel_obj).flat[(int)(c) * PANEL_Q(T, T_VEC, MINQ) + (int)(r)])
+
+#define BUILD_PANEL(arch, element) build_panel_##arch##_##element
+
+#include "sn_internal.h"
+
+#define DECLARE_BUILD_PANEL(arch, element)                                               \
+        INTERNAL void SN_DECL BUILD_PANEL(arch, element)(                                \
+                MAT_PANEL_##arch(element) *restrict panel,                               \
+                MAT_KERNEL(element) const *const matrix, int col_length, int row_length, \
+                int col_index, int row_index)
+
+DECLARE_BUILD_PANEL(AVX, float);
