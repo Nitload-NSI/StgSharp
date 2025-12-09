@@ -58,7 +58,7 @@ namespace StgSharp.Mathematics.Numeric
                 MatrixKernel<float>* leftPtr = left.Buffer;
                 MatrixKernel<float>* rightPtr = right.Buffer;
                 MatrixKernel<float>* ansPtr = ans.Buffer;
-                NativeIntrinsic.Intrinsic.f32_add(leftPtr, rightPtr, ansPtr, count);
+                NativeIntrinsic.Intrinsic.f32_buffer_add(leftPtr, rightPtr, ansPtr, count);
 
                 return ans;
             } else if (count <= 1024)
@@ -68,7 +68,7 @@ namespace StgSharp.Mathematics.Numeric
                 MatrixKernel<float>* leftPtr = left.Buffer;
                 MatrixKernel<float>* rightPtr = right.Buffer;
                 MatrixKernel<float>* ansPtr = ans.Buffer;
-                NativeIntrinsic.Intrinsic.f32_add(leftPtr, rightPtr, ansPtr, count);
+                NativeIntrinsic.Intrinsic.f32_buffer_add(leftPtr, rightPtr, ansPtr, count);
 
                 MatrixParallel.ReturnParallelResources(ref pool);
                 return ans;
@@ -81,7 +81,7 @@ namespace StgSharp.Mathematics.Numeric
             package->PrimCount = left.KernelColumnLength;
             package->SecCount = left.KernelRowLength;
             package->ComputeMode = new MatrixOpMode(MatrixOperationStyle.BUFFER_OP, MatrixOperationParam.LEFT_RIGHT_ANS_PARAM);
-            package->ComputeHandle = (IntPtr)NativeIntrinsic.Intrinsic.f32_add;
+            package->ComputeHandle = (IntPtr)NativeIntrinsic.Intrinsic.f32_buffer_add;
             MatrixParallelHandle taskGroup = MatrixParallel.ScheduleTask(package);
 
             MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);
@@ -96,12 +96,12 @@ namespace StgSharp.Mathematics.Numeric
             scalar->Data<float>(0) = value;
             if (count <= 256)
             {
-                NativeIntrinsic.Intrinsic.f32_fill(ans.Buffer, scalar, count);
+                NativeIntrinsic.Intrinsic.f32_buffer_fill(ans.Buffer, scalar, count);
                 return;
             } else if (count <= 1024)
             {
                 MatrixParallelThread[] pool = MatrixParallel.LeadParallel(1);
-                NativeIntrinsic.Intrinsic.f32_fill(ans.Buffer, scalar, count);
+                NativeIntrinsic.Intrinsic.f32_buffer_fill(ans.Buffer, scalar, count);
                 MatrixParallel.ReturnParallelResources(ref pool);
                 return;
             }
@@ -111,7 +111,7 @@ namespace StgSharp.Mathematics.Numeric
             package->PrimCount = ans.KernelColumnLength;
             package->SecCount = ans.KernelRowLength;
             package->ComputeMode = new MatrixOpMode(MatrixOperationStyle.BUFFER_OP, MatrixOperationParam.ANS_SCALAR_PARAM);
-            package->ComputeHandle = (IntPtr)NativeIntrinsic.Intrinsic.f32_fill;
+            package->ComputeHandle = (IntPtr)NativeIntrinsic.Intrinsic.f32_buffer_fill;
             package->Scalar = scalar;
             MatrixParallelHandle taskGroup = MatrixParallel.ScheduleTask(package);
             MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);
@@ -144,7 +144,7 @@ namespace StgSharp.Mathematics.Numeric
             {
                 MatrixKernel<float>* leftPtr = left.Buffer;
                 MatrixKernel<float>* ansPtr = ans.Buffer;
-                NativeIntrinsic.Intrinsic.f32_scalar_mul(leftPtr, ansPtr, scalar, count);
+                NativeIntrinsic.Intrinsic.f32_buffer_scalar_mul(leftPtr, ansPtr, scalar, count);
 
                 return ans;
             } else if (count <= 1024)
@@ -153,7 +153,7 @@ namespace StgSharp.Mathematics.Numeric
 
                 MatrixKernel<float>* leftPtr = left.Buffer;
                 MatrixKernel<float>* ansPtr = ans.Buffer;
-                NativeIntrinsic.Intrinsic.f32_scalar_mul(leftPtr, ansPtr, scalar, count);
+                NativeIntrinsic.Intrinsic.f32_buffer_scalar_mul(leftPtr, ansPtr, scalar, count);
 
                 MatrixParallel.ReturnParallelResources(ref pool);
                 return ans;
@@ -166,7 +166,7 @@ namespace StgSharp.Mathematics.Numeric
             package->SecCount = left.KernelRowLength;
             package->Scalar = scalar;
             package->ComputeMode = new MatrixOpMode(MatrixOperationStyle.BUFFER_OP, MatrixOperationParam.RIGHT_ANS_SCALAR_PARAM);
-            package->ComputeHandle = (IntPtr)NativeIntrinsic.Intrinsic.f32_scalar_mul;
+            package->ComputeHandle = (IntPtr)NativeIntrinsic.Intrinsic.f32_buffer_scalar_mul;
             MatrixParallelHandle taskGroup = MatrixParallel.ScheduleTask(package);
 
             MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);
@@ -192,7 +192,7 @@ namespace StgSharp.Mathematics.Numeric
                 MatrixKernel<float>* leftPtr = left.Buffer;
                 MatrixKernel<float>* rightPtr = right.Buffer;
                 MatrixKernel<float>* ansPtr = ans.Buffer;
-                NativeIntrinsic.Intrinsic.f32_sub(leftPtr, rightPtr, ansPtr, count);
+                NativeIntrinsic.Intrinsic.f32_buffer_sub(leftPtr, rightPtr, ansPtr, count);
 
                 return ans;
             } else if (count <= 1024)
@@ -202,7 +202,7 @@ namespace StgSharp.Mathematics.Numeric
                 MatrixKernel<float>* leftPtr = left.Buffer;
                 MatrixKernel<float>* rightPtr = right.Buffer;
                 MatrixKernel<float>* ansPtr = ans.Buffer;
-                NativeIntrinsic.Intrinsic.f32_sub(leftPtr, rightPtr, ansPtr, count);
+                NativeIntrinsic.Intrinsic.f32_buffer_sub(leftPtr, rightPtr, ansPtr, count);
 
                 MatrixParallel.ReturnParallelResources(ref pool);
                 return ans;
@@ -215,7 +215,7 @@ namespace StgSharp.Mathematics.Numeric
             package->PrimCount = left.KernelColumnLength;
             package->SecCount = left.KernelRowLength;
             package->ComputeMode = new MatrixOpMode(MatrixOperationStyle.BUFFER_OP, MatrixOperationParam.LEFT_RIGHT_ANS_PARAM);
-            package->ComputeHandle = (IntPtr)NativeIntrinsic.Intrinsic.f32_sub;
+            package->ComputeHandle = (IntPtr)NativeIntrinsic.Intrinsic.f32_buffer_sub;
             MatrixParallelHandle taskGroup = MatrixParallel.ScheduleTask(package);
 
             MatrixParallel.LaunchParallel(taskGroup, SleepMode.DeepSleep);

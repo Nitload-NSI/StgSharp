@@ -1,13 +1,16 @@
 #ifndef SN_MATKERNEL
 #define SN_MATKERNEL
 
-#define ELEMENTSIZE(T) sizeof(T)
-#define XMMCOUNT(T) sizeof(T)
-#define YMMCOUNT(T) sizeof(T) / 2
-#define ZMMCOUNT(T) sizeof(T) / 4
-
 #include <immintrin.h>
 #include <stdint.h>
+
+#include "sn_internal.h"
+
+/* Kernel storage unions for a fixed 4x4 block. */
+#define ELEMENTSIZE(T) sizeof(T)
+#define XMMCOUNT(T) (sizeof(T))
+#define YMMCOUNT(T) (sizeof(T) / 2)
+#define ZMMCOUNT(T) (sizeof(T) / 4)
 
 #define MAT_KERNEL(T)                        \
         union {                              \
@@ -25,7 +28,8 @@
                 T v[4];                      \
         }
 
-#endif
+/* Provide a named alias for the zero kernel type to ensure consistent linkage in C++. */
+typedef MAT_KERNEL(uint64_t) sn_zero_kernel_u64;
 
 /* Helpers (all compile-time): */
 #define SN_LANES(T_VEC, T) (sizeof(T_VEC) / sizeof(T))
@@ -48,8 +52,8 @@
         - SIMD view remains integer-typed; cast inside micro-kernels to the
                 appropriate floating-point/integer vector type on demand.
 */
-#define MAT_PANEL_SQ_MIN(T, T_VEC, MINQ)                                          \
-        SN_ALIGNAS(sizeof(T_VEC)) union {                                         \
+#define MAT_PANEL_SQ_MIN_NOALIGN(T, T_VEC, MINQ)                                  \
+        union {                                                                   \
                 T_VEC vec[PANEL_Q(T, T_VEC, MINQ)][PANEL_CHUNKS(T, T_VEC, MINQ)]; \
                 T flat[PANEL_Q(T, T_VEC, MINQ) * PANEL_Q(T, T_VEC, MINQ)];        \
         }
@@ -63,44 +67,57 @@
 /* SSE panel layout: column-major buffer holding 4 logical columns with MINQ=4.
         Columns: each column packs up to four scalars so ALIGN equals sizeof(__m128).
         Alignment: every column boundary lands on a 16-byte multiple for XMM loads. */
-#define MAT_PANEL_SSE(T) MAT_PANEL_SQ_MIN(T, __m128, 4)
+#define MAT_PANEL_sse(T) SN_ALIGNAS(16) MAT_PANEL_SQ_MIN_NOALIGN(T, __m128, 4)
 /* AVX2 panel layout: column-major buffer holding 8 logical columns with MINQ=8.
         Columns: each column stores eight elements via two 256-bit chunks when T is 32-bit.
         Alignment: column starts are 32-byte aligned so AVX2 loads/stores remain contiguous. */
-#define MAT_PANEL_AVX(T) MAT_PANEL_SQ_MIN(T, __m256, 8)
+#define MAT_PANEL_avx(T) SN_ALIGNAS(32) MAT_PANEL_SQ_MIN_NOALIGN(T, __m256, 8)
+/* AVX2 panel layout: column-major buffer holding 8 logical columns with MINQ=8.
+        Columns: each column stores eight elements via two 256-bit chunks when T is 32-bit.
+        Alignment: column starts are 32-byte aligned so AVX2 loads/stores remain contiguous. */
+#define MAT_PANEL_avx_fma(T) SN_ALIGNAS(32) MAT_PANEL_SQ_MIN_NOALIGN(T, __m256, 8)
 /* AVX-512 panel layout: column-major buffer holding 8 or more columns depending on T.
-        Columns: each column expands to ceil(Q/lanes) ZMM chunks; default MINQ=8 keeps double-wide tiles.
+        Columns: each column expands to ceil(Q/lanes) ZMM chunks; default MINQ=8 keeps doublse-wide tiles.
         Alignment: column starts sit on 64-byte boundaries to match AVX-512 streaming access. */
-#define MAT_PANEL_512(T) MAT_PANEL_SQ_MIN(T, __m512, 8)
+#define MAT_PANEL_512(T) SN_ALIGNAS(64) MAT_PANEL_SQ_MIN_NOALIGN(T, __m512, 8)
+
+/* Global zero kernel declaration (defined in dllmain.c), aligned to 64 bytes */
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern __declspec(align(64)) sn_zero_kernel_u64 SN_ZERO_KERNEL;
+#ifdef __cplusplus
+}
+#endif
 
 /* Access helpers (all compile-time friendly):
    Given Q = PANEL_Q(...), CH = PANEL_CHUNKS(...), R = lanes per vector:
    - Column c occupies vec[c][0..CH-1].
    - Row r inside column c is located at vec[c][r / R] with lane (r % R).
 */
-
-/* Global zero kernel declaration (defined in dllmain.c), aligned to 64 bytes */
-#ifdef __cplusplus
-extern "C" {
-#endif
-__declspec(align(64)) extern MAT_KERNEL(uint64_t) SN_ZERO_KERNEL;
-#ifdef __cplusplus
-}
-#endif
-
 #define PANEL_COL_VEC(panel_obj, c, chunk) ((panel_obj).vec[(int)(c)][(int)(chunk)])
 /* Scalar flat index helper for column-major addressing */
 #define PANEL_ELEM(panel_obj, T, T_VEC, MINQ, r, c) \
         ((panel_obj).flat[(int)(c) * PANEL_Q(T, T_VEC, MINQ) + (int)(r)])
 
+/* API macros */
 #define BUILD_PANEL(arch, element) build_panel_##arch##_##element
-
-#include "sn_internal.h"
+#define STORE_PANEL(arch, element) store_panel_##arch##_##element
 
 #define DECLARE_BUILD_PANEL(arch, element)                                               \
         INTERNAL void SN_DECL BUILD_PANEL(arch, element)(                                \
                 MAT_PANEL_##arch(element) *restrict panel,                               \
                 MAT_KERNEL(element) const *const matrix, int col_length, int row_length, \
                 int col_index, int row_index)
+#define DECLARE_STORE_PANEL(arch, element)                                                     \
+        INTERNAL void SN_DECL STORE_PANEL(arch, element)(MAT_KERNEL(element) *restrict matrix, \
+                                                         MAT_PANEL_##arch(element)             \
+                                                                 const *const panel,           \
+                                                         int col_length, int row_length,       \
+                                                         int col_index, int row_index)
 
-DECLARE_BUILD_PANEL(AVX, float);
+/* Declarations for AVX float variant */
+DECLARE_BUILD_PANEL(avx, float);
+DECLARE_STORE_PANEL(avx, float);
+
+#endif /* SN_MATKERNEL */

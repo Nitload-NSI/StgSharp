@@ -51,7 +51,7 @@
     <ClCompile Include="sn-src\k_bufop.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\k_build_panel.c">
+    <ClCompile Include="sn-src\k_panel.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

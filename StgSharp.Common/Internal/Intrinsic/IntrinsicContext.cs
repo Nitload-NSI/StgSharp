@@ -38,16 +38,19 @@ namespace StgSharp.Internal.Intrinsic
     internal unsafe struct IntrinsicContext
     {
 
-        public delegate* unmanaged[Cdecl]<char*, int, int> city_hash_simplify;
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> f32_add;
-        public delegate* unmanaged[Cdecl]<void*, ScalarPacket*,long, void> f32_fill;
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> f32_fma;
-        public delegate* unmanaged[Cdecl]<void*, void*, ScalarPacket*, long, void> f32_scalar_mul;
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> f32_sub;
-        public delegate* unmanaged[Cdecl]<void*, void*, void> f32_transpose;
-        public delegate* unmanaged[Cdecl]<int, ulong> factorial_simd;
-        public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;
-        public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> normalize_3;
+        public delegate* unmanaged[Cdecl]<char*, int, int> city_hash_simplify;              //city_hash_simplify
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> f32_buffer_add;             //f32_buffer_add
+        public delegate* unmanaged[Cdecl]<void*, ScalarPacket*,long, void> f32_buffer_fill;                //f32_buffer_fill
+        public delegate* unmanaged[Cdecl]<void*, void*, ScalarPacket*, long, void> f32_buffer_scalar_mul;                //f32_buffer_s_m
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> f32_buffer_sub;             //f32_kernel_sub
+        public delegate* unmanaged[Cdecl]<void*, void*, void> f32_buffer_transpose;                //f32_kernel_transpose
+        public delegate* unmanaged[Cdecl]<void*, void*, int, int, int, int, void> f32_build_panel;              //f32_build_panel
+        public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> f32_normalize_3;                //f32_normalize_3
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> f32_panel_fma;               //f32_panel_fma
+        public delegate* unmanaged[Cdecl]<void*, void*, int, int, int, int, void> f32_store_panel; //f32_store_panel
+        public delegate* unmanaged[Cdecl]<int, ulong> factorial_simd;               //factorial_simd
+        public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;             //index_pair
+        public delegate* unmanaged[Cdecl]<void*, void*, ScalarPacket*, long, void> variant ;              //variant 
 
         public IntrinsicContext()
         {

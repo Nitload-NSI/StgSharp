@@ -68,9 +68,10 @@ void load_intrinsic_sse(sn_intrinsic *context)
         context->f32_buffer_add = BUF_PROC(float, sse, add);
         context->f32_panel_fma = KER_PROC(float, sse, fma);
         context->f32_buffer_fill = BUF_PROC(float, sse, fill);
-        context->f32_kernel_scalar_mul = BUF_PROC(float, sse, scalar_mul);
-        context->f32_kernel_sub = BUF_PROC(float, sse, sub);
-        context->f32_kernel_transpose = KER_PROC(float, sse, transpose);
+        context->variant = BUF_PROC(float, sse, scalar_mul);
+        context->f32_buffer_sub = BUF_PROC(float, sse, sub);
+        context->f32_buffer_transpose = KER_PROC(float, sse, transpose);
+        context->f32_buffer_scalar_mul = BUF_PROC(float, sse, scalar_mul);
         context->f32_normalize_3 = f32_normalize;
 }
 
@@ -82,9 +83,10 @@ void load_intrinsic_avx(sn_intrinsic *context)
         context->f32_buffer_add = BUF_PROC(float, avx, add);
         context->f32_panel_fma = KER_PROC(float, sse, fma);
         context->f32_buffer_fill = BUF_PROC(float, avx, fill);
-        context->f32_kernel_scalar_mul = BUF_PROC(float, avx, scalar_mul);
-        context->f32_kernel_sub = BUF_PROC(float, avx, sub);
-        context->f32_kernel_transpose = KER_PROC(float, avx, transpose);
+        context->variant = BUF_PROC(float, avx, scalar_mul);
+        context->f32_buffer_sub = BUF_PROC(float, avx, sub);
+        context->f32_buffer_transpose = KER_PROC(float, avx, transpose);
+        context->f32_buffer_scalar_mul = BUF_PROC(float, avx, scalar_mul);
         context->f32_normalize_3 = f32_normalize;
 }
 
@@ -96,8 +98,9 @@ void load_intrinsic_512(sn_intrinsic *context)
         context->f32_buffer_add = BUF_PROC(float, 512, add);
         context->f32_panel_fma = KER_PROC(float, sse, fma);
         context->f32_buffer_fill = BUF_PROC(float, 512, fill);
-        context->f32_kernel_scalar_mul = BUF_PROC(float, 512, scalar_mul);
-        context->f32_kernel_sub = BUF_PROC(float, 512, sub);
-        context->f32_kernel_transpose = KER_PROC(float, 512, transpose);
+        context->variant = BUF_PROC(float, 512, scalar_mul);
+        context->f32_buffer_sub = BUF_PROC(float, 512, sub);
+        context->f32_buffer_transpose = KER_PROC(float, 512, transpose);
+        context->f32_buffer_scalar_mul = BUF_PROC(float, 512, scalar_mul);
         context->f32_normalize_3 = f32_normalize;
 }

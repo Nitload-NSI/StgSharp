@@ -1,16 +1,23 @@
 ﻿#include "StgSharpNative.h"
 #include "sn_matkernel.h"
+#include <stdint.h>
 
 #ifdef _WIN32
 
 /* Define and initialize a global zero kernel aligned to 64 bytes for universal ISA usage */
-__declspec(align(64)) MAT_KERNEL(uint64_t) SN_ZERO_KERNEL;
+#ifdef __cplusplus
+extern "C" {
+#endif
+__declspec(align(64)) sn_zero_kernel_u64 SN_ZERO_KERNEL;
+#ifdef __cplusplus
+}
+#endif
 
 static void init_zero_kernel(void)
 {
         for (int c = 0; c < 4; ++c) {
                 for (int r = 0; r < 4; ++r) {
-                        SN_ZERO_KERNEL.m[r][c] = 0.0;
+                        SN_ZERO_KERNEL.m[r][c] = 0;
                 }
         }
 }

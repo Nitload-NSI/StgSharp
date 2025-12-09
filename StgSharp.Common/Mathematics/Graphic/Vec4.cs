@@ -140,13 +140,13 @@ namespace StgSharp.Mathematics.Graphic
 
         public static Vec4 FromSpan(ReadOnlySpan<float> span)
         {
-            return new Vec4
-            {
-                X = span[0],
-                Y = span[1],
-                Z = span[2],
-                W = span[3]
-            };
+            if (span.Length < 4) {
+                throw new ArgumentException("Span length must be at least 4.", nameof(span));
+            }
+
+            // Read 4 floats as a Vector4 in one operation without per-element copy.
+            Vector4 v = MemoryMarshal.Read<Vector4>(MemoryMarshal.AsBytes(span));
+            return new Vec4(v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -185,9 +185,11 @@ namespace StgSharp.Mathematics.Graphic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vec4 operator *(Matrix44 mat, Vec4 vec)
         {
-            mat.InternalTranspose();
-            return new Vec4(Vector4.Dot(mat.transpose.colum0, vec.vec), Vector4.Dot(mat.transpose.colum1, vec.vec),
-                            Vector4.Dot(mat.transpose.colum2, vec.vec), Vector4.Dot(mat.transpose.colum3, vec.vec));
+            Matrix44 transpose = mat.Transpose;
+            return new Vec4(Vector4.Dot(transpose.mat.colum0, vec.vec),
+                            Vector4.Dot(transpose.mat.colum1, vec.vec),
+                            Vector4.Dot(transpose.mat.colum2, vec.vec),
+                            Vector4.Dot(transpose.mat.colum3, vec.vec));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

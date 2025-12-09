@@ -97,7 +97,7 @@ Notes:
 
 1) Compute `level` and `segment` from requested `size`
 2) Try pop bucket (`TryPopLevelForAllocation(level, segment, out entry)`) and escalate:
-   - Advance `segment` 0‚òÖ1‚òÖ2, then `level++`, until `MaxLevel`
+   - Advance `segment` 0°˙1°˙2, then `level++`, until `MaxLevel`
    - If still empty: try pop from overflow bucket (L=10, seg=1) or `TryAllocateNew32MBBlock`
 3) On success: bound-check the slice offset; set `entry` to `Alloc` using `SetEntryLevel`
 4) If remainder exists in the source region, call `SliceMemory(entry->NextNear, remainder)` to produce free chunks into buckets
@@ -106,7 +106,7 @@ Notes:
 
 - Inputs: `next` entry position, `sizeToSlice`
 - Compute `offset` and `end` relative to base buffer; pick starting level by trailing-zero count of `offset`:
-  - `i = (BitOperations.TrailingZeroCount(offset) - 6) / 2`, clamped to `Ôºã MaxLevel`
+  - `i = (BitOperations.TrailingZeroCount(offset) - 6) / 2`, clamped to `°‹ MaxLevel`
 - Three phases to cover [offset, end):
   1) Forward levels i..N-1: for each level size `size` and `upper=size*4`, align to `edge=((offset+upper-1)/upper)*upper`, pack `count = ((min(edge,end) - offset) / size)` blocks
   2) If `i > MaxLevel`: pack in largest upper window on tail
@@ -119,7 +119,7 @@ Notes:
   - Merge left while neighbor `p` is `Empty`, same `Level`, and within boundary (`AssertBoundary`)
     - Remove `p` from bucket (`RemoveFromBucket`), expand current, fix `Position`, unlink `p`
   - Merge right with neighbor `n` by the same rule
-  - Optionally promote `Level` if `Size Ôºç levelSizeArray[originLevel] * 4`
+  - Optionally promote `Level` if `Size °› levelSizeArray[originLevel] * 4`
   - Ensure `BucketNode.EntryRef` points to the merged entry; caller re-enqueues into the proper bucket
 
 ### Buckets
@@ -140,13 +140,13 @@ Notes:
 
 ### Complexity and Invariants
 
-- Allocate/free are O(1) on average with bounded levels (ÔøΩÔøΩ10) and constant-time bucket ops
+- Allocate/free are O(1) on average with bounded levels (°‹10) and constant-time bucket ops
 - Invariants guarded by exceptions (e.g., `HLSFPositionChainBreakException`) and pointer consistency checks
 
 ## Profiling (hotspots, current workloads)
 
-- SliceMemory ~22% (self ~17%) ÔøΩÔøΩ slicing and bucket enqueue dominate allocation path
-- MergeAndRemoveFromBuckets ~13% (self ~12%) ÔøΩÔøΩ merge + removal dominate free path
-- Collect ~7.6% (self ~7.5%) ÔøΩÔøΩ low overall cost
+- SliceMemory ~22% (self ~17%) °™ slicing and bucket enqueue dominate allocation path
+- MergeAndRemoveFromBuckets ~13% (self ~12%) °™ merge + removal dominate free path
+- Collect ~7.6% (self ~7.5%) °™ low overall cost
 
 Focus: reduce per-slice math and bucket ops; add fast-paths for aligned regions; batch/lazy removals after merges. 

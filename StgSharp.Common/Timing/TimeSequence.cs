@@ -46,8 +46,10 @@ namespace StgSharp.Common.Timing
                                    double initialSliceSeconds,
                                    double totalSeconds,
                                    double growthMultiplier,
-                                   double minSliceSeconds) => new LogTimeSequence(initialSliceSeconds, totalSeconds,
-                                                                                  growthMultiplier, minSliceSeconds);
+                                   double minSliceSeconds) => new LogTimeSequence(initialSliceSeconds,
+                                                                                  totalSeconds,
+                                                                                  growthMultiplier,
+                                                                                  minSliceSeconds);
 
         public abstract bool EndsAt(long currentTick);
 
@@ -71,7 +73,6 @@ namespace StgSharp.Common.Timing
             if (frameSeconds > totalSeconds) {
                 throw new ArgumentException("Frame length greater than total length.");
             }
-
             _totalSeconds = totalSeconds;
             _frameSeconds = frameSeconds;
         }
@@ -85,7 +86,7 @@ namespace StgSharp.Common.Timing
             long span = currentTick - PreviousFrameTick;
             if (span >= _frameLengthTicks && currentTick < EndingTick)
             {
-                PreviousFrameTick += _frameLengthTicks; // advance start of next frame
+                PreviousFrameTick += _frameLengthTicks;
                 return true;
             }
             return false;
@@ -105,25 +106,21 @@ namespace StgSharp.Common.Timing
     }
 
     /// <summary>
-    ///   Logarithmic time sequence with growth factor. Boundaries (cumulative times since start)
-    ///   follow initial * multiplier^k, but each slice duration (difference between adjusted
-    ///   boundaries) is at least minSliceSeconds. First slice uses the exact initial length even if
-    ///   below minSliceSeconds, subsequent slices enforce minimum. Example: initial=2,
-    ///   multiplier=2, total>=8, min=3 => boundaries: 2,5,8 (durations:2,3,3).
+    ///   Logarithmic time sequence with growth factor and minimum slice length enforcement.
     /// </summary>
     internal sealed class LogTimeSequence : TimeSequence
     {
 
+        private bool _finalEmitted;
         private readonly double _initialSeconds;
-        private double _lastBoundarySecondsAdjusted; // adjusted cumulative seconds of last emitted boundary (0 at start)
+        private double _lastBoundarySecondsAdjusted;
         private readonly double _minSliceSeconds;
         private readonly double _multiplier;
-        private double _nextBoundarySecondsAdjusted; // adjusted cumulative seconds for next boundary
+        private double _nextBoundarySecondsAdjusted;
         private readonly double _totalSeconds;
-
-        private int _sliceIndex; // index of next boundary (0 => first boundary at initialSeconds)
+        private int _sliceIndex;
         private long _freq;
-        private long _nextBoundaryTick; // absolute tick for next boundary
+        private long _nextBoundaryTick;
         private long _totalTicks;
 
         public LogTimeSequence(
@@ -139,11 +136,9 @@ namespace StgSharp.Common.Timing
             if (growthMultiplier < 1.0) {
                 throw new ArgumentException("growthMultiplier must be >= 1");
             }
-
             if (initialSliceSeconds > totalSeconds) {
                 throw new ArgumentException("Initial slice length greater than total length.");
             }
-
             _initialSeconds = initialSliceSeconds;
             _totalSeconds = totalSeconds;
             _multiplier = growthMultiplier;
@@ -151,49 +146,54 @@ namespace StgSharp.Common.Timing
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool EndsAt(long currentTick) => currentTick >= EndingTick ||
-                                                         _nextBoundarySecondsAdjusted >= _totalSeconds;
+        public override bool EndsAt(long currentTick) => currentTick >= EndingTick;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool IsNextFrameReady(long currentTick)
         {
-            if (currentTick < _nextBoundaryTick || currentTick >= EndingTick) {
+            // Emit final once when reaching or passing end.
+            if (currentTick >= EndingTick)
+            {
+                if (_finalEmitted) {
+                    return false;
+                }
+
+                PreviousFrameTick = EndingTick;
+                _finalEmitted = true;
+                return true;
+            }
+
+            // Not reached end: only when we cross the next boundary tick do we emit.
+            if (currentTick < _nextBoundaryTick)
+            {
                 return false;
             }
 
-            // Emit frame: update previous frame tick and prepare next boundary.
-            PreviousFrameTick = _nextBoundaryTick; // boundary just reached
+            // Advance to this boundary.
+            PreviousFrameTick = _nextBoundaryTick;
             _lastBoundarySecondsAdjusted = _nextBoundarySecondsAdjusted;
             _sliceIndex++;
 
-            // Compute original (unadjusted) next cumulative boundary in seconds.
-            double originalNext = _initialSeconds * Math.Pow(_multiplier, _sliceIndex);
-
-            // Enforce total cap.
-            if (originalNext > _totalSeconds)
-            {
-                originalNext = _totalSeconds;
+            // Compute next cumulative boundary seconds with multiplier, then enforce min-slice and total cap.
+            double next = _initialSeconds * Math.Pow(_multiplier, _sliceIndex);
+            if (next > _totalSeconds) {
+                next = _totalSeconds;
             }
 
-            // Compute slice duration based on adjusted previous boundary.
-            double delta = originalNext - _lastBoundarySecondsAdjusted;
-            if (_sliceIndex > 0 && delta < _minSliceSeconds)
+            double delta = next - _lastBoundarySecondsAdjusted;
+            if (delta < _minSliceSeconds)
             {
-                // Enforce minimum (except for first slice which uses initial value)
-                originalNext = _lastBoundarySecondsAdjusted + _minSliceSeconds;
-                if (originalNext > _totalSeconds) {
-                    originalNext = _totalSeconds;
+                next = _lastBoundarySecondsAdjusted + _minSliceSeconds;
+                if (next > _totalSeconds) {
+                    next = _totalSeconds;
                 }
             }
-            _nextBoundarySecondsAdjusted = originalNext;
 
-            if (_nextBoundarySecondsAdjusted >= _totalSeconds)
-            {
-                _nextBoundaryTick = EndingTick; // sequence will end after this boundary
-            } else
-            {
-                _nextBoundaryTick = BeginningTick + SecondsToTicks(_nextBoundarySecondsAdjusted);
-            }
+            _nextBoundarySecondsAdjusted = next;
+            _nextBoundaryTick = (_nextBoundarySecondsAdjusted >= _totalSeconds) ?
+                                EndingTick :
+                                BeginningTick + SecondsToTicks(_nextBoundarySecondsAdjusted);
+
             return true;
         }
 
@@ -205,9 +205,10 @@ namespace StgSharp.Common.Timing
             EndingTick = BeginningTick + _totalTicks;
             _sliceIndex = 0;
             _lastBoundarySecondsAdjusted = 0.0;
-            _nextBoundarySecondsAdjusted = _initialSeconds; // first boundary uses exact initial length
+            _nextBoundarySecondsAdjusted = _initialSeconds;
             _nextBoundaryTick = BeginningTick + SecondsToTicks(_nextBoundarySecondsAdjusted);
-            PreviousFrameTick = BeginningTick; // start point
+            PreviousFrameTick = BeginningTick;
+            _finalEmitted = false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

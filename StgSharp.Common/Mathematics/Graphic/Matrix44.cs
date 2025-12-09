@@ -36,29 +36,24 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.Mathematics.Graphic
 {
-    [CollectionBuilder(builderType:typeof(Matrix44), methodName: nameof(Matrix44.FromSpan))]
     [StructLayout(LayoutKind.Explicit, Size = (2 * 16 * sizeof(float)) + sizeof(bool), Pack = 16)]
     public unsafe struct Matrix44 : IEquatable<Matrix44>, IMatrix<float>, IEnumerable<Vec4>
     {
 
-        [FieldOffset(2 * 64 * sizeof(float))] internal bool isTransposed;
         [FieldOffset(0 * sizeof(float))] internal Column column;
 
         [FieldOffset(0)] internal ColumnSet4 mat;
-        [FieldOffset(16 * sizeof(float))] internal ColumnSet4 transpose;
         [FieldOffset(0)] internal MatrixKernel<float> kernel;
 
         internal Matrix44(ColumnSet4 mat)
         {
             Unsafe.SkipInit(out this);
-            isTransposed = false;
             this.mat = mat;
         }
 
         internal Matrix44(Vector4 vec0, Vector4 vec1, Vector4 vec2, Vector4 vec3)
         {
             Unsafe.SkipInit(out this);
-            isTransposed = false;
             mat.colum0 = vec0;
             mat.colum1 = vec1;
             mat.colum2 = vec2;
@@ -68,7 +63,6 @@ namespace StgSharp.Mathematics.Graphic
         public Matrix44()
         {
             Unsafe.SkipInit(out this);
-            isTransposed = false;
         }
 
         public unsafe Matrix44(
@@ -90,7 +84,6 @@ namespace StgSharp.Mathematics.Graphic
                       float a33)
         {
             Unsafe.SkipInit(out this);
-            isTransposed = false;
             mat.colum0 = new Vector4(a00, a10, a20, a30);
             mat.colum1 = new Vector4(a01, a11, a21, a31);
             mat.colum2 = new Vector4(a02, a12, a22, a32);
@@ -101,7 +94,7 @@ namespace StgSharp.Mathematics.Graphic
         {
             get
             {
-                #if DEBUG
+#if DEBUG
                 if (rowNum is > 3 or < 0)
                 {
                     throw new ArgumentOutOfRangeException(nameof(columNum));
@@ -109,17 +102,12 @@ namespace StgSharp.Mathematics.Graphic
                 if (columNum is > 3 or < 0) {
                     throw new ArgumentOutOfRangeException(nameof(columNum));
                 }
-                #endif
-                InternalTranspose();
-                fixed (float* p = &transpose.m00)
-                {
-                    ulong pBit = (ulong)p + (ulong)sizeof(Vector4) * (ulong)rowNum + sizeof(float) * (ulong)columNum;
-                    return *(float*)pBit;
-                }
+#endif
+                return kernel[rowNum + 4 * columNum];
             }
             set
             {
-                #if DEBUG
+#if DEBUG
                 if (rowNum is > 3 or < 0)
                 {
                     throw new ArgumentOutOfRangeException(nameof(columNum));
@@ -127,14 +115,8 @@ namespace StgSharp.Mathematics.Graphic
                 if (columNum is > 3 or < 0) {
                     throw new ArgumentOutOfRangeException(nameof(columNum));
                 }
-                #endif
-                InternalTranspose();
-                fixed (float* p = &transpose.m00)
-                {
-                    ulong pbit = (ulong)p + (ulong)sizeof(Vector4) * (ulong)rowNum + sizeof(float) * (ulong)columNum;
-                    *(float*)pbit = value;
-                }
-                isTransposed = false;
+#endif
+                kernel[rowNum + 4 * columNum] = value;
             }
         }
 
@@ -142,8 +124,9 @@ namespace StgSharp.Mathematics.Graphic
         {
             get
             {
-                InternalTranspose();
-                return new Matrix44(transpose);
+                Matrix44 transpose = new();
+                InternalTranspose(ref transpose);
+                return transpose;
             }
         }
 
@@ -176,41 +159,17 @@ namespace StgSharp.Mathematics.Graphic
             return mat.Equals(other.mat);
         }
 
-        public static Matrix44 FromSpan(ReadOnlySpan<Vec4> rowSpan)
-        {
-            Matrix44 mat = new Matrix44();
-
-            mat.transpose.colum0 = rowSpan[0].vec;
-            mat.transpose.colum1 = rowSpan[1].vec;
-            mat.transpose.colum2 = rowSpan[2].vec;
-            mat.transpose.colum3 = rowSpan[3].vec;
-
-            NativeIntrinsic.Intrinsic.f32_transpose(&mat.transpose, &mat.mat);
-            mat.isTransposed = false;
-            return mat;
-        }
-
         public override int GetHashCode()
         {
             return HashCode.Combine(mat.colum0.GetHashCode(), mat.colum1.GetHashCode(),
                                     mat.colum2.GetHashCode(), mat.colum3.GetHashCode());
         }
 
-        public override string ToString()
-        {
-            InternalTranspose();
-            return $"{transpose.colum0}{transpose.colum1}{transpose.colum2}{transpose.colum3}";
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal unsafe void InternalTranspose()
+        internal unsafe void InternalTranspose(ref Matrix44 transpose)
         {
-            if (!isTransposed)
-            {
-                fixed (ColumnSet4* source = &mat, target = &transpose) {
-                    NativeIntrinsic.Intrinsic.f32_transpose(source, target);
-                }
-                isTransposed = true;
+            fixed (MatrixKernel<float>* source = &this.kernel, target = &transpose.kernel) {
+                NativeIntrinsic.Intrinsic.f32_buffer_transpose(source, target);
             }
         }
 
@@ -218,7 +177,7 @@ namespace StgSharp.Mathematics.Graphic
         public static unsafe Matrix44 operator -(Matrix44 left, Matrix44 right)
         {
             Matrix44 ret = new();
-            NativeIntrinsic.Intrinsic.f32_sub(&left, &right, &ret, 1);
+            NativeIntrinsic.Intrinsic.f32_buffer_sub(&left, &right, &ret, 1);
             return ret;
         }
 
@@ -237,30 +196,30 @@ namespace StgSharp.Mathematics.Graphic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix44 operator *(Matrix44 left, Matrix44 right)
         {
-            left.InternalTranspose();
-            return new Matrix44(Vector4.Dot(left.transpose.colum0, right.mat.colum0),
-                                Vector4.Dot(left.transpose.colum0, right.mat.colum1),
-                                Vector4.Dot(left.transpose.colum0, right.mat.colum2),
-                                Vector4.Dot(left.transpose.colum0, right.mat.colum3),
-                                Vector4.Dot(left.transpose.colum1, right.mat.colum0),
-                                Vector4.Dot(left.transpose.colum1, right.mat.colum1),
-                                Vector4.Dot(left.transpose.colum1, right.mat.colum2),
-                                Vector4.Dot(left.transpose.colum1, right.mat.colum3),
-                                Vector4.Dot(left.transpose.colum2, right.mat.colum0),
-                                Vector4.Dot(left.transpose.colum2, right.mat.colum1),
-                                Vector4.Dot(left.transpose.colum2, right.mat.colum2),
-                                Vector4.Dot(left.transpose.colum2, right.mat.colum3),
-                                Vector4.Dot(left.transpose.colum3, right.mat.colum0),
-                                Vector4.Dot(left.transpose.colum3, right.mat.colum1),
-                                Vector4.Dot(left.transpose.colum3, right.mat.colum2),
-                                Vector4.Dot(left.transpose.colum3, right.mat.colum3));
+            Matrix44 transpose = left.Transpose;
+            return new Matrix44(Vector4.Dot(transpose.mat.colum0, right.mat.colum0),
+                                Vector4.Dot(transpose.mat.colum0, right.mat.colum1),
+                                Vector4.Dot(transpose.mat.colum0, right.mat.colum2),
+                                Vector4.Dot(transpose.mat.colum0, right.mat.colum3),
+                                Vector4.Dot(transpose.mat.colum1, right.mat.colum0),
+                                Vector4.Dot(transpose.mat.colum1, right.mat.colum1),
+                                Vector4.Dot(transpose.mat.colum1, right.mat.colum2),
+                                Vector4.Dot(transpose.mat.colum1, right.mat.colum3),
+                                Vector4.Dot(transpose.mat.colum2, right.mat.colum0),
+                                Vector4.Dot(transpose.mat.colum2, right.mat.colum1),
+                                Vector4.Dot(transpose.mat.colum2, right.mat.colum2),
+                                Vector4.Dot(transpose.mat.colum2, right.mat.colum3),
+                                Vector4.Dot(transpose.mat.colum3, right.mat.colum0),
+                                Vector4.Dot(transpose.mat.colum3, right.mat.colum1),
+                                Vector4.Dot(transpose.mat.colum3, right.mat.colum2),
+                                Vector4.Dot(transpose.mat.colum3, right.mat.colum3));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Matrix44 operator +(Matrix44 left, Matrix44 right)
         {
             Matrix44 ret = new();
-            NativeIntrinsic.Intrinsic.f32_add(&left, &right, &ret, 1);
+            NativeIntrinsic.Intrinsic.f32_buffer_add(&left, &right, &ret, 1);
             return ret;
         }
 
@@ -291,3 +250,4 @@ namespace StgSharp.Mathematics.Graphic
 
     }
 }
+

@@ -131,6 +131,8 @@ typedef void(SN_DECL *BUF_PROC_LRA)(mat_kernel *left, mat_kernel *right, mat_ker
 
 #pragma region matrix panel function type
 
+typedef void(SN_DECL *PANEL_PROC)(mat_panel *panel, mat_kernel *kernel, int col_length,
+                                  int row_length, int col_index, int row_index);
 typedef void(SN_DECL *PNL_PROC_LRA)(mat_panel *left, mat_panel *right, mat_panel *ans);
 typedef void(SN_DECL *PNL_PROC_RA)(mat_panel *right, mat_panel *ans);
 typedef void(SN_DECL *PNL_PROC_LRAS)(mat_panel *left, mat_panel *right, mat_panel *ans,
@@ -139,22 +141,26 @@ typedef void(SN_DECL *PNL_PROC_RAS)(mat_panel *right, mat_panel *ans, scalar_pac
 
 #define PNL_PROC(T_type, T_arch, T_op_name) T_type##_pnl_##T_op_name##_##T_arch
 
-#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)                                 \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(                                 \
-                MAT_PANEL##T_arch##(T_type) const *left, MAT_PANEL##T_arch##(T_type) const *right, \
-                MAT_PANEL##T_arch##(T_type) *restrict ans)
-#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)                                 \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(                                 \
-                MAT_PANEL##T_arch##(T_type) const *left, MAT_PANEL##T_arch##(T_type) const *right, \
-                MAT_PANEL##T_arch##(T_type) *restrict ans)
-#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name)                          \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(                                 \
-                MAT_PANEL##T_arch##(T_type) const *left, MAT_PANEL##T_arch##(T_type) const *right, \
-                MAT_PANEL##T_arch##(T_type) *restrict ans, scalar_pack const *scalar)
-#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name)                          \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(                                 \
-                MAT_PANEL##T_arch##(T_type) const *left, MAT_PANEL##T_arch##(T_type) const *right, \
-                MAT_PANEL##T_arch##(T_type) *restrict ans, scalar_pack const *scalar)
+#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)                           \
+        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,                                       \
+                                       T_op_name)(MAT_PANEL_##T_arch##(T_type) const *left,  \
+                                                  MAT_PANEL_##T_arch##(T_type) const *right, \
+                                                  MAT_PANEL_##T_arch##(T_type) *restrict ans)
+#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)                           \
+        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,                                       \
+                                       T_op_name)(MAT_PANEL_##T_arch##(T_type) const *left,  \
+                                                  MAT_PANEL_##T_arch##(T_type) const *right, \
+                                                  MAT_PANEL_##T_arch##(T_type) *restrict ans)
+#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name) \
+        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(        \
+                MAT_PANEL_##T_arch##(T_type) const *left,                 \
+                MAT_PANEL_##T_arch##(T_type) const *right,                \
+                MAT_PANEL_##T_arch##(T_type) *restrict ans, scalar_pack const *scalar)
+#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name) \
+        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(        \
+                MAT_PANEL_##T_arch##(T_type) const *left,                 \
+                MAT_PANEL_##T_arch##(T_type) const *right,                \
+                MAT_PANEL_##T_arch##(T_type) *restrict ans, scalar_pack const *scalar)
 
 #pragma endregion
 
@@ -217,7 +223,8 @@ DECLARE_BUF_PROC_ANS_SCALAR(float, 512, fill);
 
 #pragma region fma
 
-DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, sse, fma);
+DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, sse, fma);
+DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx, fma);
 
 #pragma endregion
 
@@ -250,22 +257,21 @@ INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int lengt
 
 #pragma endregion
 
-typedef void(SN_DECL *BUILD_PANEL_PROC)(mat_panel *panel, mat_kernel *kernel, int col_length,
-                                        int row_length, int col_index, int row_index);
-
-// Reordered to match C# IntrinsicContext field order
-// C# order: city_hash_simplify, f32_add, f32_fill, f32_fma, f32_scalar_mul, f32_sub, f32_transpose, factorial_simd, index_pair, normalize_3
+// Mirrors C# IntrinsicContext field order so managed/unmanaged layouts stay in sync.
 typedef struct sn_intrinsic {
-        HASH city_hash_simplify; // city_hash_simplify
-        BUF_PROC_LRA f32_buffer_add; // f32_add
-        BUF_PROC_AS f32_buffer_fill; // f32_fill
-        PNL_PROC_LRA f32_panel_fma; // f32_fma (panel variant)
-        BUF_PROC_LRA f32_kernel_scalar_mul; // f32_scalar_mul (right+ans+scalar variant mapped here)
-        BUF_PROC_LRA f32_kernel_sub; // f32_sub
-        KER_PROC_RA f32_kernel_transpose; // f32_transpose
-        FACTORIALROC factorial_simd; // factorial_simd
-        INDEX_PAIR index_pair; // index_pair
-        VECTORNORMALIZEPROC f32_normalize_3; // normalize_3
+        HASH city_hash_simplify;
+        BUF_PROC_LRA f32_buffer_add;
+        BUF_PROC_AS f32_buffer_fill;
+        BUF_PROC_RAS f32_buffer_scalar_mul;
+        BUF_PROC_LRA f32_buffer_sub;
+        KER_PROC_RA f32_buffer_transpose;
+        PANEL_PROC f32_build_panel;
+        VECTORNORMALIZEPROC f32_normalize_3;
+        PNL_PROC_LRA f32_panel_fma;
+        PANEL_PROC f32_store_panel;
+        FACTORIALROC factorial_simd;
+        INDEX_PAIR index_pair;
+        BUF_PROC_RAS variant;
 } sn_intrinsic;
 
 typedef enum most_advanced_instruction {

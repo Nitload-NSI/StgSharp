@@ -119,6 +119,7 @@ namespace StgSharp
                     {
                         if (!_subscribers[i].OnSpanTick(elapsedTicks))
                         {
+                            // Console.WriteLine("removed");
                             _subscribers.RemoveAt(i);
                             i--; // adjust index after removal
                         }

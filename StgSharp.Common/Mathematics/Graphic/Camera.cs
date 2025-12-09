@@ -153,10 +153,10 @@ namespace StgSharp.Mathematics.Graphic
             if (direction.GetLength() == 0)
             {
                 // deadlock
-                throw new ArgumentException();
+                throw new ArgumentException("Direction bust is not zero.");
             }
             if (Vec3.IsParallel(direction, up)) {
-                throw new ArgumentException();
+                throw new ArgumentException("Direction and UP is on on same way");
             }
             _target = direction;
             this.up = up;
@@ -177,7 +177,11 @@ namespace StgSharp.Mathematics.Graphic
             InternalYaw();
         }
 
-        public void SetViewRange(Radius fovRadius, Vec2 size, Vec2 offset, (float front, float back) depthRange)
+        public void SetViewRange(
+                    Radius fovRadius,
+                    Vec2 size,
+                    Vec2 offset,
+                    (float front, float back) depthRange)
         {
             float
                 distance = _target.GetLength(),

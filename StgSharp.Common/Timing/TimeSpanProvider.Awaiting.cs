@@ -86,13 +86,9 @@ namespace StgSharp.Timing
         public void Dispose()
         {
             // mark provider as ended so external users can observe terminal state
-            try
-            {
-                Volatile.Write(ref _endedFlag, 1);
-            }
-            catch { }
+            Volatile.Write(ref _endedFlag, 1);
             s_unusedID.Push(TokenID);
-            _event.Dispose();
+            _event.Set();
             GC.SuppressFinalize(this);
         }
 
@@ -115,7 +111,9 @@ namespace StgSharp.Timing
             while (true)
             {
                 int cur = Volatile.Read(ref _pendingSpans);
-                if (cur == 0) {
+                if (cur == 0)
+                {
+                    _event.Dispose();
                     return;
                 }
 
@@ -211,6 +209,8 @@ namespace StgSharp.Timing
             {
                 // mark ended due to sequence timeout, then dispose
                 Volatile.Write(ref _endedFlag, 1);
+
+                // Console.WriteLine("Time span ended.");
                 Dispose();
                 return false;
             }
@@ -237,9 +237,6 @@ namespace StgSharp.Timing
             }
             return true;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Refresh() => _refreshHandler?.Invoke(this, EventArgs.Empty); // Legacy compatibility.
 
         ~TimeSpanProvider() => Dispose();
 
