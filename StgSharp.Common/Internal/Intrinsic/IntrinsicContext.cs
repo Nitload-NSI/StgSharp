@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="IntrinsicContext"
 // Project: StgSharp
@@ -44,7 +44,8 @@ namespace StgSharp.Internal.Intrinsic
         public delegate* unmanaged[Cdecl]<void*, void*, ScalarPacket*, long, void> f32_buffer_scalar_mul;                //f32_buffer_s_m
         public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> f32_buffer_sub;             //f32_kernel_sub
         public delegate* unmanaged[Cdecl]<void*, void*, void> f32_buffer_transpose;                //f32_kernel_transpose
-        public delegate* unmanaged[Cdecl]<void*, void*, int, int, int, int, void> f32_build_panel;              //f32_build_panel
+        public delegate* unmanaged[Cdecl]<MatrixPanel*, MatrixKernel*,  int, int, int, int, void> f32_build_panel;              //f32_build_panel
+        public delegate* unmanaged[Cdecl]<MatrixPanel*, void> f32_clear_panel;
         public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> f32_normalize_3;                //f32_normalize_3
         public delegate* unmanaged[Cdecl]<void*, void*, void*, void> f32_panel_fma;               //f32_panel_fma
         public delegate* unmanaged[Cdecl]<void*, void*, int, int, int, int, void> f32_store_panel; //f32_store_panel

@@ -1,5 +1,52 @@
 #include "sn_intrinsic.h"
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> stgsharp-dev/giga
+DECLARE_PNL_PROC_ANS(float, sse, clear)
+{
+        register __m128 zero = _mm_setzero_ps();
+        PANEL_COL_VEC((*ans), 0, 0) = zero;
+        PANEL_COL_VEC((*ans), 1, 0) = zero;
+        PANEL_COL_VEC((*ans), 2, 0) = zero;
+        PANEL_COL_VEC((*ans), 3, 0) = zero;
+}
+
+DECLARE_PNL_PROC_ANS(float, avx, clear)
+{
+        register __m256 zero = _mm256_setzero_ps();
+<<<<<<< HEAD
+        PANEL_COL_VEC((*ans), 0, 0) = zero;
+        PANEL_COL_VEC((*ans), 1, 0) = zero;
+        PANEL_COL_VEC((*ans), 2, 0) = zero;
+        PANEL_COL_VEC((*ans), 3, 0) = zero;
+=======
+        for (size_t i = 0; i < 8; i++) {
+                PANEL_COL_VEC((*ans), i, 0) = zero;
+        }
+>>>>>>> stgsharp-dev/giga
+}
+
+DECLARE_PNL_PROC_ANS(float, 512, clear)
+{
+        register __m512 zero = _mm512_setzero_ps();
+<<<<<<< HEAD
+        PANEL_COL_VEC((*ans), 0, 0) = zero;
+        PANEL_COL_VEC((*ans), 1, 0) = zero;
+        PANEL_COL_VEC((*ans), 2, 0) = zero;
+        PANEL_COL_VEC((*ans), 3, 0) = zero;
+}
+
+=======
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+        for (size_t i = 0; i < 16; i++) {
+                PANEL_COL_VEC((*ans), i, 0) = zero;
+        }
+}
+
+>>>>>>> stgsharp-dev/giga
 // Matrix transpose implementations
 DECLARE_KER_PROC_RIGHT_ANS(float, sse, transpose)
 {

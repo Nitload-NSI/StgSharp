@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="MatrixParallelWrap"
 // Project: StgSharp
@@ -104,18 +104,12 @@ namespace StgSharp.Mathematics.Numeric
             while (tasks.TryDequeue(out nint handle))
             {
                 MatrixParallelTaskPackage* task = (MatrixParallelTaskPackage*)handle;
-                switch (task->ComputeMode.OperationStyle)
+                if ((int)task->ComputeMode.OperationStyle > 0)
                 {
-                    case MatrixOperationStyle.PANEL_OP:
-                        break;
-                    case MatrixOperationStyle.BUFFER_OP:
-                        PublishBufferTaskToWorkers(task);
-                        break;
-                    case MatrixOperationStyle.KERNEL_OP:
-                        PublishBufferTaskToWorkers(task);
-                        break;
-                    default:
-                        break;
+                    PublishBufferTaskToWorkers(task);
+                } else
+                {
+                    throw new NotImplementedException();
                 }
             }
         }
@@ -167,73 +161,6 @@ namespace StgSharp.Mathematics.Numeric
             }
 
             // Console.WriteLine(msg);
-        }
-
-        private void PublishKernelTaskToWorkers(MatrixParallelTaskPackage* package)
-        {
-            int primCount = package->PrimCount;
-            int secCount = package->SecCount;
-            ReadOnlySpan<MatrixParallelThread> pool = Threads;
-
-            if (pool.Length == 1)
-            {
-                pool[0].Tasks.Enqueue((nint)package);
-                return;
-            }
-            throw new NotImplementedException();
-            /*
-            int threadCount = pool.Length;
-            int tilePerThreadLess = tileCount / threadCount;                           // tiles per thread without extra slice
-            int columnAfterBaseTile = tileCount % threadCount * tileWidth;             // tile sliced into columns
-            int extraColumnPerThread = columnAfterBaseTile / threadCount;
-            int extraColumnCount = columnAfterBaseTile % threadCount;                  // columns to be sliced
-
-            int total = primCount;
-            Stack<MatrixParallelWrap> taskBunch = new Stack<MatrixParallelWrap>(threadCount);
-            MatrixParallelTaskPackageNonGeneric* current = package;
-            foreach (MatrixParallelWrap wrap in pool.Wraps)
-            {
-                bool hasSlice = columnAfterBaseTile > 0;
-                bool isLargeSlice = extraColumnCount > 0;
-
-                // _count tiles for wrap
-                int wrapWidth = wrap!.WrapTaskCapacity;
-                int columnFromSlicingCount = (hasSlice ? extraColumnPerThread : 0) * wrapWidth;
-                int baseColumn = wrapWidth * tilePerThreadLess * tileWidth;
-                int columnInWrap = baseColumn + columnFromSlicingCount + (isLargeSlice ? 1 : 0);
-
-                // set tasks
-                if (columnInWrap == 0)
-                {
-#if DEBUG
-                    throw new InvalidOperationException("Zero tasks published.");
-#else
-                    break;
-#endif
-                }
-
-                // update current task
-                current->PrimColumnCountInTile = columnInWrap;
-                current->SecColumnCountInTile = current->SecCount;
-                current->SecTileOffset = 0;
-
-                // remove tiles _count
-                extraColumnCount--;
-                columnAfterBaseTile -= columnFromSlicingCount;
-                total -= columnInWrap;
-
-                // set to wrap and push
-                wrap.WrapTask = current;
-
-                if (total <= 0)
-                {
-                    break;
-                }
-                current = MatrixParallelFactory.FromExistPackage(current);
-                current->PrimTileOffset += columnInWrap;
-            }
-            /**/
-            return;
         }
 
         #region wrap task

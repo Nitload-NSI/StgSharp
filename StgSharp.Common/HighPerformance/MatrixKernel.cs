@@ -1,4 +1,12 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+//-----------------------------------------------------------------------
+=======
 ﻿//-----------------------------------------------------------------------
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+//-----------------------------------------------------------------------
+>>>>>>> stgsharp-dev/giga
 // -----------------------------------------------------------------------
 // file="MatrixKernel"
 // Project: StgSharp
@@ -32,9 +40,31 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.HighPerformance
 {
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> stgsharp-dev/giga
+    public unsafe struct MatrixKernel
+    {
+
+        private byte Head;
+
+    }
+
+<<<<<<< HEAD
+    [StructLayout(LayoutKind.Sequential)]
+    [InlineArray(16)]
+    public unsafe struct MatrixKernel<T> where T : unmanaged, INumber<T>
+=======
     [StructLayout(LayoutKind.Sequential)]
     [InlineArray(16)]
     public unsafe struct MatrixKernel<T> where T: unmanaged, INumber<T>
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+    [StructLayout(LayoutKind.Sequential)]
+    [InlineArray(16)]
+    public unsafe struct MatrixKernel<T> where T : unmanaged, INumber<T>
+>>>>>>> stgsharp-dev/giga
     {
 
         private T c0r0;

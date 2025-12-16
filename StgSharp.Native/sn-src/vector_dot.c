@@ -15,7 +15,8 @@ INTERNAL void FORCEINLINE SN_DECL dot_41_sse(MAT_KERNEL(float) const *transpose,
                              SSE_INSERT_SIMPLE(1, 4));
 }
 
-INTERNAL void SN_DECL dot_41_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_41_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector,
+                                 __m128 *ans)
 {
         __m256 _double = _mm256_set_m128(vector[0], vector[0]);
         __m256 tmp = _mm256_dp_ps(transpose->ymm[0], _double, 0B11110001);
@@ -25,7 +26,8 @@ INTERNAL void SN_DECL dot_41_avx(MAT_KERNEL(float) const *transpose, __m128 cons
                 _mm256_permutevar8x32_ps(tmp, _mm256_loadu_epi32(avxdot_indices)));
 }
 
-INTERNAL void SN_DECL dot_42_sse(MAT_KERNEL(float) const *transpose, __m128 const *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_42_sse(MAT_KERNEL(float) const *transpose, __m128 const *vector,
+                                 __m128 *ans)
 {
         ans[0] = _mm_dp_ps(transpose->xmm[0], vector[0], 0B11110001);
         ans[0] = _mm_insert_ps(*ans, _mm_dp_ps(transpose->xmm[1], vector[0], 0B11110001),
@@ -44,22 +46,20 @@ INTERNAL void SN_DECL dot_42_sse(MAT_KERNEL(float) const *transpose, __m128 cons
                                SSE_INSERT_SIMPLE(1, 4));
 }
 
-INTERNAL void SN_DECL dot_42_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector, __m128 *ans)
+INTERNAL void SN_DECL dot_42_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector,
+                                 __m128 *ans)
 {
         __m256 temp = transpose->ymm[0];
         __m256 vector_stream = _mm256_set_m128(vector[1], vector[0]);
 
         __m256 result = _mm256_dp_ps(temp, vector_stream, 0B11110001);
         temp = _mm256_permute2f128_ps(temp, temp, 0B00000001);
-        result = _mm256_blend_ps(
-                result, _mm256_dp_ps(temp, vector_stream, 0B11110010), 0B00100010);
+        result = _mm256_blend_ps(result, _mm256_dp_ps(temp, vector_stream, 0B11110010), 0B00100010);
 
         temp = transpose->ymm[1];
-        result = _mm256_blend_ps(
-                result, _mm256_dp_ps(temp, vector_stream, 0B11110100), 0B01000100);
+        result = _mm256_blend_ps(result, _mm256_dp_ps(temp, vector_stream, 0B11110100), 0B01000100);
         temp = _mm256_permute2f128_ps(temp, temp, 0B00000001);
-        result = _mm256_blend_ps(
-                result, _mm256_dp_ps(temp, vector_stream, 0B11111000), 0B10001000);
+        result = _mm256_blend_ps(result, _mm256_dp_ps(temp, vector_stream, 0B11111000), 0B10001000);
 
         ans[0] = _mm256_castps256_ps128(result);
         ans[1] = _mm256_extractf128_ps(result, 1);

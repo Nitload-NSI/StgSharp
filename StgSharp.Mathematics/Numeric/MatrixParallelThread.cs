@@ -1,4 +1,12 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+//-----------------------------------------------------------------------
+=======
 ﻿//-----------------------------------------------------------------------
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+//-----------------------------------------------------------------------
+>>>>>>> stgsharp-dev/giga
 // -----------------------------------------------------------------------
 // file="MatrixParallelThread"
 // Project: StgSharp
@@ -85,11 +93,12 @@ namespace StgSharp.Mathematics.Numeric
             while (taskQueue.TryDequeue(out nint handle))
             {
                 MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)handle;
+                if ((short)p->ComputeMode.ParameterStyle < 0) {
+                    MatrixComputeModel.SpecialBufferCompute(p);
+                }
                 switch (p->ComputeMode.OperationStyle)
                 {
-                    case MatrixOperationStyle.PANEL_OP:
-                        break;
-                    case MatrixOperationStyle.BUFFER_OP:
+                    case MatrixIndexStyle.BUFFER_INDEX:
                         switch (p->ComputeMode.ParameterStyle)
                         {
                             case MatrixOperationParam.RIGHT_ANS_PARAM:
@@ -102,6 +111,7 @@ namespace StgSharp.Mathematics.Numeric
                                 MatrixComputeModel.BufferComputeUnaryScalar(p);
                                 break;
                             case MatrixOperationParam.LEFT_RIGHT_ANS_SCALAR_PARAM:
+                                MatrixComputeModel.BufferComputeBinaryScalar(p);
                                 break;
                             case MatrixOperationParam.ANS_SCALAR_PARAM:
                                 MatrixComputeModel.BufferComputeNoOperatorScalar(p);
@@ -110,10 +120,23 @@ namespace StgSharp.Mathematics.Numeric
                                 break;
                         }
                         break;
+<<<<<<< HEAD
                     case MatrixOperationStyle.KERNEL_OP:
                         switch (p->ComputeMode.ParameterStyle)
                         {
                             case MatrixOperationParam.RIGHT_ANS_PARAM:
+<<<<<<< HEAD
+                                MatrixComputeModel.KernelComputeUnary(p);
+                                break;
+                            case MatrixOperationParam.RIGHT_ANS_SCALAR_PARAM:
+                                MatrixComputeModel.KernelComputeUnaryScalar(p);
+                                break;
+                            case MatrixOperationParam.LEFT_RIGHT_ANS_PARAM:
+                                MatrixComputeModel.KernelComputeBinary(p);
+                                break;
+                            case MatrixOperationParam.LEFT_RIGHT_ANS_SCALAR_PARAM:
+                                MatrixComputeModel.KernelComputeBinaryScalar(p);
+=======
                                 MatrixComputeModel.Compute_Unary(p);
                                 break;
                             case MatrixOperationParam.RIGHT_ANS_SCALAR_PARAM:
@@ -124,11 +147,14 @@ namespace StgSharp.Mathematics.Numeric
                                 break;
                             case MatrixOperationParam.LEFT_RIGHT_ANS_SCALAR_PARAM:
                                 MatrixComputeModel.Compute_BinaryScalar(p);
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
                                 break;
                             default:
                                 break;
                         }
                         break;
+=======
+>>>>>>> stgsharp-dev/giga
                     default:
                         break;
                 }
@@ -400,7 +426,19 @@ namespace StgSharp.Mathematics.Numeric
         private static extern IntPtr GetCurrentThread();
 
         [DllImport("kernel32.dll")]
+<<<<<<< HEAD
+<<<<<<< HEAD
+        private static extern nuint SetThreadAffinityMask(
+                                    IntPtr hThread,
+                                    nuint dwThreadAffinityMask);
+=======
         private static extern nuint SetThreadAffinityMask(IntPtr hThread, nuint dwThreadAffinityMask);
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+        private static extern nuint SetThreadAffinityMask(
+                                    IntPtr hThread,
+                                    nuint dwThreadAffinityMask);
+>>>>>>> stgsharp-dev/giga
 
         [LibraryImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]

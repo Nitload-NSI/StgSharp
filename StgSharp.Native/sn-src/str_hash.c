@@ -15,7 +15,7 @@ INTERNAL int SN_DECL city_hash_simplify_sse(byte const *str, int const length)
                 for (; ptr < end; ptr += 4) {
                         hash = _mm_crc32_u32(hash, *(uint32_t *)ptr);
                 }
-                for (; ptr < end; ptr++) {      
+                for (; ptr < end; ptr++) {
                         hash = _mm_crc32_u16(hash, *ptr);
                 }
         } else {
@@ -30,10 +30,10 @@ INTERNAL int SN_DECL city_hash_simplify_sse(byte const *str, int const length)
                 hash = _mm_crc32_u8(hash, hash64);
                 hash = _mm_crc32_u8(hash, hash64 >> 32);
                 for (; ptr < last_32; ptr += 4) {
-                        hash = _mm_crc32_u32(hash,*(uint32_t *)ptr);
+                        hash = _mm_crc32_u32(hash, *(uint32_t *)ptr);
                 }
                 for (; ptr < end; ptr += 2) {
-                        hash = _mm_crc32_u8(hash,*ptr);
+                        hash = _mm_crc32_u8(hash, *ptr);
                 }
         }
         hash ^= hash >> 16;

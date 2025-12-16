@@ -54,6 +54,58 @@ DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, sse, fma)
 
 // ans = left * right + ans
 // right is not transposed
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> stgsharp-dev/giga
+DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx_fma, fma)
+{
+        static const __m256i idx0 = { 1, 1, 1, 1, 1, 1, 1, 1 };
+
+        for (int col = 0; col < 8; ++col) {
+                register __m256 bcol = _mm256_load_ps((float *)&right->vec[col][0]);
+                register __m256 ccol = _mm256_load_ps((float *)&ans->vec[col][0]);
+                register __m256i idx = _mm256_setzero_si256();
+                register __m256i increament = _mm256_load_si256(&idx0);
+
+                register __m256 a0 = _mm256_load_ps((float *)&left->vec[0][0]);
+                register __m256 a1 = _mm256_load_ps((float *)&left->vec[1][0]);
+                register __m256 a2 = _mm256_load_ps((float *)&left->vec[2][0]);
+                register __m256 a3 = _mm256_load_ps((float *)&left->vec[3][0]);
+
+                ccol = _mm256_fmadd_ps(a0, _mm256_permutevar8x32_ps(bcol, idx), ccol);
+                idx = _mm256_add_epi32(idx, increament);
+                ccol = _mm256_fmadd_ps(a1, _mm256_permutevar8x32_ps(bcol, idx), ccol);
+                idx = _mm256_add_epi32(idx, increament);
+                ccol = _mm256_fmadd_ps(a2, _mm256_permutevar8x32_ps(bcol, idx), ccol);
+                idx = _mm256_add_epi32(idx, increament);
+                ccol = _mm256_fmadd_ps(a3, _mm256_permutevar8x32_ps(bcol, idx), ccol);
+                idx = _mm256_add_epi32(idx, increament);
+
+                a0 = _mm256_load_ps((float *)&left->vec[4][0]);
+                a1 = _mm256_load_ps((float *)&left->vec[5][0]);
+                a2 = _mm256_load_ps((float *)&left->vec[6][0]);
+                a3 = _mm256_load_ps((float *)&left->vec[7][0]);
+
+                ccol = _mm256_fmadd_ps(a0, _mm256_permutevar8x32_ps(bcol, idx), ccol);
+                idx = _mm256_add_epi32(idx, increament);
+                ccol = _mm256_fmadd_ps(a1, _mm256_permutevar8x32_ps(bcol, idx), ccol);
+                idx = _mm256_add_epi32(idx, increament);
+                ccol = _mm256_fmadd_ps(a2, _mm256_permutevar8x32_ps(bcol, idx), ccol);
+                idx = _mm256_add_epi32(idx, increament);
+                ccol = _mm256_fmadd_ps(a3, _mm256_permutevar8x32_ps(bcol, idx), ccol);
+
+                _mm256_store_ps((float *)&ans->vec[col][0], ccol);
+        }
+}
+
+// ans = left * right + ans
+// right is not transposed
+<<<<<<< HEAD
+=======
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+>>>>>>> stgsharp-dev/giga
 DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx, fma)
 {
         static const __m256i idx0 = { 1, 1, 1, 1, 1, 1, 1, 1 };

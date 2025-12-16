@@ -1,4 +1,4 @@
-﻿#include "StgSharpNative.h"
+#include "StgSharpNative.h"
 #include "sn_matkernel.h"
 #include <stdint.h>
 

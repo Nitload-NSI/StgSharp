@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="MatrixParallelTaskPackage"
 // Project: StgSharp
@@ -52,12 +52,17 @@ namespace StgSharp.Mathematics.Numeric
      * matrix_op_mode;
      */
 
-    public enum MatrixOperationStyle : short
+    public enum MatrixOperationSpecial : short
     {
 
-        PANEL_OP = 1,
-        BUFFER_OP = 2,
-        KERNEL_OP = 3,
+        SEQ_FMA = -1,
+
+    }
+
+    public enum MatrixIndexStyle : short
+    {
+
+        BUFFER_INDEX = 1,
 
     }
 
@@ -73,11 +78,15 @@ namespace StgSharp.Mathematics.Numeric
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct MatrixOpMode(MatrixOperationStyle style, MatrixOperationParam paramLayout)
+    public struct MatrixOpMode(MatrixIndexStyle style, MatrixOperationParam paramLayout)
     {
 
+        public MatrixIndexStyle OperationStyle = style;
+
         public MatrixOperationParam ParameterStyle = paramLayout;
-        public MatrixOperationStyle OperationStyle = style;
+
+        public MatrixOpMode(MatrixIndexStyle style, MatrixOperationSpecial paramLayout)
+            : this(style, (MatrixOperationParam)paramLayout) { }
 
     }
 
@@ -86,9 +95,12 @@ namespace StgSharp.Mathematics.Numeric
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Copy(MatrixParallelTaskPackage* source, MatrixParallelTaskPackage* target)
+        public static unsafe void Copy(
+                                  MatrixParallelTaskPackage* source,
+                                  MatrixParallelTaskPackage* target)
         {
-            Buffer.MemoryCopy(source, target, sizeof(MatrixParallelTaskPackage), sizeof(MatrixParallelTaskPackage));
+            Buffer.MemoryCopy(source, target, sizeof(MatrixParallelTaskPackage),
+                              sizeof(MatrixParallelTaskPackage));
         }
 
         #region source
@@ -102,7 +114,7 @@ namespace StgSharp.Mathematics.Numeric
         #region ans
 
         // Group 2: Result kernel base address + reserved
-        [FieldOffset(16)] public IntPtr Result;  // 8
+        [FieldOffset(16)] public IntPtr Answer;  // 8
         [FieldOffset(24)] public int ElementSize;
         [FieldOffset(28)] public int ReservedPtr0;         // 4 (extension/reserved)
 
@@ -128,10 +140,10 @@ namespace StgSharp.Mathematics.Numeric
 
         #region ans enum
 
-        [FieldOffset(64)]public int ResultPrimOffset;       // 4
-        [FieldOffset(68)]public int ResultPrimStride;       // 4
-        [FieldOffset(72)]public int ResultSecOffset;        // 4
-        [FieldOffset(76)] public int ResultSecStride;        // 4
+        [FieldOffset(64)]public int AnsPrimOffset;       // 4
+        [FieldOffset(68)]public int AnsPrimStride;       // 4
+        [FieldOffset(72)]public int AnsSecOffset;        // 4
+        [FieldOffset(76)] public int AnsSecStride;        // 4
 
         #endregion
 

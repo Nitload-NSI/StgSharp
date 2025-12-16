@@ -65,8 +65,23 @@ void load_intrinsic_sse(sn_intrinsic *context)
         context->city_hash_simplify = city_hash_simplify_sse;
         context->factorial_simd = factorial_simd_sse;
         context->index_pair = index_pair_sse;
+<<<<<<< HEAD
+<<<<<<< HEAD
+        context->f32_clear_panel = PNL_PROC(float, sse, clear);
+        context->f32_build_panel = BUILD_PANEL(sse, float);
+        context->f32_buffer_add = BUF_PROC(float, sse, add);
+        context->f32_panel_fma = PNL_PROC(float, sse, fma);
+=======
         context->f32_buffer_add = BUF_PROC(float, sse, add);
         context->f32_panel_fma = KER_PROC(float, sse, fma);
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+        context->f32_store_panel = STORE_PANEL(sse, float);
+        context->f32_clear_panel = PNL_PROC(float, sse, clear);
+        context->f32_build_panel = BUILD_PANEL(sse, float);
+        context->f32_buffer_add = BUF_PROC(float, sse, add);
+        context->f32_panel_fma = PNL_PROC(float, sse, fma);
+>>>>>>> stgsharp-dev/giga
         context->f32_buffer_fill = BUF_PROC(float, sse, fill);
         context->variant = BUF_PROC(float, sse, scalar_mul);
         context->f32_buffer_sub = BUF_PROC(float, sse, sub);
@@ -80,8 +95,23 @@ void load_intrinsic_avx(sn_intrinsic *context)
         context->city_hash_simplify = city_hash_simplify_sse;
         context->factorial_simd = factorial_simd_sse;
         context->index_pair = index_pair_sse;
+<<<<<<< HEAD
+<<<<<<< HEAD
+        context->f32_clear_panel = PNL_PROC(float, avx, clear);
+        context->f32_build_panel = BUILD_PANEL(avx, float);
+        context->f32_buffer_add = BUF_PROC(float, avx, add);
+        context->f32_panel_fma = PNL_PROC(float, avx, fma);
+=======
         context->f32_buffer_add = BUF_PROC(float, avx, add);
         context->f32_panel_fma = KER_PROC(float, sse, fma);
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+        context->f32_store_panel = STORE_PANEL(avx, float);
+        context->f32_clear_panel = PNL_PROC(float, avx, clear);
+        context->f32_build_panel = BUILD_PANEL(avx, float);
+        context->f32_buffer_add = BUF_PROC(float, avx, add);
+        context->f32_panel_fma = PNL_PROC(float, avx, fma);
+>>>>>>> stgsharp-dev/giga
         context->f32_buffer_fill = BUF_PROC(float, avx, fill);
         context->variant = BUF_PROC(float, avx, scalar_mul);
         context->f32_buffer_sub = BUF_PROC(float, avx, sub);
@@ -95,8 +125,23 @@ void load_intrinsic_512(sn_intrinsic *context)
         context->city_hash_simplify = city_hash_simplify_sse;
         context->factorial_simd = factorial_simd_sse;
         context->index_pair = index_pair_sse;
+<<<<<<< HEAD
+<<<<<<< HEAD
+        context->f32_clear_panel = PNL_PROC(float, sse, clear);
+        context->f32_build_panel = BUILD_PANEL(512, float);
+        context->f32_buffer_add = BUF_PROC(float, 512, add);
+        context->f32_panel_fma = PNL_PROC(float, 512, fma);
+=======
         context->f32_buffer_add = BUF_PROC(float, 512, add);
         context->f32_panel_fma = KER_PROC(float, sse, fma);
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+        context->f32_store_panel = STORE_PANEL(512, float);
+        context->f32_clear_panel = PNL_PROC(float, 512, clear);
+        context->f32_build_panel = BUILD_PANEL(512, float);
+        context->f32_buffer_add = BUF_PROC(float, 512, add);
+        context->f32_panel_fma = PNL_PROC(float, 512, fma);
+>>>>>>> stgsharp-dev/giga
         context->f32_buffer_fill = BUF_PROC(float, 512, fill);
         context->variant = BUF_PROC(float, 512, scalar_mul);
         context->f32_buffer_sub = BUF_PROC(float, 512, sub);

@@ -140,7 +140,19 @@ typedef void(SN_DECL *PNL_PROC_LRAS)(mat_panel *left, mat_panel *right, mat_pane
 typedef void(SN_DECL *PNL_PROC_RAS)(mat_panel *right, mat_panel *ans, scalar_pack *scalar);
 
 #define PNL_PROC(T_type, T_arch, T_op_name) T_type##_pnl_##T_op_name##_##T_arch
+<<<<<<< HEAD
+<<<<<<< HEAD
+#define DECLARE_PNL_PROC_ANS(T_type, T_arch, T_op_name) \
+        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,  \
+                                       T_op_name)(MAT_PANEL_##T_arch##(T_type) *restrict ans)
+=======
 
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+#define DECLARE_PNL_PROC_ANS(T_type, T_arch, T_op_name) \
+        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,  \
+                                       T_op_name)(MAT_PANEL_##T_arch##(T_type) *restrict ans)
+>>>>>>> stgsharp-dev/giga
 #define DECLARE_PNL_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)                           \
         INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,                                       \
                                        T_op_name)(MAT_PANEL_##T_arch##(T_type) const *left,  \
@@ -223,8 +235,25 @@ DECLARE_BUF_PROC_ANS_SCALAR(float, 512, fill);
 
 #pragma region fma
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> stgsharp-dev/giga
+DECLARE_PNL_PROC_ANS(float, sse, clear);
+DECLARE_PNL_PROC_ANS(float, avx, clear);
+DECLARE_PNL_PROC_ANS(float, 512, clear);
+
 DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, sse, fma);
 DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx, fma);
+DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx_fma, fma);
+DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, 512, fma);
+<<<<<<< HEAD
+=======
+DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, sse, fma);
+DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx, fma);
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+>>>>>>> stgsharp-dev/giga
 
 #pragma endregion
 
@@ -266,6 +295,14 @@ typedef struct sn_intrinsic {
         BUF_PROC_LRA f32_buffer_sub;
         KER_PROC_RA f32_buffer_transpose;
         PANEL_PROC f32_build_panel;
+<<<<<<< HEAD
+<<<<<<< HEAD
+        PANEL_PROC f32_clear_panel;
+=======
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+        PANEL_PROC f32_clear_panel;
+>>>>>>> stgsharp-dev/giga
         VECTORNORMALIZEPROC f32_normalize_3;
         PNL_PROC_LRA f32_panel_fma;
         PANEL_PROC f32_store_panel;

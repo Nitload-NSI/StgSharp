@@ -59,7 +59,7 @@ namespace StgSharp.Internal
             {
                 case 0:
 
-                    // Dialogue.PostError(new PlatformNotSupportedException("No SIMD instructions supported on current hardware platform"));
+                    Dialogue.PostError(new PlatformNotSupportedException("No SIMD instructions supported on current hardware platform"));
                     Environment.Exit(-1);
                     break;
                 default:

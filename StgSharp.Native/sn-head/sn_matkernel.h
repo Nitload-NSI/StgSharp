@@ -110,14 +110,33 @@ extern __declspec(align(64)) sn_zero_kernel_u64 SN_ZERO_KERNEL;
                 MAT_KERNEL(element) const *const matrix, int col_length, int row_length, \
                 int col_index, int row_index)
 #define DECLARE_STORE_PANEL(arch, element)                                                     \
-        INTERNAL void SN_DECL STORE_PANEL(arch, element)(MAT_KERNEL(element) *restrict matrix, \
-                                                         MAT_PANEL_##arch(element)             \
+        INTERNAL void SN_DECL STORE_PANEL(arch, element)(MAT_PANEL_##arch(element)             \
                                                                  const *const panel,           \
+                                                         MAT_KERNEL(element) *restrict matrix, \
                                                          int col_length, int row_length,       \
                                                          int col_index, int row_index)
 
 /* Declarations for AVX float variant */
+<<<<<<< HEAD
+<<<<<<< HEAD
+DECLARE_BUILD_PANEL(sse, float);
 DECLARE_BUILD_PANEL(avx, float);
+DECLARE_BUILD_PANEL(512, float);
+DECLARE_STORE_PANEL(sse, float);
 DECLARE_STORE_PANEL(avx, float);
+DECLARE_STORE_PANEL(512, float);
+=======
+=======
+DECLARE_BUILD_PANEL(sse, float);
+>>>>>>> stgsharp-dev/giga
+DECLARE_BUILD_PANEL(avx, float);
+DECLARE_BUILD_PANEL(512, float);
+DECLARE_STORE_PANEL(sse, float);
+DECLARE_STORE_PANEL(avx, float);
+<<<<<<< HEAD
+>>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
+=======
+DECLARE_STORE_PANEL(512, float);
+>>>>>>> stgsharp-dev/giga
 
 #endif /* SN_MATKERNEL */

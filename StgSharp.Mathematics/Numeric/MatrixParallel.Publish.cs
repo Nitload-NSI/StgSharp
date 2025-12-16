@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="MatrixParallel.Publish"
 // Project: StgSharp
@@ -51,18 +51,15 @@ namespace StgSharp.Mathematics.Numeric
             MatrixParallelTaskPackage* nonGeneric = package;
             switch (nonGeneric->ComputeMode.OperationStyle)
             {
-                case MatrixOperationStyle.PANEL_OP:
-                    throw new NotImplementedException();
-                case MatrixOperationStyle.BUFFER_OP:
+                case MatrixIndexStyle.BUFFER_INDEX:
                     return ScheduleBufferTask(nonGeneric);
-                case MatrixOperationStyle.KERNEL_OP:
-                    return ScheduleKernelTask(nonGeneric);
                 default:
                     throw new InvalidOperationException($"Unknown mode {nonGeneric->ComputeMode.OperationStyle}.");
             }
         }
 
-        private static unsafe MatrixParallelHandle ScheduleBufferTask(MatrixParallelTaskPackage* package)
+        private static unsafe MatrixParallelHandle ScheduleBufferTask(
+                                                   MatrixParallelTaskPackage* package)
         {
             int primCount = package->PrimCount;
             int secCount = package->SecCount;
@@ -110,80 +107,6 @@ namespace StgSharp.Mathematics.Numeric
                 current = MatrixParallelFactory.FromExistPackage(current);
                 offset += length;
             }
-            return handle;
-        }
-
-        private static unsafe MatrixParallelHandle ScheduleKernelTask(MatrixParallelTaskPackage* package)
-        {
-            int primCount = package->PrimCount;
-            int secCount = package->SecCount;
-            int tileWidth = (1024 / secCount) + 1;
-            int tileCount = (primCount + tileWidth - 1) / tileWidth;
-
-            MatrixParallelThread[] pool = LeadParallel(tileCount);
-            /*
-            if (pool.Length == 0)
-            {
-                // no need
-                // LeadParallel has contained capacity check
-            }
-            /**/
-            MatrixParallelHandle handle = new MatrixParallelHandle(pool);
-            if (handle.Wraps.Length == 1)
-            {
-                handle.Wraps[0].WrapTask.Enqueue((nint)package);
-                return handle;
-            }
-            int threadCount = pool.Length;
-            int tilePerThreadLess = tileCount / threadCount;                           // tiles per thread without extra slice
-            int columnAfterBaseTile = tileCount % threadCount * tileWidth;             // tile sliced into columns
-            int extraColumnPerThread = columnAfterBaseTile / threadCount;
-            int extraColumnCount = columnAfterBaseTile % threadCount;                  // columns to be sliced
-
-            int total = primCount;
-            MatrixParallelTaskPackage* current = package;
-            foreach (MatrixParallelWrap wrap in handle.Wraps)
-            {
-                bool hasSlice = columnAfterBaseTile > 0;
-                bool isLargeSlice = extraColumnCount > 0;
-
-                // _count tiles for wrap
-                int wrapWidth = wrap!.WrapTaskCapacity/**/;
-                int columnFromSlicingCount = (hasSlice ? extraColumnPerThread : 0) * wrapWidth;
-                int baseColumn = wrapWidth * tilePerThreadLess * tileWidth;
-                int columnInWrap = baseColumn + columnFromSlicingCount + (isLargeSlice ? 1 : 0);
-
-                // set tasks
-                if (columnInWrap == 0)
-                {
-#if DEBUG
-                    throw new InvalidOperationException("Zero tasks published.");
-#else
-                    break;
-#endif
-                }
-
-                // update current task
-                current->PrimColumnCountInTile = columnInWrap;
-                current->SecColumnCountInTile = current->SecCount;
-                current->SecTileOffset = 0;
-
-                // remove tiles _count
-                extraColumnCount--;
-                columnAfterBaseTile -= columnFromSlicingCount;
-                total -= columnInWrap;
-
-                // set to wrap and push
-                wrap.WrapTask.Enqueue((nint)current);
-
-                if (total <= 0)
-                {
-                    break;
-                }
-                current = MatrixParallelFactory.FromExistPackage(current);
-                current->PrimTileOffset += columnInWrap;
-            }
-
             return handle;
         }
 
