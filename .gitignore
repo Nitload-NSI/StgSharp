@@ -1,4 +1,8 @@
 /.cr
 /.vs
 */.vs
+*/bin
+*/obj
 /StgSharp.Native/lib
+obj
+/StgSharp.Native/x64
