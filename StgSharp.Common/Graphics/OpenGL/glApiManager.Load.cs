@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="glApiManager.Load"
 // Project: StgSharp
@@ -27,13 +27,17 @@
 // -----------------------------------------------------------------------
 using StgSharp.HighPerformance;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace StgSharp.Graphics.OpenGL
 {
     public static partial class glManager
     {
 
-        internal static unsafe bool LoadGLcore10(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore10(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core10)
             {
@@ -43,62 +47,65 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBlendFunc = (delegate*<uint, uint, void>)load("glBlendFunc"u8);
-            contextPtr->glClear = (delegate*<uint, void>)load("glClear"u8);
-            contextPtr->glClearColor = (delegate*<float, float, float, float, void>)load("glClearColor"u8);
-            contextPtr->glClearDepth = (delegate*<double, void>)load("glClearDepth"u8);
-            contextPtr->glClearStencil = (delegate*<int, void>)load("glClearStencil"u8);
-            contextPtr->glColorMask = (delegate*<bool, bool, bool, bool, void>)load("glColorMask"u8);
-            contextPtr->glCullFace = (delegate*<uint, void>)load("glCullFace"u8);
-            contextPtr->glDepthFunc = (delegate*<uint, void>)load("glDepthFunc"u8);
-            contextPtr->glDepthMask = (delegate*<bool, void>)load("glDepthMask"u8);
-            contextPtr->glDepthRange = (delegate*<double, double, void>)load("glDepthRange"u8);
-            contextPtr->glDisable = (delegate*<uint, void>)load("glDisable"u8);
-            contextPtr->glDrawBuffer = (delegate*<uint, void>)load("glDrawBuffer"u8);
-            contextPtr->glEnable = (delegate*<uint, void>)load("glEnable"u8);
-            contextPtr->glFinish = (delegate*<void>)load("glFinish"u8);
-            contextPtr->glFlush = (delegate*<void>)load("glFlush"u8);
-            contextPtr->glFrontFace = (delegate*<uint, void>)load("glFrontFace"u8);
-            contextPtr->glGetBooleanv = (delegate*<uint, bool*, void>)load("glGetBooleanv"u8);
-            contextPtr->glGetDoublev = (delegate*<uint, double*, void>)load("glGetDoublev"u8);
-            contextPtr->glGetError = (delegate*<uint>)load("glGetError"u8);
-            contextPtr->glGetFloatv = (delegate*<uint, float*, void>)load("glGetFloatv"u8);
-            contextPtr->glGetIntegerv = (delegate*<uint, int*, void>)load("glGetIntegerv"u8);
-            contextPtr->glGetString = (delegate*<uint, IntPtr>)load("glGetString"u8);
-            contextPtr->glGetTexImage = (delegate*<uint, int, uint, uint, void*, void>)load("glGetTexImage"u8);
-            contextPtr->glGetTexLevelParameterfv = (delegate*<uint, int, uint, float*, void>)load("glGetTexLevelParameterfv"u8);
-            contextPtr->glGetTexLevelParameteriv = (delegate*<uint, int, uint, int*, void>)load("glGetTexLevelParameteriv"u8);
-            contextPtr->glGetTexParameterfv = (delegate*<uint, uint, float*, void>)load("glGetTexParameterfv"u8);
-            contextPtr->glGetTexParameteriv = (delegate*<uint, uint, int*, void>)load("glGetTexParameteriv"u8);
-            contextPtr->glHint = (delegate*<uint, uint, void>)load("glHint"u8);
-            contextPtr->glIsEnabled = (delegate*<uint, bool>)load("glIsEnabled"u8);
-            contextPtr->glLineWidth = (delegate*<float, void>)load("glLineWidth"u8);
-            contextPtr->glLogicOp = (delegate*<uint, void>)load("glLogicOp"u8);
-            contextPtr->glPixelStoref = (delegate*<uint, float, void>)load("glPixelStoref"u8);
-            contextPtr->glPixelStorei = (delegate*<uint, int, void>)load("glPixelStorei"u8);
-            contextPtr->glPointSize = (delegate*<float, void>)load("glPointSize"u8);
-            contextPtr->glPolygonMode = (delegate*<uint, uint, void>)load("glPolygonMode"u8);
-            contextPtr->glReadBuffer = (delegate*<uint, void>)load("glReadBuffer"u8);
-            contextPtr->glReadPixels = (delegate*<int, int, int, int, uint, uint, void*, void>)load("glReadPixels"u8);
-            contextPtr->glScissor = (delegate*<int, int, uint, uint, void>)load("glScissor"u8);
-            contextPtr->glStencilFunc = (delegate*<uint, int, uint, void>)load("glStencilFunc"u8);
-            contextPtr->glStencilMask = (delegate*<uint, void>)load("glStencilMask"u8);
-            contextPtr->glStencilOp = (delegate*<uint, uint, uint, void>)load("glStencilOp"u8);
-            contextPtr->glTexImage1D = (delegate*<uint, int, int, uint, int, uint, uint, void*, void>)load("glTexImage1D"u8);
-            contextPtr->glTexImage2D = (delegate*<uint, int, uint, uint, uint, int, uint, uint, void*, void>)load("glTexImage2D"u8);
-            contextPtr->glTexParameterf = (delegate*<uint, uint, float, void>)load("glTexParameterf"u8);
-            contextPtr->glTexParameterfv = (delegate*<uint, uint, float*, void>)load("glTexParameterfv"u8);
-            contextPtr->glTexParameteri = (delegate*<uint, uint, int, void>)load("glTexParameteri"u8);
-            contextPtr->glTexParameteriv = (delegate*<uint, uint, int*, void>)load("glTexParameteriv"u8);
-            contextPtr->glViewport = (delegate*<int, int, uint, uint, void>)load("glViewport"u8);
+            contextPtr->glBlendFunc = LoadGLFunction(load, "glBlendFunc"u8);
+            contextPtr->glClear = LoadGLFunction(load, "glClear"u8);
+            contextPtr->glClearColor = LoadGLFunction(load, "glClearColor"u8);
+            contextPtr->glClearDepth = LoadGLFunction(load, "glClearDepth"u8);
+            contextPtr->glClearStencil = LoadGLFunction(load, "glClearStencil"u8);
+            contextPtr->glColorMask = LoadGLFunction(load, "glColorMask"u8);
+            contextPtr->glCullFace = LoadGLFunction(load, "glCullFace"u8);
+            contextPtr->glDepthFunc = LoadGLFunction(load, "glDepthFunc"u8);
+            contextPtr->glDepthMask = LoadGLFunction(load, "glDepthMask"u8);
+            contextPtr->glDepthRange = LoadGLFunction(load, "glDepthRange"u8);
+            contextPtr->glDisable = LoadGLFunction(load, "glDisable"u8);
+            contextPtr->glDrawBuffer = LoadGLFunction(load, "glDrawBuffer"u8);
+            contextPtr->glEnable = LoadGLFunction(load, "glEnable"u8);
+            contextPtr->glFinish = LoadGLFunction(load, "glFinish"u8);
+            contextPtr->glFlush = LoadGLFunction(load, "glFlush"u8);
+            contextPtr->glFrontFace = LoadGLFunction(load, "glFrontFace"u8);
+            contextPtr->glGetBooleanv = LoadGLFunction(load, "glGetBooleanv"u8);
+            contextPtr->glGetDoublev = LoadGLFunction(load, "glGetDoublev"u8);
+            contextPtr->glGetError = LoadGLFunction(load, "glGetError"u8);
+            contextPtr->glGetFloatv = LoadGLFunction(load, "glGetFloatv"u8);
+            contextPtr->glGetIntegerv = LoadGLFunction(load, "glGetIntegerv"u8);
+            contextPtr->glGetString = LoadGLFunction(load, "glGetString"u8);
+            contextPtr->glGetTexImage = LoadGLFunction(load, "glGetTexImage"u8);
+            contextPtr->glGetTexLevelParameterfv = LoadGLFunction(load, "glGetTexLevelParameterfv"u8);
+            contextPtr->glGetTexLevelParameteriv = LoadGLFunction(load, "glGetTexLevelParameteriv"u8);
+            contextPtr->glGetTexParameterfv = LoadGLFunction(load, "glGetTexParameterfv"u8);
+            contextPtr->glGetTexParameteriv = LoadGLFunction(load, "glGetTexParameteriv"u8);
+            contextPtr->glHint = LoadGLFunction(load, "glHint"u8);
+            contextPtr->glIsEnabled = LoadGLFunction(load, "glIsEnabled"u8);
+            contextPtr->glLineWidth = LoadGLFunction(load, "glLineWidth"u8);
+            contextPtr->glLogicOp = LoadGLFunction(load, "glLogicOp"u8);
+            contextPtr->glPixelStoref = LoadGLFunction(load, "glPixelStoref"u8);
+            contextPtr->glPixelStorei = LoadGLFunction(load, "glPixelStorei"u8);
+            contextPtr->glPointSize = LoadGLFunction(load, "glPointSize"u8);
+            contextPtr->glPolygonMode = LoadGLFunction(load, "glPolygonMode"u8);
+            contextPtr->glReadBuffer = LoadGLFunction(load, "glReadBuffer"u8);
+            contextPtr->glReadPixels = LoadGLFunction(load, "glReadPixels"u8);
+            contextPtr->glScissor = LoadGLFunction(load, "glScissor"u8);
+            contextPtr->glStencilFunc = LoadGLFunction(load, "glStencilFunc"u8);
+            contextPtr->glStencilMask = LoadGLFunction(load, "glStencilMask"u8);
+            contextPtr->glStencilOp = LoadGLFunction(load, "glStencilOp"u8);
+            contextPtr->glTexImage1D = LoadGLFunction(load, "glTexImage1D"u8);
+            contextPtr->glTexImage2D = LoadGLFunction(load, "glTexImage2D"u8);
+            contextPtr->glTexParameterf = LoadGLFunction(load, "glTexParameterf"u8);
+            contextPtr->glTexParameterfv = LoadGLFunction(load, "glTexParameterfv"u8);
+            contextPtr->glTexParameteri = LoadGLFunction(load, "glTexParameteri"u8);
+            contextPtr->glTexParameteriv = LoadGLFunction(load, "glTexParameteriv"u8);
+            contextPtr->glViewport = LoadGLFunction(load, "glViewport"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 1.0 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 1.0 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore11(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore11(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core11)
             {
@@ -108,36 +115,40 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBindTexture = (delegate*<uint, uint, void>)load("glBindTexture"u8);
-            contextPtr->glCopyTexImage1D = (delegate*<uint, int, uint, int, int, uint, int, void>)load(
+            contextPtr->glBindTexture = LoadGLFunction(load, "glBindTexture"u8);
+            contextPtr->glCopyTexImage1D = LoadGLFunction(load,
                 "glCopyTexImage1D"u8);
-            contextPtr->glCopyTexImage2D = (delegate*<uint, int, uint, int, int, uint, uint, int, void>)load(
+            contextPtr->glCopyTexImage2D = LoadGLFunction(load,
                 "glCopyTexImage2D"u8);
-            contextPtr->glCopyTexSubImage1D = (delegate*<uint, int, int, int, int, uint, void>)load(
+            contextPtr->glCopyTexSubImage1D = LoadGLFunction(load,
                 "glCopyTexSubImage1D"u8);
-            contextPtr->glCopyTexSubImage2D = (delegate*<uint, int, int, int, int, int, uint, uint, void>)load(
+            contextPtr->glCopyTexSubImage2D = LoadGLFunction(load,
                 "glCopyTexSubImage2D"u8);
-            contextPtr->glDeleteTextures = (delegate*<uint, uint*, void>)load(
+            contextPtr->glDeleteTextures = LoadGLFunction(load,
                 "glDeleteTextures"u8);
-            contextPtr->glDrawArrays = (delegate*<uint, int, uint, void>)load("glDrawArrays"u8);
-            contextPtr->glDrawElements = (delegate*<uint, uint, uint, void*, void>)load(
+            contextPtr->glDrawArrays = LoadGLFunction(load, "glDrawArrays"u8);
+            contextPtr->glDrawElements = LoadGLFunction(load,
                 "glDrawElements"u8);
-            contextPtr->glGenTextures = (delegate*<int, uint*, void>)load("glGenTextures"u8);
-            contextPtr->glGetPointerv = (delegate*<uint, void**, void>)load("glGetPointerv"u8);
-            contextPtr->glIsTexture = (delegate*<uint, bool>)load("glIsTexture"u8);
-            contextPtr->glPolygonOffset = (delegate*<float, float, void>)load("glPolygonOffset"u8);
-            contextPtr->glTexSubImage1D = (delegate*<uint, int, int, uint, uint, uint, void*, void>)load(
+            contextPtr->glGenTextures = LoadGLFunction(load, "glGenTextures"u8);
+
+            // contextPtr->glGetPointerv =LoadGLFunction(load,"glGetPointerv"u8);
+            contextPtr->glIsTexture = LoadGLFunction(load, "glIsTexture"u8);
+            contextPtr->glPolygonOffset = LoadGLFunction(load, "glPolygonOffset"u8);
+            contextPtr->glTexSubImage1D = LoadGLFunction(load,
                 "glTexSubImage1D"u8);
-            contextPtr->glTexSubImage2D = (delegate*<uint, int, int, int, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glTexSubImage2D = LoadGLFunction(load,
                 "glTexSubImage2D"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 1.1 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 1.1 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore12(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore12(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core12)
             {
@@ -147,22 +158,25 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glCopyTexSubImage3D = (delegate*<uint, int, int, int, int, int, int, uint, uint, void>)load(
+            contextPtr->glCopyTexSubImage3D = LoadGLFunction(load,
                 "glCopyTexSubImage3D"u8);
-            contextPtr->glDrawRangeElements = (delegate*<uint, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glDrawRangeElements = LoadGLFunction(load,
                 "glDrawRangeElements"u8);
-            contextPtr->glTexImage3D = (delegate*<uint, int, int, uint, uint, uint, int, uint, uint, void*, void>)load(
+            contextPtr->glTexImage3D = LoadGLFunction(load,
                 "glTexImage3D"u8);
-            contextPtr->glTexSubImage3D = (delegate*<uint, int, int, int, int, uint, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glTexSubImage3D = LoadGLFunction(load,
                 "glTexSubImage3D"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 1.2 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 1.2 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore13(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore13(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core13)
             {
@@ -172,31 +186,34 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glActiveTexture = (delegate*<uint, void>)load("glActiveTexture"u8);
-            contextPtr->glCompressedTexImage1D = (delegate*<uint, int, uint, uint, int, uint, void*, void>)load(
+            contextPtr->glActiveTexture = LoadGLFunction(load, "glActiveTexture"u8);
+            contextPtr->glCompressedTexImage1D = LoadGLFunction(load,
                 "glCompressedTexImage1D"u8);
-            contextPtr->glCompressedTexImage2D = (delegate*<uint, int, uint, uint, uint, int, uint, void*, void>)load(
+            contextPtr->glCompressedTexImage2D = LoadGLFunction(load,
                 "glCompressedTexImage2D"u8);
-            contextPtr->glCompressedTexImage3D = (delegate*<uint, int, uint, uint, uint, uint, int, uint, void*, void>)load(
+            contextPtr->glCompressedTexImage3D = LoadGLFunction(load,
                 "glCompressedTexImage3D"u8);
-            contextPtr->glCompressedTexSubImage1D = (delegate*<uint, int, int, uint, uint, uint, void*, void>)load(
+            contextPtr->glCompressedTexSubImage1D = LoadGLFunction(load,
                 "glCompressedTexSubImage1D"u8);
-            contextPtr->glCompressedTexSubImage2D = (delegate*<uint, int, int, int, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glCompressedTexSubImage2D = LoadGLFunction(load,
                 "glCompressedTexSubImage2D"u8);
-            contextPtr->glCompressedTexSubImage3D = (delegate*<uint, int, int, int, int, uint, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glCompressedTexSubImage3D = LoadGLFunction(load,
                 "glCompressedTexSubImage3D"u8);
-            contextPtr->glGetCompressedTexImage = (delegate*<uint, int, void*, void>)load(
+            contextPtr->glGetCompressedTexImage = LoadGLFunction(load,
                 "glGetCompressedTexImage"u8);
-            contextPtr->glSampleCoverage = (delegate*<float, bool, void>)load(
+            contextPtr->glSampleCoverage = LoadGLFunction(load,
                 "glSampleCoverage"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 1.3 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 1.3 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore14(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore14(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core14)
             {
@@ -206,31 +223,34 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBlendColor = (delegate*<float, float, float, float, void>)load(
+            contextPtr->glBlendColor = LoadGLFunction(load,
                 "glBlendColor"u8);
-            contextPtr->glBlendEquation = (delegate*<uint, void>)load("glBlendEquation"u8);
-            contextPtr->glBlendFuncSeparate = (delegate*<uint, uint, uint, uint, void>)load(
+            contextPtr->glBlendEquation = LoadGLFunction(load, "glBlendEquation"u8);
+            contextPtr->glBlendFuncSeparate = LoadGLFunction(load,
                 "glBlendFuncSeparate"u8);
-            contextPtr->glMultiDrawArrays = (delegate*<uint, int*, uint*, uint, void>)load(
+            contextPtr->glMultiDrawArrays = LoadGLFunction(load,
                 "glMultiDrawArrays"u8);
-            contextPtr->glMultiDrawElements = (delegate*<uint, uint*, uint, void*, void**, uint, void>)load(
+            contextPtr->glMultiDrawElements = LoadGLFunction(load,
                 "glMultiDrawElements"u8);
-            contextPtr->glPointParameterf = (delegate*<uint, float, void>)load(
+            contextPtr->glPointParameterf = LoadGLFunction(load,
                 "glPointParameterf"u8);
-            contextPtr->glPointParameterfv = (delegate*<uint, float*, void>)load(
+            contextPtr->glPointParameterfv = LoadGLFunction(load,
                 "glPointParameterfv"u8);
-            contextPtr->glPointParameteri = (delegate*<uint, int, void>)load(
+            contextPtr->glPointParameteri = LoadGLFunction(load,
                 "glPointParameteri"u8);
-            contextPtr->glPointParameteriv = (delegate*<uint, int*, void>)load(
+            contextPtr->glPointParameteriv = LoadGLFunction(load,
                 "glPointParameteriv"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 1.4 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 1.4 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore15(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore15(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core15)
             {
@@ -240,40 +260,43 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBeginQuery = (delegate*<uint, uint, void>)load("glBeginQuery"u8);
-            contextPtr->glBindBuffer = (delegate*<uint, uint, void>)load("glBindBuffer"u8);
-            contextPtr->glBufferData = (delegate*<uint, IntPtr, IntPtr, uint, void>)load(
+            contextPtr->glBeginQuery = LoadGLFunction(load, "glBeginQuery"u8);
+            contextPtr->glBindBuffer = LoadGLFunction(load, "glBindBuffer"u8);
+            contextPtr->glBufferData = LoadGLFunction(load,
                 "glBufferData"u8);
-            contextPtr->glBufferSubData = (delegate*<uint, IntPtr, UIntPtr, void*, void>)load(
+            contextPtr->glBufferSubData = LoadGLFunction(load,
                 "glBufferSubData"u8);
-            contextPtr->glDeleteBuffers = (delegate*<int, uint*, void>)load("glDeleteBuffers"u8);
-            contextPtr->glDeleteQueries = (delegate*<uint, uint*, void>)load("glDeleteQueries"u8);
-            contextPtr->glEndQuery = (delegate*<uint, void>)load("glEndQuery"u8);
-            contextPtr->glGenBuffers = (delegate*<int, uint*, void>)load("glGenBuffers"u8);
-            contextPtr->glGenQueries = (delegate*<uint, uint*, void>)load("glGenQueries"u8);
-            contextPtr->glGetBufferParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glDeleteBuffers = LoadGLFunction(load, "glDeleteBuffers"u8);
+            contextPtr->glDeleteQueries = LoadGLFunction(load, "glDeleteQueries"u8);
+            contextPtr->glEndQuery = LoadGLFunction(load, "glEndQuery"u8);
+            contextPtr->glGenBuffers = LoadGLFunction(load, "glGenBuffers"u8);
+            contextPtr->glGenQueries = LoadGLFunction(load, "glGenQueries"u8);
+            contextPtr->glGetBufferParameteriv = LoadGLFunction(load,
                 "glGetBufferParameteriv"u8);
-            contextPtr->glGetBufferPointerv = (delegate*<uint, uint, void**, void>)load(
+            contextPtr->glGetBufferPointerv = LoadGLFunction(load,
                 "glGetBufferPointerv"u8);
-            contextPtr->glGetBufferSubData = (delegate*<uint, IntPtr, UIntPtr, void*, void>)load(
+            contextPtr->glGetBufferSubData = LoadGLFunction(load,
                 "glGetBufferSubData"u8);
-            contextPtr->glGetQueryObjectiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetQueryObjectiv = LoadGLFunction(load,
                 "glGetQueryObjectiv"u8);
-            contextPtr->glGetQueryObjectuiv = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glGetQueryObjectuiv = LoadGLFunction(load,
                 "glGetQueryObjectuiv"u8);
-            contextPtr->glGetQueryiv = (delegate*<uint, uint, int*, void>)load("glGetQueryiv"u8);
-            contextPtr->glIsBuffer = (delegate*<uint, bool>)load("glIsBuffer"u8);
-            contextPtr->glIsQuery = (delegate*<uint, bool>)load("glIsQuery"u8);
-            contextPtr->glMapBuffer = (delegate*<uint, uint, void*>)load("glMapBuffer"u8);
-            contextPtr->glUnmapBuffer = (delegate*<uint, bool>)load("glUnmapBuffer"u8);
+            contextPtr->glGetQueryiv = LoadGLFunction(load, "glGetQueryiv"u8);
+            contextPtr->glIsBuffer = LoadGLFunction(load, "glIsBuffer"u8);
+            contextPtr->glIsQuery = LoadGLFunction(load, "glIsQuery"u8);
+            contextPtr->glMapBuffer = LoadGLFunction(load, "glMapBuffer"u8);
+            contextPtr->glUnmapBuffer = LoadGLFunction(load, "glUnmapBuffer"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 1.5 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 1.5 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore20(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore20(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core20)
             {
@@ -283,173 +306,176 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glAttachShader = (delegate*<uint, uint, void>)load("glAttachShader"u8);
-            contextPtr->glBindAttribLocation = (delegate*<uint, uint, byte*, void>)load(
+            contextPtr->glAttachShader = LoadGLFunction(load, "glAttachShader"u8);
+            contextPtr->glBindAttribLocation = LoadGLFunction(load,
                 "glBindAttribLocation"u8);
-            contextPtr->glBlendEquationSeparate = (delegate*<uint, uint, void>)load(
+            contextPtr->glBlendEquationSeparate = LoadGLFunction(load,
                 "glBlendEquationSeparate"u8);
-            contextPtr->glCompileShader = (delegate*<uint, void>)load("glCompileShader"u8);
-            contextPtr->glCreateProgram = (delegate*<uint>)load("glCreateProgram"u8);
-            contextPtr->glCreateShader = (delegate*<uint, uint>)load("glCreateShader"u8);
-            contextPtr->glDeleteProgram = (delegate*<uint, void>)load("glDeleteProgram"u8);
-            contextPtr->glDeleteShader = (delegate*<uint, void>)load("glDeleteShader"u8);
-            contextPtr->glDetachShader = (delegate*<uint, uint, void>)load("glDetachShader"u8);
-            contextPtr->glDisableVertexAttribArray = (delegate*<uint, void>)load(
+            contextPtr->glCompileShader = LoadGLFunction(load, "glCompileShader"u8);
+            contextPtr->glCreateProgram = LoadGLFunction(load, "glCreateProgram"u8);
+            contextPtr->glCreateShader = LoadGLFunction(load, "glCreateShader"u8);
+            contextPtr->glDeleteProgram = LoadGLFunction(load, "glDeleteProgram"u8);
+            contextPtr->glDeleteShader = LoadGLFunction(load, "glDeleteShader"u8);
+            contextPtr->glDetachShader = LoadGLFunction(load, "glDetachShader"u8);
+            contextPtr->glDisableVertexAttribArray = LoadGLFunction(load,
                 "glDisableVertexAttribArray"u8);
-            contextPtr->glDrawBuffers = (delegate*<uint, uint*, void>)load("glDrawBuffers"u8);
-            contextPtr->glEnableVertexAttribArray = (delegate*<uint, void>)load(
+            contextPtr->glDrawBuffers = LoadGLFunction(load, "glDrawBuffers"u8);
+            contextPtr->glEnableVertexAttribArray = LoadGLFunction(load,
                 "glEnableVertexAttribArray"u8);
-            contextPtr->glGetActiveAttrib = (delegate*<uint, uint, uint, uint*, int*, uint*, byte*, void>)load(
+            contextPtr->glGetActiveAttrib = LoadGLFunction(load,
                 "glGetActiveAttrib"u8);
-            contextPtr->glGetActiveUniform = (delegate*<uint, uint, uint, uint*, int*, uint*, byte*, void>)load(
+            contextPtr->glGetActiveUniform = LoadGLFunction(load,
                 "glGetActiveUniform"u8);
-            contextPtr->glGetAttachedShaders = (delegate*<uint, uint, uint*, uint*, void>)load(
+            contextPtr->glGetAttachedShaders = LoadGLFunction(load,
                 "glGetAttachedShaders"u8);
-            contextPtr->glGetAttribLocation = (delegate*<uint, byte*, int>)load(
+            contextPtr->glGetAttribLocation = LoadGLFunction(load,
                 "glGetAttribLocation"u8);
-            contextPtr->glGetProgramInfoLog = (delegate*<uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetProgramInfoLog = LoadGLFunction(load,
                 "glGetProgramInfoLog"u8);
-            contextPtr->glGetProgramiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetProgramiv = LoadGLFunction(load,
                 "glGetProgramiv"u8);
-            contextPtr->glGetShaderInfoLog = (delegate*<uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetShaderInfoLog = LoadGLFunction(load,
                 "glGetShaderInfoLog"u8);
-            contextPtr->glGetShaderSource = (delegate*<uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetShaderSource = LoadGLFunction(load,
                 "glGetShaderSource"u8);
-            contextPtr->glGetShaderiv = (delegate*<uint, uint, int*, void>)load("glGetShaderiv"u8);
-            contextPtr->glGetUniformLocation = (delegate*<uint, byte*, int>)load(
+            contextPtr->glGetShaderiv = LoadGLFunction(load, "glGetShaderiv"u8);
+            contextPtr->glGetUniformLocation = LoadGLFunction(load,
                 "glGetUniformLocation"u8);
-            contextPtr->glGetUniformfv = (delegate*<uint, int, float*, void>)load(
+            contextPtr->glGetUniformfv = LoadGLFunction(load,
                 "glGetUniformfv"u8);
-            contextPtr->glGetUniformiv = (delegate*<uint, int, int*, void>)load(
+            contextPtr->glGetUniformiv = LoadGLFunction(load,
                 "glGetUniformiv"u8);
-            contextPtr->glGetVertexAttribPointerv = (delegate*<uint, uint, void**, void>)load(
+            contextPtr->glGetVertexAttribPointerv = LoadGLFunction(load,
                 "glGetVertexAttribPointerv"u8);
-            contextPtr->glGetVertexAttribdv = (delegate*<uint, uint, double*, void>)load(
+            contextPtr->glGetVertexAttribdv = LoadGLFunction(load,
                 "glGetVertexAttribdv"u8);
-            contextPtr->glGetVertexAttribfv = (delegate*<uint, uint, float*, void>)load(
+            contextPtr->glGetVertexAttribfv = LoadGLFunction(load,
                 "glGetVertexAttribfv"u8);
-            contextPtr->glGetVertexAttribiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetVertexAttribiv = LoadGLFunction(load,
                 "glGetVertexAttribiv"u8);
-            contextPtr->glIsProgram = (delegate*<uint, bool>)load("glIsProgram"u8);
-            contextPtr->glIsShader = (delegate*<uint, bool>)load("glIsShader"u8);
-            contextPtr->glLinkProgram = (delegate*<uint, void>)load("glLinkProgram"u8);
-            contextPtr->glShaderSource = (delegate* unmanaged[Stdcall]<uint, uint, byte**, void*, void>)load(
+            contextPtr->glIsProgram = LoadGLFunction(load, "glIsProgram"u8);
+            contextPtr->glIsShader = LoadGLFunction(load, "glIsShader"u8);
+            contextPtr->glLinkProgram = LoadGLFunction(load, "glLinkProgram"u8);
+            contextPtr->glShaderSource = LoadGLFunction(load,
                 "glShaderSource"u8);
-            contextPtr->glStencilFuncSeparate = (delegate*<uint, uint, int, uint, void>)load(
+            contextPtr->glStencilFuncSeparate = LoadGLFunction(load,
                 "glStencilFuncSeparate"u8);
-            contextPtr->glStencilMaskSeparate = (delegate*<uint, uint, void>)load(
+            contextPtr->glStencilMaskSeparate = LoadGLFunction(load,
                 "glStencilMaskSeparate"u8);
-            contextPtr->glStencilOpSeparate = (delegate*<uint, uint, uint, uint, void>)load(
+            contextPtr->glStencilOpSeparate = LoadGLFunction(load,
                 "glStencilOpSeparate"u8);
-            contextPtr->glUniform1f = (delegate*<int, float, void>)load("glUniform1f"u8);
-            contextPtr->glUniform1fv = (delegate*<int, uint, M128*, void>)load("glUniform1fv"u8);
-            contextPtr->glUniform1i = (delegate*<int, int, void>)load("glUniform1i"u8);
-            contextPtr->glUniform1iv = (delegate*<int, uint, int*, void>)load("glUniform1iv"u8);
-            contextPtr->glUniform2f = (delegate*<int, float, float, void>)load("glUniform2f"u8);
-            contextPtr->glUniform2fv = (delegate*<int, uint, float*, void>)load("glUniform2fv"u8);
-            contextPtr->glUniform2i = (delegate*<int, int, int, void>)load("glUniform2i"u8);
-            contextPtr->glUniform2iv = (delegate*<int, uint, int*, void>)load("glUniform2iv"u8);
-            contextPtr->glUniform3f = (delegate*<int, float, float, float, void>)load(
+            contextPtr->glUniform1f = LoadGLFunction(load, "glUniform1f"u8);
+            contextPtr->glUniform1fv = LoadGLFunction(load, "glUniform1fv"u8);
+            contextPtr->glUniform1i = LoadGLFunction(load, "glUniform1i"u8);
+            contextPtr->glUniform1iv = LoadGLFunction(load, "glUniform1iv"u8);
+            contextPtr->glUniform2f = LoadGLFunction(load, "glUniform2f"u8);
+            contextPtr->glUniform2fv = LoadGLFunction(load, "glUniform2fv"u8);
+            contextPtr->glUniform2i = LoadGLFunction(load, "glUniform2i"u8);
+            contextPtr->glUniform2iv = LoadGLFunction(load, "glUniform2iv"u8);
+            contextPtr->glUniform3f = LoadGLFunction(load,
                 "glUniform3f"u8);
-            contextPtr->glUniform3fv = (delegate*<int, uint, float*, void>)load("glUniform3fv"u8);
-            contextPtr->glUniform3i = (delegate*<int, int, int, int, void>)load("glUniform3i"u8);
-            contextPtr->glUniform3iv = (delegate*<int, uint, int*, void>)load("glUniform3iv"u8);
-            contextPtr->glUniform4f = (delegate*<int, float, float, float, float, void>)load(
+            contextPtr->glUniform3fv = LoadGLFunction(load, "glUniform3fv"u8);
+            contextPtr->glUniform3i = LoadGLFunction(load, "glUniform3i"u8);
+            contextPtr->glUniform3iv = LoadGLFunction(load, "glUniform3iv"u8);
+            contextPtr->glUniform4f = LoadGLFunction(load,
                 "glUniform4f"u8);
-            contextPtr->glUniform4fv = (delegate*<int, uint, float*, void>)load("glUniform4fv"u8);
-            contextPtr->glUniform4i = (delegate*<int, int, int, int, int, void>)load(
+            contextPtr->glUniform4fv = LoadGLFunction(load, "glUniform4fv"u8);
+            contextPtr->glUniform4i = LoadGLFunction(load,
                 "glUniform4i"u8);
-            contextPtr->glUniform4iv = (delegate*<int, uint, int*, void>)load("glUniform4iv"u8);
-            contextPtr->glUniformMatrix2fv = (delegate*<int, uint, bool, float*, void>)load(
+            contextPtr->glUniform4iv = LoadGLFunction(load, "glUniform4iv"u8);
+            contextPtr->glUniformMatrix2fv = LoadGLFunction(load,
                 "glUniformMatrix2fv"u8);
-            contextPtr->glUniformMatrix3fv = (delegate*<int, uint, bool, float*, void>)load(
+            contextPtr->glUniformMatrix3fv = LoadGLFunction(load,
                 "glUniformMatrix3fv"u8);
-            contextPtr->glUniformMatrix4fv = (delegate*<int, uint, bool, float*, void>)load(
+            contextPtr->glUniformMatrix4fv = LoadGLFunction(load,
                 "glUniformMatrix4fv"u8);
-            contextPtr->glUseProgram = (delegate*<uint, void>)load("glUseProgram"u8);
-            contextPtr->glValidateProgram = (delegate*<uint, void>)load("glValidateProgram"u8);
-            contextPtr->glVertexAttrib1d = (delegate*<uint, double, void>)load(
+            contextPtr->glUseProgram = LoadGLFunction(load, "glUseProgram"u8);
+            contextPtr->glValidateProgram = LoadGLFunction(load, "glValidateProgram"u8);
+            contextPtr->glVertexAttrib1d = LoadGLFunction(load,
                 "glVertexAttrib1d"u8);
-            contextPtr->glVertexAttrib1dv = (delegate*<uint, double*, void>)load(
+            contextPtr->glVertexAttrib1dv = LoadGLFunction(load,
                 "glVertexAttrib1dv"u8);
-            contextPtr->glVertexAttrib1f = (delegate*<uint, float, void>)load(
+            contextPtr->glVertexAttrib1f = LoadGLFunction(load,
                 "glVertexAttrib1f"u8);
-            contextPtr->glVertexAttrib1fv = (delegate*<uint, float*, void>)load(
+            contextPtr->glVertexAttrib1fv = LoadGLFunction(load,
                 "glVertexAttrib1fv"u8);
-            contextPtr->glVertexAttrib1s = (delegate*<uint, short, void>)load(
+            contextPtr->glVertexAttrib1s = LoadGLFunction(load,
                 "glVertexAttrib1s"u8);
-            contextPtr->glVertexAttrib1sv = (delegate*<uint, short*, void>)load(
+            contextPtr->glVertexAttrib1sv = LoadGLFunction(load,
                 "glVertexAttrib1sv"u8);
-            contextPtr->glVertexAttrib2d = (delegate*<uint, double, double, void>)load(
+            contextPtr->glVertexAttrib2d = LoadGLFunction(load,
                 "glVertexAttrib2d"u8);
-            contextPtr->glVertexAttrib2dv = (delegate*<uint, double*, void>)load(
+            contextPtr->glVertexAttrib2dv = LoadGLFunction(load,
                 "glVertexAttrib2dv"u8);
-            contextPtr->glVertexAttrib2f = (delegate*<uint, float, float, void>)load(
+            contextPtr->glVertexAttrib2f = LoadGLFunction(load,
                 "glVertexAttrib2f"u8);
-            contextPtr->glVertexAttrib2fv = (delegate*<uint, float*, void>)load(
+            contextPtr->glVertexAttrib2fv = LoadGLFunction(load,
                 "glVertexAttrib2fv"u8);
-            contextPtr->glVertexAttrib2s = (delegate*<uint, short, short, void>)load(
+            contextPtr->glVertexAttrib2s = LoadGLFunction(load,
                 "glVertexAttrib2s"u8);
-            contextPtr->glVertexAttrib2sv = (delegate*<uint, short*, void>)load(
+            contextPtr->glVertexAttrib2sv = LoadGLFunction(load,
                 "glVertexAttrib2sv"u8);
-            contextPtr->glVertexAttrib3d = (delegate*<uint, double, double, double, void>)load(
+            contextPtr->glVertexAttrib3d = LoadGLFunction(load,
                 "glVertexAttrib3d"u8);
-            contextPtr->glVertexAttrib3dv = (delegate*<uint, double*, void>)load(
+            contextPtr->glVertexAttrib3dv = LoadGLFunction(load,
                 "glVertexAttrib3dv"u8);
-            contextPtr->glVertexAttrib3f = (delegate*<uint, float, float, float, void>)load(
+            contextPtr->glVertexAttrib3f = LoadGLFunction(load,
                 "glVertexAttrib3f"u8);
-            contextPtr->glVertexAttrib3fv = (delegate*<uint, float*, void>)load(
+            contextPtr->glVertexAttrib3fv = LoadGLFunction(load,
                 "glVertexAttrib3fv"u8);
-            contextPtr->glVertexAttrib3s = (delegate*<uint, short, short, short, void>)load(
+            contextPtr->glVertexAttrib3s = LoadGLFunction(load,
                 "glVertexAttrib3s"u8);
-            contextPtr->glVertexAttrib3sv = (delegate*<uint, short*, void>)load(
+            contextPtr->glVertexAttrib3sv = LoadGLFunction(load,
                 "glVertexAttrib3sv"u8);
-            contextPtr->glVertexAttrib4Nbv = (delegate*<uint, sbyte*, void>)load(
+            contextPtr->glVertexAttrib4Nbv = LoadGLFunction(load,
                 "glVertexAttrib4Nbv"u8);
-            contextPtr->glVertexAttrib4Niv = (delegate*<uint, int*, void>)load(
+            contextPtr->glVertexAttrib4Niv = LoadGLFunction(load,
                 "glVertexAttrib4Niv"u8);
-            contextPtr->glVertexAttrib4Nsv = (delegate*<uint, short*, void>)load(
+            contextPtr->glVertexAttrib4Nsv = LoadGLFunction(load,
                 "glVertexAttrib4Nsv"u8);
-            contextPtr->glVertexAttrib4Nub = (delegate*<uint, byte, byte, byte, byte, void>)load(
+            contextPtr->glVertexAttrib4Nub = LoadGLFunction(load,
                 "glVertexAttrib4Nub"u8);
-            contextPtr->glVertexAttrib4Nubv = (delegate*<uint, byte*, void>)load(
+            contextPtr->glVertexAttrib4Nubv = LoadGLFunction(load,
                 "glVertexAttrib4Nubv"u8);
-            contextPtr->glVertexAttrib4Nuiv = (delegate*<uint, uint*, void>)load(
+            contextPtr->glVertexAttrib4Nuiv = LoadGLFunction(load,
                 "glVertexAttrib4Nuiv"u8);
-            contextPtr->glVertexAttrib4Nusv = (delegate*<uint, ushort*, void>)load(
+            contextPtr->glVertexAttrib4Nusv = LoadGLFunction(load,
                 "glVertexAttrib4Nusv"u8);
-            contextPtr->glVertexAttrib4bv = (delegate*<uint, sbyte*, void>)load(
+            contextPtr->glVertexAttrib4bv = LoadGLFunction(load,
                 "glVertexAttrib4bv"u8);
-            contextPtr->glVertexAttrib4d = (delegate*<uint, double, double, double, double, void>)load(
+            contextPtr->glVertexAttrib4d = LoadGLFunction(load,
                 "glVertexAttrib4d"u8);
-            contextPtr->glVertexAttrib4dv = (delegate*<uint, double*, void>)load(
+            contextPtr->glVertexAttrib4dv = LoadGLFunction(load,
                 "glVertexAttrib4dv"u8);
-            contextPtr->glVertexAttrib4f = (delegate*<uint, float, float, float, float, void>)load(
+            contextPtr->glVertexAttrib4f = LoadGLFunction(load,
                 "glVertexAttrib4f"u8);
-            contextPtr->glVertexAttrib4fv = (delegate*<uint, float*, void>)load(
+            contextPtr->glVertexAttrib4fv = LoadGLFunction(load,
                 "glVertexAttrib4fv"u8);
-            contextPtr->glVertexAttrib4iv = (delegate*<uint, int*, void>)load(
+            contextPtr->glVertexAttrib4iv = LoadGLFunction(load,
                 "glVertexAttrib4iv"u8);
-            contextPtr->glVertexAttrib4s = (delegate*<uint, short, short, short, short, void>)load(
+            contextPtr->glVertexAttrib4s = LoadGLFunction(load,
                 "glVertexAttrib4s"u8);
-            contextPtr->glVertexAttrib4sv = (delegate*<uint, short*, void>)load(
+            contextPtr->glVertexAttrib4sv = LoadGLFunction(load,
                 "glVertexAttrib4sv"u8);
-            contextPtr->glVertexAttrib4ubv = (delegate*<uint, byte*, void>)load(
+            contextPtr->glVertexAttrib4ubv = LoadGLFunction(load,
                 "glVertexAttrib4ubv"u8);
-            contextPtr->glVertexAttrib4uiv = (delegate*<uint, uint*, void>)load(
+            contextPtr->glVertexAttrib4uiv = LoadGLFunction(load,
                 "glVertexAttrib4uiv"u8);
-            contextPtr->glVertexAttrib4usv = (delegate*<uint, ushort*, void>)load(
+            contextPtr->glVertexAttrib4usv = LoadGLFunction(load,
                 "glVertexAttrib4usv"u8);
-            contextPtr->glVertexAttribPointer = (delegate*<uint, int, uint, int, uint, void*, void>)load(
+            contextPtr->glVertexAttribPointer = LoadGLFunction(load,
                 "glVertexAttribPointer"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 2.0 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 2.0 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore21(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore21(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core21)
             {
@@ -459,26 +485,29 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glUniformMatrix2x3fv = (delegate*<int, uint, bool, float*, void>)load(
+            contextPtr->glUniformMatrix2x3fv = LoadGLFunction(load,
                 "glUniformMatrix2x3fv"u8);
-            contextPtr->glUniformMatrix2x4fv = (delegate*<int, uint, bool, float*, void>)load(
+            contextPtr->glUniformMatrix2x4fv = LoadGLFunction(load,
                 "glUniformMatrix2x4fv"u8);
-            contextPtr->glUniformMatrix3x2fv = (delegate*<int, uint, bool, float*, void>)load(
+            contextPtr->glUniformMatrix3x2fv = LoadGLFunction(load,
                 "glUniformMatrix3x2fv"u8);
-            contextPtr->glUniformMatrix3x4fv = (delegate*<int, uint, bool, float*, void>)load(
+            contextPtr->glUniformMatrix3x4fv = LoadGLFunction(load,
                 "glUniformMatrix3x4fv"u8);
-            contextPtr->glUniformMatrix4x2fv = (delegate*<int, uint, bool, float*, void>)load(
+            contextPtr->glUniformMatrix4x2fv = LoadGLFunction(load,
                 "glUniformMatrix4x2fv"u8);
-            contextPtr->glUniformMatrix4x3fv = (delegate*<int, uint, bool, float*, void>)load(
+            contextPtr->glUniformMatrix4x3fv = LoadGLFunction(load,
                 "glUniformMatrix4x3fv"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 2.1 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 2.1 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore30(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore30(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core30)
             {
@@ -488,164 +517,167 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBeginConditionalRender = (delegate*<uint, uint, void>)load(
+            contextPtr->glBeginConditionalRender = LoadGLFunction(load,
                 "glBeginConditionalRender"u8);
-            contextPtr->glBeginTransformFeedback = (delegate*<uint, void>)load(
+            contextPtr->glBeginTransformFeedback = LoadGLFunction(load,
                 "glBeginTransformFeedback"u8);
-            contextPtr->glBindBufferBase = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glBindBufferBase = LoadGLFunction(load,
                 "glBindBufferBase"u8);
-            contextPtr->glBindBufferRange = (delegate*<uint, uint, uint, IntPtr, UIntPtr, void>)load(
+            contextPtr->glBindBufferRange = LoadGLFunction(load,
                 "glBindBufferRange"u8);
-            contextPtr->glBindFragDataLocation = (delegate*<uint, uint, byte*, void>)load(
+            contextPtr->glBindFragDataLocation = LoadGLFunction(load,
                 "glBindFragDataLocation"u8);
-            contextPtr->glBindFramebuffer = (delegate*<uint, uint, void>)load(
+            contextPtr->glBindFramebuffer = LoadGLFunction(load,
                 "glBindFramebuffer"u8);
-            contextPtr->glBindRenderbuffer = (delegate*<uint, uint, void>)load(
+            contextPtr->glBindRenderbuffer = LoadGLFunction(load,
                 "glBindRenderbuffer"u8);
-            contextPtr->glBindVertexArray = (delegate*<uint, void>)load("glBindVertexArray"u8);
-            contextPtr->glBlitFramebuffer = (delegate*<int, int, int, int, int, int, int, int, uint, uint, void>)load(
+            contextPtr->glBindVertexArray = LoadGLFunction(load, "glBindVertexArray"u8);
+            contextPtr->glBlitFramebuffer = LoadGLFunction(load,
                 "glBlitFramebuffer"u8);
-            contextPtr->glCheckFramebufferStatus = (delegate*<uint, uint>)load(
+            contextPtr->glCheckFramebufferStatus = LoadGLFunction(load,
                 "glCheckFramebufferStatus"u8);
-            contextPtr->glClampColor = (delegate*<uint, uint, void>)load("glClampColor"u8);
-            contextPtr->glClearBufferfi = (delegate*<uint, int, float, int, void>)load(
+            contextPtr->glClampColor = LoadGLFunction(load, "glClampColor"u8);
+            contextPtr->glClearBufferfi = LoadGLFunction(load,
                 "glClearBufferfi"u8);
-            contextPtr->glClearBufferfv = (delegate*<uint, int, float*, void>)load(
+            contextPtr->glClearBufferfv = LoadGLFunction(load,
                 "glClearBufferfv"u8);
-            contextPtr->glClearBufferiv = (delegate*<uint, int, int*, void>)load(
+            contextPtr->glClearBufferiv = LoadGLFunction(load,
                 "glClearBufferiv"u8);
-            contextPtr->glClearBufferuiv = (delegate*<uint, int, uint*, void>)load(
+            contextPtr->glClearBufferuiv = LoadGLFunction(load,
                 "glClearBufferuiv"u8);
-            contextPtr->glColorMaski = (delegate*<uint, bool, bool, bool, bool, void>)load(
+            contextPtr->glColorMaski = LoadGLFunction(load,
                 "glColorMaski"u8);
-            contextPtr->glDeleteFramebuffers = (delegate*<uint, uint*, void>)load(
+            contextPtr->glDeleteFramebuffers = LoadGLFunction(load,
                 "glDeleteFramebuffers"u8);
-            contextPtr->glDeleteRenderbuffers = (delegate*<uint, uint*, void>)load(
+            contextPtr->glDeleteRenderbuffers = LoadGLFunction(load,
                 "glDeleteRenderbuffers"u8);
-            contextPtr->glDeleteVertexArrays = (delegate*<int, uint*, void>)load(
+            contextPtr->glDeleteVertexArrays = LoadGLFunction(load,
                 "glDeleteVertexArrays"u8);
-            contextPtr->glDisablei = (delegate*<uint, uint, void>)load("glDisablei"u8);
-            contextPtr->glEnablei = (delegate*<uint, uint, void>)load("glEnablei"u8);
-            contextPtr->glEndConditionalRender = (delegate*<void>)load("glEndConditionalRender"u8);
-            contextPtr->glEndTransformFeedback = (delegate*<void>)load("glEndTransformFeedback"u8);
-            contextPtr->glFlushMappedBufferRange = (delegate*<uint, IntPtr, UIntPtr, void>)load(
+            contextPtr->glDisablei = LoadGLFunction(load, "glDisablei"u8);
+            contextPtr->glEnablei = LoadGLFunction(load, "glEnablei"u8);
+            contextPtr->glEndConditionalRender = LoadGLFunction(load, "glEndConditionalRender"u8);
+            contextPtr->glEndTransformFeedback = LoadGLFunction(load, "glEndTransformFeedback"u8);
+            contextPtr->glFlushMappedBufferRange = LoadGLFunction(load,
                 "glFlushMappedBufferRange"u8);
-            contextPtr->glFramebufferRenderbuffer = (delegate*<uint, uint, uint, uint, void>)load(
+            contextPtr->glFramebufferRenderbuffer = LoadGLFunction(load,
                 "glFramebufferRenderbuffer"u8);
-            contextPtr->glFramebufferTexture1D = (delegate*<uint, uint, uint, uint, int, void>)load(
+            contextPtr->glFramebufferTexture1D = LoadGLFunction(load,
                 "glFramebufferTexture1D"u8);
-            contextPtr->glFramebufferTexture2D = (delegate*<uint, uint, uint, uint, int, void>)load(
+            contextPtr->glFramebufferTexture2D = LoadGLFunction(load,
                 "glFramebufferTexture2D"u8);
-            contextPtr->glFramebufferTexture3D = (delegate*<uint, uint, uint, uint, int, int, void>)load(
+            contextPtr->glFramebufferTexture3D = LoadGLFunction(load,
                 "glFramebufferTexture3D"u8);
-            contextPtr->glFramebufferTextureLayer = (delegate*<uint, uint, uint, int, int, void>)load(
+            contextPtr->glFramebufferTextureLayer = LoadGLFunction(load,
                 "glFramebufferTextureLayer"u8);
-            contextPtr->glGenFramebuffers = (delegate*<uint, uint*, void>)load(
+            contextPtr->glGenFramebuffers = LoadGLFunction(load,
                 "glGenFramebuffers"u8);
-            contextPtr->glGenRenderbuffers = (delegate*<int, uint*, void>)load(
+            contextPtr->glGenRenderbuffers = LoadGLFunction(load,
                 "glGenRenderbuffers"u8);
-            contextPtr->glGenVertexArrays = (delegate*<int, uint*, void>)load(
+            contextPtr->glGenVertexArrays = LoadGLFunction(load,
                 "glGenVertexArrays"u8);
-            contextPtr->glGenerateMipmap = (delegate*<uint, void>)load("glGenerateMipmap"u8);
-            contextPtr->glGetBooleani_v = (delegate*<uint, uint, bool*, void>)load(
+            contextPtr->glGenerateMipmap = LoadGLFunction(load, "glGenerateMipmap"u8);
+            contextPtr->glGetBooleani_v = LoadGLFunction(load,
                 "glGetBooleani_v"u8);
-            contextPtr->glGetFragDataLocation = (delegate*<uint, byte*, int>)load(
+            contextPtr->glGetFragDataLocation = LoadGLFunction(load,
                 "glGetFragDataLocation"u8);
-            contextPtr->glGetFramebufferAttachmentParameteriv = (delegate*<uint, uint, uint, int*, void>)load(
+            contextPtr->glGetFramebufferAttachmentParameteriv = LoadGLFunction(load,
                 "glGetFramebufferAttachmentParameteriv"u8);
-            contextPtr->glGetIntegeri_v = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetIntegeri_v = LoadGLFunction(load,
                 "glGetIntegeri_v"u8);
-            contextPtr->glGetRenderbufferParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetRenderbufferParameteriv = LoadGLFunction(load,
                 "glGetRenderbufferParameteriv"u8);
-            contextPtr->glGetStringi = (delegate*<uint, uint, byte*>)load("glGetStringi"u8);
-            contextPtr->glGetTexParameterIiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetStringi = LoadGLFunction(load, "glGetStringi"u8);
+            contextPtr->glGetTexParameterIiv = LoadGLFunction(load,
                 "glGetTexParameterIiv"u8);
-            contextPtr->glGetTexParameterIuiv = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glGetTexParameterIuiv = LoadGLFunction(load,
                 "glGetTexParameterIuiv"u8);
-            contextPtr->glGetTransformFeedbackVarying = (delegate*<uint, uint, uint, uint*, uint*, uint*, byte*, void>)load(
+            contextPtr->glGetTransformFeedbackVarying = LoadGLFunction(load,
                 "glGetTransformFeedbackVarying"u8);
-            contextPtr->glGetUniformuiv = (delegate*<uint, int, uint*, void>)load(
+            contextPtr->glGetUniformuiv = LoadGLFunction(load,
                 "glGetUniformuiv"u8);
-            contextPtr->glGetVertexAttribIiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetVertexAttribIiv = LoadGLFunction(load,
                 "glGetVertexAttribIiv"u8);
-            contextPtr->glGetVertexAttribIuiv = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glGetVertexAttribIuiv = LoadGLFunction(load,
                 "glGetVertexAttribIuiv"u8);
-            contextPtr->glIsEnabledi = (delegate*<uint, uint, bool>)load("glIsEnabledi"u8);
-            contextPtr->glIsFramebuffer = (delegate*<uint, bool>)load("glIsFramebuffer"u8);
-            contextPtr->glIsRenderbuffer = (delegate*<uint, bool>)load("glIsRenderbuffer"u8);
-            contextPtr->glIsVertexArray = (delegate*<uint, bool>)load("glIsVertexArray"u8);
-            contextPtr->glMapBufferRange = (delegate*<uint, IntPtr, UIntPtr, uint, void*>)load(
+            contextPtr->glIsEnabledi = LoadGLFunction(load, "glIsEnabledi"u8);
+            contextPtr->glIsFramebuffer = LoadGLFunction(load, "glIsFramebuffer"u8);
+            contextPtr->glIsRenderbuffer = LoadGLFunction(load, "glIsRenderbuffer"u8);
+            contextPtr->glIsVertexArray = LoadGLFunction(load, "glIsVertexArray"u8);
+            contextPtr->glMapBufferRange = LoadGLFunction(load,
                 "glMapBufferRange"u8);
-            contextPtr->glRenderbufferStorage = (delegate*<uint, uint, int, int, void>)load(
+            contextPtr->glRenderbufferStorage = LoadGLFunction(load,
                 "glRenderbufferStorage"u8);
-            contextPtr->glRenderbufferStorageMultisample = (delegate*<uint, uint, uint, uint, uint, void>)load(
+            contextPtr->glRenderbufferStorageMultisample = LoadGLFunction(load,
                 "glRenderbufferStorageMultisample"u8);
-            contextPtr->glTexParameterIiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glTexParameterIiv = LoadGLFunction(load,
                 "glTexParameterIiv"u8);
-            contextPtr->glTexParameterIuiv = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glTexParameterIuiv = LoadGLFunction(load,
                 "glTexParameterIuiv"u8);
-            contextPtr->glTransformFeedbackVaryings = (delegate*<uint, uint, byte*, byte*, uint, void>)load(
+            contextPtr->glTransformFeedbackVaryings = LoadGLFunction(load,
                 "glTransformFeedbackVaryings"u8);
-            contextPtr->glUniform1ui = (delegate*<int, uint, void>)load("glUniform1ui"u8);
-            contextPtr->glUniform1uiv = (delegate*<int, uint, uint*, void>)load("glUniform1uiv"u8);
-            contextPtr->glUniform2ui = (delegate*<int, uint, uint, void>)load("glUniform2ui"u8);
-            contextPtr->glUniform2uiv = (delegate*<int, uint, uint*, void>)load("glUniform2uiv"u8);
-            contextPtr->glUniform3ui = (delegate*<int, uint, uint, uint, void>)load(
+            contextPtr->glUniform1ui = LoadGLFunction(load, "glUniform1ui"u8);
+            contextPtr->glUniform1uiv = LoadGLFunction(load, "glUniform1uiv"u8);
+            contextPtr->glUniform2ui = LoadGLFunction(load, "glUniform2ui"u8);
+            contextPtr->glUniform2uiv = LoadGLFunction(load, "glUniform2uiv"u8);
+            contextPtr->glUniform3ui = LoadGLFunction(load,
                 "glUniform3ui"u8);
-            contextPtr->glUniform3uiv = (delegate*<int, uint, uint*, void>)load("glUniform3uiv"u8);
-            contextPtr->glUniform4ui = (delegate*<int, uint, uint, uint, uint, void>)load(
+            contextPtr->glUniform3uiv = LoadGLFunction(load, "glUniform3uiv"u8);
+            contextPtr->glUniform4ui = LoadGLFunction(load,
                 "glUniform4ui"u8);
-            contextPtr->glUniform4uiv = (delegate*<int, uint, uint*, void>)load("glUniform4uiv"u8);
-            contextPtr->glVertexAttribI1i = (delegate*<uint, int, void>)load(
+            contextPtr->glUniform4uiv = LoadGLFunction(load, "glUniform4uiv"u8);
+            contextPtr->glVertexAttribI1i = LoadGLFunction(load,
                 "glVertexAttribI1i"u8);
-            contextPtr->glVertexAttribI1iv = (delegate*<uint, int*, void>)load(
+            contextPtr->glVertexAttribI1iv = LoadGLFunction(load,
                 "glVertexAttribI1iv"u8);
-            contextPtr->glVertexAttribI1ui = (delegate*<uint, uint, void>)load(
+            contextPtr->glVertexAttribI1ui = LoadGLFunction(load,
                 "glVertexAttribI1ui"u8);
-            contextPtr->glVertexAttribI1uiv = (delegate*<uint, uint*, void>)load(
+            contextPtr->glVertexAttribI1uiv = LoadGLFunction(load,
                 "glVertexAttribI1uiv"u8);
-            contextPtr->glVertexAttribI2i = (delegate*<uint, int, int, void>)load(
+            contextPtr->glVertexAttribI2i = LoadGLFunction(load,
                 "glVertexAttribI2i"u8);
-            contextPtr->glVertexAttribI2iv = (delegate*<uint, int*, void>)load(
+            contextPtr->glVertexAttribI2iv = LoadGLFunction(load,
                 "glVertexAttribI2iv"u8);
-            contextPtr->glVertexAttribI2ui = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glVertexAttribI2ui = LoadGLFunction(load,
                 "glVertexAttribI2ui"u8);
-            contextPtr->glVertexAttribI2uiv = (delegate*<uint, uint*, void>)load(
+            contextPtr->glVertexAttribI2uiv = LoadGLFunction(load,
                 "glVertexAttribI2uiv"u8);
-            contextPtr->glVertexAttribI3i = (delegate*<uint, int, int, int, void>)load(
+            contextPtr->glVertexAttribI3i = LoadGLFunction(load,
                 "glVertexAttribI3i"u8);
-            contextPtr->glVertexAttribI3iv = (delegate*<uint, int*, void>)load(
+            contextPtr->glVertexAttribI3iv = LoadGLFunction(load,
                 "glVertexAttribI3iv"u8);
-            contextPtr->glVertexAttribI3ui = (delegate*<uint, uint, uint, uint, void>)load(
+            contextPtr->glVertexAttribI3ui = LoadGLFunction(load,
                 "glVertexAttribI3ui"u8);
-            contextPtr->glVertexAttribI3uiv = (delegate*<uint, uint*, void>)load(
+            contextPtr->glVertexAttribI3uiv = LoadGLFunction(load,
                 "glVertexAttribI3uiv"u8);
-            contextPtr->glVertexAttribI4bv = (delegate*<uint, sbyte*, void>)load(
+            contextPtr->glVertexAttribI4bv = LoadGLFunction(load,
                 "glVertexAttribI4bv"u8);
-            contextPtr->glVertexAttribI4i = (delegate*<uint, int, int, int, int, void>)load(
+            contextPtr->glVertexAttribI4i = LoadGLFunction(load,
                 "glVertexAttribI4i"u8);
-            contextPtr->glVertexAttribI4iv = (delegate*<uint, int*, void>)load(
+            contextPtr->glVertexAttribI4iv = LoadGLFunction(load,
                 "glVertexAttribI4iv"u8);
-            contextPtr->glVertexAttribI4sv = (delegate*<uint, short*, void>)load(
+            contextPtr->glVertexAttribI4sv = LoadGLFunction(load,
                 "glVertexAttribI4sv"u8);
-            contextPtr->glVertexAttribI4ubv = (delegate*<uint, byte*, void>)load(
+            contextPtr->glVertexAttribI4ubv = LoadGLFunction(load,
                 "glVertexAttribI4ubv"u8);
-            contextPtr->glVertexAttribI4ui = (delegate*<uint, uint, uint, uint, uint, void>)load(
+            contextPtr->glVertexAttribI4ui = LoadGLFunction(load,
                 "glVertexAttribI4ui"u8);
-            contextPtr->glVertexAttribI4uiv = (delegate*<uint, uint*, void>)load(
+            contextPtr->glVertexAttribI4uiv = LoadGLFunction(load,
                 "glVertexAttribI4uiv"u8);
-            contextPtr->glVertexAttribI4usv = (delegate*<uint, ushort*, void>)load(
+            contextPtr->glVertexAttribI4usv = LoadGLFunction(load,
                 "glVertexAttribI4usv"u8);
-            contextPtr->glVertexAttribIPointer = (delegate*<uint, int, uint, uint, void*, void>)load(
+            contextPtr->glVertexAttribIPointer = LoadGLFunction(load,
                 "glVertexAttribIPointer"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 3.0 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 3.0 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore31(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore31(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core31)
             {
@@ -655,43 +687,46 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBindBufferBase = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glBindBufferBase = LoadGLFunction(load,
                 "glBindBufferBase"u8);
-            contextPtr->glBindBufferRange = (delegate*<uint, uint, uint, IntPtr, UIntPtr, void>)load(
+            contextPtr->glBindBufferRange = LoadGLFunction(load,
                 "glBindBufferRange"u8);
-            contextPtr->glCopyBufferSubData = (delegate*<uint, uint, IntPtr, IntPtr, UIntPtr, void>)load(
+            contextPtr->glCopyBufferSubData = LoadGLFunction(load,
                 "glCopyBufferSubData"u8);
-            contextPtr->glDrawArraysInstanced = (delegate*<uint, int, uint, uint, void>)load(
+            contextPtr->glDrawArraysInstanced = LoadGLFunction(load,
                 "glDrawArraysInstanced"u8);
-            contextPtr->glDrawElementsInstanced = (delegate*<uint, uint, uint, void*, uint, void>)load(
+            contextPtr->glDrawElementsInstanced = LoadGLFunction(load,
                 "glDrawElementsInstanced"u8);
-            contextPtr->glGetActiveUniformBlockName = (delegate*<uint, uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetActiveUniformBlockName = LoadGLFunction(load,
                 "glGetActiveUniformBlockName"u8);
-            contextPtr->glGetActiveUniformBlockiv = (delegate*<uint, uint, uint, int*, void>)load(
+            contextPtr->glGetActiveUniformBlockiv = LoadGLFunction(load,
                 "glGetActiveUniformBlockiv"u8);
-            contextPtr->glGetActiveUniformName = (delegate*<uint, uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetActiveUniformName = LoadGLFunction(load,
                 "glGetActiveUniformName"u8);
-            contextPtr->glGetActiveUniformsiv = (delegate*<uint, uint, uint*, uint, int*, void>)load(
+            contextPtr->glGetActiveUniformsiv = LoadGLFunction(load,
                 "glGetActiveUniformsiv"u8);
-            contextPtr->glGetIntegeri_v = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetIntegeri_v = LoadGLFunction(load,
                 "glGetIntegeri_v"u8);
-            contextPtr->glGetUniformBlockIndex = (delegate*<uint, byte*, uint>)load(
+            contextPtr->glGetUniformBlockIndex = LoadGLFunction(load,
                 "glGetUniformBlockIndex"u8);
-            contextPtr->glGetUniformIndices = (delegate*<uint, uint, byte*, char**, uint*, void>)load(
+            contextPtr->glGetUniformIndices = LoadGLFunction(load,
                 "glGetUniformIndices"u8);
-            contextPtr->glPrimitiveRestartIndex = (delegate*<uint, void>)load(
+            contextPtr->glPrimitiveRestartIndex = LoadGLFunction(load,
                 "glPrimitiveRestartIndex"u8);
-            contextPtr->glTexBuffer = (delegate*<uint, uint, uint, void>)load("glTexBuffer"u8);
-            contextPtr->glUniformBlockBinding = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glTexBuffer = LoadGLFunction(load, "glTexBuffer"u8);
+            contextPtr->glUniformBlockBinding = LoadGLFunction(load,
                 "glUniformBlockBinding"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 3.1 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 3.1 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore32(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore32(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core32)
             {
@@ -701,45 +736,48 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glClientWaitSync = (delegate*<GLsync, uint, ulong, uint>)load(
+            contextPtr->glClientWaitSync = LoadGLFunction(load,
                 "glClientWaitSync"u8);
-            contextPtr->glDeleteSync = (delegate*<GLsync, void>)load("glDeleteSync"u8);
-            contextPtr->glDrawElementsBaseVertex = (delegate*<uint, uint, uint, void*, int, void>)load(
+            contextPtr->glDeleteSync = LoadGLFunction(load, "glDeleteSync"u8);
+            contextPtr->glDrawElementsBaseVertex = LoadGLFunction(load,
                 "glDrawElementsBaseVertex"u8);
-            contextPtr->glDrawElementsInstancedBaseVertex = (delegate*<uint, uint, uint, void*, uint, int, void>)load(
+            contextPtr->glDrawElementsInstancedBaseVertex = LoadGLFunction(load,
                 "glDrawElementsInstancedBaseVertex"u8);
-            contextPtr->glDrawRangeElementsBaseVertex = (delegate*<uint, uint, uint, uint, uint, void*, int, void>)load(
+            contextPtr->glDrawRangeElementsBaseVertex = LoadGLFunction(load,
                 "glDrawRangeElementsBaseVertex"u8);
-            contextPtr->glFenceSync = (delegate*<uint, uint, GLsync>)load("glFenceSync"u8);
-            contextPtr->glFramebufferTexture = (delegate*<uint, uint, uint, int, void>)load(
+            contextPtr->glFenceSync = LoadGLFunction(load, "glFenceSync"u8);
+            contextPtr->glFramebufferTexture = LoadGLFunction(load,
                 "glFramebufferTexture"u8);
-            contextPtr->glGetBufferParameteri64v = (delegate*<uint, uint, long*, void>)load(
+            contextPtr->glGetBufferParameteri64v = LoadGLFunction(load,
                 "glGetBufferParameteri64v"u8);
-            contextPtr->glGetInteger64i_v = (delegate*<uint, uint, long*, void>)load(
+            contextPtr->glGetInteger64i_v = LoadGLFunction(load,
                 "glGetInteger64i_v"u8);
-            contextPtr->glGetInteger64v = (delegate*<uint, long*, void>)load("glGetInteger64v"u8);
-            contextPtr->glGetMultisamplefv = (delegate*<uint, uint, float*, void>)load(
+            contextPtr->glGetInteger64v = LoadGLFunction(load, "glGetInteger64v"u8);
+            contextPtr->glGetMultisamplefv = LoadGLFunction(load,
                 "glGetMultisamplefv"u8);
-            contextPtr->glGetSynciv = (delegate*<GLsync, uint, uint, uint*, int*, void>)load(
+            contextPtr->glGetSynciv = LoadGLFunction(load,
                 "glGetSynciv"u8);
-            contextPtr->glIsSync = (delegate*<GLsync, bool>)load("glIsSync"u8);
-            contextPtr->glMultiDrawElementsBaseVertex = (delegate*<uint, uint*, uint, void*, void**, uint, int*, void>)load(
+            contextPtr->glIsSync = LoadGLFunction(load, "glIsSync"u8);
+            contextPtr->glMultiDrawElementsBaseVertex = LoadGLFunction(load,
                 "glMultiDrawElementsBaseVertex"u8);
-            contextPtr->glProvokingVertex = (delegate*<uint, void>)load("glProvokingVertex"u8);
-            contextPtr->glSampleMaski = (delegate*<uint, uint, void>)load("glSampleMaski"u8);
-            contextPtr->glTexImage2DMultisample = (delegate*<uint, uint, uint, uint, uint, bool, void>)load(
+            contextPtr->glProvokingVertex = LoadGLFunction(load, "glProvokingVertex"u8);
+            contextPtr->glSampleMaski = LoadGLFunction(load, "glSampleMaski"u8);
+            contextPtr->glTexImage2DMultisample = LoadGLFunction(load,
                 "glTexImage2DMultisample"u8);
-            contextPtr->glTexImage3DMultisample = (delegate*<uint, uint, uint, uint, uint, uint, bool, void>)load(
+            contextPtr->glTexImage3DMultisample = LoadGLFunction(load,
                 "glTexImage3DMultisample"u8);
-            contextPtr->glWaitSync = (delegate*<GLsync, uint, ulong, void>)load("glWaitSync"u8);
+            contextPtr->glWaitSync = LoadGLFunction(load, "glWaitSync"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 3.2 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 3.2 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore33(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore33(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core33)
             {
@@ -749,66 +787,69 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBindFragDataLocationIndexed = (delegate*<uint, uint, uint, byte*, void>)load(
+            contextPtr->glBindFragDataLocationIndexed = LoadGLFunction(load,
                 "glBindFragDataLocationIndexed"u8);
-            contextPtr->glBindSampler = (delegate*<uint, uint, void>)load("glBindSampler"u8);
-            contextPtr->glDeleteSamplers = (delegate*<uint, uint*, void>)load(
+            contextPtr->glBindSampler = LoadGLFunction(load, "glBindSampler"u8);
+            contextPtr->glDeleteSamplers = LoadGLFunction(load,
                 "glDeleteSamplers"u8);
-            contextPtr->glGenSamplers = (delegate*<uint, uint*, void>)load("glGenSamplers"u8);
-            contextPtr->glGetFragDataIndex = (delegate*<uint, byte*, int>)load(
+            contextPtr->glGenSamplers = LoadGLFunction(load, "glGenSamplers"u8);
+            contextPtr->glGetFragDataIndex = LoadGLFunction(load,
                 "glGetFragDataIndex"u8);
-            contextPtr->glGetQueryObjecti64v = (delegate*<uint, uint, long*, void>)load(
+            contextPtr->glGetQueryObjecti64v = LoadGLFunction(load,
                 "glGetQueryObjecti64v"u8);
-            contextPtr->glGetQueryObjectui64v = (delegate*<uint, uint, ulong*, void>)load(
+            contextPtr->glGetQueryObjectui64v = LoadGLFunction(load,
                 "glGetQueryObjectui64v"u8);
-            contextPtr->glGetSamplerParameterIiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetSamplerParameterIiv = LoadGLFunction(load,
                 "glGetSamplerParameterIiv"u8);
-            contextPtr->glGetSamplerParameterIuiv = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glGetSamplerParameterIuiv = LoadGLFunction(load,
                 "glGetSamplerParameterIuiv"u8);
-            contextPtr->glGetSamplerParameterfv = (delegate*<uint, uint, float*, void>)load(
+            contextPtr->glGetSamplerParameterfv = LoadGLFunction(load,
                 "glGetSamplerParameterfv"u8);
-            contextPtr->glGetSamplerParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetSamplerParameteriv = LoadGLFunction(load,
                 "glGetSamplerParameteriv"u8);
-            contextPtr->glIsSampler = (delegate*<uint, bool>)load("glIsSampler"u8);
-            contextPtr->glQueryCounter = (delegate*<uint, uint, void>)load("glQueryCounter"u8);
-            contextPtr->glSamplerParameterIiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glIsSampler = LoadGLFunction(load, "glIsSampler"u8);
+            contextPtr->glQueryCounter = LoadGLFunction(load, "glQueryCounter"u8);
+            contextPtr->glSamplerParameterIiv = LoadGLFunction(load,
                 "glSamplerParameterIiv"u8);
-            contextPtr->glSamplerParameterIuiv = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glSamplerParameterIuiv = LoadGLFunction(load,
                 "glSamplerParameterIuiv"u8);
-            contextPtr->glSamplerParameterf = (delegate*<uint, uint, float, void>)load(
+            contextPtr->glSamplerParameterf = LoadGLFunction(load,
                 "glSamplerParameterf"u8);
-            contextPtr->glSamplerParameterfv = (delegate*<uint, uint, float*, void>)load(
+            contextPtr->glSamplerParameterfv = LoadGLFunction(load,
                 "glSamplerParameterfv"u8);
-            contextPtr->glSamplerParameteri = (delegate*<uint, uint, int, void>)load(
+            contextPtr->glSamplerParameteri = LoadGLFunction(load,
                 "glSamplerParameteri"u8);
-            contextPtr->glSamplerParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glSamplerParameteriv = LoadGLFunction(load,
                 "glSamplerParameteriv"u8);
-            contextPtr->glVertexAttribDivisor = (delegate*<uint, uint, void>)load(
+            contextPtr->glVertexAttribDivisor = LoadGLFunction(load,
                 "glVertexAttribDivisor"u8);
-            contextPtr->glVertexAttribP1ui = (delegate*<uint, uint, bool, uint, void>)load(
+            contextPtr->glVertexAttribP1ui = LoadGLFunction(load,
                 "glVertexAttribP1ui"u8);
-            contextPtr->glVertexAttribP1uiv = (delegate*<uint, uint, bool, uint*, void>)load(
+            contextPtr->glVertexAttribP1uiv = LoadGLFunction(load,
                 "glVertexAttribP1uiv"u8);
-            contextPtr->glVertexAttribP2ui = (delegate*<uint, uint, bool, uint, void>)load(
+            contextPtr->glVertexAttribP2ui = LoadGLFunction(load,
                 "glVertexAttribP2ui"u8);
-            contextPtr->glVertexAttribP2uiv = (delegate*<uint, uint, bool, uint*, void>)load(
+            contextPtr->glVertexAttribP2uiv = LoadGLFunction(load,
                 "glVertexAttribP2uiv"u8);
-            contextPtr->glVertexAttribP3ui = (delegate*<uint, uint, bool, uint, void>)load(
+            contextPtr->glVertexAttribP3ui = LoadGLFunction(load,
                 "glVertexAttribP3ui"u8);
-            contextPtr->glVertexAttribP3uiv = (delegate*<uint, uint, bool, uint*, void>)load(
+            contextPtr->glVertexAttribP3uiv = LoadGLFunction(load,
                 "glVertexAttribP3uiv"u8);
-            contextPtr->glVertexAttribP4ui = (delegate*<uint, uint, bool, uint, void>)load(
+            contextPtr->glVertexAttribP4ui = LoadGLFunction(load,
                 "glVertexAttribP4ui"u8);
-            contextPtr->glVertexAttribP4uiv = (delegate*<uint, uint, bool, uint*, void>)load(
+            contextPtr->glVertexAttribP4uiv = LoadGLFunction(load,
                 "glVertexAttribP4uiv"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 3.3 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 3.3 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore40(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore40(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core40)
             {
@@ -818,97 +859,100 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBeginQueryIndexed = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glBeginQueryIndexed = LoadGLFunction(load,
                 "glBeginQueryIndexed"u8);
-            contextPtr->glBindTransformFeedback = (delegate*<uint, uint, void>)load(
+            contextPtr->glBindTransformFeedback = LoadGLFunction(load,
                 "glBindTransformFeedback"u8);
-            contextPtr->glBlendEquationSeparatei = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glBlendEquationSeparatei = LoadGLFunction(load,
                 "glBlendEquationSeparatei"u8);
-            contextPtr->glBlendEquationi = (delegate*<uint, uint, void>)load("glBlendEquationi"u8);
-            contextPtr->glBlendFuncSeparatei = (delegate*<uint, uint, uint, uint, uint, void>)load(
+            contextPtr->glBlendEquationi = LoadGLFunction(load, "glBlendEquationi"u8);
+            contextPtr->glBlendFuncSeparatei = LoadGLFunction(load,
                 "glBlendFuncSeparatei"u8);
-            contextPtr->glBlendFunci = (delegate*<uint, uint, uint, void>)load("glBlendFunci"u8);
-            contextPtr->glDeleteTransformFeedbacks = (delegate*<uint, uint*, void>)load(
+            contextPtr->glBlendFunci = LoadGLFunction(load, "glBlendFunci"u8);
+            contextPtr->glDeleteTransformFeedbacks = LoadGLFunction(load,
                 "glDeleteTransformFeedbacks"u8);
-            contextPtr->glDrawArraysIndirect = (delegate*<uint, void*, void>)load(
+            contextPtr->glDrawArraysIndirect = LoadGLFunction(load,
                 "glDrawArraysIndirect"u8);
-            contextPtr->glDrawElementsIndirect = (delegate*<uint, uint, void*, void>)load(
+            contextPtr->glDrawElementsIndirect = LoadGLFunction(load,
                 "glDrawElementsIndirect"u8);
-            contextPtr->glDrawTransformFeedback = (delegate*<uint, uint, void>)load(
+            contextPtr->glDrawTransformFeedback = LoadGLFunction(load,
                 "glDrawTransformFeedback"u8);
-            contextPtr->glDrawTransformFeedbackStream = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glDrawTransformFeedbackStream = LoadGLFunction(load,
                 "glDrawTransformFeedbackStream"u8);
-            contextPtr->glEndQueryIndexed = (delegate*<uint, uint, void>)load(
+            contextPtr->glEndQueryIndexed = LoadGLFunction(load,
                 "glEndQueryIndexed"u8);
-            contextPtr->glGenTransformFeedbacks = (delegate*<uint, uint*, void>)load(
+            contextPtr->glGenTransformFeedbacks = LoadGLFunction(load,
                 "glGenTransformFeedbacks"u8);
-            contextPtr->glGetActiveSubroutineName = (delegate*<uint, uint, uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetActiveSubroutineName = LoadGLFunction(load,
                 "glGetActiveSubroutineName"u8);
-            contextPtr->glGetActiveSubroutineUniformName = (delegate*<uint, uint, uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetActiveSubroutineUniformName = LoadGLFunction(load,
                 "glGetActiveSubroutineUniformName"u8);
-            contextPtr->glGetActiveSubroutineUniformiv = (delegate*<uint, uint, uint, uint, int*, void>)load(
+            contextPtr->glGetActiveSubroutineUniformiv = LoadGLFunction(load,
                 "glGetActiveSubroutineUniformiv"u8);
-            contextPtr->glGetProgramStageiv = (delegate*<uint, uint, uint, int*, void>)load(
+            contextPtr->glGetProgramStageiv = LoadGLFunction(load,
                 "glGetProgramStageiv"u8);
-            contextPtr->glGetQueryIndexediv = (delegate*<uint, uint, uint, int*, void>)load(
+            contextPtr->glGetQueryIndexediv = LoadGLFunction(load,
                 "glGetQueryIndexediv"u8);
-            contextPtr->glGetSubroutineIndex = (delegate*<uint, uint, byte*, uint>)load(
+            contextPtr->glGetSubroutineIndex = LoadGLFunction(load,
                 "glGetSubroutineIndex"u8);
-            contextPtr->glGetSubroutineUniformLocation = (delegate*<uint, uint, byte*, int>)load(
+            contextPtr->glGetSubroutineUniformLocation = LoadGLFunction(load,
                 "glGetSubroutineUniformLocation"u8);
-            contextPtr->glGetUniformSubroutineuiv = (delegate*<uint, int, uint*, void>)load(
+            contextPtr->glGetUniformSubroutineuiv = LoadGLFunction(load,
                 "glGetUniformSubroutineuiv"u8);
-            contextPtr->glGetUniformdv = (delegate*<uint, int, double*, void>)load(
+            contextPtr->glGetUniformdv = LoadGLFunction(load,
                 "glGetUniformdv"u8);
-            contextPtr->glIsTransformFeedback = (delegate*<uint, bool>)load(
+            contextPtr->glIsTransformFeedback = LoadGLFunction(load,
                 "glIsTransformFeedback"u8);
-            contextPtr->glMinSampleShading = (delegate*<float, void>)load("glMinSampleShading"u8);
-            contextPtr->glPatchParameterfv = (delegate*<uint, float*, void>)load(
+            contextPtr->glMinSampleShading = LoadGLFunction(load, "glMinSampleShading"u8);
+            contextPtr->glPatchParameterfv = LoadGLFunction(load,
                 "glPatchParameterfv"u8);
-            contextPtr->glPatchParameteri = (delegate*<uint, int, void>)load(
+            contextPtr->glPatchParameteri = LoadGLFunction(load,
                 "glPatchParameteri"u8);
-            contextPtr->glPauseTransformFeedback = (delegate*<void>)load(
+            contextPtr->glPauseTransformFeedback = LoadGLFunction(load,
                 "glPauseTransformFeedback"u8);
-            contextPtr->glResumeTransformFeedback = (delegate*<void>)load(
+            contextPtr->glResumeTransformFeedback = LoadGLFunction(load,
                 "glResumeTransformFeedback"u8);
-            contextPtr->glUniform1d = (delegate*<int, double, void>)load("glUniform1d"u8);
-            contextPtr->glUniform1dv = (delegate*<int, uint, double*, void>)load("glUniform1dv"u8);
-            contextPtr->glUniform2d = (delegate*<int, double, double, void>)load("glUniform2d"u8);
-            contextPtr->glUniform2dv = (delegate*<int, uint, double*, void>)load("glUniform2dv"u8);
-            contextPtr->glUniform3d = (delegate*<int, double, double, double, void>)load(
+            contextPtr->glUniform1d = LoadGLFunction(load, "glUniform1d"u8);
+            contextPtr->glUniform1dv = LoadGLFunction(load, "glUniform1dv"u8);
+            contextPtr->glUniform2d = LoadGLFunction(load, "glUniform2d"u8);
+            contextPtr->glUniform2dv = LoadGLFunction(load, "glUniform2dv"u8);
+            contextPtr->glUniform3d = LoadGLFunction(load,
                 "glUniform3d"u8);
-            contextPtr->glUniform3dv = (delegate*<int, uint, double*, void>)load("glUniform3dv"u8);
-            contextPtr->glUniform4d = (delegate*<int, double, double, double, double, void>)load(
+            contextPtr->glUniform3dv = LoadGLFunction(load, "glUniform3dv"u8);
+            contextPtr->glUniform4d = LoadGLFunction(load,
                 "glUniform4d"u8);
-            contextPtr->glUniform4dv = (delegate*<int, uint, double*, void>)load("glUniform4dv"u8);
-            contextPtr->glUniformMatrix2dv = (delegate*<int, uint, bool, double*, void>)load(
+            contextPtr->glUniform4dv = LoadGLFunction(load, "glUniform4dv"u8);
+            contextPtr->glUniformMatrix2dv = LoadGLFunction(load,
                 "glUniformMatrix2dv"u8);
-            contextPtr->glUniformMatrix2x3dv = (delegate*<int, uint, bool, double*, void>)load(
+            contextPtr->glUniformMatrix2x3dv = LoadGLFunction(load,
                 "glUniformMatrix2x3dv"u8);
-            contextPtr->glUniformMatrix2x4dv = (delegate*<int, uint, bool, double*, void>)load(
+            contextPtr->glUniformMatrix2x4dv = LoadGLFunction(load,
                 "glUniformMatrix2x4dv"u8);
-            contextPtr->glUniformMatrix3dv = (delegate*<int, uint, bool, double*, void>)load(
+            contextPtr->glUniformMatrix3dv = LoadGLFunction(load,
                 "glUniformMatrix3dv"u8);
-            contextPtr->glUniformMatrix3x2dv = (delegate*<int, uint, bool, double*, void>)load(
+            contextPtr->glUniformMatrix3x2dv = LoadGLFunction(load,
                 "glUniformMatrix3x2dv"u8);
-            contextPtr->glUniformMatrix3x4dv = (delegate*<int, uint, bool, double*, void>)load(
+            contextPtr->glUniformMatrix3x4dv = LoadGLFunction(load,
                 "glUniformMatrix3x4dv"u8);
-            contextPtr->glUniformMatrix4dv = (delegate*<int, uint, bool, double*, void>)load(
+            contextPtr->glUniformMatrix4dv = LoadGLFunction(load,
                 "glUniformMatrix4dv"u8);
-            contextPtr->glUniformMatrix4x2dv = (delegate*<int, uint, bool, double*, void>)load(
+            contextPtr->glUniformMatrix4x2dv = LoadGLFunction(load,
                 "glUniformMatrix4x2dv"u8);
-            contextPtr->glUniformMatrix4x3dv = (delegate*<int, uint, bool, double*, void>)load(
+            contextPtr->glUniformMatrix4x3dv = LoadGLFunction(load,
                 "glUniformMatrix4x3dv"u8);
-            contextPtr->glUniformSubroutinesuiv = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glUniformSubroutinesuiv = LoadGLFunction(load,
                 "glUniformSubroutinesuiv"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 4.0 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 4.0 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore41(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore41(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core41)
             {
@@ -918,187 +962,190 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glActiveShaderProgram = (delegate*<uint, uint, void>)load(
+            contextPtr->glActiveShaderProgram = LoadGLFunction(load,
                 "glActiveShaderProgram"u8);
-            contextPtr->glBindProgramPipeline = (delegate*<uint, void>)load(
+            contextPtr->glBindProgramPipeline = LoadGLFunction(load,
                 "glBindProgramPipeline"u8);
-            contextPtr->glClearDepthf = (delegate*<float, void>)load("glClearDepthf"u8);
-            contextPtr->glCreateShaderProgramv = (delegate*<uint, uint, byte*, uint>)load(
+            contextPtr->glClearDepthf = LoadGLFunction(load, "glClearDepthf"u8);
+            contextPtr->glCreateShaderProgramv = LoadGLFunction(load,
                 "glCreateShaderProgramv"u8);
-            contextPtr->glDeleteProgramPipelines = (delegate*<uint, uint*, void>)load(
+            contextPtr->glDeleteProgramPipelines = LoadGLFunction(load,
                 "glDeleteProgramPipelines"u8);
-            contextPtr->glDepthRangeArrayv = (delegate*<uint, uint, double*, void>)load(
+            contextPtr->glDepthRangeArrayv = LoadGLFunction(load,
                 "glDepthRangeArrayv"u8);
-            contextPtr->glDepthRangeIndexed = (delegate*<uint, double, double, void>)load(
+            contextPtr->glDepthRangeIndexed = LoadGLFunction(load,
                 "glDepthRangeIndexed"u8);
-            contextPtr->glDepthRangef = (delegate*<float, float, void>)load("glDepthRangef"u8);
-            contextPtr->glGenProgramPipelines = (delegate*<uint, uint*, void>)load(
+            contextPtr->glDepthRangef = LoadGLFunction(load, "glDepthRangef"u8);
+            contextPtr->glGenProgramPipelines = LoadGLFunction(load,
                 "glGenProgramPipelines"u8);
-            contextPtr->glGetDoublei_v = (delegate*<uint, uint, double*, void>)load(
+            contextPtr->glGetDoublei_v = LoadGLFunction(load,
                 "glGetDoublei_v"u8);
-            contextPtr->glGetFloati_v = (delegate*<uint, uint, float*, void>)load(
+            contextPtr->glGetFloati_v = LoadGLFunction(load,
                 "glGetFloati_v"u8);
-            contextPtr->glGetProgramBinary = (delegate*<uint, uint, uint*, uint*, void*, void>)load(
+            contextPtr->glGetProgramBinary = LoadGLFunction(load,
                 "glGetProgramBinary"u8);
-            contextPtr->glGetProgramPipelineInfoLog = (delegate*<uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetProgramPipelineInfoLog = LoadGLFunction(load,
                 "glGetProgramPipelineInfoLog"u8);
-            contextPtr->glGetProgramPipelineiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetProgramPipelineiv = LoadGLFunction(load,
                 "glGetProgramPipelineiv"u8);
-            contextPtr->glGetShaderPrecisionFormat = (delegate*<uint, uint, int*, int*, void>)load(
+            contextPtr->glGetShaderPrecisionFormat = LoadGLFunction(load,
                 "glGetShaderPrecisionFormat"u8);
-            contextPtr->glGetVertexAttribLdv = (delegate*<uint, uint, double*, void>)load(
+            contextPtr->glGetVertexAttribLdv = LoadGLFunction(load,
                 "glGetVertexAttribLdv"u8);
-            contextPtr->glIsProgramPipeline = (delegate*<uint, bool>)load("glIsProgramPipeline"u8);
-            contextPtr->glProgramBinary = (delegate*<uint, uint, void*, uint, void>)load(
+            contextPtr->glIsProgramPipeline = LoadGLFunction(load, "glIsProgramPipeline"u8);
+            contextPtr->glProgramBinary = LoadGLFunction(load,
                 "glProgramBinary"u8);
-            contextPtr->glProgramParameteri = (delegate*<uint, uint, int, void>)load(
+            contextPtr->glProgramParameteri = LoadGLFunction(load,
                 "glProgramParameteri"u8);
-            contextPtr->glProgramUniform1d = (delegate*<uint, int, double, void>)load(
+            contextPtr->glProgramUniform1d = LoadGLFunction(load,
                 "glProgramUniform1d"u8);
-            contextPtr->glProgramUniform1dv = (delegate*<uint, int, uint, double*, void>)load(
+            contextPtr->glProgramUniform1dv = LoadGLFunction(load,
                 "glProgramUniform1dv"u8);
-            contextPtr->glProgramUniform1f = (delegate*<uint, int, float, void>)load(
+            contextPtr->glProgramUniform1f = LoadGLFunction(load,
                 "glProgramUniform1f"u8);
-            contextPtr->glProgramUniform1fv = (delegate*<uint, int, uint, float*, void>)load(
+            contextPtr->glProgramUniform1fv = LoadGLFunction(load,
                 "glProgramUniform1fv"u8);
-            contextPtr->glProgramUniform1i = (delegate*<uint, int, int, void>)load(
+            contextPtr->glProgramUniform1i = LoadGLFunction(load,
                 "glProgramUniform1i"u8);
-            contextPtr->glProgramUniform1iv = (delegate*<uint, int, uint, int*, void>)load(
+            contextPtr->glProgramUniform1iv = LoadGLFunction(load,
                 "glProgramUniform1iv"u8);
-            contextPtr->glProgramUniform1ui = (delegate*<uint, int, uint, void>)load(
+            contextPtr->glProgramUniform1ui = LoadGLFunction(load,
                 "glProgramUniform1ui"u8);
-            contextPtr->glProgramUniform1uiv = (delegate*<uint, int, uint, uint*, void>)load(
+            contextPtr->glProgramUniform1uiv = LoadGLFunction(load,
                 "glProgramUniform1uiv"u8);
-            contextPtr->glProgramUniform2d = (delegate*<uint, int, double, double, void>)load(
+            contextPtr->glProgramUniform2d = LoadGLFunction(load,
                 "glProgramUniform2d"u8);
-            contextPtr->glProgramUniform2dv = (delegate*<uint, int, uint, double*, void>)load(
+            contextPtr->glProgramUniform2dv = LoadGLFunction(load,
                 "glProgramUniform2dv"u8);
-            contextPtr->glProgramUniform2f = (delegate*<uint, int, float, float, void>)load(
+            contextPtr->glProgramUniform2f = LoadGLFunction(load,
                 "glProgramUniform2f"u8);
-            contextPtr->glProgramUniform2fv = (delegate*<uint, int, uint, float*, void>)load(
+            contextPtr->glProgramUniform2fv = LoadGLFunction(load,
                 "glProgramUniform2fv"u8);
-            contextPtr->glProgramUniform2i = (delegate*<uint, int, int, int, void>)load(
+            contextPtr->glProgramUniform2i = LoadGLFunction(load,
                 "glProgramUniform2i"u8);
-            contextPtr->glProgramUniform2iv = (delegate*<uint, int, uint, int*, void>)load(
+            contextPtr->glProgramUniform2iv = LoadGLFunction(load,
                 "glProgramUniform2iv"u8);
-            contextPtr->glProgramUniform2ui = (delegate*<uint, int, uint, uint, void>)load(
+            contextPtr->glProgramUniform2ui = LoadGLFunction(load,
                 "glProgramUniform2ui"u8);
-            contextPtr->glProgramUniform2uiv = (delegate*<uint, int, uint, uint*, void>)load(
+            contextPtr->glProgramUniform2uiv = LoadGLFunction(load,
                 "glProgramUniform2uiv"u8);
-            contextPtr->glProgramUniform3d = (delegate*<uint, int, double, double, double, void>)load(
+            contextPtr->glProgramUniform3d = LoadGLFunction(load,
                 "glProgramUniform3d"u8);
-            contextPtr->glProgramUniform3dv = (delegate*<uint, int, uint, double*, void>)load(
+            contextPtr->glProgramUniform3dv = LoadGLFunction(load,
                 "glProgramUniform3dv"u8);
-            contextPtr->glProgramUniform3f = (delegate*<uint, int, float, float, float, void>)load(
+            contextPtr->glProgramUniform3f = LoadGLFunction(load,
                 "glProgramUniform3f"u8);
-            contextPtr->glProgramUniform3fv = (delegate*<uint, int, uint, float*, void>)load(
+            contextPtr->glProgramUniform3fv = LoadGLFunction(load,
                 "glProgramUniform3fv"u8);
-            contextPtr->glProgramUniform3i = (delegate*<uint, int, int, int, int, void>)load(
+            contextPtr->glProgramUniform3i = LoadGLFunction(load,
                 "glProgramUniform3i"u8);
-            contextPtr->glProgramUniform3iv = (delegate*<uint, int, uint, int*, void>)load(
+            contextPtr->glProgramUniform3iv = LoadGLFunction(load,
                 "glProgramUniform3iv"u8);
-            contextPtr->glProgramUniform3ui = (delegate*<uint, int, uint, uint, uint, void>)load(
+            contextPtr->glProgramUniform3ui = LoadGLFunction(load,
                 "glProgramUniform3ui"u8);
-            contextPtr->glProgramUniform3uiv = (delegate*<uint, int, uint, uint*, void>)load(
+            contextPtr->glProgramUniform3uiv = LoadGLFunction(load,
                 "glProgramUniform3uiv"u8);
-            contextPtr->glProgramUniform4d = (delegate*<uint, int, double, double, double, double, void>)load(
+            contextPtr->glProgramUniform4d = LoadGLFunction(load,
                 "glProgramUniform4d"u8);
-            contextPtr->glProgramUniform4dv = (delegate*<uint, int, uint, double*, void>)load(
+            contextPtr->glProgramUniform4dv = LoadGLFunction(load,
                 "glProgramUniform4dv"u8);
-            contextPtr->glProgramUniform4f = (delegate*<uint, int, float, float, float, float, void>)load(
+            contextPtr->glProgramUniform4f = LoadGLFunction(load,
                 "glProgramUniform4f"u8);
-            contextPtr->glProgramUniform4fv = (delegate*<uint, int, uint, float*, void>)load(
+            contextPtr->glProgramUniform4fv = LoadGLFunction(load,
                 "glProgramUniform4fv"u8);
-            contextPtr->glProgramUniform4i = (delegate*<uint, int, int, int, int, int, void>)load(
+            contextPtr->glProgramUniform4i = LoadGLFunction(load,
                 "glProgramUniform4i"u8);
-            contextPtr->glProgramUniform4iv = (delegate*<uint, int, uint, int*, void>)load(
+            contextPtr->glProgramUniform4iv = LoadGLFunction(load,
                 "glProgramUniform4iv"u8);
-            contextPtr->glProgramUniform4ui = (delegate*<uint, int, uint, uint, uint, uint, void>)load(
+            contextPtr->glProgramUniform4ui = LoadGLFunction(load,
                 "glProgramUniform4ui"u8);
-            contextPtr->glProgramUniform4uiv = (delegate*<uint, int, uint, uint*, void>)load(
+            contextPtr->glProgramUniform4uiv = LoadGLFunction(load,
                 "glProgramUniform4uiv"u8);
-            contextPtr->glProgramUniformMatrix2dv = (delegate*<uint, int, uint, bool, double*, void>)load(
+            contextPtr->glProgramUniformMatrix2dv = LoadGLFunction(load,
                 "glProgramUniformMatrix2dv"u8);
-            contextPtr->glProgramUniformMatrix2fv = (delegate*<uint, int, uint, bool, float*, void>)load(
+            contextPtr->glProgramUniformMatrix2fv = LoadGLFunction(load,
                 "glProgramUniformMatrix2fv"u8);
-            contextPtr->glProgramUniformMatrix2x3dv = (delegate*<uint, int, uint, bool, double*, void>)load(
+            contextPtr->glProgramUniformMatrix2x3dv = LoadGLFunction(load,
                 "glProgramUniformMatrix2x3dv"u8);
-            contextPtr->glProgramUniformMatrix2x3fv = (delegate*<uint, int, uint, bool, float*, void>)load(
+            contextPtr->glProgramUniformMatrix2x3fv = LoadGLFunction(load,
                 "glProgramUniformMatrix2x3fv"u8);
-            contextPtr->glProgramUniformMatrix2x4dv = (delegate*<uint, int, uint, bool, double*, void>)load(
+            contextPtr->glProgramUniformMatrix2x4dv = LoadGLFunction(load,
                 "glProgramUniformMatrix2x4dv"u8);
-            contextPtr->glProgramUniformMatrix2x4fv = (delegate*<uint, int, uint, bool, float*, void>)load(
+            contextPtr->glProgramUniformMatrix2x4fv = LoadGLFunction(load,
                 "glProgramUniformMatrix2x4fv"u8);
-            contextPtr->glProgramUniformMatrix3dv = (delegate*<uint, int, uint, bool, double*, void>)load(
+            contextPtr->glProgramUniformMatrix3dv = LoadGLFunction(load,
                 "glProgramUniformMatrix3dv"u8);
-            contextPtr->glProgramUniformMatrix3fv = (delegate*<uint, int, uint, bool, float*, void>)load(
+            contextPtr->glProgramUniformMatrix3fv = LoadGLFunction(load,
                 "glProgramUniformMatrix3fv"u8);
-            contextPtr->glProgramUniformMatrix3x2dv = (delegate*<uint, int, uint, bool, double*, void>)load(
+            contextPtr->glProgramUniformMatrix3x2dv = LoadGLFunction(load,
                 "glProgramUniformMatrix3x2dv"u8);
-            contextPtr->glProgramUniformMatrix3x2fv = (delegate*<uint, int, uint, bool, float*, void>)load(
+            contextPtr->glProgramUniformMatrix3x2fv = LoadGLFunction(load,
                 "glProgramUniformMatrix3x2fv"u8);
-            contextPtr->glProgramUniformMatrix3x4dv = (delegate*<uint, int, uint, bool, double*, void>)load(
+            contextPtr->glProgramUniformMatrix3x4dv = LoadGLFunction(load,
                 "glProgramUniformMatrix3x4dv"u8);
-            contextPtr->glProgramUniformMatrix3x4fv = (delegate*<uint, int, uint, bool, float*, void>)load(
+            contextPtr->glProgramUniformMatrix3x4fv = LoadGLFunction(load,
                 "glProgramUniformMatrix3x4fv"u8);
-            contextPtr->glProgramUniformMatrix4dv = (delegate*<uint, int, uint, bool, double*, void>)load(
+            contextPtr->glProgramUniformMatrix4dv = LoadGLFunction(load,
                 "glProgramUniformMatrix4dv"u8);
-            contextPtr->glProgramUniformMatrix4fv = (delegate*<uint, int, uint, bool, float*, void>)load(
+            contextPtr->glProgramUniformMatrix4fv = LoadGLFunction(load,
                 "glProgramUniformMatrix4fv"u8);
-            contextPtr->glProgramUniformMatrix4x2dv = (delegate*<uint, int, uint, bool, double*, void>)load(
+            contextPtr->glProgramUniformMatrix4x2dv = LoadGLFunction(load,
                 "glProgramUniformMatrix4x2dv"u8);
-            contextPtr->glProgramUniformMatrix4x2fv = (delegate*<uint, int, uint, bool, float*, void>)load(
+            contextPtr->glProgramUniformMatrix4x2fv = LoadGLFunction(load,
                 "glProgramUniformMatrix4x2fv"u8);
-            contextPtr->glProgramUniformMatrix4x3dv = (delegate*<uint, int, uint, bool, double*, void>)load(
+            contextPtr->glProgramUniformMatrix4x3dv = LoadGLFunction(load,
                 "glProgramUniformMatrix4x3dv"u8);
-            contextPtr->glProgramUniformMatrix4x3fv = (delegate*<uint, int, uint, bool, float*, void>)load(
+            contextPtr->glProgramUniformMatrix4x3fv = LoadGLFunction(load,
                 "glProgramUniformMatrix4x3fv"u8);
-            contextPtr->glReleaseShaderCompiler = (delegate*<void>)load(
+            contextPtr->glReleaseShaderCompiler = LoadGLFunction(load,
                 "glReleaseShaderCompiler"u8);
-            contextPtr->glScissorArrayv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glScissorArrayv = LoadGLFunction(load,
                 "glScissorArrayv"u8);
-            contextPtr->glScissorIndexed = (delegate*<uint, int, int, uint, uint, void>)load(
+            contextPtr->glScissorIndexed = LoadGLFunction(load,
                 "glScissorIndexed"u8);
-            contextPtr->glScissorIndexedv = (delegate*<uint, int*, void>)load(
+            contextPtr->glScissorIndexedv = LoadGLFunction(load,
                 "glScissorIndexedv"u8);
-            contextPtr->glShaderBinary = (delegate*<uint, uint*, uint, void*, uint, void>)load(
+            contextPtr->glShaderBinary = LoadGLFunction(load,
                 "glShaderBinary"u8);
-            contextPtr->glUseProgramStages = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glUseProgramStages = LoadGLFunction(load,
                 "glUseProgramStages"u8);
-            contextPtr->glValidateProgramPipeline = (delegate*<uint, void>)load(
+            contextPtr->glValidateProgramPipeline = LoadGLFunction(load,
                 "glValidateProgramPipeline"u8);
-            contextPtr->glVertexAttribL1d = (delegate*<uint, double, void>)load(
+            contextPtr->glVertexAttribL1d = LoadGLFunction(load,
                 "glVertexAttribL1d"u8);
-            contextPtr->glVertexAttribL1dv = (delegate*<uint, double*, void>)load(
+            contextPtr->glVertexAttribL1dv = LoadGLFunction(load,
                 "glVertexAttribL1dv"u8);
-            contextPtr->glVertexAttribL2d = (delegate*<uint, double, double, void>)load(
+            contextPtr->glVertexAttribL2d = LoadGLFunction(load,
                 "glVertexAttribL2d"u8);
-            contextPtr->glVertexAttribL2dv = (delegate*<uint, double*, void>)load(
+            contextPtr->glVertexAttribL2dv = LoadGLFunction(load,
                 "glVertexAttribL2dv"u8);
-            contextPtr->glVertexAttribL3d = (delegate*<uint, double, double, double, void>)load(
+            contextPtr->glVertexAttribL3d = LoadGLFunction(load,
                 "glVertexAttribL3d"u8);
-            contextPtr->glVertexAttribL3dv = (delegate*<uint, double*, void>)load(
+            contextPtr->glVertexAttribL3dv = LoadGLFunction(load,
                 "glVertexAttribL3dv"u8);
-            contextPtr->glVertexAttribL4d = (delegate*<uint, double, double, double, double, void>)load(
+            contextPtr->glVertexAttribL4d = LoadGLFunction(load,
                 "glVertexAttribL4d"u8);
-            contextPtr->glVertexAttribL4dv = (delegate*<uint, double*, void>)load(
+            contextPtr->glVertexAttribL4dv = LoadGLFunction(load,
                 "glVertexAttribL4dv"u8);
-            contextPtr->glVertexAttribLPointer = (delegate*<uint, int, uint, uint, void*, void>)load(
+            contextPtr->glVertexAttribLPointer = LoadGLFunction(load,
                 "glVertexAttribLPointer"u8);
-            contextPtr->glViewportArrayv = (delegate*<uint, uint, float*, void>)load(
+            contextPtr->glViewportArrayv = LoadGLFunction(load,
                 "glViewportArrayv"u8);
-            contextPtr->glViewportIndexedf = (delegate*<uint, float, float, float, float, void>)load(
+            contextPtr->glViewportIndexedf = LoadGLFunction(load,
                 "glViewportIndexedf"u8);
-            contextPtr->glViewportIndexedfv = (delegate*<uint, float*, void>)load(
+            contextPtr->glViewportIndexedfv = LoadGLFunction(load,
                 "glViewportIndexedfv"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 4.1 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 4.1 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore42(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore42(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core42)
             {
@@ -1108,37 +1155,40 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBindImageTexture = (delegate*<uint, uint, int, bool, int, uint, uint, void>)load(
+            contextPtr->glBindImageTexture = LoadGLFunction(load,
                 "glBindImageTexture"u8);
-            contextPtr->glDrawArraysInstancedBaseInstance = (delegate*<uint, int, uint, uint, uint, void>)load(
+            contextPtr->glDrawArraysInstancedBaseInstance = LoadGLFunction(load,
                 "glDrawArraysInstancedBaseInstance"u8);
-            contextPtr->glDrawElementsInstancedBaseInstance = (delegate*<uint, uint, uint, void*, uint, uint, void>)load(
+            contextPtr->glDrawElementsInstancedBaseInstance = LoadGLFunction(load,
                 "glDrawElementsInstancedBaseInstance"u8);
-            contextPtr->glDrawElementsInstancedBaseVertexBaseInstance = (delegate*<uint, uint, uint, void*, uint, int, uint, void>)load(
+            contextPtr->glDrawElementsInstancedBaseVertexBaseInstance = LoadGLFunction(load,
                 "glDrawElementsInstancedBaseVertexBaseInstance"u8);
-            contextPtr->glDrawTransformFeedbackInstanced = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glDrawTransformFeedbackInstanced = LoadGLFunction(load,
                 "glDrawTransformFeedbackInstanced"u8);
-            contextPtr->glDrawTransformFeedbackStreamInstanced = (delegate*<uint, uint, uint, uint, void>)load(
+            contextPtr->glDrawTransformFeedbackStreamInstanced = LoadGLFunction(load,
                 "glDrawTransformFeedbackStreamInstanced"u8);
-            contextPtr->glGetActiveAtomicCounterBufferiv = (delegate*<uint, uint, uint, int*, void>)load(
+            contextPtr->glGetActiveAtomicCounterBufferiv = LoadGLFunction(load,
                 "glGetActiveAtomicCounterBufferiv"u8);
-            contextPtr->glGetInternalformativ = (delegate*<uint, uint, uint, uint, int*, void>)load(
+            contextPtr->glGetInternalformativ = LoadGLFunction(load,
                 "glGetInternalformativ"u8);
-            contextPtr->glMemoryBarrier = (delegate*<uint, void>)load("glMemoryBarrier"u8);
-            contextPtr->glTexStorage1D = (delegate*<uint, uint, uint, uint, void>)load(
+            contextPtr->glMemoryBarrier = LoadGLFunction(load, "glMemoryBarrier"u8);
+            contextPtr->glTexStorage1D = LoadGLFunction(load,
                 "glTexStorage1D"u8);
-            contextPtr->glTexStorage2D = (delegate*<uint, uint, uint, uint, uint, void>)load(
+            contextPtr->glTexStorage2D = LoadGLFunction(load,
                 "glTexStorage2D"u8);
-            contextPtr->glTexStorage3D = (delegate*<uint, uint, uint, uint, uint, uint, void>)load(
+            contextPtr->glTexStorage3D = LoadGLFunction(load,
                 "glTexStorage3D"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 4.2 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 4.2 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore43(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore43(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core43)
             {
@@ -1148,100 +1198,104 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBindVertexBuffer = (delegate*<uint, uint, IntPtr, uint, void>)load(
+            contextPtr->glBindVertexBuffer = LoadGLFunction(load,
                 "glBindVertexBuffer"u8);
-            contextPtr->glClearBufferData = (delegate*<uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glClearBufferData = LoadGLFunction(load,
                 "glClearBufferData"u8);
-            contextPtr->glClearBufferSubData = (delegate*<uint, uint, IntPtr, UIntPtr, uint, uint, void*, void>)load(
+            contextPtr->glClearBufferSubData = LoadGLFunction(load,
                 "glClearBufferSubData"u8);
-            contextPtr->glCopyImageSubData = (delegate*<uint, uint, int, int, int, int, uint, uint, int, int, int, int, uint, uint, uint, void>)load(
+            contextPtr->glCopyImageSubData = LoadGLFunction(load,
                 "glCopyImageSubData"u8);
-            contextPtr->glDebugMessageCallback = (delegate*<GLDEBUGPROC, void*, void>)load(
+            contextPtr->glDebugMessageCallback = LoadGLFunction(load,
                 "glDebugMessageCallback"u8);
-            contextPtr->glDebugMessageControl = (delegate*<uint, uint, uint, uint, uint*, bool, void>)load(
+            contextPtr->glDebugMessageControl = LoadGLFunction(load,
                 "glDebugMessageControl"u8);
-            contextPtr->glDebugMessageInsert = (delegate*<uint, uint, uint, uint, uint, byte*, void>)load(
+            contextPtr->glDebugMessageInsert = LoadGLFunction(load,
                 "glDebugMessageInsert"u8);
-            contextPtr->glDispatchCompute = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glDispatchCompute = LoadGLFunction(load,
                 "glDispatchCompute"u8);
-            contextPtr->glDispatchComputeIndirect = (delegate*<IntPtr, void>)load(
+            contextPtr->glDispatchComputeIndirect = LoadGLFunction(load,
                 "glDispatchComputeIndirect"u8);
-            contextPtr->glFramebufferParameteri = (delegate*<uint, uint, int, void>)load(
+            contextPtr->glFramebufferParameteri = LoadGLFunction(load,
                 "glFramebufferParameteri"u8);
-            contextPtr->glGetDebugMessageLog = (delegate*<uint, uint, uint*, uint*, uint*, uint*, uint*, byte*, uint>)load(
+            contextPtr->glGetDebugMessageLog = LoadGLFunction(load,
                 "glGetDebugMessageLog"u8);
-            contextPtr->glGetFramebufferParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetFramebufferParameteriv = LoadGLFunction(load,
                 "glGetFramebufferParameteriv"u8);
-            contextPtr->glGetInternalformati64v = (delegate*<uint, uint, uint, uint, long*, void>)load(
+            contextPtr->glGetInternalformati64v = LoadGLFunction(load,
                 "glGetInternalformati64v"u8);
-            contextPtr->glGetObjectLabel = (delegate*<uint, uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetObjectLabel = LoadGLFunction(load,
                 "glGetObjectLabel"u8);
-            contextPtr->glGetObjectPtrLabel = (delegate*<void*, uint, uint*, byte*, void>)load(
+            contextPtr->glGetObjectPtrLabel = LoadGLFunction(load,
                 "glGetObjectPtrLabel"u8);
-            contextPtr->glGetPointerv = (delegate*<uint, void**, void>)load("glGetPointerv"u8);
-            contextPtr->glGetProgramInterfaceiv = (delegate*<uint, uint, uint, int*, void>)load(
+
+            // contextPtr->glGetPointerv =LoadGLFunction(load,"glGetPointerv"u8);
+            contextPtr->glGetProgramInterfaceiv = LoadGLFunction(load,
                 "glGetProgramInterfaceiv"u8);
-            contextPtr->glGetProgramResourceIndex = (delegate*<uint, uint, byte*, uint>)load(
+            contextPtr->glGetProgramResourceIndex = LoadGLFunction(load,
                 "glGetProgramResourceIndex"u8);
-            contextPtr->glGetProgramResourceLocation = (delegate*<uint, uint, byte*, int>)load(
+            contextPtr->glGetProgramResourceLocation = LoadGLFunction(load,
                 "glGetProgramResourceLocation"u8);
-            contextPtr->glGetProgramResourceLocationIndex = (delegate*<uint, uint, byte*, int>)load(
+            contextPtr->glGetProgramResourceLocationIndex = LoadGLFunction(load,
                 "glGetProgramResourceLocationIndex"u8);
-            contextPtr->glGetProgramResourceName = (delegate*<uint, uint, uint, uint, uint*, byte*, void>)load(
+            contextPtr->glGetProgramResourceName = LoadGLFunction(load,
                 "glGetProgramResourceName"u8);
-            contextPtr->glGetProgramResourceiv = (delegate*<uint, uint, uint, uint, uint*, uint, uint*, int*, void>)load(
+            contextPtr->glGetProgramResourceiv = LoadGLFunction(load,
                 "glGetProgramResourceiv"u8);
-            contextPtr->glInvalidateBufferData = (delegate*<uint, void>)load(
+            contextPtr->glInvalidateBufferData = LoadGLFunction(load,
                 "glInvalidateBufferData"u8);
-            contextPtr->glInvalidateBufferSubData = (delegate*<uint, IntPtr, UIntPtr, void>)load(
+            contextPtr->glInvalidateBufferSubData = LoadGLFunction(load,
                 "glInvalidateBufferSubData"u8);
-            contextPtr->glInvalidateFramebuffer = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glInvalidateFramebuffer = LoadGLFunction(load,
                 "glInvalidateFramebuffer"u8);
-            contextPtr->glInvalidateSubFramebuffer = (delegate*<uint, uint, uint*, int, int, uint, uint, void>)load(
+            contextPtr->glInvalidateSubFramebuffer = LoadGLFunction(load,
                 "glInvalidateSubFramebuffer"u8);
-            contextPtr->glInvalidateTexImage = (delegate*<uint, int, void>)load(
+            contextPtr->glInvalidateTexImage = LoadGLFunction(load,
                 "glInvalidateTexImage"u8);
-            contextPtr->glInvalidateTexSubImage = (delegate*<uint, int, int, int, int, uint, uint, uint, void>)load(
+            contextPtr->glInvalidateTexSubImage = LoadGLFunction(load,
                 "glInvalidateTexSubImage"u8);
-            contextPtr->glMultiDrawArraysIndirect = (delegate*<uint, void*, uint, uint, void>)load(
+            contextPtr->glMultiDrawArraysIndirect = LoadGLFunction(load,
                 "glMultiDrawArraysIndirect"u8);
-            contextPtr->glMultiDrawElementsIndirect = (delegate*<uint, uint, void*, uint, uint, void>)load(
+            contextPtr->glMultiDrawElementsIndirect = LoadGLFunction(load,
                 "glMultiDrawElementsIndirect"u8);
-            contextPtr->glObjectLabel = (delegate*<uint, uint, uint, byte*, void>)load(
+            contextPtr->glObjectLabel = LoadGLFunction(load,
                 "glObjectLabel"u8);
-            contextPtr->glObjectPtrLabel = (delegate*<void*, uint, byte*, void>)load(
+            contextPtr->glObjectPtrLabel = LoadGLFunction(load,
                 "glObjectPtrLabel"u8);
-            contextPtr->glPopDebugGroup = (delegate*<void>)load("glPopDebugGroup"u8);
-            contextPtr->glPushDebugGroup = (delegate*<uint, uint, uint, byte*, void>)load(
+            contextPtr->glPopDebugGroup = LoadGLFunction(load, "glPopDebugGroup"u8);
+            contextPtr->glPushDebugGroup = LoadGLFunction(load,
                 "glPushDebugGroup"u8);
-            contextPtr->glShaderStorageBlockBinding = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glShaderStorageBlockBinding = LoadGLFunction(load,
                 "glShaderStorageBlockBinding"u8);
-            contextPtr->glTexBufferRange = (delegate*<uint, uint, uint, IntPtr, UIntPtr, void>)load(
+            contextPtr->glTexBufferRange = LoadGLFunction(load,
                 "glTexBufferRange"u8);
-            contextPtr->glTexStorage2DMultisample = (delegate*<uint, uint, uint, uint, uint, bool, void>)load(
+            contextPtr->glTexStorage2DMultisample = LoadGLFunction(load,
                 "glTexStorage2DMultisample"u8);
-            contextPtr->glTexStorage3DMultisample = (delegate*<uint, uint, uint, uint, uint, uint, bool, void>)load(
+            contextPtr->glTexStorage3DMultisample = LoadGLFunction(load,
                 "glTexStorage3DMultisample"u8);
-            contextPtr->glTextureView = (delegate*<uint, uint, uint, uint, uint, uint, uint, uint, void>)load(
+            contextPtr->glTextureView = LoadGLFunction(load,
                 "glTextureView"u8);
-            contextPtr->glVertexAttribBinding = (delegate*<uint, uint, void>)load(
+            contextPtr->glVertexAttribBinding = LoadGLFunction(load,
                 "glVertexAttribBinding"u8);
-            contextPtr->glVertexAttribFormat = (delegate*<uint, int, uint, bool, uint, void>)load(
+            contextPtr->glVertexAttribFormat = LoadGLFunction(load,
                 "glVertexAttribFormat"u8);
-            contextPtr->glVertexAttribIFormat = (delegate*<uint, int, uint, uint, void>)load(
+            contextPtr->glVertexAttribIFormat = LoadGLFunction(load,
                 "glVertexAttribIFormat"u8);
-            contextPtr->glClearBufferData = (delegate*<uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glClearBufferData = LoadGLFunction(load,
                 "glClearBufferData"u8);
-            contextPtr->glVertexBindingDivisor = (delegate*<uint, uint, void>)load(
+            contextPtr->glVertexBindingDivisor = LoadGLFunction(load,
                 "glVertexBindingDivisor"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 4.3 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 4.3 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore44(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore44(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core44)
             {
@@ -1251,32 +1305,35 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBindBuffersBase = (delegate*<uint, uint, uint, uint*, void>)load(
+            contextPtr->glBindBuffersBase = LoadGLFunction(load,
                 "glBindBuffersBase"u8);
-            contextPtr->glBindBuffersRange = (delegate*<uint, uint, uint, uint*, IntPtr*, UIntPtr*, void>)load(
+            contextPtr->glBindBuffersRange = LoadGLFunction(load,
                 "glBindBuffersRange"u8);
-            contextPtr->glBindImageTextures = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glBindImageTextures = LoadGLFunction(load,
                 "glBindImageTextures"u8);
-            contextPtr->glBindSamplers = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glBindSamplers = LoadGLFunction(load,
                 "glBindSamplers"u8);
-            contextPtr->glBindTextures = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glBindTextures = LoadGLFunction(load,
                 "glBindTextures"u8);
-            contextPtr->glBindVertexBuffers = (delegate*<uint, uint, uint*, IntPtr*, uint*, void>)load(
+            contextPtr->glBindVertexBuffers = LoadGLFunction(load,
                 "glBindVertexBuffers"u8);
-            contextPtr->glBufferStorage = (delegate*<uint, UIntPtr, void*, uint, void>)load(
+            contextPtr->glBufferStorage = LoadGLFunction(load,
                 "glBufferStorage"u8);
-            contextPtr->glClearTexImage = (delegate*<uint, int, uint, uint, void*, void>)load(
+            contextPtr->glClearTexImage = LoadGLFunction(load,
                 "glClearTexImage"u8);
-            contextPtr->glClearTexSubImage = (delegate*<uint, int, int, int, int, uint, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glClearTexSubImage = LoadGLFunction(load,
                 "glClearTexSubImage"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 4.4 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 4.4 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore45(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore45(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core45)
             {
@@ -1286,230 +1343,233 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glBindTextureUnit = (delegate*<uint, uint, void>)load(
+            contextPtr->glBindTextureUnit = LoadGLFunction(load,
                 "glBindTextureUnit"u8);
-            contextPtr->glBlitNamedFramebuffer = (delegate*<uint, uint, int, int, int, int, int, int, int, int, uint, uint, void>)load(
+            contextPtr->glBlitNamedFramebuffer = LoadGLFunction(load,
                 "glBlitNamedFramebuffer"u8);
-            contextPtr->glCheckNamedFramebufferStatus = (delegate*<uint, uint, uint>)load(
+            contextPtr->glCheckNamedFramebufferStatus = LoadGLFunction(load,
                 "glCheckNamedFramebufferStatus"u8);
-            contextPtr->glClearNamedBufferData = (delegate*<uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glClearNamedBufferData = LoadGLFunction(load,
                 "glClearNamedBufferData"u8);
-            contextPtr->glClearNamedBufferSubData = (delegate*<uint, uint, IntPtr, UIntPtr, uint, uint, void*, void>)load(
+            contextPtr->glClearNamedBufferSubData = LoadGLFunction(load,
                 "glClearNamedBufferSubData"u8);
-            contextPtr->glClearNamedFramebufferfi = (delegate*<uint, uint, int, float, int, void>)load(
+            contextPtr->glClearNamedFramebufferfi = LoadGLFunction(load,
                 "glClearNamedFramebufferfi"u8);
-            contextPtr->glClearNamedFramebufferfv = (delegate*<uint, uint, int, float*, void>)load(
+            contextPtr->glClearNamedFramebufferfv = LoadGLFunction(load,
                 "glClearNamedFramebufferfv"u8);
-            contextPtr->glClearNamedFramebufferiv = (delegate*<uint, uint, int, int*, void>)load(
+            contextPtr->glClearNamedFramebufferiv = LoadGLFunction(load,
                 "glClearNamedFramebufferiv"u8);
-            contextPtr->glClearNamedFramebufferuiv = (delegate*<uint, uint, int, uint*, void>)load(
+            contextPtr->glClearNamedFramebufferuiv = LoadGLFunction(load,
                 "glClearNamedFramebufferuiv"u8);
-            contextPtr->glClipControl = (delegate*<uint, uint, void>)load("glClipControl"u8);
-            contextPtr->glCompressedTextureSubImage1D = (delegate*<uint, int, int, uint, uint, uint, void*, void>)load(
+            contextPtr->glClipControl = LoadGLFunction(load, "glClipControl"u8);
+            contextPtr->glCompressedTextureSubImage1D = LoadGLFunction(load,
                 "glCompressedTextureSubImage1D"u8);
-            contextPtr->glCompressedTextureSubImage2D = (delegate*<uint, int, int, int, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glCompressedTextureSubImage2D = LoadGLFunction(load,
                 "glCompressedTextureSubImage2D"u8);
-            contextPtr->glCompressedTextureSubImage3D = (delegate*<uint, int, int, int, int, uint, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glCompressedTextureSubImage3D = LoadGLFunction(load,
                 "glCompressedTextureSubImage3D"u8);
-            contextPtr->glCopyNamedBufferSubData = (delegate*<uint, uint, IntPtr, IntPtr, UIntPtr, void>)load(
+            contextPtr->glCopyNamedBufferSubData = LoadGLFunction(load,
                 "glCopyNamedBufferSubData"u8);
-            contextPtr->glCopyTextureSubImage1D = (delegate*<uint, int, int, int, int, uint, void>)load(
+            contextPtr->glCopyTextureSubImage1D = LoadGLFunction(load,
                 "glCopyTextureSubImage1D"u8);
-            contextPtr->glCopyTextureSubImage2D = (delegate*<uint, int, int, int, int, int, uint, uint, void>)load(
+            contextPtr->glCopyTextureSubImage2D = LoadGLFunction(load,
                 "glCopyTextureSubImage2D"u8);
-            contextPtr->glCopyTextureSubImage3D = (delegate*<uint, int, int, int, int, int, int, uint, uint, void>)load(
+            contextPtr->glCopyTextureSubImage3D = LoadGLFunction(load,
                 "glCopyTextureSubImage3D"u8);
-            contextPtr->glCreateBuffers = (delegate*<uint, uint*, void>)load("glCreateBuffers"u8);
-            contextPtr->glCreateFramebuffers = (delegate*<uint, uint*, void>)load(
+            contextPtr->glCreateBuffers = LoadGLFunction(load, "glCreateBuffers"u8);
+            contextPtr->glCreateFramebuffers = LoadGLFunction(load,
                 "glCreateFramebuffers"u8);
-            contextPtr->glCreateProgramPipelines = (delegate*<uint, uint*, void>)load(
+            contextPtr->glCreateProgramPipelines = LoadGLFunction(load,
                 "glCreateProgramPipelines"u8);
-            contextPtr->glCreateQueries = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glCreateQueries = LoadGLFunction(load,
                 "glCreateQueries"u8);
-            contextPtr->glCreateRenderbuffers = (delegate*<uint, uint*, void>)load(
+            contextPtr->glCreateRenderbuffers = LoadGLFunction(load,
                 "glCreateRenderbuffers"u8);
-            contextPtr->glCreateSamplers = (delegate*<uint, uint*, void>)load(
+            contextPtr->glCreateSamplers = LoadGLFunction(load,
                 "glCreateSamplers"u8);
-            contextPtr->glCreateTextures = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glCreateTextures = LoadGLFunction(load,
                 "glCreateTextures"u8);
-            contextPtr->glCreateTransformFeedbacks = (delegate*<uint, uint*, void>)load(
+            contextPtr->glCreateTransformFeedbacks = LoadGLFunction(load,
                 "glCreateTransformFeedbacks"u8);
-            contextPtr->glCreateVertexArrays = (delegate*<uint, uint*, void>)load(
+            contextPtr->glCreateVertexArrays = LoadGLFunction(load,
                 "glCreateVertexArrays"u8);
-            contextPtr->glDisableVertexArrayAttrib = (delegate*<uint, uint, void>)load(
+            contextPtr->glDisableVertexArrayAttrib = LoadGLFunction(load,
                 "glDisableVertexArrayAttrib"u8);
-            contextPtr->glEnableVertexArrayAttrib = (delegate*<uint, uint, void>)load(
+            contextPtr->glEnableVertexArrayAttrib = LoadGLFunction(load,
                 "glEnableVertexArrayAttrib"u8);
-            contextPtr->glFlushMappedNamedBufferRange = (delegate*<uint, IntPtr, UIntPtr, void>)load(
+            contextPtr->glFlushMappedNamedBufferRange = LoadGLFunction(load,
                 "glFlushMappedNamedBufferRange"u8);
-            contextPtr->glGenerateTextureMipmap = (delegate*<uint, void>)load(
+            contextPtr->glGenerateTextureMipmap = LoadGLFunction(load,
                 "glGenerateTextureMipmap"u8);
-            contextPtr->glGetCompressedTextureImage = (delegate*<uint, int, uint, void*, void>)load(
+            contextPtr->glGetCompressedTextureImage = LoadGLFunction(load,
                 "glGetCompressedTextureImage"u8);
-            contextPtr->glGetCompressedTextureSubImage = (delegate*<uint, int, int, int, int, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glGetCompressedTextureSubImage = LoadGLFunction(load,
                 "glGetCompressedTextureSubImage"u8);
-            contextPtr->glGetGraphicsResetStatus = (delegate*<uint>)load(
+            contextPtr->glGetGraphicsResetStatus = LoadGLFunction(load,
                 "glGetGraphicsResetStatus"u8);
-            contextPtr->glGetNamedBufferParameteri64v = (delegate*<uint, uint, long*, void>)load(
+            contextPtr->glGetNamedBufferParameteri64v = LoadGLFunction(load,
                 "glGetNamedBufferParameteri64v"u8);
-            contextPtr->glGetNamedBufferParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetNamedBufferParameteriv = LoadGLFunction(load,
                 "glGetNamedBufferParameteriv"u8);
-            contextPtr->glGetNamedBufferPointerv = (delegate*<uint, uint, void**, void>)load(
+            contextPtr->glGetNamedBufferPointerv = LoadGLFunction(load,
                 "glGetNamedBufferPointerv"u8);
-            contextPtr->glGetNamedBufferSubData = (delegate*<uint, IntPtr, UIntPtr, void*, void>)load(
+            contextPtr->glGetNamedBufferSubData = LoadGLFunction(load,
                 "glGetNamedBufferSubData"u8);
-            contextPtr->glGetNamedFramebufferAttachmentParameteriv = (delegate*<uint, uint, uint, int*, void>)load(
+            contextPtr->glGetNamedFramebufferAttachmentParameteriv = LoadGLFunction(load,
                 "glGetNamedFramebufferAttachmentParameteriv"u8);
-            contextPtr->glGetNamedFramebufferParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetNamedFramebufferParameteriv = LoadGLFunction(load,
                 "glGetNamedFramebufferParameteriv"u8);
-            contextPtr->glGetNamedRenderbufferParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetNamedRenderbufferParameteriv = LoadGLFunction(load,
                 "glGetNamedRenderbufferParameteriv"u8);
-            contextPtr->glGetQueryBufferObjecti64v = (delegate*<uint, uint, uint, IntPtr, void>)load(
+            contextPtr->glGetQueryBufferObjecti64v = LoadGLFunction(load,
                 "glGetQueryBufferObjecti64v"u8);
-            contextPtr->glGetQueryBufferObjectiv = (delegate*<uint, uint, uint, IntPtr, void>)load(
+            contextPtr->glGetQueryBufferObjectiv = LoadGLFunction(load,
                 "glGetQueryBufferObjectiv"u8);
-            contextPtr->glGetQueryBufferObjectui64v = (delegate*<uint, uint, uint, IntPtr, void>)load(
+            contextPtr->glGetQueryBufferObjectui64v = LoadGLFunction(load,
                 "glGetQueryBufferObjectui64v"u8);
-            contextPtr->glGetQueryBufferObjectuiv = (delegate*<uint, uint, uint, IntPtr, void>)load(
+            contextPtr->glGetQueryBufferObjectuiv = LoadGLFunction(load,
                 "glGetQueryBufferObjectuiv"u8);
-            contextPtr->glGetTextureImage = (delegate*<uint, int, uint, uint, uint, void*, void>)load(
+            contextPtr->glGetTextureImage = LoadGLFunction(load,
                 "glGetTextureImage"u8);
-            contextPtr->glGetTextureLevelParameterfv = (delegate*<uint, int, uint, float*, void>)load(
+            contextPtr->glGetTextureLevelParameterfv = LoadGLFunction(load,
                 "glGetTextureLevelParameterfv"u8);
-            contextPtr->glGetTextureLevelParameteriv = (delegate*<uint, int, uint, int*, void>)load(
+            contextPtr->glGetTextureLevelParameteriv = LoadGLFunction(load,
                 "glGetTextureLevelParameteriv"u8);
-            contextPtr->glGetTextureParameterIiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetTextureParameterIiv = LoadGLFunction(load,
                 "glGetTextureParameterIiv"u8);
-            contextPtr->glGetTextureParameterIuiv = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glGetTextureParameterIuiv = LoadGLFunction(load,
                 "glGetTextureParameterIuiv"u8);
-            contextPtr->glGetTextureParameterfv = (delegate*<uint, uint, float*, void>)load(
+            contextPtr->glGetTextureParameterfv = LoadGLFunction(load,
                 "glGetTextureParameterfv"u8);
-            contextPtr->glGetTextureParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetTextureParameteriv = LoadGLFunction(load,
                 "glGetTextureParameteriv"u8);
-            contextPtr->glGetTextureSubImage = (delegate*<uint, int, int, int, int, uint, uint, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glGetTextureSubImage = LoadGLFunction(load,
                 "glGetTextureSubImage"u8);
-            contextPtr->glGetTransformFeedbacki64_v = (delegate*<uint, uint, uint, long*, void>)load(
+            contextPtr->glGetTransformFeedbacki64_v = LoadGLFunction(load,
                 "glGetTransformFeedbacki64_v"u8);
-            contextPtr->glGetTransformFeedbacki_v = (delegate*<uint, uint, uint, int*, void>)load(
+            contextPtr->glGetTransformFeedbacki_v = LoadGLFunction(load,
                 "glGetTransformFeedbacki_v"u8);
-            contextPtr->glGetTransformFeedbackiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetTransformFeedbackiv = LoadGLFunction(load,
                 "glGetTransformFeedbackiv"u8);
-            contextPtr->glGetVertexArrayIndexed64iv = (delegate*<uint, uint, uint, long*, void>)load(
+            contextPtr->glGetVertexArrayIndexed64iv = LoadGLFunction(load,
                 "glGetVertexArrayIndexed64iv"u8);
-            contextPtr->glGetVertexArrayIndexediv = (delegate*<uint, uint, uint, int*, void>)load(
+            contextPtr->glGetVertexArrayIndexediv = LoadGLFunction(load,
                 "glGetVertexArrayIndexediv"u8);
-            contextPtr->glGetVertexArrayiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glGetVertexArrayiv = LoadGLFunction(load,
                 "glGetVertexArrayiv"u8);
-            contextPtr->glGetnCompressedTexImage = (delegate*<uint, int, uint, void*, void>)load(
+            contextPtr->glGetnCompressedTexImage = LoadGLFunction(load,
                 "glGetnCompressedTexImage"u8);
-            contextPtr->glGetnTexImage = (delegate*<uint, int, uint, uint, uint, void*, void>)load(
+            contextPtr->glGetnTexImage = LoadGLFunction(load,
                 "glGetnTexImage"u8);
-            contextPtr->glGetnUniformdv = (delegate*<uint, int, uint, double*, void>)load(
+            contextPtr->glGetnUniformdv = LoadGLFunction(load,
                 "glGetnUniformdv"u8);
-            contextPtr->glGetnUniformfv = (delegate*<uint, int, uint, float*, void>)load(
+            contextPtr->glGetnUniformfv = LoadGLFunction(load,
                 "glGetnUniformfv"u8);
-            contextPtr->glGetnUniformiv = (delegate*<uint, int, uint, int*, void>)load(
+            contextPtr->glGetnUniformiv = LoadGLFunction(load,
                 "glGetnUniformiv"u8);
-            contextPtr->glGetnUniformuiv = (delegate*<uint, int, uint, uint*, void>)load(
+            contextPtr->glGetnUniformuiv = LoadGLFunction(load,
                 "glGetnUniformuiv"u8);
-            contextPtr->glInvalidateNamedFramebufferData = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glInvalidateNamedFramebufferData = LoadGLFunction(load,
                 "glInvalidateNamedFramebufferData"u8);
-            contextPtr->glInvalidateNamedFramebufferSubData = (delegate*<uint, uint, uint*, int, int, uint, uint, void>)load(
+            contextPtr->glInvalidateNamedFramebufferSubData = LoadGLFunction(load,
                 "glInvalidateNamedFramebufferSubData"u8);
-            contextPtr->glMapNamedBuffer = (delegate*<uint, uint, void*>)load(
+            contextPtr->glMapNamedBuffer = LoadGLFunction(load,
                 "glMapNamedBuffer"u8);
-            contextPtr->glMapNamedBufferRange = (delegate*<uint, IntPtr, UIntPtr, uint, void*>)load(
+            contextPtr->glMapNamedBufferRange = LoadGLFunction(load,
                 "glMapNamedBufferRange"u8);
-            contextPtr->glMemoryBarrierByRegion = (delegate*<uint, void>)load(
+            contextPtr->glMemoryBarrierByRegion = LoadGLFunction(load,
                 "glMemoryBarrierByRegion"u8);
-            contextPtr->glNamedBufferData = (delegate*<uint, UIntPtr, void*, uint, void>)load(
+            contextPtr->glNamedBufferData = LoadGLFunction(load,
                 "glNamedBufferData"u8);
-            contextPtr->glNamedBufferStorage = (delegate*<uint, UIntPtr, void*, uint, void>)load(
+            contextPtr->glNamedBufferStorage = LoadGLFunction(load,
                 "glNamedBufferStorage"u8);
-            contextPtr->glNamedBufferSubData = (delegate*<uint, IntPtr, UIntPtr, void*, void>)load(
+            contextPtr->glNamedBufferSubData = LoadGLFunction(load,
                 "glNamedBufferSubData"u8);
-            contextPtr->glNamedFramebufferDrawBuffer = (delegate*<uint, uint, void>)load(
+            contextPtr->glNamedFramebufferDrawBuffer = LoadGLFunction(load,
                 "glNamedFramebufferDrawBuffer"u8);
-            contextPtr->glNamedFramebufferDrawBuffers = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glNamedFramebufferDrawBuffers = LoadGLFunction(load,
                 "glNamedFramebufferDrawBuffers"u8);
-            contextPtr->glNamedFramebufferParameteri = (delegate*<uint, uint, int, void>)load(
+            contextPtr->glNamedFramebufferParameteri = LoadGLFunction(load,
                 "glNamedFramebufferParameteri"u8);
-            contextPtr->glNamedFramebufferReadBuffer = (delegate*<uint, uint, void>)load(
+            contextPtr->glNamedFramebufferReadBuffer = LoadGLFunction(load,
                 "glNamedFramebufferReadBuffer"u8);
-            contextPtr->glNamedFramebufferRenderbuffer = (delegate*<uint, uint, uint, uint, void>)load(
+            contextPtr->glNamedFramebufferRenderbuffer = LoadGLFunction(load,
                 "glNamedFramebufferRenderbuffer"u8);
-            contextPtr->glNamedFramebufferTexture = (delegate*<uint, uint, uint, int, void>)load(
+            contextPtr->glNamedFramebufferTexture = LoadGLFunction(load,
                 "glNamedFramebufferTexture"u8);
-            contextPtr->glNamedFramebufferTextureLayer = (delegate*<uint, uint, uint, int, int, void>)load(
+            contextPtr->glNamedFramebufferTextureLayer = LoadGLFunction(load,
                 "glNamedFramebufferTextureLayer"u8);
-            contextPtr->glNamedRenderbufferStorage = (delegate*<uint, uint, uint, uint, void>)load(
+            contextPtr->glNamedRenderbufferStorage = LoadGLFunction(load,
                 "glNamedRenderbufferStorage"u8);
-            contextPtr->glNamedRenderbufferStorageMultisample = (delegate*<uint, uint, uint, uint, uint, void>)load(
+            contextPtr->glNamedRenderbufferStorageMultisample = LoadGLFunction(load,
                 "glNamedRenderbufferStorageMultisample"u8);
-            contextPtr->glReadnPixels = (delegate*<int, int, int, int, uint, uint, uint, void*, void>)load(
+            contextPtr->glReadnPixels = LoadGLFunction(load,
                 "glReadnPixels"u8);
-            contextPtr->glTextureBarrier = (delegate*<void>)load("glTextureBarrier"u8);
-            contextPtr->glTextureBuffer = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glTextureBarrier = LoadGLFunction(load, "glTextureBarrier"u8);
+            contextPtr->glTextureBuffer = LoadGLFunction(load,
                 "glTextureBuffer"u8);
-            contextPtr->glTextureBufferRange = (delegate*<uint, uint, uint, IntPtr, UIntPtr, void>)load(
+            contextPtr->glTextureBufferRange = LoadGLFunction(load,
                 "glTextureBufferRange"u8);
-            contextPtr->glTextureParameterIiv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glTextureParameterIiv = LoadGLFunction(load,
                 "glTextureParameterIiv"u8);
-            contextPtr->glTextureParameterIuiv = (delegate*<uint, uint, uint*, void>)load(
+            contextPtr->glTextureParameterIuiv = LoadGLFunction(load,
                 "glTextureParameterIuiv"u8);
-            contextPtr->glTextureParameterf = (delegate*<uint, uint, float, void>)load(
+            contextPtr->glTextureParameterf = LoadGLFunction(load,
                 "glTextureParameterf"u8);
-            contextPtr->glTextureParameterfv = (delegate*<uint, uint, float*, void>)load(
+            contextPtr->glTextureParameterfv = LoadGLFunction(load,
                 "glTextureParameterfv"u8);
-            contextPtr->glTextureParameteri = (delegate*<uint, uint, int, void>)load(
+            contextPtr->glTextureParameteri = LoadGLFunction(load,
                 "glTextureParameteri"u8);
-            contextPtr->glTextureParameteriv = (delegate*<uint, uint, int*, void>)load(
+            contextPtr->glTextureParameteriv = LoadGLFunction(load,
                 "glTextureParameteriv"u8);
-            contextPtr->glTextureStorage1D = (delegate*<uint, uint, uint, uint, void>)load(
+            contextPtr->glTextureStorage1D = LoadGLFunction(load,
                 "glTextureStorage1D"u8);
-            contextPtr->glTextureStorage2D = (delegate*<uint, uint, uint, uint, uint, void>)load(
+            contextPtr->glTextureStorage2D = LoadGLFunction(load,
                 "glTextureStorage2D"u8);
-            contextPtr->glTextureStorage2DMultisample = (delegate*<uint, uint, uint, uint, uint, bool, void>)load(
+            contextPtr->glTextureStorage2DMultisample = LoadGLFunction(load,
                 "glTextureStorage2DMultisample"u8);
-            contextPtr->glTextureStorage3D = (delegate*<uint, uint, uint, uint, uint, uint, void>)load(
+            contextPtr->glTextureStorage3D = LoadGLFunction(load,
                 "glTextureStorage3D"u8);
-            contextPtr->glTextureStorage3DMultisample = (delegate*<uint, uint, uint, uint, uint, uint, bool, void>)load(
+            contextPtr->glTextureStorage3DMultisample = LoadGLFunction(load,
                 "glTextureStorage3DMultisample"u8);
-            contextPtr->glTextureSubImage1D = (delegate*<uint, int, int, uint, uint, uint, void*, void>)load(
+            contextPtr->glTextureSubImage1D = LoadGLFunction(load,
                 "glTextureSubImage1D"u8);
-            contextPtr->glTextureSubImage2D = (delegate*<uint, int, int, int, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glTextureSubImage2D = LoadGLFunction(load,
                 "glTextureSubImage2D"u8);
-            contextPtr->glTextureSubImage3D = (delegate*<uint, int, int, int, int, uint, uint, uint, uint, uint, void*, void>)load(
+            contextPtr->glTextureSubImage3D = LoadGLFunction(load,
                 "glTextureSubImage3D"u8);
-            contextPtr->glTransformFeedbackBufferBase = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glTransformFeedbackBufferBase = LoadGLFunction(load,
                 "glTransformFeedbackBufferBase"u8);
-            contextPtr->glTransformFeedbackBufferRange = (delegate*<uint, uint, uint, IntPtr, UIntPtr, void>)load(
+            contextPtr->glTransformFeedbackBufferRange = LoadGLFunction(load,
                 "glTransformFeedbackBufferRange"u8);
-            contextPtr->glUnmapNamedBuffer = (delegate*<uint, bool>)load("glUnmapNamedBuffer"u8);
-            contextPtr->glVertexArrayAttribBinding = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glUnmapNamedBuffer = LoadGLFunction(load, "glUnmapNamedBuffer"u8);
+            contextPtr->glVertexArrayAttribBinding = LoadGLFunction(load,
                 "glVertexArrayAttribBinding"u8);
-            contextPtr->glVertexArrayAttribFormat = (delegate*<uint, uint, int, uint, bool, uint, void>)load(
+            contextPtr->glVertexArrayAttribFormat = LoadGLFunction(load,
                 "glVertexArrayAttribFormat"u8);
-            contextPtr->glVertexArrayAttribIFormat = (delegate*<uint, uint, int, uint, uint, void>)load(
+            contextPtr->glVertexArrayAttribIFormat = LoadGLFunction(load,
                 "glVertexArrayAttribIFormat"u8);
-            contextPtr->glVertexArrayAttribLFormat = (delegate*<uint, uint, int, uint, uint, void>)load(
+            contextPtr->glVertexArrayAttribLFormat = LoadGLFunction(load,
                 "glVertexArrayAttribLFormat"u8);
-            contextPtr->glVertexArrayBindingDivisor = (delegate*<uint, uint, uint, void>)load(
+            contextPtr->glVertexArrayBindingDivisor = LoadGLFunction(load,
                 "glVertexArrayBindingDivisor"u8);
-            contextPtr->glVertexArrayElementBuffer = (delegate*<uint, uint, void>)load(
+            contextPtr->glVertexArrayElementBuffer = LoadGLFunction(load,
                 "glVertexArrayElementBuffer"u8);
-            contextPtr->glVertexArrayVertexBuffer = (delegate*<uint, uint, uint, IntPtr, uint, void>)load(
+            contextPtr->glVertexArrayVertexBuffer = LoadGLFunction(load,
                 "glVertexArrayVertexBuffer"u8);
-            contextPtr->glVertexArrayVertexBuffers = (delegate*<uint, uint, uint, uint*, IntPtr*, uint*, void>)load(
+            contextPtr->glVertexArrayVertexBuffers = LoadGLFunction(load,
                 "glVertexArrayVertexBuffers"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 4.5 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 4.5 APIs");
             return true;
         }
 
-        internal static unsafe bool LoadGLcore46(OpenglContext* contextPtr, delegate*<ReadOnlySpan<byte>, IntPtr> load)
+        internal static unsafe bool LoadGLcore46(
+                                    glContextShadow* contextPtr,
+                                    delegate*<ReadOnlySpan<byte>, IntPtr> load
+        )
         {
             if (!core46)
             {
@@ -1519,19 +1579,32 @@ namespace StgSharp.Graphics.OpenGL
 
             #region load
 
-            contextPtr->glMultiDrawArraysIndirectCount = (delegate*<uint, void*, IntPtr, uint, uint, void>)load(
+            contextPtr->glMultiDrawArraysIndirectCount = LoadGLFunction(load,
                 "glMultiDrawArraysIndirectCount"u8);
-            contextPtr->glMultiDrawElementsIndirectCount = (delegate*<uint, uint, void*, IntPtr, uint, uint, void>)load(
+            contextPtr->glMultiDrawElementsIndirectCount = LoadGLFunction(load,
                 "glMultiDrawElementsIndirectCount"u8);
-            contextPtr->glPolygonOffsetClamp = (delegate*<float, float, float, void>)load(
+            contextPtr->glPolygonOffsetClamp = LoadGLFunction(load,
                 "glPolygonOffsetClamp"u8);
-            contextPtr->glSpecializeShader = (delegate*<uint, byte*, uint, uint*, uint*, void>)load(
+            contextPtr->glSpecializeShader = LoadGLFunction(load,
                 "glSpecializeShader"u8);
 
             #endregion load
 
-            DefaultLog.InternalAppendLog("Successfully load all OpenGL 4.6 APIs");
+            DefaultLog.InternalAppendLog("Successfully load OpenGL 4.6 APIs");
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe IntPtr LoadGLFunction(
+                                     delegate*<ReadOnlySpan<byte>, IntPtr> load,
+                                     ReadOnlySpan<byte> name
+        )
+        {
+            IntPtr ptr = load(name);
+            if (ptr == IntPtr.Zero) {
+                DefaultLog.InternalAppendLog($"Failed to load proc {System.Text.Encoding.UTF8.GetString(name)}.");
+            }
+            return ptr;
         }
 
     }

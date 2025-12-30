@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="TextureGL"
 // Project: StgSharp
@@ -44,14 +44,19 @@ namespace StgSharp.Graphics.OpenGL
         private OpenGLFunction _gl;
         internal GlHandle[] _textureHandle;
 
-        internal TextureGL(int count, glRender binding)
+        internal TextureGL(
+                 int count,
+                 glRender binding
+        )
         {
             // sourceList = new Image[count];
             this._gl = binding.GL;
             _textureHandle = _gl.GenTextures(count);
         }
 
-        public GlHandle this[int index]
+        public GlHandle this[
+                        int index
+        ]
         {
             get => _textureHandle[index];
         }
@@ -70,12 +75,16 @@ namespace StgSharp.Graphics.OpenGL
 
         internal OpenGLFunction GL => _gl;
 
-        public void ActivateAs(TextureUnit unit)
+        public void ActivateAs(
+                    TextureUnit unit
+        )
         {
             _gl.ActiveTextureUnit((uint)unit);
         }
 
-        public void Bind2D(int index)
+        public void Bind2D(
+                    int index
+        )
         {
             currentEditingTextureIndex = index;
             _gl.BindTexture(glConst.TEXTURE_2D, _textureHandle[index]);
@@ -90,19 +99,25 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="i">
         ///
         /// </param>
-        public unsafe void LoadTexture(int index, Image i)
+        public unsafe void LoadTexture(
+                           int index,
+                           Image i
+        )
         {
             byte[] handle = i.PixelBuffer;
-            _gl.TextureImage2d(
-                Texture2DTarget.Texture2D, 0, i.Channel, (uint)i.Width, (uint)i.Height, i.Channel, i.PixelLayout,
-                pixels:handle);
+            _gl.TextureImage2d(Texture2DTarget.Texture2D, 0, i.Channel, i.Width, i.Height,
+                               i.Channel, i.PixelLayout, pixels:handle);
             _gl.GenerateMipmap(Texture2DTarget.Texture2D);
         }
 
         #region texture setting
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set2dFilterProperty(int index, TextureFilter onMinify, TextureFilter onMagnify)
+        public void Set2dFilterProperty(
+                    int index,
+                    TextureFilter onMinify,
+                    TextureFilter onMagnify
+        )
         {
             #if DEBUG
             if (index != currentEditingTextureIndex)
@@ -117,7 +132,11 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set2dWrapProperty(int index, TextureWrap onHorizontial, TextureWrap onVertical)
+        public void Set2dWrapProperty(
+                    int index,
+                    TextureWrap onHorizontial,
+                    TextureWrap onVertical
+        )
         {
             #if DEBUG
             if (index != currentEditingTextureIndex)
@@ -132,7 +151,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set2dProperty(int index, TextureProperty property)
+        public void Set2dProperty(
+                    int index,
+                    TextureProperty property
+        )
         {
             Set2dFilterProperty(index, property.FilterOnMinify, property.FilterOnMagnify);
             Set2dWrapProperty(index, property.WrapOnHorizontial, property.WrapOnVertical);
@@ -156,7 +178,8 @@ namespace StgSharp.Graphics.OpenGL
                TextureFilter onMagnify,
                TextureFilter onMinify,
                TextureWrap onHorizontial,
-               TextureWrap onVertical)
+               TextureWrap onVertical
+        )
         {
             FilterOnMagnify = onMagnify;
             FilterOnMinify = onMinify;
@@ -188,15 +211,17 @@ namespace StgSharp.Graphics.OpenGL
             set => vert = value;
         }
 
-        public override bool Equals([NotNullWhen(true)] object obj)
+        public override bool Equals(
+                             [NotNullWhen(true)] object obj
+        )
         {
             return base.Equals(obj);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(
-                FilterOnMagnify, FilterOnMagnify, WrapOnHorizontial, WrapOnVertical);
+            return HashCode.Combine(FilterOnMagnify, FilterOnMagnify, WrapOnHorizontial,
+                                    WrapOnVertical);
         }
 
         public override string ToString()
@@ -204,12 +229,18 @@ namespace StgSharp.Graphics.OpenGL
             return $"FilterOnMagnify:{FilterOnMagnify}, " + $"FilterOnMagnify:{FilterOnMagnify}, " + $"WrapOnHorizontial:{WrapOnHorizontial}, " + $"WrapOnVertical:{WrapOnVertical}";
         }
 
-        public static bool operator !=(TextureProperty left, TextureProperty right)
+        public static bool operator !=(
+                                    TextureProperty left,
+                                    TextureProperty right
+        )
         {
             return left.mask != right.mask;
         }
 
-        public static bool operator ==(TextureProperty left, TextureProperty right)
+        public static bool operator ==(
+                                    TextureProperty left,
+                                    TextureProperty right
+        )
         {
             return left.mask == right.mask;
         }
@@ -218,11 +249,12 @@ namespace StgSharp.Graphics.OpenGL
                                         (
             TextureFilter onMagnify, TextureFilter onMinify,
             TextureWrap onHorizontial, TextureWrap onVertical
-            ) propertyValueTuple)
+            ) propertyValueTuple
+        )
         {
-            return new TextureProperty(
-                propertyValueTuple.onMagnify, propertyValueTuple.onMinify,
-                propertyValueTuple.onHorizontial, propertyValueTuple.onVertical);
+            return new TextureProperty(propertyValueTuple.onMagnify, propertyValueTuple.onMinify,
+                                       propertyValueTuple.onHorizontial,
+                                       propertyValueTuple.onVertical);
         }
 
     }

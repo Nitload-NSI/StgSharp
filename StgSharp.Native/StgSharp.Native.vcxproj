@@ -152,6 +152,7 @@
     <ClCompile Include="sn-src\k_basicop.c" />
     <ClCompile Include="sn-src\dllmain.c" />
     <ClCompile Include="sn-src\k_bufop.c" />
+    <ClCompile Include="sn-src\k_pivot.c" />
     <ClCompile Include="sn-src\str_factorial.c" />
     <ClCompile Include="sn-src\k_fma.c" />
     <ClCompile Include="sn-src\str_hash.c" />

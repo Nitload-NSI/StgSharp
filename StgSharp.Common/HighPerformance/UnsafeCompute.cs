@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="UnsafeCompute"
 // Project: StgSharp
@@ -35,19 +35,19 @@ namespace StgSharp.HighPerformance
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe int CityHashSimplify(char* span, int length)
         {
-            return NativeIntrinsic.Intrinsic.city_hash_simplify(span, length);
+            return NativeIntrinsic.Context.city_hash_simplify(span, length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe int CityHashSimplify(char* span, int begin, int length)
         {
-            return NativeIntrinsic.Intrinsic.city_hash_simplify(span + begin, length);
+            return NativeIntrinsic.Context.city_hash_simplify(span + begin, length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe int IndexOfCharPair(char* source, int pairValue, int length)
         {
-            return NativeIntrinsic.Intrinsic.index_pair(source, pairValue, length);
+            return NativeIntrinsic.Context.index_pair(source, pairValue, length);
         }
 
     }

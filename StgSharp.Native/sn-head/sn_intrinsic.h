@@ -7,6 +7,7 @@
 #include "sn_matkernel.h"
 #include <immintrin.h>
 #include <smmintrin.h>
+#include <stdint.h>
 
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -140,34 +141,14 @@ typedef void(SN_DECL *PNL_PROC_LRAS)(mat_panel *left, mat_panel *right, mat_pane
 typedef void(SN_DECL *PNL_PROC_RAS)(mat_panel *right, mat_panel *ans, scalar_pack *scalar);
 
 #define PNL_PROC(T_type, T_arch, T_op_name) T_type##_pnl_##T_op_name##_##T_arch
-<<<<<<< HEAD
-<<<<<<< HEAD
 #define DECLARE_PNL_PROC_ANS(T_type, T_arch, T_op_name) \
         INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,  \
                                        T_op_name)(MAT_PANEL_##T_arch##(T_type) *restrict ans)
-=======
-
->>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
-=======
-#define DECLARE_PNL_PROC_ANS(T_type, T_arch, T_op_name) \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,  \
-                                       T_op_name)(MAT_PANEL_##T_arch##(T_type) *restrict ans)
->>>>>>> stgsharp-dev/giga
 #define DECLARE_PNL_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)                           \
         INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,                                       \
                                        T_op_name)(MAT_PANEL_##T_arch##(T_type) const *left,  \
                                                   MAT_PANEL_##T_arch##(T_type) const *right, \
                                                   MAT_PANEL_##T_arch##(T_type) *restrict ans)
-#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)                           \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,                                       \
-                                       T_op_name)(MAT_PANEL_##T_arch##(T_type) const *left,  \
-                                                  MAT_PANEL_##T_arch##(T_type) const *right, \
-                                                  MAT_PANEL_##T_arch##(T_type) *restrict ans)
-#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name) \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(        \
-                MAT_PANEL_##T_arch##(T_type) const *left,                 \
-                MAT_PANEL_##T_arch##(T_type) const *right,                \
-                MAT_PANEL_##T_arch##(T_type) *restrict ans, scalar_pack const *scalar)
 #define DECLARE_PNL_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name) \
         INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(        \
                 MAT_PANEL_##T_arch##(T_type) const *left,                 \
@@ -203,6 +184,15 @@ typedef void(SN_DECL *KER_PROC_LAS)(mat_kernel *matrix, mat_kernel *ans, scalar_
 
 #pragma endregion
 
+#pragma region special matrix kernel operation
+
+typedef void(SN_DECL *PIVOTPROC)(mat_kernel const *source, size_t col_begin, size_t col_length,
+                                 size_t *restrict ans);
+INTERNAL void SN_DECL pivot_float(MAT_KERNEL(float) const *source, size_t col_begin,
+                                  size_t col_length, size_t *restrict ans);
+
+#pragma endregion
+
 typedef void(SN_DECL *VECTORNORMALIZEPROC)(__m128 *source, __m128 *target);
 typedef void(SN_DECL *DOTPROC)(void *transpose, __m128 *vector, __m128 *ans);
 typedef uint64_t(SN_DECL *FACTORIALROC)(int n);
@@ -215,9 +205,17 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, add);
 DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, add);
 DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, add);
 
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, add);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, add);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, add);
+
 DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, sub);
 DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, sub);
 DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, sub);
+
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, sub);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, sub);
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, sub);
 
 DECLARE_KER_PROC_RIGHT_ANS(float, sse, transpose);
 DECLARE_KER_PROC_RIGHT_ANS(float, avx, transpose);
@@ -227,33 +225,33 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, sse, scalar_mul);
 DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, avx, scalar_mul);
 DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, 512, scalar_mul);
 
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, sse, scalar_mul);
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, avx, scalar_mul);
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, 512, scalar_mul);
+
 DECLARE_BUF_PROC_ANS_SCALAR(float, sse, fill);
 DECLARE_BUF_PROC_ANS_SCALAR(float, avx, fill);
 DECLARE_BUF_PROC_ANS_SCALAR(float, 512, fill);
 
+DECLARE_BUF_PROC_ANS_SCALAR(double, sse, fill);
+DECLARE_BUF_PROC_ANS_SCALAR(double, avx, fill);
+DECLARE_BUF_PROC_ANS_SCALAR(double, 512, fill);
+
 #pragma endregion
 
 #pragma region fma
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> stgsharp-dev/giga
 DECLARE_PNL_PROC_ANS(float, sse, clear);
 DECLARE_PNL_PROC_ANS(float, avx, clear);
 DECLARE_PNL_PROC_ANS(float, 512, clear);
+
+DECLARE_PNL_PROC_ANS(double, sse, clear);
+DECLARE_PNL_PROC_ANS(double, avx, clear);
+DECLARE_PNL_PROC_ANS(double, 512, clear);
 
 DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, sse, fma);
 DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx, fma);
 DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx_fma, fma);
 DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, 512, fma);
-<<<<<<< HEAD
-=======
-DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, sse, fma);
-DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx, fma);
->>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
-=======
->>>>>>> stgsharp-dev/giga
 
 #pragma endregion
 
@@ -286,30 +284,30 @@ INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int lengt
 
 #pragma endregion
 
+typedef struct mat_intrinsic {
+        BUF_PROC_LRA buffer_add;
+        BUF_PROC_AS buffer_fill;
+        BUF_PROC_RAS buffer_scalar_mul;
+        BUF_PROC_LRA buffer_sub;
+        KER_PROC_RA buffer_transpose;
+        PANEL_PROC build_panel;
+        PANEL_PROC clear_panel;
+        PNL_PROC_LRA panel_fma;
+        PIVOTPROC pivot;
+        PANEL_PROC store_panel;
+
+} mat_intrinsic;
+
 // Mirrors C# IntrinsicContext field order so managed/unmanaged layouts stay in sync.
 typedef struct sn_intrinsic {
         HASH city_hash_simplify;
-        BUF_PROC_LRA f32_buffer_add;
-        BUF_PROC_AS f32_buffer_fill;
-        BUF_PROC_RAS f32_buffer_scalar_mul;
-        BUF_PROC_LRA f32_buffer_sub;
-        KER_PROC_RA f32_buffer_transpose;
-        PANEL_PROC f32_build_panel;
-<<<<<<< HEAD
-<<<<<<< HEAD
-        PANEL_PROC f32_clear_panel;
-=======
->>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
-=======
-        PANEL_PROC f32_clear_panel;
->>>>>>> stgsharp-dev/giga
-        VECTORNORMALIZEPROC f32_normalize_3;
-        PNL_PROC_LRA f32_panel_fma;
-        PANEL_PROC f32_store_panel;
         FACTORIALROC factorial_simd;
         INDEX_PAIR index_pair;
-        BUF_PROC_RAS variant;
+        VECTORNORMALIZEPROC vec_f32_normalize_3;
+        mat_intrinsic mat[4];
 } sn_intrinsic;
+
+typedef enum elment_type { F32 = 0, F64 = 1, I32 = 2, I64 = 3 } element_type;
 
 typedef enum most_advanced_instruction {
 #ifdef _MSC_VER

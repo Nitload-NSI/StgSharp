@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="VAO"
 // Project: StgSharp
@@ -36,14 +36,19 @@ namespace StgSharp.Graphics.OpenGL
     public sealed unsafe class VertexArray : GlBufferObjectBase
     {
 
-        internal VertexArray(int n, glRender binding)
+        internal VertexArray(
+                 int n,
+                 glRender binding
+        )
             : base(binding)
         {
             _bufferHandle = GL.GenVertexArrays(n);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public sealed override void Bind(int index)
+        public sealed override void Bind(
+                                    int index
+        )
         {
             GL.BindVertexArray(_bufferHandle[index]);
         }
@@ -60,13 +65,17 @@ namespace StgSharp.Graphics.OpenGL
                     int vertexLength,
                     TypeCode dataType,
                     bool isNomalized,
-                    uint stride,
-                    int pointer)
+                    int stride,
+                    int pointer
+        )
         {
-            GL.SetVertexAttribute(attributeIndex, vertexLength, dataType, isNomalized, stride, pointer);
+            GL.SetVertexAttribute(attributeIndex, vertexLength, dataType, isNomalized, stride,
+                                  pointer);
         }
 
-        protected sealed override void Dispose(bool disposing)
+        protected sealed override void Dispose(
+                                       bool disposing
+        )
         {
             if (disposing) {
                 GL.DeleteVertexArrays(_bufferHandle);

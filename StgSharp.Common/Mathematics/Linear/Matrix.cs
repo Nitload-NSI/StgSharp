@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Matrix"
 // Project: StgSharp
@@ -25,53 +25,182 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance;
+using StgSharp.Mathematics.Numeric;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-using hlsfAllocator = global::StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
+// using hlsfHandle = global::StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocationHandle;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    public static class Matrix
+    public unsafe partial class Matrix<T> where T : unmanaged, INumber<T>
     {
 
-        public static hlsfAllocator? DefaultAllocator
+        private protected static readonly int t_count = 16 / sizeof(T);
+
+        private protected static readonly int t_size = sizeof(T);
+        private readonly MatrixKernelBoarder _boarder;
+        private readonly MatrixSize _size;
+        private readonly MatrixStorage<T> _buffer;
+
+        private protected Matrix(
+                          MatrixKernelBoarder boarder,
+                          MatrixSize size,
+                          MatrixStorage<T> buffer
+
+        )
+        {
+            _boarder = boarder;
+            _size = size;
+            _buffer = buffer;
+        }
+
+        public T this[
+                 int x,
+                 int y
+        ]
         {
             get
             {
-                ArgumentNullException.ThrowIfNull(field, nameof(DefaultAllocator));
-                return null;
+                if (y < 0 || y > _size.ElementColumnLength || x < 0 || x > _size.ElementRowLength) {
+                    throw new ArgumentOutOfRangeException($"Index [{x},{y}] is out of matrix index range.");
+                }
+
+                int
+                    k_c = y / 4,
+                    k_r = x / 4,
+                    c = y % 4,
+                    r = x % 4;
+                ref MatrixKernel<T> kernel = ref GetMatrixKernel(k_c, k_r);
+                return Unsafe.IsNullRef(ref kernel) ? T.Zero : kernel[c, r];
             }
-            set;
-        } = null;
-
-        public static MatrixAllocation DefaultAllocation { get; set; } = MatrixAllocation.GC;
-
-        public static Matrix<T> FromDefault<T>(int columnLength, int rowLength) where T : unmanaged, INumber<T>
-        {
-            return DefaultAllocation switch
+            set
             {
-                MatrixAllocation.GC => FromGC<T>(columnLength, rowLength),
-                MatrixAllocation.HLSF => FromHlsf<T>(columnLength, rowLength, DefaultAllocator!),
-                _ => throw new NotSupportedException("This allocation is not supported."),
-            };
+                if (y < 0 || y > _size.ElementColumnLength || x < 0 || x > _size.ElementRowLength) {
+                    throw new ArgumentOutOfRangeException($"Index [{x},{y}] is out of matrix index range.");
+                }
+
+                int
+                    k_c = y / 4,
+                    k_r = x / 4,
+                    c = y % 4,
+                    r = x % 4;
+                ref MatrixKernel<T> kernel = ref GetMatrixKernel(k_c, k_r);
+                if (!Unsafe.IsNullRef(ref kernel)) {
+                    kernel[c, r] = value;
+                }
+            }
         }
 
-        public static Matrix<T> FromGC<T>(int columnLength, int rowLength) where T : unmanaged, INumber<T>
+        /// <summary>
+        ///   Matlab style indexer to generate a new matrix
+        /// </summary>
+        /// <param name="column">
+        ///
+        /// </param>
+        /// <param name="row">
+        ///
+        /// </param>
+        /// <returns>
+        ///
+        /// </returns>
+        /// <exception cref="NotImplementedException">
+        ///
+        /// </exception>
+        public unsafe Matrix<T> this[
+                                ReadOnlySpan<MatrixIndex> column,
+                                ReadOnlySpan<MatrixIndex> row
+        ]
         {
-            return new GCMatrix<T>(columnLength, rowLength);
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        ///   Length of the matrix in columns.
+        /// </summary>
+        public int ColumnLength => _size.ElementColumnLength;
+
+        /// <summary>
+        ///   Length of the matrix in rows.
+        /// </summary>
+        public int RowLength => _size.ElementRowLength;
+
+        public MatrixLayout Layout { get; init; }
+
+        internal MatrixKernel<T>* Buffer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => (MatrixKernel<T>*)_buffer.BufferPointer;
+        }
+
+        protected internal int KernelColumnLength => _size.KernelColumnLength;
+
+        protected internal int KernelRowLength => _size.KernelRowLength;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe ref MatrixKernel<T> GetMatrixKernel(
+                                          int x,
+                                          int y
+        )
+        {
+            MatrixKernelEnumerator enumerator = new(_size.KernelColumnLength, _size.KernelRowLength,
+                                                    x, y);
+            return ref _boarder.IsInBuffer(x, y, in enumerator) ?
+                       ref _buffer[_boarder.GetIndexOffset(x, y, in enumerator)] :
+                       ref Unsafe.NullRef<MatrixKernel<T>>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix<T> FromHlsf<T>(int columnLength, int rowLength, hlsfAllocator allocator)
-            where T : unmanaged, INumber<T>
+        internal unsafe ref T GetElementUnsafe(
+                              int x,
+                              int y
+        )
         {
-            return new HlsfMatrix<T>(columnLength, rowLength, allocator);
+            // Caller guarantees: indices in range, layout is dense square.
+            int k_c = y >> 2;
+            int k_r = x >> 2;
+            int c = y & 3;
+            int r = x & 3;
+
+            MatrixKernelEnumerator enumerator = new(_size.KernelColumnLength, _size.KernelRowLength,
+                                                    k_c, k_r);
+            ref MatrixKernel<T> kernel = ref _buffer[_boarder.GetIndexOffset(k_c, k_r, in enumerator)];
+            return ref kernel[c, r];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal unsafe MatrixKernel<T>* GetKernelAddressUnsafe(
+                                         int x,
+                                         int y
+        )
+        {
+            // Caller guarantees: indices in range, layout is dense square.
+            int k_c = y >> 2;
+            int k_r = x >> 2;
+
+            MatrixKernelEnumerator enumerator = new(_size.KernelColumnLength, _size.KernelRowLength,
+                                                    k_c, k_r);
+            return Buffer + _boarder.GetIndexOffset(k_c, k_r, in enumerator);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal unsafe ref MatrixKernel<T> GetKernelUnsafe(
+                                            int x,
+                                            int y
+        )
+        {
+            // Caller guarantees: indices in range, layout is dense square.
+            int k_c = y >> 2;
+            int k_r = x >> 2;
+            int c = y & 3;
+            int r = x & 3;
+
+            MatrixKernelEnumerator enumerator = new(_size.KernelColumnLength, _size.KernelRowLength,
+                                                    k_c, k_r);
+            return ref _buffer[_boarder.GetIndexOffset(k_c, k_r, in enumerator)];
         }
 
     }

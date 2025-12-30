@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-//-----------------------------------------------------------------------
-=======
-﻿//-----------------------------------------------------------------------
->>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
-=======
-//-----------------------------------------------------------------------
->>>>>>> stgsharp-dev/giga
+ //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="MatrixParallel"
 // Project: StgSharp
@@ -35,20 +27,6 @@
 // -----------------------------------------------------------------------
 using StgSharp.Collections;
 using System;
-<<<<<<< HEAD
-<<<<<<< HEAD
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StgSharp.Mathematics.Numeric
-{
-    public static class MatrixParallel
-=======
-using System.Collections.Concurrent;
-=======
->>>>>>> stgsharp-dev/giga
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -57,7 +35,6 @@ using System.Threading.Tasks;
 namespace StgSharp.Mathematics.Numeric
 {
     public static partial class MatrixParallel
->>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
     {
 
         private static bool _meaningful;
@@ -119,12 +96,4 @@ namespace StgSharp.Mathematics.Numeric
         }
 
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
-=======
-}
->>>>>>> stgsharp-dev/giga

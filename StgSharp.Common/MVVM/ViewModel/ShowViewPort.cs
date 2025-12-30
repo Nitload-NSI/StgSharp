@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="ShowViewPort"
 // Project: StgSharp
@@ -53,7 +53,9 @@ namespace StgSharp.MVVM.ViewModel
         /// <summary>
         ///   CustomizeInit this form and render it on screen, and respond with operation
         /// </summary>
-        public unsafe void UseViewModel(string viewEntryName)
+        public unsafe void UseViewModel(
+                           string viewEntryName
+        )
         {
             CustomizeInitialize();
             UseViewInNextFrame(viewEntryName);
@@ -62,7 +64,9 @@ namespace StgSharp.MVVM.ViewModel
             if (_nextView != _currentView) {
                 _ = Interlocked.Exchange(ref _currentView, _nextView);
             }
-            Thread renderThread = new Thread((token) => {
+            Thread renderThread = new Thread((
+                                             token
+            ) => {
                 try
                 {
                     ProcessFrameWithoutEvent();
@@ -92,7 +96,9 @@ namespace StgSharp.MVVM.ViewModel
             frameTimeProvider.Dispose();
         }
 
-        protected void UseViewInNextFrame(string name)
+        protected void UseViewInNextFrame(
+                       string name
+        )
         {
             if (!allView.TryGetValue(name, out ViewBase v)) {
                 throw new KeyNotFoundException(
@@ -101,7 +107,10 @@ namespace StgSharp.MVVM.ViewModel
             CurrentView = v;
         }
 
-        private void CountFps(object sender, EventArgs e)
+        private void CountFps(
+                     object sender,
+                     EventArgs e
+        )
         {
             Interlocked.Exchange(ref _frameSpeed, _frameCount);
             Interlocked.Exchange(ref _frameCount, 0);
@@ -118,7 +127,10 @@ namespace StgSharp.MVVM.ViewModel
 
         private void ProcessFrameWithoutEvent()
         {
-            frameTimeProvider.TimeSpanRefreshed += (_, _) => { };
+            frameTimeProvider.TimeSpanRefreshed += (
+                                                   _,
+                                                   _
+            ) => { };
             while (_closed)
             {
                 foreach (ViewPort context in CurrentView.Render) {

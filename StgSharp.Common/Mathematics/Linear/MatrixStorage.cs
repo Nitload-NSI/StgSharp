@@ -1,6 +1,6 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="MatrixEnum"
+// file="MatrixStorage"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,19 +25,48 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance;
+using StgSharp.HighPerformance.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
+using HLSFAllocator = global::StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
+using HLSFHandle = global::StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocationHandle;
+
 namespace StgSharp.Mathematics.Numeric
 {
-    public enum MatrixAllocation
+    public abstract class MatrixStorage<T> : IDisposable where T : unmanaged, INumber<T>
     {
 
-        HLSF,
-        GC,
+        internal unsafe ref MatrixKernel<T> this[long index]
+        {
+            get { return ref Unsafe.AsRef<MatrixKernel<T>>(BufferPointer + MatrixKernel<T>.Size * index); }
+        }
+
+        protected internal abstract unsafe T* BufferPointer { get; }
+
+        public abstract void Dispose();
+
+    }
+
+    internal class MatrixStorageHLSF<T>(HLSFAllocator allocator, HLSFHandle handle) : MatrixStorage<T>
+        where T : unmanaged, INumber<T>
+    {
+
+        internal HLSFAllocator _allocator = allocator;
+        internal HLSFHandle _handle = handle;
+
+        protected internal override unsafe T* BufferPointer => (T*)_handle.Pointer;
+
+        public override void Dispose()
+        {
+            allocator.Free(_handle);
+        }
 
     }
 }

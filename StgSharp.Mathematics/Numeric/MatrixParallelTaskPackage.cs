@@ -78,15 +78,31 @@ namespace StgSharp.Mathematics.Numeric
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct MatrixOpMode(MatrixIndexStyle style, MatrixOperationParam paramLayout)
+    public struct MatrixOpMode(
+                  MatrixIndexStyle style,
+                  MatrixOperationParam paramLayout
+    )
     {
 
         public MatrixIndexStyle OperationStyle = style;
 
         public MatrixOperationParam ParameterStyle = paramLayout;
 
-        public MatrixOpMode(MatrixIndexStyle style, MatrixOperationSpecial paramLayout)
+        public MatrixOpMode(
+               MatrixIndexStyle style,
+               MatrixOperationSpecial paramLayout
+        )
             : this(style, (MatrixOperationParam)paramLayout) { }
+
+    }
+
+    public enum MatrixElementType : int
+    {
+
+        F32 = 0,
+        F64 = 1,
+        I32 = 2,
+        I64 = 3,
 
     }
 
@@ -97,7 +113,8 @@ namespace StgSharp.Mathematics.Numeric
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Copy(
                                   MatrixParallelTaskPackage* source,
-                                  MatrixParallelTaskPackage* target)
+                                  MatrixParallelTaskPackage* target
+        )
         {
             Buffer.MemoryCopy(source, target, sizeof(MatrixParallelTaskPackage),
                               sizeof(MatrixParallelTaskPackage));

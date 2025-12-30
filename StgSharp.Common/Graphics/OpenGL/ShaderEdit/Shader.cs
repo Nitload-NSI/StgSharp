@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Shader"
 // Project: StgSharp
@@ -56,7 +56,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected sealed override Shader CreateShaderSegment(ShaderType type, int count)
+        protected sealed override Shader CreateShaderSegment(
+                                         ShaderType type,
+                                         int count
+        )
         {
             return new Shader(GL.CreateShaderSet(count, type), type, this);
         }
@@ -70,7 +73,11 @@ namespace StgSharp.Graphics.OpenGL
         internal readonly GlHandle[] handle;
         public readonly ShaderType type;
 
-        internal unsafe Shader(GlHandle[] handle, ShaderType usage, glRender stream)
+        internal unsafe Shader(
+                        GlHandle[] handle,
+                        ShaderType usage,
+                        glRender stream
+        )
         {
             this.handle = handle;
             GL = stream.GL;
@@ -89,12 +96,18 @@ namespace StgSharp.Graphics.OpenGL
         ///   Index of shader code in current shader code set.
         /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AttachTo(int index, [NotNull]ShaderProgram target)
+        public void AttachTo(
+                    int index,
+                    [NotNull]ShaderProgram target
+        )
         {
             GL.AttachShader(target.handle, handle[index]);
         }
 
-        public void CheckStatus(int index, ShaderStatus status)
+        public void CheckStatus(
+                    int index,
+                    ShaderStatus status
+        )
         {
             string log = GL.GetShaderStatus(this, index, (int)status);
             if (!string.IsNullOrEmpty(log)) {
@@ -103,7 +116,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Compile(int index, ReadOnlySpan<byte> codeU8Stream)
+        public unsafe void Compile(
+                           int index,
+                           ReadOnlySpan<byte> codeU8Stream
+        )
         {
             GL.LoadShaderSource(handle[index], codeU8Stream);
             GL.CompileShader(handle[index]);
@@ -111,7 +127,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Compile(int index, byte[] codeStream)
+        public unsafe void Compile(
+                           int index,
+                           byte[] codeStream
+        )
         {
             ArgumentNullException.ThrowIfNull(codeStream);
             GL.LoadShaderSource(handle[index], codeStream);
@@ -120,7 +139,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Compile(int index, string codeStream)
+        public unsafe void Compile(
+                           int index,
+                           string codeStream
+        )
         {
             ArgumentNullException.ThrowIfNull(codeStream);
             GL.LoadShaderSource(handle[index], codeStream.AsSpan());
@@ -128,12 +150,16 @@ namespace StgSharp.Graphics.OpenGL
             CheckStatus(index, ShaderStatus.CompileStatus);
         }
 
-        public void FromBytes(byte[] stream)
+        public void FromBytes(
+                    byte[] stream
+        )
         {
             throw new NotImplementedException();
         }
 
-        public static byte[] FromCodeFile(string fileRoute)
+        public static byte[] FromCodeFile(
+                             string fileRoute
+        )
         {
             string str = File.ReadAllText(fileRoute);
             if (string.IsNullOrEmpty(str)) {
@@ -147,7 +173,9 @@ namespace StgSharp.Graphics.OpenGL
             return Array.Empty<byte>();
         }
 
-        public byte[] GetBytes(out int length)
+        public byte[] GetBytes(
+                      out int length
+        )
         {
             throw new NotImplementedException();
         }
@@ -175,7 +203,9 @@ namespace StgSharp.Graphics.OpenGL
         /// <summary>
         ///   CustomizeInit a program with no shader attached.
         /// </summary>
-        internal unsafe ShaderProgram(glRender binding)
+        internal unsafe ShaderProgram(
+                        glRender binding
+        )
         {
             GL = binding.GL;
             handle = GL.CreateProgram();
@@ -191,7 +221,9 @@ namespace StgSharp.Graphics.OpenGL
         ///
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe Uniform<T> GetUniform<T>(string name) where T: unmanaged
+        public unsafe Uniform<T> GetUniform<T>(
+                                 string name
+        ) where T : unmanaged
         {
             return new Uniform<T>(GL.GetUniformLocation(this.handle, name));
         }
@@ -205,7 +237,9 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///
         /// </returns>
-        public unsafe Uniform<T, U> GetUniform<T, U>(string name) where T: unmanaged where U: struct
+        public unsafe Uniform<T, U> GetUniform<T, U>(
+                                    string name
+        ) where T : unmanaged where U : struct
         {
             return new Uniform<T, U>(GL.GetUniformLocation(this.handle, name));
         }
@@ -219,8 +253,9 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///
         /// </returns>
-        public unsafe Uniform<T, U, V> GetUniform<T, U, V>(string name) where T: unmanaged where U: struct
-            where V: struct
+        public unsafe Uniform<T, U, V> GetUniform<T, U, V>(
+                                       string name
+        ) where T : unmanaged where U : struct where V : struct
         {
             return new Uniform<T, U, V>(GL.GetUniformLocation(this.handle, name));
         }
@@ -234,9 +269,9 @@ namespace StgSharp.Graphics.OpenGL
         /// <returns>
         ///
         /// </returns>
-        public unsafe Uniform<T, U, V, W> GetUniform<T, U, V, W>(string name) where T: unmanaged where U: struct
-            where V: struct
-            where W: struct
+        public unsafe Uniform<T, U, V, W> GetUniform<T, U, V, W>(
+                                          string name
+        ) where T : unmanaged where U : struct where V : struct where W : struct
         {
             return new Uniform<T, U, V, W>(GL.GetUniformLocation(this.handle, name));
         }

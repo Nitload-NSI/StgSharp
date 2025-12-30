@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="StructDefine"
 // Project: StgSharp
@@ -38,18 +38,6 @@ namespace StgSharp.Internal
     // rename types in style of GLFW
 
     using GLFWbool = Boolean;
-
-    #region glad struct
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct GLsync
-    {
-
-        public IntPtr Handle;
-
-    }
-
-        #endregion glad struct
 
     // strucs defined in GLFW3.h
 

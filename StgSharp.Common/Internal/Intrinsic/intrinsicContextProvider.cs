@@ -41,7 +41,7 @@ namespace StgSharp.Internal
 
         public static IntrinsicLevel IntrinsicLevel { get; set; }
 
-        internal static IntrinsicContext Intrinsic
+        internal static IntrinsicContext Context
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _intrinsicContext;

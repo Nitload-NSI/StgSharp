@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="StringHashMultiplexer"
 // Project: StgSharp
@@ -71,7 +71,7 @@ namespace StgSharp.Collections
         {
             int hash;
             fixed (char* cPtr = obj.AsSpan()) {
-                hash = NativeIntrinsic.Intrinsic.city_hash_simplify(cPtr, obj.Length);
+                hash = NativeIntrinsic.Context.city_hash_simplify(cPtr, obj.Length);
             }
             return hash;
         }
@@ -136,7 +136,7 @@ namespace StgSharp.Collections
         {
             int hash;
             fixed (char* cPtr = obj.AsSpan()) {
-                hash = NativeIntrinsic.Intrinsic.city_hash_simplify(cPtr, obj.Length);
+                hash = NativeIntrinsic.Context.city_hash_simplify(cPtr, obj.Length);
             }
             return hash;
         }

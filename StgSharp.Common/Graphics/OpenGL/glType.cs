@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="glType"
 // Project: StgSharp
@@ -35,7 +35,9 @@ namespace StgSharp.Graphics.OpenGL
 {
     internal delegate void GLVULKANPROCNV();
 
-    public unsafe struct glHandleARB(IntPtr value) { }
+    public unsafe struct glHandleARB(
+                         IntPtr value
+    ) { }
 
     /// <summary>
     ///   OpenGL numeric type. An IEEE-754 floating-point value, clamped to the range [0,1].
@@ -46,7 +48,9 @@ namespace StgSharp.Graphics.OpenGL
 
         public float value;
 
-        public GlClampF(float a)
+        public GlClampF(
+               float a
+        )
         {
             value = a;
         }
@@ -54,7 +58,9 @@ namespace StgSharp.Graphics.OpenGL
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 16)]
-    public struct glHalfNv(Half bin)
+    public struct glHalfNv(
+                  Half bin
+    )
     {
 
         [FieldOffset(0)] public Half binary = bin;
@@ -63,6 +69,14 @@ namespace StgSharp.Graphics.OpenGL
         {
             return (float)binary;
         }
+
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct glSync
+    {
+
+        public IntPtr Handle;
 
     }
 
@@ -86,7 +100,9 @@ namespace StgSharp.Graphics.OpenGL
 
         public double value;
 
-        public GlClampD(double a)
+        public GlClampD(
+               double a
+        )
         {
             value = a;
         }

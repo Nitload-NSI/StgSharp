@@ -54,6 +54,9 @@
     <ClCompile Include="sn-src\k_panel.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="sn-src\k_pivot.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sn-head\gl.h">

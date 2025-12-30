@@ -35,23 +35,39 @@ using System.Runtime.InteropServices.Marshalling;
 namespace StgSharp.Internal.Intrinsic
 {
     [StructLayout(LayoutKind.Sequential)]
+    internal unsafe struct MatrixIntrinsic
+    {
+
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> buffer_add;             //f32_buffer_add
+        public delegate* unmanaged[Cdecl]<void*, ScalarPacket*, long, void> buffer_fill;                //f32_buffer_fill
+        public delegate* unmanaged[Cdecl]<void*, void*, ScalarPacket*, long, void> buffer_scalar_mul;                //f32_buffer_s_m
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> buffer_sub;             //f32_kernel_sub
+        public delegate* unmanaged[Cdecl]<void*, void*, void> buffer_transpose;                //f32_kernel_transpose
+        public delegate* unmanaged[Cdecl]<MatrixPanel*, MatrixKernel*, int, int, int, int, void> build_panel;              //f32_build_panel
+        public delegate* unmanaged[Cdecl]<MatrixPanel*, void> clear_panel;                      //f32_clear_panel
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> panel_fma;               //f32_panel_fma
+        public delegate* unmanaged[Cdecl]<void*, ulong, ulong, ulong, void> pivot;               //f32_panel_mul
+        public delegate* unmanaged[Cdecl]<void*, void*, int, int, int, int, void> store_panel; //f32_store_panel
+
+    }
+
+    [InlineArray(4)]
+    internal unsafe struct MatrixIntrinsicArray
+    {
+
+        private MatrixIntrinsic e0;
+
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct IntrinsicContext
     {
 
-        public delegate* unmanaged[Cdecl]<char*, int, int> city_hash_simplify;              //city_hash_simplify
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> f32_buffer_add;             //f32_buffer_add
-        public delegate* unmanaged[Cdecl]<void*, ScalarPacket*,long, void> f32_buffer_fill;                //f32_buffer_fill
-        public delegate* unmanaged[Cdecl]<void*, void*, ScalarPacket*, long, void> f32_buffer_scalar_mul;                //f32_buffer_s_m
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, long, void> f32_buffer_sub;             //f32_kernel_sub
-        public delegate* unmanaged[Cdecl]<void*, void*, void> f32_buffer_transpose;                //f32_kernel_transpose
-        public delegate* unmanaged[Cdecl]<MatrixPanel*, MatrixKernel*,  int, int, int, int, void> f32_build_panel;              //f32_build_panel
-        public delegate* unmanaged[Cdecl]<MatrixPanel*, void> f32_clear_panel;
-        public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> f32_normalize_3;                //f32_normalize_3
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> f32_panel_fma;               //f32_panel_fma
-        public delegate* unmanaged[Cdecl]<void*, void*, int, int, int, int, void> f32_store_panel; //f32_store_panel
-        public delegate* unmanaged[Cdecl]<int, ulong> factorial_simd;               //factorial_simd
-        public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;             //index_pair
-        public delegate* unmanaged[Cdecl]<void*, void*, ScalarPacket*, long, void> variant ;              //variant 
+        public delegate* unmanaged[Cdecl]<char*, int, int> city_hash_simplify;              // city_hash_simplify
+        public delegate* unmanaged[Cdecl]<int, ulong> factorial_simd;                       // factorial_simd
+        public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;                 // index_pair
+        public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> vec_f32_normalize_3;   // f32_normalize_3
+        public MatrixIntrinsicArray mat;                                              // mat[4] in native order
 
         public IntrinsicContext()
         {

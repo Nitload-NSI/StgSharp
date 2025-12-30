@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="glApiManager"
 // Project: StgSharp
@@ -54,28 +54,6 @@ namespace StgSharp.Graphics.OpenGL
 
         private static string glExtensionList;
 
-        // --------------------------------------------------------------------------------
-
-        /// <summary>
-        ///   Get the function pointer of given OpenGL api _label
-        /// </summary>
-        /// <param _label="name">
-        ///   ContextName of the OpenGL api
-        /// </param>
-        /// <returns>
-        ///   The funtion pointer of the api in stream of <see cref="IntPtr" />
-        /// </returns>
-        public static IntPtr LoadGLfunc(string name)
-        {
-            IntPtr ret = GraphicFramework.glfwGetProcAddress(Encoding.UTF8.GetBytes(name));
-            if (ret == default)
-            {
-                DefaultLog.InternalAppendLog(
-                    $"Cannot load OpenGL api called {name}, this api may not exist or supported.");
-                return ret;
-            }
-            return ret;
-        }
 
         /// <summary>
         ///   Load all supported OpenGL APIs and bind them to given <see cref="ViewPort" />.
@@ -83,10 +61,12 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="contextHandle">
         ///   The handle to current OpenGL viewPortDisplay
         /// </param>
-        public static unsafe void LoadOpenGLApiTo(IntPtr contextHandle)
+        public static unsafe void LoadOpenGLApiTo(
+                                  IntPtr contextHandle
+        )
         {
             OpenglContext* context = (OpenglContext*)contextHandle;
-            if ((IntPtr)context->glGetString != IntPtr.Zero) {
+            if (context->glGetString != null) {
                 return;
             }
             delegate*<ReadOnlySpan<byte>, IntPtr> loader = &GraphicFramework.glfwGetProcAddress;
@@ -96,15 +76,16 @@ namespace StgSharp.Graphics.OpenGL
                 #if DEBUG
                 Console.WriteLine("Cannot load GL.");
                 #endif
-                throw new Exception("Cannot load gl");
+                throw new NotSupportedException("Cannot load gl");
             }
-            context->glGetString = (delegate*<uint, IntPtr>)proc;
+            context->glGetString = (delegate*<uint, byte*>)proc;
 
             string coreVersion;
-            if (context->glGetString(glVersion) == IntPtr.Zero) {
+            if (context->glGetString(glVersion) == null) {
                 DefaultLog.InternalWriteLog("Failed to call glGetString", LogType.Error);
             }
-            coreVersion = Marshal.PtrToStringAnsi(context->glGetString(glVersion)) ?? string.Empty;
+            coreVersion = Marshal.PtrToStringAnsi((nint)context->glGetString(glVersion)) ??
+                string.Empty;
 
             foreach (string branch in glBranch)
             {
@@ -118,25 +99,25 @@ namespace StgSharp.Graphics.OpenGL
             CheckCoreVersion(majorVersion, minorVersion);
 
 
-            if (LoadGLcore10(context, loader) &&
-                LoadGLcore11(context, loader) &&
-                LoadGLcore12(context, loader) &&
-                LoadGLcore13(context, loader) &&
-                LoadGLcore14(context, loader) &&
-                LoadGLcore15(context, loader) &&
-                LoadGLcore20(context, loader) &&
-                LoadGLcore21(context, loader) &&
-                LoadGLcore30(context, loader) &&
-                LoadGLcore31(context, loader) &&
-                LoadGLcore32(context, loader) &&
-                LoadGLcore33(context, loader) &&
-                LoadGLcore40(context, loader) &&
-                LoadGLcore41(context, loader) &&
-                LoadGLcore42(context, loader) &&
-                LoadGLcore43(context, loader) &&
-                LoadGLcore44(context, loader) &&
-                LoadGLcore45(context, loader) &&
-                LoadGLcore46(context, loader)) { }
+            if (LoadGLcore10((glContextShadow*)context, loader) &&
+                LoadGLcore11((glContextShadow*)context, loader) &&
+                LoadGLcore12((glContextShadow*)context, loader) &&
+                LoadGLcore13((glContextShadow*)context, loader) &&
+                LoadGLcore14((glContextShadow*)context, loader) &&
+                LoadGLcore15((glContextShadow*)context, loader) &&
+                LoadGLcore20((glContextShadow*)context, loader) &&
+                LoadGLcore21((glContextShadow*)context, loader) &&
+                LoadGLcore30((glContextShadow*)context, loader) &&
+                LoadGLcore31((glContextShadow*)context, loader) &&
+                LoadGLcore32((glContextShadow*)context, loader) &&
+                LoadGLcore33((glContextShadow*)context, loader) &&
+                LoadGLcore40((glContextShadow*)context, loader) &&
+                LoadGLcore41((glContextShadow*)context, loader) &&
+                LoadGLcore42((glContextShadow*)context, loader) &&
+                LoadGLcore43((glContextShadow*)context, loader) &&
+                LoadGLcore44((glContextShadow*)context, loader) &&
+                LoadGLcore45((glContextShadow*)context, loader) &&
+                LoadGLcore46((glContextShadow*)context, loader)) { }
 
             uint code = context->glGetError();
             if (code != 0)
@@ -3267,7 +3248,10 @@ namespace StgSharp.Graphics.OpenGL
             #endregion checkGLextensions
         }
 
-        internal static void CheckCoreVersion(int majorVersion, int minorVersion)
+        internal static void CheckCoreVersion(
+                             int majorVersion,
+                             int minorVersion
+        )
         {
             if (majorVersion < 3) {
                 throw new InvalidOperationException(
@@ -3433,32 +3417,14 @@ namespace StgSharp.Graphics.OpenGL
             }
         }
 
-        internal static unsafe string GetExtensions(this OpenglContext context)
+        internal static unsafe string GetExtensions(
+                                      this OpenglContext context
+        )
         {
             if (context.glGetString == null) {
                 return string.Empty;
             }
-            return Marshal.PtrToStringAnsi(context.glGetString(glExtension))!;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static T internalLoadAPI<T>(IntPtr ptr) where T: Delegate
-        {
-            try
-            {
-                if (ptr == IntPtr.Zero) {
-                    return null;
-                }
-                T func = Marshal.GetDelegateForFunctionPointer<T>(ptr);
-                return func;
-            }
-            catch (Exception ex)
-            {
-                DefaultLog.InternalWriteLog(
-                    $"{$"Failed to convert the api {typeof(T).Name}.\n"}{ex.Message}",
-                    LogType.Warning);
-                return default;
-            }
+            return Marshal.PtrToStringAnsi((nint)context.glGetString(glExtension))!;
         }
 
     }

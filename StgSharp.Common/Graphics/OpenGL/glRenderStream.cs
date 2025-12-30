@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="glRenderStream"
 // Project: StgSharp
@@ -62,9 +62,9 @@ namespace StgSharp.Graphics.OpenGL
         {
             if (ContextHandle == default)
             {
-                ContextHandle = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(OpenglContext)));
+                ContextHandle = Marshal.AllocHGlobal(Marshal.SizeOf<OpenglContext>());
                 OpenglContext* contextID = (OpenglContext*)ContextHandle;
-                contextID->glGetString = (delegate*<uint, IntPtr>)IntPtr.Zero;
+                contextID->glGetString = (delegate*<uint,byte*>)IntPtr.Zero;
             }
             if (GL == null) {
                 _context = OpenGLFunction.BuildGlFunctionPackage(ContextHandle);
@@ -115,10 +115,15 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void SetSizeLimit(int minWidth, int minHeight, int maxWidth, int maxHeight)
+        public override void SetSizeLimit(
+                             int minWidth,
+                             int minHeight,
+                             int maxWidth,
+                             int maxHeight
+        )
         {
-            GraphicFramework.glfwSetWindowSizeLimits(
-                this.CanvasHandle, minWidth, minHeight, maxWidth, maxHeight);
+            GraphicFramework.glfwSetWindowSizeLimits(this.CanvasHandle, minWidth, minHeight,
+                                                     maxWidth, maxHeight);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -135,7 +140,10 @@ namespace StgSharp.Graphics.OpenGL
             CustomizeDeinit();
         }
 
-        protected sealed override Uniform<Matrix44> NativeCameraUniform(ShaderProgram source, string name)
+        protected sealed override Uniform<Matrix44> NativeCameraUniform(
+                                                    ShaderProgram source,
+                                                    string name
+        )
         {
             NativeCamera.GainAllUniforms(source, name);
             return NativeCamera.convertedUniform;
@@ -145,30 +153,41 @@ namespace StgSharp.Graphics.OpenGL
         protected sealed override void NativeCameraViewRange(
                                        Radius fieldOfRange,
                                        Vec2 offset,
-                                       (float frontDepth, float backDepth) viewDepth)
+                                       (float frontDepth, float backDepth) viewDepth
+        )
         {
             NativeCamera.SetViewRange(fieldOfRange, this.Size, offset, viewDepth);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected sealed override void NativeCameraViewTarget(Vec3 position, Vec3 direction, Vec3 up)
+        protected sealed override void NativeCameraViewTarget(
+                                       Vec3 position,
+                                       Vec3 direction,
+                                       Vec3 up
+        )
         {
             NativeCamera.SetViewDirection(position, direction, up);
         }
 
         #region Key Control
 
-        protected KeyStatus CheckKey(KeyboardKey key)
+        protected KeyStatus CheckKey(
+                            KeyboardKey key
+        )
         {
             return GraphicFramework.glfwGetKey(this.CanvasHandle, (int)key);
         }
 
-        protected KeyStatus CheckKey(Mouse key)
+        protected KeyStatus CheckKey(
+                            Mouse key
+        )
         {
             return GraphicFramework.glfwGetKey(this.CanvasHandle, (int)key);
         }
 
-        protected KeyStatus CheckKey(Joystick key)
+        protected KeyStatus CheckKey(
+                            Joystick key
+        )
         {
             return GraphicFramework.glfwGetKey(this.CanvasHandle, (int)key);
         }

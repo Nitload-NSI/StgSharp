@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="glFunction"
 // Project: StgSharp
@@ -92,13 +92,17 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ActiveTextureUnit(uint type)
+        public void ActiveTextureUnit(
+                    uint type
+        )
         {
             Context.glActiveTexture(type);
         }
 
         [Conditional("DEBUG")]
-        public void Assert(bool shouldReportWhenNormal)
+        public void Assert(
+                    bool shouldReportWhenNormal
+        )
         {
             uint code = Context.glGetError();
             if (code != glConst.NO_ERROR) {
@@ -110,20 +114,17 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AttachShader(GlHandle program, GlHandle shader)
-        {
-            Context.glAttachShader(program.Value, shader.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void BindBuffer(BufferType bufferType, GlHandle handle)
+        public void BindBuffer(
+                    BufferType bufferType,
+                    GlHandle handle
+        )
         {
             Context.glBindBuffer((uint)bufferType, handle.Value);
         }
 
         /// <summary>
         ///   Bind a frame BufferHandle to a frame BufferHandle target Same function as <see ///  
-        ///   href="https://docs._gl/gl3/glBindFramebuffer">glBindFramebuffer</see>.
+        ///   href="https://docs._gl/gl3/glBindFramebuffer"> glBindFramebuffer </see>.
         /// </summary>
         /// <param _label="target">
         ///   The frame BufferHandle target of the binding operation.
@@ -132,45 +133,44 @@ namespace StgSharp.Graphics.OpenGL
         ///   The handle of the frame BufferHandle object to bind.
         /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void BindFrameBuffer(FrameBufferTarget target, GlHandle handle)
+        public void BindFrameBuffer(
+                    FrameBufferTarget target,
+                    GlHandle handle
+        )
         {
             Context.glBindFramebuffer((uint)target, handle.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void BindRenderBuffer(GlHandle handle)
+        public void BindRenderBuffer(
+                    GlHandle handle
+        )
         {
             Context.glBindRenderbuffer(glConst.RENDERBUFFER, handle.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void BindTexture(uint type, GlHandle texture)
-        {
-            Context.glBindTexture(type, texture.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void BindVertexArray(GlHandle handle)
+        public void BindVertexArray(
+                    GlHandle handle
+        )
         {
             Context.glBindVertexArray(handle.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public FrameBufferStatus CheckFrameBufferStatus(FrameBufferTarget target)
+        public FrameBufferStatus CheckFrameBufferStatus(
+                                 FrameBufferTarget target
+        )
         {
             return (FrameBufferStatus)Context.glCheckFramebufferStatus((uint)target);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear(MaskBufferBit mask)
+        public void Clear(
+                    MaskBufferBit mask
+        )
         {
             Context.glClear((uint)mask);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void ClearColor(float R, float G, float B, float A)
-        {
-            Context.glClearColor(R, G, B, A);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -199,16 +199,13 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CombineFrameBufferRenderBuffer(FrameBufferAttachment attachment, GlHandle rboHandle)
+        public void CombineFrameBufferRenderBuffer(
+                    FrameBufferAttachment attachment,
+                    GlHandle rboHandle
+        )
         {
-            Context.glFramebufferRenderbuffer(glConst.FRAMEBUFFER, (uint)attachment, glConst.RENDERBUFFER,
-                                              rboHandle.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CompileShader(GlHandle shaderhandle)
-        {
-            Context.glCompileShader(shaderhandle.Value);
+            Context.glFramebufferRenderbuffer(glConst.FRAMEBUFFER, (uint)attachment,
+                                              glConst.RENDERBUFFER, rboHandle.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -218,13 +215,9 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public GlHandle CreateProgram()
-        {
-            return GlHandle.Create(Context.glCreateProgram());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe GlHandle[] CreateProgram(int count)
+        public unsafe GlHandle[] CreateProgram(
+                                 int count
+        )
         {
             GlHandle[] h = new GlHandle[count];
             for (int i = 0; i < count; i++) {
@@ -234,7 +227,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public GlHandle[] CreateShaderSet(int count, ShaderType type)
+        public GlHandle[] CreateShaderSet(
+                          int count,
+                          ShaderType type
+        )
         {
             GlHandle[] ret = new GlHandle[count];
             uint t = (uint)type;
@@ -252,13 +248,17 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void DeleteBuffer(GlHandle handle)
+        public unsafe void DeleteBuffer(
+                           GlHandle handle
+        )
         {
             Context.glDeleteBuffers(1, (uint*)&handle);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void DeleteBuffers(GlHandle[] handle)
+        public unsafe void DeleteBuffers(
+                           GlHandle[] handle
+        )
         {
             if ((handle == null) || (handle.Length == 0)) {
                 throw new ArgumentNullException(nameof(handle));
@@ -274,19 +274,24 @@ namespace StgSharp.Graphics.OpenGL
 
         /// <summary>
         ///   Delete a render BufferHandle object Very simlilar function as <see ///  
-        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers">glDeleteRenderbuffers</see>. The only
-        ///   deifference is that this mehtod can only delete one renderbuffer at the same time.
+        ///   href="https://docs.gl/gl3/glDeleteRenderbuffers"> glDeleteRenderbuffers </see>. The
+        ///   only deifference is that this mehtod can only delete one renderbuffer at the same
+        ///   time.
         /// </summary>
         /// <param _label="bufferHandle">
         ///   Handle to BufferHandle to delete.
         /// </param>
-        public unsafe void DeleteRenderBuffer(GlHandle bufferHandle)
+        public unsafe void DeleteRenderBuffer(
+                           GlHandle bufferHandle
+        )
         {
             Context.glDeleteRenderbuffers(1, &bufferHandle.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void DeleteVertexArrays(GlHandle[] arrays)
+        public unsafe void DeleteVertexArrays(
+                           GlHandle[] arrays
+        )
         {
             fixed (GlHandle* hptr = arrays)
             {
@@ -297,25 +302,38 @@ namespace StgSharp.Graphics.OpenGL
             }
         }
 
-        public void DepthMaskAccess(bool isWrite)
+        public void DepthMaskAccess(
+                    bool isWrite
+        )
         {
-            Context.glDepthMask(isWrite);
+            Context.glDepthMask(isWrite ? (byte)1 : (byte)0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Disable(glOperation operation)
+        public void Disable(
+                    glOperation operation
+        )
         {
             Context.glDisable((uint)operation);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void DrawArrays(GeometryType mode, int first, uint count)
+        public unsafe void DrawArrays(
+                           GeometryType mode,
+                           int first,
+                           int count
+        )
         {
             Context.glDrawArrays((uint)mode, first, count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void DrawElements(GeometryType mode, uint count, TypeCode type, IntPtr ptr)
+        public unsafe void DrawElements(
+                           GeometryType mode,
+                           int count,
+                           TypeCode type,
+                           IntPtr ptr
+        )
         {
             uint a;
             a = type switch
@@ -326,37 +344,34 @@ namespace StgSharp.Graphics.OpenGL
                 _ => throw new ArgumentException(
                     $"{$"{$"Parameter error in parameter {nameof(type)} method DrawElements. "}"}{$"{$"Only {typeof(uint).Name},{typeof(ushort).Name},{typeof(byte).Name} types are supported."}"}")
             };
-            Context.glDrawElements((uint)mode, count, a, (void*)ptr);
+            Context.glDrawElements((uint)mode, count, a, (nint*)ptr);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawElementsInstanced(GeometryType mode, uint count, TypeCode type, IntPtr ptr, uint amount)
+        public void DrawElementsInstanced(
+                    GeometryType mode,
+                    int count,
+                    TypeCode type,
+                    IntPtr ptr,
+                    int amount
+        )
         {
             uint a;
-            switch (type)
+            a = type switch
             {
-                case TypeCode.UInt32:
-                    a = glConst.UNSIGNED_INT;
-                    break;
-
-                case TypeCode.UInt16:
-                    a = glConst.UNSIGNED_SHORT;
-                    break;
-
-                case TypeCode.Byte:
-                    a = glConst.UNSIGNED_BYTE;
-                    break;
-                default:
-                    DefaultLog.InternalWriteLog(
-                        $"{$"Parameter error in parameter {nameof(type)} method DrawElements. "}{$"Only {typeof(uint).Name},{typeof(ushort).Name},{typeof(byte).Name} types are supported."}",
-                        LogType.Error);
-                    return;
-            }
-            Context.glDrawElementsInstanced((uint)mode, count, a, (void*)ptr, amount);
+                TypeCode.UInt32 => glConst.UNSIGNED_INT,
+                TypeCode.UInt16 => glConst.UNSIGNED_SHORT,
+                TypeCode.Byte => glConst.UNSIGNED_BYTE,
+                _ => throw new ArgumentException(
+                    $"{$"{$"Parameter error in parameter {nameof(type)} method DrawElements. "}"}{$"{$"Only {typeof(uint).Name},{typeof(ushort).Name},{typeof(byte).Name} types are supported."}"}")
+            };
+            Context.glDrawElementsInstanced((uint)mode, count, a, (nint*)ptr, amount);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Enable(glOperation operation)
+        public void Enable(
+                    glOperation operation
+        )
         {
             Context.glEnable((uint)operation);
         }
@@ -367,13 +382,17 @@ namespace StgSharp.Graphics.OpenGL
                     uint attachment,
                     Texture2DTarget texTarget,
                     GlHandle textureHandle,
-                    int level)
+                    int level
+        )
         {
-            Context.glFramebufferTexture2D((uint)target, attachment, (uint)texTarget, textureHandle.Value, level);
+            Context.glFramebufferTexture2D((uint)target, attachment, (uint)texTarget,
+                                           textureHandle.Value, level);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe GlHandle[] GenBuffers(int count)
+        public unsafe GlHandle[] GenBuffers(
+                                 int count
+        )
         {
             GlHandle[] h = new GlHandle[count];
             fixed (GlHandle* hptr = h)
@@ -386,12 +405,16 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GenerateMipmap(Texture2DTarget target)
+        public void GenerateMipmap(
+                    Texture2DTarget target
+        )
         {
             Context.glGenerateMipmap((uint)target);
         }
 
-        public unsafe GlHandle[] GenFrameBuffers(int count)
+        public unsafe GlHandle[] GenFrameBuffers(
+                                 int count
+        )
         {
             GlHandle[] h = new GlHandle[count];
             fixed (GlHandle* hptr = h) {
@@ -401,7 +424,9 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe GlHandle[] GenRenderBuffer(int count)
+        public unsafe GlHandle[] GenRenderBuffer(
+                                 int count
+        )
         {
             GlHandle[] h = new GlHandle[count];
             fixed (GlHandle* hptr = h) {
@@ -411,7 +436,9 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe GlHandle[] GenTextures(int count)
+        public unsafe GlHandle[] GenTextures(
+                                 int count
+        )
         {
             GlHandle[] h = new GlHandle[count];
             fixed (GlHandle* hptr = h) {
@@ -420,7 +447,9 @@ namespace StgSharp.Graphics.OpenGL
             return h;
         }
 
-        public unsafe GlHandle[] GenVertexArrays(int count)
+        public unsafe GlHandle[] GenVertexArrays(
+                                 int count
+        )
         {
             GlHandle[] h = new GlHandle[count];
             fixed (GlHandle* hptr = h) {
@@ -429,23 +458,24 @@ namespace StgSharp.Graphics.OpenGL
             return h;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public uint GetError()
-        {
-            return Context.glGetError();
-        }
-
-        public unsafe int GetMaskInteger(uint statusCode)
+        public unsafe int GetMaskInteger(
+                          uint statusCode
+        )
         {
             int ret = 0;
             Context.glGetIntegerv(statusCode, &ret);
             return ret;
         }
 
-        public string GetShaderStatus(Shader s, int index, int key)
+        public string GetShaderStatus(
+                      Shader s,
+                      int index,
+                      int key
+        )
         {
             IntPtr sptr = IntPtr.Zero;
-            if (GraphicFramework.glCheckShaderStatus(ref Context, s.handle[index].Value, key, ref sptr) == 0) {
+            if (GraphicFramework.glCheckShaderStatus(ref Context, s.handle[index].Value, key,
+                                                     ref sptr) == 0) {
                 return Marshal.PtrToStringAnsi(sptr);
             }
             return string.Empty;
@@ -457,16 +487,22 @@ namespace StgSharp.Graphics.OpenGL
                            int level,
                            ImageChannel channel,
                            PixelChannelLayout channelLayout,
-                           T[] dataStream)
-            where T: unmanaged,INumber<T>
+                           T[] dataStream
+        ) where T : unmanaged,INumber<T>
         {
             fixed (T* tptr = dataStream) {
-                Context.glGetTexImage((uint)target, level, (uint)channel, (uint)channelLayout, tptr);
+                Context.glGetTexImage((uint)target, level, (uint)channel, (uint)channelLayout,
+                                      (nint*)tptr);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GetTextureLevelProperty(uint textureTypeMask, int level, uint propertyMask, out int propertyValue)
+        public void GetTextureLevelProperty(
+                    uint textureTypeMask,
+                    int level,
+                    uint propertyMask,
+                    out int propertyValue
+        )
         {
             fixed (int* iptr = &propertyValue) {
                 Context.glGetTexLevelParameteriv(textureTypeMask, level, propertyMask, iptr);
@@ -474,7 +510,10 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe GlHandle GetUniformLocation(GlHandle program, string name)
+        public unsafe GlHandle GetUniformLocation(
+                               GlHandle program,
+                               string name
+        )
         {
             byte[] code = Encoding.UTF8.GetBytes(name);
             fixed (byte* ptr = code)
@@ -494,41 +533,45 @@ namespace StgSharp.Graphics.OpenGL
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void LoadShaderSource(GlHandle shaderHandle, byte[] codeStream)
+        public unsafe void LoadShaderSource(
+                           GlHandle shaderHandle,
+                           byte[] codeStream
+        )
         {
             fixed (byte* streamPtr = codeStream) {
-                Context.glShaderSource(shaderHandle.Value, 1, &streamPtr, (void*)0);
+                Context.glShaderSource(shaderHandle.Value, 1, &streamPtr, (int*)0);
             }
         }
 
-        public unsafe void LoadShaderSource(GlHandle shaderHandle, ReadOnlySpan<char> codeStream)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void LoadShaderSource(
+                           GlHandle shaderHandle,
+                           ReadOnlySpan<char> codeStream
+        )
         {
-            fixed (char* streamPtr = codeStream)
-            {
-                byte* bptr = (byte*)streamPtr;
-                Context.glShaderSource(shaderHandle.Value, 1, &bptr, (void*)0);
+            fixed (char* streamPtr = codeStream) {
+                Context.glShaderSource(shaderHandle.Value, 1, (byte**)&streamPtr, (int*)0);
             }
         }
 
-        public unsafe void LoadShaderSource(GlHandle shaderHandle, ReadOnlySpan<byte> codeStream)
+        public unsafe void LoadShaderSource(
+                           GlHandle shaderHandle,
+                           ReadOnlySpan<byte> codeStream
+        )
         {
             fixed (byte* streamPtr = codeStream)
             {
                 byte* bptr = streamPtr;
-                Context.glShaderSource(shaderHandle.Value, 1, &bptr, (void*)0);
+                Context.glShaderSource(shaderHandle.Value, 1, &bptr, (int*)0);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PolygonMode(FaceMode mode)
+        public void PolygonMode(
+                    FaceMode mode
+        )
         {
             Context.glPolygonMode(glConst.FRONT_AND_BACK, (uint)mode);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PolygonOffset(float factor, float unit)
-        {
-            Context.glPolygonOffset(factor, unit);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -537,11 +580,12 @@ namespace StgSharp.Graphics.OpenGL
                     (int width, int height) size,
                     FrameBufferChannel format,
                     PixelChannelLayout dataType,
-                    ref byte[] stream)
+                    ref byte[] stream
+        )
         {
             fixed (byte* bptr = stream) {
-                Context.glReadPixels(beginPosition.X, beginPosition.Y, size.width, size.height, (uint)format,
-                                     (uint)dataType, bptr);
+                Context.glReadPixels(beginPosition.X, beginPosition.Y, size.width, size.height,
+                                     (uint)format, (uint)dataType, (nint*)bptr);
             }
         }
 
@@ -549,33 +593,40 @@ namespace StgSharp.Graphics.OpenGL
                     in Image i,
                     (int X, int Y) beginPosition,
                     FrameBufferChannel format,
-                    PixelChannelLayout dataType)
+                    PixelChannelLayout dataType
+        )
         {
             byte[] pixels = i.PixelBuffer;
             if (!pixels.CheckArrayFormat(dataType)) {
                 throw new GlArrayFormatException(dataType, "i.PixelArray");
             }
             fixed (byte* bptr = pixels) {
-                Context.glReadPixels(beginPosition.X, beginPosition.Y, i.Width, i.Height, (uint)format, (uint)dataType,
-                                     bptr);
+                Context.glReadPixels(beginPosition.X, beginPosition.Y, i.Width, i.Height,
+                                     (uint)format, (uint)dataType, (nint*)bptr);
             }
             i.PixelUpdateCount++;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferData<T>(BufferType bufferType, T bufferData, BufferUsage usage)
-            where T: unmanaged,INumber<T>
+        public unsafe void SetBufferData<T>(
+                           BufferType bufferType,
+                           T bufferData,
+                           BufferUsage usage
+        ) where T : unmanaged,INumber<T>
         {
             int size = Marshal.SizeOf<T>();
 
             T* p = &bufferData;
 
-            Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)p, (uint)usage);
+            Context.glBufferData((uint)bufferType, (nuint)size, (nint*)p, (uint)usage);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferData<T>(BufferType bufferType, T[] bufferArray, BufferUsage usage)
-            where T: unmanaged,INumber<T>
+        public unsafe void SetBufferData<T>(
+                           BufferType bufferType,
+                           T[] bufferArray,
+                           BufferUsage usage
+        ) where T : unmanaged,INumber<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
             if (bufferArray == null) {
@@ -583,85 +634,112 @@ namespace StgSharp.Graphics.OpenGL
             }
 
             fixed (void* bufferPtr = bufferArray) {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
+                Context.glBufferData((uint)bufferType, (nuint)size, (nint*)bufferPtr, (uint)usage);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferData<T>(BufferType bufferType, ReadOnlySpan<T> bufferSpan, BufferUsage usage)
-            where T: unmanaged,INumber<T>
+        public unsafe void SetBufferData<T>(
+                           BufferType bufferType,
+                           ReadOnlySpan<T> bufferSpan,
+                           BufferUsage usage
+        ) where T : unmanaged,INumber<T>
         {
-            int size = bufferSpan.Length * Marshal.SizeOf(typeof(T));
-            if (bufferSpan == null) {
+            int size = bufferSpan.Length * Marshal.SizeOf<T>();
+            if (bufferSpan.IsEmpty) {
                 return;
             }
 
             fixed (void* bufferPtr = bufferSpan) {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
+                Context.glBufferData((uint)bufferType, (nuint)size, (IntPtr*)bufferPtr,
+                                     (uint)usage);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferData<T>(BufferType bufferType, Span<T> bufferArray, BufferUsage usage)
-            where T: unmanaged, INumber<T>
+        public unsafe void SetBufferData<T>(
+                           BufferType bufferType,
+                           Span<T> bufferArray,
+                           BufferUsage usage
+        ) where T : unmanaged, INumber<T>
         {
-            int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
-            if (bufferArray == null) {
+            int size = bufferArray.Length * Marshal.SizeOf<T>();
+            if (bufferArray.IsEmpty) {
                 return;
             }
 
 
             fixed (void* bufferPtr = bufferArray) {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
+                Context.glBufferData((uint)bufferType, (nuint)size, (IntPtr*)bufferPtr,
+                                     (uint)usage);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferVectorData<T>(BufferType bufferType, ReadOnlySpan<T> bufferSpan, BufferUsage usage)
-            where T: unmanaged, IUnmanagedVector<T>
+        public unsafe void SetBufferVectorData<T>(
+                           BufferType bufferType,
+                           ReadOnlySpan<T> bufferSpan,
+                           BufferUsage usage
+        ) where T : unmanaged, IUnmanagedVector<T>
         {
-            int size = bufferSpan.Length * Marshal.SizeOf(typeof(T));
+            int size = bufferSpan.Length * Marshal.SizeOf<T>();
 
             fixed (void* bufferPtr = bufferSpan) {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
+                Context.glBufferData((uint)bufferType, (nuint)size, (IntPtr*)bufferPtr,
+                                     (uint)usage);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SetBufferVectorData<T>(BufferType bufferType, T[] bufferArray, BufferUsage usage)
-            where T: unmanaged, IUnmanagedVector<T>
+        public unsafe void SetBufferVectorData<T>(
+                           BufferType bufferType,
+                           T[] bufferArray,
+                           BufferUsage usage
+        ) where T : unmanaged, IUnmanagedVector<T>
         {
             int size = bufferArray.Length * Marshal.SizeOf(typeof(T));
             if (bufferArray == null) {
                 return;
             }
             fixed (void* bufferPtr = bufferArray) {
-                Context.glBufferData((uint)bufferType, (IntPtr)size, (IntPtr)bufferPtr, (uint)usage);
+                Context.glBufferData((uint)bufferType, (nuint)size, (IntPtr*)bufferPtr,
+                                     (uint)usage);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void SetRenderBufferStorage(
                            RenderBufferInternalFormat internalFormat,
-                           (int width, int height) size)
+                           (int width, int height) size
+        )
         {
-            Context.glRenderbufferStorage(glConst.RENDERBUFFER, (uint)internalFormat, size.width, size.height);
+            Context.glRenderbufferStorage(glConst.RENDERBUFFER, (uint)internalFormat, size.width,
+                                          size.height);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void SetRenderBufferStorage(
                            RenderBufferInternalFormat internalFormat,
-                           (uint width, uint height) size)
+                           (uint width, uint height) size
+        )
         {
-            Context.glRenderbufferStorage(glConst.RENDERBUFFER, (uint)internalFormat, (int)size.width,
-                                          (int)size.height);
+            Context.glRenderbufferStorage(glConst.RENDERBUFFER, (uint)internalFormat,
+                                          (int)size.width, (int)size.height);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetVertexAttribute(uint index, int size, TypeCode t, bool normalized, uint stride, int pointer)
+        public void SetVertexAttribute(
+                    uint index,
+                    int size,
+                    TypeCode t,
+                    bool normalized,
+                    int stride,
+                    int pointer
+        )
         {
             uint type = GraphicFramework.GLtype[(int)t];
-            Context.glVertexAttribPointer(index, size, type, normalized ? 1 : 0, stride, (void*)pointer);
+            Context.glVertexAttribPointer(index, size, type, (byte)(normalized ? 1 : 0), stride,
+                                          (nint*)pointer);
             Context.glEnableVertexAttribArray(index);
         }
 
@@ -670,18 +748,18 @@ namespace StgSharp.Graphics.OpenGL
                     Texture2DTarget target,
                     int level,
                     ImageChannel sourceChannel,
-                    uint width,
-                    uint height,
+                    int width,
+                    int height,
                     ImageChannel targetChannel,
                     PixelChannelLayout type,
-                    T[] pixels)
-            where T: unmanaged, INumber<T>
+                    T[] pixels
+        ) where T : unmanaged, INumber<T>
         {
             fixed (T* tptr = pixels)
             {
                 T* ptr = ((pixels == null) || (pixels.Length == 0)) ? (T*)IntPtr.Zero : tptr;
-                Context.glTexImage2D((uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel,
-                                     (uint)type, tptr);
+                Context.glTexImage2D((uint)target, level, (int)sourceChannel, width, height, 0,
+                                     (uint)targetChannel, (uint)type, (nint*)tptr);
             }
         }
 
@@ -690,46 +768,44 @@ namespace StgSharp.Graphics.OpenGL
                     Texture2DTarget target,
                     int level,
                     ImageChannel sourceChannel,
-                    uint width,
-                    uint height,
+                    int width,
+                    int height,
                     ImageChannel targetChannel,
                     PixelChannelLayout type,
-                    Span<T> pixelSpan)
-            where T: unmanaged, INumber<T>
+                    Span<T> pixelSpan
+        ) where T : unmanaged, INumber<T>
         {
             fixed (T* tPtr = pixelSpan) {
-                Context.glTexImage2D((uint)target, level, (uint)sourceChannel, width, height, 0, (uint)targetChannel,
-                                     (uint)type, tPtr);
+                Context.glTexImage2D((uint)target, level, (int)sourceChannel, width, height, 0,
+                                     (uint)targetChannel, (uint)type, (nint*)tPtr);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void TextureParameter(int target, uint pname, int param)
+        public void TextureParameter(
+                    int target,
+                    uint pname,
+                    int param
+        )
         {
             Context.glTexParameteri((uint)target, pname, param);
         }
 
-        public static bool TryGetFunctionPackage(IntPtr handle, out OpenGLFunction functionPackage)
+        public static bool TryGetFunctionPackage(
+                           IntPtr handle,
+                           out OpenGLFunction functionPackage
+        )
         {
             return contextToGLMap.TryGetValue(handle, out functionPackage);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void UseProgram(GlHandle program)
-        {
-            Context.glUseProgram(program.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void VertexAttributeDivisor(uint layoutIndex, uint divisor)
+        public void VertexAttributeDivisor(
+                    uint layoutIndex,
+                    uint divisor
+        )
         {
             Context.glVertexAttribDivisor(layoutIndex, divisor);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Viewport(int x, int y, uint width, uint height)
-        {
-            Context.glViewport(x, y, width, height);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -738,7 +814,9 @@ namespace StgSharp.Graphics.OpenGL
             Context.glFinish();
         }
 
-        internal static OpenGLFunction BuildGlFunctionPackage(IntPtr handle)
+        internal static OpenGLFunction BuildGlFunctionPackage(
+                                       IntPtr handle
+        )
         {
             if (contextToGLMap.TryGetValue(handle, out OpenGLFunction pack)) {
                 return pack;

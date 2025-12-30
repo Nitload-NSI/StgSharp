@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Uniform"
 // Project: StgSharp
@@ -41,17 +41,21 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-    public sealed class Uniform<T> : Uniform where T: unmanaged
+    public sealed class Uniform<T> : Uniform where T : unmanaged
     {
 
         internal Uniform() { }
 
-        internal unsafe Uniform(GlHandle id)
+        internal unsafe Uniform(
+                        GlHandle id
+        )
         {
             this.id = id;
         }
 
-        internal static Uniform<T> FromHandle(GlHandle handle)
+        internal static Uniform<T> FromHandle(
+                                   GlHandle handle
+        )
         {
             return new Uniform<T>
             {
@@ -61,17 +65,21 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-    public sealed class Uniform<T, U> : Uniform where T: unmanaged where U: struct
+    public sealed class Uniform<T, U> : Uniform where T : unmanaged where U : struct
     {
 
         internal Uniform() { }
 
-        internal unsafe Uniform(GlHandle id)
+        internal unsafe Uniform(
+                        GlHandle id
+        )
         {
             this.id = id;
         }
 
-        internal static Uniform<T, U> FromHandle(GlHandle handle)
+        internal static Uniform<T, U> FromHandle(
+                                      GlHandle handle
+        )
         {
             return new Uniform<T, U>
             {
@@ -81,17 +89,22 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-    public sealed class Uniform<T, U, V> : Uniform where T: unmanaged where U: struct where V: struct
+    public sealed class Uniform<T, U, V> : Uniform where T : unmanaged where U : struct
+        where V : struct
     {
 
         internal Uniform() { }
 
-        internal unsafe Uniform(GlHandle id)
+        internal unsafe Uniform(
+                        GlHandle id
+        )
         {
             this.id = id;
         }
 
-        internal static Uniform<T, U, V> FromHandle(GlHandle handle)
+        internal static Uniform<T, U, V> FromHandle(
+                                         GlHandle handle
+        )
         {
             return new Uniform<T, U, V>
             {
@@ -101,17 +114,23 @@ namespace StgSharp.Graphics.OpenGL
 
     }
 
-    public sealed class Uniform<T, U, V, W> : Uniform where T: unmanaged where U: struct where V: struct where W: struct
+    public sealed class Uniform<T, U, V, W> : Uniform where T : unmanaged where U : struct
+        where V : struct
+        where W : struct
     {
 
         internal Uniform() { }
 
-        internal unsafe Uniform(GlHandle id)
+        internal unsafe Uniform(
+                        GlHandle id
+        )
         {
             this.id = id;
         }
 
-        internal static Uniform<T, U, V, W> FromHandle(GlHandle handle)
+        internal static Uniform<T, U, V, W> FromHandle(
+                                            GlHandle handle
+        )
         {
             return new Uniform<T, U, V, W>
             {
@@ -125,46 +144,67 @@ namespace StgSharp.Graphics.OpenGL
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue([NotNull] Uniform<Matrix44> uniform, Matrix44 mat)
+        public void SetUniformValue(
+                    [NotNull] Uniform<Matrix44> uniform,
+                    Matrix44 mat
+        )
         {
-            Matrix44 temp = mat;
-            Context.glUniformMatrix4fv(uniform.id.SignedValue, 1, false, (float*)&temp);
+            Context.glUniformMatrix4fv(uniform.id.SignedValue, 1, (byte)0, (float*)&mat);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue([NotNull]Uniform<float, float, float, float> uniform, Vec4 vec)
+        public void SetUniformValue(
+                    [NotNull]Uniform<float, float, float, float> uniform,
+                    Vec4 vec
+        )
         {
-            Vec4 temp = vec;
-            Context.glUniform1fv(uniform.id.SignedValue, 4, &temp.reg);
+            Context.glUniform1fv(uniform.id.SignedValue, 4, (float*)&vec);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue([NotNull]Uniform<Vec4> uniform, Vec4 vec)
+        public void SetUniformValue(
+                    [NotNull]Uniform<Vec4> uniform,
+                    Vec4 vec
+        )
         {
-            Vec4 temp = vec;
-            Context.glUniform1fv(uniform.id.SignedValue, 4, &temp.reg);
+            Context.glUniform1fv(uniform.id.SignedValue, 4, (float*)&vec);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue([NotNull]Uniform<float> uniform, float v0)
+        public void SetUniformValue(
+                    [NotNull]Uniform<float> uniform,
+                    float v0
+        )
         {
             Context.glUniform1f(uniform.id.SignedValue, v0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue([NotNull]Uniform<int> uniform, int i0)
+        public void SetUniformValue(
+                    [NotNull]Uniform<int> uniform,
+                    int i0
+        )
         {
             Context.glUniform1i(uniform.id.SignedValue, i0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue([NotNull] Uniform<float, float> uniform, float v0, float v1)
+        public void SetUniformValue(
+                    [NotNull] Uniform<float, float> uniform,
+                    float v0,
+                    float v1
+        )
         {
             Context.glUniform2f(uniform.id.SignedValue, v0, v1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetUniformValue([NotNull] Uniform<float, float, float> uniform, float v0, float v1, float v2)
+        public void SetUniformValue(
+                    [NotNull] Uniform<float, float, float> uniform,
+                    float v0,
+                    float v1,
+                    float v2
+        )
         {
             Context.glUniform3f(uniform.id.SignedValue, v0, v1, v2);
         }
@@ -175,7 +215,8 @@ namespace StgSharp.Graphics.OpenGL
                     float v0,
                     float v1,
                     float v2,
-                    float v3)
+                    float v3
+        )
         {
             Context.glUniform4f(uniform.id.SignedValue, v0, v1, v2, v3);
         }

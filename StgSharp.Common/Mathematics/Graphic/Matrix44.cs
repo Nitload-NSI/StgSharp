@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Matrix44"
 // Project: StgSharp
@@ -45,13 +45,20 @@ namespace StgSharp.Mathematics.Graphic
         [FieldOffset(0)] internal ColumnSet4 mat;
         [FieldOffset(0)] internal MatrixKernel<float> kernel;
 
-        internal Matrix44(ColumnSet4 mat)
+        internal Matrix44(
+                 ColumnSet4 mat
+        )
         {
             Unsafe.SkipInit(out this);
             this.mat = mat;
         }
 
-        internal Matrix44(Vector4 vec0, Vector4 vec1, Vector4 vec2, Vector4 vec3)
+        internal Matrix44(
+                 Vector4 vec0,
+                 Vector4 vec1,
+                 Vector4 vec2,
+                 Vector4 vec3
+        )
         {
             Unsafe.SkipInit(out this);
             mat.colum0 = vec0;
@@ -81,7 +88,8 @@ namespace StgSharp.Mathematics.Graphic
                       float a30,
                       float a31,
                       float a32,
-                      float a33)
+                      float a33
+        )
         {
             Unsafe.SkipInit(out this);
             mat.colum0 = new Vector4(a00, a10, a20, a30);
@@ -90,7 +98,10 @@ namespace StgSharp.Mathematics.Graphic
             mat.colum3 = new Vector4(a03, a13, a23, a33);
         }
 
-        public unsafe float this[int rowNum, int columNum]
+        public unsafe float this[
+                            int rowNum,
+                            int columNum
+        ]
         {
             get
             {
@@ -132,29 +143,29 @@ namespace StgSharp.Mathematics.Graphic
 
         public static Matrix44 Unit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-        public static Matrix44 WNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
-                                                             0, 0, -1);
+        public static Matrix44 WNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1);
 
-        public static Matrix44 XNegativeUnit => new Matrix44(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
-                                                             0, 0, 1);
+        public static Matrix44 XNegativeUnit => new Matrix44(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-        public static Matrix44 YNegativeUnit => new Matrix44(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0,
-                                                             0, 0, 1);
+        public static Matrix44 YNegativeUnit => new Matrix44(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-        public static Matrix44 ZNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0,
-                                                             0, 0, 1);
+        public static Matrix44 ZNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1);
 
         public ReadOnlySpan<float> AsSpan()
         {
             return MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ColumnSet4, float>(ref mat), 16);
         }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(
+                             object? obj
+        )
         {
             return obj is Matrix44 x && Equals(x);
         }
 
-        public bool Equals(Matrix44 other)
+        public bool Equals(
+                    Matrix44 other
+        )
         {
             return mat.Equals(other.mat);
         }
@@ -166,64 +177,72 @@ namespace StgSharp.Mathematics.Graphic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal unsafe void InternalTranspose(ref Matrix44 transpose)
+        internal unsafe void InternalTranspose(
+                             ref Matrix44 transpose
+        )
         {
+            const int f32 = 0;
             fixed (MatrixKernel<float>* source = &this.kernel, target = &transpose.kernel) {
-                NativeIntrinsic.Intrinsic.f32_buffer_transpose(source, target);
+                NativeIntrinsic.Context.mat[f32].buffer_transpose(source, target);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Matrix44 operator -(Matrix44 left, Matrix44 right)
+        public static unsafe Matrix44 operator -(
+                                               Matrix44 left,
+                                               Matrix44 right
+        )
         {
             Matrix44 ret = new();
-            NativeIntrinsic.Intrinsic.f32_buffer_sub(&left, &right, &ret, 1);
+            const int f32 = 0;
+            NativeIntrinsic.Context.mat[f32].buffer_sub(&left, &right, &ret, 1);
             return ret;
         }
 
-        public static bool operator !=(Matrix44 left, Matrix44 right)
+        public static bool operator !=(
+                                    Matrix44 left,
+                                    Matrix44 right
+        )
         {
             return !(left == right);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Matrix44 operator *(Matrix44 mat, float value)
+        public static unsafe Matrix44 operator *(
+                                               Matrix44 mat,
+                                               float value
+        )
         {
             return new Matrix44(mat.mat.colum0 * value, mat.mat.colum1 * value,
                                 mat.mat.colum2 * value, mat.mat.colum3 * value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix44 operator *(Matrix44 left, Matrix44 right)
+        public static Matrix44 operator *(
+                                        Matrix44 left,
+                                        Matrix44 right
+        )
         {
             Matrix44 transpose = left.Transpose;
-            return new Matrix44(Vector4.Dot(transpose.mat.colum0, right.mat.colum0),
-                                Vector4.Dot(transpose.mat.colum0, right.mat.colum1),
-                                Vector4.Dot(transpose.mat.colum0, right.mat.colum2),
-                                Vector4.Dot(transpose.mat.colum0, right.mat.colum3),
-                                Vector4.Dot(transpose.mat.colum1, right.mat.colum0),
-                                Vector4.Dot(transpose.mat.colum1, right.mat.colum1),
-                                Vector4.Dot(transpose.mat.colum1, right.mat.colum2),
-                                Vector4.Dot(transpose.mat.colum1, right.mat.colum3),
-                                Vector4.Dot(transpose.mat.colum2, right.mat.colum0),
-                                Vector4.Dot(transpose.mat.colum2, right.mat.colum1),
-                                Vector4.Dot(transpose.mat.colum2, right.mat.colum2),
-                                Vector4.Dot(transpose.mat.colum2, right.mat.colum3),
-                                Vector4.Dot(transpose.mat.colum3, right.mat.colum0),
-                                Vector4.Dot(transpose.mat.colum3, right.mat.colum1),
-                                Vector4.Dot(transpose.mat.colum3, right.mat.colum2),
-                                Vector4.Dot(transpose.mat.colum3, right.mat.colum3));
+            return new Matrix44(Vector4.Dot(transpose.mat.colum0, right.mat.colum0), Vector4.Dot(transpose.mat.colum0, right.mat.colum1), Vector4.Dot(transpose.mat.colum0, right.mat.colum2), Vector4.Dot(transpose.mat.colum0, right.mat.colum3), Vector4.Dot(transpose.mat.colum1, right.mat.colum0), Vector4.Dot(transpose.mat.colum1, right.mat.colum1), Vector4.Dot(transpose.mat.colum1, right.mat.colum2), Vector4.Dot(transpose.mat.colum1, right.mat.colum3), Vector4.Dot(transpose.mat.colum2, right.mat.colum0), Vector4.Dot(transpose.mat.colum2, right.mat.colum1), Vector4.Dot(transpose.mat.colum2, right.mat.colum2), Vector4.Dot(transpose.mat.colum2, right.mat.colum3), Vector4.Dot(transpose.mat.colum3, right.mat.colum0), Vector4.Dot(transpose.mat.colum3, right.mat.colum1), Vector4.Dot(transpose.mat.colum3, right.mat.colum2), Vector4.Dot(transpose.mat.colum3, right.mat.colum3));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Matrix44 operator +(Matrix44 left, Matrix44 right)
+        public static unsafe Matrix44 operator +(
+                                               Matrix44 left,
+                                               Matrix44 right
+        )
         {
             Matrix44 ret = new();
-            NativeIntrinsic.Intrinsic.f32_buffer_add(&left, &right, &ret, 1);
+            const int f32 = 0;
+            NativeIntrinsic.Context.mat[f32].buffer_add(&left, &right, &ret, 1);
             return ret;
         }
 
-        public static bool operator ==(Matrix44 left, Matrix44 right)
+        public static bool operator ==(
+                                    Matrix44 left,
+                                    Matrix44 right
+        )
         {
             return left.Equals(right);
         }

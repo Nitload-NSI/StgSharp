@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Factorial"
 // Project: StgSharp
@@ -55,7 +55,7 @@ namespace StgSharp.Mathematics
                 return factorialResult[n];
             }
             if (n < 30) {
-                return NativeIntrinsic.Intrinsic.factorial_simd(n);
+                return NativeIntrinsic.Context.factorial_simd(n);
             }
             double 
                 dn = n,

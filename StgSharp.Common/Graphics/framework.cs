@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="framework"
 // Project: StgSharp
@@ -43,15 +43,25 @@ namespace StgSharp.Graphics
     /// <returns>
     ///   An Intptr value representing the pointer to the function
     /// </returns>
-    public delegate IntPtr glLoader(string name);
+    public delegate IntPtr glLoader(
+                           string name
+    );
 
     #region StgSharpDele
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate void FrameBufferSizeHandler(IntPtr window, int width, int height);
+    public unsafe delegate void FrameBufferSizeHandler(
+                                IntPtr window,
+                                int width,
+                                int height
+    );
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate void FramePositionHandler(IntPtr window, float width, float height);
+    public unsafe delegate void FramePositionHandler(
+                                IntPtr window,
+                                float width,
+                                float height
+    );
 
     #endregion
 
@@ -65,7 +75,8 @@ namespace StgSharp.Graphics
                                   int severity,
                                   int length,
                                   sbyte* message,
-                                  void* userParam);
+                                  void* userParam
+    );
     internal unsafe delegate void GLDEBUGPROCARB(
                                   int source,
                                   int type,
@@ -73,7 +84,8 @@ namespace StgSharp.Graphics
                                   int severity,
                                   int length,
                                   sbyte* message,
-                                  void* userParam);
+                                  void* userParam
+    );
     internal unsafe delegate void GLDEBUGPROCKHR(
                                   int source,
                                   int type,
@@ -81,14 +93,16 @@ namespace StgSharp.Graphics
                                   int severity,
                                   int length,
                                   sbyte* message,
-                                  void* userParam);
+                                  void* userParam
+    );
     internal unsafe delegate void GLDEBUGPROCAMD(
                                   uint id,
                                   int category,
                                   int severity,
                                   int length,
                                   sbyte* message,
-                                  void* userParam);
+                                  void* userParam
+    );
 
 #endregion
 

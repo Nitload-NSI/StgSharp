@@ -12,20 +12,28 @@
 #define YMMCOUNT(T) (sizeof(T) / 2)
 #define ZMMCOUNT(T) (sizeof(T) / 4)
 
-#define MAT_KERNEL(T)                        \
-        union {                              \
-                __m128 xmm[XMMCOUNT(T) / 4]; \
-                __m256 ymm[YMMCOUNT(T) / 4]; \
-                __m512 zmm[ZMMCOUNT(T) / 4]; \
-                T m[4][4];                   \
+#define MAT_KERNEL(T)                       \
+        union /* MAT_KERNEL_##T## /**/ {    \
+                __m128 f32_x[XMMCOUNT(T)];  \
+                __m256 f32_y[YMMCOUNT(T)];  \
+                __m512 f32_z[ZMMCOUNT(T)];  \
+                                            \
+                __m128d f64_x[XMMCOUNT(T)]; \
+                __m256d f64_y[YMMCOUNT(T)]; \
+                __m512d f64_z[ZMMCOUNT(T)]; \
+                T m[4][4];                  \
         }
 
-#define VEC(T)                               \
-        union {                              \
-                __m128 xmm[XMMCOUNT(T) / 4]; \
-                __m256 ymm[YMMCOUNT(T) / 4]; \
-                __m512 zmm[ZMMCOUNT(T) / 4]; \
-                T v[4];                      \
+#define VEC(T)                                  \
+        union {                                 \
+                __m128 f32_x[XMMCOUNT(T) / 4];  \
+                __m256 f32_y[YMMCOUNT(T) / 4];  \
+                __m512 f32_z[ZMMCOUNT(T) / 4];  \
+                                                \
+                __m128d f64_x[XMMCOUNT(T) / 4]; \
+                __m256d f64_y[YMMCOUNT(T) / 4]; \
+                __m512d f64_z[ZMMCOUNT(T) / 4]; \
+                T v[4];                         \
         }
 
 /* Provide a named alias for the zero kernel type to ensure consistent linkage in C++. */
@@ -35,6 +43,8 @@ typedef MAT_KERNEL(uint64_t) sn_zero_kernel_u64;
 #define SN_LANES(T_VEC, T) (sizeof(T_VEC) / sizeof(T))
 #define SN_MAX(a, b) (((a)) > ((b)) ? (a) : (b))
 #define SN_CEIL_DIV(a, b) (((a) + (b) - 1) / (b))
+#define SN_BITS(x) ((int)(sizeof(x) * 8))
+#define PANEL_MINQ(T_VEC, T) SN_MAX(4, SN_MAX(SN_BITS(T_VEC) / 64, SN_BITS(T_VEC) / SN_BITS(T)))
 
 /* Panel geometry helpers (all compile-time): */
 #define PANEL_Q(T, T_VEC, MINQ) SN_MAX(SN_LANES(T_VEC, T), (MINQ))
@@ -60,26 +70,25 @@ typedef MAT_KERNEL(uint64_t) sn_zero_kernel_u64;
 
 /* ISA presets with minimum square side:
         - SSE  : MINQ=4   (avoid 2x2 for double)
-        - AVX2 : MINQ=8
-        - AVX-512: MINQ=8 (16 for float/i32 naturally, so this is a no-op there)
+        - AVX2 : MINQ computed as max(4, vector_bits/64, vector_bits/element_bits)
+        - AVX-512: same rule (float/i32 naturally expand to 16)
 */
 
 /* SSE panel layout: column-major buffer holding 4 logical columns with MINQ=4.
         Columns: each column packs up to four scalars so ALIGN equals sizeof(__m128).
         Alignment: every column boundary lands on a 16-byte multiple for XMM loads. */
-#define MAT_PANEL_sse(T) SN_ALIGNAS(16) MAT_PANEL_SQ_MIN_NOALIGN(T, __m128, 4)
-/* AVX2 panel layout: column-major buffer holding 8 logical columns with MINQ=8.
-        Columns: each column stores eight elements via two 256-bit chunks when T is 32-bit.
+#define MAT_PANEL_sse(T) SN_ALIGNAS(16) MAT_PANEL_SQ_MIN_NOALIGN(T, __m128, PANEL_MINQ(__m128, T))
+/* AVX2 panel layout: column-major buffer holding 8 logical columns with MINQ per PANEL_MINQ.
+        Columns: each column stores up to lanes elements via contiguous chunks.
         Alignment: column starts are 32-byte aligned so AVX2 loads/stores remain contiguous. */
-#define MAT_PANEL_avx(T) SN_ALIGNAS(32) MAT_PANEL_SQ_MIN_NOALIGN(T, __m256, 8)
-/* AVX2 panel layout: column-major buffer holding 8 logical columns with MINQ=8.
-        Columns: each column stores eight elements via two 256-bit chunks when T is 32-bit.
-        Alignment: column starts are 32-byte aligned so AVX2 loads/stores remain contiguous. */
-#define MAT_PANEL_avx_fma(T) SN_ALIGNAS(32) MAT_PANEL_SQ_MIN_NOALIGN(T, __m256, 8)
+#define MAT_PANEL_avx(T) SN_ALIGNAS(32) MAT_PANEL_SQ_MIN_NOALIGN(T, __m256, PANEL_MINQ(__m256, T))
+/* AVX2/FMA panel layout shares the same geometry as AVX2. */
+#define MAT_PANEL_avx_fma(T) \
+        SN_ALIGNAS(32) MAT_PANEL_SQ_MIN_NOALIGN(T, __m256, PANEL_MINQ(__m256, T))
 /* AVX-512 panel layout: column-major buffer holding 8 or more columns depending on T.
-        Columns: each column expands to ceil(Q/lanes) ZMM chunks; default MINQ=8 keeps doublse-wide tiles.
+        Columns: each column expands to ceil(Q/lanes) ZMM chunks.
         Alignment: column starts sit on 64-byte boundaries to match AVX-512 streaming access. */
-#define MAT_PANEL_512(T) SN_ALIGNAS(64) MAT_PANEL_SQ_MIN_NOALIGN(T, __m512, 8)
+#define MAT_PANEL_512(T) SN_ALIGNAS(64) MAT_PANEL_SQ_MIN_NOALIGN(T, __m512, PANEL_MINQ(__m512, T))
 
 /* Global zero kernel declaration (defined in dllmain.c), aligned to 64 bytes */
 #ifdef __cplusplus
@@ -117,26 +126,15 @@ extern __declspec(align(64)) sn_zero_kernel_u64 SN_ZERO_KERNEL;
                                                          int col_index, int row_index)
 
 /* Declarations for AVX float variant */
-<<<<<<< HEAD
-<<<<<<< HEAD
-DECLARE_BUILD_PANEL(sse, float);
 DECLARE_BUILD_PANEL(avx, float);
 DECLARE_BUILD_PANEL(512, float);
-DECLARE_STORE_PANEL(sse, float);
+
 DECLARE_STORE_PANEL(avx, float);
 DECLARE_STORE_PANEL(512, float);
-=======
-=======
-DECLARE_BUILD_PANEL(sse, float);
->>>>>>> stgsharp-dev/giga
-DECLARE_BUILD_PANEL(avx, float);
-DECLARE_BUILD_PANEL(512, float);
-DECLARE_STORE_PANEL(sse, float);
-DECLARE_STORE_PANEL(avx, float);
-<<<<<<< HEAD
->>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
-=======
 DECLARE_STORE_PANEL(512, float);
->>>>>>> stgsharp-dev/giga
+
+DECLARE_BUILD_PANEL(512, double);
+
+DECLARE_STORE_PANEL(512, double);
 
 #endif /* SN_MATKERNEL */

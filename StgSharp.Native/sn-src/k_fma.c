@@ -54,10 +54,6 @@ DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, sse, fma)
 
 // ans = left * right + ans
 // right is not transposed
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> stgsharp-dev/giga
 DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx_fma, fma)
 {
         static const __m256i idx0 = { 1, 1, 1, 1, 1, 1, 1, 1 };
@@ -101,11 +97,6 @@ DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx_fma, fma)
 
 // ans = left * right + ans
 // right is not transposed
-<<<<<<< HEAD
-=======
->>>>>>> 7bcb460a3994dda40f24cae0044b5a36f4f16515
-=======
->>>>>>> stgsharp-dev/giga
 DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx, fma)
 {
         static const __m256i idx0 = { 1, 1, 1, 1, 1, 1, 1, 1 };
