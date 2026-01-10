@@ -61,14 +61,20 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)build</OutDir>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build</OutDir>
     <GenerateManifest>false</GenerateManifest>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PerformanceDebug|x64'">
     <OutDir>$(SolutionDir)build</OutDir>
     <GenerateManifest>false</GenerateManifest>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -110,6 +116,7 @@
       <CompileAs>CompileAsC</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)sn-head;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,18 +155,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="sn-src\k_panel.c" />
-    <ClCompile Include="sn-src\k_basicop.c" />
+    <ClCompile Include="sn-src\m.panel.x86.c" />
+    <ClCompile Include="sn-src\m.basic.x86.c" />
     <ClCompile Include="sn-src\dllmain.c" />
-    <ClCompile Include="sn-src\k_bufop.c" />
-    <ClCompile Include="sn-src\k_pivot.c" />
-    <ClCompile Include="sn-src\str_factorial.c" />
-    <ClCompile Include="sn-src\k_fma.c" />
-    <ClCompile Include="sn-src\str_hash.c" />
-    <ClCompile Include="sn-src\load_intrinsic.c">
+    <ClCompile Include="sn-src\m.bufop.x86.c" />
+    <ClCompile Include="sn-src\m.pivot.x86.c" />
+    <ClCompile Include="sn-src\m.fma_tile.x86.c" />
+    <ClCompile Include="sn-src\s.factorial.x86.c" />
+    <ClCompile Include="sn-src\m.fma.x86.c" />
+    <ClCompile Include="sn-src\s.hash.x86.c" />
+    <ClCompile Include="sn-src\load_intrinsic.x86.c">
       <FileType>CCode</FileType>
     </ClCompile>
     <ClCompile Include="sn-src\load_glfw.c" />
+    <ClCompile Include="sn-src\cpuid.x86.c" />
     <ClCompile Include="sn-src\sn_native.c" />
     <ClCompile Include="sn-src\str_string.c" />
     <ClCompile Include="sn-src\vector.c" />
@@ -173,14 +182,19 @@
     <ClInclude Include="sn-head\glfw_function.h" />
     <ClInclude Include="sn-head\khrplatform.h" />
     <ClInclude Include="sn-head\sn_internal.h" />
+    <ClInclude Include="sn-head\sn_intrincontext.x86.h" />
     <ClInclude Include="sn-head\sn_intrinsic.h" />
     <ClInclude Include="sn-head\sn_matkernel.h" />
+    <ClInclude Include="sn-head\sn_target.h" />
     <ClInclude Include="sn-head\StgSharpNative.h" />
     <ClInclude Include="sn-head\wgl.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\glfw\glfw3.lib" />
     <Library Include="lib\glfw\glfw3_mt.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SIMDID.x86.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

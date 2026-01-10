@@ -1,3 +1,7 @@
+#include "sn_target.h"
+
+#if SN_IS_ARCH(SN_ARCH_X86_64)
+
 #include "sn_internal.h"
 #include "sn_intrinsic.h"
 
@@ -21,3 +25,5 @@ INTERNAL uint64_t SN_DECL factorial_simd_sse(int n)
         }
         return result;
 }
+
+#endif

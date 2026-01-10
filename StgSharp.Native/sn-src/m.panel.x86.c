@@ -1,3 +1,7 @@
+#include "sn_target.h"
+
+#if SN_IS_ARCH(SN_ARCH_X86_64)
+
 #include "sn_matkernel.h"
 
 DECLARE_BUILD_PANEL(avx, float)
@@ -41,7 +45,6 @@ DECLARE_BUILD_PANEL(avx, float)
         }
 }
 
-
 DECLARE_BUILD_PANEL(512, float)
 {
         const MAT_KERNEL(float) *const zero = (const MAT_KERNEL(float) *)&SN_ZERO_KERNEL;
@@ -76,7 +79,6 @@ DECLARE_BUILD_PANEL(512, float)
                 PANEL_COL_VEC((*panel), pc, 0) = col;
         }
 }
-
 
 DECLARE_BUILD_PANEL(512, double)
 {
@@ -295,3 +297,5 @@ DECLARE_STORE_PANEL(512, double)
                 bot_dst->f64_y[kc_col] = bot256;
         }
 }
+
+#endif

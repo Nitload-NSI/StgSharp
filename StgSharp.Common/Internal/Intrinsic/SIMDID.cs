@@ -1,6 +1,6 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="intrinsicContextProvider"
+// file="SIMDID"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,56 +25,27 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Internal.Intrinsic;
-
 using System;
-using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.Internal
+namespace StgSharp.Internal.Intrinsic
 {
-    internal static unsafe partial class NativeIntrinsic
+    [StructLayout(LayoutKind.Explicit)]
+    internal unsafe struct SIMDID
     {
 
-        private static readonly IntrinsicContext _intrinsicContext = new();
+        [FieldOffset(0)]public fixed byte MaskByte[16];
+        [FieldOffset(0)]public ulong Mask;
 
-        public static SIMDID IntrinsicMask { get; set; }
-
-        internal static IntrinsicContext Context
+        public SIMDID()
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _intrinsicContext;
+            Unsafe.SkipInit(out this);
         }
-
-        internal static void InitIntrinsicContext()
-        {
-            ulong statCode = 0;
-
-            fixed (IntrinsicContext* cPtr = &_intrinsicContext) {
-                statCode = LoadIntrinsicFunction(cPtr);
-            }
-            SIMDID id = new()
-            {
-                Mask = statCode
-            };
-            switch (id.MaskByte[1])
-            {
-                case 0:
-                    Dialogue.PostError(new PlatformNotSupportedException("No SIMD instructions supported on current hardware platform"));
-                    Environment.Exit(-1);
-                    break;
-                default:
-                    break;
-            }
-            IntrinsicMask = id;
-        }
-
-        [LibraryImport(Native.LibName, EntryPoint = "load_intrinsic_function")]
-        [UnmanagedCallConv(CallConvs =[ typeof(CallConvCdecl) ])]
-        private static partial ulong LoadIntrinsicFunction(
-                                     IntrinsicContext* context
-        );
 
     }
 }

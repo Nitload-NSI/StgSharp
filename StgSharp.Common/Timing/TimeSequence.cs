@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="TimeSequence"
 // Project: StgSharp
@@ -40,22 +40,43 @@ namespace StgSharp.Common.Timing
 
         public long PreviousFrameTick { get; protected set; }
 
-        public static TimeSequence CreateLinear(double totalSeconds, double frameSeconds) => new LinearTimeSequence(totalSeconds, frameSeconds);
+        public static TimeSequence CreateLinear(
+                                   double totalSeconds,
+                                   double frameSeconds
+        )
+        {
+            if (double.IsPositiveInfinity(totalSeconds)) {
+                return new InfiniteLinearTimeSequence(frameSeconds);
+            }
+            return new LinearTimeSequence(totalSeconds, frameSeconds);
+        }
+
+        public static TimeSequence CreateLinearInfinite(
+                                   double frameSeconds
+        )
+        {
+            return new InfiniteLinearTimeSequence(frameSeconds);
+        }
 
         public static TimeSequence CreateLogarithmic(
                                    double initialSliceSeconds,
                                    double totalSeconds,
                                    double growthMultiplier,
-                                   double minSliceSeconds) => new LogTimeSequence(initialSliceSeconds,
-                                                                                  totalSeconds,
-                                                                                  growthMultiplier,
-                                                                                  minSliceSeconds);
+                                   double minSliceSeconds
+        ) => new LogTimeSequence(initialSliceSeconds, totalSeconds, growthMultiplier,
+                                 minSliceSeconds);
 
-        public abstract bool EndsAt(long currentTick);
+        public abstract bool EndsAt(
+                             long currentTick
+        );
 
-        public abstract bool IsNextFrameReady(long currentTick);
+        public abstract bool IsNextFrameReady(
+                             long currentTick
+        );
 
-        public abstract void StartFrom(TimeSourceProviderBase source);
+        public abstract void StartFrom(
+                             TimeSourceProviderBase source
+        );
 
     }
 
@@ -66,7 +87,10 @@ namespace StgSharp.Common.Timing
         private readonly double _totalSeconds;
         private long _frameLengthTicks;
 
-        public LinearTimeSequence(double totalSeconds, double frameSeconds)
+        public LinearTimeSequence(
+               double totalSeconds,
+               double frameSeconds
+        )
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(totalSeconds);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameSeconds);
@@ -78,10 +102,14 @@ namespace StgSharp.Common.Timing
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool EndsAt(long currentTick) => currentTick >= EndingTick;
+        public override bool EndsAt(
+                             long currentTick
+        ) => currentTick >= EndingTick;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsNextFrameReady(long currentTick)
+        public override bool IsNextFrameReady(
+                             long currentTick
+        )
         {
             long span = currentTick - PreviousFrameTick;
             if (span >= _frameLengthTicks && currentTick < EndingTick)
@@ -92,7 +120,9 @@ namespace StgSharp.Common.Timing
             return false;
         }
 
-        public override void StartFrom(TimeSourceProviderBase source)
+        public override void StartFrom(
+                             TimeSourceProviderBase source
+        )
         {
             long f = source?.Frequency ?? throw new ArgumentNullException(nameof(source));
             _frameLengthTicks = (long)Math.Max(1, _frameSeconds * f);
@@ -127,7 +157,8 @@ namespace StgSharp.Common.Timing
                double initialSliceSeconds,
                double totalSeconds,
                double growthMultiplier,
-               double minSliceSeconds)
+               double minSliceSeconds
+        )
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(initialSliceSeconds);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(totalSeconds);
@@ -146,10 +177,17 @@ namespace StgSharp.Common.Timing
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool EndsAt(long currentTick) => currentTick >= EndingTick;
+        public override bool EndsAt(
+                             long currentTick
+        )
+        {
+            return            currentTick >= EndingTick;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsNextFrameReady(long currentTick)
+        public override bool IsNextFrameReady(
+                             long currentTick
+        )
         {
             // Emit final once when reaching or passing end.
             if (currentTick >= EndingTick)
@@ -197,7 +235,9 @@ namespace StgSharp.Common.Timing
             return true;
         }
 
-        public override void StartFrom(TimeSourceProviderBase source)
+        public override void StartFrom(
+                             TimeSourceProviderBase source
+        )
         {
             _freq = source?.Frequency ?? throw new ArgumentNullException(nameof(source));
             BeginningTick = source.GetCurrentTimeSpanTick();
@@ -212,7 +252,58 @@ namespace StgSharp.Common.Timing
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private long SecondsToTicks(double seconds) => (long)Math.Max(1L, Math.Round(seconds * _freq, MidpointRounding.AwayFromZero));
+        private long SecondsToTicks(
+                     double seconds
+        ) => (long)Math.Max(1L, Math.Round(seconds * _freq, MidpointRounding.AwayFromZero));
+
+    }
+
+    /// <summary>
+    ///   Infinite linear time sequence: emits frames at fixed interval and never ends.
+    /// </summary>
+    internal sealed class InfiniteLinearTimeSequence : TimeSequence
+    {
+
+        private readonly double _frameSeconds;
+        private long _frameLengthTicks;
+
+        public InfiniteLinearTimeSequence(
+               double frameSeconds
+        )
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameSeconds);
+            _frameSeconds = frameSeconds;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool EndsAt(
+                             long currentTick
+        ) => false; // never ends
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsNextFrameReady(
+                             long currentTick
+        )
+        {
+            long span = currentTick - PreviousFrameTick;
+            if (span >= _frameLengthTicks)
+            {
+                PreviousFrameTick += _frameLengthTicks;
+                return true;
+            }
+            return false;
+        }
+
+        public override void StartFrom(
+                             TimeSourceProviderBase source
+        )
+        {
+            long f = source?.Frequency ?? throw new ArgumentNullException(nameof(source));
+            _frameLengthTicks = (long)Math.Max(1, _frameSeconds * f);
+            BeginningTick = source.GetCurrentTimeSpanTick();
+            EndingTick = long.MaxValue; // sentinel
+            PreviousFrameTick = BeginningTick;
+        }
 
     }
 }

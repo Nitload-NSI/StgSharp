@@ -80,40 +80,45 @@ namespace StgSharp.Mathematics.Numeric
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void ExecuteTaskPackage(Queue<IntPtr> taskQueue)
+        public static unsafe void ExecuteTaskPackage(
+                                  Queue<IntPtr> taskQueue
+        )
         {
             while (taskQueue.TryDequeue(out nint handle))
             {
                 MatrixParallelTaskPackage* p = (MatrixParallelTaskPackage*)handle;
-                if ((short)p->ComputeMode.ParameterStyle < 0) {
-                    MatrixComputeModel.SpecialBufferCompute(p);
-                }
-                switch (p->ComputeMode.OperationStyle)
+                if ((short)p->ComputeMode.ParameterStyle < 0)
                 {
-                    case MatrixIndexStyle.BUFFER_INDEX:
-                        switch (p->ComputeMode.ParameterStyle)
-                        {
-                            case MatrixOperationParam.RIGHT_ANS_PARAM:
-                                MatrixComputeModel.BufferComputeUnary(p);
-                                break;
-                            case MatrixOperationParam.LEFT_RIGHT_ANS_PARAM:
-                                MatrixComputeModel.BufferComputeBinary(p);
-                                break;
-                            case MatrixOperationParam.RIGHT_ANS_SCALAR_PARAM:
-                                MatrixComputeModel.BufferComputeUnaryScalar(p);
-                                break;
-                            case MatrixOperationParam.LEFT_RIGHT_ANS_SCALAR_PARAM:
-                                MatrixComputeModel.BufferComputeBinaryScalar(p);
-                                break;
-                            case MatrixOperationParam.ANS_SCALAR_PARAM:
-                                MatrixComputeModel.BufferComputeNoOperatorScalar(p);
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    default:
-                        break;
+                    MatrixComputeModel.SpecialBufferCompute(p);
+                } else
+                {
+                    switch (p->ComputeMode.OperationStyle)
+                    {
+                        case MatrixIndexStyle.BUFFER_INDEX:
+                            switch (p->ComputeMode.ParameterStyle)
+                            {
+                                case MatrixOperationParam.RIGHT_ANS_PARAM:
+                                    MatrixComputeModel.BufferComputeUnary(p);
+                                    break;
+                                case MatrixOperationParam.LEFT_RIGHT_ANS_PARAM:
+                                    MatrixComputeModel.BufferComputeBinary(p);
+                                    break;
+                                case MatrixOperationParam.RIGHT_ANS_SCALAR_PARAM:
+                                    MatrixComputeModel.BufferComputeUnaryScalar(p);
+                                    break;
+                                case MatrixOperationParam.LEFT_RIGHT_ANS_SCALAR_PARAM:
+                                    MatrixComputeModel.BufferComputeBinaryScalar(p);
+                                    break;
+                                case MatrixOperationParam.ANS_SCALAR_PARAM:
+                                    MatrixComputeModel.BufferComputeNoOperatorScalar(p);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
@@ -167,7 +172,9 @@ namespace StgSharp.Mathematics.Numeric
             current.Priority = ThreadPriority.Normal;
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void Dispose(
+                               bool disposing
+        )
         {
             if (!disposedValue)
             {
@@ -229,18 +236,18 @@ namespace StgSharp.Mathematics.Numeric
                 {
                     case RoleType.Worker://worker
                         // _ = Interlocked.Decrement(ref RemainThreadCount);
-                        // Console.WriteLine("worker start");
+                        // Console.WriteLine($"worker {Environment.CurrentManagedThreadId} start");
                         ExecuteTaskPackage(Tasks);
                         BindedWrap.ReportThreadAccomplished();
 
-                        // Console.WriteLine("worker end");
+                        // Console.WriteLine($"worker {Environment.CurrentManagedThreadId} end");
                         break;
                     case RoleType.Scheduler://scheduler
-                        // Console.WriteLine("scheduler start");
+                        // Console.WriteLine($"scheduler {Environment.CurrentManagedThreadId} start");
                         BindedWrap.PublishTaskToWorkers();
                         BindedWrap.SetAllWorker();
 
-                        // Console.WriteLine("scheduler done");
+                        // Console.WriteLine($"scheduler {Environment.CurrentManagedThreadId} done");
                         ExecuteTaskPackage(Tasks);
                         BindedWrap.ReportThreadAccomplished();
                         BindedWrap.WaitAllWorker();
@@ -270,7 +277,10 @@ namespace StgSharp.Mathematics.Numeric
             public readonly int LogicalProcessor;
             public readonly nuint Mask;
 
-            public AffinityBinding(int logicalProcessor, nuint mask)
+            public AffinityBinding(
+                   int logicalProcessor,
+                   nuint mask
+            )
             {
                 LogicalProcessor = logicalProcessor;
                 Mask = mask;
@@ -328,7 +338,9 @@ namespace StgSharp.Mathematics.Numeric
                 }
             }
 
-            public static void Release(int logicalProcessor)
+            public static void Release(
+                               int logicalProcessor
+            )
             {
                 if ((uint)logicalProcessor >= 64u) {
                     return;
@@ -385,11 +397,14 @@ namespace StgSharp.Mathematics.Numeric
         [DllImport("kernel32.dll")]
         private static extern nuint SetThreadAffinityMask(
                                     IntPtr hThread,
-                                    nuint dwThreadAffinityMask);
+                                    nuint dwThreadAffinityMask
+        );
 
         [LibraryImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static partial bool GetNumaHighestNodeNumber(out uint HighestNodeNumber);
+        private static partial bool GetNumaHighestNodeNumber(
+                                    out uint HighestNodeNumber
+        );
 
 #elif LINUX
 

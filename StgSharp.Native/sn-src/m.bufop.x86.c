@@ -1,6 +1,11 @@
-#include "sn_intrinsic.h"
+#include "sn_target.h"
 
-DECLARE_BUF_PROC_ANS_SCALAR(float, sse, fill)
+#if SN_IS_ARCH(SN_ARCH_X86_64)
+
+#include "sn_intrinsic.h"
+#include "sn_intrincontext.x86.h"
+
+DECLARE_BUF_PROC_ANS_SCALAR(float, sse, ,fill)
 {
         register __m128 vec = _mm_set_ps1(((float *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
@@ -11,7 +16,7 @@ DECLARE_BUF_PROC_ANS_SCALAR(float, sse, fill)
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(float, avx, fill)
+DECLARE_BUF_PROC_ANS_SCALAR(float, avx, ,fill)
 {
         register __m256 vec = _mm256_broadcast_ss(((float *)(scalar->data)));
         for (size_t i = 0; i < count; i++) {
@@ -20,7 +25,7 @@ DECLARE_BUF_PROC_ANS_SCALAR(float, avx, fill)
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(float, 512, fill)
+DECLARE_BUF_PROC_ANS_SCALAR(float, 512, ,fill)
 {
         register __m512 vec = _mm512_broadcastss_ps(((__m128 *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
@@ -28,7 +33,7 @@ DECLARE_BUF_PROC_ANS_SCALAR(float, 512, fill)
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(double, sse, fill)
+DECLARE_BUF_PROC_ANS_SCALAR(double, sse, ,fill)
 {
         register __m128d vec = _mm_set1_pd(((double *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
@@ -43,7 +48,7 @@ DECLARE_BUF_PROC_ANS_SCALAR(double, sse, fill)
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(double, avx, fill)
+DECLARE_BUF_PROC_ANS_SCALAR(double, avx, ,fill)
 {
         register __m256d vec = _mm256_broadcast_sd(((double *)(scalar->data)));
         for (size_t i = 0; i < count; i++) {
@@ -54,7 +59,7 @@ DECLARE_BUF_PROC_ANS_SCALAR(double, avx, fill)
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(double, 512, fill)
+DECLARE_BUF_PROC_ANS_SCALAR(double, 512, ,fill)
 {
         register __m512d vec = _mm512_broadcastsd_pd(_mm_loadu_pd(scalar));
         for (size_t i = 0; i < count; i++) {
@@ -63,7 +68,7 @@ DECLARE_BUF_PROC_ANS_SCALAR(double, 512, fill)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, add)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, ,add)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m128 c0 = _mm_add_ps(left[i].f32_x[0], right[i].f32_x[0]);
@@ -78,7 +83,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, add)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, ,add)
 {
         for (size_t i = 0; i < count; i++) {
                 size_t s = sizeof(MAT_KERNEL(float));
@@ -89,14 +94,14 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, add)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, ,add)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m512 c0 = _mm512_add_ps(left[i].f32_z[0], right[i].f32_z[0]);
                 ans[i].f32_z[0] = c0;
         }
 }
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, add)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, ,add)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m128d c0 = _mm_add_pd(_mm_castps_pd(left[i].f32_x[0]),
@@ -127,7 +132,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, add)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, ,add)
 {
         for (size_t i = 0; i < count; i++) {
                 size_t s = sizeof(MAT_KERNEL(float));
@@ -142,7 +147,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, add)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, ,add)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m512d c0 = _mm512_add_pd(left[i].f64_z[0], right[i].f64_z[0]);
@@ -152,7 +157,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, sub)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, ,sub)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m128 c0 = _mm_sub_ps(left[i].f32_x[0], right[i].f32_x[0]);
@@ -167,7 +172,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, sub)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, sub)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, ,sub)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m256 c0 = _mm256_sub_ps(left[i].f32_y[0], right[i].f32_y[0]);
@@ -177,7 +182,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, sub)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, sub)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, ,sub)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m512 c0 = _mm512_sub_ps(left[i].f32_z[0], right[i].f32_z[0]);
@@ -185,7 +190,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, sub)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, sub)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, ,sub)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m128d c0 = _mm_sub_pd(left[i].f64_x[0], right[i].f64_x[0]);
@@ -208,7 +213,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, sub)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, sub)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, ,sub)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m256 c0 = _mm256_sub_ps(left[i].f32_y[0], right[i].f32_y[0]);
@@ -218,7 +223,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, sub)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, sub)
+DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, ,sub)
 {
         for (size_t i = 0; i < count; i++) {
                 register __m512 c0 = _mm512_sub_ps(left[i].f32_z[0], right[i].f32_z[0]);
@@ -226,7 +231,7 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, sub)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, sse, scalar_mul)
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, sse, ,scalar_mul)
 {
         register __m128 vec = _mm_set_ps1(((float *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
@@ -242,7 +247,7 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, sse, scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, avx, scalar_mul)
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, avx, ,scalar_mul)
 {
         register __m256 vec = _mm256_broadcast_ss(((float *)(scalar->data)));
         for (size_t i = 0; i < count; i++) {
@@ -254,7 +259,7 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, avx, scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, 512, scalar_mul)
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, 512, ,scalar_mul)
 {
         register __m512 vec = _mm512_broadcastss_ps(((__m128 *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
@@ -264,7 +269,7 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, 512, scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, sse, scalar_mul)
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, sse, ,scalar_mul)
 {
         register __m128d vec = _mm_set1_pd(((double *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
@@ -288,7 +293,7 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, sse, scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, avx, scalar_mul)
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, avx, ,scalar_mul)
 {
         register __m256d vec = _mm256_broadcast_sd(((double *)(scalar->data)));
         for (size_t i = 0; i < count; i++) {
@@ -304,7 +309,7 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, avx, scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, 512, scalar_mul)
+DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, 512, ,scalar_mul)
 {
         register __m512d vec = _mm512_broadcastsd_pd(_mm_load_pd(scalar));
         for (size_t i = 0; i < count; i++) {
@@ -315,3 +320,5 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, 512, scalar_mul)
                 ans[i].f64_z[1] = c1;
         }
 }
+
+#endif

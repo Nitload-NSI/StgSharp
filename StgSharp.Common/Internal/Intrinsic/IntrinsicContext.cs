@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="IntrinsicContext"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,8 @@ namespace StgSharp.Internal.Intrinsic
         public delegate* unmanaged[Cdecl]<void*, void*, void> buffer_transpose;                //f32_kernel_transpose
         public delegate* unmanaged[Cdecl]<MatrixPanel*, MatrixKernel*, int, int, int, int, void> build_panel;              //f32_build_panel
         public delegate* unmanaged[Cdecl]<MatrixPanel*, void> clear_panel;                      //f32_clear_panel
-        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> panel_fma;               //f32_panel_fma
+        public delegate* unmanaged[Cdecl]<void*, void*, void*, void> kernel_fma;               //f32_panel_fma
+        public delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, MatrixKernel*, M128*, void> kernel_tile_fma;               //f32_panel_fma
         public delegate* unmanaged[Cdecl]<void*, ulong, ulong, ulong, void> pivot;               //f32_panel_mul
         public delegate* unmanaged[Cdecl]<void*, void*, int, int, int, int, void> store_panel; //f32_store_panel
 

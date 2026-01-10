@@ -42,7 +42,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint id
         )
         {
-            Context.glBeginQueryIndexed(target, index, id);
+            _context->glBeginQueryIndexed(target, index, id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,7 +51,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint id
         )
         {
-            Context.glBindTransformFeedback(target, id);
+            _context->glBindTransformFeedback(target, id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -60,7 +60,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint mode
         )
         {
-            Context.glBlendEquationi(buf, mode);
+            _context->glBlendEquationi(buf, mode);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -70,7 +70,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint modeAlpha
         )
         {
-            Context.glBlendEquationSeparatei(buf, modeRGB, modeAlpha);
+            _context->glBlendEquationSeparatei(buf, modeRGB, modeAlpha);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -80,7 +80,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint dst
         )
         {
-            Context.glBlendFunci(buf, src, dst);
+            _context->glBlendFunci(buf, src, dst);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -92,7 +92,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint dstAlpha
         )
         {
-            Context.glBlendFuncSeparatei(buf, srcRGB, dstRGB, srcAlpha, dstAlpha);
+            _context->glBlendFuncSeparatei(buf, srcRGB, dstRGB, srcAlpha, dstAlpha);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -102,7 +102,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (uint* idsPtr = ids) {
-                Context.glDeleteTransformFeedbacks(n, idsPtr);
+                _context->glDeleteTransformFeedbacks(n, idsPtr);
             }
         }
 
@@ -113,7 +113,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (IntPtr* indirectPtr = indirect) {
-                Context.glDrawArraysIndirect(mode, indirectPtr);
+                _context->glDrawArraysIndirect(mode, indirectPtr);
             }
         }
 
@@ -125,7 +125,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (IntPtr* indirectPtr = indirect) {
-                Context.glDrawElementsIndirect(mode, (uint)type, indirectPtr);
+                _context->glDrawElementsIndirect(mode, (uint)type, indirectPtr);
             }
         }
 
@@ -135,7 +135,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint id
         )
         {
-            Context.glDrawTransformFeedback(mode, id);
+            _context->glDrawTransformFeedback(mode, id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -145,7 +145,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint stream
         )
         {
-            Context.glDrawTransformFeedbackStream(mode, id, stream);
+            _context->glDrawTransformFeedbackStream(mode, id, stream);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -154,7 +154,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint index
         )
         {
-            Context.glEndQueryIndexed(target, index);
+            _context->glEndQueryIndexed(target, index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -163,7 +163,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint* ids
         )
         {
-            Context.glGenTransformFeedbacks(n, ids);
+            _context->glGenTransformFeedbacks(n, ids);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -176,8 +176,8 @@ namespace StgSharp.Graphics.OpenGL
                     byte* name
         )
         {
-            Context.glGetActiveSubroutineName(program.Value, (uint)shaderType, index, bufSize,
-                                              length, name);
+            _context->glGetActiveSubroutineName(program.Value, (uint)shaderType, index, bufSize,
+                                                length, name);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -189,8 +189,8 @@ namespace StgSharp.Graphics.OpenGL
                     int* values
         )
         {
-            Context.glGetActiveSubroutineUniformiv(program.Value, (uint)shaderType, index, pName,
-                                                   values);
+            _context->glGetActiveSubroutineUniformiv(program.Value, (uint)shaderType, index, pName,
+                                                     values);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -203,8 +203,8 @@ namespace StgSharp.Graphics.OpenGL
                     byte* name
         )
         {
-            Context.glGetActiveSubroutineUniformName(program.Value, (uint)shaderType, index,
-                                                     bufSize, length, name);
+            _context->glGetActiveSubroutineUniformName(program.Value, (uint)shaderType, index,
+                                                       bufSize, length, name);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -215,7 +215,7 @@ namespace StgSharp.Graphics.OpenGL
                     int* values
         )
         {
-            Context.glGetProgramStageiv(program.Value, (uint)shaderType, pName, values);
+            _context->glGetProgramStageiv(program.Value, (uint)shaderType, pName, values);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -226,7 +226,7 @@ namespace StgSharp.Graphics.OpenGL
                     int* @params
         )
         {
-            Context.glGetQueryIndexediv(target, index, pName, @params);
+            _context->glGetQueryIndexediv(target, index, pName, @params);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -237,7 +237,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (byte* namePtr = name) {
-                return Context.glGetSubroutineIndex(program.Value, (uint)shaderType, namePtr);
+                return _context->glGetSubroutineIndex(program.Value, (uint)shaderType, namePtr);
             }
         }
 
@@ -249,7 +249,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (byte* namePtr = name) {
-                return Context.glGetSubroutineUniformLocation(program.Value, (uint)shaderType, namePtr);
+                return _context->glGetSubroutineUniformLocation(program.Value, (uint)shaderType, namePtr);
             }
         }
 
@@ -260,7 +260,7 @@ namespace StgSharp.Graphics.OpenGL
                     double* @params
         )
         {
-            Context.glGetUniformdv(program.Value, location, @params);
+            _context->glGetUniformdv(program.Value, location, @params);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -270,7 +270,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint* @params
         )
         {
-            Context.glGetUniformSubroutineuiv((uint)shaderType, location, @params);
+            _context->glGetUniformSubroutineuiv((uint)shaderType, location, @params);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -278,7 +278,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint id
         )
         {
-            return Context.glIsTransformFeedback(id);
+            return _context->glIsTransformFeedback(id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -286,7 +286,7 @@ namespace StgSharp.Graphics.OpenGL
                     float value
         )
         {
-            Context.glMinSampleShading(value);
+            _context->glMinSampleShading(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -296,7 +296,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuesPtr = values) {
-                Context.glPatchParameterfv(pName, valuesPtr);
+                _context->glPatchParameterfv(pName, valuesPtr);
             }
         }
 
@@ -306,19 +306,19 @@ namespace StgSharp.Graphics.OpenGL
                     int value
         )
         {
-            Context.glPatchParameteri(pName, value);
+            _context->glPatchParameteri(pName, value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PauseTransformFeedback()
         {
-            Context.glPauseTransformFeedback();
+            _context->glPauseTransformFeedback();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ResumeTransformFeedback()
         {
-            Context.glResumeTransformFeedback();
+            _context->glResumeTransformFeedback();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -327,7 +327,7 @@ namespace StgSharp.Graphics.OpenGL
                     double x
         )
         {
-            Context.glUniform1d(location, x);
+            _context->glUniform1d(location, x);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -338,7 +338,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniform1dv(location, count, valuePtr);
+                _context->glUniform1dv(location, count, valuePtr);
             }
         }
 
@@ -349,7 +349,7 @@ namespace StgSharp.Graphics.OpenGL
                     double y
         )
         {
-            Context.glUniform2d(location, x, y);
+            _context->glUniform2d(location, x, y);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -360,7 +360,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniform2dv(location, count, valuePtr);
+                _context->glUniform2dv(location, count, valuePtr);
             }
         }
 
@@ -372,7 +372,7 @@ namespace StgSharp.Graphics.OpenGL
                     double z
         )
         {
-            Context.glUniform3d(location, x, y, z);
+            _context->glUniform3d(location, x, y, z);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -383,7 +383,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniform3dv(location, count, valuePtr);
+                _context->glUniform3dv(location, count, valuePtr);
             }
         }
 
@@ -396,7 +396,7 @@ namespace StgSharp.Graphics.OpenGL
                     double w
         )
         {
-            Context.glUniform4d(location, x, y, z, w);
+            _context->glUniform4d(location, x, y, z, w);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -407,7 +407,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniform4dv(location, count, valuePtr);
+                _context->glUniform4dv(location, count, valuePtr);
             }
         }
 
@@ -420,7 +420,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniformMatrix2dv(location, count, transpose, valuePtr);
+                _context->glUniformMatrix2dv(location, count, transpose, valuePtr);
             }
         }
 
@@ -433,7 +433,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniformMatrix2x3dv(location, count, transpose, valuePtr);
+                _context->glUniformMatrix2x3dv(location, count, transpose, valuePtr);
             }
         }
 
@@ -446,7 +446,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniformMatrix2x4dv(location, count, transpose, valuePtr);
+                _context->glUniformMatrix2x4dv(location, count, transpose, valuePtr);
             }
         }
 
@@ -459,7 +459,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniformMatrix3dv(location, count, transpose, valuePtr);
+                _context->glUniformMatrix3dv(location, count, transpose, valuePtr);
             }
         }
 
@@ -472,7 +472,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniformMatrix3x2dv(location, count, transpose, valuePtr);
+                _context->glUniformMatrix3x2dv(location, count, transpose, valuePtr);
             }
         }
 
@@ -485,7 +485,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniformMatrix3x4dv(location, count, transpose, valuePtr);
+                _context->glUniformMatrix3x4dv(location, count, transpose, valuePtr);
             }
         }
 
@@ -498,7 +498,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniformMatrix4dv(location, count, transpose, valuePtr);
+                _context->glUniformMatrix4dv(location, count, transpose, valuePtr);
             }
         }
 
@@ -511,7 +511,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniformMatrix4x2dv(location, count, transpose, valuePtr);
+                _context->glUniformMatrix4x2dv(location, count, transpose, valuePtr);
             }
         }
 
@@ -524,7 +524,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glUniformMatrix4x3dv(location, count, transpose, valuePtr);
+                _context->glUniformMatrix4x3dv(location, count, transpose, valuePtr);
             }
         }
 
@@ -536,7 +536,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (uint* indicesPtr = indices) {
-                Context.glUniformSubroutinesuiv((uint)shaderType, count, indicesPtr);
+                _context->glUniformSubroutinesuiv((uint)shaderType, count, indicesPtr);
             }
         }
 

@@ -41,7 +41,7 @@ namespace StgSharp.Graphics.OpenGL
                     GlHandle program
         )
         {
-            Context.glActiveShaderProgram(pipeline, program.Value);
+            _context->glActiveShaderProgram(pipeline, program.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,7 +49,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint pipeline
         )
         {
-            Context.glBindProgramPipeline(pipeline);
+            _context->glBindProgramPipeline(pipeline);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -57,7 +57,7 @@ namespace StgSharp.Graphics.OpenGL
                     float d
         )
         {
-            Context.glClearDepthf(d);
+            _context->glClearDepthf(d);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -68,7 +68,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (byte* stringsPtr = strings) {
-                return Context.glCreateShaderProgramv((uint)type, count, stringsPtr);
+                return _context->glCreateShaderProgramv((uint)type, count, stringsPtr);
             }
         }
 
@@ -79,7 +79,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (uint* pipelinesPtr = pipelines) {
-                Context.glDeleteProgramPipelines(n, pipelinesPtr);
+                _context->glDeleteProgramPipelines(n, pipelinesPtr);
             }
         }
 
@@ -91,7 +91,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* vPtr = v) {
-                Context.glDepthRangeArrayv(first, count, vPtr);
+                _context->glDepthRangeArrayv(first, count, vPtr);
             }
         }
 
@@ -101,7 +101,7 @@ namespace StgSharp.Graphics.OpenGL
                     float f
         )
         {
-            Context.glDepthRangef(n, f);
+            _context->glDepthRangef(n, f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -111,7 +111,7 @@ namespace StgSharp.Graphics.OpenGL
                     double f
         )
         {
-            Context.glDepthRangeIndexed(index, n, f);
+            _context->glDepthRangeIndexed(index, n, f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -120,7 +120,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint* pipelines
         )
         {
-            Context.glGenProgramPipelines(n, pipelines);
+            _context->glGenProgramPipelines(n, pipelines);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,7 +130,7 @@ namespace StgSharp.Graphics.OpenGL
                     double* data
         )
         {
-            Context.glGetDoublei_v(target, index, data);
+            _context->glGetDoublei_v(target, index, data);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -140,7 +140,7 @@ namespace StgSharp.Graphics.OpenGL
                     float* data
         )
         {
-            Context.glGetFloati_v(target, index, data);
+            _context->glGetFloati_v(target, index, data);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -152,7 +152,7 @@ namespace StgSharp.Graphics.OpenGL
                     IntPtr* binary
         )
         {
-            Context.glGetProgramBinary(program.Value, bufSize, length, binaryFormat, binary);
+            _context->glGetProgramBinary(program.Value, bufSize, length, binaryFormat, binary);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -163,7 +163,7 @@ namespace StgSharp.Graphics.OpenGL
                     byte* infoLog
         )
         {
-            Context.glGetProgramPipelineInfoLog(pipeline, bufSize, length, infoLog);
+            _context->glGetProgramPipelineInfoLog(pipeline, bufSize, length, infoLog);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -173,7 +173,7 @@ namespace StgSharp.Graphics.OpenGL
                     int* @params
         )
         {
-            Context.glGetProgramPipelineiv(pipeline, pname, @params);
+            _context->glGetProgramPipelineiv(pipeline, pname, @params);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -184,7 +184,7 @@ namespace StgSharp.Graphics.OpenGL
                     int* precision
         )
         {
-            Context.glGetShaderPrecisionFormat((uint)shaderType, precisiontype, range, precision);
+            _context->glGetShaderPrecisionFormat((uint)shaderType, precisiontype, range, precision);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -194,7 +194,7 @@ namespace StgSharp.Graphics.OpenGL
                     double* @params
         )
         {
-            Context.glGetVertexAttribLdv(index, pname, @params);
+            _context->glGetVertexAttribLdv(index, pname, @params);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -202,7 +202,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint pipeline
         )
         {
-            return Context.glIsProgramPipeline(pipeline);
+            return _context->glIsProgramPipeline(pipeline);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -214,7 +214,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (IntPtr* binaryPtr = binary) {
-                Context.glProgramBinary(program.Value, binaryFormat, binaryPtr, length);
+                _context->glProgramBinary(program.Value, binaryFormat, binaryPtr, length);
             }
         }
 
@@ -225,7 +225,7 @@ namespace StgSharp.Graphics.OpenGL
                     int value
         )
         {
-            Context.glProgramParameteri(program.Value, pname, value);
+            _context->glProgramParameteri(program.Value, pname, value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -235,7 +235,7 @@ namespace StgSharp.Graphics.OpenGL
                     double v0
         )
         {
-            Context.glProgramUniform1d(program.Value, location, v0);
+            _context->glProgramUniform1d(program.Value, location, v0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -247,7 +247,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniform1dv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform1dv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -258,7 +258,7 @@ namespace StgSharp.Graphics.OpenGL
                     float v0
         )
         {
-            Context.glProgramUniform1f(program.Value, location, v0);
+            _context->glProgramUniform1f(program.Value, location, v0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -270,7 +270,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniform1fv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform1fv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -281,7 +281,7 @@ namespace StgSharp.Graphics.OpenGL
                     int v0
         )
         {
-            Context.glProgramUniform1i(program.Value, location, v0);
+            _context->glProgramUniform1i(program.Value, location, v0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -293,7 +293,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (int* valuePtr = value) {
-                Context.glProgramUniform1iv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform1iv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -304,7 +304,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint v0
         )
         {
-            Context.glProgramUniform1ui(program.Value, location, v0);
+            _context->glProgramUniform1ui(program.Value, location, v0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -316,7 +316,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (uint* valuePtr = value) {
-                Context.glProgramUniform1uiv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform1uiv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -328,7 +328,7 @@ namespace StgSharp.Graphics.OpenGL
                     double v1
         )
         {
-            Context.glProgramUniform2d(program.Value, location, v0, v1);
+            _context->glProgramUniform2d(program.Value, location, v0, v1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -340,7 +340,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniform2dv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform2dv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -352,7 +352,7 @@ namespace StgSharp.Graphics.OpenGL
                     float v1
         )
         {
-            Context.glProgramUniform2f(program.Value, location, v0, v1);
+            _context->glProgramUniform2f(program.Value, location, v0, v1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -364,7 +364,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniform2fv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform2fv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -376,7 +376,7 @@ namespace StgSharp.Graphics.OpenGL
                     int v1
         )
         {
-            Context.glProgramUniform2i(program.Value, location, v0, v1);
+            _context->glProgramUniform2i(program.Value, location, v0, v1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -388,7 +388,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (int* valuePtr = value) {
-                Context.glProgramUniform2iv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform2iv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -400,7 +400,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint v1
         )
         {
-            Context.glProgramUniform2ui(program.Value, location, v0, v1);
+            _context->glProgramUniform2ui(program.Value, location, v0, v1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -412,7 +412,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (uint* valuePtr = value) {
-                Context.glProgramUniform2uiv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform2uiv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -425,7 +425,7 @@ namespace StgSharp.Graphics.OpenGL
                     double v2
         )
         {
-            Context.glProgramUniform3d(program.Value, location, v0, v1, v2);
+            _context->glProgramUniform3d(program.Value, location, v0, v1, v2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -437,7 +437,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniform3dv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform3dv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -450,7 +450,7 @@ namespace StgSharp.Graphics.OpenGL
                     float v2
         )
         {
-            Context.glProgramUniform3f(program.Value, location, v0, v1, v2);
+            _context->glProgramUniform3f(program.Value, location, v0, v1, v2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -462,7 +462,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniform3fv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform3fv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -475,7 +475,7 @@ namespace StgSharp.Graphics.OpenGL
                     int v2
         )
         {
-            Context.glProgramUniform3i(program.Value, location, v0, v1, v2);
+            _context->glProgramUniform3i(program.Value, location, v0, v1, v2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -487,7 +487,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (int* valuePtr = value) {
-                Context.glProgramUniform3iv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform3iv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -500,7 +500,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint v2
         )
         {
-            Context.glProgramUniform3ui(program.Value, location, v0, v1, v2);
+            _context->glProgramUniform3ui(program.Value, location, v0, v1, v2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -512,7 +512,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (uint* valuePtr = value) {
-                Context.glProgramUniform3uiv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform3uiv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -526,7 +526,7 @@ namespace StgSharp.Graphics.OpenGL
                     double v3
         )
         {
-            Context.glProgramUniform4d(program.Value, location, v0, v1, v2, v3);
+            _context->glProgramUniform4d(program.Value, location, v0, v1, v2, v3);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -538,7 +538,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniform4dv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform4dv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -552,7 +552,7 @@ namespace StgSharp.Graphics.OpenGL
                     float v3
         )
         {
-            Context.glProgramUniform4f(program.Value, location, v0, v1, v2, v3);
+            _context->glProgramUniform4f(program.Value, location, v0, v1, v2, v3);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -564,7 +564,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniform4fv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform4fv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -578,7 +578,7 @@ namespace StgSharp.Graphics.OpenGL
                     int v3
         )
         {
-            Context.glProgramUniform4i(program.Value, location, v0, v1, v2, v3);
+            _context->glProgramUniform4i(program.Value, location, v0, v1, v2, v3);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -590,7 +590,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (int* valuePtr = value) {
-                Context.glProgramUniform4iv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform4iv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -604,7 +604,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint v3
         )
         {
-            Context.glProgramUniform4ui(program.Value, location, v0, v1, v2, v3);
+            _context->glProgramUniform4ui(program.Value, location, v0, v1, v2, v3);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -616,7 +616,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (uint* valuePtr = value) {
-                Context.glProgramUniform4uiv(program.Value, location, count, valuePtr);
+                _context->glProgramUniform4uiv(program.Value, location, count, valuePtr);
             }
         }
 
@@ -630,8 +630,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniformMatrix2dv(program.Value, location, count, transpose,
-                                                  valuePtr);
+                _context->glProgramUniformMatrix2dv(program.Value, location, count, transpose,
+                                                    valuePtr);
             }
         }
 
@@ -645,8 +645,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniformMatrix2fv(program.Value, location, count, transpose,
-                                                  valuePtr);
+                _context->glProgramUniformMatrix2fv(program.Value, location, count, transpose,
+                                                    valuePtr);
             }
         }
 
@@ -660,8 +660,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniformMatrix2x3dv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix2x3dv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -675,8 +675,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniformMatrix2x3fv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix2x3fv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -690,8 +690,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniformMatrix2x4dv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix2x4dv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -705,8 +705,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniformMatrix2x4fv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix2x4fv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -720,8 +720,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniformMatrix3dv(program.Value, location, count, transpose,
-                                                  valuePtr);
+                _context->glProgramUniformMatrix3dv(program.Value, location, count, transpose,
+                                                    valuePtr);
             }
         }
 
@@ -735,8 +735,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniformMatrix3fv(program.Value, location, count, transpose,
-                                                  valuePtr);
+                _context->glProgramUniformMatrix3fv(program.Value, location, count, transpose,
+                                                    valuePtr);
             }
         }
 
@@ -750,8 +750,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniformMatrix3x2dv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix3x2dv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -765,8 +765,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniformMatrix3x2fv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix3x2fv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -780,8 +780,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniformMatrix3x4dv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix3x4dv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -795,8 +795,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniformMatrix3x4fv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix3x4fv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -810,8 +810,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniformMatrix4dv(program.Value, location, count, transpose,
-                                                  valuePtr);
+                _context->glProgramUniformMatrix4dv(program.Value, location, count, transpose,
+                                                    valuePtr);
             }
         }
 
@@ -825,8 +825,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniformMatrix4fv(program.Value, location, count, transpose,
-                                                  valuePtr);
+                _context->glProgramUniformMatrix4fv(program.Value, location, count, transpose,
+                                                    valuePtr);
             }
         }
 
@@ -840,8 +840,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniformMatrix4x2dv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix4x2dv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -855,8 +855,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniformMatrix4x2fv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix4x2fv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -870,8 +870,8 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* valuePtr = value) {
-                Context.glProgramUniformMatrix4x3dv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix4x3dv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
@@ -885,15 +885,15 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* valuePtr = value) {
-                Context.glProgramUniformMatrix4x3fv(program.Value, location, count, transpose,
-                                                    valuePtr);
+                _context->glProgramUniformMatrix4x3fv(program.Value, location, count, transpose,
+                                                      valuePtr);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReleaseShaderCompiler()
         {
-            Context.glReleaseShaderCompiler();
+            _context->glReleaseShaderCompiler();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -904,7 +904,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (int* vPtr = v) {
-                Context.glScissorArrayv(first, count, vPtr);
+                _context->glScissorArrayv(first, count, vPtr);
             }
         }
 
@@ -917,7 +917,7 @@ namespace StgSharp.Graphics.OpenGL
                     int height
         )
         {
-            Context.glScissorIndexed(index, left, bottom, width, height);
+            _context->glScissorIndexed(index, left, bottom, width, height);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -927,7 +927,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (int* vPtr = v) {
-                Context.glScissorIndexedv(index, vPtr);
+                _context->glScissorIndexedv(index, vPtr);
             }
         }
 
@@ -943,7 +943,7 @@ namespace StgSharp.Graphics.OpenGL
             fixed (uint* shadersPtr = shaders)
             {
                 fixed (IntPtr* binaryPtr = binary) {
-                    Context.glShaderBinary(count, shadersPtr, binaryFormat, binaryPtr, length);
+                    _context->glShaderBinary(count, shadersPtr, binaryFormat, binaryPtr, length);
                 }
             }
         }
@@ -955,7 +955,7 @@ namespace StgSharp.Graphics.OpenGL
                     GlHandle program
         )
         {
-            Context.glUseProgramStages(pipeline, stages, program.Value);
+            _context->glUseProgramStages(pipeline, stages, program.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -963,7 +963,7 @@ namespace StgSharp.Graphics.OpenGL
                     uint pipeline
         )
         {
-            Context.glValidateProgramPipeline(pipeline);
+            _context->glValidateProgramPipeline(pipeline);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -972,7 +972,7 @@ namespace StgSharp.Graphics.OpenGL
                     double x
         )
         {
-            Context.glVertexAttribL1d(index, x);
+            _context->glVertexAttribL1d(index, x);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -982,7 +982,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* vPtr = v) {
-                Context.glVertexAttribL1dv(index, vPtr);
+                _context->glVertexAttribL1dv(index, vPtr);
             }
         }
 
@@ -993,7 +993,7 @@ namespace StgSharp.Graphics.OpenGL
                     double y
         )
         {
-            Context.glVertexAttribL2d(index, x, y);
+            _context->glVertexAttribL2d(index, x, y);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1003,7 +1003,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* vPtr = v) {
-                Context.glVertexAttribL2dv(index, vPtr);
+                _context->glVertexAttribL2dv(index, vPtr);
             }
         }
 
@@ -1015,7 +1015,7 @@ namespace StgSharp.Graphics.OpenGL
                     double z
         )
         {
-            Context.glVertexAttribL3d(index, x, y, z);
+            _context->glVertexAttribL3d(index, x, y, z);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1025,7 +1025,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* vPtr = v) {
-                Context.glVertexAttribL3dv(index, vPtr);
+                _context->glVertexAttribL3dv(index, vPtr);
             }
         }
 
@@ -1038,7 +1038,7 @@ namespace StgSharp.Graphics.OpenGL
                     double w
         )
         {
-            Context.glVertexAttribL4d(index, x, y, z, w);
+            _context->glVertexAttribL4d(index, x, y, z, w);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1048,7 +1048,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (double* vPtr = v) {
-                Context.glVertexAttribL4dv(index, vPtr);
+                _context->glVertexAttribL4dv(index, vPtr);
             }
         }
 
@@ -1062,7 +1062,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (IntPtr* pointerPtr = pointer) {
-                Context.glVertexAttribLPointer(index, size, (uint)type, stride, pointerPtr);
+                _context->glVertexAttribLPointer(index, size, (uint)type, stride, pointerPtr);
             }
         }
 
@@ -1074,7 +1074,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* vPtr = v) {
-                Context.glViewportArrayv(first, count, vPtr);
+                _context->glViewportArrayv(first, count, vPtr);
             }
         }
 
@@ -1087,7 +1087,7 @@ namespace StgSharp.Graphics.OpenGL
                     float h
         )
         {
-            Context.glViewportIndexedf(index, x, y, w, h);
+            _context->glViewportIndexedf(index, x, y, w, h);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1097,7 +1097,7 @@ namespace StgSharp.Graphics.OpenGL
         )
         {
             fixed (float* vPtr = v) {
-                Context.glViewportIndexedfv(index, vPtr);
+                _context->glViewportIndexedfv(index, vPtr);
             }
         }
 

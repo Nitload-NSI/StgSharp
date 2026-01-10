@@ -13,15 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Document">
+      <UniqueIdentifier>{fbd74b53-5314-4d9d-a788-07bd1b413f74}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sn-src\dllmain.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\str_factorial.c">
+    <ClCompile Include="sn-src\s.factorial.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\str_hash.c">
+    <ClCompile Include="sn-src\s.hash.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="sn-src\str_string.c">
@@ -39,22 +42,28 @@
     <ClCompile Include="sn-src\load_glfw.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\k_basicop.c">
+    <ClCompile Include="sn-src\m.basic.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\k_fma.c">
+    <ClCompile Include="sn-src\m.fma.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\load_intrinsic.c">
+    <ClCompile Include="sn-src\load_intrinsic.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\k_bufop.c">
+    <ClCompile Include="sn-src\m.bufop.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\k_panel.c">
+    <ClCompile Include="sn-src\m.panel.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\k_pivot.c">
+    <ClCompile Include="sn-src\m.pivot.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sn-src\cpuid.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sn-src\m.fma_tile.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,9 +83,6 @@
     <ClInclude Include="sn-head\wgl.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="sn-head\sn_intrinsic.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="sn-head\glfw_function.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -92,6 +98,15 @@
     <ClInclude Include="lib\stbi\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="sn-head\sn_target.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sn-head\sn_intrincontext.x86.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sn-head\sn_intrinsic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\glfw\glfw3.lib">
@@ -100,5 +115,10 @@
     <Library Include="lib\glfw\glfw3_mt.lib">
       <Filter>资源文件</Filter>
     </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SIMDID.x86.md">
+      <Filter>Document</Filter>
+    </None>
   </ItemGroup>
 </Project>

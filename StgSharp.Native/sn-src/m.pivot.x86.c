@@ -1,3 +1,7 @@
+#include "sn_target.h"
+
+#if SN_IS_ARCH(SN_ARCH_X86_64)
+
 #include "sn_intrinsic.h"
 
 // Hybrid implementation: SIMD for Abs, Scalar for Max
@@ -62,3 +66,5 @@ INTERNAL void SN_DECL pivot_float(MAT_KERNEL(float) const *source, size_t col_be
                 }
         }
 }
+
+#endif

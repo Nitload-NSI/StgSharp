@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="MatrixPanel"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -41,37 +41,37 @@ namespace StgSharp.HighPerformance
         private byte Head;
 
         // Allocate aligned memory for one panel; caller must free via Destroy.
-        public static unsafe MatrixPanel<T>* Create<T>() where T : unmanaged, INumber<T>
+        public static unsafe MatrixPanel<T>* Create<T>() where T: unmanaged, INumber<T>
         {
             return (MatrixPanel<T>*)NativeMemory.AlignedAlloc(Size<T>(), AlignmentBytes);
         }
 
-        public static unsafe void Destroy<T>(MatrixPanel<T>* panel) where T : unmanaged, INumber<T>
+        public static unsafe void Destroy<T>(MatrixPanel<T>* panel) where T: unmanaged, INumber<T>
         {
             NativeMemory.AlignedFree(panel);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Span<T> Elements<T>(ref T head) where T : unmanaged, INumber<T>
+        public static unsafe Span<T> Elements<T>(ref T head) where T: unmanaged, INumber<T>
         {
             void* p = Unsafe.AsPointer(ref head);
             return new Span<T>(p, MaxElementCount<T>());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ElementSideLength<T>() where T : unmanaged, INumber<T>
+        public static int ElementSideLength<T>() where T: unmanaged, INumber<T>
         {
             return PanelSideLength<T>();
         }
 
-        public static int MaxElementCount<T>() where T : unmanaged, INumber<T>
+        public static int MaxElementCount<T>() where T: unmanaged, INumber<T>
         {
             int side = ElementSideLength<T>();
             return side * side;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static nuint Size<T>() where T : unmanaged, INumber<T>
+        public static nuint Size<T>() where T: unmanaged, INumber<T>
         {
             return (nuint)(MaxElementCount<T>() * sizeof(T));
         }
@@ -80,7 +80,7 @@ namespace StgSharp.HighPerformance
         ///   Number of 4x4 kernels that fit in a panel for the given ISA and element T.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int KernelCapacity<T>() where T : unmanaged, INumber<T>
+        internal static int KernelCapacity<T>() where T: unmanaged, INumber<T>
         {
             int perSide = KernelSideCount<T>();
             return perSide * perSide;
@@ -90,40 +90,50 @@ namespace StgSharp.HighPerformance
         ///   How many 4x4 kernels fit along a single panel dimension for the given ISA.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int KernelSideCount<T>() where T : unmanaged, INumber<T>
+        internal static int KernelSideCount<T>() where T: unmanaged, INumber<T>
         {
-            return NativeIntrinsic.IntrinsicLevel switch
+            SIMDID id = NativeIntrinsic.IntrinsicMask;
+            switch (id.MaskByte[0] & 0b_00001111)
             {
-                IntrinsicLevel.SSE => KernelSideCountSse<T>(),
-                IntrinsicLevel.AVX2 => KernelSideCountAvx2<T>(),
-                IntrinsicLevel.AVX512 => KernelSideCountAvx512<T>(),
-                _ => 0
-            };
+                case 1:
+                    return id.MaskByte[1] switch
+                    {
+                        1 => KernelSideCountSse<T>(),
+                        2 => KernelSideCountAvx2<T>(),
+                        3 => KernelSideCountAvx512<T>(),
+                        _ => throw new NotSupportedException("Unsupported SIMD level."),
+                    };
+                default:
+                    throw new NotSupportedException("Current hardware platform is not supported");
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe nuint Align64(void* p) => ((nuint)p + (AlignmentBytes - 1)) & ~(nuint)(AlignmentBytes - 1);
+        private static unsafe nuint Align64(void* p)
+        {
+            return ((nuint)p + (AlignmentBytes - 1)) & ~(nuint)(AlignmentBytes - 1);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int KernelSideCountAvx2<T>() where T : unmanaged, INumber<T>
+        private static int KernelSideCountAvx2<T>() where T: unmanaged, INumber<T>
         {
             return PanelSideFromBits<T>(256) / 4;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int KernelSideCountAvx512<T>() where T : unmanaged, INumber<T>
+        private static int KernelSideCountAvx512<T>() where T: unmanaged, INumber<T>
         {
             return PanelSideFromBits<T>(512) / 4;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int KernelSideCountSse<T>() where T : unmanaged, INumber<T>
+        private static int KernelSideCountSse<T>() where T: unmanaged, INumber<T>
         {
             return PanelSideFromBits<T>(128) / 4;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int PanelSideFromBits<T>(int vectorBits) where T : unmanaged, INumber<T>
+        private static int PanelSideFromBits<T>(int vectorBits) where T: unmanaged, INumber<T>
         {
             int elemBits = sizeof(T) * 8;
 
@@ -135,21 +145,28 @@ namespace StgSharp.HighPerformance
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int PanelSideLength<T>() where T : unmanaged, INumber<T>
+        private static int PanelSideLength<T>() where T: unmanaged, INumber<T>
         {
-            return NativeIntrinsic.IntrinsicLevel switch
+            SIMDID id = NativeIntrinsic.IntrinsicMask;
+            switch (id.MaskByte[0] & 0b_00001111)
             {
-                IntrinsicLevel.SSE => PanelSideFromBits<T>(128),
-                IntrinsicLevel.AVX2 => PanelSideFromBits<T>(256),
-                IntrinsicLevel.AVX512 => PanelSideFromBits<T>(512),
-                _ => 0
-            };
+                case 1:
+                    return id.MaskByte[1] switch
+                    {
+                        1 => PanelSideFromBits<T>(128),
+                        2 => PanelSideFromBits<T>(256),
+                        3 => PanelSideFromBits<T>(512),
+                        _ => throw new NotSupportedException("Unsupported SIMD level."),
+                    };
+                default:
+                    throw new NotSupportedException("Current hardware platform is not supported");
+            }
         }
 
     }
 
     // Single POD-style panel: ZMM-compatible size. Alignment handled by allocator, not by the struct.
-    public unsafe struct MatrixPanel<T> where T : unmanaged, INumber<T>
+    public unsafe struct MatrixPanel<T> where T: unmanaged, INumber<T>
     {
 
         internal T Head; // first element of the panel buffer 

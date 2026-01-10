@@ -22,7 +22,8 @@
         (LASTTWO(source - 1) << 6) | (LASTTWO(target - 1) << 4) | (LAST(reset3) << 3) | \
                 (LAST(reset2) << 2) | (LAST(reset1) << 1) | LAST(reset0)
 #define SSE_INSERT_SIMPLE(source, target) SSE_INSERT(source, target, 0, 0, 0, 0)
-#define M256_PERMUTE(s3, s2, s1, s0) (LASTTWO(s3) << 6) | (LASTTWO(s2) << 4) | (LASTTWO(s1) << 2) | (LASTTWO(s0)
+#define M256_PERMUTE(s3, s2, s1, s0) \
+        ((LASTTWO(s3) << 6) | (LASTTWO(s2) << 4) | (LASTTWO(s1) << 2) | (LASTTWO(s0)))
 #define BIT_CVRT(pack, index, T) *(T *)(pack->data + index)
 #define zero_vec _mm_setzero_ps()
 #define zero_vec_256 _mm256_setzero_ps()
@@ -92,8 +93,8 @@ typedef struct matrix_task matrix_task;
 
 #if defined(__cplusplus)
 static_assert(sizeof(matrix_task) == 128, "matrix_parallel_task_package size mismatch");
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-_Static_assert(sizeof(MAT_TASK(float)) == 128, "matrix_parallel_task_package size mismatch");
+#elif defined(__STDC_VERSION__)
+static_assert(sizeof(MAT_TASK(float)) == 128, "matrix_parallel_task_package size mismatch");
 #endif
 
 #pragma region matrix buffer operation function type
@@ -107,24 +108,25 @@ typedef void(SN_DECL *BUF_PROC_RA)(mat_kernel *right, mat_kernel *ans, int count
 typedef void(SN_DECL *BUF_PROC_LRA)(mat_kernel *left, mat_kernel *right, mat_kernel *ans,
                                     int count);
 
-#define BUF_PROC(T_type, T_arch, T_op_name) T_type##_buf_##T_op_name##_##T_arch
+#define BUF_PROC(T_type, T_arch, T_feature, T_op_name) \
+        T_type##_buf_##T_op_name##_##T_arch##T_feature
 
-#define DECLARE_BUF_PROC_ANS_SCALAR(T_type, T_arch, T_op_name)     \
-        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)( \
+#define DECLARE_BUF_PROC_ANS_SCALAR(T_type, T_arch, T_feature, T_op_name)     \
+        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_feature, T_op_name)( \
                 MAT_KERNEL(T_type) *restrict ans, scalar_pack const *scalar, size_t count)
-#define DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name)               \
-        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)(                 \
+#define DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(T_type, T_arch, T_feature, T_op_name)    \
+        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_feature, T_op_name)(      \
                 MAT_KERNEL(T_type) const *right, MAT_KERNEL(T_type) *restrict ans, \
-                scalar_pack const *scalar, int count)
-#define DECLARE_BUF_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name)        \
-        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)(               \
-                MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right, \
+                scalar_pack const *scalar, size_t count)
+#define DECLARE_BUF_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_feature, T_op_name) \
+        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_feature, T_op_name)(        \
+                MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right,     \
                 MAT_KERNEL(T_type) *restrict ans, scalar_pack const *scalar, size_t count)
-#define DECLARE_BUF_PROC_RIGHT_ANS(T_type, T_arch, T_op_name)      \
-        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)( \
+#define DECLARE_BUF_PROC_RIGHT_ANS(T_type, T_arch, T_feature, T_op_name)      \
+        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_feature, T_op_name)( \
                 MAT_KERNEL(T_type) const *right, MAT_KERNEL(T_type) *restrict ans, size_t count)
-#define DECLARE_BUF_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)               \
-        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_op_name)(               \
+#define DECLARE_BUF_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_feature, T_op_name)    \
+        INTERNAL void SN_DECL BUF_PROC(T_type, T_arch, T_feature, T_op_name)(    \
                 MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right, \
                 MAT_KERNEL(T_type) *restrict ans, size_t count)
 
@@ -140,19 +142,20 @@ typedef void(SN_DECL *PNL_PROC_LRAS)(mat_panel *left, mat_panel *right, mat_pane
                                      scalar_pack *scalar);
 typedef void(SN_DECL *PNL_PROC_RAS)(mat_panel *right, mat_panel *ans, scalar_pack *scalar);
 
-#define PNL_PROC(T_type, T_arch, T_op_name) T_type##_pnl_##T_op_name##_##T_arch
-#define DECLARE_PNL_PROC_ANS(T_type, T_arch, T_op_name) \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,  \
+#define PNL_PROC(T_type, T_arch, T_feature, T_op_name) \
+        T_type##_pnl_##T_op_name##_##T_arch##T_feature
+#define DECLARE_PNL_PROC_ANS(T_type, T_arch, T_feature, T_op_name) \
+        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_feature,  \
                                        T_op_name)(MAT_PANEL_##T_arch##(T_type) *restrict ans)
-#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)                           \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch,                                       \
+#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_feature, T_op_name)                \
+        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_feature,                            \
                                        T_op_name)(MAT_PANEL_##T_arch##(T_type) const *left,  \
                                                   MAT_PANEL_##T_arch##(T_type) const *right, \
                                                   MAT_PANEL_##T_arch##(T_type) *restrict ans)
-#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name) \
-        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(        \
-                MAT_PANEL_##T_arch##(T_type) const *left,                 \
-                MAT_PANEL_##T_arch##(T_type) const *right,                \
+#define DECLARE_PNL_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_feature, T_op_name) \
+        INTERNAL void SN_DECL PNL_PROC(T_type, T_arch, T_op_name)(                   \
+                MAT_PANEL_##T_arch##(T_type) const *left,                            \
+                MAT_PANEL_##T_arch##(T_type) const *right,                           \
                 MAT_PANEL_##T_arch##(T_type) *restrict ans, scalar_pack const *scalar)
 
 #pragma endregion
@@ -164,23 +167,56 @@ typedef void(SN_DECL *KER_PROC_RA)(mat_kernel *left, mat_kernel *ans);
 typedef void(SN_DECL *KER_PROC_LRA)(mat_kernel *left, mat_kernel *right, mat_kernel *ans);
 typedef void(SN_DECL *KER_PROC_LAS)(mat_kernel *matrix, mat_kernel *ans, scalar_pack *scalar);
 
-#define KER_PROC(T_type, T_arch, T_op_name) T_type##_kernel_##T_op_name##_##T_arch
+#define KER_PROC(T_type, T_arch, T_feature, T_op_name) \
+        T_type##_kernel_##T_op_name##_##T_arch##T_feature
 
-#define DECLARE_KER_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name)        \
-        INTERNAL void SN_DECL KER_PROC(T_type, T_arch, T_op_name)(               \
-                MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right, \
+#define DECLARE_KER_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_feature, T_op_name) \
+        INTERNAL void SN_DECL KER_PROC(T_type, T_arch, T_feature, T_op_name)(        \
+                MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right,     \
                 MAT_KERNEL(T_type) *restrict ans, scalar_pack const *scalar)
-#define DECLARE_KER_PROC_RIGHT_ANS_SCALAR(T_type, T_arch, T_op_name)               \
-        INTERNAL void SN_DECL KER_PROC(T_type, T_arch, T_op_name)(                 \
+#define DECLARE_KER_PROC_RIGHT_ANS_SCALAR(T_type, T_arch, T_feature, T_op_name)    \
+        INTERNAL void SN_DECL KER_PROC(T_type, T_arch, T_feature, T_op_name)(      \
                 MAT_KERNEL(T_type) const *right, MAT_KERNEL(T_type) *restrict ans, \
                 scalar_pack const *scalar)
-#define DECLARE_KER_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_op_name)               \
-        INTERNAL void SN_DECL KER_PROC(T_type, T_arch, T_op_name)(               \
+#define DECLARE_KER_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_feature, T_op_name)    \
+        INTERNAL void SN_DECL KER_PROC(T_type, T_arch, T_feature, T_op_name)(    \
                 MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right, \
                 MAT_KERNEL(T_type) *restrict ans)
-#define DECLARE_KER_PROC_RIGHT_ANS(T_type, T_arch, T_op_name)      \
-        INTERNAL void SN_DECL KER_PROC(T_type, T_arch, T_op_name)( \
+#define DECLARE_KER_PROC_RIGHT_ANS(T_type, T_arch, T_feature, T_op_name)      \
+        INTERNAL void SN_DECL KER_PROC(T_type, T_arch, T_feature, T_op_name)( \
                 MAT_KERNEL(T_type) const *right, MAT_KERNEL(T_type) *restrict ans)
+
+#pragma endregion
+
+#pragma region matrix kernel tile function type
+
+typedef void(SN_DECL *KERTILE_PROC_AS)(mat_kernel *ans, scalar_pack *scalar, __m128 *enumeration);
+typedef void(SN_DECL *KERTILE_PROC_RA)(mat_kernel *left, mat_kernel *ans, __m128 *enumeration);
+typedef void(SN_DECL *KERTILE_PROC_LRA)(mat_kernel *left, mat_kernel *right, mat_kernel *ans,
+                                        __m128 *enumeration);
+typedef void(SN_DECL *KERTILE_PROC_LAS)(mat_kernel *matrix, mat_kernel *ans, scalar_pack *scalar,
+                                        __m128 *enumeration);
+
+#define KERTILE_PROC(T_type, T_arch, T_feature, T_op_name) \
+        T_type##_kernel_tile_##T_op_name##_##T_arch##T_feature
+
+#define DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS_SCALAR(T_type, T_arch, T_feature, T_op_name) \
+        INTERNAL void SN_DECL KERTILE_PROC(T_type, T_arch, T_feature, T_op_name)(        \
+                MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right,         \
+                MAT_KERNEL(T_type) *restrict ans, scalar_pack const *scalar,             \
+                __m128 const *enumeration)
+#define DECLARE_KERTILE_PROC_RIGHT_ANS_SCALAR(T_type, T_arch, T_feature, T_op_name) \
+        INTERNAL void SN_DECL KERTILE_PROC(T_type, T_arch, T_feature, T_op_name)(   \
+                MAT_KERNEL(T_type) const *right, MAT_KERNEL(T_type) *restrict ans,  \
+                scalar_pack const *scalar, __m128 const *enumeration)
+#define DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(T_type, T_arch, T_feature, T_op_name) \
+        INTERNAL void SN_DECL KERTILE_PROC(T_type, T_arch, T_feature, T_op_name)( \
+                MAT_KERNEL(T_type) const *left, MAT_KERNEL(T_type) const *right,  \
+                MAT_KERNEL(T_type) *restrict ans, __m128 const *enumeration)
+#define DECLARE_KERTILE_PROC_RIGHT_ANS(T_type, T_arch, T_feature, T_op_name)       \
+        INTERNAL void SN_DECL KERTILE_PROC(T_type, T_arch, T_feature, T_op_name)(  \
+                MAT_KERNEL(T_type) const *right, MAT_KERNEL(T_type) *restrict ans, \
+                __m128 const *enumeration)
 
 #pragma endregion
 
@@ -197,90 +233,10 @@ typedef void(SN_DECL *VECTORNORMALIZEPROC)(__m128 *source, __m128 *target);
 typedef void(SN_DECL *DOTPROC)(void *transpose, __m128 *vector, __m128 *ans);
 typedef uint64_t(SN_DECL *FACTORIALROC)(int n);
 
-#pragma region matix function
-
-INTERNAL void f32_normalize(VEC(float) * source, VEC(float) * target);
-
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, add);
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, add);
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, add);
-
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, add);
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, add);
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, add);
-
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, sub);
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, sub);
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, sub);
-
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, sub);
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, sub);
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, sub);
-
-DECLARE_KER_PROC_RIGHT_ANS(float, sse, transpose);
-DECLARE_KER_PROC_RIGHT_ANS(float, avx, transpose);
-DECLARE_KER_PROC_RIGHT_ANS(float, 512, transpose);
-
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, sse, scalar_mul);
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, avx, scalar_mul);
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, 512, scalar_mul);
-
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, sse, scalar_mul);
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, avx, scalar_mul);
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, 512, scalar_mul);
-
-DECLARE_BUF_PROC_ANS_SCALAR(float, sse, fill);
-DECLARE_BUF_PROC_ANS_SCALAR(float, avx, fill);
-DECLARE_BUF_PROC_ANS_SCALAR(float, 512, fill);
-
-DECLARE_BUF_PROC_ANS_SCALAR(double, sse, fill);
-DECLARE_BUF_PROC_ANS_SCALAR(double, avx, fill);
-DECLARE_BUF_PROC_ANS_SCALAR(double, 512, fill);
-
-#pragma endregion
-
-#pragma region fma
-DECLARE_PNL_PROC_ANS(float, sse, clear);
-DECLARE_PNL_PROC_ANS(float, avx, clear);
-DECLARE_PNL_PROC_ANS(float, 512, clear);
-
-DECLARE_PNL_PROC_ANS(double, sse, clear);
-DECLARE_PNL_PROC_ANS(double, avx, clear);
-DECLARE_PNL_PROC_ANS(double, 512, clear);
-
-DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, sse, fma);
-DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx, fma);
-DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, avx_fma, fma);
-DECLARE_PNL_PROC_LEFT_RIGHT_ANS(float, 512, fma);
-
-#pragma endregion
-
-#pragma region scaler_simd
-
-INTERNAL uint64_t SN_DECL factorial_simd_sse(int n);
-
-#pragma endregion
-
-#pragma region dot_product
-
-INTERNAL void FORCEINLINE SN_DECL dot_41_sse(MAT_KERNEL(float) const *transpose,
-                                             __m128 const *vector, __m128 *ans);
-INTERNAL void SN_DECL dot_41_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector,
-                                 __m128 *ans);
-INTERNAL void SN_DECL dot_42_sse(MAT_KERNEL(float) const *transpose, __m128 const *vector,
-                                 __m128 *ans);
-INTERNAL void SN_DECL dot_42_avx(MAT_KERNEL(float) const *transpose, __m128 const *vector,
-                                 __m128 *ans);
-
-#pragma endregion
-
 #pragma region string
 
 typedef int(SN_DECL *HASH)(byte const *str, int length);
 typedef int(SN_DECL *INDEX_PAIR)(short const *stram, uint32_t target, int length);
-
-INTERNAL int SN_DECL city_hash_simplify_sse(byte const *str, int length);
-INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int length);
 
 #pragma endregion
 
@@ -292,7 +248,8 @@ typedef struct mat_intrinsic {
         KER_PROC_RA buffer_transpose;
         PANEL_PROC build_panel;
         PANEL_PROC clear_panel;
-        PNL_PROC_LRA panel_fma;
+        PNL_PROC_LRA ker_fma;
+        KERTILE_PROC_LRA ker_tile_fma;
         PIVOTPROC pivot;
         PANEL_PROC store_panel;
 
@@ -322,5 +279,7 @@ typedef enum most_advanced_instruction {
         NEON
 #endif
 } most_advanced_instruction;
+
+#include "sn_target.h"
 
 #endif

@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="TimeSpanProvider.Awaiting"
 // Project: StgSharp
@@ -43,8 +43,8 @@ namespace StgSharp.Timing
         private static int s_maxID;
 
         private EventHandler? _refreshHandler, _missHandler;
-        private int _pendingSpans; // Number of unconsumed span ticks since last Wait.
         private int _size, _id;
+        private long _pendingSpans; // Number of unconsumed span ticks since last Wait.
 
         private readonly ManualResetEventSlim _event = new();
         private readonly object _participantObject = new();
@@ -75,7 +75,7 @@ namespace StgSharp.Timing
         /// <summary>
         ///   Number of span ticks not yet consumed by Wait ( &gt; 0 means last tick not waited).
         /// </summary>
-        public int PendingSpanCount => Volatile.Read(ref _pendingSpans);
+        public long PendingSpanCount => Volatile.Read(ref _pendingSpans);
 
         internal ManualResetEventSlim AwaitingEvent
         {
@@ -110,10 +110,8 @@ namespace StgSharp.Timing
             // Consume one span slot (clamp at 0 so multiple subscribers won't make it negative).
             while (true)
             {
-                int cur = Volatile.Read(ref _pendingSpans);
-                if (cur == 0)
-                {
-                    _event.Dispose();
+                long cur = Volatile.Read(ref _pendingSpans);
+                if (cur == 0) {
                     return;
                 }
 
@@ -134,7 +132,7 @@ namespace StgSharp.Timing
             await Task.Run(() => _event.Wait()).ConfigureAwait(false);
             while (true)
             {
-                int cur = Volatile.Read(ref _pendingSpans);
+                long cur = Volatile.Read(ref _pendingSpans);
                 if (cur == 0)
                 {
                     break;
@@ -156,23 +154,17 @@ namespace StgSharp.Timing
         ///   OperationCanceledException when token is cancelled. If the provider is disposed during
         ///   wait an OperationCanceledException is thrown to indicate end.
         /// </summary>
-        public Task WaitNextSpanAsync(CancellationToken ct)
+        public Task WaitNextSpanAsync(
+                    CancellationToken ct
+        )
         {
-            try
-            {
-                // Block the current thread until the event is signaled or cancellation requested.
-                _event.Wait(ct);
-            }
-            catch (ObjectDisposedException)
-            {
-                // provider disposed while waiting - treat as cancellation/ended
-                throw new OperationCanceledException(ct);
-            }
+            // Block the current thread until the event is signaled or cancellation requested.
+            _event.Wait(ct);
 
             // consume one pending span (same logic as non-cancellable variant)
             while (true)
             {
-                int cur = Volatile.Read(ref _pendingSpans);
+                long cur = Volatile.Read(ref _pendingSpans);
                 if (cur == 0)
                 {
                     break;
@@ -203,7 +195,9 @@ namespace StgSharp.Timing
         ///   True if the span provider is working. False if time is over (the sequence ended).
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool OnSpanTick(long currentTick)
+        internal bool OnSpanTick(
+                      long currentTick
+        )
         {
             if (_sequence.EndsAt(currentTick))
             {

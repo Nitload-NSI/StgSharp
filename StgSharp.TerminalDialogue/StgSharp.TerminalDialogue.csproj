@@ -41,17 +41,13 @@
 		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 	</PropertyGroup>
 
-	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Command="rd /s /q $(ProjectDir)Build" />
-    </Target>
     
   <ItemGroup>
     <PackageReference Include="Terminal.Gui" Version="2.0.0-v2-develop.2329" />
   </ItemGroup>
     
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="rd /s /q $(SolutionDir)build\StgSharpTerminalDialogue" />
-    <Exec Command="xcopy /E /I /Y $(ProjectDir)build\StgSharpTerminalDialogue $(SolutionDir)build\StgSharpTerminalDialogue" />
+    <Exec Command="xcopy /E /I /Y $(OutputPath) $(SolutionDir)build\StgSharp.TerminalDialogue" />
       
   </Target>
 

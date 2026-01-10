@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Dialogue"
 // Project: StgSharp
@@ -43,7 +43,6 @@ namespace StgSharp
 
         private static Process? _dialogueProcess;
         private static AnonymousPipeServerStream _dialogueClientPipe,_dialogueServerPipe;
-        private static ConcurrentBag<string> msgCache = new ConcurrentBag<string>();
         private static int _readAndWriteThreadId;
         private static ProcessStartInfo _dialogueProcessInfo;
         private static StreamReader _dr;
@@ -51,7 +50,9 @@ namespace StgSharp
 
         public static bool NeedShowWhenStartup { get; set; }
 
-        public static void PostError(Exception ex)
+        public static void PostError(
+                           Exception ex
+        )
         {
             CreateDialogueProcessIfNotExist();
 
@@ -60,7 +61,9 @@ namespace StgSharp
             _dialogueProcess!.Exited -= DialogueProcessExitCallback;
         }
 
-        public static void SetReadAndWriteThread(Thread thread)
+        public static void SetReadAndWriteThread(
+                           Thread thread
+        )
         {
             _readAndWriteThreadId = thread.ManagedThreadId;
         }
@@ -70,7 +73,9 @@ namespace StgSharp
             if (_dialogueProcess != null) {
                 return;
             }
-            if (!File.Exists(_dialogueProcessInfo.FileName)) { }
+            if (!File.Exists(_dialogueProcessInfo.FileName)) {
+                return;
+            }
             _dialogueProcess = Process.Start(_dialogueProcessInfo);
 
             _dr = new StreamReader(_dialogueClientPipe);
@@ -89,8 +94,8 @@ namespace StgSharp
             _dialogueClientPipe = new AnonymousPipeServerStream(
                 PipeDirection.In, HandleInheritability.Inheritable);
 
-            string route = Assembly.GetAssembly(typeof(World)).Location;
-            string path = Path.GetDirectoryName(route);
+            string route = Assembly.GetAssembly(typeof(World))?.Location ?? string.Empty;
+            string path = Path.GetDirectoryName(route) ?? string.Empty;
 
             string exeName;
 
@@ -107,7 +112,7 @@ namespace StgSharp
             }
 
             string consoleRoute = Path.Combine(
-                path, @"StgSharpTerminalDialogue", $@"StgSharpTerminalDialogue{exeName}");
+                path, @"StgSharp.TerminalDialogue", $@"StgSharp.TerminalDialogue{exeName}");
 
             _dialogueProcessInfo = new ProcessStartInfo
             {
@@ -119,7 +124,10 @@ namespace StgSharp
             };
         }
 
-        internal static void PostMessage(string instruction, params string[] operands)
+        internal static void PostMessage(
+                             string instruction,
+                             params string[] operands
+        )
         {
             CreateDialogueProcessIfNotExist();
 
@@ -137,7 +145,9 @@ namespace StgSharp
             _dialogueClientPipe.Dispose();
         }
 
-        internal static string WaitCertainReturn(string target)
+        internal static string WaitCertainReturn(
+                               string target
+        )
         {
             if (_dialogueProcess == null) {
                 return string.Empty;
@@ -166,7 +176,10 @@ namespace StgSharp
             }
         }
 
-        private static void DialogueProcessExitCallback(object? sender, EventArgs e)
+        private static void DialogueProcessExitCallback(
+                            object? sender,
+                            EventArgs e
+        )
         {
             _dialogueProcess = null;
             _dr.Close();

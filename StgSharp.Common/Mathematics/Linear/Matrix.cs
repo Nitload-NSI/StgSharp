@@ -178,12 +178,9 @@ namespace StgSharp.Mathematics.Numeric
         )
         {
             // Caller guarantees: indices in range, layout is dense square.
-            int k_c = y >> 2;
-            int k_r = x >> 2;
-
             MatrixKernelEnumerator enumerator = new(_size.KernelColumnLength, _size.KernelRowLength,
-                                                    k_c, k_r);
-            return Buffer + _boarder.GetIndexOffset(k_c, k_r, in enumerator);
+                                                    x, y);
+            return Buffer + _boarder.GetIndexOffset(x, y, in enumerator);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

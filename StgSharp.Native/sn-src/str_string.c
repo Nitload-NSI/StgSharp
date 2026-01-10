@@ -1,3 +1,7 @@
+#include "sn_target.h"
+
+#if SN_IS_ARCH(SN_ARCH_X86_64)
+
 #include "sn_intrinsic.h"
 
 INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int length)
@@ -46,3 +50,5 @@ INTERNAL int SN_DECL index_pair_sse(short const *str, uint32_t target, int lengt
         }
         return -1;
 }
+
+#endif

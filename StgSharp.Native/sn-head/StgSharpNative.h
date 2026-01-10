@@ -1,4 +1,4 @@
-﻿#ifdef _MSC_VER
+#ifdef _MSC_VER
 #pragma once
 #endif
 
@@ -6,6 +6,7 @@
 #define SNative
 
 #include "sn_internal.h"
+#include "sn_target.h"
 
 #define STBIDEF SN_API
 #include "../lib/stbi/stb_image.h"
@@ -64,7 +65,7 @@ SN_API GLFWglproc SN_DECL loadGlfuncDefault(char *procName);
 SN_API void SN_DECL unloadImageData(Image *out);
 SN_API char *SN_DECL readLog(void);
 SN_API void SN_DECL load_glfw_functions(GLFWFunctionTable *table);
-SN_API int SN_DECL load_intrinsic_function(void *intrinsic_context);
+SN_API SIMDID SN_DECL load_intrinsic_function(void *intrinsic_context);
 
 #ifdef __cplusplus
 }

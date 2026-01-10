@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="M128"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,7 @@ namespace StgSharp.HighPerformance
             Vec = v;
         }
 
-        public ref T AsRef<T>() where T : unmanaged, INumber<T>
+        public ref T AsRef<T>() where T: unmanaged, INumber<T>
         {
             return ref Unsafe.As<byte, T>(ref Buffer[0]);
         }
@@ -69,7 +69,7 @@ namespace StgSharp.HighPerformance
             return Vec.AsVector4();
         }
 
-        public void BroadCastFrom<T>(T value) where T : unmanaged, INumber<T>
+        public void BroadCastFrom<T>(T value) where T: unmanaged, INumber<T>
         {
             Vec = Vector128.Create<T>(value).AsSingle();
         }
@@ -85,7 +85,7 @@ namespace StgSharp.HighPerformance
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T Member<T>(int index) where T : unmanaged, INumber<T>
+        public ref T Member<T>(int index) where T: unmanaged, INumber<T>
         {
             return ref Unsafe.Add(ref AsRef<T>(), index);
         }

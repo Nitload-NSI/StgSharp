@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="MatrixCompute"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,12 +40,9 @@ namespace StgSharp.Mathematics.Numeric
     public partial class MatrixCompute
     {
 
-        internal static unsafe void ComputeFmaPanelF32(
-                                    MatrixParallelTaskPackage* p
-        )
+        internal static unsafe void ComputeFmaPanelF32(MatrixParallelTaskPackage* p)
         {
             int f32 = (int)MatrixElementType.F32;
-            int size = MatrixPanel.KernelSideCount<float>();
             MatrixKernel* leftBuffer = (MatrixKernel*)p->Left;
             MatrixKernel* rightBuffer = (MatrixKernel*)p->Right;
             MatrixKernel* ansBuffer = (MatrixKernel*)p->Answer;
@@ -54,64 +51,29 @@ namespace StgSharp.Mathematics.Numeric
             int ansWidth = p->AnsPrimOffset;
             int ansHeight = p->AnsSecOffset;
             int commonK = p->LeftPrimOffset;
-            int blocksPerRow = ansWidth / size;
-            if (NativeIntrinsic.Context.mat[f32].build_panel == null)
+
+            // int blocksPerRow = ansWidth / size;
+
+            // in this occasion size must be 1
+            for (long c = offsetRef; c < offsetRef + lengthRef; c++)
             {
-                // in this occasion size must be 1
-                for (long c = offsetRef; c < offsetRef + lengthRef; c++)
-                {
-                    int i = (int)(c / blocksPerRow);
-                    int j = (int)(c % blocksPerRow);
-                    MatrixKernel<float>* ansPanel = GetKernelAddressUnsafe((MatrixKernel<float>*)ansBuffer,
-                                                                           ansHeight, i, j);
-                    NativeIntrinsic.Context.mat[f32].clear_panel((MatrixPanel*)ansPanel);
-                    for (int k = 0; k < commonK; k += size) {
-                        NativeIntrinsic.Context
-                                       .mat[f32].panel_fma(
-                                        (MatrixPanel*)GetKernelAddressUnsafe((MatrixKernel<float>*)leftBuffer,
-                                                                             ansHeight, k, j),
-                                        (MatrixPanel*)GetKernelAddressUnsafe((MatrixKernel<float>*)rightBuffer,
-                                                                             commonK, j, k),
-                                        (MatrixPanel*)ansPanel);
-                    }
-                }
-            } else
-            {
-                MatrixPanel<float>* leftPanel = MatrixPanel.Create<float>();
-                MatrixPanel<float>* rightPanel = MatrixPanel.Create<float>();
-                MatrixPanel<float>* ansPanel = MatrixPanel.Create<float>();
-                for (long c = offsetRef; c < offsetRef + lengthRef; c++)
-                {
-                    int i = (int)(c / blocksPerRow) * size;
-                    int j = (int)(c % blocksPerRow) * size;
-                    NativeIntrinsic.Context.mat[f32].clear_panel((MatrixPanel*)ansPanel);
-                    for (int k = 0; k < commonK; k += size)
-                    {
-                        NativeIntrinsic.Context
-                                       .mat[f32].build_panel((MatrixPanel*)leftPanel, leftBuffer,
-                                                             commonK, ansHeight, k, i);
-                        NativeIntrinsic.Context
-                                       .mat[f32].build_panel((MatrixPanel*)rightPanel, rightBuffer,
-                                                             ansWidth, commonK, j, k);
-                        NativeIntrinsic.Context
-                                       .mat[f32].panel_fma((MatrixPanel*)leftPanel, (MatrixPanel*)rightPanel, (MatrixPanel*)ansPanel);
-                    }
+                int i = (int)(c / ansWidth);
+                int j = (int)(c % ansWidth);
+                for (int k = 0; k < commonK; k++) {
                     NativeIntrinsic.Context
-                                   .mat[f32].store_panel((MatrixPanel*)ansPanel, ansBuffer,
-                                                         ansWidth, ansHeight, j, i);
+                                       .mat[f32].kernel_fma(
+                                        GetKernelAddressUnsafe((MatrixKernel<float>*)leftBuffer, ansHeight, k, j),
+                                        GetKernelAddressUnsafe((MatrixKernel<float>*)rightBuffer, commonK, j, k),
+                                        GetKernelAddressUnsafe((MatrixKernel<float>*)ansBuffer, ansHeight, i, j));
                 }
-                MatrixPanel.Destroy(leftPanel);
-                MatrixPanel.Destroy(rightPanel);
-                MatrixPanel.Destroy(ansPanel);
             }
         }
 
-        internal static unsafe void ComputeFmaPanelF64(
-                                    MatrixParallelTaskPackage* p
-        )
+        internal static unsafe void ComputeFmaPanelF64(MatrixParallelTaskPackage* p)
         {
             int f64 = (int)MatrixElementType.F64;
-            int size = MatrixPanel.KernelSideCount<double>();
+
+            // int size = 1;
             MatrixKernel* leftBuffer = (MatrixKernel*)p->Left;
             MatrixKernel* rightBuffer = (MatrixKernel*)p->Right;
             MatrixKernel* ansBuffer = (MatrixKernel*)p->Answer;
@@ -120,67 +82,40 @@ namespace StgSharp.Mathematics.Numeric
             int ansWidth = p->AnsPrimOffset;
             int ansHeight = p->AnsSecOffset;
             int commonK = p->LeftPrimOffset;
-            int blocksPerRow = ansWidth / size;
-            if (NativeIntrinsic.Context.mat[f64].build_panel == null)
+
+            M128* enumeration = stackalloc M128[1];
+
+            // in this occasion size must be 1
+            for (long c = offsetRef; c < offsetRef + lengthRef; c++)
             {
-                // in this occasion size must be 1
-                for (long c = offsetRef; c < offsetRef + lengthRef; c++)
-                {
-                    int i = (int)(c / blocksPerRow);
-                    int j = (int)(c % blocksPerRow);
-                    MatrixKernel<double>* ansPanel = GetKernelAddressUnsafe((MatrixKernel<double>*)ansBuffer,
-                                                                            ansHeight, i, j);
-                    NativeIntrinsic.Context.mat[f64].clear_panel((MatrixPanel*)ansPanel);
-                    for (int k = 0; k < commonK; k += size) {
-                        NativeIntrinsic.Context
-                                       .mat[f64].panel_fma(
-                                        (MatrixPanel*)GetKernelAddressUnsafe((MatrixKernel<double>*)leftBuffer,
-                                                                             ansHeight, k, j),
-                                        (MatrixPanel*)GetKernelAddressUnsafe((MatrixKernel<double>*)rightBuffer,
-                                                                             commonK, j, k),
-                                        (MatrixPanel*)ansPanel);
-                    }
-                }
-            } else
-            {
-                MatrixPanel<double>* leftPanel = MatrixPanel.Create<double>();
-                MatrixPanel<double>* rightPanel = MatrixPanel.Create<double>();
-                MatrixPanel<double>* ansPanel = MatrixPanel.Create<double>();
-                for (long c = offsetRef; c < offsetRef + lengthRef; c++)
-                {
-                    int i = (int)(c / blocksPerRow) * size;
-                    int j = (int)(c % blocksPerRow) * size;
-                    NativeIntrinsic.Context.mat[f64].clear_panel((MatrixPanel*)ansPanel);
-                    for (int k = 0; k < commonK; k += size)
-                    {
-                        NativeIntrinsic.Context
-                                       .mat[f64].build_panel((MatrixPanel*)leftPanel, leftBuffer,
-                                                             commonK, ansHeight, k, i);
-                        NativeIntrinsic.Context
-                                       .mat[f64].build_panel((MatrixPanel*)rightPanel, rightBuffer,
-                                                             ansWidth, commonK, j, k);
-                        NativeIntrinsic.Context
-                                       .mat[f64].panel_fma((MatrixPanel*)leftPanel, (MatrixPanel*)rightPanel, (MatrixPanel*)ansPanel);
-                    }
+                int i = (int)(c / ansWidth);
+                int j = (int)(c % ansWidth);
+                enumeration->Member<int>(0) = i;
+                enumeration->Member<int>(1) = j;
+                enumeration->Member<int>(2) = commonK;
+                enumeration->Member<int>(3) = ansHeight;
+                NativeIntrinsic.Context.mat[f64].kernel_tile_fma(leftBuffer, rightBuffer, ansBuffer, enumeration);
+                /*
+                for (int k = 0; k < commonK; k += 1) {
                     NativeIntrinsic.Context
-                                   .mat[f64].store_panel((MatrixPanel*)ansPanel, ansBuffer,
-                                                         ansWidth, ansHeight, j, i);
+                                       .mat[f64].kernel_fma(
+                                        GetKernelAddressUnsafe((MatrixKernel<double>*)leftBuffer, ansHeight, k, j),
+                                        GetKernelAddressUnsafe((MatrixKernel<double>*)rightBuffer, commonK, j, k),
+                                        GetKernelAddressUnsafe((MatrixKernel<double>*)ansBuffer, ansHeight, i, j));
                 }
-                MatrixPanel.Destroy(leftPanel);
-                MatrixPanel.Destroy(rightPanel);
-                MatrixPanel.Destroy(ansPanel);
+                /**/
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe MatrixKernel<T>* GetKernelAddressUnsafe<T>(
-                                                MatrixKernel<T>* buffer,
-                                                int colLength,
-                                                int x,
-                                                int y
-        ) where T : unmanaged, INumber<T>
+        internal static unsafe MatrixKernel* GetKernelAddressUnsafe<T>(
+                                             MatrixKernel<T>* buffer,
+                                             int colLength,
+                                             int x,
+                                             int y)
+            where T: unmanaged, INumber<T>
         {
-            return buffer + (colLength * x + y);
+            return (MatrixKernel*)(buffer + (colLength * x + y));
         }
 
     }

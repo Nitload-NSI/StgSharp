@@ -1,6 +1,11 @@
-#include "sn_intrinsic.h"
+#include "sn_target.h"
 
-DECLARE_PNL_PROC_ANS(float, sse, clear)
+#if SN_IS_ARCH(SN_ARCH_X86_64)
+
+#include "sn_intrinsic.h"
+#include "sn_intrincontext.x86.h"
+
+DECLARE_PNL_PROC_ANS(float, sse, , clear)
 {
         register __m128 zero = _mm_setzero_ps();
         for (size_t i = 0; i < 4; i++) {
@@ -8,7 +13,7 @@ DECLARE_PNL_PROC_ANS(float, sse, clear)
         }
 }
 
-DECLARE_PNL_PROC_ANS(float, avx, clear)
+DECLARE_PNL_PROC_ANS(float, avx, , clear)
 {
         register __m256 zero = _mm256_setzero_ps();
         for (size_t i = 0; i < 8; i++) {
@@ -16,7 +21,7 @@ DECLARE_PNL_PROC_ANS(float, avx, clear)
         }
 }
 
-DECLARE_PNL_PROC_ANS(float, 512, clear)
+DECLARE_PNL_PROC_ANS(float, 512, , clear)
 {
         register __m512 zero = _mm512_setzero_ps();
         for (size_t i = 0; i < 16; i++) {
@@ -24,7 +29,7 @@ DECLARE_PNL_PROC_ANS(float, 512, clear)
         }
 }
 
-DECLARE_PNL_PROC_ANS(double, sse, clear)
+DECLARE_PNL_PROC_ANS(double, sse, , clear)
 {
         register __m128 zero = _mm_setzero_ps();
         PANEL_COL_VEC((*ans), 0, 0) = zero;
@@ -33,7 +38,7 @@ DECLARE_PNL_PROC_ANS(double, sse, clear)
         PANEL_COL_VEC((*ans), 3, 0) = zero;
 }
 
-DECLARE_PNL_PROC_ANS(double, avx, clear)
+DECLARE_PNL_PROC_ANS(double, avx, , clear)
 {
         register __m256 zero = _mm256_setzero_ps();
         for (size_t i = 0; i < 8; i++) {
@@ -41,7 +46,7 @@ DECLARE_PNL_PROC_ANS(double, avx, clear)
         }
 }
 
-DECLARE_PNL_PROC_ANS(double, 512, clear)
+DECLARE_PNL_PROC_ANS(double, 512, , clear)
 {
         register __m512 zero = _mm512_setzero_ps();
         for (size_t i = 0; i < 16; i++) {
@@ -50,7 +55,7 @@ DECLARE_PNL_PROC_ANS(double, 512, clear)
 }
 
 // Matrix transpose implementations
-DECLARE_KER_PROC_RIGHT_ANS(float, sse, transpose)
+DECLARE_KER_PROC_RIGHT_ANS(float, sse, ,transpose)
 {
         register __m128 col0 = right->f32_x[0];
         register __m128 col1 = right->f32_x[1];
@@ -67,7 +72,7 @@ DECLARE_KER_PROC_RIGHT_ANS(float, sse, transpose)
         ans->f32_x[3] = _mm_movehl_ps(tmp3, tmp1);
 }
 
-DECLARE_KER_PROC_RIGHT_ANS(float, avx, transpose)
+DECLARE_KER_PROC_RIGHT_ANS(float, avx, ,transpose)
 {
         register __m256 col_low = right->f32_y[0];
         register __m256 col_high = right->f32_y[1];
@@ -82,7 +87,7 @@ DECLARE_KER_PROC_RIGHT_ANS(float, avx, transpose)
         ans->f32_y[1] = _mm256_shuffle_ps(col_high, col_low, _MM_SHUFFLE(3, 1, 3, 1));
 }
 
-DECLARE_KER_PROC_RIGHT_ANS(float, 512, transpose)
+DECLARE_KER_PROC_RIGHT_ANS(float, 512, ,transpose)
 {
         register __m512 matrix = right->f32_z[0];
 
@@ -91,3 +96,5 @@ DECLARE_KER_PROC_RIGHT_ANS(float, 512, transpose)
 
         ans->f32_z[0] = _mm512_permutexvar_ps(transpose_indices, matrix);
 }
+
+#endif

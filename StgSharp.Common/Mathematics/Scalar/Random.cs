@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Random"
 // Project: StgSharp
@@ -88,7 +88,7 @@ namespace StgSharp.Mathematics
         ///
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Random<T>() where T: unmanaged, IConvertible, INumber<T>
+        public static T Random<T>() where T : unmanaged, IConvertible, INumber<T>
 
         {
             if (randomSeed == null)
@@ -97,13 +97,9 @@ namespace StgSharp.Mathematics
                 string originSeed =
                     ($"{((Assembly.GetEntryAssembly() == null) ? (Assembly.GetAssembly(typeof(World))!) :
                     Assembly.GetEntryAssembly())}") + ($"{DateTime.UtcNow.ToString("o")}");
-                using (SHA256 sha = SHA256.Create()) {
-                    randomSeed = sha.ComputeHash(Encoding.UTF8.GetBytes(originSeed));
-                }
+                randomSeed = SHA256.HashData(Encoding.UTF8.GetBytes(originSeed));
             }
-            using (SHA256 sha = SHA256.Create()) {
-                randomSeed = sha.ComputeHash(randomSeed);
-            }
+            randomSeed = SHA256.HashData(randomSeed);
             fixed (byte* bptr = randomSeed) {
                 return *(T*)bptr;
             }

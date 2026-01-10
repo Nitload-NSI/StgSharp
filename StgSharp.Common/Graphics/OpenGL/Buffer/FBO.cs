@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="FBO"
 // Project: StgSharp
@@ -52,10 +52,14 @@ namespace StgSharp.Graphics.OpenGL
     public sealed class FrameBuffer : GlBufferObjectBase
     {
 
-        internal unsafe FrameBuffer(int count, glRender binding)
+        internal unsafe FrameBuffer(
+                        int count,
+                        glRender binding
+        )
             : base(binding)
         {
-            _bufferHandle = GL.GenFrameBuffers(count);
+            _bufferHandle = new GlHandle[count];
+            GL.GenFrameBuffers(_bufferHandle);
         }
 
         /// <summary>
@@ -67,7 +71,9 @@ namespace StgSharp.Graphics.OpenGL
         ///   Index of object to be binded in handle set
         /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override unsafe void Bind(int index)
+        public override unsafe void Bind(
+                                    int index
+        )
         {
             GL.BindFrameBuffer(FrameBufferTarget.All, _bufferHandle[index]);
         }
@@ -84,7 +90,10 @@ namespace StgSharp.Graphics.OpenGL
         ///   Index of object to be binded in handle set
         /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Bind(FrameBufferTarget target, int index)
+        public unsafe void Bind(
+                           FrameBufferTarget target,
+                           int index
+        )
         {
             GL.BindFrameBuffer(target, _bufferHandle[index]);
         }
@@ -95,7 +104,9 @@ namespace StgSharp.Graphics.OpenGL
             OpenGLFunction.CurrentGL.BindFrameBuffer(FrameBufferTarget.All, GlHandle.Zero);
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void Dispose(
+                                bool disposing
+        )
         {
             throw new NotImplementedException();
         }

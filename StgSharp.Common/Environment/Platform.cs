@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Platform"
 // Project: StgSharp
@@ -55,15 +55,28 @@ namespace StgSharp
         private static uint markCount = 0;
         internal static GraphicAPI API = default;
 
-        public static int DefaultSIMDAlignment => NativeIntrinsic.IntrinsicLevel switch
+        public static unsafe int DefaultSIMDAlignment
         {
-            IntrinsicLevel.SSE => 16,
-            IntrinsicLevel.AVX2 => 32,
-            IntrinsicLevel.AVX512 => 64,
-            IntrinsicLevel.NEON => 16,
-            IntrinsicLevel.Non => 8,
-            _ => 8,
-        };
+            get
+            {
+                SIMDID id = NativeIntrinsic.IntrinsicMask;
+                switch (id.MaskByte[0] & 0b_00001111)
+                {
+                    case 1:
+                        return id.MaskByte[1] switch
+                        {
+                            1 => 16,
+                            2 => 32,
+                            3 => 64,
+                            4 => 64,
+                            5 => 64,
+                            _ => 8,
+                        };
+                    default:
+                        return 8;
+                }
+            }
+        }
 
         public static ModuleToInitializeCollection Initialize()
         {
@@ -71,31 +84,41 @@ namespace StgSharp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void LogError(Exception ex)
+        public static void LogError(
+                           Exception ex
+        )
         {
             DefaultLog.InternalWriteLog(ex.Message, LogType.Error);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void LogInfo(string log)
+        public static void LogInfo(
+                           string log
+        )
         {
             DefaultLog.InternalWriteLog(log, LogType.Info);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void LogWarning(string log)
+        public static void LogWarning(
+                           string log
+        )
         {
             DefaultLog.InternalWriteLog(log, LogType.Warning);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void LogWarning(Exception notVerySeriesException)
+        public static void LogWarning(
+                           Exception notVerySeriesException
+        )
         {
             DefaultLog.InternalWriteLog(notVerySeriesException.Message, LogType.Warning);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Mark(bool needConsole)
+        public static void Mark(
+                           bool needConsole
+        )
         {
             markCount++;
             if (needConsole) {
@@ -103,7 +126,9 @@ namespace StgSharp
             }
         }
 
-        public static void Terminate(int exitCode)
+        public static void Terminate(
+                           int exitCode
+        )
         {
             MainTimeProvider.StopProvidingTime();
             GraphicFramework.glfwTerminate();
@@ -116,7 +141,8 @@ namespace StgSharp
                            bool isConsole,
                            [CallerFilePath] string filePath = "",
                            [CallerMemberName] string callerName = "",
-                           [CallerLineNumber] int lineNumber = 0)
+                           [CallerLineNumber] int lineNumber = 0
+        )
         {
             Type t = target.GetType();
             string log = $"Tracked object: {nameof(target)}\t\tType:{t.Name}\n";
@@ -147,12 +173,17 @@ namespace StgSharp
         ///   The severity of current message.
         /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteLog(string message, LogType logType)
+        public static void WriteLog(
+                           string message,
+                           LogType logType
+        )
         {
             DefaultLog.InternalWriteLog(message, logType);
         }
 
-        internal static TDele ConvertAPI<TDele>(IntPtr funcPtr)
+        internal static TDele ConvertAPI<TDele>(
+                              IntPtr funcPtr
+        )
         {
             if (funcPtr == IntPtr.Zero) {
                 throw new InvalidCastException(
@@ -168,7 +199,10 @@ namespace StgSharp
             }
         }
 
-        internal static Delegate ConvertAPI(IntPtr funcPtr, Type T)
+        internal static Delegate ConvertAPI(
+                                 IntPtr funcPtr,
+                                 Type T
+        )
         {
             if (funcPtr == IntPtr.Zero) {
                 throw new InvalidCastException(
@@ -197,12 +231,13 @@ namespace StgSharp
                 $"Program {Assembly.GetEntryAssembly()!.FullName} on {Environment.MachineName} Started.", LogType.Info);
             MainThreadID = System.Environment.CurrentManagedThreadId;
 
-
+            /**/
+            Dialogue.NeedShowWhenStartup = false;
             Dialogue.LoadDialogue();
             if (Dialogue.NeedShowWhenStartup) {
                 Dialogue.CreateDialogueProcessIfNotExist();
             }
-
+            /**/
             NativeIntrinsic.InitIntrinsicContext();
         }
 

@@ -1,3 +1,7 @@
+#include "sn_target.h"
+
+#if SN_IS_ARCH(SN_ARCH_X86_64)
+
 #include "sn_intrinsic.h"
 #include "StgSharpNative.h"
 
@@ -43,3 +47,5 @@ INTERNAL int SN_DECL city_hash_simplify_sse(byte const *str, int const length)
         hash ^= hash >> 16;
         return hash;
 }
+
+#endif
