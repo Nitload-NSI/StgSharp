@@ -149,6 +149,8 @@ DECLARE_PNL_PROC_ANS(double, sse, , clear);
 DECLARE_PNL_PROC_ANS(double, avx, , clear);
 DECLARE_PNL_PROC_ANS(double, 512, , clear);
 
+DECLARE_KER_PROC_RIGHT_ANS(float, sse, , quality);
+
 DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, sse, , fma);
 DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, avx, , fma);
 DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, avx, _fma, fma);

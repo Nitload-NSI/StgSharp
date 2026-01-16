@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="MatrixCompute.Float"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,11 @@ namespace StgSharp.Mathematics.Numeric
     public static partial class MatrixCompute
     {
 
-        public static unsafe void Add(Matrix<float> left, Matrix<float> right, Matrix<float> ans)
+        public static unsafe void Add(
+                                  Matrix<float> left,
+                                  Matrix<float> right,
+                                  Matrix<float> ans
+        )
         {
             int f32 = (int)MatrixElementType.F32;
             if (left.ColumnLength != right.ColumnLength ||
@@ -88,7 +92,10 @@ namespace StgSharp.Mathematics.Numeric
             return;
         }
 
-        public static unsafe void Fill(Matrix<float> ans, float value)
+        public static unsafe void Fill(
+                                  Matrix<float> ans,
+                                  float value
+        )
         {
             int f32 = (int)MatrixElementType.F32;
             long count = (long)ans.KernelColumnLength * ans.KernelRowLength;
@@ -119,7 +126,11 @@ namespace StgSharp.Mathematics.Numeric
             taskGroup.Dispose();
         }
 
-        public static unsafe void Mul(Matrix<float> left, Matrix<float> right, Matrix<float> ans)
+        public static unsafe void Mul(
+                                  Matrix<float> left,
+                                  Matrix<float> right,
+                                  Matrix<float> ans
+        )
         {
             int f32 = (int)MatrixElementType.F32;
 
@@ -144,32 +155,21 @@ namespace StgSharp.Mathematics.Numeric
                 if (count > 256) {
                     pool = MatrixParallel.LeadParallel(1);
                 }
-                M128* enumeration = stackalloc M128[4];
+                M128* enumeration = stackalloc M128[1];
+                enumeration->Member<int>(2) = left.KernelColumnLength;
+                enumeration->Member<int>(3) = ans.KernelColumnLength;
                 for (int i = 0; i < ans.KernelRowLength; i++)
                 {
                     for (int j = 0; j < ans.KernelColumnLength; j++)
                     {
                         enumeration->Member<int>(0) = i;
                         enumeration->Member<int>(1) = j;
-                        enumeration->Member<int>(2) = ans.KernelRowLength;
-                        enumeration->Member<int>(3) = left.KernelColumnLength;
 
                         NativeIntrinsic.Context
                                            .mat[f32].kernel_tile_fma((MatrixKernel*)left.Buffer,
                                                                      (MatrixKernel*)right.Buffer,
-                                                                     (MatrixKernel*)ans.Buffer, enumeration);
-                        /*
-                        for (int k = 0; k < left.KernelColumnLength; k++) {
-                            NativeIntrinsic.Context
-                                               .mat[f32].kernel_fma(GetKernelAddressUnsafe(left.Buffer,
-                                                                                           left.KernelColumnLength, i,
-                                                                                           k),
-                                                                GetKernelAddressUnsafe(right.Buffer,
-                                                                                       right.KernelColumnLength, k, j),
-                                                                GetKernelAddressUnsafe(ans.Buffer,
-                                                                                       ans.KernelColumnLength, i, j));
-                        }
-                        /**/
+                                                                     (MatrixKernel*)ans.Buffer,
+                                                                     enumeration);
                     }
                 }
 
@@ -196,13 +196,18 @@ namespace StgSharp.Mathematics.Numeric
             return;
         }
 
-        public static unsafe void Mul(Matrix<float> left, float right, Matrix<float> ans)
+        public static unsafe void Mul(
+                                  Matrix<float> left,
+                                  float right,
+                                  Matrix<float> ans
+        )
         {
             int f32 = (int)MatrixElementType.F32;
             if (left.ColumnLength != ans.ColumnLength || left.RowLength != ans.RowLength) {
                 throw new IndexOutOfRangeException("Matrix dimensions must agree.");
             }
-            if (left.Layout != MatrixLayout.DenseRectangle || ans.Layout != MatrixLayout.DenseRectangle) {
+            if (left.Layout != MatrixLayout.DenseRectangle ||
+                ans.Layout != MatrixLayout.DenseRectangle) {
                 throw new NotSupportedException("Only dense rectangle matrices are supported.");
             }
             long count = (long)left.KernelColumnLength * left.KernelRowLength;
@@ -243,7 +248,11 @@ namespace StgSharp.Mathematics.Numeric
             return;
         }
 
-        public static unsafe void Sub(Matrix<float> left, Matrix<float> right, Matrix<float> ans)
+        public static unsafe void Sub(
+                                  Matrix<float> left,
+                                  Matrix<float> right,
+                                  Matrix<float> ans
+        )
         {
             int f32 = (int)MatrixElementType.F32;
             if (left.ColumnLength != right.ColumnLength ||

@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.SegmentEntry"
 // Project: StgSharp
@@ -38,7 +38,10 @@ namespace StgSharp.HighPerformance.Memory
         ///   Check if two Entries are adjacent in memory
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool AssertAdjacentTo(Entry* current, Entry* other)
+        private static bool AssertAdjacentTo(
+                            Entry* current,
+                            Entry* other
+        )
         {
             // Only a predicate; never throw here. Callers rely on false to skip merging.
             return other->Position + (nuint)other->Size == current->Position ||
@@ -48,10 +51,14 @@ namespace StgSharp.HighPerformance.Memory
         /// <summary>
         ///   check out if a bucket is within the same higher-level boundary as currentOffset
         /// </summary>
-        private bool AssertBoundary(Entry* previous, Entry* current, int level)
+        private bool AssertBoundary(
+                     Entry* previous,
+                     Entry* current,
+                     int level
+        )
         {
             level = int.Min(level, MaxLevel);
-            int nextLevelSize = levelSizeArray[level] * 4;
+            int nextLevelSize = _levelSizeArray[level] * 4;
             ulong prevHead = previous->Position - (ulong)m_Buffer,
                 currHead = current->Position - (ulong)m_Buffer;
             return (currHead / (ulong)nextLevelSize) == (prevHead / (ulong)nextLevelSize);
@@ -61,14 +68,21 @@ namespace StgSharp.HighPerformance.Memory
         ///   Determine segment index based on size and originLevel
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int DetermineSegmentIndex(long size, int level)
+        private static int DetermineSegmentIndex(
+                           int[] levelSizeArray,
+                           long size,
+                           int level
+        )
         {
             level = int.Min(level, MaxLevel);
             return (int)((size - 1) / levelSizeArray[level]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void InsertEntryAfter(Entry* entry, Entry* position)
+        private static void InsertEntryAfter(
+                            Entry* entry,
+                            Entry* position
+        )
         {
             Entry* next = position->NextNear;
             entry->NextNear = next;
@@ -78,7 +92,10 @@ namespace StgSharp.HighPerformance.Memory
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void InsertEntryBefore(Entry* entry, Entry* position)
+        private static void InsertEntryBefore(
+                            Entry* entry,
+                            Entry* position
+        )
         {
             Entry* prev = position->PreviousNear;
             entry->NextNear = position;
@@ -92,7 +109,9 @@ namespace StgSharp.HighPerformance.Memory
         ///   Current Entry will serve as the final merged block. The Merge will be in lazy
         ///   strategy.
         /// </summary>
-        private void MergeAndRemoveFromBuckets(Entry* entry)
+        private void MergeAndRemoveFromBuckets(
+                     Entry* entry
+        )
         {
             if (entry == null) {
                 return;
@@ -101,7 +120,7 @@ namespace StgSharp.HighPerformance.Memory
 
             long size = entry->Size;
             int originLevel = entry->Level;
-            int segment = DetermineSegmentIndex(size, originLevel);
+            int segment = DetermineSegmentIndex(_levelSizeArray, size, originLevel);
             do
             {
                 // previous direction merge
@@ -118,7 +137,7 @@ namespace StgSharp.HighPerformance.Memory
                 // Console.WriteLine($"{(ulong)p->Size} merged to {(ulong)entry->Size} previous");
                 entry->Size += p->Size;
                 entry->Position = p->Position;
-                RemoveFromBucket(originLevel, DetermineSegmentIndex(p->Size, originLevel), (BucketNode*)p->Position);
+                RemoveFromBucket(originLevel, DetermineSegmentIndex(_levelSizeArray, p->Size, originLevel), (BucketNode*)p->Position);
                 RemoveFromPositionChain(p);
             } while (true);
 
@@ -137,11 +156,11 @@ namespace StgSharp.HighPerformance.Memory
 
                 // Console.WriteLine($"{(ulong)n->Size} merged to {(ulong)entry->Size} next");
                 entry->Size += n->Size;
-                RemoveFromBucket(originLevel, DetermineSegmentIndex(n->Size, originLevel), (BucketNode*)n->Position);
+                RemoveFromBucket(originLevel, DetermineSegmentIndex(_levelSizeArray, n->Size, originLevel), (BucketNode*)n->Position);
                 RemoveFromPositionChain(n);
             } while (true);
             originLevel = int.Min(9, originLevel);
-            entry->Level += entry->Size >= levelSizeArray[originLevel] * 4 ? 1 : 0;
+            entry->Level += entry->Size >= _levelSizeArray[originLevel] * 4 ? 1 : 0;
             entry->Level &= 15;
 
             BucketNode* bucket = (BucketNode*)entry->Position;
@@ -152,7 +171,9 @@ namespace StgSharp.HighPerformance.Memory
         ///   Remove node from position linked list, this method does not recycle a BucketNode from
         ///   size bucket
         /// </summary>
-        private void RemoveFromPositionChain(Entry* entry)
+        private void RemoveFromPositionChain(
+                     Entry* entry
+        )
         {
             Entry* prev = entry->PreviousNear;
             Entry* next = entry->NextNear;
@@ -169,7 +190,11 @@ namespace StgSharp.HighPerformance.Memory
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void SetEntryLevel(Entry* entry, nuint position, long size)
+        private static void SetEntryLevel(
+                            Entry* entry,
+                            nuint position,
+                            long size
+        )
         {
             entry ->Position = position;
             entry->Size = size;

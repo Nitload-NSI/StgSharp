@@ -45,7 +45,11 @@ namespace StgSharp.Mathematics.Numeric
         private int _remainThreadCount;
         private readonly MatrixParallelHandle _handle;
 
-        internal MatrixParallelWrap(MatrixParallelHandle handle, int begin, int count)
+        internal MatrixParallelWrap(
+                 MatrixParallelHandle handle,
+                 int begin,
+                 int count
+        )
         {
             WrapTaskCapacity = count;
             _handle = handle;
@@ -121,7 +125,9 @@ namespace StgSharp.Mathematics.Numeric
             _ = Interlocked.Exchange(ref _remainThreadCount, WrapTaskCapacity);
         }
 
-        private void PublishBufferTaskToWorkers(MatrixParallelTaskPackage* package)
+        private void PublishBufferTaskToWorkers(
+                     MatrixParallelTaskPackage* package
+        )
         {
             ReadOnlySpan<MatrixParallelThread> pool = Threads;
             if (pool.Length == 1)

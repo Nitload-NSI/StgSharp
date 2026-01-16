@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Alloc"
 // Project: StgSharp
@@ -37,19 +37,16 @@ namespace StgSharp.HighPerformance.Memory
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
-        public hlsfHandle Alloc(uint size)
+        public hlsfHandle Alloc(
+                          uint size
+        )
         {
-            if (size > 32U * 1024U * 1024U)
-            {
-                Entry* e = (Entry*)_entries.Allocate();
-                e->Size = size;
-                e->Position = (nuint)NativeMemory.AlignedAlloc(size, (nuint)_align);
-                e->State = EntryState.Large;
-                return new hlsfHandle(e, size);
+            if (size > _maxSize) {
+                throw new InvalidOperationException("Requested size exceeds maximum allocatable size.");
             }
 
             int level = GetLevelFromSize(size);
-            int segmentIndex = DetermineSegmentIndex(size, level);
+            int segmentIndex = DetermineSegmentIndex(_levelSizeArray, size, level);
 
             int i = level, s = segmentIndex;
             Entry* handle;
@@ -75,7 +72,7 @@ namespace StgSharp.HighPerformance.Memory
 
             if (handle != null)
             {
-                int requestedOffset = (segmentIndex + 1) * levelSizeArray[level];
+                int requestedOffset = (segmentIndex + 1) * _levelSizeArray[level];
                 if (requestedOffset > handle->Size) {
                     throw new OverflowException("Out of memory: insufficient block size returned from spare memory.");
                 }
@@ -99,7 +96,10 @@ namespace StgSharp.HighPerformance.Memory
         /// <param name="sizeToSlice">
         ///
         /// </param>
-        private void SliceMemory(Entry* e, long sizeToSlice)
+        private void SliceMemory(
+                     Entry* e,
+                     long sizeToSlice
+        )
         {
             Entry* next = e;
             long remain = sizeToSlice;                                          // remained size to slice
@@ -108,9 +108,9 @@ namespace StgSharp.HighPerformance.Memory
 
             int i = (BitOperations.TrailingZeroCount(offset) - 6) / 2;
             i = int.Min(10, i);
-            for (; i < levelSizeArray.Length; i++)
+            for (; i < _levelSizeArray.Length; i++)
             {
-                int size = levelSizeArray[i];
+                int size = _levelSizeArray[i];
                 int upper = size * 4;
                 long edge = (offset + upper - 1) / upper * upper;
                 int count = (int)((long.Min(edge, end) - offset) / size);
@@ -136,7 +136,7 @@ namespace StgSharp.HighPerformance.Memory
 
             if (i > MaxLevel)
             {
-                int size = levelSizeArray[^1];
+                int size = _levelSizeArray[^1];
                 int upper = size * 4;
                 long edge = end / upper * upper;
                 int count = (int)((long.Min(edge, end) - offset) / upper);
@@ -162,7 +162,7 @@ namespace StgSharp.HighPerformance.Memory
 
             for (i--; i >= 0; i--)
             {
-                int size = levelSizeArray[i];
+                int size = _levelSizeArray[i];
                 long edge = end / size * size;
                 int count = (int)((long.Min(edge, end) - offset) / size);
                 if (count > 0)
@@ -197,7 +197,9 @@ namespace StgSharp.HighPerformance.Memory
         /// <returns>
         ///   True if allocation succeeded
         /// </returns>
-        private bool TryAllocateNew32MBBlock(out Entry* handle)
+        private bool TryAllocateNew32MBBlock(
+                     out Entry* handle
+        )
         {
             nuint pos = _spareMemory->Position;
             long remain = _spareMemory->Size;
@@ -227,7 +229,11 @@ namespace StgSharp.HighPerformance.Memory
         /// <summary>
         ///   Helper method for allocation - converts BucketNode to Entry
         /// </summary>
-        private bool TryPopLevelForAllocation(int levelIndex, int sizeIndex, out Entry* entry)
+        private bool TryPopLevelForAllocation(
+                     int levelIndex,
+                     int sizeIndex,
+                     out Entry* entry
+        )
         {
             if (TryPopLevel(levelIndex, sizeIndex, out BucketNode* bucketNode))
             {

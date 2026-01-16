@@ -57,7 +57,7 @@
     <ClCompile Include="sn-src\m.panel.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\m.pivot.x86.c">
+    <ClCompile Include="sn-src\m.solve.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="sn-src\cpuid.x86.c">

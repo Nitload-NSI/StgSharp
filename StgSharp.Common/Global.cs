@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Global"
 // Project: StgSharp
@@ -33,6 +33,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("StgSharp.Mathematics")]
+[assembly: InternalsVisibleTo("StgSharpDebug")]
 
 [assembly: SuppressMessage(
         "Design",

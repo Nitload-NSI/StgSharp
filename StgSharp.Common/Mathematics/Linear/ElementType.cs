@@ -1,6 +1,6 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="IMatrix"
+// file="ElementType"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,21 +25,21 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics;
-
 using System;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    public interface IMatrix<TElement> where TElement: unmanaged, INumber<TElement>
-
+    public enum MatrixElementType : int
     {
 
-        ReadOnlySpan<TElement> AsSpan();
+        F32 = 0,
+        F64 = 1,
+        I32 = 2,
+        I64 = 3,
 
     }
 }

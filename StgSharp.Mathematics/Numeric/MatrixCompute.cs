@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="MatrixCompute"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,9 @@ namespace StgSharp.Mathematics.Numeric
     public partial class MatrixCompute
     {
 
-        internal static unsafe void ComputeFmaPanelF32(MatrixParallelTaskPackage* p)
+        internal static unsafe void ComputeFmaPanelF32(
+                                    MatrixParallelTaskPackage* p
+        )
         {
             int f32 = (int)MatrixElementType.F32;
             MatrixKernel* leftBuffer = (MatrixKernel*)p->Left;
@@ -52,24 +54,25 @@ namespace StgSharp.Mathematics.Numeric
             int ansHeight = p->AnsSecOffset;
             int commonK = p->LeftPrimOffset;
 
-            // int blocksPerRow = ansWidth / size;
+            M128* enumeration = stackalloc M128[1];
+            enumeration->Member<int>(2) = commonK;
+            enumeration->Member<int>(3) = ansHeight;
 
             // in this occasion size must be 1
             for (long c = offsetRef; c < offsetRef + lengthRef; c++)
             {
-                int i = (int)(c / ansWidth);
-                int j = (int)(c % ansWidth);
-                for (int k = 0; k < commonK; k++) {
-                    NativeIntrinsic.Context
-                                       .mat[f32].kernel_fma(
-                                        GetKernelAddressUnsafe((MatrixKernel<float>*)leftBuffer, ansHeight, k, j),
-                                        GetKernelAddressUnsafe((MatrixKernel<float>*)rightBuffer, commonK, j, k),
-                                        GetKernelAddressUnsafe((MatrixKernel<float>*)ansBuffer, ansHeight, i, j));
-                }
+                int i = (int)(c / ansHeight);
+                int j = (int)(c % ansHeight);
+                enumeration->Member<int>(0) = i;
+                enumeration->Member<int>(1) = j;
+                NativeIntrinsic.Context.mat[f32].kernel_tile_fma(leftBuffer, rightBuffer, ansBuffer,
+                                                                 enumeration);
             }
         }
 
-        internal static unsafe void ComputeFmaPanelF64(MatrixParallelTaskPackage* p)
+        internal static unsafe void ComputeFmaPanelF64(
+                                    MatrixParallelTaskPackage* p
+        )
         {
             int f64 = (int)MatrixElementType.F64;
 
@@ -84,26 +87,18 @@ namespace StgSharp.Mathematics.Numeric
             int commonK = p->LeftPrimOffset;
 
             M128* enumeration = stackalloc M128[1];
+            enumeration->Member<int>(2) = commonK;
+            enumeration->Member<int>(3) = ansHeight;
 
             // in this occasion size must be 1
             for (long c = offsetRef; c < offsetRef + lengthRef; c++)
             {
-                int i = (int)(c / ansWidth);
-                int j = (int)(c % ansWidth);
+                int i = (int)(c / ansHeight);
+                int j = (int)(c % ansHeight);
                 enumeration->Member<int>(0) = i;
                 enumeration->Member<int>(1) = j;
-                enumeration->Member<int>(2) = commonK;
-                enumeration->Member<int>(3) = ansHeight;
-                NativeIntrinsic.Context.mat[f64].kernel_tile_fma(leftBuffer, rightBuffer, ansBuffer, enumeration);
-                /*
-                for (int k = 0; k < commonK; k += 1) {
-                    NativeIntrinsic.Context
-                                       .mat[f64].kernel_fma(
-                                        GetKernelAddressUnsafe((MatrixKernel<double>*)leftBuffer, ansHeight, k, j),
-                                        GetKernelAddressUnsafe((MatrixKernel<double>*)rightBuffer, commonK, j, k),
-                                        GetKernelAddressUnsafe((MatrixKernel<double>*)ansBuffer, ansHeight, i, j));
-                }
-                /**/
+                NativeIntrinsic.Context.mat[f64].kernel_tile_fma(leftBuffer, rightBuffer, ansBuffer,
+                                                                 enumeration);
             }
         }
 
@@ -112,8 +107,8 @@ namespace StgSharp.Mathematics.Numeric
                                              MatrixKernel<T>* buffer,
                                              int colLength,
                                              int x,
-                                             int y)
-            where T: unmanaged, INumber<T>
+                                             int y
+        ) where T : unmanaged, INumber<T>
         {
             return (MatrixKernel*)(buffer + (colLength * x + y));
         }

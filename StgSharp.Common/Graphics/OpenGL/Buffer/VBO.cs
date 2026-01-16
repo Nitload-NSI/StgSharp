@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="VBO"
 // Project: StgSharp
@@ -43,13 +43,18 @@ namespace StgSharp.Graphics.OpenGL
     public sealed unsafe class VertexBuffer : GlBufferObjectBase
     {
 
-        internal VertexBuffer(int n, glRender binding)
+        internal VertexBuffer(
+                 int n,
+                 glRender binding
+        )
             : base(binding)
         {
             _bufferHandle = GL.GenBuffers(n);
         }
 
-        public sealed override void Bind(int index)
+        public sealed override void Bind(
+                                    int index
+        )
         {
             GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
         }
@@ -72,35 +77,17 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="index">
         ///   Index to find certain VBO in this instance
         /// </param>
-        /// <param _label="bufferData">
-        ///   Data to write in
-        /// </param>
-        /// <param _label="usage">
-        ///   How OpenGL use these _data, defined by <see cref="BufferUsage" />
-        /// </param>
-        public void WriteMatrixData<T>(int index, ref IMatrix<T> bufferData, BufferUsage usage)
-            where T: unmanaged, INumber<T>
-        {
-            GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
-            GL.SetBufferData(BufferType.ArrayBuffer, bufferData.AsSpan(), usage);
-        }
-
-        /// <summary>
-        ///   Set _data to current vertex BufferHandle object
-        /// </summary>
-        /// <typeparam _label="TItem">
-        ///   Type of bufferData
-        /// </typeparam>
-        /// <param _label="index">
-        ///   Index to find certain VBO in this instance
-        /// </param>
         /// <param _label="bufferArray">
         ///   Data to write in
         /// </param>
         /// <param _label="usage">
         ///   How OpenGL use these _data, defined by <see cref="BufferUsage" />
         /// </param>
-        public void WriteScalerData<T>(int index, T[] bufferArray, BufferUsage usage) where T: unmanaged, INumber<T>
+        public void WriteScalerData<T>(
+                    int index,
+                    T[] bufferArray,
+                    BufferUsage usage
+        ) where T : unmanaged, INumber<T>
         {
             GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
             GL.SetBufferData(BufferType.ArrayBuffer, bufferArray, usage);
@@ -121,8 +108,11 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="usage">
         ///   How OpenGL use these _data, defined by <see cref="BufferUsage" />
         /// </param>
-        public void WriteScalerData<T>(int index, ReadOnlySpan<T> scalerSpan, BufferUsage usage)
-            where T: unmanaged,INumber<T>
+        public void WriteScalerData<T>(
+                    int index,
+                    ReadOnlySpan<T> scalerSpan,
+                    BufferUsage usage
+        ) where T : unmanaged,INumber<T>
         {
             GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
             GL.SetBufferData(BufferType.ArrayBuffer, scalerSpan, usage);
@@ -143,8 +133,11 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="usage">
         ///   How OpenGL use these data, defined by <see cref="BufferUsage" />
         /// </param>
-        public void WriteVectorData<T>(int index, ReadOnlySpan<T> vectorSpan, BufferUsage usage)
-            where T: unmanaged, IUnmanagedVector<T>
+        public void WriteVectorData<T>(
+                    int index,
+                    ReadOnlySpan<T> vectorSpan,
+                    BufferUsage usage
+        ) where T : unmanaged, IUnmanagedVector<T>
         {
             GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
             GL.SetBufferVectorData(BufferType.ArrayBuffer, vectorSpan, usage);
@@ -165,14 +158,19 @@ namespace StgSharp.Graphics.OpenGL
         /// <param _label="usage">
         ///   How OpenGL use these _data, defined by <see cref="BufferUsage" />
         /// </param>
-        public void WriteVectorData<T>(int index, T[] vectorArray, BufferUsage usage)
-            where T: unmanaged, IUnmanagedVector<T>
+        public void WriteVectorData<T>(
+                    int index,
+                    T[] vectorArray,
+                    BufferUsage usage
+        ) where T : unmanaged, IUnmanagedVector<T>
         {
             GL.BindBuffer(BufferType.ArrayBuffer, _bufferHandle[index]);
             GL.SetBufferVectorData(BufferType.ArrayBuffer, vectorArray, usage);
         }
 
-        protected sealed override void Dispose(bool disposing)
+        protected sealed override void Dispose(
+                                       bool disposing
+        )
         {
             if (disposing) {
                 GL.DeleteBuffers(_bufferHandle);

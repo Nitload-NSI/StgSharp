@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator"
 // Project: StgSharp
@@ -37,55 +37,130 @@ namespace StgSharp.HighPerformance.Memory
     {
 
         // Bucket system field - directly in main allocator class
-        private readonly BucketNode*[] _bucketHeads;
+        private readonly BucketNode *[] _bucketHeads;
 
         // _spareMemory is also the beginning position of allocator
-        private Entry* _spareMemory;
-        private readonly byte* m_Buffer;
+        private Entry *_spareMemory;
+        private readonly byte *m_Buffer;
         private bool disposedValue;
         private readonly int _align;
         private readonly nuint _size;
         private readonly SlabAllocator<Entry> _entries;
+        private readonly uint _maxSize;
 
-        public HybridLayerSegregatedFitAllocator(nuint byteSize)
+        public HybridLayerSegregatedFitAllocator(
+               nuint byteSize
+        )
         {
             if (byteSize < 64) {
                 throw new InvalidOperationException();
             }
             _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
             _size = byteSize;
-            m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, 16);
+            m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, 16);
             _align = 16;
 
-            _bucketHeads = new BucketNode*[levelSizeArray.Length * 3 + 1];
+            _bucketHeads = new BucketNode *[_levelSizeArray.Length * 3 + 1];
 
-            _spareMemory = (Entry*)_entries.Allocate();
+            _spareMemory = (Entry *)_entries.Allocate();
             _spareMemory->State = EntryState.Spare;
             _spareMemory->PreviousNear = _spareMemory;
             _spareMemory->NextNear = _spareMemory;
             _spareMemory->Position = (nuint)m_Buffer;
             _spareMemory->Size = (long)byteSize;
+
+            _maxSize = 32U * 1024U * 1024U;
         }
 
-        public HybridLayerSegregatedFitAllocator(nuint byteSize, int align)
+        public HybridLayerSegregatedFitAllocator(
+               nuint byteSize,
+               uint maxBlockSize
+        )
         {
-            if (align < 16 || (align & (align - 1)) != 0) {
-                throw new ArgumentException(
-                    "Alignment must be a power of two and at least 16 bytes.");
-            }
             _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked);
-            m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
-            _align = align;
+            m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, (nuint)16);
+            _align = 16;
             _size = byteSize;
 
-            _bucketHeads = new BucketNode*[levelSizeArray.Length * 3 + 1];
-
-            _spareMemory = (Entry*)_entries.Allocate();
+            _spareMemory = (Entry *)_entries.Allocate();
             _spareMemory->State = EntryState.Empty;
             _spareMemory->PreviousNear = _spareMemory;
             _spareMemory->NextNear = _spareMemory;
             _spareMemory->Position = (nuint)m_Buffer;
             _spareMemory->Size = (long)byteSize;
+
+            int levelCountOrigin = _levelSizeArray.Length;
+            int levelCount = GetLevelFromSize(maxBlockSize) + 1;
+            Array.Resize(ref _levelSizeArray, levelCount);
+            _bucketHeads = new BucketNode *[levelCount * 3 + 1];
+            int size = _levelSizeArray[^1];
+            for (int i = levelCountOrigin; i < levelCount; i++)
+            {
+                size *= 4;
+                _levelSizeArray[i] = size;
+            }
+            _maxSize = maxBlockSize;
+        }
+
+        public HybridLayerSegregatedFitAllocator(
+               nuint byteSize,
+               int align
+        )
+        {
+            if (align < 16 || (align & (align - 1)) != 0) {
+                throw new ArgumentException(
+                                "Alignment must be a power of two and at least 16 bytes.");
+            }
+            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked);
+            m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
+            _align = align;
+            _size = byteSize;
+
+            _bucketHeads = new BucketNode *[_levelSizeArray.Length * 3 + 1];
+
+            _spareMemory = (Entry *)_entries.Allocate();
+            _spareMemory->State = EntryState.Empty;
+            _spareMemory->PreviousNear = _spareMemory;
+            _spareMemory->NextNear = _spareMemory;
+            _spareMemory->Position = (nuint)m_Buffer;
+            _spareMemory->Size = (long)byteSize;
+
+            _maxSize = 32U * 1024U * 1024U;
+        }
+
+        public HybridLayerSegregatedFitAllocator(
+               nuint byteSize,
+               int align,
+               uint maxBlockSize
+        )
+        {
+            if (align < 16 || (align & (align - 1)) != 0) {
+                throw new ArgumentException(
+                                "Alignment must be a power of two and at least 16 bytes.");
+            }
+            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked);
+            m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
+            _align = align;
+            _size = byteSize;
+
+            _spareMemory = (Entry *)_entries.Allocate();
+            _spareMemory->State = EntryState.Empty;
+            _spareMemory->PreviousNear = _spareMemory;
+            _spareMemory->NextNear = _spareMemory;
+            _spareMemory->Position = (nuint)m_Buffer;
+            _spareMemory->Size = (long)byteSize;
+
+            int levelCountOrigin = _levelSizeArray.Length;
+            int levelCount = GetLevelFromSize(maxBlockSize) + 1;
+            Array.Resize(ref _levelSizeArray, levelCount);
+            _bucketHeads = new BucketNode *[levelCount * 3 + 1];
+            int size = _levelSizeArray[^1];
+            for (int i = levelCountOrigin; i < levelCount; i++)
+            {
+                size *= 4;
+                _levelSizeArray[i] = size;
+            }
+            _maxSize = maxBlockSize;
         }
 
         public void Dispose()
@@ -94,7 +169,9 @@ namespace StgSharp.HighPerformance.Memory
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void Dispose(
+                               bool disposing
+        )
         {
             if (!disposedValue)
             {

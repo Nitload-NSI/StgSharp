@@ -36,8 +36,8 @@ using System.Runtime.InteropServices;
 
 namespace StgSharp.Mathematics.Graphic
 {
-    [StructLayout(LayoutKind.Explicit, Size = (2 * 16 * sizeof(float)) + sizeof(bool), Pack = 16)]
-    public unsafe struct Matrix44 : IEquatable<Matrix44>, IMatrix<float>, IEnumerable<Vec4>
+    [StructLayout(LayoutKind.Explicit, Size = (16 * sizeof(float)), Pack = 16)]
+    public unsafe struct Matrix44 : IEquatable<Matrix44>
     {
 
         [FieldOffset(0 * sizeof(float))] internal Column column;
@@ -223,8 +223,10 @@ namespace StgSharp.Mathematics.Graphic
                                         Matrix44 right
         )
         {
-            Matrix44 transpose = left.Transpose;
-            return new Matrix44(Vector4.Dot(transpose.mat.colum0, right.mat.colum0), Vector4.Dot(transpose.mat.colum0, right.mat.colum1), Vector4.Dot(transpose.mat.colum0, right.mat.colum2), Vector4.Dot(transpose.mat.colum0, right.mat.colum3), Vector4.Dot(transpose.mat.colum1, right.mat.colum0), Vector4.Dot(transpose.mat.colum1, right.mat.colum1), Vector4.Dot(transpose.mat.colum1, right.mat.colum2), Vector4.Dot(transpose.mat.colum1, right.mat.colum3), Vector4.Dot(transpose.mat.colum2, right.mat.colum0), Vector4.Dot(transpose.mat.colum2, right.mat.colum1), Vector4.Dot(transpose.mat.colum2, right.mat.colum2), Vector4.Dot(transpose.mat.colum2, right.mat.colum3), Vector4.Dot(transpose.mat.colum3, right.mat.colum0), Vector4.Dot(transpose.mat.colum3, right.mat.colum1), Vector4.Dot(transpose.mat.colum3, right.mat.colum2), Vector4.Dot(transpose.mat.colum3, right.mat.colum3));
+            Matrix44 ret = new();
+            int f32 = (int)MatrixElementType.F32;
+            NativeIntrinsic.Context.mat[f32].kernel_fma(&left, &right, &ret);
+            return ret;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -245,18 +247,6 @@ namespace StgSharp.Mathematics.Graphic
         )
         {
             return left.Equals(right);
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerator<Vec4> IEnumerable<Vec4>.GetEnumerator()
-        {
-            for (int i = 0; i < 4; i++) {
-                yield return column[i];
-            }
         }
 
         [InlineArray(4)]

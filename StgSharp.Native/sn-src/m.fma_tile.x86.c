@@ -1,4 +1,4 @@
-﻿#include "sn_target.h"
+#include "sn_target.h"
 
 #if SN_IS_ARCH(SN_ARCH_X86_64)
 
@@ -20,7 +20,7 @@ internal static unsafe MatrixKernel<T>* GetKernelAddressUnsafe<T>(
 }
 */
 
-#define GET_INDEX(col_len, x, y) col_len *x + y
+#define GET_INDEX(col_len, x, y) (col_len * x + y)
 
 /*
 for (int k = 0; k < commonK; k += 1) {
@@ -55,8 +55,9 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(float, sse, , fma)
 
         for (size_t k = 0; k < commonK; k++) {
                 MAT_KERNEL(float)
-                const *right_cur = right + GET_INDEX(ansHeight, k, j), // GetKernelAddressUnsafe
-                        const *left_cur = left + GET_INDEX(commonK, j, k); // GetKernelAddressUnsafe
+                const *right_cur = right + GET_INDEX(commonK, i, k), // GetKernelAddressUnsafe
+                        const *left_cur =
+                                left + GET_INDEX(ansHeight, k, j); // GetKernelAddressUnsafe
 
                 const __m128 a0 = _mm_load_ps((float *)&left_cur->f32_x[0]);
                 const __m128 a1 = _mm_load_ps((float *)&left_cur->f32_x[1]);
@@ -119,7 +120,7 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(float, avx, , fma)
 
         for (size_t k = 0; k < commonK; k++) {
                 MAT_KERNEL(float)
-                const *left_cur = left + GET_INDEX(ansHeight, k, j), // GetKernelAddressUnsafe
+                const *left_cur = left + GET_INDEX(ansHeight, i, k), // GetKernelAddressUnsafe
                         const *right_cur =
                                 right + GET_INDEX(ansHeight, j, k); // GetKernelAddressUnsafe
 
@@ -174,8 +175,8 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(float, avx, _fma, fma)
         MAT_KERNEL(float)
         const *ans_cur = ans + GET_INDEX(ansHeight, i, j); // GetKernelAddressUnsafe
 
-        register __m256 c01 = _mm256_load_ps((float *)&ans->f32_y[0]);
-        register __m256 c23 = _mm256_load_ps((float *)&ans->f32_y[1]);
+        register __m256 c01 = _mm256_load_ps((float *)&ans_cur->f32_y[0]);
+        register __m256 c23 = _mm256_load_ps((float *)&ans_cur->f32_y[1]);
 
         register __m256i b01_shift = _mm256_load_si256(&b01_shift_source);
         register __m256i b23_shift = _mm256_load_si256(&b23_shift_source);
@@ -184,7 +185,7 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(float, avx, _fma, fma)
                 MAT_KERNEL(float)
                 const *left_cur = left + GET_INDEX(ansHeight, k, j), // GetKernelAddressUnsafe
                         const *right_cur =
-                                right + GET_INDEX(ansHeight, j, k); // GetKernelAddressUnsafe
+                                right + GET_INDEX(commonK, i, k); // GetKernelAddressUnsafe
 
                 register __m256 a01 = _mm256_load_ps((float *)&left_cur->f32_y[0]);
                 register __m256 a23 = _mm256_load_ps((float *)&left_cur->f32_y[1]);
@@ -193,9 +194,6 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(float, avx, _fma, fma)
                 register __m256 b23 = _mm256_load_ps((float *)&right_cur->f32_y[1]);
                 b01 = _mm256_permutevar_ps(b01, b01_shift);
                 b23 = _mm256_permutevar_ps(b23, b23_shift);
-
-                register __m256 c01 = _mm256_load_ps((float *)&ans->f32_y[0]);
-                register __m256 c23 = _mm256_load_ps((float *)&ans->f32_y[1]);
 
                 //group 0
                 register __m256 b01_perm = _mm256_shuffle_ps(b01, b01, _FMA_SELECT(0));
@@ -239,8 +237,13 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(float, 512, , fma)
         register __m512i b_shift = _mm512_load_si512(&b_shift_source);
         register __m512 c = _mm512_load_ps((float *)(ans + GET_INDEX(ansHeight, i, j)));
         for (size_t k = 0; k < commonK; k++) {
-                register __m512 a = _mm512_load_ps((float *)left);
-                register __m512 b = _mm512_load_ps((float *)right);
+                MAT_KERNEL(double) *const left_cur = left + GET_INDEX(ansHeight, k, j),
+                                          const *right_cur =
+                                                  right + GET_INDEX(commonK, i,
+                                                                    k); // GetKernelAddressUnsafe
+
+                register __m512 a = _mm512_load_ps((float *)left_cur);
+                register __m512 b = _mm512_load_ps((float *)right_cur);
 
                 b = _mm512_permutexvar_ps(b_shift, b);
                 register __m512 a_perm = _mm512_shuffle_f32x4(a, a, _MM_SHUFFLE(3, 2, 1, 0));
@@ -260,40 +263,40 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(float, 512, , fma)
                 c = _mm512_fmadd_ps(a_perm, b_perm, c);
         }
 
-        _mm512_store_ps((float *)ans, c);
+        _mm512_store_ps((float *)(ans + GET_INDEX(ansHeight, i, j)), c);
 }
 
 // double
-#define DOUBLE_KERNEL_FMA_CYCLE(i)                                   \
-        /* k = 0 */                                                  \
-        register __m128d b_lo = _mm_load_pd(right + (2 * i + 0));    \
-        register __m128d b_hi = _mm_load_pd(right + (2 * i + 1));    \
-        register __m128d a_lo = _mm_load_pd(left_cur + (0 * 2 + 0)); \
-        register __m128d a_hi = _mm_load_pd(left_cur + (0 * 2 + 1)); \
-        register __m128d b = _mm_shuffle_pd(b_lo, b_lo, 0x0);        \
-        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));      \
-        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));      \
-                                                                     \
-        /* group = 1 */                                              \
-        a_lo = _mm_load_pd(left_cur + (1 * 2 + 0));                  \
-        a_hi = _mm_load_pd(left_cur + (1 * 2 + 1));                  \
-        b = _mm_shuffle_pd(b_lo, b_lo, 0x3);                         \
-        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));      \
-        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));      \
-                                                                     \
-        /* groupp = 2 */                                             \
-        a_lo = _mm_load_pd(left_cur + (2 * 2 + 0));                  \
-        a_hi = _mm_load_pd(left_cur + (2 * 2 + 1));                  \
-        b = _mm_shuffle_pd(b_hi, b_hi, 0x0);                         \
-        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));      \
-        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));      \
-                                                                     \
-        /* froup = 3 */                                              \
-        a_lo = _mm_load_pd(left_cur + (3 * 2 + 0));                  \
-        a_hi = _mm_load_pd(left_cur + (3 * 2 + 1));                  \
-        b = _mm_shuffle_pd(b_hi, b_hi, 0x3);                         \
-        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));      \
-        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));\
+#define DOUBLE_KERNEL_FMA_CYCLE(i)                                    \
+        /* k = 0 */                                                   \
+        register __m128d b_lo = _mm_load_pd(right_cur + (2 * i + 0)); \
+        register __m128d b_hi = _mm_load_pd(right_cur + (2 * i + 1)); \
+        register __m128d a_lo = _mm_load_pd(left_cur + (0 * 2 + 0));  \
+        register __m128d a_hi = _mm_load_pd(left_cur + (0 * 2 + 1));  \
+        register __m128d b = _mm_shuffle_pd(b_lo, b_lo, 0x0);         \
+        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
+        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
+                                                                      \
+        /* group = 1 */                                               \
+        a_lo = _mm_load_pd(left_cur + (1 * 2 + 0));                   \
+        a_hi = _mm_load_pd(left_cur + (1 * 2 + 1));                   \
+        b = _mm_shuffle_pd(b_lo, b_lo, 0x3);                          \
+        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
+        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
+                                                                      \
+        /* groupp = 2 */                                              \
+        a_lo = _mm_load_pd(left_cur + (2 * 2 + 0));                   \
+        a_hi = _mm_load_pd(left_cur + (2 * 2 + 1));                   \
+        b = _mm_shuffle_pd(b_hi, b_hi, 0x0);                          \
+        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
+        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
+                                                                      \
+        /* froup = 3 */                                               \
+        a_lo = _mm_load_pd(left_cur + (3 * 2 + 0));                   \
+        a_hi = _mm_load_pd(left_cur + (3 * 2 + 1));                   \
+        b = _mm_shuffle_pd(b_hi, b_hi, 0x3);                          \
+        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
+        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));
 
 DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(double, sse, , fma)
 {
@@ -313,12 +316,18 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(double, sse, , fma)
 
         for (size_t k = 0; k < commonK; k++) {
                 MAT_KERNEL(double)
-                const *left_cur = left + GET_INDEX(ansHeight, k, j),
+                const *left_cur = left + GET_INDEX(ansHeight, i, k),
                       const *right_cur = right + GET_INDEX(commonK, j, k); // GetKernelAddressUnsafe
 
-                {DOUBLE_KERNEL_FMA_CYCLE(0)}
-                {DOUBLE_KERNEL_FMA_CYCLE(1)}
-                {DOUBLE_KERNEL_FMA_CYCLE(2)}
+                {
+                        DOUBLE_KERNEL_FMA_CYCLE(0)
+                }
+                {
+                        DOUBLE_KERNEL_FMA_CYCLE(1)
+                }
+                {
+                        DOUBLE_KERNEL_FMA_CYCLE(2)
+                }
                 {
                         DOUBLE_KERNEL_FMA_CYCLE(3)
                 }
@@ -352,13 +361,14 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(double, avx, , fma)
 
         for (size_t k = 0; k < commonK; k++) {
                 MAT_KERNEL(double)
-                const *right_cur = right + GET_INDEX(ansHeight, k, j), // GetKernelAddressUnsafe
-                        const *left_cur = left + GET_INDEX(commonK, j, k); // GetKernelAddressUnsafe
+                const *right_cur = right + GET_INDEX(commonK, i, k), // GetKernelAddressUnsafe
+                        const *left_cur =
+                                left + GET_INDEX(ansHeight, k, j); // GetKernelAddressUnsafe
 
-                const __m256d a0 = _mm256_load_pd((double *)&left_cur->f64_z[0]);
-                const __m256d a1 = _mm256_load_pd((double *)&left_cur->f64_z[1]);
-                const __m256d a2 = _mm256_load_pd((double *)&left_cur->f64_z[2]);
-                const __m256d a3 = _mm256_load_pd((double *)&left_cur->f64_z[3]);
+                const __m256d a0 = _mm256_load_pd((double *)&left_cur->f64_y[0]);
+                const __m256d a1 = _mm256_load_pd((double *)&left_cur->f64_y[1]);
+                const __m256d a2 = _mm256_load_pd((double *)&left_cur->f64_y[2]);
+                const __m256d a3 = _mm256_load_pd((double *)&left_cur->f64_y[3]);
 
                 /* Column 0 */
                 bcol = _mm256_load_pd((double *)&right_cur->f64_y[0]);
@@ -429,13 +439,14 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(double, avx, _fma, fma)
 
         for (size_t k = 0; k < commonK; k++) {
                 MAT_KERNEL(double)
-                const *right_cur = right + GET_INDEX(ansHeight, k, j), // GetKernelAddressUnsafe
-                        const *left_cur = left + GET_INDEX(commonK, j, k); // GetKernelAddressUnsafe
+                const *right_cur = right + GET_INDEX(commonK, i, k), // GetKernelAddressUnsafe
+                        const *left_cur =
+                                left + GET_INDEX(ansHeight, k, j); // GetKernelAddressUnsafe
 
-                const __m256d a0 = _mm256_load_pd((double *)&left_cur->f64_z[0]);
-                const __m256d a1 = _mm256_load_pd((double *)&left_cur->f64_z[1]);
-                const __m256d a2 = _mm256_load_pd((double *)&left_cur->f64_z[2]);
-                const __m256d a3 = _mm256_load_pd((double *)&left_cur->f64_z[3]);
+                const __m256d a0 = _mm256_load_pd((double *)&left_cur->f64_y[0]);
+                const __m256d a1 = _mm256_load_pd((double *)&left_cur->f64_y[1]);
+                const __m256d a2 = _mm256_load_pd((double *)&left_cur->f64_y[2]);
+                const __m256d a3 = _mm256_load_pd((double *)&left_cur->f64_y[3]);
 
                 /* Column 0 */
                 bcol = _mm256_load_pd((double *)&right_cur->f64_y[0]);
@@ -493,7 +504,7 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(double, 512, , fma)
 
         for (size_t k = 0; k < commonK; k++) {
                 MAT_KERNEL(double)
-                const *left_cur = left + GET_INDEX(ansHeight, k, j), // GetKernelAddressUnsafe
+                const *left_cur = left + GET_INDEX(ansHeight, i, k), // GetKernelAddressUnsafe
                         const *right_cur =
                                 right + GET_INDEX(ansHeight, j, k); // GetKernelAddressUnsafe
 
@@ -504,9 +515,6 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(double, 512, , fma)
                 register __m512d b23 = _mm512_load_pd((double *)&right_cur->f64_z[1]);
                 b01 = _mm512_permutexvar_pd(b01_shift, b01);
                 b23 = _mm512_permutexvar_pd(b23_shift, b23);
-
-                register __m512d c01 = _mm512_load_pd((double *)&ans->f64_z[0]);
-                register __m512d c23 = _mm512_load_pd((double *)&ans->f64_z[1]);
 
                 //group 0
                 register __m512d b01_perm = _mm512_shuffle_pd(b01, b01, _FMA_SELECT(0));

@@ -159,7 +159,7 @@
     <ClCompile Include="sn-src\m.basic.x86.c" />
     <ClCompile Include="sn-src\dllmain.c" />
     <ClCompile Include="sn-src\m.bufop.x86.c" />
-    <ClCompile Include="sn-src\m.pivot.x86.c" />
+    <ClCompile Include="sn-src\m.solve.x86.c" />
     <ClCompile Include="sn-src\m.fma_tile.x86.c" />
     <ClCompile Include="sn-src\s.factorial.x86.c" />
     <ClCompile Include="sn-src\m.fma.x86.c" />

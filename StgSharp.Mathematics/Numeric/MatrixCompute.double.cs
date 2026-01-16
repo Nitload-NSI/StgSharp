@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="MatrixCompute.double"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,11 @@ namespace StgSharp.Mathematics.Numeric
     public partial class MatrixCompute
     {
 
-        public static unsafe void Add(Matrix<double> left, Matrix<double> right, Matrix<double> ans)
+        public static unsafe void Add(
+                                  Matrix<double> left,
+                                  Matrix<double> right,
+                                  Matrix<double> ans
+        )
         {
             int f64 = (int)MatrixElementType.F64;
             if (left.ColumnLength != right.ColumnLength ||
@@ -84,7 +88,10 @@ namespace StgSharp.Mathematics.Numeric
             return;
         }
 
-        public static unsafe void Fill(Matrix<double> ans, double value)
+        public static unsafe void Fill(
+                                  Matrix<double> ans,
+                                  double value
+        )
         {
             int f64 = (int)MatrixElementType.F64;
             long count = (long)ans.KernelColumnLength * ans.KernelRowLength;
@@ -115,7 +122,11 @@ namespace StgSharp.Mathematics.Numeric
             taskGroup.Dispose();
         }
 
-        public static unsafe void Mul(Matrix<double> left, Matrix<double> right, Matrix<double> ans)
+        public static unsafe void Mul(
+                                  Matrix<double> left,
+                                  Matrix<double> right,
+                                  Matrix<double> ans
+        )
         {
             int f64 = (int)MatrixElementType.F64;
 
@@ -137,34 +148,25 @@ namespace StgSharp.Mathematics.Numeric
                     pool = MatrixParallel.LeadParallel(1);
                 }
                 M128* enumeration = stackalloc M128[1];
+                enumeration->Member<int>(2) = left.KernelColumnLength;
+                enumeration->Member<int>(3) = ans.KernelColumnLength;
                 for (int i = 0; i < ans.KernelRowLength; i++)
                 {
-                    for (int j = 0; j < ans.KernelColumnLength; j += 1)
+                    for (int j = 0; j < ans.KernelColumnLength; j++)
                     {
                         enumeration->Member<int>(0) = i;
                         enumeration->Member<int>(1) = j;
-                        enumeration->Member<int>(2) = ans.KernelRowLength;
-                        enumeration->Member<int>(3) = left.KernelColumnLength;
 
                         NativeIntrinsic.Context
                                            .mat[f64].kernel_tile_fma((MatrixKernel*)left.Buffer,
                                                                      (MatrixKernel*)right.Buffer,
-                                                                     (MatrixKernel*)ans.Buffer, enumeration);
-                        /*
-                        // Console.WriteLine($"{i}{j}");
-                        for (int k = 0; k < left.KernelColumnLength; k++)
-                        {
-                            NativeIntrinsic.Context
-                                               .mat[f64].kernel_fma(GetKernelAddressUnsafe(left.Buffer,
-                                                                                           left.KernelColumnLength, i,
-                                                                                           k),
-                                                                GetKernelAddressUnsafe(right.Buffer,
-                                                                                       right.KernelColumnLength, k, j),
-                                                                GetKernelAddressUnsafe(ans.Buffer,
-                                                                                       ans.KernelColumnLength, i, j));
-                        }
-                        /**/
+                                                                     (MatrixKernel*)ans.Buffer,
+                                                                     enumeration);
+
+                        // Console.WriteLine($"{i},{j},{ans[4*i,4*j]:0.0E00}\t");
                     }
+
+                    // Console.WriteLine();
                 }
                 if (count > 256) {
                     MatrixParallel.ReturnParallelResources(ref pool!);
@@ -189,13 +191,18 @@ namespace StgSharp.Mathematics.Numeric
             return;
         }
 
-        public static unsafe void Mul(Matrix<double> left, double right, Matrix<double> ans)
+        public static unsafe void Mul(
+                                  Matrix<double> left,
+                                  double right,
+                                  Matrix<double> ans
+        )
         {
             int f64 = (int)MatrixElementType.F64;
             if (left.ColumnLength != ans.ColumnLength || left.RowLength != ans.RowLength) {
                 throw new IndexOutOfRangeException("Matrix dimensions must agree.");
             }
-            if (left.Layout != MatrixLayout.DenseRectangle || ans.Layout != MatrixLayout.DenseRectangle) {
+            if (left.Layout != MatrixLayout.DenseRectangle ||
+                ans.Layout != MatrixLayout.DenseRectangle) {
                 throw new NotSupportedException("Only dense rectangle matrices are supported.");
             }
             long count = (long)left.KernelColumnLength * left.KernelRowLength;
@@ -236,7 +243,11 @@ namespace StgSharp.Mathematics.Numeric
             return;
         }
 
-        public static unsafe void Sub(Matrix<double> left, Matrix<double> right, Matrix<double> ans)
+        public static unsafe void Sub(
+                                  Matrix<double> left,
+                                  Matrix<double> right,
+                                  Matrix<double> ans
+        )
         {
             int f64 = (int)MatrixElementType.F64;
             if (left.ColumnLength != right.ColumnLength ||

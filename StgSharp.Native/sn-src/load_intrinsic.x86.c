@@ -54,7 +54,7 @@ void load_intrinsic_sse(sn_intrinsic *context, SIMDID id)
         context->mat[F32].clear_panel = PNL_PROC(float, sse, , clear);
         context->mat[F32].ker_fma = KER_PROC(float, sse, , fma);
         context->mat[F32].ker_tile_fma = KERTILE_PROC(float, sse, , fma);
-        context->mat[F32].pivot = pivot_float;
+        context->mat[F32].pivot = NULL;
         context->mat[F32].store_panel = NULL;
 
         context->mat[F64].buffer_add = BUF_PROC(double, sse, , add);
@@ -93,7 +93,7 @@ void load_intrinsic_avx(sn_intrinsic *context, SIMDID id)
                                              KER_PROC(float, avx, _fma, fma);
         context->mat[F32].ker_tile_fma = is_fma ? KERTILE_PROC(float, avx, , fma) :
                                                   KERTILE_PROC(float, avx, _fma, fma);
-        context->mat[F32].pivot = pivot_float;
+        context->mat[F32].pivot = NULL;
         context->mat[F32].store_panel = STORE_PANEL(avx, float);
 
         context->mat[F64].buffer_add = BUF_PROC(double, avx, , add);
@@ -128,7 +128,7 @@ void load_intrinsic_512(sn_intrinsic *context, SIMDID id)
         context->mat[F32].clear_panel = PNL_PROC(float, 512, , clear);
         context->mat[F32].ker_fma = KER_PROC(float, 512, , fma);
         context->mat[F32].ker_tile_fma = KERTILE_PROC(float, 512, , fma);
-        context->mat[F32].pivot = pivot_float;
+        context->mat[F32].pivot = NULL;
         context->mat[F32].store_panel = STORE_PANEL(512, float);
 
         context->mat[F64].buffer_add = BUF_PROC(double, 512, , add);

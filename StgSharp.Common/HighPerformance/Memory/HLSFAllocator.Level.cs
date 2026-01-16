@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Level"
 // Project: StgSharp
@@ -40,7 +40,7 @@ namespace StgSharp.HighPerformance.Memory
 
         private const int MaxLevel = 9;
 
-        private static readonly int[] levelSizeArray = [
+        private int[] _levelSizeArray = [
             64,
             256,
             1024,
@@ -53,20 +53,26 @@ namespace StgSharp.HighPerformance.Memory
             16777216
         ];
 
-        public int AlignOfLevel(int bucketLevel)
+        public int AlignOfLevel(
+                   int bucketLevel
+        )
         {
-            int blockSize = levelSizeArray[bucketLevel];
+            int blockSize = _levelSizeArray[bucketLevel];
             return int.Min(blockSize, _align);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetLevelFromSize(long size)
+        private static int GetLevelFromSize(
+                           long size
+        )
         {
             return GetLevelFromSize((uint)size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetLevelFromSize(uint size)
+        private static int GetLevelFromSize(
+                           uint size
+        )
         {
             /*
                 * Level sizes: [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216]

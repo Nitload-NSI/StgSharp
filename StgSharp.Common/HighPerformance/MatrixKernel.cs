@@ -53,17 +53,22 @@ namespace StgSharp.HighPerformance
             Unsafe.SkipInit(out this);
         }
 
-        public MatrixKernel(bool clear)
+        public MatrixKernel(
+               bool clear
+        )
         {
             if (!clear) {
                 Unsafe.SkipInit(out this);
             }
         }
 
-        public ref T this[int row, int column]
+        public ref T this[
+                     int x,
+                     int y
+        ]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => ref Unsafe.Add(ref c0r0, (row * 4) + column);
+            get => ref Unsafe.Add(ref c0r0, (x * 4) + y);
         }
 
     }

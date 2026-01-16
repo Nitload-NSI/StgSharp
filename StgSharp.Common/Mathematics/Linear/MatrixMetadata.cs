@@ -48,7 +48,9 @@ namespace StgSharp.Mathematics.Numeric
         private static readonly MatrixKernelBoarder UpperTriangleInstance = new UpperTriangleKernelBoarder();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MatrixKernelBoarder Create(MatrixLayout layout)
+        public static MatrixKernelBoarder Create(
+                                          MatrixLayout layout
+        )
         {
             return layout switch
             {
@@ -63,25 +65,30 @@ namespace StgSharp.Mathematics.Numeric
         public abstract long GetIndexOffset(
                              int xKernel,
                              int yKernel,
-                             in MatrixKernelEnumerator enumerator);
+                             in MatrixSize size
+        );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool IsInBuffer(
                              int xKernel,
                              int yKernel,
-                             in MatrixKernelEnumerator enumerator);
+                             in MatrixSize enumerator
+        );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static long GetTriangularOrder(in MatrixKernelEnumerator enumerator)
+        protected static long GetTriangularOrder(
+                              in MatrixSize enumerator
+        )
         {
             return Math.Min(enumerator.KernelColumnLength, enumerator.KernelRowLength);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool IsWithinKernelDomain(
-                              in MatrixKernelEnumerator enumerator,
+                              in MatrixSize enumerator,
                               int xKernel,
-                              int yKernel)
+                              int yKernel
+        )
         {
             return xKernel >= 0 &&
                    yKernel >= 0 &&
@@ -91,9 +98,10 @@ namespace StgSharp.Mathematics.Numeric
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static bool IsWithinTriangularDomain(
-                              in MatrixKernelEnumerator enumerator,
+                              in MatrixSize enumerator,
                               int xKernel,
-                              int yKernel)
+                              int yKernel
+        )
         {
             long order = GetTriangularOrder(enumerator);
             return xKernel >= 0 && yKernel >= 0 && xKernel < order && yKernel < order;
@@ -106,19 +114,23 @@ namespace StgSharp.Mathematics.Numeric
             public override long GetIndexOffset(
                                  int xKernel,
                                  int yKernel,
-                                 in MatrixKernelEnumerator enumerator)
+                                 in MatrixSize enumerator
+            )
             {
                 long x = xKernel;
                 long y = yKernel;
-                long rows = enumerator.KernelRowLength;
-                return x * rows + y;
+                long col = enumerator.KernelColumnLength;
+
+                // Console.Write($"Attempt to get offset at ({x},{y}), offset is {x * col + y}  ");
+                return x * col + y;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public override bool IsInBuffer(
                                  int xKernel,
                                  int yKernel,
-                                 in MatrixKernelEnumerator enumerator)
+                                 in MatrixSize enumerator
+            )
             {
                 return IsWithinKernelDomain(enumerator, xKernel, yKernel);
             }
@@ -132,7 +144,8 @@ namespace StgSharp.Mathematics.Numeric
             public override long GetIndexOffset(
                                  int xKernel,
                                  int yKernel,
-                                 in MatrixKernelEnumerator enumerator)
+                                 in MatrixSize enumerator
+            )
             {
                 long order = GetTriangularOrder(enumerator);
                 long x = xKernel;
@@ -146,7 +159,8 @@ namespace StgSharp.Mathematics.Numeric
             public override bool IsInBuffer(
                                  int xKernel,
                                  int yKernel,
-                                 in MatrixKernelEnumerator enumerator)
+                                 in MatrixSize enumerator
+            )
             {
                 return IsWithinTriangularDomain(enumerator, xKernel, yKernel) && yKernel >= xKernel;
             }
@@ -160,7 +174,8 @@ namespace StgSharp.Mathematics.Numeric
             public override long GetIndexOffset(
                                  int xKernel,
                                  int yKernel,
-                                 in MatrixKernelEnumerator enumerator)
+                                 in MatrixSize enumerator
+            )
             {
                 long x = xKernel;
                 long y = yKernel;
@@ -173,7 +188,8 @@ namespace StgSharp.Mathematics.Numeric
             public override bool IsInBuffer(
                                  int xKernel,
                                  int yKernel,
-                                 in MatrixKernelEnumerator enumerator)
+                                 in MatrixSize enumerator
+            )
             {
                 return IsWithinTriangularDomain(enumerator, xKernel, yKernel) && yKernel <= xKernel;
             }
@@ -197,7 +213,8 @@ namespace StgSharp.Mathematics.Numeric
                int elementColumnLength,
                int elementRowLength,
                int kernelColumnLength,
-               int kernelRowLength)
+               int kernelRowLength
+        )
         {
             ElementColumnLength = elementColumnLength;
             ElementRowLength = elementRowLength;
@@ -222,7 +239,8 @@ namespace StgSharp.Mathematics.Numeric
                int kernelColumnLength,
                int kernelRowLength,
                int currentColumn = 0,
-               int currentRow = 0)
+               int currentRow = 0
+        )
         {
             CurrentColumn = currentColumn;
             CurrentRow = currentRow;

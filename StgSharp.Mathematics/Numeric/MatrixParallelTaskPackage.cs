@@ -96,16 +96,6 @@ namespace StgSharp.Mathematics.Numeric
 
     }
 
-    public enum MatrixElementType : int
-    {
-
-        F32 = 0,
-        F64 = 1,
-        I32 = 2,
-        I64 = 3,
-
-    }
-
     [StructLayout(LayoutKind.Explicit, Size = 128)]
     public unsafe struct MatrixParallelTaskPackage
     {

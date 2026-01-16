@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Free"
 // Project: StgSharp
@@ -64,7 +64,7 @@ namespace StgSharp.HighPerformance.Memory
                 {
                     size += cur->Size;
                     Entry* next = cur->NextNear;
-                    RemoveFromBucket(cur->Level, DetermineSegmentIndex(cur->Size, cur->Level), (BucketNode*)cur->Position);
+                    RemoveFromBucket(cur->Level, DetermineSegmentIndex(_levelSizeArray, cur->Size, cur->Level), (BucketNode*)cur->Position);
                     RemoveFromPositionChain(cur);
                     cur = next;
                 } while (cur != null && cur != _spareMemory && cur->State == EntryState.Empty);
@@ -80,16 +80,12 @@ namespace StgSharp.HighPerformance.Memory
         /// <param name="handle">
         ///   Handle to the allocated memory block
         /// </param>
-        public void Free(hlsfHandle handle)
+        public void Free(
+                    hlsfHandle handle
+        )
         {
             Entry* e = handle.EntryHandle;
             if (e == null) {
-                return;
-            }
-            if (e->State == EntryState.Large)
-            {
-                NativeMemory.AlignedFree((void*)e->Position);
-                _entries.Free((nuint)e);
                 return;
             }
             if (e->State != EntryState.Alloc) {
@@ -106,7 +102,7 @@ namespace StgSharp.HighPerformance.Memory
             long finalSize = e->Size;
             int finalLevel = GetLevelFromSize(finalSize);
             e->Level = finalLevel;
-            int finalSegment = DetermineSegmentIndex(finalSize, finalLevel);
+            int finalSegment = DetermineSegmentIndex(_levelSizeArray, finalSize, finalLevel);
 
             // Push the merged entry back to appropriate bucket
             PushBucketToLevel(finalLevel, finalSegment, (BucketNode*)e->Position);
