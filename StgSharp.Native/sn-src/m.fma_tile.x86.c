@@ -267,36 +267,38 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(float, 512, , fma)
 }
 
 // double
-#define DOUBLE_KERNEL_FMA_CYCLE(i)                                    \
-        /* k = 0 */                                                   \
-        register __m128d b_lo = _mm_load_pd(right_cur + (2 * i + 0)); \
-        register __m128d b_hi = _mm_load_pd(right_cur + (2 * i + 1)); \
-        register __m128d a_lo = _mm_load_pd(left_cur + (0 * 2 + 0));  \
-        register __m128d a_hi = _mm_load_pd(left_cur + (0 * 2 + 1));  \
-        register __m128d b = _mm_shuffle_pd(b_lo, b_lo, 0x0);         \
-        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
-        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
-                                                                      \
-        /* group = 1 */                                               \
-        a_lo = _mm_load_pd(left_cur + (1 * 2 + 0));                   \
-        a_hi = _mm_load_pd(left_cur + (1 * 2 + 1));                   \
-        b = _mm_shuffle_pd(b_lo, b_lo, 0x3);                          \
-        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
-        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
-                                                                      \
-        /* groupp = 2 */                                              \
-        a_lo = _mm_load_pd(left_cur + (2 * 2 + 0));                   \
-        a_hi = _mm_load_pd(left_cur + (2 * 2 + 1));                   \
-        b = _mm_shuffle_pd(b_hi, b_hi, 0x0);                          \
-        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
-        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
-                                                                      \
-        /* froup = 3 */                                               \
-        a_lo = _mm_load_pd(left_cur + (3 * 2 + 0));                   \
-        a_hi = _mm_load_pd(left_cur + (3 * 2 + 1));                   \
-        b = _mm_shuffle_pd(b_hi, b_hi, 0x3);                          \
-        c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
-        c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));
+#define DOUBLE_KERNEL_FMA_CYCLE(i)                                            \
+        do {                                                                  \
+                /* k = 0 */                                                   \
+                register __m128d b_lo = _mm_load_pd(right_cur + (2 * i + 0)); \
+                register __m128d b_hi = _mm_load_pd(right_cur + (2 * i + 1)); \
+                register __m128d a_lo = _mm_load_pd(left_cur + (0 * 2 + 0));  \
+                register __m128d a_hi = _mm_load_pd(left_cur + (0 * 2 + 1));  \
+                register __m128d b = _mm_shuffle_pd(b_lo, b_lo, 0x0);         \
+                c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
+                c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
+                                                                              \
+                /* group = 1 */                                               \
+                a_lo = _mm_load_pd(left_cur + (1 * 2 + 0));                   \
+                a_hi = _mm_load_pd(left_cur + (1 * 2 + 1));                   \
+                b = _mm_shuffle_pd(b_lo, b_lo, 0x3);                          \
+                c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
+                c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
+                                                                              \
+                /* groupp = 2 */                                              \
+                a_lo = _mm_load_pd(left_cur + (2 * 2 + 0));                   \
+                a_hi = _mm_load_pd(left_cur + (2 * 2 + 1));                   \
+                b = _mm_shuffle_pd(b_hi, b_hi, 0x0);                          \
+                c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
+                c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
+                                                                              \
+                /* froup = 3 */                                               \
+                a_lo = _mm_load_pd(left_cur + (3 * 2 + 0));                   \
+                a_hi = _mm_load_pd(left_cur + (3 * 2 + 1));                   \
+                b = _mm_shuffle_pd(b_hi, b_hi, 0x3);                          \
+                c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
+                c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
+        } while (0);
 
 DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(double, sse, , fma)
 {
@@ -319,18 +321,13 @@ DECLARE_KERTILE_PROC_LEFT_RIGHT_ANS(double, sse, , fma)
                 const *left_cur = left + GET_INDEX(ansHeight, i, k),
                       const *right_cur = right + GET_INDEX(commonK, j, k); // GetKernelAddressUnsafe
 
-                {
-                        DOUBLE_KERNEL_FMA_CYCLE(0)
-                }
-                {
-                        DOUBLE_KERNEL_FMA_CYCLE(1)
-                }
-                {
-                        DOUBLE_KERNEL_FMA_CYCLE(2)
-                }
-                {
-                        DOUBLE_KERNEL_FMA_CYCLE(3)
-                }
+                DOUBLE_KERNEL_FMA_CYCLE(0)
+
+                DOUBLE_KERNEL_FMA_CYCLE(1)
+
+                DOUBLE_KERNEL_FMA_CYCLE(2)
+
+                DOUBLE_KERNEL_FMA_CYCLE(3)
         }
 
         _mm_store_pd(ans->f64_x + (0 * 2 + 0), c0_lo);

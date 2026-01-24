@@ -1,9 +1,9 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="IState"
+// file="RegularExpression.StateMachine"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,38 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.State;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using System.Threading.Tasks;
 
-namespace StgSharp.State
+namespace StgSharp.RegularAnalysis
 {
-    public interface IState { }
+    public partial class RegularExpression
+    {
+
+        private readonly RegularExpressionState _state;
+
+        private class RegularExpressionState : ISimpleStateMachine<, RegularExpressionCases, RegularExpressionStateContext> { }
+
+        private enum RegularExpressionCases { }
+
+        private class RegularExpressionStateContext : StateContext
+        {
+
+            public int Begin { get; set; }
+
+            public int Position { get; set; }
+
+            public ReadOnlySpan<char> CurrentCharSpan => Source.AsSpan()[Begin..Position];
+
+            public string Source { get; init; }
+
+        }
+
+    }
 }

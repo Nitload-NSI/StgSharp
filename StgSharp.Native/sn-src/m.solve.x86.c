@@ -1,9 +1,11 @@
-#include "sn_target.h"
+﻿#include "sn_target.h"
 
 #if SN_IS_ARCH(SN_ARCH_X86_64)
 
 #include "sn_intrinsic.h"
 #include <math.h>
+
+static const float quality_threshold = 1e-6f;
 
 DECLARE_KER_PROC_LEFT_RIGHT_ANS_SCALAR(float, sse, , try_plu)
 {
@@ -88,42 +90,91 @@ DECLARE_KER_PROC_LEFT_RIGHT_ANS_SCALAR(float, sse, , try_plu)
         }
 }
 
+#define DOT_F32_SSE(a, b, ans)                                               \
+        do {                                                                 \
+                __m128 _p = _mm_mul_ps((a), (b)); /* p0 p1 p2 p3 */          \
+                __m128 _t = _mm_shuffle_ps(_p, _p, _MM_SHUFFLE(2, 3, 0, 1)); \
+                _p = _mm_add_ps(_p, _t);                                     \
+                _t = _mm_movehl_ps(_t, _p);                                  \
+                ans = _mm_cvtss_f32(_mm_add_ss(_p, _t));                        \
+        } while (0)
+
+#define FIND_MAX_F32_SSE(a, b)                                      \
+        do {                                                        \
+                __m128 _t = _mm_movehl_ps(a, a);                    \
+                a = _mm_max_ps(a, _t);                              \
+                _t = _mm_shuffle_ps(a, a, _MM_SHUFFLE(2, 3, 0, 1)); \
+                b = _mm_max_ps(a, _t);                              \
+        } while (0)
+
+/*
+* layout of scalarpack:
+* 
+*/
 DECLARE_KER_PROC_RIGHT_ANS(float, sse, , quality)
 {
-        static const __m128 abs_mask_source = { .m128_i32 = { 0x80000000, 0x80000000, 0x80000000,
-                                                              0x80000000 } };
-        register __m128 abs_mask = _mm_load_ps(abs_mask_source.m128_i32);
+        static const __m128 tiny_source = { .m128_f32 = { 1e-6f, 1e-6f, 1e-6f, 1e-6f } };
 
-        register __m128 col0 = _mm_andnot_ps(abs_mask, _mm_load_ps((float *)&right->f32_x[0]));
-        register __m128 col1 = _mm_andnot_ps(abs_mask, _mm_load_ps((float *)&right->f32_x[1]));
-        register __m128 col2 = _mm_andnot_ps(abs_mask, _mm_load_ps((float *)&right->f32_x[2]));
-        register __m128 col3 = _mm_andnot_ps(abs_mask, _mm_load_ps((float *)&right->f32_x[3]));
+        register __m128 tiny = _mm_load_ps(tiny_source.m128_f32);
 
-        // norm
-        register __m128 row_sum = _mm_add_ps(col0, col1);
-        row_sum = _mm_add_ps(row_sum, col2);
-        row_sum = _mm_add_ps(row_sum, col3);
+        register __m128 col0 = _mm_load_ps((float *)&right->f32_x[0]);
+        register __m128 col1 = _mm_load_ps((float *)&right->f32_x[1]);
+        register __m128 col2 = _mm_load_ps((float *)&right->f32_x[2]);
+        register __m128 col3 = _mm_load_ps((float *)&right->f32_x[3]);
 
-        // max(0,2) and max(1,3)
-        register __m128 max = _mm_max_ps(row_sum, _mm_movehl_ps(row_sum, row_sum));
-        max = _mm_max_ps(max, _mm_shuffle_ps(max, max, _MM_SHUFFLE(2, 3, 0, 1)));
-        float norm = _mm_cvtss_f32(max);
+        __m128 self_dot_src = { 0 };
+        // try in reigister mix later
+        DOT_F32_SSE(col0, col0, self_dot_src.m128_f32[0]);
+        DOT_F32_SSE(col1, col1, self_dot_src.m128_f32[1]);
+        DOT_F32_SSE(col2, col2, self_dot_src.m128_f32[2]);
+        DOT_F32_SSE(col3, col3, self_dot_src.m128_f32[3]);
 
-        ans->f32_x[0].m128_f32[0] = norm;
+        register __m128 self_dot = _mm_load_ps(self_dot_src.m128_f32);
+
+        register __m128 max;
+        FIND_MAX_F32_SSE(self_dot, max);
+        //float norm = _mm_cvtss_f32(max);
 
         // min on cross
-        col1 = _mm_shuffle_ps(col1, col1, _MM_SHUFFLE(0, 3, 2, 1));
-        col2 = _mm_shuffle_ps(col2, col2, _MM_SHUFFLE(1, 0, 3, 2));
-        col3 = _mm_shuffle_ps(col3, col3, _MM_SHUFFLE(2, 1, 0, 3));
-        max = _mm_min_ps(col0, col2);
-        register __m128 max0 = _mm_min_ps(max, col1);
-        max = _mm_min_ps(max0, max);
+        register __m128 col_shuff_1 = _mm_shuffle_ps(col1, col1, _MM_SHUFFLE(0, 3, 2, 1));
+        register __m128 col_shuff_2 = _mm_shuffle_ps(col2, col2, _MM_SHUFFLE(1, 0, 3, 2));
+        register __m128 col_shuff_3 = _mm_shuffle_ps(col3, col3, _MM_SHUFFLE(2, 1, 0, 3));
+        register __m128 min = _mm_min_ps(col0, col_shuff_1);
+        register __m128 min0 = _mm_min_ps(col_shuff_2, col_shuff_3);
+        min = _mm_min_ps(min, min0);
 
-        float min_val = _mm_cvtss_f32(max);
-        ans->f32_x[0].m128_f32[1] = min_val;
+        float quality = _mm_cvtss_f32(_mm_div_ps(min, _mm_add_ps(max, tiny)));
+        ans->f32_x[0].m128_f32[0] = quality;
+        if (quality < quality_threshold) {
+                return;
+        }
 
-        float quality = min_val / (norm + 1e-20f);
-        ans->f32_x[0].m128_f32[2] = quality;
+        __m128 cross_dot_src[2];
+        DOT_F32_SSE(col0, col1, cross_dot_src[0].m128_f32[0]);
+        DOT_F32_SSE(col0, col2, cross_dot_src[0].m128_f32[1]);
+        DOT_F32_SSE(col0, col3, cross_dot_src[0].m128_f32[2]);
+        DOT_F32_SSE(col1, col2, cross_dot_src[0].m128_f32[3]);
+        DOT_F32_SSE(col1, col3, cross_dot_src[1].m128_f32[0]);
+        DOT_F32_SSE(col2, col3, cross_dot_src[1].m128_f32[1]);
+
+        register __m128 cross_dot_0 = _mm_load_ps(cross_dot_src[0].m128_f32);
+        register __m128 cross_dot_1 = _mm_load_ps(cross_dot_src[1].m128_f32);
+
+        register __m128 base_0 = _mm_shuffle_ps(self_dot, self_dot, _MM_SHUFFLE(1, 0, 0, 0));
+        register __m128 base_1 = _mm_shuffle_ps(self_dot, self_dot, _MM_SHUFFLE(3, 3, 2, 1));
+
+        register __m128 relation_0 =
+                _mm_div_ps(cross_dot_0, _mm_add_ps(_mm_mul_ps(base_0, base_1), tiny));
+
+        base_0 = _mm_shuffle_ps(self_dot, self_dot, _MM_SHUFFLE(2, 3, 2, 1));
+        base_1 = _mm_shuffle_ps(self_dot, self_dot, _MM_SHUFFLE(3, 3, 3, 3));
+
+        register __m128 relation_1 =
+                _mm_div_ps(cross_dot_0, _mm_add_ps(_mm_mul_ps(base_0, base_1), tiny));
+
+        relation_0 = _mm_max_ps(relation_0, relation_1);
+        FIND_MAX_F32_SSE(relation_0, relation_0);
+        ans->f32_x[0].m128_f32[1] = _mm_cvtss_f32(relation_0);
 }
 
 #endif

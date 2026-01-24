@@ -1,9 +1,9 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="IStateMachine"
+// file="ISimpleStateMachineNode"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,14 +33,13 @@ using System.Threading.Tasks;
 
 namespace StgSharp.State
 {
-    public interface IStateMachine<TState, TLabel, TInput> where TState: IState
+    public interface ISimpleStateMachineNode<TLabel, TStateContext> where TLabel: unmanaged, Enum
+        where TStateContext: StateContext
     {
 
-        TState CurrentState { get; set; }
+        public ICollection<TLabel> AvailableStateLabels { get; }
 
-        TState RootState { get; }
-
-        void GotoNextState(TInput input);
+        bool TryGetNextStateLabel(TLabel label, TStateContext context, out TLabel nextLabel);
 
     }
 }

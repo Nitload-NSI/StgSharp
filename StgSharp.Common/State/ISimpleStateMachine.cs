@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="ElementType"
+// file="ISimpleStateMachine"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -25,15 +25,27 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-namespace StgSharp.Mathematics.Numeric
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace StgSharp.State
 {
-    public enum MatrixElementType : int
+    public interface ISimpleStateMachine<TStateNode, TStateLabel, TStateContext>
+        where TStateNode: ISimpleStateMachineNode<TStateLabel, TStateContext>
+        where TStateLabel: unmanaged, Enum
+        where TStateContext: StateContext
     {
 
-        F32 = 0,
-        F64 = 1,
-        I32 = 2,
-        I64 = 3,
+        ref readonly TStateNode this[TStateLabel label] { get; }
+
+        ref readonly TStateNode GetCurrentStateNode();
+
+        void Reset();
+
+        bool TryMoveNext(TStateContext ctx);
 
     }
 }

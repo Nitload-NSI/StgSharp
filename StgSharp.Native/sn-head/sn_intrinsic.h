@@ -28,6 +28,12 @@
 #define zero_vec _mm_setzero_ps()
 #define zero_vec_256 _mm256_setzero_ps()
 
+#define SPAN(T)                \
+        struct SPAN_T {        \
+                T *pointer;    \
+                size_t length; \
+        };
+
 typedef union uint64_u {
         uint64_t u64;
         uint32_t u32[2];
