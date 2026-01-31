@@ -11,6 +11,7 @@ StgSharp provides both low-level and high-level bindings to OpenGL, multimedia c
 ## Core Modules
 
 ### StgSharp.Common
+
 The main library containing core functionality:
 
 - **Mathematics**: High-performance linear algebra, matrix operations, and mathematical utilities
@@ -22,6 +23,7 @@ The main library containing core functionality:
 - **Environment**: Platform abstraction and system integration
 
 ### StgSharp.Script
+
 General-purpose syntax analysis framework:
 
 - **Syntax Analysis Framework**: Provides a flexible framework for parsing and analyzing various programming languages
@@ -31,6 +33,7 @@ General-purpose syntax analysis framework:
 - **Grammar Parsing**: Extensible grammar parsing and validation system
 
 ### StgSharp.Model
+
 Geometric model loading and interpretation:
 
 - **Geometric Model Loading**: Responsible for loading and interpreting geometric models from various formats
@@ -40,6 +43,7 @@ Geometric model loading and interpretation:
 - **Schema Validation**: Model structure validation and verification
 
 ### StgSharp.Native
+
 Native library integration:
 
 - **GLFW Integration**: Cross-platform window and input management
@@ -48,6 +52,7 @@ Native library integration:
 - **Context Management**: Graphics context and resource management
 
 ### StgSharp.TerminalDialogue
+
 Terminal-based user interface:
 
 - **Interactive Terminal**: Command-line interface components
@@ -57,40 +62,51 @@ Terminal-based user interface:
 ## Key Features
 
 ### High-Performance Computing
+
 - **Parallel Matrix Operations**: Multi-threaded matrix computations with optimized scheduling
 - **SIMD Acceleration**: Hardware-optimized vector operations
 - **Memory Management**: Custom allocators including HLSF (Hybrid Layer Segregated Fit)
 - **Thread Pool Management**: Efficient task scheduling and execution
 
+#### HLSF Benchmark Snapshot (BenchmarkDotNet)
+
+```
+
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.7623)
+AMD Ryzen 7 6800H with Radeon Graphics, 1 CPU, 16 logical and 8 physical cores
+.NET SDK 10.0.102
+  [Host] : .NET 8.0.23 (8.0.2325.60607), X64 RyuJIT AVX2
+
+Toolchain=InProcessEmitToolchain  InvocationCount=2048  UnrollFactor=1
+
+```
+
+| Method | Mean | Error | StdDev | Ratio | RatioSD |
+|------- |-----:|-----:|------:|------:|-------:|
+| Hlsf | 76.23 µs | 0.355 µs | 0.315 µs | 0.44 | 0.01 |
+| Libc | 172.98 µs | 3.042 µs | 2.988 µs | 1.00 | 0.02 |
+
+This run shows HLSF significantly faster than libc under the current configuration. See the HLSF document for details and caveats.
+
 ### Graphics and Rendering
+
 - **OpenGL Integration**: Complete OpenGL API coverage
 - **Cross-Platform Support**: Windows and Linux compatibility
 - **Rendering Pipeline**: Flexible and extensible graphics framework
 - **Shader Management**: Dynamic shader compilation and management
 
 ### Game Engine Capabilities
+
 - **Entity System**: Flexible game object management
 - **State Machine**: Game state and behavior management
 - **Input Handling**: Comprehensive input and control systems
 - **Resource Management**: Efficient asset loading and management
 
 ### Data Processing
+
 - **STEP File Support**: Industrial data format processing
 - **EXPRESS Language**: Domain-specific language compilation
 - **Pipeline Processing**: Efficient data transformation workflows
-
-## Documentation
-
-### Technical Documentation
-- [HLSF Allocator](StgSharp.Common/HighPerformance/Memory/InroductionToHLSF.md) - High-performance memory allocator documentation
-- [Native Library Naming](StgSharp.Native/naming.md) - Native library file naming conventions
-
-### Module-Specific Documentation
-- **Mathematics**: Linear algebra, matrix operations, and mathematical utilities
-- **Graphics**: OpenGL bindings, rendering, and graphics pipeline
-- **High Performance**: SIMD operations, parallel computing, and memory management
-- **Scripting**: General syntax analysis framework with EXPRESS language support
-- **Modeling**: Geometric model loading and interpretation with STEP format support
 
 ## Requirements
 
@@ -180,22 +196,12 @@ var handle = allocator.Alloc(1024);
 allocator.Free(handle);
 ```
 
-## Architecture
 
-StgSharp follows a modular architecture where each component can be used independently or in combination:
+## Documentation
 
-- **Core Layer**: Fundamental data structures and utilities
-- **Graphics Layer**: Rendering and graphics APIs
-- **Performance Layer**: High-performance computing and optimization
-- **Application Layer**: Game engine and application frameworks
-- **Data Layer**: File processing and data modeling
-
-## Performance Characteristics
-
-- **Matrix Operations**: Optimized for large-scale computations
-- **Memory Allocation**: O(1) allocation and deallocation with HLSF
-- **Parallel Processing**: Multi-threaded execution with intelligent scheduling
-- **SIMD Utilization**: Hardware-accelerated vector operations
+### Technical Documentation
+- [HLSF Allocator](StgSharp.Common/HighPerformance/Memory/InroductionToHLSF.md) - High-performance memory allocator documentation
+- [Native Library Naming](StgSharp.Native/naming.md) - Native library file naming conventions
 
 ## Contributing
 

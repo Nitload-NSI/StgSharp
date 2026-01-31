@@ -51,10 +51,10 @@ DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, sse, , fma)
         c3 = _mm_add_ps(c3, _mm_mul_ps(a2, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(2))));
         c3 = _mm_add_ps(c3, _mm_mul_ps(a3, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(3))));
 
-        ans->f32_x[0] = c0;
-        ans->f32_x[1] = c1;
-        ans->f32_x[2] = c2;
-        ans->f32_x[3] = c3;
+        _mm_store_ps((float *)&ans->f32_x[0], c0);
+        _mm_store_ps((float *)&ans->f32_x[1], c1);
+        _mm_store_ps((float *)&ans->f32_x[2], c2);
+        _mm_store_ps((float *)&ans->f32_x[3], c3);
 }
 
 DECLARE_KER_PROC_LEFT_RIGHT_ANS(float, avx, , fma)

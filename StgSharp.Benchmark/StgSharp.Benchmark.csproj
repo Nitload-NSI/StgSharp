@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SolutionDir Condition="'$(SolutionDir)'=='' Or '$(SolutionDir)'=='*Undefined*'">$(MSBuildProjectDirectory)\..\</SolutionDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StgSharp.Common\StgSharp.Common.csproj" Properties="DisablePostBuildCopy=true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeArtifacts Include="$(SolutionDir)build\**\StgSharp.Native*.dll" />
+    <NativeArtifacts Include="$(SolutionDir)build\**\StgSharp.Native*.pdb" />
+  </ItemGroup>
+
+  <Target Name="CopyNativeArtifacts" AfterTargets="Build" Condition="'$(DisableNativeCopy)'!='true'">
+    <Copy SourceFiles="@(NativeArtifacts)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="@(NativeArtifacts) != ''" />
+  </Target>
+</Project>

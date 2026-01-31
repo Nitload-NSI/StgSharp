@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="ISimpleStateMachine"
+// file="Node.Boarder"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -28,29 +28,70 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.State
+namespace StgSharp.RegularAnalysis
 {
-    public interface ISimpleStateMachine<TStateNode, TStateLabel, TStateContext>
-        where TStateNode : SimpleStateMachineNode<TStateNode, TStateLabel, TStateContext>
-        where TStateLabel : unmanaged, IEquatable<TStateLabel>
-        where TStateContext : StateContext
+    internal class RegularExpressionLeftBoarderNode : RegularStateNode
     {
 
-        TStateNode this[
-                   TStateLabel label
-        ] { get; }
+        public RegularExpressionLeftBoarderNode(
+               int index,
+               string name
+        )
+        {
+            Boarder = new GroupIndex
+            {
+                Index = index,
+                Name = name
+            };
+        }
 
-        ref readonly TStateNode GetCurrentStateNode();
+        public event EventHandler<GroupIndex> OnBoarderEntered;
 
-        void Reset();
+        public GroupIndex Boarder { get; private set; }
 
-        bool TryMoveNext(
-             TStateContext ctx
-        );
+        public override NodeType Type => NodeType.LEFT_BOARDER;
+
+        public override bool IsValidateFrom(
+                             RegularStateNode former,
+                             RegularContext context
+        )
+        {
+            return true;
+        }
+
+    }
+
+    internal class RegularExpressionRightBoarderNode : RegularStateNode
+    {
+
+        public RegularExpressionRightBoarderNode(
+               int index,
+               string name
+        )
+        {
+            Boarder = new GroupIndex
+            {
+                Index = index,
+                Name = name
+            };
+        }
+
+        public event EventHandler<GroupIndex> OnBoarderEntered;
+
+        public GroupIndex Boarder { get; private set; }
+
+        public override NodeType Type => NodeType.RIGHT_BOARDER;
+
+        public override bool IsValidateFrom(
+                             RegularStateNode former,
+                             RegularContext context
+        )
+        {
+            return true;
+        }
 
     }
 }

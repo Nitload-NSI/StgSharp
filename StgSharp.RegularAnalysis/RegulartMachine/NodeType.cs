@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="ISimpleStateMachine"
+// file="RegularExpression.NodeState"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -28,29 +28,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.State
+namespace StgSharp.RegularAnalysis
 {
-    public interface ISimpleStateMachine<TStateNode, TStateLabel, TStateContext>
-        where TStateNode : SimpleStateMachineNode<TStateNode, TStateLabel, TStateContext>
-        where TStateLabel : unmanaged, IEquatable<TStateLabel>
-        where TStateContext : StateContext
+    internal enum NodeType
     {
 
-        TStateNode this[
-                   TStateLabel label
-        ] { get; }
+        // single unicode character: a、B、1、@、汉字 etc.
+        CHAR,
 
-        ref readonly TStateNode GetCurrentStateNode();
+        // collections of finate characters:  [abc]、[^abc]、\d、\w、\s、\D、\W、\S etc.
+        CHARSET,
 
-        void Reset();
+        // increase count of a counter, half function of *+? quantifiers
+        COUNT,
 
-        bool TryMoveNext(
-             TStateContext ctx
-        );
+        // left boarder of a sub sequnce, usually begin of match group or lookaround
+        LEFT_BOARDER,
+
+        // right boarder of a sub sequnce, usually end of match group or lookaround
+        RIGHT_BOARDER,
+
+        // zero length char or structure
+        EPSILON,
+
+        // more than one cases to match, like alter|nation
+        BRANCH
 
     }
 }
+ 

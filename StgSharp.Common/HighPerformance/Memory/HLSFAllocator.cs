@@ -77,7 +77,7 @@ namespace StgSharp.HighPerformance.Memory
                uint maxBlockSize
         )
         {
-            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked);
+            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
             m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, (nuint)16);
             _align = 16;
             _size = byteSize;
@@ -111,7 +111,7 @@ namespace StgSharp.HighPerformance.Memory
                 throw new ArgumentException(
                                 "Alignment must be a power of two and at least 16 bytes.");
             }
-            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked);
+            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
             m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
             _align = align;
             _size = byteSize;
@@ -138,7 +138,7 @@ namespace StgSharp.HighPerformance.Memory
                 throw new ArgumentException(
                                 "Alignment must be a power of two and at least 16 bytes.");
             }
-            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked);
+            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
             m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
             _align = align;
             _size = byteSize;

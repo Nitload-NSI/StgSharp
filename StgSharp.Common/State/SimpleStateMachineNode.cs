@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="ISimpleStateMachineNode"
+// file="SimpleStateMachineNode"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,18 +28,33 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.State
 {
-    public interface ISimpleStateMachineNode<TLabel, TStateContext> where TLabel: unmanaged, Enum
-        where TStateContext: StateContext
+    public abstract class SimpleStateMachineNode<TSelf, TLabel, TStateContext>
+        where TSelf : SimpleStateMachineNode<TSelf, TLabel, TStateContext>
+        where TLabel : unmanaged, IEquatable<TLabel>
+        where TStateContext : StateContext
     {
 
-        public ICollection<TLabel> AvailableStateLabels { get; }
+        private readonly List<int> _jumpTable = [];
 
-        bool TryGetNextStateLabel(TLabel label, TStateContext context, out TLabel nextLabel);
+        public ReadOnlySpan<int> AvailableNodes => CollectionsMarshal.AsSpan(_jumpTable);
+
+        public abstract bool IsValidateFrom(
+                             TSelf former,
+                             TStateContext context
+        );
+
+        public abstract bool TryTransaction(
+                             ReadOnlySpan<TSelf> nodeSpan,
+                             TStateContext context,
+                             out TLabel label
+        );
 
     }
 }

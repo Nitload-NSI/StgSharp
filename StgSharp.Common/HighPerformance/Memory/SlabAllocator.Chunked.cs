@@ -38,6 +38,8 @@ namespace StgSharp.HighPerformance.Memory
     internal sealed unsafe class ChunkedSlabAllocator<T> : SlabAllocator<T> where T : unmanaged
     {
 
+        private bool _disposed;
+
         private BufferStack<nuint> _buffers;
         private BufferStack<nuint> _recycle;
         private readonly int _elementSize = Unsafe.SizeOf<T>();
@@ -90,6 +92,10 @@ namespace StgSharp.HighPerformance.Memory
 
         public override void Dispose()
         {
+            if (_disposed) {
+                return;
+            }
+            _disposed = true;
             // NativeMemory.Free((void*)_currentBuffer);
             while (_buffers.TryPop(out nuint buffer))
             {
@@ -97,6 +103,7 @@ namespace StgSharp.HighPerformance.Memory
             }
             _buffers.Dispose();
             _recycle.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Counter"
 // Project: StgSharp
@@ -30,26 +30,30 @@ using System.Numerics;
 
 namespace StgSharp
 {
-    public class Counter<T> where T: unmanaged, INumber<T>
+    public class Counter<T> where T : unmanaged, INumber<T>
     {
 
         internal dynamic _value;
+        internal readonly T _defaultDecrement;
+
+        internal readonly T _defaultIncrement;
         internal readonly T _defaultValue;
-        internal readonly T _defualtDecreament;
 
-        internal readonly T _defualtIncreament;
-
-        public Counter(T defaultValue, T defaultIncrement, T defaultDecrement)
+        public Counter(
+               T defaultValue,
+               T defaultIncrement,
+               T defaultDecrement
+        )
         {
             _value = defaultValue;
             _defaultValue = defaultValue;
-            _defualtIncreament = defaultIncrement;
-            _defualtDecreament = defaultDecrement;
+            _defaultIncrement = defaultIncrement;
+            _defaultDecrement = defaultDecrement;
         }
 
-        public T DecrementSpan => _defualtDecreament;
+        public T DecrementSpan => _defaultDecrement;
 
-        public T IncrementSpan => _defualtIncreament;
+        public T IncrementSpan => _defaultIncrement;
 
         public T CurrentSpan => _value - _defaultValue;
 
@@ -59,19 +63,21 @@ namespace StgSharp
             set => _value = value;
         }
 
-        public void Add(T value)
+        public void Add(
+                    T value
+        )
         {
             _value += value;
         }
 
         public void QuickAdd()
         {
-            _value += _defualtIncreament;
+            _value += _defaultIncrement;
         }
 
         public void QuickSub()
         {
-            _value -= _defualtDecreament;
+            _value -= _defaultDecrement;
         }
 
         public void Reset()
@@ -79,26 +85,34 @@ namespace StgSharp
             _value = _defaultValue;
         }
 
-        public void Sub(T value)
+        public void Sub(
+                    T value
+        )
         {
             _value -= value;
         }
 
         public override string ToString() => Value.ToString();
 
-        public static Counter<T> operator --(Counter<T> counter)
+        public static Counter<T> operator --(
+                                          Counter<T> counter
+        )
         {
-            counter.QuickSub();
+            counter?.QuickSub();
             return counter;
         }
 
-        public static Counter<T> operator ++(Counter<T> counter)
+        public static Counter<T> operator ++(
+                                          Counter<T> counter
+        )
         {
-            counter.QuickAdd();
+            counter?.QuickAdd();
             return counter;
         }
 
-        public static implicit operator T(Counter<T> counter)
+        public static implicit operator T(
+                                        Counter<T> counter
+        )
         {
             return counter switch
             {

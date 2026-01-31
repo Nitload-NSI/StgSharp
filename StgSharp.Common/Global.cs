@@ -33,6 +33,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("StgSharp.Mathematics")]
+[assembly: InternalsVisibleTo("StgSharp.RegularAnalysis")]
 [assembly: InternalsVisibleTo("StgSharpDebug")]
 
 [assembly: SuppressMessage(

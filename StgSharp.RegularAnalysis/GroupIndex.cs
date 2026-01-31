@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="ISimpleStateMachine"
+// file="GroupIndex"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,32 +25,26 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
-namespace StgSharp.State
+namespace StgSharp.RegularAnalysis
 {
-    public interface ISimpleStateMachine<TStateNode, TStateLabel, TStateContext>
-        where TStateNode : SimpleStateMachineNode<TStateNode, TStateLabel, TStateContext>
-        where TStateLabel : unmanaged, IEquatable<TStateLabel>
-        where TStateContext : StateContext
+    public record struct GroupIndex
     {
 
-        TStateNode this[
-                   TStateLabel label
-        ] { get; }
+        public GroupIndex(
+               int index,
+               string name
+        )
+        {
+            Index = index;
+            Name = name;
+        }
 
-        ref readonly TStateNode GetCurrentStateNode();
+        public int Index { get; internal set; }
 
-        void Reset();
-
-        bool TryMoveNext(
-             TStateContext ctx
-        );
+        public string Name { get; internal set; }
 
     }
 }
+

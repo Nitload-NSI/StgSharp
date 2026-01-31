@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="ISimpleStateMachine"
+// file="Node.Count"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -28,29 +28,46 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.State
+namespace StgSharp.RegularAnalysis
 {
-    public interface ISimpleStateMachine<TStateNode, TStateLabel, TStateContext>
-        where TStateNode : SimpleStateMachineNode<TStateNode, TStateLabel, TStateContext>
-        where TStateLabel : unmanaged, IEquatable<TStateLabel>
-        where TStateContext : StateContext
+    internal class RegularExpressionCounterNode : RegularStateNode
     {
 
-        TStateNode this[
-                   TStateLabel label
-        ] { get; }
+        private readonly int _maxCount;
+        private readonly int _minCount;
 
-        ref readonly TStateNode GetCurrentStateNode();
+        public RegularExpressionCounterNode(
+               int minCount,
+               bool isEager
+        )
+        {
+            _minCount = minCount;
+            IsEager = isEager;
+        }
 
-        void Reset();
+        public bool IsEager { get; init; }
 
-        bool TryMoveNext(
-             TStateContext ctx
-        );
+        public int Count { get; private set; }
+
+        public override NodeType Type => NodeType.COUNT;
+
+        public RegularStateNode LoopBack { get; set; }
+
+        public override bool IsValidateFrom(
+                             RegularStateNode former,
+                             RegularContext context
+        )
+        {
+            return true;
+        }
+
+        public void Reset()
+        {
+            Count = 0;
+        }
 
     }
 }

@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="RegularExpression.StateMachine"
+// file="Program"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,37 +25,26 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.State;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Toolchains.InProcess.Emit;
+using StgSharp.Benchmark;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using System.Threading.Tasks;
-
-namespace StgSharp.RegularAnalysis
+namespace StgSharp.Benchmark
 {
-    public partial class RegularExpression
+    internal static class Program
     {
 
-        private readonly RegularExpressionState _state;
-
-        private class RegularExpressionState : ISimpleStateMachine<, RegularExpressionCases, RegularExpressionStateContext> { }
-
-        private enum RegularExpressionCases { }
-
-        private class RegularExpressionStateContext : StateContext
+        private static void Main(
+                            string[] args
+        )
         {
-
-            public int Begin { get; set; }
-
-            public int Position { get; set; }
-
-            public ReadOnlySpan<char> CurrentCharSpan => Source.AsSpan()[Begin..Position];
-
-            public string Source { get; init; }
-
+                            IConfig config = ManualConfig.Create(DefaultConfig.Instance)
+                                .AddLogger(ConsoleLogger.Default)
+                                .AddJob(Job.Default.WithToolchain(InProcessEmitToolchain.Instance));
+                            BenchmarkRunner.Run<HlsfAllocatorBench>(config);
         }
 
     }

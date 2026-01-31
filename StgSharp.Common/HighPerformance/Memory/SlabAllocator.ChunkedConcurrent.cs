@@ -41,6 +41,8 @@ namespace StgSharp.HighPerformance.Memory
     internal sealed unsafe class ConcurrentChunkedSlabAllocator<T> : SlabAllocator<T> where T : unmanaged
     {
 
+        private bool _disposed;
+
         private readonly BufferExpansionLock _lock = new();
         private ConcurrentBufferStack<nuint> _buffers;
         private ConcurrentBufferStack<nuint> _recycle;
@@ -114,6 +116,10 @@ namespace StgSharp.HighPerformance.Memory
 
         public override void Dispose()
         {
+            if (_disposed) {
+                return;
+            }
+            _disposed = true;
             NativeMemory.Free((void*)_currentBuffer);
             while (_buffers.TryPop(out nuint buffer)) {
                 NativeMemory.Free((void*)buffer);
@@ -121,6 +127,7 @@ namespace StgSharp.HighPerformance.Memory
             _lock.Dispose();
             _buffers.Dispose();
             _recycle.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

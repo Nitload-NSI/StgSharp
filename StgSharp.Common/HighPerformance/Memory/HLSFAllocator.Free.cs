@@ -39,6 +39,15 @@ using hlsfHandle = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAlloc
 
 namespace StgSharp.HighPerformance.Memory
 {
+    public enum FreePolicy
+    {
+
+        FullCollect,
+        LazyCollect,
+        NoCollect
+
+    }
+
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
@@ -79,9 +88,11 @@ namespace StgSharp.HighPerformance.Memory
         /// </summary>
         /// <param name="handle">
         ///   Handle to the allocated memory block
+        ///  <param name="collectPolicy">
         /// </param>
         public void Free(
-                    hlsfHandle handle
+                    hlsfHandle handle,
+                    FreePolicy collectPolicy = FreePolicy.NoCollect
         )
         {
             Entry* e = handle.EntryHandle;
@@ -96,7 +107,10 @@ namespace StgSharp.HighPerformance.Memory
             e->State = EntryState.Empty;
 
             // Try merge with adjacent free blocks and remove them from buckets
-            MergeAndRemoveFromBuckets(e);
+            if (collectPolicy == FreePolicy.LazyCollect)
+            {
+                MergeAndRemoveFromBuckets(e);
+            }
 
             // Calculate final level and segment for the merged block
             long finalSize = e->Size;
@@ -108,6 +122,10 @@ namespace StgSharp.HighPerformance.Memory
             PushBucketToLevel(finalLevel, finalSegment, (BucketNode*)e->Position);
 
             // Console.WriteLine("one block freed");
+            if (collectPolicy == FreePolicy.FullCollect)
+            {
+                Collect();
+            }
         }
 
     }

@@ -37,6 +37,8 @@ namespace StgSharp.HighPerformance.Memory
     public sealed unsafe class ConcurrentSequentialSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
     {
 
+        private bool _disposed;
+
         private T* _buffer;
 
         private readonly BufferExpansionLock _lock = new();
@@ -120,9 +122,14 @@ namespace StgSharp.HighPerformance.Memory
 
         public override void Dispose()
         {
+            if (_disposed) {
+                return;
+            }
+            _disposed = true;
             _stack.Dispose();
             NativeMemory.Free(_buffer);
             _lock.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

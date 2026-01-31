@@ -75,6 +75,19 @@ Notes:
 - Peak no-touch at 2MB (~17.99M alloc/s). Peak touch near 64B (~17.52M alloc/s).
 - Non-aligned sizes (e.g., 768B, 3KB) typically lower due to slicing/boundary handling.
 
+### BenchmarkDotNet (HLSF vs Libc)
+
+Environment: .NET 8.0.23 (Release), x64 RyuJIT AVX2, Windows 11, AMD Ryzen 7 6800H.
+
+| Method | Mean | StdDev | Ratio | Allocated |
+|------- |-----:|------:|------:|----------:|
+| Hlsf | 838.4 Âµs | 40.6 Âµs | 1.00 | 64 B |
+| Libc | 849.8 Âµs | 100.2 Âµs | 1.01 | 64 B |
+
+Interpretation: HLSF matches libc allocation throughput under the same workload, with slightly tighter dispersion in this run.
+
+> Note: BenchmarkDotNet also warned that the minimum iteration time was under 1ms; for more stable statistics, increase per-iteration work (e.g., higher `AllocationCount`).
+
 ## Detailed Design (summary)
 - 
 - Size classes: levelSizeArray = [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216] (64B x 4^level)
@@ -97,7 +110,7 @@ Notes:
 
 1) Compute `level` and `segment` from requested `size`
 2) Try pop bucket (`TryPopLevelForAllocation(level, segment, out entry)`) and escalate:
-   - Advance `segment` 0¡ú1¡ú2, then `level++`, until `MaxLevel`
+   - Advance `segment` 0ï¿½ï¿½1ï¿½ï¿½2, then `level++`, until `MaxLevel`
    - If still empty: try pop from overflow bucket (L=10, seg=1) or `TryAllocateNew32MBBlock`
 3) On success: bound-check the slice offset; set `entry` to `Alloc` using `SetEntryLevel`
 4) If remainder exists in the source region, call `SliceMemory(entry->NextNear, remainder)` to produce free chunks into buckets
@@ -106,7 +119,7 @@ Notes:
 
 - Inputs: `next` entry position, `sizeToSlice`
 - Compute `offset` and `end` relative to base buffer; pick starting level by trailing-zero count of `offset`:
-  - `i = (BitOperations.TrailingZeroCount(offset) - 6) / 2`, clamped to `¡Ü MaxLevel`
+  - `i = (BitOperations.TrailingZeroCount(offset) - 6) / 2`, clamped to `ï¿½ï¿½ MaxLevel`
 - Three phases to cover [offset, end):
   1) Forward levels i..N-1: for each level size `size` and `upper=size*4`, align to `edge=((offset+upper-1)/upper)*upper`, pack `count = ((min(edge,end) - offset) / size)` blocks
   2) If `i > MaxLevel`: pack in largest upper window on tail
@@ -119,7 +132,7 @@ Notes:
   - Merge left while neighbor `p` is `Empty`, same `Level`, and within boundary (`AssertBoundary`)
     - Remove `p` from bucket (`RemoveFromBucket`), expand current, fix `Position`, unlink `p`
   - Merge right with neighbor `n` by the same rule
-  - Optionally promote `Level` if `Size ¡Ý levelSizeArray[originLevel] * 4`
+  - Optionally promote `Level` if `Size ï¿½ï¿½ levelSizeArray[originLevel] * 4`
   - Ensure `BucketNode.EntryRef` points to the merged entry; caller re-enqueues into the proper bucket
 
 ### Buckets
@@ -140,13 +153,13 @@ Notes:
 
 ### Complexity and Invariants
 
-- Allocate/free are O(1) on average with bounded levels (¡Ü10) and constant-time bucket ops
+- Allocate/free are O(1) on average with bounded levels (ï¿½ï¿½10) and constant-time bucket ops
 - Invariants guarded by exceptions (e.g., `HLSFPositionChainBreakException`) and pointer consistency checks
 
 ## Profiling (hotspots, current workloads)
 
-- SliceMemory ~22% (self ~17%) ¡ª slicing and bucket enqueue dominate allocation path
-- MergeAndRemoveFromBuckets ~13% (self ~12%) ¡ª merge + removal dominate free path
-- Collect ~7.6% (self ~7.5%) ¡ª low overall cost
+- SliceMemory ~22% (self ~17%) ï¿½ï¿½ slicing and bucket enqueue dominate allocation path
+- MergeAndRemoveFromBuckets ~13% (self ~12%) ï¿½ï¿½ merge + removal dominate free path
+- Collect ~7.6% (self ~7.5%) ï¿½ï¿½ low overall cost
 
 Focus: reduce per-slice math and bucket ops; add fast-paths for aligned regions; batch/lazy removals after merges. 

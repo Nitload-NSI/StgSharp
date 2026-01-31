@@ -128,6 +128,10 @@
         <RepositoryUrl>https://github.com/Nitload-NSI/StgSharp.git</RepositoryUrl>
     </PropertyGroup>
 
+    <PropertyGroup>
+      <SolutionDir Condition="'$(SolutionDir)'=='' Or '$(SolutionDir)'=='*Undefined*'">$(MSBuildProjectDirectory)\..\</SolutionDir>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NoOps|AnyCPU'">
       <Deterministic>False</Deterministic>
     </PropertyGroup>
@@ -136,11 +140,8 @@
       <Deterministic>False</Deterministic>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='NoOps|ARM64'">
-      <Deterministic>False</Deterministic>
-    </PropertyGroup>
-
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(DisablePostBuildCopy)'!='true' And '$(SolutionDir)'!='' And '$(SolutionDir)'!='*Undefined*' And !$([System.String]::Copy('$(OutDir)').Contains('StgSharp.Benchmark'))">
+      <MakeDir Directories="$(SolutionDir)build" />
       <Exec Command="xcopy /E /I /Y &quot;$(OutDir)&quot; &quot;$(SolutionDir)build&quot;" />
     </Target>
     
