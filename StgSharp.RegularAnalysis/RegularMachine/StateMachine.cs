@@ -44,7 +44,7 @@ namespace StgSharp.RegularAnalysis
         private RegularStateNode _currentState;
 
         public RegularStateNode this[
-                                          int label
+                                int label
         ] => _nodes[label];
 
         public ref readonly RegularStateNode GetCurrentStateNode()
@@ -120,41 +120,6 @@ namespace StgSharp.RegularAnalysis
         #endregion
     }
 
-    internal abstract class RegularStateNode : SimpleStateMachineNode<RegularStateNode, int, RegularContext>
-    {
-
-        public int FailNodeIndex { get; set; }
-
-        public abstract NodeType Type { get; }
-
-        public override bool TryTransaction(
-                             ReadOnlySpan<RegularStateNode> nodeSpan,
-                             RegularContext context,
-                             out int label
-        )
-        {
-            context.Position++;
-            int pos = context.Position;
-            if (pos < 0)
-            {
-                label = FailNodeIndex;
-                return true;
-            }
-            char c = context.CurrentCharSpan[pos];
-            foreach (int index in AvailableNodes)
-            {
-                if (nodeSpan[index].IsValidateFrom(this, context))
-                {
-                    label = index;
-                    return true;
-                }
-            }
-            label = FailNodeIndex;
-            return true;
-        }
-
-    }
-
     internal class RegularContext : StateContext
     {
 
@@ -162,9 +127,13 @@ namespace StgSharp.RegularAnalysis
 
         public int Position { get; set; } = -1;
 
+        public int StateCode { get; set; } = 0;
+
         public ReadOnlySpan<char> CurrentCharSpan => Source.AsSpan()[Begin..Position];
 
         public string Source { get; init; }
+
+        internal Stack<int> LastBranch { get; } = new();
 
     }
 }
