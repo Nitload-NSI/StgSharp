@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="ISyntaxNode"
+// file="Global"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,58 +25,11 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.RegularAnalysis.Abstraction
-{
-    public interface ISyntaxNode<TNode, TLabel> where TNode : ISyntaxNode<TNode, TLabel>
-        where TLabel : unmanaged
-    {
-
-        long NodeFlag { get; }
-
-        string CodeConvertTemplate { get; }
-
-        TLabel EqualityTypeConvert { get; }
-
-        TNode Previous { get; set; }
-
-        TNode Next { get; set; }
-
-        TNode Left { get; set; }
-
-        TNode Right { get; set; }
-
-        TNode Parent { get; set; }
-
-        static abstract TNode Empty { get; }
-
-        Token<TLabel> Source { get; }
-
-        protected internal int EnumState { get; set; }
-
-        void AppendNode(
-             TNode nextToken
-        );
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static virtual bool IsNullOrEmpty(
-                                   TNode node
-        )
-        {
-            return node is null || node.Equals(TNode.Empty);
-        }
-
-        void PrependNode(
-             TNode previousNode
-        );
-
-    }
-}
+[assembly: InternalsVisibleTo("StgSharpDebug")]

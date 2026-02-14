@@ -65,7 +65,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
                     }
                     position = pos + 2;
                     return new Token<RegexElementLabel>(_source[(pos)..(pos + 2)], 0, pos,
-                                                        RegexElementLabel.UNIT);
+                                                        RegexElementLabel.UNIT_SET);
                 case '[':
                     for (int i = pos + 1; i < _source.Length; i++)
                     {
@@ -73,12 +73,16 @@ namespace StgSharp.RegularAnalysis.TextRegex
                         {
                             int length = (i - pos - 1);
                             position = i + 1;
-                            return new Token<RegexElementLabel>(_source[(pos - 1)..(i - 1)], 0,
+                            return new Token<RegexElementLabel>(_source[(pos)..(i + 1)], 0,
                                                                 position,
                                                                 RegexElementLabel.UNIT_SET);
                         }
                     }
                     throw new InvalidOperationException("Unclosed character set");
+                case '|':
+                    position = pos + 1;
+                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos,
+                                                        RegexElementLabel.ALT);
                 case '(':
 
                     // very comlex here
@@ -93,7 +97,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
                         if (_source[i] == '}')
                         {
                             position = i + 1;
-                            return new Token<RegexElementLabel>(_source[(pos)..(i - 1)], 0, pos,
+                            return new Token<RegexElementLabel>(_source[(pos)..(i + 1)], 0, pos,
                                                                 RegexElementLabel.COUNT);
                         }
                     }

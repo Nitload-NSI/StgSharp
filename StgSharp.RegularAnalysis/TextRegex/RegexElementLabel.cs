@@ -47,9 +47,10 @@ namespace StgSharp.RegularAnalysis.TextRegex
         CONCAT = 64,
         ALT = 128,
         SEQUENCE = UNIT | UNIT_SPAN | UNIT_SET,
+        SINGLE = UNIT | UNIT_SET,
         OPERATOR = COUNT | ALT | CONCAT,
         ATOM_BEGIN = SEQUENCE | GROUP_BEGIN ,
-        ATOM_END = SEQUENCE | GROUP_END,
+        ATOM_END = SEQUENCE | GROUP_END | COUNT,
 
     }
 }

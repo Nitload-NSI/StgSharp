@@ -130,7 +130,7 @@ namespace StgSharp.RegularAnalysis.Abstraction
         public TNode PopOperand(
         )
         {
-            if (OperatorInDepthCount > 0) {
+            if (OperandInDepthCount > 0) {
                 return _operands.Pop();
             }
             return TNode.Empty;
@@ -176,6 +176,7 @@ namespace StgSharp.RegularAnalysis.Abstraction
 
         #region depth
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DecreaseDepth(
         )
         {
@@ -185,6 +186,7 @@ namespace StgSharp.RegularAnalysis.Abstraction
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void IncreaseDepth(
                     int mark
         )

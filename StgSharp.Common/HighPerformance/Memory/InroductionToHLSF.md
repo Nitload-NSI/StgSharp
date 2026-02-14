@@ -6,7 +6,7 @@ A constant-time (O(1)) allocator for real-time, high-throughput scenarios. It us
 
 - O(1) allocate/free with 10 levels: 64B x 16MB; each level split into 1x/2x/3x segments
 - External metadata (`Entry`, `BucketNode`) in dedicated SLABs; user blocks have no headers
-- Configurable alignment (>=16B); large block cap per allocation: 32MB
+- Configurable alignment (>=16B); maximum block size is configurable at construction time via the `maxBlockSize` parameter (default 32MB, 10 levels). The level array and bucket table are dynamically extended when a larger `maxBlockSize` is specified. There is no implicit fallback to `NativeMemory` for oversized requests.
 - Single-threaded implementation (external sync required for multi-threaded use)
 
 ## Quick Use
@@ -23,13 +23,13 @@ hlsf.Free(h);
 ### Alloc(uint size)
 
 - Purpose: Allocate a block of at least `size` bytes.
-- Input: `size` in bytes (<= 32MB for internal path; >32MB uses native large allocation).
+- Input: `size` in bytes. Must not exceed the `maxBlockSize` configured at construction time (default 32MB). If `size > _maxSize`, an `InvalidOperationException` is thrown.
 - Output: `HybridLayerSegregatedFitAllocationHandle` with pointer access and `Span<byte>`.
 - Behavior:
   - Classify into level/segment and pop a matching bucket; escalate segments and levels if empty.
   - Fallback to overflow bucket or carve 32MB from spare memory if all buckets are empty.
   - Mark selected `Entry` as Alloc; slice any remainder into `Empty` entries and push to buckets.
-  - For >32MB requests, use `NativeMemory.AlignedAlloc` and mark `EntryState.Large`.
+  - There is no implicit fallback to `NativeMemory.AlignedAlloc` for oversized requests — all allocations are served from the pre-allocated arena. The level array and bucket table are dynamically sized based on the `maxBlockSize` parameter.
 
 ### Free(HybridLayerSegregatedFitAllocationHandle handle)
 
@@ -47,34 +47,6 @@ hlsf.Free(h);
   - Consolidate fragmented regions where possible and improve bucket coverage.
   - Intended to be cheap; safe to call between benchmark phases.
 
-## Benchmarks (this run)
-
-Environment: .NET 8 (Release), x64, single-thread, arena=3072 MiB. Results from StgSharpDebug/HlsfStressTest.
-
-- Free throughput: 1KB x 262,144 -> 38,928,422.9 free/s
-- Alloc+free pairs: 256B x 5,000,000 -> 25,006,976.9 ops/s
-- Fragmentation cycle (~512MB): fast recovery in short cycle (see test for details)
-
-Representative allocation throughput (higher is better):
-
-| Size | Ops | alloc/s (no touch) | alloc/s (touch) |
-|------|----:|--------------------:|----------------:|
-| 64B   | 2,000,000 | 8,780,467.7  | 17,524,920.4 |
-| 1KB   | 1,572,864 | 8,974,865.4  | 9,585,531.6  |
-| 4KB   |   393,216 | 7,340,392.2  | 6,849,319.4  |
-| 32KB  |    49,152 | 10,376,625.6 | 7,019,407.9  |
-| 256KB |     6,144 | 16,041,775.5 | 12,842,809.4 |
-| 512KB |     3,072 | 20,466,355.8 | 14,195,933.5 |
-| 1MB   |     1,536 | 16,916,299.6 | 13,568,904.6 |
-| 2MB   |       768 | 17,985,948.5 | 12,569,558.1 |
-| 8MB   |       192 | 13,426,573.4 | 11,034,482.8 |
-| 32MB  |        48 | 11,162,790.7 | 9,411,764.7  |
-
-Notes:
-
-- Peak no-touch at 2MB (~17.99M alloc/s). Peak touch near 64B (~17.52M alloc/s).
-- Non-aligned sizes (e.g., 768B, 3KB) typically lower due to slicing/boundary handling.
-
 ### BenchmarkDotNet (HLSF vs Libc)
 
 Environment: .NET 8.0.23 (Release), x64 RyuJIT AVX2, Windows 11, AMD Ryzen 7 6800H.
@@ -90,7 +62,7 @@ Interpretation: HLSF matches libc allocation throughput under the same workload,
 
 ## Detailed Design (summary)
 - 
-- Size classes: levelSizeArray = [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216] (64B x 4^level)
+- Size classes: The default level size array is [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216] (10 levels, 64B × 4^level). When `maxBlockSize` is specified at construction and exceeds the default range, additional levels are appended (each 4× the previous) to cover the requested maximum block size.
 - Segments per level: 1x, 2x, 3x
 - Buckets: index = 3 * level + segment (overflow bucket for level > 9)
 - Metadata: Entry (external SLAB, position chain), BucketNode (user region, bucket chain)
@@ -143,8 +115,8 @@ Interpretation: HLSF matches libc allocation throughput under the same workload,
 
 ### Large Allocations and Spare Memory
 
-- Requests > 32MB use `NativeMemory.AlignedAlloc(size, align)` and mark `State.Large`
-- When buckets are empty, `TryAllocateNew32MBBlock` carves a 32MB region from `_spareMemory`, builds an `Empty` entry, and advances the spare pointer
+- Requests exceeding the configured `maxBlockSize` are rejected with `InvalidOperationException`. All allocations are served from the pre-allocated arena.
+- When all buckets are empty, `TryAllocateNew32MBBlock` carves a region (up to 32MB) from `_spareMemory` to replenish the bucket system, builds an `Empty` entry, and advances the spare pointer
 
 ### Alignment
 
