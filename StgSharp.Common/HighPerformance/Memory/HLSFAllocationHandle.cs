@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocationHandle"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,9 +40,9 @@ namespace StgSharp.HighPerformance.Memory
     {
 
         internal readonly Allocator.Entry* EntryHandle;
-        public readonly uint AllocSize;
+        public readonly long AllocSize;
 
-        internal HybridLayerSegregatedFitAllocationHandle(Allocator.Entry* handle, uint s)
+        internal HybridLayerSegregatedFitAllocationHandle(Allocator.Entry* handle, long s)
         {
             EntryHandle = handle;
             Pointer = (byte*)handle->Position;
@@ -56,7 +56,7 @@ namespace StgSharp.HighPerformance.Memory
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual<uint>(index, AllocSize);
+                ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, AllocSize);
                 return ref Pointer[index];
             }
         }

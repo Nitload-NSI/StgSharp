@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -41,16 +41,14 @@ namespace StgSharp.HighPerformance.Memory
 
         // _spareMemory is also the beginning position of allocator
         private Entry *_spareMemory;
-        private readonly byte *m_Buffer;
+        private readonly byte* m_Buffer;
         private bool disposedValue;
         private readonly int _align;
+        private readonly long _maxSize;
         private readonly nuint _size;
         private readonly SlabAllocator<Entry> _entries;
-        private readonly uint _maxSize;
 
-        public HybridLayerSegregatedFitAllocator(
-               nuint byteSize
-        )
+        public HybridLayerSegregatedFitAllocator(nuint byteSize)
         {
             if (byteSize < 64) {
                 throw new InvalidOperationException();
@@ -72,13 +70,10 @@ namespace StgSharp.HighPerformance.Memory
             _maxSize = 32U * 1024U * 1024U;
         }
 
-        public HybridLayerSegregatedFitAllocator(
-               nuint byteSize,
-               uint maxBlockSize
-        )
+        public HybridLayerSegregatedFitAllocator(nuint byteSize, uint maxBlockSize)
         {
             _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
-            m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, (nuint)16);
+            m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, 16);
             _align = 16;
             _size = byteSize;
 
@@ -92,7 +87,7 @@ namespace StgSharp.HighPerformance.Memory
             int levelCountOrigin = _levelSizeArray.Length;
             int levelCount = GetLevelFromSize(maxBlockSize) + 1;
             Array.Resize(ref _levelSizeArray, levelCount);
-            _bucketHeads = new BucketNode *[levelCount * 3 + 1];
+            _bucketHeads = new BucketNode *[(levelCount * 3) + 1];
             int size = _levelSizeArray[^1];
             for (int i = levelCountOrigin; i < levelCount; i++)
             {
@@ -102,10 +97,7 @@ namespace StgSharp.HighPerformance.Memory
             _maxSize = maxBlockSize;
         }
 
-        public HybridLayerSegregatedFitAllocator(
-               nuint byteSize,
-               int align
-        )
+        public HybridLayerSegregatedFitAllocator(nuint byteSize, int align)
         {
             if (align < 16 || (align & (align - 1)) != 0) {
                 throw new ArgumentException(
@@ -128,18 +120,14 @@ namespace StgSharp.HighPerformance.Memory
             _maxSize = 32U * 1024U * 1024U;
         }
 
-        public HybridLayerSegregatedFitAllocator(
-               nuint byteSize,
-               int align,
-               uint maxBlockSize
-        )
+        public HybridLayerSegregatedFitAllocator(nuint byteSize, int align, long maxBlockSize)
         {
             if (align < 16 || (align & (align - 1)) != 0) {
                 throw new ArgumentException(
                                 "Alignment must be a power of two and at least 16 bytes.");
             }
             _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
-            m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
+            m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
             _align = align;
             _size = byteSize;
 
@@ -169,9 +157,7 @@ namespace StgSharp.HighPerformance.Memory
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(
-                               bool disposing
-        )
+        protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

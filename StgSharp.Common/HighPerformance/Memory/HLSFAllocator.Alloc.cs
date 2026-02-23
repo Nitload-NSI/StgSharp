@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Alloc"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +26,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System;
-using System.ComponentModel;
-using System.Diagnostics.Tracing;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using hlsfHandle = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocationHandle;
 
 namespace StgSharp.HighPerformance.Memory
@@ -37,9 +34,7 @@ namespace StgSharp.HighPerformance.Memory
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
-        public hlsfHandle Alloc(
-                          uint size
-        )
+        public hlsfHandle Alloc(long size)
         {
             if (size > _maxSize) {
                 throw new InvalidOperationException("Requested size exceeds maximum allocatable size.");
@@ -96,10 +91,7 @@ namespace StgSharp.HighPerformance.Memory
         /// <param name="sizeToSlice">
         ///
         /// </param>
-        private void SliceMemory(
-                     Entry* e,
-                     long sizeToSlice
-        )
+        private void SliceMemory(Entry* e, long sizeToSlice)
         {
             Entry* next = e;
             long remain = sizeToSlice;                                          // remained size to slice
@@ -197,9 +189,7 @@ namespace StgSharp.HighPerformance.Memory
         /// <returns>
         ///   True if allocation succeeded
         /// </returns>
-        private bool TryAllocateNew32MBBlock(
-                     out Entry* handle
-        )
+        private bool TryAllocateNew32MBBlock(out Entry* handle)
         {
             nuint pos = _spareMemory->Position;
             long remain = _spareMemory->Size;
@@ -229,11 +219,7 @@ namespace StgSharp.HighPerformance.Memory
         /// <summary>
         ///   Helper method for allocation - converts BucketNode to Entry
         /// </summary>
-        private bool TryPopLevelForAllocation(
-                     int levelIndex,
-                     int sizeIndex,
-                     out Entry* entry
-        )
+        private bool TryPopLevelForAllocation(int levelIndex, int sizeIndex, out Entry* entry)
         {
             if (TryPopLevel(levelIndex, sizeIndex, out BucketNode* bucketNode))
             {

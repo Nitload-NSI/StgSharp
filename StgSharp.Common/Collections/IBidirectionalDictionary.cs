@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="IBidirectionalDictionary"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,9 +32,7 @@ namespace StgSharp.Collections
     public interface IBidirectionalDictionary<TFirst, TSecond> : IDictionary<TFirst, TSecond>
     {
 
-        TFirst this[
-               TSecond key
-        ] { get; set; }
+        TFirst this[TSecond key] { get; set; }
 
         ICollection<TFirst> FirstIndex { get; }
 
@@ -55,9 +53,7 @@ namespace StgSharp.Collections
         ///   true if the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains an element with
         ///   the specified key; otherwise, false.
         /// </returns>
-        bool Contains(
-             TSecond key
-        );
+        bool Contains(TSecond key);
 
         /// <summary>
         ///   Determines whether the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains the
@@ -70,23 +66,16 @@ namespace StgSharp.Collections
         ///   true if the <see cref="IBidirectionalDictionary{TFirst, TSecond}" /> contains an element with
         ///   the specified key; otherwise, false.
         /// </returns>
-        bool Contains(
-             TFirst key
-        );
+        bool Contains(TFirst key);
 
-        bool TryGetValue(
-             TSecond key,
-             out TFirst value
-        );
+        bool TryGetValue(TSecond key, out TFirst value);
 
         #pragma warning disable CA1033
         ICollection<TFirst> IDictionary<TFirst, TSecond>.Keys => FirstIndex;
 
         ICollection<TSecond> IDictionary<TFirst, TSecond>.Values => SecondIndex;
 
-        bool IDictionary<TFirst, TSecond>.ContainsKey(
-                                          TFirst key
-        )
+        bool IDictionary<TFirst, TSecond>.ContainsKey(TFirst key)
         {
             return Contains(key);
         }

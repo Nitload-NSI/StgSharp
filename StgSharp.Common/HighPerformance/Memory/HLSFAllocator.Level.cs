@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Level"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,42 +40,19 @@ namespace StgSharp.HighPerformance.Memory
 
         private const int MaxLevel = 9;
 
-        private int[] _levelSizeArray = [
-            64,
-            256,
-            1024,
-            4096,
-            16384,
-            65536,
-            262144,
-            1048576,
-            4194304,
-            16777216
-        ];
+        private int[] _levelSizeArray = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216 ];
 
-        public int AlignOfLevel(
-                   int bucketLevel
-        )
+        public int AlignOfLevel(int bucketLevel)
         {
             int blockSize = _levelSizeArray[bucketLevel];
             return int.Min(blockSize, _align);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetLevelFromSize(
-                           long size
-        )
-        {
-            return GetLevelFromSize((uint)size);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetLevelFromSize(
-                           uint size
-        )
+        private static int GetLevelFromSize(long size)
         {
             /*
-                * Level sizes: [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216]
+                * Level sizes: [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, ......]
                 * Pattern: 64 * 4^level = 2^6 * 2^(2*level) = 2^(6+2*level)
                 * 
                 * For size S, we need: 2^(6+2*level) >= S
@@ -83,15 +60,21 @@ namespace StgSharp.HighPerformance.Memory
                 * Therefore: level >= (log2(S) - 6) / 2
                 * 
                 * We use hardware LZCNT instruction via BitOperations.LeadingZeroCount
-                * log2(S) = 31 - LeadingZeroCount(S) for 32-bit values
+                * log2(S) = 63 - LeadingZeroCount(S) for 64-bit values
                 */
-            int log2Size = 31 - BitOperations.LeadingZeroCount(size);
+            int log2Size = 63 - BitOperations.LeadingZeroCount((ulong)size);
 
             // Calculate level: level = max(0, (log2Size - 6) / 2)
             int level = Math.Max(0, (log2Size - 6) / 2);
 
             // caller is responsible for ensuring level is within bounds
             return level;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetLevelFromSize(uint size)
+        {
+            return GetLevelFromSize(size);
         }
 
     }

@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="Matrix.Create"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -72,15 +72,12 @@ namespace StgSharp.Mathematics.Numeric
             };
 
             long requiredBytes = kernelCount * MatrixKernel<T>.Size;
-            if (requiredBytes <= 0 || requiredBytes > uint.MaxValue) {
-                throw new ArgumentOutOfRangeException(nameof(requiredBytes), "Requested matrix exceeds allocator capacity.");
-            }
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(requiredBytes, nameof(requiredBytes));
 
             HybridLayerSegregatedFitAllocationHandle handle = allocator.Alloc((uint)requiredBytes);
             MatrixStorageHLSF<T> storage = new MatrixStorageHLSF<T>(allocator, handle);
 
-            Matrix<T> matrix = new Matrix<T>(MatrixKernelBoarder.Create(layout), new MatrixSize(columnLength,
-                                                                                                rowLength,
+            Matrix<T> matrix = new Matrix<T>(MatrixKernelBoarder.Create(layout), new MatrixSize(columnLength, rowLength,
                                                                                                 kernelColumns,
                                                                                                 kernelRows), storage);
 
