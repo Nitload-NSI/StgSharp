@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="CapacityFixedStack"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -57,7 +57,11 @@ namespace StgSharp.Collections
 
         public int Capacity => _values.Length;
 
-        public ReadOnlySpan<T> AsSpan() => _values.AsSpan(0, _index);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ReadOnlySpan<T> AsSpan()
+        {
+            return _values.AsSpan(0, _index);
+        }
 
         public void Clear()
         {

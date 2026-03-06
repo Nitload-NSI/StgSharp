@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Debug"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,13 +31,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Mathematics.Memory
 {
     public sealed class HLSFPositionChainBreakException : Exception
     {
 
-        public HLSFPositionChainBreakException()
-            : base("Position chain of an HLSF allocator is broken") { }
+        public HLSFPositionChainBreakException() : base("Position chain of an HLSF allocator is broken") { }
 
     }
 

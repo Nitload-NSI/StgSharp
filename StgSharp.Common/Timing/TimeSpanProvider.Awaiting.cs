@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="TimeSpanProvider.Awaiting"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance.Memory;
+using StgSharp.Mathematics.Memory;
 
 using System;
 using System.Collections.Concurrent;
@@ -154,9 +154,7 @@ namespace StgSharp.Timing
         ///   OperationCanceledException when token is cancelled. If the provider is disposed during
         ///   wait an OperationCanceledException is thrown to indicate end.
         /// </summary>
-        public Task WaitNextSpanAsync(
-                    CancellationToken ct
-        )
+        public Task WaitNextSpanAsync(CancellationToken ct)
         {
             // Block the current thread until the event is signaled or cancellation requested.
             _event.Wait(ct);
@@ -195,9 +193,7 @@ namespace StgSharp.Timing
         ///   True if the span provider is working. False if time is over (the sequence ended).
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool OnSpanTick(
-                      long currentTick
-        )
+        internal bool OnSpanTick(long currentTick)
         {
             if (_sequence.EndsAt(currentTick))
             {

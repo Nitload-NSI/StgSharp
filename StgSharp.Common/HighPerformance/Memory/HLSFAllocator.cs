@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator"
 // Project: StgSharp
@@ -31,7 +31,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Mathematics.Memory
 {
     public unsafe partial class HybridLayerSegregatedFitAllocator : IDisposable
     {

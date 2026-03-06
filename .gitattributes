@@ -1,0 +1,61 @@
+# ══════════════════════════════════════════════
+# StgSharp line ending policy
+# 
+# 仓库内统一 LF（Linux 编译兼容）
+# Windows 上 checkout 时 Git 自动转 CRLF
+# VS2022 / Rider / VSCode 都认这个文件
+# ══════════════════════════════════════════════
+
+# ── 默认：所有文本文件入库 LF ──
+* text=auto eol=lf
+
+# ── 源码 ──
+*.cs        text eol=lf
+*.c         text eol=lf
+*.cpp       text eol=lf
+*.h         text eol=lf
+*.hpp       text eol=lf
+
+# ── .NET 项目文件 ──
+*.csproj    text eol=lf
+*.sln       text eol=lf
+*.props     text eol=lf
+*.targets   text eol=lf
+
+# ── 配置 / 文档 ──
+*.json      text eol=lf
+*.xml       text eol=lf
+*.config    text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.md        text eol=lf
+*.txt       text eol=lf
+
+# ── 构建脚本 ──
+*.sh        text eol=lf
+*.bash      text eol=lf
+*.cmake     text eol=lf
+CMakeLists.txt text eol=lf
+
+# ── Windows 脚本（这几个必须 CRLF 否则 cmd 会出问题）──
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+
+# ── 二进制：不动 ──
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.dll       binary
+*.exe       binary
+*.pdb       binary
+*.so        binary
+*.dylib     binary
+*.lib       binary
+*.obj       binary
+*.a         binary
+*.zip       binary
+*.7z        binary
+*.gz        binary

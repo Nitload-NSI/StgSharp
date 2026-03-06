@@ -97,10 +97,10 @@ namespace StgSharp.RegularAnalysis.Abstraction
                                     Token<TLabel> right
         )
         {
-            return left.Value.SequenceEqual(right.Value) &&
-                   left.Line == right.Line &&
-                   left.Column == right.Column &&
-                   left.Flag.Equals(right.Flag);
+            return !left.Value.SequenceEqual(right.Value) ||
+                   left.Line != right.Line ||
+                   left.Column != right.Column ||
+                   !left.Flag.Equals(right.Flag);
         }
 
         public static bool operator ==(
@@ -108,10 +108,10 @@ namespace StgSharp.RegularAnalysis.Abstraction
                                     Token<TLabel> right
         )
         {
-            return left.Value.SequenceEqual(right.Value) ||
-                   left.Line != right.Line ||
-                   left.Column != right.Column ||
-                   !(left.Flag.Equals(right.Flag));
+            return left.Value.SequenceEqual(right.Value) &&
+                   left.Line == right.Line &&
+                   left.Column == right.Column &&
+                   left.Flag.Equals(right.Flag);
         }
 
     }

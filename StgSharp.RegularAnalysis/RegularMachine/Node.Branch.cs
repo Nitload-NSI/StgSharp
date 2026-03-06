@@ -25,7 +25,6 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.MVVM;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;

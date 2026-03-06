@@ -3,10 +3,12 @@
 #if SN_IS_ARCH(SN_ARCH_X86_64)
 
 #include "sn_intrinsic.h"
-#include "sn_intrincontext.x86.h"
+#include "sn_intrinsic.std.h"
+#include "sn_intrinsic.context.x86.h"
 
-DECLARE_BUF_PROC_ANS_SCALAR(float, sse, ,fill)
+SN_MK_PROC_DECL_STD(float, sse, , fill)
 {
+        __mk_param_std(BUFFER, ANS_SCALAR, float);
         register __m128 vec = _mm_set_ps1(((float *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
                 ans[i].f32_x[0] = vec;
@@ -16,8 +18,9 @@ DECLARE_BUF_PROC_ANS_SCALAR(float, sse, ,fill)
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(float, avx, ,fill)
+SN_MK_PROC_DECL_STD(float, avx, , fill)
 {
+        __mk_param_std(BUFFER, ANS_SCALAR, float);
         register __m256 vec = _mm256_broadcast_ss(((float *)(scalar->data)));
         for (size_t i = 0; i < count; i++) {
                 ans[i].f32_y[0] = vec;
@@ -25,16 +28,18 @@ DECLARE_BUF_PROC_ANS_SCALAR(float, avx, ,fill)
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(float, 512, ,fill)
+SN_MK_PROC_DECL_STD(float, 512, , fill)
 {
+        __mk_param_std(BUFFER, ANS_SCALAR, float);
         register __m512 vec = _mm512_broadcastss_ps(((__m128 *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
                 ans[i].f32_z[0] = vec;
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(double, sse, ,fill)
+SN_MK_PROC_DECL_STD(double, sse, , fill)
 {
+        __mk_param_std(BUFFER, ANS_SCALAR, double);
         register __m128d vec = _mm_set1_pd(((double *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
                 ans[i].f64_x[0] = vec;
@@ -48,8 +53,9 @@ DECLARE_BUF_PROC_ANS_SCALAR(double, sse, ,fill)
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(double, avx, ,fill)
+SN_MK_PROC_DECL_STD(double, avx, , fill)
 {
+        __mk_param_std(BUFFER, ANS_SCALAR, double);
         register __m256d vec = _mm256_broadcast_sd(((double *)(scalar->data)));
         for (size_t i = 0; i < count; i++) {
                 ans[i].f64_y[0] = vec;
@@ -59,8 +65,9 @@ DECLARE_BUF_PROC_ANS_SCALAR(double, avx, ,fill)
         }
 }
 
-DECLARE_BUF_PROC_ANS_SCALAR(double, 512, ,fill)
+SN_MK_PROC_DECL_STD(double, 512, , fill)
 {
+        __mk_param_std(BUFFER, ANS_SCALAR, double);
         register __m512d vec = _mm512_broadcastsd_pd(_mm_loadu_pd(scalar));
         for (size_t i = 0; i < count; i++) {
                 ans[i].f64_z[0] = vec;
@@ -68,8 +75,10 @@ DECLARE_BUF_PROC_ANS_SCALAR(double, 512, ,fill)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, ,add)
+SN_MK_PROC_DECL_STD(float, sse, , add)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+
         for (size_t i = 0; i < count; i++) {
                 register __m128 c0 = _mm_add_ps(left[i].f32_x[0], right[i].f32_x[0]);
                 register __m128 c1 = _mm_add_ps(left[i].f32_x[1], right[i].f32_x[1]);
@@ -83,8 +92,10 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, ,add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, ,add)
+SN_MK_PROC_DECL_STD(float, avx, , add)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+
         for (size_t i = 0; i < count; i++) {
                 size_t s = sizeof(MAT_KERNEL(float));
                 register __m256 c0 = _mm256_add_ps(left[i].f32_y[0], right[i].f32_y[0]);
@@ -94,15 +105,19 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, ,add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, ,add)
+SN_MK_PROC_DECL_STD(float, 512, , add)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+
         for (size_t i = 0; i < count; i++) {
                 register __m512 c0 = _mm512_add_ps(left[i].f32_z[0], right[i].f32_z[0]);
                 ans[i].f32_z[0] = c0;
         }
 }
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, ,add)
+SN_MK_PROC_DECL_STD(double, sse, , add)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+
         for (size_t i = 0; i < count; i++) {
                 register __m128d c0 = _mm_add_pd(_mm_castps_pd(left[i].f32_x[0]),
                                                  _mm_castps_pd(right[i].f32_x[0]));
@@ -132,8 +147,10 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, ,add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, ,add)
+SN_MK_PROC_DECL_STD(double, avx, , add)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+
         for (size_t i = 0; i < count; i++) {
                 size_t s = sizeof(MAT_KERNEL(float));
                 register __m256d c0 = _mm256_add_pd(left[i].f64_y[0], right[i].f64_y[0]);
@@ -147,8 +164,10 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, ,add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, ,add)
+SN_MK_PROC_DECL_STD(double, 512, , add)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+
         for (size_t i = 0; i < count; i++) {
                 register __m512d c0 = _mm512_add_pd(left[i].f64_z[0], right[i].f64_z[0]);
                 register __m512d c1 = _mm512_add_pd(left[i].f64_z[1], right[i].f64_z[1]);
@@ -157,8 +176,10 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, ,add)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, ,sub)
+SN_MK_PROC_DECL_STD(float, sse, , sub)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+
         for (size_t i = 0; i < count; i++) {
                 register __m128 c0 = _mm_sub_ps(left[i].f32_x[0], right[i].f32_x[0]);
                 register __m128 c1 = _mm_sub_ps(left[i].f32_x[1], right[i].f32_x[1]);
@@ -172,8 +193,10 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, sse, ,sub)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, ,sub)
+SN_MK_PROC_DECL_STD(float, avx, , sub)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+
         for (size_t i = 0; i < count; i++) {
                 register __m256 c0 = _mm256_sub_ps(left[i].f32_y[0], right[i].f32_y[0]);
                 register __m256 c1 = _mm256_sub_ps(left[i].f32_y[1], right[i].f32_y[1]);
@@ -182,16 +205,20 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, avx, ,sub)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(float, 512, ,sub)
+SN_MK_PROC_DECL_STD(float, 512, , sub)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+
         for (size_t i = 0; i < count; i++) {
                 register __m512 c0 = _mm512_sub_ps(left[i].f32_z[0], right[i].f32_z[0]);
                 ans[i].f32_z[0] = c0;
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, ,sub)
+SN_MK_PROC_DECL_STD(double, sse, , sub)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+
         for (size_t i = 0; i < count; i++) {
                 register __m128d c0 = _mm_sub_pd(left[i].f64_x[0], right[i].f64_x[0]);
                 register __m128d c1 = _mm_sub_pd(left[i].f64_x[1], right[i].f64_x[1]);
@@ -213,8 +240,10 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, sse, ,sub)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, ,sub)
+SN_MK_PROC_DECL_STD(double, avx, , sub)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+
         for (size_t i = 0; i < count; i++) {
                 register __m256 c0 = _mm256_sub_ps(left[i].f32_y[0], right[i].f32_y[0]);
                 register __m256 c1 = _mm256_sub_ps(left[i].f32_y[1], right[i].f32_y[1]);
@@ -223,16 +252,20 @@ DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, avx, ,sub)
         }
 }
 
-DECLARE_BUF_PROC_LEFT_RIGHT_ANS(double, 512, ,sub)
+SN_MK_PROC_DECL_STD(double, 512, , sub)
 {
+        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+
         for (size_t i = 0; i < count; i++) {
                 register __m512 c0 = _mm512_sub_ps(left[i].f32_z[0], right[i].f32_z[0]);
                 ans[i].f32_z[0] = c0;
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, sse, ,scalar_mul)
+SN_MK_PROC_DECL_STD(float, sse, , scalar_mul)
 {
+        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, float);
+
         register __m128 vec = _mm_set_ps1(((float *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
                 register __m128 c0 = _mm_mul_ps(right[i].f32_x[0], vec);
@@ -247,8 +280,10 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, sse, ,scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, avx, ,scalar_mul)
+SN_MK_PROC_DECL_STD(float, avx, , scalar_mul)
 {
+        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, float);
+
         register __m256 vec = _mm256_broadcast_ss(((float *)(scalar->data)));
         for (size_t i = 0; i < count; i++) {
                 register __m256 c0 = _mm256_mul_ps(right[i].f32_y[0], vec);
@@ -259,8 +294,10 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, avx, ,scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, 512, ,scalar_mul)
+SN_MK_PROC_DECL_STD(float, 512, , scalar_mul)
 {
+        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, float);
+
         register __m512 vec = _mm512_broadcastss_ps(((__m128 *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
                 register __m512 c0 = _mm512_mul_ps(right[i].f32_z[0], vec);
@@ -269,8 +306,10 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(float, 512, ,scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, sse, ,scalar_mul)
+SN_MK_PROC_DECL_STD(double, sse, , scalar_mul)
 {
+        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, double);
+
         register __m128d vec = _mm_set1_pd(((double *)(scalar->data))[0]);
         for (size_t i = 0; i < count; i++) {
                 register __m128d c0 = _mm_mul_pd(right[i].f64_x[0], vec);
@@ -293,8 +332,10 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, sse, ,scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, avx, ,scalar_mul)
+SN_MK_PROC_DECL_STD(double, avx, , scalar_mul)
 {
+        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, double);
+
         register __m256d vec = _mm256_broadcast_sd(((double *)(scalar->data)));
         for (size_t i = 0; i < count; i++) {
                 register __m256d c0 = _mm256_mul_pd(right[i].f64_y[0], vec);
@@ -309,8 +350,10 @@ DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, avx, ,scalar_mul)
         }
 }
 
-DECLARE_BUF_PROC_RIGHT_ANS_SCALAR(double, 512, ,scalar_mul)
+SN_MK_PROC_DECL_STD(double, 512, , scalar_mul)
 {
+        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, double);
+
         register __m512d vec = _mm512_broadcastsd_pd(_mm_load_pd(scalar));
         for (size_t i = 0; i < count; i++) {
                 register __m512d c0 = _mm512_mul_pd(right[i].f64_z[0], vec);

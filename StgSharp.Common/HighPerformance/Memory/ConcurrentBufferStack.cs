@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="ConcurrentBufferStack"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Mathematics.Memory
 {
     public static class BufferStackBuilder
     {
@@ -279,9 +279,8 @@ namespace StgSharp.HighPerformance.Memory
             T* dataStart = (T*)(_buffer + sizeof(Header));
 
             fixed (T* sourcePtr = span) {
-                Buffer.MemoryCopy(sourcePtr, dataStart,
-                    (nuint)header->Capacity * (nuint)sizeof(T),
-                    (nuint)span.Length * (nuint)sizeof(T));
+                Buffer.MemoryCopy(sourcePtr, dataStart, (nuint)header->Capacity * (nuint)sizeof(T),
+                                  (nuint)span.Length * (nuint)sizeof(T));
             }
 
             header->Top = span.Length;

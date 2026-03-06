@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="SlabAllocator.Chunked"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,9 +33,9 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Mathematics.Memory
 {
-    internal sealed unsafe class ChunkedSlabAllocator<T> : SlabAllocator<T> where T : unmanaged
+    internal sealed unsafe class ChunkedSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
     {
 
         private bool _disposed;
@@ -96,6 +96,7 @@ namespace StgSharp.HighPerformance.Memory
                 return;
             }
             _disposed = true;
+
             // NativeMemory.Free((void*)_currentBuffer);
             while (_buffers.TryPop(out nuint buffer))
             {

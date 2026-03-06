@@ -1,14 +1,17 @@
-﻿#include "sn_target.h"
+#include "sn_target.h"
 
 #if SN_IS_ARCH(SN_ARCH_X86_64)
 
 #include "sn_intrinsic.h"
+#include "sn_intrinsic.std.h"
 #include <math.h>
 
 static const float quality_threshold = 1e-6f;
 
-DECLARE_KER_PROC_LEFT_RIGHT_ANS_SCALAR(float, sse, , try_plu)
+SN_MK_PROC_DECL_STD(float, sse, , try_plu)
 {
+        __mk_param_std(TILE, LEFT_RIGHT_ANS_SCALAR, float);
+
         /* Aliases */
         MAT_KERNEL(float) *upper = left; /* U */
         MAT_KERNEL(float) *lower = right; /* L (unit diag) */
@@ -96,7 +99,7 @@ DECLARE_KER_PROC_LEFT_RIGHT_ANS_SCALAR(float, sse, , try_plu)
                 __m128 _t = _mm_shuffle_ps(_p, _p, _MM_SHUFFLE(2, 3, 0, 1)); \
                 _p = _mm_add_ps(_p, _t);                                     \
                 _t = _mm_movehl_ps(_t, _p);                                  \
-                ans = _mm_cvtss_f32(_mm_add_ss(_p, _t));                        \
+                ans = _mm_cvtss_f32(_mm_add_ss(_p, _t));                     \
         } while (0)
 
 #define FIND_MAX_F32_SSE(a, b)                                      \
@@ -111,8 +114,10 @@ DECLARE_KER_PROC_LEFT_RIGHT_ANS_SCALAR(float, sse, , try_plu)
 * layout of scalarpack:
 * 
 */
-DECLARE_KER_PROC_RIGHT_ANS(float, sse, , quality)
+SN_MK_PROC_DECL_STD(float, sse, , quality)
 {
+        __mk_param_std(KERNEL, RIGHT_ANS, float);
+
         static const __m128 tiny_source = { .m128_f32 = { 1e-6f, 1e-6f, 1e-6f, 1e-6f } };
 
         register __m128 tiny = _mm_load_ps(tiny_source.m128_f32);

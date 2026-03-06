@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="CapacityFixedList"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -47,11 +47,13 @@ namespace StgSharp.Collections
     {
 
         private T[] _values;
-        private int capacity, _index;
+        private readonly int _capacity;
+        private int _index;
 
         public CapacityFixedList(int size)
         {
             _values = new T[size];
+            _capacity = size;
         }
 
         public CapacityFixedList(ReadOnlySpan<T> values)
@@ -62,16 +64,7 @@ namespace StgSharp.Collections
         public T this[int index]
         {
             get => index < _index ? _values[index] : throw new ArgumentOutOfRangeException(nameof(index));
-            set
-            {
-                if (index < _index)
-                {
-                    _values[index] = value;
-                } else
-                {
-                    throw new ArgumentOutOfRangeException(nameof(index));
-                }
-            }
+            set => _values[index] = index < _index ? value : throw new ArgumentOutOfRangeException(nameof(index));
         }
 
         public bool IsReadOnly => false;
@@ -80,7 +73,7 @@ namespace StgSharp.Collections
 
         public void Add(T item)
         {
-            if (_index < capacity - 1)
+            if (_index < _capacity - 1)
             {
                 _index++;
                 this[_index] = item;
@@ -89,7 +82,7 @@ namespace StgSharp.Collections
 
         public void Clear()
         {
-            _values = new T[capacity];
+            _values = new T[_capacity];
             _index = 0;
         }
 

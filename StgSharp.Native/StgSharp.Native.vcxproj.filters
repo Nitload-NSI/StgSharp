@@ -27,9 +27,6 @@
     <ClCompile Include="sn-src\s.hash.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\str_string.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="sn-src\vector.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -45,7 +42,7 @@
     <ClCompile Include="sn-src\m.basic.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\m.fma.x86.c">
+    <ClCompile Include="sn-src\sk.fma.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="sn-src\load_intrinsic.x86.c">
@@ -54,16 +51,19 @@
     <ClCompile Include="sn-src\m.bufop.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\m.panel.x86.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="sn-src\m.solve.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\cpuid.x86.c">
+    <ClCompile Include="sn-src\simdid.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\m.fma_tile.x86.c">
+    <ClCompile Include="sn-src\mk.fma.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sn-src\t.affinity.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sn-src\simdid_compare.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,7 +86,7 @@
     <ClInclude Include="sn-head\glfw_function.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="sn-head\sn_matkernel.h">
+    <ClInclude Include="sn-head\sn_intrinsic.matkernel.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="lib\glfw\glfw3.h">
@@ -101,10 +101,13 @@
     <ClInclude Include="sn-head\sn_target.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="sn-head\sn_intrincontext.x86.h">
+    <ClInclude Include="sn-head\sn_intrinsic.context.x86.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="sn-head\sn_intrinsic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sn-head\sn_intrinsic.std.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -118,6 +121,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SIMDID.x86.md">
+      <Filter>Document</Filter>
+    </None>
+    <None Include="naming.md">
       <Filter>Document</Filter>
     </None>
   </ItemGroup>

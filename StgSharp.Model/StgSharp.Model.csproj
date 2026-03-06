@@ -1,21 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-      <LangVersion>preview</LangVersion>
-      <Platforms>x64</Platforms>
-      <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-      <PackageLicenseExpression>MIT</PackageLicenseExpression>
-      <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-	  <Deterministic>False</Deterministic>
-	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <Configurations>Debug;Release;PerformanceDebug</Configurations>
-  </PropertyGroup>
-
 	<ItemGroup>
     <ProjectReference Include="..\StgSharp.Common\StgSharp.Common.csproj" />
-    <ProjectReference Include="..\StgSharp.Script\StgSharp.Script.csproj" />
   </ItemGroup>
 
 </Project>

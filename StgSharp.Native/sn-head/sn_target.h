@@ -16,6 +16,28 @@
 #define SN_ARCH_RISCV64 2
 #define SN_ARCH_PPC64le 3
 
+#if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__) || defined(__amd64__)
+#define SN_CURRENT_ARCH SN_ARCH_X86_64
+
+#elif defined(_M_ARM64) || defined(__aarch64__)
+#define SN_CURRENT_ARCH SN_ARCH_ARM64
+
+#elif defined(_M_ARM) || defined(__arm__)
+#define SN_CURRENT_ARCH SN_ARCH_ARM32
+
+#elif defined(_M_IX86) || defined(__i386__)
+#define SN_CURRENT_ARCH SN_ARCH_X86_32
+
+#elif defined(__powerpc64__) && defined(__LITTLE_ENDIAN__)
+#define SN_CURRENT_ARCH SN_ARCH_PPC64LE
+
+#elif defined(__riscv) && (__riscv_xlen == 64)
+#define SN_CURRENT_ARCH SN_ARCH_RISCV64
+
+#else
+#error "SN: Unsupported target architecture"
+#endif
+
 /*
  * Target selection policy:
  * - Default (no SN_EXTERN_TARGET): fixed Windows + x86_64.
@@ -58,7 +80,5 @@ typedef union SIMDID {
         uint64_t mask;
         char make_byte[8];
 } SIMDID;
-
-SN_API SIMDID SN_DECL sn_get_simd_level();
 
 #endif // SN_TARGET

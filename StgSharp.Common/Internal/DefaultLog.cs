@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="DefaultLog"
 // Project: StgSharp
@@ -25,10 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Graphics.OpenGL;
-
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -47,7 +44,9 @@ namespace StgSharp.Internal
 
         internal static SemaphoreSlim logSyncSemaphore = new(1, 1);
 
-        internal static void InternalAppendLog(string log)
+        internal static void InternalAppendLog(
+                             string log
+        )
         {
             if (!File.Exists(Native.LogPath))
             {
@@ -60,7 +59,10 @@ namespace StgSharp.Internal
             }
         }
 
-        internal static void InternalWriteLog(string logLine, LogType logType)
+        internal static void InternalWriteLog(
+                             string logLine,
+                             LogType logType
+        )
         {
             if (logType < _currentLogLevel) {
                 return;
@@ -87,7 +89,11 @@ namespace StgSharp.Internal
             }
         }
 
-        internal static void InternalWriteLog(string beforeTime, string logLine, LogType logType)
+        internal static void InternalWriteLog(
+                             string beforeTime,
+                             string logLine,
+                             LogType logType
+        )
         {
             logSyncSemaphore.Wait();
             if (!File.Exists(Native.LogPath))
@@ -104,7 +110,9 @@ namespace StgSharp.Internal
             _ = logSyncSemaphore.Release(1);
         }
 
-        internal static void SetLogLevel(LogType logLevel)
+        internal static void SetLogLevel(
+                             LogType logLevel
+        )
         {
             _currentLogLevel = logLevel;
         }

@@ -26,7 +26,6 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 global using StgSharp.Internal;
-global using StgSharp.Internal.Intrinsic;
 global 
 
 using System.Diagnostics.CodeAnalysis;
@@ -34,65 +33,5 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("StgSharp.Mathematics")]
 [assembly: InternalsVisibleTo("StgSharp.RegularAnalysis")]
+[assembly: InternalsVisibleTo("StgSharp.Graphics")]
 [assembly: InternalsVisibleTo("StgSharpDebug")]
-
-[assembly: SuppressMessage(
-        "Design",
-        "CA1008:枚举应具有零值",
-        Justification = "<挂起>",
-        Scope = "type",
-        Target = "~T:StgSharp.Graphics.OpenGL.ShaderStatus")]
-[assembly: SuppressMessage(
-        "Naming",
-        "CA1715:标识符应具有正确的前缀",
-        Justification = "<挂起>",
-        Scope = "member",
-        Target = "~M:StgSharp.Graphics.OpenGL.ShaderProgram.GetUniform``2(System.String)~StgSharp.Graphics.OpenGL.Uniform{``0,``1}")]
-[assembly: SuppressMessage(
-        "Naming",
-        "CA1715:标识符应具有正确的前缀",
-        Justification = "<挂起>",
-        Scope = "member",
-        Target = "~M:StgSharp.Graphics.OpenGL.ShaderProgram.GetUniform``3(System.String)~StgSharp.Graphics.OpenGL.Uniform{``0,``1,``2}")]
-[assembly: SuppressMessage(
-        "Naming",
-        "CA1715:标识符应具有正确的前缀",
-        Justification = "<挂起>",
-        Scope = "member",
-        Target = "~M:StgSharp.Graphics.OpenGL.ShaderProgram.GetUniform``4(System.String)~StgSharp.Graphics.OpenGL.Uniform{``0,``1,``2,``3}")]
-[assembly: SuppressMessage(
-        "Naming",
-        "CA1715:标识符应具有正确的前缀",
-        Justification = "<挂起>",
-        Scope = "type",
-        Target = "~T:StgSharp.Graphics.OpenGL.Uniform`4")]
-[assembly: SuppressMessage(
-        "Design",
-        "CA1043:将整型或字符串参数用于索引器",
-        Justification = "<挂起>",
-        Scope = "member",
-        Target = "~P:StgSharp.MVVM.ViewBase.IViewResponder`1.Item(StgSharp.Controlling.UsrActivity.ITrigger)")]
-[assembly: SuppressMessage(
-        "Design",
-        "CA1043:将整型或字符串参数用于索引器",
-        Justification = "<挂起>",
-        Scope = "member",
-        Target = "~P:StgSharp.MVVM.ViewBase.ViewResponder`1.Item(StgSharp.Controlling.UsrActivity.ITrigger)")]
-[assembly: SuppressMessage(
-        "Performance",
-        "CA1864:首选 \"IDictionary.TryAdd(TKey, TValue)\" 方法",
-        Justification = "<挂起>",
-        Scope = "member",
-        Target = "~P:StgSharp.MVVM.ViewBase.ViewRender`1.Item(System.String)")]
-[assembly: SuppressMessage(
-        "Design",
-        "CA1033:接口方法应可由子类型调用",
-        Justification = "<挂起>",
-        Scope = "member",
-        Target = "~P:StgSharp.Collections.IBidirectionalDictionary`2.System#Collections#Generic#IDictionary<TFirst,TSecond>#Keys")]
-[assembly: SuppressMessage(
-        "Design",
-        "CA1033:接口方法应可由子类型调用",
-        Justification = "<挂起>",
-        Scope = "member",
-        Target = "~P:StgSharp.Collections.IBidirectionalDictionary`2.System#Collections#Generic#IDictionary<TFirst,TSecond>#Values")]

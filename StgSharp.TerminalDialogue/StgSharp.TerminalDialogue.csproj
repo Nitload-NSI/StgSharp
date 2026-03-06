@@ -1,54 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <BaseOutputPath>build\StgSharpTerminalDialogue</BaseOutputPath>
-    <OutputPath>$(BaseOutputPath)</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <PlatformTarget>x64</PlatformTarget>
-      <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
-      <Platforms>x64</Platforms>
-      <Configurations>Debug;Release;PerformanceDebug</Configurations>
-  </PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-		<GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PerformanceDebug|x64'">
-	  <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-		<GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PerformanceDebug|ARM64'">
-	  <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
-	</PropertyGroup>
-
     
   <ItemGroup>
     <PackageReference Include="Terminal.Gui" Version="2.0.0-v2-develop.2329" />
   </ItemGroup>
     
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /E /I /Y $(OutputPath) $(SolutionDir)build\StgSharp.TerminalDialogue" />
-      
-  </Target>
-
 </Project>

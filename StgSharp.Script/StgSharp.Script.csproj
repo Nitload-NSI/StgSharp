@@ -1,13 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <LangVersion>preview</LangVersion>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Platforms>x64</Platforms>
-    <Configurations>Debug;Release;PerformanceDebug</Configurations>
-  </PropertyGroup>
+
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />

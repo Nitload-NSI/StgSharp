@@ -56,18 +56,18 @@ namespace StgSharp.RegularAnalysis.TextRegex
         public static RegexAstNode Empty { get; }
         = new EmptyRegexAstNode();
 
-        public  RegexAstNode Previous { get; set; }
+        public RegexAstNode Previous { get; set; }
 
-        public  RegexAstNode Next { get; set; }
+        public RegexAstNode Next { get; set; }
 
-        public  RegexAstNode Parent { get; set; }
+        public RegexAstNode Parent { get; set; }
 
         public RegexAstNode Left
         {
             get;
             set
             {
-                field?.Parent = Empty;
+                _ = (field?.Parent = Empty);
                 field = value;
                 if (!IsNullOrEmpty(value)) {
                     value.Parent = this;
@@ -80,7 +80,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
             get;
             set
             {
-                field?.Parent = Empty;
+                _ = (field?.Parent = Empty);
                 field = value;
                 if (!IsNullOrEmpty(value)) {
                     value.Parent = this;
@@ -88,10 +88,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
             }
         }
 
-        public RegexElementLabel EqualityTypeConvert
-        {
-            get => Source.Flag;
-        }
+        public RegexElementLabel EqualityTypeConvert => Source.Flag;
 
         public string Value => Source.Value;
 
@@ -108,9 +105,9 @@ namespace StgSharp.RegularAnalysis.TextRegex
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (bool Valid,int Value) ComparePrecedence(
-                                             RegexElementLabel left,
-                                             RegexElementLabel right
+        public static (bool Valid, int Value) ComparePrecedence(
+                                              RegexElementLabel left,
+                                              RegexElementLabel right
         )
         {
             left &= RegexElementLabel.OPERATOR;

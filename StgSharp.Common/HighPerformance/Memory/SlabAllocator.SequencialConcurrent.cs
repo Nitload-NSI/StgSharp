@@ -1,9 +1,9 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="SlabAllocator.SequencialConcurrent"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,14 +32,14 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Mathematics.Memory
 {
     public sealed unsafe class ConcurrentSequentialSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
     {
 
-        private bool _disposed;
-
         private T* _buffer;
+
+        private bool _disposed;
 
         private readonly BufferExpansionLock _lock = new();
         private readonly ConcurrentBufferStack<nuint> _stack;

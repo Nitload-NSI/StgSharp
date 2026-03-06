@@ -1,5 +1,5 @@
 #include "StgSharpNative.h"
-#include "sn_matkernel.h"
+#include "sn_intrinsic.matkernel.h"
 #include <stdint.h>
 
 #ifdef _WIN32

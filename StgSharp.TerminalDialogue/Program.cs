@@ -1,37 +1,36 @@
-﻿//-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
-//     file="Program.cs"
-//     Project: StgSharp
-//     AuthorGroup: Nitload Space
-//     Copyright (c) Nitload Space. All rights reserved.
+// -----------------------------------------------------------------------
+// file="Program"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
-//     Permission is hereby granted, free of charge, to any person 
-//     obtaining a copy of this software and associated documentation 
-//     files (the “Software”), to deal in the Software without restriction, 
-//     including without limitation the rights to use, copy, modify, merge,
-//     publish, distribute, sublicense, and/or sell copies of the Software, 
-//     and to permit persons to whom the Software is furnished to do so, 
-//     subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 //     
-//     The above copyright notice and 
-//     this permission notice shall be included in all copies 
-//     or substantial portions of the Software.
-//     
-//     THE SOFTWARE IS PROVIDED “AS IS”, 
-//     WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//     INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-//     IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-//     DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-//     ARISING FROM, OUT OF OR IN CONNECTION WITH 
-//     THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//     
-//-----------------------------------------------------------------------
-//-----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 using System;
 using System.Globalization;
+using System.IO;
 using System.IO.Pipes;
-
+using System.Threading;
+using System.Threading.Tasks;
 using Terminal.Gui;
 
 namespace StgSharpTerminalDialogue
@@ -41,57 +40,69 @@ namespace StgSharpTerminalDialogue
 
         private static AnonymousPipeClientStream _callerClientPipe, _callerServerPipe;
 
-        private static void Main( string[] args )
+        private static void Main(
+                            string[] args
+        )
         {
             Application.Init();
 
-            Console.CancelKeyPress += ( sender, e ) => {
+            Console.CancelKeyPress += (
+                                      sender,
+                                      e
+            ) => {
                 e.Cancel = true;
                 Application.RequestStop();
             };
 
             Task renderTask = Task.Factory
-                    .StartNew(
-                        () => {
-                            _dv = DialogueView.Single;
-                            Application.Run( view: _dv );
-                        } );
+                                  .StartNew((
+                                  ) => {
+                                      _dv = DialogueView.Single;
+                                      Application.Run(view:_dv);
+                                  }, CancellationToken.None, TaskCreationOptions.None,
+                                            TaskScheduler.Default);
 
             /**/
-            if( args.Length != 2 ) {
+            if (args.Length != 2)
+            {
                 Console.ReadLine();
                 Application.RequestStop();
             }
             /**/
 
             _callerClientPipe = new AnonymousPipeClientStream(
-                PipeDirection.In, args[ 0 ] );
+                PipeDirection.In, args[0]);
             _callerServerPipe = new AnonymousPipeClientStream(
-                PipeDirection.Out, args[ 1 ] );
+                PipeDirection.Out, args[1]);
 
 
-            using( StreamReader clientReader = new StreamReader(
-                _callerClientPipe ) ) {
-                using( StreamWriter clientSender = new StreamWriter(
-                    _callerServerPipe ) ) {
+            using (StreamReader clientReader = new StreamReader(
+                _callerClientPipe))
+            {
+                using (StreamWriter clientSender = new StreamWriter(
+                    _callerServerPipe))
+                {
                     clientSender.AutoFlush = true;
                     string temp = string.Empty;
-                    while( !temp!.Contains( "exit " ) && !renderTask.IsCompleted ) {
+                    while (!temp!.Contains("exit ") && !renderTask.IsCompleted)
+                    {
                         temp = clientReader.ReadLine()!;
                         temp = temp ?? string.Empty;
-                        if( string.IsNullOrEmpty( temp ) ) {
+                        if (string.IsNullOrEmpty(temp))
+                        {
                             continue;
                         }
 
-                        int index = temp.IndexOf( ' ' );
-                        if( index == -1 ) {
+                        int index = temp.IndexOf(' ');
+                        if (index == -1)
+                        {
                             continue;
                         }
 
-                        string command = temp.Substring( 0, index );
-                        string operand = temp.Substring( index + 1 );
+                        string command = temp[..index];
+                        string operand = temp[(index + 1)..];
 
-                        PostOperation( command, operand );
+                        PostOperation(command, operand);
                     }
                 }
             }

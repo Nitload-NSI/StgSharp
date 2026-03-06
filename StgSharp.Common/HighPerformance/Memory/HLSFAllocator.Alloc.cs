@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Alloc"
 // Project: StgSharp
@@ -27,9 +27,9 @@
 // -----------------------------------------------------------------------
 using System;
 using System.Numerics;
-using hlsfHandle = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocationHandle;
+using hlsfHandle = StgSharp.Mathematics.Memory.HybridLayerSegregatedFitAllocationHandle;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Mathematics.Memory
 {
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {

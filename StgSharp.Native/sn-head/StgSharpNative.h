@@ -65,7 +65,14 @@ SN_API GLFWglproc SN_DECL loadGlfuncDefault(char *procName);
 SN_API void SN_DECL unloadImageData(Image *out);
 SN_API char *SN_DECL readLog(void);
 SN_API void SN_DECL load_glfw_functions(GLFWFunctionTable *table);
-SN_API SIMDID SN_DECL load_intrinsic_function(void *intrinsic_context);
+SN_API void SN_DECL load_intrinsic_function(void *intrinsic_context, uint64_t id);
+SN_API SIMDID SN_DECL sn_get_simd_level_global();
+/* Per-core variant: always re-executes CPUID, never caches.
+ * Must be called on the target core (after affinity is set). */
+SN_API SIMDID SN_DECL sn_get_simd_level_local();
+SN_API SIMDID SN_DECL sn_get_unite_simd(SIMDID left, SIMDID right);
+SN_API int SN_DECL sn_compare_simd(SIMDID left, SIMDID right);
+SN_API void SN_DECL sn_set_thread_affinity(int core_id);
 
 #ifdef __cplusplus
 }

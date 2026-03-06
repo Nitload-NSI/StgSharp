@@ -26,7 +26,9 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using BenchmarkDotNet.Attributes;
-using StgSharp.HighPerformance.Memory;
+using StgSharp.Mathematics.Memory;
+using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace StgSharp.Benchmark

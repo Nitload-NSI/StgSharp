@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocationHandle"
 // Project: StgSharp
@@ -32,9 +32,9 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-using Allocator = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
+using Allocator = StgSharp.Mathematics.Memory.HybridLayerSegregatedFitAllocator;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Mathematics.Memory
 {
     public readonly unsafe struct HybridLayerSegregatedFitAllocationHandle
     {

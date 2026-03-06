@@ -12,7 +12,7 @@ StgSharp provides both low-level and high-level bindings to OpenGL, multimedia c
 
 ### StgSharp.Common
 
-The main library containing core functionality:
+The foundational library containing shared functionality:
 
 - **Mathematics**: High-performance linear algebra, matrix operations, and mathematical utilities
 - **Graphics**: OpenGL bindings, rendering pipeline, and graphics framework
@@ -22,25 +22,21 @@ The main library containing core functionality:
 - **Entities**: Game entity system and behavior management
 - **Environment**: Platform abstraction and system integration
 
-### StgSharp.Script
+### StgSharp.Mathematics (Numeric)
 
-General-purpose syntax analysis framework:
+Numerics and linear algebra built on top of the core library:
 
-- **Syntax Analysis Framework**: Provides a flexible framework for parsing and analyzing various programming languages
-- **EXPRESS Language Support**: Specialized support for ISO 10303-11 EXPRESS language syntax parsing
-- **Abstract Syntax Trees**: Language parsing and analysis infrastructure
-- **Token Processing**: Lexical analysis and token management
-- **Grammar Parsing**: Extensible grammar parsing and validation system
+- **Matrix & Vector Types**: High-performance math primitives
+- **Numeric Utilities**: Core numeric helpers and algorithms
+- **SIMD-Friendly Kernels**: Data layouts optimized for hardware acceleration
 
-### StgSharp.Model
+### StgSharp.RegularAnalysis
 
-Geometric model loading and interpretation:
+Regular-language and parsing infrastructure (replaces the former Script module):
 
-- **Geometric Model Loading**: Responsible for loading and interpreting geometric models from various formats
-- **STEP Format Support**: Limited support for ISO 10303 STEP file format processing
-- **Entity Management**: Model entity parsing and geometric data interpretation
-- **Data Pipeline**: Efficient geometric data processing and transformation
-- **Schema Validation**: Model structure validation and verification
+- **Regex/Automata Core**: Regular expression processing and automata utilities
+- **Parsing Primitives**: Reusable tokenizer and grammar building blocks
+- **Analysis Pipeline**: Structured processing for language-like inputs
 
 ### StgSharp.Native
 
@@ -51,13 +47,23 @@ Native library integration:
 - **Matrix Kernels**: Optimized matrix computation routines
 - **Context Management**: Graphics context and resource management
 
+### StgSharp.Device
+
+Low-level device and port abstractions:
+
+- **Command Interfaces**: Command shapes and serialization contracts
+- **Port Control**: Stream-oriented device access
+- **Decoder/Response Models**: Protocol-level data handling
+
 ### StgSharp.TerminalDialogue
 
-Terminal-based user interface:
+Terminal-based user interface application and components:
 
-- **Interactive Terminal**: Command-line interface components
+- **Interactive Terminal**: Command-line UI components
 - **Dialogue System**: User interaction and input handling
 - **Terminal Graphics**: Text-based UI rendering
+
+> Note: The legacy Script module has been superseded by RegularAnalysis. The Model module is under refactoring and is currently out of the core framework.
 
 ## Key Features
 
@@ -86,7 +92,10 @@ Toolchain=InProcessEmitToolchain  InvocationCount=2048  UnrollFactor=1
 | Hlsf | 76.23 µs | 0.355 µs | 0.315 µs | 0.44 | 0.01 |
 | Libc | 172.98 µs | 3.042 µs | 2.988 µs | 1.00 | 0.02 |
 
-This run shows HLSF significantly faster than libc under the current configuration. See the HLSF document for details and caveats.
+This benchmark measures steady-state small-block allocation throughput (64B–4KB),  
+which represents the dominant allocation pattern in StgSharp's matrix computation pipeline.  
+HLSF uses a pre-allocated arena with size-class free lists, avoiding kernel-mode allocation calls.  
+Under this workload, HLSF achieves ~2.3× throughput over system malloc. This is not a general-purpose allocator comparison.
 
 ### Graphics and Rendering
 
@@ -129,6 +138,7 @@ StgSharp is currently in development and requires compilation from source. **NuG
 ### Building from Source
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/Nitload-NSI/StgSharp.git
    cd StgSharp
@@ -140,6 +150,7 @@ StgSharp is currently in development and requires compilation from source. **NuG
    - The native components will be automatically compiled
 
 3. **Linux (Experimental)**:
+
    ```bash
    # Build .NET components only
    # Note: Native components are not yet supported on Linux
@@ -200,6 +211,7 @@ allocator.Free(handle);
 ## Documentation
 
 ### Technical Documentation
+
 - [HLSF Allocator](StgSharp.Common/HighPerformance/Memory/InroductionToHLSF.md) - High-performance memory allocator documentation
 - [Native Library Naming](StgSharp.Native/naming.md) - Native library file naming conventions
 

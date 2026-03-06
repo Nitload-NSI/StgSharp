@@ -55,29 +55,6 @@ namespace StgSharp
         private static uint markCount = 0;
         internal static GraphicAPI API = default;
 
-        public static unsafe int DefaultSIMDAlignment
-        {
-            get
-            {
-                SIMDID id = NativeIntrinsic.IntrinsicMask;
-                switch (id.MaskByte[0] & 0b_00001111)
-                {
-                    case 1:
-                        return id.MaskByte[1] switch
-                        {
-                            1 => 16,
-                            2 => 32,
-                            3 => 64,
-                            4 => 64,
-                            5 => 64,
-                            _ => 8,
-                        };
-                    default:
-                        return 8;
-                }
-            }
-        }
-
         public static ModuleToInitializeCollection Initialize()
         {
             return new ModuleToInitializeCollection(new Initializer());
@@ -131,7 +108,8 @@ namespace StgSharp
         )
         {
             MainTimeProvider.StopProvidingTime();
-            GraphicFramework.glfwTerminate();
+
+            // GraphicFramework.glfwTerminate();
             Environment.Exit(exitCode);
         }
 
@@ -222,10 +200,6 @@ namespace StgSharp
         {
             // Initialize time provider and start providing time
             MainTimeProvider.StartProvidingTime();
-            GraphicFramework.LoadGlfw();
-            if (GraphicFramework.glfwInit() == 0) {
-                throw new Exception("Failed to init system graphic environment.");
-            }
             DefaultLog.InternalAppendLog("\n\n\n");
             DefaultLog.InternalWriteLog(
                 $"Program {Assembly.GetEntryAssembly()!.FullName} on {Environment.MachineName} Started.", LogType.Info);
@@ -238,18 +212,23 @@ namespace StgSharp
                 Dialogue.CreateDialogueProcessIfNotExist();
             }
             /**/
-            NativeIntrinsic.InitIntrinsicContext();
         }
 
         internal class Initializer : IStaticModule
         {
 
-            public string ModuleName => "StgSharp";
+            public string ModuleName => "StgSharpCore";
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void InitializeModule()
+            public void InitializeModule(
+                        IModuleInitializeProfile profile
+            )
             {
                 World.InternalInitialize();
+            }
+
+            public void UninitializeModule()
+            {
+                throw new NotImplementedException();
             }
 
         }

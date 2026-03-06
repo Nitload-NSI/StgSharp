@@ -1,19 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  ISA target：x64 + ARM64                                  -->
+  <!-- ════════════════════════════════════════════════════════ -->
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="PerformanceDebug|x64">
-      <Configuration>PerformanceDebug</Configuration>
-      <Platform>x64</Platform>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="PerformanceDebug|x64">
+      <Configuration>PerformanceDebug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="PerformanceDebug|ARM64">
+      <Configuration>PerformanceDebug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  Global Property                                                -->
+  <!-- ════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -23,21 +41,27 @@
     <ProjectName>StgSharp.Native</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  Configuration                                           -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- Debug（x64 + ARM64 共用） -->
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+  <!-- Release（x64 + ARM64 共用） -->
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PerformanceDebug|x64'" Label="Configuration">
+  <!-- PerformanceDebug（x64 + ARM64 共用） -->
+  <PropertyGroup Condition="'$(Configuration)'=='PerformanceDebug'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -49,131 +73,125 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PerformanceDebug|x64'" Label="PropertySheets">
+  <!-- PropertySheets（对所有 Configuration|Platform 生效） -->
+  <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)build</OutDir>
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  output folder: layered                                  -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <!-- 把 ARM64 → arm64，x64 保持 x64 -->
+    <_ArchTag Condition="'$(Platform)'=='x64'">x64</_ArchTag>
+    <_ArchTag Condition="'$(Platform)'=='ARM64'">arm64</_ArchTag>
+    <!-- 输出到 build/win-<arch>/ -->
+    <OutDir>$(SolutionDir)build\win-$(_ArchTag)\</OutDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)build</OutDir>
+  <PropertyGroup Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='PerformanceDebug'">
     <GenerateManifest>false</GenerateManifest>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PerformanceDebug|x64'">
-    <OutDir>$(SolutionDir)build</OutDir>
-    <GenerateManifest>false</GenerateManifest>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  Compile options: common to all configurations           -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>Default</LanguageStandard>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <ExpandAttributedSource>true</ExpandAttributedSource>
-      <AssemblerOutput>All</AssemblerOutput>
-      <BrowseInformation>true</BrowseInformation>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)sn-head;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <!-- DLL 应该用 Windows，不是 Console -->
+      <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Debug 特有 -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <ExpandAttributedSource>true</ExpandAttributedSource>
+      <AssemblerOutput>All</AssemblerOutput>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <!-- Release + PerformanceDebug 共用（优化开启） -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='PerformanceDebug'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <AssemblerOutput>All</AssemblerOutput>
-      <LanguageStandard>Default</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
       <CompileAs>CompileAsC</CompileAs>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)sn-head;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ShowProgress>LinkVerbose</ShowProgress>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Release 独有（InlineFunctionExpansion） -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
-      <ShowProgress>LinkVerbose</ShowProgress>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-    </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PerformanceDebug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AssemblerOutput>All</AssemblerOutput>
-      <LanguageStandard>Default</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
-      <CompileAs>CompileAsC</CompileAs>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)sn-head;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
-      <ShowProgress>LinkVerbose</ShowProgress>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-    </Link>
-  </ItemDefinitionGroup>
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  glfw static lib                                  -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <ItemGroup Condition="'$(Platform)'=='x64'">
+    <Library Include="lib\glfw\glfw3.lib" />
+    <Library Include="lib\glfw\glfw3_mt.lib" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='ARM64'">
+    <Library Include="lib\glfw\glfw3.lib" />
+    <Library Include="lib\glfw\glfw3_mt.lib" />
+  </ItemGroup>
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  source files                                            -->
+  <!-- ════════════════════════════════════════════════════════ -->
   <ItemGroup>
-    <ClCompile Include="sn-src\m.panel.x86.c" />
     <ClCompile Include="sn-src\m.basic.x86.c" />
     <ClCompile Include="sn-src\dllmain.c" />
     <ClCompile Include="sn-src\m.bufop.x86.c" />
     <ClCompile Include="sn-src\m.solve.x86.c" />
-    <ClCompile Include="sn-src\m.fma_tile.x86.c" />
+    <ClCompile Include="sn-src\mk.fma.x86.c" />
     <ClCompile Include="sn-src\s.factorial.x86.c" />
-    <ClCompile Include="sn-src\m.fma.x86.c" />
+    <ClCompile Include="sn-src\sk.fma.x86.c" />
     <ClCompile Include="sn-src\s.hash.x86.c" />
-    <ClCompile Include="sn-src\load_intrinsic.x86.c">
-      <FileType>CCode</FileType>
-    </ClCompile>
+    <ClCompile Include="sn-src\load_intrinsic.x86.c" />
     <ClCompile Include="sn-src\load_glfw.c" />
-    <ClCompile Include="sn-src\cpuid.x86.c" />
+    <ClCompile Include="sn-src\simdid.x86.c" />
+    <ClCompile Include="sn-src\simdid_compare.x86.c" />
     <ClCompile Include="sn-src\sn_native.c" />
-    <ClCompile Include="sn-src\str_string.c" />
+    <ClCompile Include="sn-src\t.affinity.c" />
     <ClCompile Include="sn-src\vector.c" />
     <ClCompile Include="sn-src\vector_dot.c" />
   </ItemGroup>
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  header files                                            -->
+  <!-- ════════════════════════════════════════════════════════ -->
   <ItemGroup>
     <ClInclude Include="lib\glfw\glfw3.h" />
     <ClInclude Include="lib\glfw\glfw3native.h" />
@@ -182,18 +200,16 @@
     <ClInclude Include="sn-head\glfw_function.h" />
     <ClInclude Include="sn-head\khrplatform.h" />
     <ClInclude Include="sn-head\sn_internal.h" />
-    <ClInclude Include="sn-head\sn_intrincontext.x86.h" />
+    <ClInclude Include="sn-head\sn_intrinsic.context.x86.h" />
+    <ClInclude Include="sn-head\sn_intrinsic.std.h" />
     <ClInclude Include="sn-head\sn_intrinsic.h" />
-    <ClInclude Include="sn-head\sn_matkernel.h" />
+    <ClInclude Include="sn-head\sn_intrinsic.matkernel.h" />
     <ClInclude Include="sn-head\sn_target.h" />
     <ClInclude Include="sn-head\StgSharpNative.h" />
     <ClInclude Include="sn-head\wgl.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="lib\glfw\glfw3.lib" />
-    <Library Include="lib\glfw\glfw3_mt.lib" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="naming.md" />
     <None Include="SIMDID.x86.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

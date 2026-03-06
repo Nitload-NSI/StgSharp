@@ -25,6 +25,8 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using System;
+
 namespace StgSharp.RegularAnalysis.Abstraction
 {
     public static class TokenReader

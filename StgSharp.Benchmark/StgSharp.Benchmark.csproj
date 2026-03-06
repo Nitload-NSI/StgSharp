@@ -1,16 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Platforms>x64</Platforms>
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
 
   <PropertyGroup>
     <SolutionDir Condition="'$(SolutionDir)'=='' Or '$(SolutionDir)'=='*Undefined*'">$(MSBuildProjectDirectory)\..\</SolutionDir>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Level"
 // Project: StgSharp
@@ -33,14 +33,14 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Mathematics.Memory
 {
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
         private const int MaxLevel = 9;
 
-        private int[] _levelSizeArray = [ 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216 ];
+        private int[] _levelSizeArray = [64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216];
 
         public int AlignOfLevel(int bucketLevel)
         {

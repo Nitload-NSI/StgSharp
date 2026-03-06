@@ -26,8 +26,8 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains.InProcess.Emit;
 using StgSharp.Benchmark;
@@ -41,10 +41,11 @@ namespace StgSharp.Benchmark
                             string[] args
         )
         {
-                            IConfig config = ManualConfig.Create(DefaultConfig.Instance)
-                                .AddLogger(ConsoleLogger.Default)
-                                .AddJob(Job.Default.WithToolchain(InProcessEmitToolchain.Instance));
-                            BenchmarkRunner.Run<HlsfAllocatorBench>(config);
+            IConfig config = ManualConfig.Create(DefaultConfig.Instance)
+                                         .AddLogger(ConsoleLogger.Default)
+                                         .AddJob(Job.Default
+                                                    .WithToolchain(InProcessEmitToolchain.Instance));
+            _ = BenchmarkRunner.Run<SwissTableBench>(config);
         }
 
     }

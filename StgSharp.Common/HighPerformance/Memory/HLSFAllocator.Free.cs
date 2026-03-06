@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Free"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,9 +35,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-using hlsfHandle = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocationHandle;
+using hlsfHandle = StgSharp.Mathematics.Memory.HybridLayerSegregatedFitAllocationHandle;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Mathematics.Memory
 {
     public enum FreePolicy
     {
@@ -90,10 +90,7 @@ namespace StgSharp.HighPerformance.Memory
         ///   Handle to the allocated memory block
         ///  <param name="collectPolicy">
         /// </param>
-        public void Free(
-                    hlsfHandle handle,
-                    FreePolicy collectPolicy = FreePolicy.NoCollect
-        )
+        public void Free(hlsfHandle handle, FreePolicy collectPolicy = FreePolicy.NoCollect)
         {
             Entry* e = handle.EntryHandle;
             if (e == null) {
