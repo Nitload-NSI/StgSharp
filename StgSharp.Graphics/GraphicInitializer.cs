@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4"
+// file="GraphicInitializer"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -25,31 +25,33 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-using StgSharp.Mathematics.Memory;
+
+using StgSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Graphics
 {
-    public unsafe partial class L4
+    public class GraphicModuel : IStaticModule
     {
 
-        private readonly byte* _buffer;
-        private readonly SwissTable _map;
+        public string ModuleName => "Graphics";
 
-        private SlabAllocator<EvictionRingNode> EntryAllocator { get; set; }
-
-        private SlabAllocator<CacheLine> CacheLineAllocator { get; set; }
-
-        public struct CacheLine
+        public void InitializeModule(IModuleInitializeProfile profile)
         {
+            GraphicFramework.LoadGlfw();
+            if (GraphicFramework.glfwInit() == 0) {
+                throw new Exception("Failed to init system graphic environment.");
+            }
+        }
 
-            public fixed byte Data[64];
-
+        public void UninitializeModule()
+        {
+            GraphicFramework.glfwTerminate();
         }
 
     }

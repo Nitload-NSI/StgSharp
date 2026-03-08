@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4"
+// file="L4.CommandQueue"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -25,11 +25,10 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-using StgSharp.Mathematics.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,17 +37,64 @@ namespace StgSharp.HighPerformance.Memory
     public unsafe partial class L4
     {
 
-        private readonly byte* _buffer;
-        private readonly SwissTable _map;
+        private CommandQueue _commandQueue;
 
-        private SlabAllocator<EvictionRingNode> EntryAllocator { get; set; }
-
-        private SlabAllocator<CacheLine> CacheLineAllocator { get; set; }
-
-        public struct CacheLine
+        private struct CommandQueue
         {
 
-            public fixed byte Data[64];
+            private CommandCache* ReadCache;
+
+            private int _curRead;
+            private int _curWrite;
+
+            /// <summary>
+            ///   Try get a next command to execute
+            /// </summary>
+            /// <param name="command">
+            ///   pointer to next command
+            /// </param>
+            /// <returns>
+            ///   True if there is a command to execute, otherwise false
+            /// </returns>
+            public bool TryDequeue(out nint command)
+            {
+                if (_curRead >= 64)
+                {
+                    // next cache
+                    CommandCache* next = ReadCache->Next;
+                }
+
+                // current cache
+                command = default;
+                return true;
+            }
+
+        }
+
+        private struct CommandCache
+        {
+
+            public CommandCache* Next;
+
+            public CommandCache* Prev;
+            public CommandArray Commands;
+
+        }
+
+        [InlineArray(64)]
+        private struct CommandArray
+        {
+
+            public Command Command0;
+
+        }
+
+        private struct Command
+        {
+
+            public int CommandType;
+            public nint Destination;
+            public nint Source;
 
         }
 

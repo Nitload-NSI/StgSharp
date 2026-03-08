@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4"
+// file="IglConvertable"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,32 +25,41 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-using StgSharp.Mathematics.Memory;
+using StgSharp.Graphics.OpenGL;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Graphics.ShaderEdit
 {
-    public unsafe partial class L4
+    public interface IglConvertable
     {
 
-        private readonly byte* _buffer;
-        private readonly SwissTable _map;
+        /// <summary>
+        ///
+        /// </summary>
+        public void DisplayGLtypeDefinition();
 
-        private SlabAllocator<EvictionRingNode> EntryAllocator { get; set; }
+        /// <summary>
+        ///
+        /// </summary>
+        public void GainAllUniforms(ShaderProgram source, params string[] uniformName);
 
-        private SlabAllocator<CacheLine> CacheLineAllocator { get; set; }
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>
+        ///
+        /// </returns>
+        public ShaderStruct GetConvertedGLtype();
 
-        public struct CacheLine
-        {
-
-            public fixed byte Data[64];
-
-        }
+        /// <summary>
+        ///
+        /// </summary>
+        public void SetAllUniforms();
 
     }
 }

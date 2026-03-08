@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4"
+// file="Monitor"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -25,31 +25,34 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-using StgSharp.Mathematics.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Graphics
 {
-    public unsafe partial class L4
+    public static class GraphicsEnvironment
     {
 
-        private readonly byte* _buffer;
-        private readonly SwissTable _map;
+        private static IntPtr[] _monitorsHandleArray;
 
-        private SlabAllocator<EvictionRingNode> EntryAllocator { get; set; }
-
-        private SlabAllocator<CacheLine> CacheLineAllocator { get; set; }
-
-        public struct CacheLine
+        public static unsafe ReadOnlySpan<IntPtr> MonitorsHandleArray
         {
-
-            public fixed byte Data[64];
-
+            get
+            {
+                if (_monitorsHandleArray == null)
+                {
+                    int count = 0;
+                    IntPtr* arrayHandle = GraphicFramework.glfwGetMonitors(&count);
+                    _monitorsHandleArray = new IntPtr[count];
+                    Marshal.Copy((IntPtr)arrayHandle, _monitorsHandleArray, 0, count);
+                    Marshal.FreeHGlobal((IntPtr)arrayHandle);
+                }
+                return _monitorsHandleArray;
+            }
         }
 
     }

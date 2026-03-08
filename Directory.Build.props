@@ -1,0 +1,117 @@
+<Project>
+
+  <!-- ═════════════════════════════���══════════════════════════ -->
+  <!--  全局属性：所有 C# 项目共享                               -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <LangVersion>Preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AnalysisLevel>preview-all</AnalysisLevel>
+    <Platforms>x64;ARM64</Platforms>
+    <Configurations>Debug;Release;PerformanceDebug</Configurations>
+    <NoWarn>1701;1702;0649;1591;0169</NoWarn>
+
+    <!-- 包信息 -->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Nitload-NSI/StgSharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Nitload-NSI/StgSharp.git</RepositoryUrl>
+  </PropertyGroup>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  Configuration × Platform 属性                          -->
+  <!--  在这里统一定义，各项目 csproj 不再重复                    -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
+    <Optimize>False</Optimize>
+    <DebugType>portable</DebugType>
+    <Deterministic>False</Deterministic>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='PerformanceDebug'">
+    <Optimize>True</Optimize>
+    <DebugType>none</DebugType>
+    <Deterministic>False</Deterministic>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Optimize>True</Optimize>
+    <DebugType>none</DebugType>
+    <Deterministic>False</Deterministic>
+  </PropertyGroup>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  路径约定                                                -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <!-- 解决方案根目录（自动向上查找本文件来确定） -->
+    <SolutionRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Directory.Build.props'))\</SolutionRoot>
+
+    <!-- native 库名称 -->
+    <NativeLibName>StgSharp.Native</NativeLibName>
+  </PropertyGroup>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  OS / Arch 检测（编译机器，用于本地调试）                  -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+    <IsLinux   Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
+    <IsOSX     Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
+
+    <_OsTag Condition="'$(IsWindows)'=='true'">win</_OsTag>
+    <_OsTag Condition="'$(IsLinux)'=='true'">linux</_OsTag>
+    <_OsTag Condition="'$(IsOSX)'=='true'">osx</_OsTag>
+  </PropertyGroup>
+
+  <!-- C# 的 $(Platform) 就是 x64 / ARM64，直接用来拼 RID -->
+  <PropertyGroup>
+    <!-- 把 ARM64 统一成小写 arm64，x64 保持不变 -->
+    <_ArchTag Condition="'$(Platform)'=='x64'">x64</_ArchTag>
+    <_ArchTag Condition="'$(Platform)'=='ARM64'">arm64</_ArchTag>
+    <_ArchTag Condition="'$(_ArchTag)'==''">x64</_ArchTag>
+
+    <!-- 当前编译的 RID -->
+    <BuildRid>$(_OsTag)-$(_ArchTag)</BuildRid>
+
+    <!-- 分层的 build 输出目录 -->
+    <NativeBuildDir>$(SolutionRoot)build\$(BuildRid)\</NativeBuildDir>
+  </PropertyGroup>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  Native 文件名后缀（跨平台）                              -->
+  <!-- ══════════════════════════��═════════════════════════════ -->
+  <PropertyGroup>
+    <_NativePrefix Condition="'$(_OsTag)'!='win'">lib</_NativePrefix>
+    <_NativePrefix Condition="'$(_OsTag)'=='win'"></_NativePrefix>
+
+    <_NativeExt Condition="'$(_OsTag)'=='win'">.dll</_NativeExt>
+    <_NativeExt Condition="'$(_OsTag)'=='linux'">.so</_NativeExt>
+    <_NativeExt Condition="'$(_OsTag)'=='osx'">.dylib</_NativeExt>
+
+    <_NativeSymExt Condition="'$(_OsTag)'=='win'">.pdb</_NativeSymExt>
+    <_NativeSymExt Condition="'$(_OsTag)'=='linux'">.so.dbg</_NativeSymExt>
+    <_NativeSymExt Condition="'$(_OsTag)'=='osx'">.dylib.dSYM</_NativeSymExt>
+
+    <NativeFileName>$(_NativePrefix)$(NativeLibName)$(_NativeExt)</NativeFileName>
+    <NativeSymbolFileName>$(_NativePrefix)$(NativeLibName)$(_NativeSymExt)</NativeSymbolFileName>
+  </PropertyGroup>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  OS 条件编译符号                                         -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsOSX)'=='true'">
+    <DefineConstants>$(DefineConstants);OSX</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsLinux)'=='true'">
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+  </PropertyGroup>
+
+</Project>

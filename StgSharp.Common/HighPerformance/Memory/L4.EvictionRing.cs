@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4"
+// file="L4.EvictionRing"
 // Project: StgSharp
 // AuthorGroup: Nitload Space
 // Copyright (c) Nitload Space. All rights reserved.
@@ -25,30 +25,57 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-using StgSharp.Mathematics.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public unsafe partial class L4
+    public partial class L4
     {
 
-        private readonly byte* _buffer;
-        private readonly SwissTable _map;
+        private EvictionRing _ring ;
 
-        private SlabAllocator<EvictionRingNode> EntryAllocator { get; set; }
-
-        private SlabAllocator<CacheLine> CacheLineAllocator { get; set; }
-
-        public struct CacheLine
+        private unsafe class EvictionRing
         {
 
-            public fixed byte Data[64];
+            private nint[] _bucket;
+
+            public void AddNode(EvictionRingNode* node)
+            {
+                nint address = node->_address;
+                int hash = (int)(address % (nint)_bucket.Length);
+                nint head = _bucket[hash];
+                if (head != 0)
+                {
+                    EvictionRingNode* headNode = (EvictionRingNode*)head;
+                    headNode->_prev = node;
+                    node->_next = headNode;
+                }
+                _bucket[hash] = address;
+            }
+
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private unsafe struct EvictionRingNode
+        {
+
+            public EvictionRingNode* _next;
+            public EvictionRingNode* _prev;
+            public int _level;
+            public int _refCount;
+            public nint _address;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void IncrementRefCount()
+            {
+                _ = Interlocked.Increment(ref _refCount);
+            }
 
         }
 

@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4"
+// file="frameworkSyncContext"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,31 +25,49 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-using StgSharp.Mathematics.Memory;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Threading
 {
-    public unsafe partial class L4
+    public class FrameworkSyncContext : SynchronizationContext
     {
 
-        private readonly byte* _buffer;
-        private readonly SwissTable _map;
+        private readonly BlockingCollection<SendOrPostCallback> _syncContexts = [];
+        private readonly Thread _mainThread = Thread.CurrentThread;
 
-        private SlabAllocator<EvictionRingNode> EntryAllocator { get; set; }
-
-        private SlabAllocator<CacheLine> CacheLineAllocator { get; set; }
-
-        public struct CacheLine
+        public FrameworkSyncContext()
         {
+            _mainThread = Thread.CurrentThread;
+        }
 
-            public fixed byte Data[64];
+        public static FrameworkSyncContext MainThreadContext
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+        } = new FrameworkSyncContext();
 
+        public override void Post(SendOrPostCallback d, object state)
+        {
+            _syncContexts.Add(d);
+        }
+
+        public override void Send(SendOrPostCallback d, object state)
+        {
+            if (Thread.CurrentThread == _mainThread)
+            {
+                d(state);
+            } else
+            {
+                Post(d, state);
+            }
         }
 
     }

@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4"
+// file="glHandle"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,31 +25,59 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-using StgSharp.Mathematics.Memory;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using System.Security.AccessControl;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Graphics.OpenGL
 {
-    public unsafe partial class L4
+    [StructLayout(LayoutKind.Explicit, Size = 4)]
+    public struct GlHandle
     {
 
-        private readonly byte* _buffer;
-        private readonly SwissTable _map;
+        [FieldOffset(0)] internal int SignedValue;
+        [FieldOffset(0)] internal uint Value;
 
-        private SlabAllocator<EvictionRingNode> EntryAllocator { get; set; }
-
-        private SlabAllocator<CacheLine> CacheLineAllocator { get; set; }
-
-        public struct CacheLine
+        public GlHandle()
         {
+            Unsafe.SkipInit(out Value);
+            Unsafe.SkipInit(out SignedValue);
+            Unsafe.SkipInit(out this);
+        }
 
-            public fixed byte Data[64];
+        public static GlHandle Zero
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new GlHandle
+            {
+                Value = 0
+            };
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GlHandle Create(uint value)
+        {
+            return new GlHandle
+            {
+                Value = value
+            };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GlHandle CreateSigned(int value)
+        {
+            return new GlHandle
+            {
+                SignedValue = value
+            };
         }
 
     }

@@ -1,9 +1,9 @@
-//-----------------------------------------------------------------------
+﻿//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4"
+// file="GLBufferObjectBase"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,32 +25,26 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-using StgSharp.Mathematics.Memory;
+using StgSharp.Graphics.OpenGL;
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace StgSharp.HighPerformance.Memory
+namespace StgSharp.Graphics.OpenGL
 {
-    public unsafe partial class L4
+    public abstract class GlBufferObjectBase : BufferObjectBase
     {
 
-        private readonly byte* _buffer;
-        private readonly SwissTable _map;
+        private readonly glRender _contextBinding;
 
-        private SlabAllocator<EvictionRingNode> EntryAllocator { get; set; }
-
-        private SlabAllocator<CacheLine> CacheLineAllocator { get; set; }
-
-        public struct CacheLine
+        protected GlBufferObjectBase(glRender contextBinding)
         {
-
-            public fixed byte Data[64];
-
+            binding = contextBinding;
+            _contextBinding = contextBinding;
         }
+
+        protected OpenGLFunction GL => _contextBinding.GL;
 
     }
 }
