@@ -30,25 +30,126 @@ using StgSharp.Mathematics.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public unsafe partial class L4
+    public unsafe partial class L4 : IDisposable
     {
 
-        private readonly byte* _buffer;
+        private const int CacheLineCount = 8192;
+        private const int PredictionCount = 2048;
+        private const int PredictionLeastAhead = 1024;
+
+        private readonly CacheLineData* _data;
+
+        private readonly EvictionArray* _eviction;
+        private readonly CacheLineHead* _head;
+        private readonly CacheLinePrediction* _prediction;
+
+        private bool _disposed;
+        private int _activeCount;
+
+        private int _aheadCount;
+        private int _maxId;
+        private readonly nuint _baseAddress;
         private readonly SwissTable _map;
+        private readonly UnmanagedStack<int> _idMux;
 
-        private SlabAllocator<EvictionRingNode> EntryAllocator { get; set; }
+        public L4()
+        {
+            int cacheSize = Unsafe.SizeOf<CacheLineData>() * CacheLineCount;
+            int entrySize = Unsafe.SizeOf<CacheLineHead>() * CacheLineCount;
+            int stackSize = sizeof(int) * CacheLineCount;
+            int mapSize = SwissTable.RequestedNativeMemorySize;
+            int predictionSize = Unsafe.SizeOf<CacheLinePrediction>() * PredictionCount;
+            int rrpvSize = Unsafe.SizeOf<EvictionArray>();
+            _baseAddress = (nuint)NativeMemory.AlignedAlloc((nuint)(cacheSize + entrySize + stackSize + mapSize + predictionSize + rrpvSize), 16);
+            nuint _buffer = _baseAddress;
+            _data = (CacheLineData*)_buffer;
+            _head = (CacheLineHead*)(_buffer + (nuint)cacheSize);
+            _prediction = (CacheLinePrediction*)(_buffer + (nuint)(cacheSize + entrySize));
+            _map = SwissTable.Create(_baseAddress + (nuint)(cacheSize + entrySize), _ => { });
+            _eviction = (EvictionArray*)(_baseAddress + (nuint)(cacheSize + entrySize + mapSize));
+        }
 
-        private SlabAllocator<CacheLine> CacheLineAllocator { get; set; }
+        public IPrefetchPredict PrefetchPredict { get; set; }
 
-        public struct CacheLine
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+                "Design",
+                "CA1063:Implement IDisposable correctly",
+                Justification = """
+                    Only owns native memory via NativeMemory.AlignedFree();
+                    no managed IDisposable fields.
+                    Dispose(bool) pattern is unnecessary.
+                    """)]
+        public void Dispose()
+        {
+            if (_disposed) {
+                return;
+            }
+            _disposed = true;
+            _map.Dispose();
+            NativeMemory.AlignedFree((void*)_baseAddress);
+            GC.SuppressFinalize(this);
+        }
+
+        public CacheLine Map(nuint origin)
+        {
+            if (_map.TryGet(origin, out nuint entryHandle))
+            {
+                // cache hit
+                CacheLineHead* entry = (CacheLineHead*)entryHandle;
+                return new CacheLine(entry->_address, ref _activeCount, ref entry->_refCount);
+            }
+
+            // cache miss
+            /*
+             * post command
+             * then wait for completion
+             */
+            return /*origin/**/default;   //error now
+        }
+
+        private partial void Prefetch();
+
+        private partial bool TestHit(nuint origin);
+
+        public ref struct CacheLine : IDisposable
         {
 
-            public fixed byte Data[64];
+            private ref int _activeCount;
+            private ref int _refCount;
+            private nuint _handle;
+
+            internal CacheLine(nuint handle, ref int activeCount, ref int cacheRefCount)
+            {
+                _handle = handle;
+                _refCount = ref cacheRefCount;
+                _activeCount = ref activeCount;
+                _ = Interlocked.Increment(ref _activeCount);
+                _ = Interlocked.Increment(ref _refCount);
+            }
+
+            public void Dispose()
+            {
+                if (_handle == 0) {
+                    return;
+                }
+                _handle = 0;
+                _ = Interlocked.Decrement(ref _activeCount);
+                _ = Interlocked.Decrement(ref _refCount);
+            }
+
+        }
+
+        private struct CacheLineData
+        {
+
+            private fixed byte Data[8192];
 
         }
 

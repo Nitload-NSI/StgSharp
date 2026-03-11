@@ -34,82 +34,230 @@ using System.Runtime.CompilerServices;
 namespace StgSharp.Benchmark
 {
     /// <summary>
-    ///   Benchmark comparing SwissTable against <see cref="Dictionary{TKey, TValue}" />
-    ///   under realistic L4 software cache address-mapping workloads.
-    ///   <para>
-    ///   L4 scenario characteristics:
-    ///   - Keys are HLSF/malloc pointer addresses (large, 1024-byte aligned)
-    ///   - Access pattern is Zipfian-skewed (20% hot cache lines receive 80% of lookups)
-    ///   - Steady state: high hit-rate lookups dominate, with rare evict+refill on miss
-    ///   - Working set: 512–4096 active cache line mappings
-    ///   </para>
+    ///   Benchmark comparing SwissTable against <see cref="Dictionary{TKey, TValue}" /> under
+    ///   realistic L4 software cache address-mapping workloads. <para> ///   L4 scenario
+    ///   characteristics: ///   - Keys are HLSF/malloc pointer addresses (large, 1024-byte aligned)
+    ///   ///   - Access pattern is Zipfian-skewed (20% hot cache lines receive 80% of lookups) /// 
+    ///    - Steady state: high hit-rate lookups dominate, with rare evict+refill on miss ///   -
+    ///   Working set: 512–4096 active cache line mappings ///</para>
     /// </summary>
     [MemoryDiagnoser]
     public class SwissTableBench
     {
 
-        /// <summary> L4 cache line size in bytes (per L4_design.md). </summary>
+        /// <summary>
+        ///   L4 cache line size in bytes (per L4_design.md).
+        /// </summary>
         private const int CacheLineSize = 1024;
 
-        /// <summary> Simulated heap base address for pointer-like keys. </summary>
+        /// <summary>
+        ///   Simulated heap base address for pointer-like keys.
+        /// </summary>
         private const long HeapBase = 0x7FFF_0000_0000L;
 
-        /// <summary> Number of lookup operations per Lookup benchmark call. </summary>
+        /// <summary>
+        ///   Number of lookup operations per Lookup benchmark call.
+        /// </summary>
         private const int LookupIterations = 8192;
 
         /// <summary>
-        ///   Number of steady-state operations per call.
-        ///   Each op is either a lookup (hit) or an evict+insert+lookup (miss).
+        ///   Fraction of steady-state ops that are cache misses.
+        /// </summary>
+        private const double MissRate = 0.05;
+
+        /// <summary>
+        ///   Number of steady-state operations per call. Each op is either a lookup (hit) or an
+        ///   evict+insert+lookup (miss).
         /// </summary>
         private const int SteadyStateOps = 4096;
 
-        /// <summary> Fraction of steady-state ops that are cache misses. </summary>
-        private const double MissRate = 0.05;
+        /// <summary>
+        ///   Indices into _residentKeys for eviction targets (cold entries, tail region).
+        /// </summary>
+        private int[] _evictOrder = null!;
+
+        /// <summary>
+        ///   Additional keys not in the table, for triggering misses.
+        /// </summary>
+        private nuint[] _externalKeys = null!;
 
         // ── Pre-generated key arrays (pointer-like, 1024-byte aligned) ──
 
-        /// <summary> Keys for initial table fill (simulates cached addresses). </summary>
-        private nint[] _residentKeys = null!;
-
-        /// <summary> Additional keys not in the table, for triggering misses. </summary>
-        private nint[] _externalKeys = null!;
-
-        /// <summary> Zipfian-skewed lookup sequence (hot 20% accessed 80% of time). </summary>
-        private nint[] _zipfianLookups = null!;
-
-        /// <summary> Uniform random lookup sequence (baseline comparison). </summary>
-        private nint[] _uniformLookups = null!;
+        /// <summary>
+        ///   Keys for initial table fill (simulates cached addresses).
+        /// </summary>
+        private nuint[] _residentKeys = null!;
 
         /// <summary>
-        ///   Pre-built steady-state operation script.
-        ///   Each entry: positive index → lookup _residentKeys[idx],
-        ///   negative value → cache miss trigger (evict + insert from _externalKeys).
+        ///   Pre-built steady-state operation script. Each entry: positive index → lookup
+        ///   _residentKeys[idx], negative value → cache miss trigger (evict + insert from
+        ///   _externalKeys).
         /// </summary>
         private int[] _steadyStateScript = null!;
 
-        /// <summary> Indices into _residentKeys for eviction targets (cold entries, tail region). </summary>
-        private int[] _evictOrder = null!;
+        /// <summary>
+        ///   Uniform random lookup sequence (baseline comparison).
+        /// </summary>
+        private nuint[] _uniformLookups = null!;
 
-        // ── Pre-filled lookup targets ──
-
-        private SwissTable _swissLookup = null!;
-        private Dictionary<nint, nint> _dictLookup = null!;
+        /// <summary>
+        ///   Zipfian-skewed lookup sequence (hot 20% accessed 80% of time).
+        /// </summary>
+        private nuint[] _zipfianLookups = null!;
+        private Dictionary<nuint, nuint> _dictLookup = null!;
+        private Dictionary<nuint, nuint> _freshDict = null!;
 
         // ── Fresh instances for insert/mixed (rebuilt each iteration) ──
 
         private SwissTable _freshSwiss = null!;
-        private Dictionary<nint, nint> _freshDict = null!;
+
+        // ── Pre-filled lookup targets ──
+
+        private SwissTable _swissLookup = null!;
 
         /// <summary>
-        ///   Active cache line count. Matches L4 capacity range:
-        ///   5 MB / 1024B ≈ 5120,  10 MB / 1024B ≈ 10240.
-        ///   512 and 1024 test low-occupancy; 4096 tests near-capacity.
+        ///   Active cache line count. Matches L4 capacity range: 5 MB / 1024B ≈ 5120,  10 MB /
+        ///   1024B ≈ 10240. 512 and 1024 test low-occupancy; 4096 tests near-capacity.
         /// </summary>
         [Params(512, 1024, 4096)]
         public int KeyCount;
 
+        [GlobalCleanup]
+        public void Cleanup()
+        {
+            _dictLookup.Clear();
+            _dictLookup.TrimExcess();
+        }
+
         // ════════════════════════════════════════════════════════════
-        //  Setup / Teardown
+        // Insert — bulk fill with scattered pointer addresses
+        // Simulates L4 initial cache warm-up phase.
+        // ════════════════════════════════════════════════════════════
+
+        [Benchmark]
+        public void Dictionary_Insert()
+        {
+            Dictionary<nuint, nuint> dict = _freshDict;
+            nuint[] keys = _residentKeys;
+            for (int i = 0; i < keys.Length; i++) {
+                dict[keys[i]] = keys[i] ^ unchecked((nuint)0xDEAD_BEEF);
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // Lookup — Uniform (baseline comparison)
+        // ════════════════════════════════════════════════════════════
+
+        [Benchmark]
+        public nuint Dictionary_Lookup_Uniform()
+        {
+            nuint sum = 0;
+            nuint[] keys = _uniformLookups;
+            Dictionary<nuint, nuint> dict = _dictLookup;
+            for (int i = 0; i < keys.Length; i++)
+            {
+                if (dict.TryGetValue(keys[i], out nuint value)) {
+                    sum += value;
+                }
+            }
+            return sum;
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // Lookup — Zipfian (L4 hot path, skewed access)
+        // 20% of cache lines receive 80% of accesses.
+        // This is the most representative L4 benchmark.
+        // ════════════════════════════════════════════════════════════
+
+        [Benchmark(Baseline = true)]
+        public nuint Dictionary_Lookup_Zipfian()
+        {
+            nuint sum = 0;
+            nuint[] keys = _zipfianLookups;
+            Dictionary<nuint, nuint> dict = _dictLookup;
+            for (int i = 0; i < keys.Length; i++)
+            {
+                if (dict.TryGetValue(keys[i], out nuint value)) {
+                    sum += value;
+                }
+            }
+            return sum;
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // SteadyState — the KEY L4 benchmark
+        // Pre-filled table at capacity, then 4096 operations:
+        // ~95% are lookups (cache hits)
+        // ~5%  are miss → evict cold entry → insert new entry → lookup new
+        // This directly simulates L4's main runtime loop.
+        // ════════════════════════════════════════════════════════════
+
+        [Benchmark]
+        public nuint Dictionary_SteadyState()
+        {
+            nuint sum = 0;
+            Dictionary<nuint, nuint> dict = _freshDict;
+            nuint[] resident = _residentKeys;
+            nuint[] external = _externalKeys;
+            int[] script = _steadyStateScript;
+            int[] evict = _evictOrder;
+            int evictCursor = 0;
+            int externalCursor = 0;
+
+            for (int i = 0; i < script.Length; i++)
+            {
+                int op = script[i];
+                if (op >= 0)
+                {
+                    // Cache hit: lookup existing entry
+                    if (dict.TryGetValue(resident[op], out nuint value))
+                    {
+                        sum += value;
+                    }
+                } else
+                {
+                    // Cache miss: evict a cold entry, insert a new one, then lookup
+                    int evictIdx = evict[evictCursor % evict.Length];
+                    evictCursor++;
+                    dict.Remove(resident[evictIdx]);
+
+                    int extIdx = externalCursor % external.Length;
+                    externalCursor++;
+                    nuint newKey = external[extIdx];
+                    nuint newVal = newKey ^ unchecked((nuint)0xDEAD_BEEF);
+                    dict[newKey] = newVal;
+
+                    if (dict.TryGetValue(newKey, out nuint v)) {
+                        sum += v;
+                    }
+                }
+            }
+            return sum;
+        }
+
+        [IterationSetup(Targets = [
+            nameof(SwissTable_Insert),
+            nameof(SwissTable_SteadyState),
+            nameof(Dictionary_Insert),
+            nameof(Dictionary_SteadyState)
+        ])]
+        public void IterationSetup()
+        {
+            _freshSwiss = SwissTable.Create();
+            _freshDict = new Dictionary<nuint, nuint>(KeyCount);
+
+            // Pre-fill for steady-state benchmarks
+            for (int i = 0; i < KeyCount; i++)
+            {
+                nuint key = _residentKeys[i];
+                nuint val = key ^ unchecked((nuint)0xDEAD_BEEF);
+                _freshSwiss.TryAddOrSet(key, val, out _);
+                _freshDict[key] = val;
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // Setup / Teardown
         // ════════════════════════════════════════════════════════════
 
         [GlobalSetup]
@@ -130,141 +278,23 @@ namespace StgSharp.Benchmark
 
             // ── Build eviction order (cold tail entries first) ──
             _evictOrder = new int[KeyCount];
-            for (int i = 0; i < KeyCount; i++)
-            {
+            for (int i = 0; i < KeyCount; i++) {
                 _evictOrder[i] = i;
             }
+
             // Shuffle so eviction isn't just sequential
             Shuffle(_evictOrder, rng);
 
             // ── Pre-fill lookup tables ──
             _swissLookup = SwissTable.Create();
-            _dictLookup = new Dictionary<nint, nint>(KeyCount);
+            _dictLookup = new Dictionary<nuint, nuint>(KeyCount);
 
             for (int i = 0; i < KeyCount; i++)
             {
-                nint key = _residentKeys[i];
-                nint val = key ^ unchecked((nint)0xDEAD_BEEF); // simulated cache pointer
+                nuint key = _residentKeys[i];
+                nuint val = key ^ unchecked((nuint)0xDEAD_BEEF); // simulated cache pointer
                 _swissLookup.TryAddOrSet(key, val, out _);
                 _dictLookup[key] = val;
-            }
-        }
-
-        [GlobalCleanup]
-        public void Cleanup()
-        {
-            _dictLookup.Clear();
-            _dictLookup.TrimExcess();
-        }
-
-        [IterationSetup(Targets = [
-            nameof(SwissTable_Insert),
-            nameof(SwissTable_SteadyState),
-            nameof(Dictionary_Insert),
-            nameof(Dictionary_SteadyState)
-        ])]
-        public void IterationSetup()
-        {
-            _freshSwiss = SwissTable.Create();
-            _freshDict = new Dictionary<nint, nint>(KeyCount);
-
-            // Pre-fill for steady-state benchmarks
-            for (int i = 0; i < KeyCount; i++)
-            {
-                nint key = _residentKeys[i];
-                nint val = key ^ unchecked((nint)0xDEAD_BEEF);
-                _freshSwiss.TryAddOrSet(key, val, out _);
-                _freshDict[key] = val;
-            }
-        }
-
-        // ════════════════════════════════════════════════════════════
-        //  Lookup — Zipfian (L4 hot path, skewed access)
-        //  20% of cache lines receive 80% of accesses.
-        //  This is the most representative L4 benchmark.
-        // ════════════════════════════════════════════════════════════
-
-        [Benchmark(Baseline = true)]
-        public nint Dictionary_Lookup_Zipfian()
-        {
-            nint sum = 0;
-            nint[] keys = _zipfianLookups;
-            Dictionary<nint, nint> dict = _dictLookup;
-            for (int i = 0; i < keys.Length; i++)
-            {
-                if (dict.TryGetValue(keys[i], out nint value))
-                {
-                    sum += value;
-                }
-            }
-            return sum;
-        }
-
-        [Benchmark]
-        public nint SwissTable_Lookup_Zipfian()
-        {
-            nint sum = 0;
-            nint[] keys = _zipfianLookups;
-            SwissTable swiss = _swissLookup;
-            for (int i = 0; i < keys.Length; i++)
-            {
-                if (swiss.TryGet(keys[i], out nint value))
-                {
-                    sum += value;
-                }
-            }
-            return sum;
-        }
-
-        // ════════════════════════════════════════════════════════════
-        //  Lookup — Uniform (baseline comparison)
-        // ════════════════════════════════════════════════════════════
-
-        [Benchmark]
-        public nint Dictionary_Lookup_Uniform()
-        {
-            nint sum = 0;
-            nint[] keys = _uniformLookups;
-            Dictionary<nint, nint> dict = _dictLookup;
-            for (int i = 0; i < keys.Length; i++)
-            {
-                if (dict.TryGetValue(keys[i], out nint value))
-                {
-                    sum += value;
-                }
-            }
-            return sum;
-        }
-
-        [Benchmark]
-        public nint SwissTable_Lookup_Uniform()
-        {
-            nint sum = 0;
-            nint[] keys = _uniformLookups;
-            SwissTable swiss = _swissLookup;
-            for (int i = 0; i < keys.Length; i++)
-            {
-                if (swiss.TryGet(keys[i], out nint value))
-                {
-                    sum += value;
-                }
-            }
-            return sum;
-        }
-
-        // ════════════════════════════════════════════════════════════
-        //  Insert — bulk fill with scattered pointer addresses
-        //  Simulates L4 initial cache warm-up phase.
-        // ════════════════════════════════════════════════════════════
-
-        [Benchmark]
-        public void Dictionary_Insert()
-        {
-            Dictionary<nint, nint> dict = _freshDict;
-            nint[] keys = _residentKeys;
-            for (int i = 0; i < keys.Length; i++)
-            {
-                dict[keys[i]] = keys[i] ^ unchecked((nint)0xDEAD_BEEF);
             }
         }
 
@@ -272,73 +302,49 @@ namespace StgSharp.Benchmark
         public void SwissTable_Insert()
         {
             SwissTable swiss = _freshSwiss;
-            nint[] keys = _residentKeys;
-            for (int i = 0; i < keys.Length; i++)
-            {
-                swiss.TryAddOrSet(keys[i], keys[i] ^ unchecked((nint)0xDEAD_BEEF), out _);
+            nuint[] keys = _residentKeys;
+            for (int i = 0; i < keys.Length; i++) {
+                swiss.TryAddOrSet(keys[i], keys[i] ^ unchecked((nuint)0xDEAD_BEEF), out _);
             }
         }
 
-        // ════════════════════════════════════════════════════════════
-        //  SteadyState — the KEY L4 benchmark
-        //  Pre-filled table at capacity, then 4096 operations:
-        //    ~95% are lookups (cache hits)
-        //    ~5%  are miss → evict cold entry → insert new entry → lookup new
-        //  This directly simulates L4's main runtime loop.
-        // ════════════════════════════════════════════════════════════
-
         [Benchmark]
-        public nint Dictionary_SteadyState()
+        public nuint SwissTable_Lookup_Uniform()
         {
-            nint sum = 0;
-            Dictionary<nint, nint> dict = _freshDict;
-            nint[] resident = _residentKeys;
-            nint[] external = _externalKeys;
-            int[] script = _steadyStateScript;
-            int[] evict = _evictOrder;
-            int evictCursor = 0;
-            int externalCursor = 0;
-
-            for (int i = 0; i < script.Length; i++)
+            nuint sum = 0;
+            nuint[] keys = _uniformLookups;
+            SwissTable swiss = _swissLookup;
+            for (int i = 0; i < keys.Length; i++)
             {
-                int op = script[i];
-                if (op >= 0)
-                {
-                    // Cache hit: lookup existing entry
-                    if (dict.TryGetValue(resident[op], out nint value))
-                    {
-                        sum += value;
-                    }
-                }
-                else
-                {
-                    // Cache miss: evict a cold entry, insert a new one, then lookup
-                    int evictIdx = evict[evictCursor % evict.Length];
-                    evictCursor++;
-                    dict.Remove(resident[evictIdx]);
-
-                    int extIdx = externalCursor % external.Length;
-                    externalCursor++;
-                    nint newKey = external[extIdx];
-                    nint newVal = newKey ^ unchecked((nint)0xDEAD_BEEF);
-                    dict[newKey] = newVal;
-
-                    if (dict.TryGetValue(newKey, out nint v))
-                    {
-                        sum += v;
-                    }
+                if (swiss.TryGet(keys[i], out nuint value)) {
+                    sum += value;
                 }
             }
             return sum;
         }
 
         [Benchmark]
-        public nint SwissTable_SteadyState()
+        public nuint SwissTable_Lookup_Zipfian()
         {
-            nint sum = 0;
+            nuint sum = 0;
+            nuint[] keys = _zipfianLookups;
+            SwissTable swiss = _swissLookup;
+            for (int i = 0; i < keys.Length; i++)
+            {
+                if (swiss.TryGet(keys[i], out nuint value)) {
+                    sum += value;
+                }
+            }
+            return sum;
+        }
+
+        [Benchmark]
+        public nuint SwissTable_SteadyState()
+        {
+            nuint sum = 0;
             SwissTable swiss = _freshSwiss;
-            nint[] resident = _residentKeys;
-            nint[] external = _externalKeys;
+            nuint[] resident = _residentKeys;
+            nuint[] external = _externalKeys;
             int[] script = _steadyStateScript;
             int[] evict = _evictOrder;
             int evictCursor = 0;
@@ -350,12 +356,11 @@ namespace StgSharp.Benchmark
                 if (op >= 0)
                 {
                     // Cache hit: lookup existing entry
-                    if (swiss.TryGet(resident[op], out nint value))
+                    if (swiss.TryGet(resident[op], out nuint value))
                     {
                         sum += value;
                     }
-                }
-                else
+                } else
                 {
                     // Cache miss: evict a cold entry, insert a new one, then lookup
                     int evictIdx = evict[evictCursor % evict.Length];
@@ -364,12 +369,11 @@ namespace StgSharp.Benchmark
 
                     int extIdx = externalCursor % external.Length;
                     externalCursor++;
-                    nint newKey = external[extIdx];
-                    nint newVal = newKey ^ unchecked((nint)0xDEAD_BEEF);
+                    nuint newKey = external[extIdx];
+                    nuint newVal = newKey ^ unchecked((nuint)0xDEAD_BEEF);
                     swiss.TryAddOrSet(newKey, newVal, out _);
 
-                    if (swiss.TryGet(newKey, out nint v))
-                    {
+                    if (swiss.TryGet(newKey, out nuint v)) {
                         sum += v;
                     }
                 }
@@ -378,21 +382,20 @@ namespace StgSharp.Benchmark
         }
 
         // ════════════════════════════════════════════════════════════
-        //  Data generation helpers
+        // Data generation helpers
         // ════════════════════════════════════════════════════════════
 
         /// <summary>
-        ///   Generate <paramref name="count"/> unique pointer-like keys.
-        ///   Each key = HeapBase + randomOffset * CacheLineSize,
-        ///   simulating HLSF-allocated 1024-byte aligned addresses
+        ///   Generate <paramref name="count" /> unique pointer-like keys. Each key = HeapBase +
+        ///   randomOffset * CacheLineSize, simulating HLSF-allocated 1024-byte aligned addresses
         ///   scattered across a ~1 GB virtual address range.
         /// </summary>
-        private static nint[] GeneratePointerKeys(
-                              int count,
-                              Random rng
+        private static nuint[] GeneratePointerKeys(
+                               int count,
+                               Random rng
         )
         {
-            nint[] keys = new nint[count];
+            nuint[] keys = new nuint[count];
             HashSet<long> used = new HashSet<long>(count);
             for (int i = 0; i < count; i++)
             {
@@ -402,61 +405,15 @@ namespace StgSharp.Benchmark
                     // Random offset within ~1M cache lines (1 GB range)
                     offset = (long)rng.Next(0, 1 << 20) * CacheLineSize;
                 } while (!used.Add(offset));
-                keys[i] = (nint)(HeapBase + offset);
+                keys[i] = (nuint)(HeapBase + offset);
             }
             return keys;
         }
 
         /// <summary>
-        ///   Generate Zipfian-skewed lookup sequence:
-        ///   80% of accesses hit the hottest 20% of keys (sorted by index as "hotness proxy"),
-        ///   20% of accesses hit the remaining 80%.
-        ///   This models matrix computation where a small panel working set is reused heavily.
-        /// </summary>
-        private static nint[] GenerateZipfianLookups(
-                              nint[] sourceKeys,
-                              int count,
-                              Random rng
-        )
-        {
-            int hotSetSize = Math.Max(1, sourceKeys.Length / 5);
-            nint[] lookups = new nint[count];
-            for (int i = 0; i < count; i++)
-            {
-                if (rng.NextDouble() < 0.8)
-                {
-                    lookups[i] = sourceKeys[rng.Next(0, hotSetSize)];
-                }
-                else
-                {
-                    lookups[i] = sourceKeys[rng.Next(hotSetSize, sourceKeys.Length)];
-                }
-            }
-            return lookups;
-        }
-
-        /// <summary>
-        ///   Generate uniform random lookup sequence (baseline for comparison with Zipfian).
-        /// </summary>
-        private static nint[] GenerateUniformLookups(
-                              nint[] sourceKeys,
-                              int count,
-                              Random rng
-        )
-        {
-            nint[] lookups = new nint[count];
-            for (int i = 0; i < count; i++)
-            {
-                lookups[i] = sourceKeys[rng.Next(0, sourceKeys.Length)];
-            }
-            return lookups;
-        }
-
-        /// <summary>
-        ///   Generate a steady-state operation script.
-        ///   Each entry: non-negative value = index into _residentKeys (lookup/hit),
-        ///   negative value (-1) = cache miss trigger (evict → insert → lookup).
-        ///   Lookup indices are Zipfian-skewed.
+        ///   Generate a steady-state operation script. Each entry: non-negative value = index into
+        ///   _residentKeys (lookup/hit), negative value (-1) = cache miss trigger (evict → insert →
+        ///   lookup). Lookup indices are Zipfian-skewed.
         /// </summary>
         private static int[] GenerateSteadyStateScript(
                              int keyCount,
@@ -472,15 +429,13 @@ namespace StgSharp.Benchmark
                 if (rng.NextDouble() < missRate)
                 {
                     script[i] = -1; // miss
-                }
-                else
+                } else
                 {
                     // Zipfian hit
                     if (rng.NextDouble() < 0.8)
                     {
                         script[i] = rng.Next(0, hotSetSize);
-                    }
-                    else
+                    } else
                     {
                         script[i] = rng.Next(hotSetSize, keyCount);
                     }
@@ -489,7 +444,51 @@ namespace StgSharp.Benchmark
             return script;
         }
 
-        /// <summary> Fisher-Yates shuffle. </summary>
+        /// <summary>
+        ///   Generate uniform random lookup sequence (baseline for comparison with Zipfian).
+        /// </summary>
+        private static nuint[] GenerateUniformLookups(
+                               nuint[] sourceKeys,
+                               int count,
+                               Random rng
+        )
+        {
+            nuint[] lookups = new nuint[count];
+            for (int i = 0; i < count; i++) {
+                lookups[i] = sourceKeys[rng.Next(0, sourceKeys.Length)];
+            }
+            return lookups;
+        }
+
+        /// <summary>
+        ///   Generate Zipfian-skewed lookup sequence: 80% of accesses hit the hottest 20% of keys
+        ///   (sorted by index as "hotness proxy"), 20% of accesses hit the remaining 80%. This
+        ///   models matrix computation where a small panel working set is reused heavily.
+        /// </summary>
+        private static nuint[] GenerateZipfianLookups(
+                               nuint[] sourceKeys,
+                               int count,
+                               Random rng
+        )
+        {
+            int hotSetSize = Math.Max(1, sourceKeys.Length / 5);
+            nuint[] lookups = new nuint[count];
+            for (int i = 0; i < count; i++)
+            {
+                if (rng.NextDouble() < 0.8)
+                {
+                    lookups[i] = sourceKeys[rng.Next(0, hotSetSize)];
+                } else
+                {
+                    lookups[i] = sourceKeys[rng.Next(hotSetSize, sourceKeys.Length)];
+                }
+            }
+            return lookups;
+        }
+
+        /// <summary>
+        ///   Fisher-Yates shuffle.
+        /// </summary>
         private static void Shuffle(
                             int[] array,
                             Random rng

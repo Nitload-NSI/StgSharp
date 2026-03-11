@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="StgSharpTime"
 // Project: StgSharp
@@ -54,7 +54,10 @@ namespace StgSharp
 
         public static StgSharpTime OnlyInstance { get; } = new StgSharpTime();
 
-        public override long GetCurrentTimeSpanTick() => mainProvider.ElapsedTicks;
+        public override long GetCurrentTimeSpanTick()
+        {
+            return mainProvider.ElapsedTicks;
+        }
 
         public sealed override void StartProvidingTime()
         {
@@ -85,12 +88,16 @@ namespace StgSharp
             }
         }
 
-        protected sealed override void AddSubscriberUnsynced(TimeSpanProvider subscriber)
+        protected sealed override void AddSubscriberUnsynced(
+                                       TimeSpanProvider subscriber
+        )
         {
             _subscribers.Add(subscriber);
         }
 
-        protected sealed override void RemoveSubscriberUnsynced(TimeSpanProvider subscriber)
+        protected sealed override void RemoveSubscriberUnsynced(
+                                       TimeSpanProvider subscriber
+        )
         {
             _subscribers.Remove(subscriber);
         }

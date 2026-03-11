@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="SlabAllocator"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +25,13 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance.Memory;
 using System;
 
 namespace StgSharp.Mathematics.Memory
 {
-    public abstract class SlabAllocator<T> : IDisposable where T: unmanaged
+    public static class SlabAllocator
     {
-
-        public abstract nuint Allocate();
 
         /// <summary>
         ///   Creates a new SLAB allocator instance with the specified configuration.
@@ -78,7 +77,11 @@ namespace StgSharp.Mathematics.Memory
         ///   ///   allocated independently, avoiding the  memory relocation issues present in
         ///   sequential ///   layouts. </para>
         /// </remarks>
-        public static SlabAllocator<T> Create(nuint count, SlabBufferLayout layout, bool concurrentSupport = true)
+        public static SlabAllocator<T> Create<T>(
+                                       nuint count,
+                                       SlabBufferLayout layout,
+                                       bool concurrentSupport = true
+        ) where T : unmanaged
         {
             if (concurrentSupport) {
                 return layout switch
@@ -96,13 +99,32 @@ namespace StgSharp.Mathematics.Memory
             };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SlabAllocator<T> FromBuffer<T>(
+                                       nuint buffer,
+                                       nuint count,
+                                       Action<nuint> freeHandle
+        ) where T : unmanaged
+        {
+            return new FixedSlabAllocator<T>(buffer, count, freeHandle);
+        }
+
+    }
+
+    public abstract class SlabAllocator<T> : IDisposable where T : unmanaged
+    {
+
+        public abstract nuint Allocate();
+
         public abstract void Dispose();
 
         public abstract void EnterBufferReading();
 
         public abstract void ExitBufferReading();
 
-        public abstract void Free(nuint index);
+        public abstract void Free(
+                             nuint index
+        );
 
         public abstract SlabAllocationHandle<T> ReadAllocation();
 

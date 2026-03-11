@@ -63,8 +63,11 @@ namespace StgSharp.Common.Timing
                                    double totalSeconds,
                                    double growthMultiplier,
                                    double minSliceSeconds
-        ) => new LogTimeSequence(initialSliceSeconds, totalSeconds, growthMultiplier,
-                                 minSliceSeconds);
+        )
+        {
+            return new LogTimeSequence(initialSliceSeconds, totalSeconds, growthMultiplier,
+                                       minSliceSeconds);
+        }
 
         public abstract bool EndsAt(
                              long currentTick
@@ -104,7 +107,10 @@ namespace StgSharp.Common.Timing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool EndsAt(
                              long currentTick
-        ) => currentTick >= EndingTick;
+        )
+        {
+            return currentTick >= EndingTick;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool IsNextFrameReady(
@@ -149,7 +155,7 @@ namespace StgSharp.Common.Timing
         private double _nextBoundarySecondsAdjusted;
         private readonly double _totalSeconds;
         private int _sliceIndex;
-        private long _freq;
+        private long _frequency;
         private long _nextBoundaryTick;
         private long _totalTicks;
 
@@ -181,7 +187,7 @@ namespace StgSharp.Common.Timing
                              long currentTick
         )
         {
-            return            currentTick >= EndingTick;
+            return currentTick >= EndingTick;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -239,7 +245,7 @@ namespace StgSharp.Common.Timing
                              TimeSourceProviderBase source
         )
         {
-            _freq = source?.Frequency ?? throw new ArgumentNullException(nameof(source));
+            _frequency = source?.Frequency ?? throw new ArgumentNullException(nameof(source));
             BeginningTick = source.GetCurrentTimeSpanTick();
             _totalTicks = SecondsToTicks(_totalSeconds);
             EndingTick = BeginningTick + _totalTicks;
@@ -254,7 +260,10 @@ namespace StgSharp.Common.Timing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private long SecondsToTicks(
                      double seconds
-        ) => (long)Math.Max(1L, Math.Round(seconds * _freq, MidpointRounding.AwayFromZero));
+        )
+        {
+            return (long)Math.Max(1L, Math.Round(seconds * _frequency, MidpointRounding.AwayFromZero));
+        }
 
     }
 
@@ -278,7 +287,10 @@ namespace StgSharp.Common.Timing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool EndsAt(
                              long currentTick
-        ) => false; // never ends
+        )
+        {
+            return false; // never ends
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool IsNextFrameReady(

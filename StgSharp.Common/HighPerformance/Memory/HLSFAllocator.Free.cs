@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Free"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -55,7 +55,7 @@ namespace StgSharp.Mathematics.Memory
         ///   Minimal collect: linear scan, merge contiguous empty Blocks into one, push merged head
         ///   back to bucket. Caller-responsible design: no slicing or redistribution.
         /// </summary>
-        public void Collect()
+        public partial void Collect()
         {
             Entry* cur = _spareMemory->NextNear;
             long size = 0;
@@ -90,7 +90,10 @@ namespace StgSharp.Mathematics.Memory
         ///   Handle to the allocated memory block
         ///  <param name="collectPolicy">
         /// </param>
-        public void Free(hlsfHandle handle, FreePolicy collectPolicy = FreePolicy.NoCollect)
+        public void Free(
+                    hlsfHandle handle,
+                    FreePolicy collectPolicy = FreePolicy.NoCollect
+        )
         {
             Entry* e = handle.EntryHandle;
             if (e == null) {

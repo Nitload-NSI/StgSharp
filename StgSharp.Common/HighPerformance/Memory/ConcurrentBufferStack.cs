@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="ConcurrentBufferStack"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,9 @@ namespace StgSharp.Mathematics.Memory
 
         // For BufferStack collection builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BufferStack<T> Create<T>(ReadOnlySpan<T> span) where T: unmanaged
+        public static BufferStack<T> Create<T>(
+                                     ReadOnlySpan<T> span
+        ) where T : unmanaged
         {
             if (span.IsEmpty)
             {
@@ -58,7 +60,9 @@ namespace StgSharp.Mathematics.Memory
 
         // For ConcurrentBufferStack collection builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ConcurrentBufferStack<T> CreateConcurrent<T>(ReadOnlySpan<T> span) where T: unmanaged
+        public static ConcurrentBufferStack<T> CreateConcurrent<T>(
+                                               ReadOnlySpan<T> span
+        ) where T : unmanaged
         {
             if (span.IsEmpty)
             {
@@ -76,8 +80,10 @@ namespace StgSharp.Mathematics.Memory
 
     }
 
-    [CollectionBuilder(builderType: typeof(BufferStackBuilder), methodName: nameof(BufferStackBuilder.CreateConcurrent))]
-    public unsafe class ConcurrentBufferStack<T> : IDisposable where T: unmanaged
+    [CollectionBuilder(
+            builderType: typeof(BufferStackBuilder),
+            methodName: nameof(BufferStackBuilder.CreateConcurrent))]
+    public unsafe class ConcurrentBufferStack<T> : IDisposable where T : unmanaged
     {
 
         private byte* _buffer;
@@ -89,11 +95,11 @@ namespace StgSharp.Mathematics.Memory
             AllocateBuffer(4);
         }
 
-        public ConcurrentBufferStack(int capacity)
+        public ConcurrentBufferStack(
+               int capacity
+        )
         {
-            if (capacity <= 0) {
-                throw new ArgumentOutOfRangeException(nameof(capacity));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
 
             AllocateBuffer(capacity);
         }
@@ -161,7 +167,9 @@ namespace StgSharp.Mathematics.Memory
             }
         }
 
-        public void Push(T item)
+        public void Push(
+                    T item
+        )
         {
             while (true)
             {
@@ -236,7 +244,9 @@ namespace StgSharp.Mathematics.Memory
             }
         }
 
-        public bool TryPop(out T value)
+        public bool TryPop(
+                    out T value
+        )
         {
             while (true)
             {
@@ -269,7 +279,9 @@ namespace StgSharp.Mathematics.Memory
 
         // Internal method for efficient bulk initialization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal unsafe void InitializeFromSpan(ReadOnlySpan<T> span)
+        internal unsafe void InitializeFromSpan(
+                             ReadOnlySpan<T> span
+        )
         {
             if (span.IsEmpty) {
                 return;
@@ -287,7 +299,9 @@ namespace StgSharp.Mathematics.Memory
             Volatile.Write(ref _count, span.Length);
         }
 
-        private void AllocateBuffer(int capacity)
+        private void AllocateBuffer(
+                     int capacity
+        )
         {
             nuint size = (nuint)sizeof(Header) + (nuint)capacity * (nuint)sizeof(T);
             _buffer = (byte*)NativeMemory.Alloc(size);

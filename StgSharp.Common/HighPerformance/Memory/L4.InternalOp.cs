@@ -1,9 +1,9 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4.EvictionRing"
+// file="L4.InternalOp"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +28,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,45 +38,43 @@ namespace StgSharp.HighPerformance.Memory
     public partial class L4
     {
 
-        private EvictionRing _ring ;
-
-        private unsafe class EvictionRing
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe void AgeAll()
         {
-
-            private nint[] _bucket;
-
-            public void AddNode(EvictionRingNode* node)
+            Vector128<byte> one = Vector128.Create((byte)0x01);
+            Vector128<byte> max = Vector128.Create((byte)0x03);
+            byte* p = (byte*)_eviction;
+            for (int i = 0; i < CacheLineCount; i += 16)
             {
-                nint address = node->_address;
-                int hash = (int)(address % (nint)_bucket.Length);
-                nint head = _bucket[hash];
-                if (head != 0)
-                {
-                    EvictionRingNode* headNode = (EvictionRingNode*)head;
-                    headNode->_prev = node;
-                    node->_next = headNode;
-                }
-                _bucket[hash] = address;
+                Vector128<byte> v = Sse2.LoadVector128(p + i);
+                v = Sse2.AddSaturate(v, one);
+                v = Sse2.Min(v, max);
+                Sse2.Store(p + i, v);
             }
-
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        private unsafe struct EvictionRingNode
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe void Evict(
+                            int count = 1
+        )
         {
-
-            public EvictionRingNode* _next;
-            public EvictionRingNode* _prev;
-            public int _level;
-            public int _refCount;
-            public nint _address;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void IncrementRefCount()
+            int remain = count;
+            Vector128<byte> one = Vector128.Create((byte)0x01);
+            Vector128<byte> three = Vector128.Create((byte)0x03);
+            byte* p = (byte*)_eviction;
+            for (int i = 0; i < CacheLineCount && remain > 0; i += 16)
             {
-                _ = Interlocked.Increment(ref _refCount);
+                Vector128<byte> v = Sse2.LoadVector128(p + i);
+                Vector128<byte> mask = Sse2.CompareEqual(v, three);
+                int evictMask = Sse2.MoveMask(mask);
+                while (evictMask != 0 && remain > 0)
+                {
+                    int index = BitOperations.TrailingZeroCount(evictMask);
+                    evictMask &= (evictMask - 1);
+                    EvictLine(i + index);
+                    remain--;
+                }
             }
-
         }
 
     }

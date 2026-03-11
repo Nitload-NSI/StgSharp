@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="TimeSpanProvider"
 // Project: StgSharp
@@ -40,7 +40,7 @@ namespace StgSharp.Timing
     {
 
         // private bool _subscribed;
-        private int _emittedSpanCount; // legacy counter
+        private readonly int _emittedSpanCount; // legacy counter
 
         // internal ended flag (0 = running, 1 = ended)
         private int _endedFlag;
@@ -50,7 +50,8 @@ namespace StgSharp.Timing
         public TimeSpanProvider(
                TimeSequence sequence,
                TimeSourceProviderBase provider,
-               int maxWaitCount = 1)
+               int maxWaitCount = 1
+        )
         {
             ArgumentNullException.ThrowIfNull(provider);
             ArgumentNullException.ThrowIfNull(sequence);
@@ -78,17 +79,25 @@ namespace StgSharp.Timing
         /// <summary>
         ///   Current emitted time in seconds relative to the sequence beginning.
         /// </summary>
-        public double CurrentSecond
-        {
-            get => (double)(_sequence.PreviousFrameTick - _sequence.BeginningTick) / _timeSource.Frequency;
-        }
+        public double CurrentSecond => (double)(_sequence.PreviousFrameTick - _sequence.BeginningTick) / _timeSource.Frequency;
 
         public int CurrentSpan => _emittedSpanCount;
 
         public static TimeSourceProviderBase DefaultProvider => World.MainTimeProvider;
 
-        public static explicit operator int(TimeSpanProvider provider) => provider?._emittedSpanCount ??
-            0;
+        public static int ToInt32(
+                          TimeSpanProvider provider
+        )
+        {
+            return provider?._emittedSpanCount ?? 0;
+        }
+
+        public static explicit operator int(
+                                        TimeSpanProvider provider
+        )
+        {
+            return provider?._emittedSpanCount ?? 0;
+        }
 
     }
 }

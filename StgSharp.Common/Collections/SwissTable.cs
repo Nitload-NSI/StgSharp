@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="SwissTable"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ namespace StgSharp.Collections
     /// <summary>
     ///
     /// </summary>
-    public sealed unsafe partial class SwissTable
+    public sealed unsafe partial class SwissTable : IDisposable
     {
 
         private const int BucketCount = 1 << EntryMaskWidth;
@@ -46,11 +46,19 @@ namespace StgSharp.Collections
         private const int EntryMaskWidth = 10; // 1024 entries total, 16 per bucket
         public const int MaxCapacity = BucketCount * BucketSize;   // 256 entries per bucket, 1024 buckets
 
-        private readonly Entry* _entries;
+        public static readonly int RequestedNativeMemorySize = Unsafe.SizeOf<Entry>();
 
-        private SwissTable(Entry* buffer)
+        private readonly Entry* _entries;
+        private readonly Action<nuint> _freeHandle;
+        private bool _disposed;
+
+        private SwissTable(
+                Entry* buffer,
+                Action<nuint> freeHandle
+        )
         {
             _entries = buffer;
+            _freeHandle = freeHandle;
         }
 
         public static SwissTable Create()
@@ -61,10 +69,24 @@ namespace StgSharp.Collections
                 // Set all control bytes to 0xFF (empty)
                 Unsafe.InitBlock(&(*buffer)[i].Control, 0xFF, BucketSize);
             }
-            return new SwissTable(buffer);
+            return new SwissTable(buffer, handle => NativeMemory.AlignedFree((void*)handle));
         }
 
-        public bool TryAddOrSet(nint key, nint value, out bool isNewKey)
+        public void Dispose()
+        {
+            if (_disposed) {
+                return;
+            }
+            _disposed = true;
+            _freeHandle((nuint)_entries);
+            GC.SuppressFinalize(this);
+        }
+
+        public bool TryAddOrSet(
+                    nuint key,
+                    nuint value,
+                    out bool isNewKey
+        )
         {
             uint hash = BitOperations.Crc32C(CrcMagic, (ulong)key);
             ushort entry = (ushort)(hash & (BucketCount - 1));
@@ -72,9 +94,12 @@ namespace StgSharp.Collections
             return IBucketScanner.Current.TrySet(key, hash, bucket, value, out isNewKey);
         }
 
-        public bool TryGet(nint key, out nint value)
+        public bool TryGet(
+                    nuint key,
+                    out nuint value
+        )
         {
-            uint hash = BitOperations.Crc32C(CrcMagic, (ulong)key);
+            uint hash = BitOperations.Crc32C(CrcMagic, key);
             ushort entry = (ushort)(hash & (BucketCount - 1));
             Bucket* bucket = &(*_entries)[entry];
             return IBucketScanner.Current.TryFind(key, hash, bucket, out value);
@@ -87,7 +112,10 @@ namespace StgSharp.Collections
             */
         }
 
-        public bool TryRemove(nint key, out nint value)
+        public bool TryRemove(
+                    nuint key,
+                    out nuint value
+        )
         {
             uint hash = BitOperations.Crc32C(CrcMagic, (ulong)key);
             ushort entry = (ushort)(hash & (BucketCount - 1));
@@ -95,9 +123,23 @@ namespace StgSharp.Collections
             return IBucketScanner.Current.TryRemove(key, hash, bucket, out value);
         }
 
+        internal static SwissTable Create(
+                                   nuint bufferPtr,
+                                   Action<nuint> FreeHandle
+        )
+        {
+            Entry* buffer = (Entry*)bufferPtr;
+            for (int i = 0; i < BucketCount; i++)
+            {
+                // Set all control bytes to 0xFF (empty)
+                Unsafe.InitBlock(&(*buffer)[i].Control, 0xFF, BucketSize);
+            }
+            return new SwissTable(buffer, FreeHandle);
+        }
+
         ~SwissTable()
         {
-            NativeMemory.AlignedFree(_entries);
+            Dispose();
         }
 
         [InlineArray(BucketCount)]
@@ -122,11 +164,27 @@ namespace StgSharp.Collections
 
             static IBucketScanner Current { get; } = Create();
 
-            bool TryFind(nint key, uint Hash, Bucket* bucket, out nint value);
+            bool TryFind(
+                 nuint key,
+                 uint Hash,
+                 Bucket* bucket,
+                 out nuint value
+            );
 
-            unsafe bool TryRemove(nint key, uint hash, Bucket* bucket, out nint value);
+            unsafe bool TryRemove(
+                        nuint key,
+                        uint hash,
+                        Bucket* bucket,
+                        out nuint value
+            );
 
-            bool TrySet(nint key, uint hash, Bucket* bucket, nint value, out bool isNewKey);
+            bool TrySet(
+                 nuint key,
+                 uint hash,
+                 Bucket* bucket,
+                 nuint value,
+                 out bool isNewKey
+            );
 
             private static IBucketScanner Create()
             {
@@ -156,7 +214,7 @@ namespace StgSharp.Collections
         private struct BucketKeyStorage
         {
 
-            public nint value;
+            public nuint value;
 
         }
 
@@ -164,7 +222,7 @@ namespace StgSharp.Collections
         private struct BucketValueStorage
         {
 
-            public nint value;
+            public nuint value;
 
         }
 

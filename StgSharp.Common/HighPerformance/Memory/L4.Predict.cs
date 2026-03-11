@@ -1,9 +1,9 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="L4.CommandQueue"
+// file="L4.Predict"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,75 +28,37 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public unsafe partial class L4
+    public interface IPrefetchPredict
     {
 
-        private CommandQueue _commandQueue;
+        int Predict(
+            Span<CacheLinePrediction> node
+        );
 
-        private struct CommandQueue
-        {
+        bool Prefetch(
+             nuint origin,
+             ulong policy,
+             nuint cache
+        );
 
-            private CommandCache* ReadCache;
+        void WriteBack(
+             nuint origin,
+             ulong policy,
+             nuint cache
+        );
 
-            private int _curRead;
-            private int _curWrite;
+    }
 
-            /// <summary>
-            ///   Try get a next command to execute
-            /// </summary>
-            /// <param name="command">
-            ///   pointer to next command
-            /// </param>
-            /// <returns>
-            ///   True if there is a command to execute, otherwise false
-            /// </returns>
-            public bool TryDequeue(out nint command)
-            {
-                if (_curRead >= 64)
-                {
-                    // next cache
-                    CommandCache* next = ReadCache->Next;
-                }
+    public struct CacheLinePrediction
+    {
 
-                // current cache
-                command = default;
-                return true;
-            }
-
-        }
-
-        private struct CommandCache
-        {
-
-            public CommandCache* Next;
-
-            public CommandCache* Prev;
-            public CommandArray Commands;
-
-        }
-
-        [InlineArray(64)]
-        private struct CommandArray
-        {
-
-            public Command Command0;
-
-        }
-
-        private struct Command
-        {
-
-            public int CommandType;
-            public nint Destination;
-            public nint Source;
-
-        }
+        public nuint Address;
+        public ulong MapPolicy;
 
     }
 }

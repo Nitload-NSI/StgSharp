@@ -39,10 +39,10 @@ namespace StgSharp.Collections
         {
 
             public bool TryFind(
-                        nint key,
+                        nuint key,
                         uint hash,
                         Bucket* bucket,
-                        out nint value
+                        out nuint value
             )
             {
                 byte ctrl = (byte)((hash >> EntryMaskWidth) & 0x7F);
@@ -66,10 +66,10 @@ namespace StgSharp.Collections
             }
 
             public bool TryRemove(
-                        nint key,
+                        nuint key,
                         uint hash,
                         Bucket* bucket,
-                        out nint value
+                        out nuint value
             )
             {
                 byte ctrl = (byte)((hash >> EntryMaskWidth) & 0x7F);
@@ -97,10 +97,10 @@ namespace StgSharp.Collections
             }
 
             public bool TrySet(
-                        nint key,
+                        nuint key,
                         uint hash,
                         Bucket* bucket,
-                        nint value,
+                        nuint value,
                         out bool isNewKey
             )
             {

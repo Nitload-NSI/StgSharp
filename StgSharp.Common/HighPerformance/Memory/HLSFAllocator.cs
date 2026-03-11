@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocator"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using hlsfHandle = StgSharp.Mathematics.Memory.HybridLayerSegregatedFitAllocationHandle;
 
 namespace StgSharp.Mathematics.Memory
 {
@@ -48,17 +49,19 @@ namespace StgSharp.Mathematics.Memory
         private readonly nuint _size;
         private readonly SlabAllocator<Entry> _entries;
 
-        public HybridLayerSegregatedFitAllocator(nuint byteSize)
+        public HybridLayerSegregatedFitAllocator(
+               nuint byteSize
+        )
         {
             if (byteSize < 64) {
                 throw new InvalidOperationException();
             }
-            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
+            _entries = SlabAllocator.Create<Entry>(64, SlabBufferLayout.Chunked, false);
             _size = byteSize;
             m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, 16);
             _align = 16;
 
-            _bucketHeads = new BucketNode *[_levelSizeArray.Length * 3 + 1];
+            _bucketHeads = new BucketNode*[_levelSizeArray.Length * 3 + 1];
 
             _spareMemory = (Entry *)_entries.Allocate();
             _spareMemory->State = EntryState.Spare;
@@ -70,9 +73,12 @@ namespace StgSharp.Mathematics.Memory
             _maxSize = 32U * 1024U * 1024U;
         }
 
-        public HybridLayerSegregatedFitAllocator(nuint byteSize, uint maxBlockSize)
+        public HybridLayerSegregatedFitAllocator(
+               nuint byteSize,
+               uint maxBlockSize
+        )
         {
-            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
+            _entries = SlabAllocator.Create<Entry>(64, SlabBufferLayout.Chunked, false);
             m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, 16);
             _align = 16;
             _size = byteSize;
@@ -97,13 +103,16 @@ namespace StgSharp.Mathematics.Memory
             _maxSize = maxBlockSize;
         }
 
-        public HybridLayerSegregatedFitAllocator(nuint byteSize, int align)
+        public HybridLayerSegregatedFitAllocator(
+               nuint byteSize,
+               int align
+        )
         {
             if (align < 16 || (align & (align - 1)) != 0) {
                 throw new ArgumentException(
                                 "Alignment must be a power of two and at least 16 bytes.");
             }
-            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
+            _entries = SlabAllocator.Create<Entry>(64, SlabBufferLayout.Chunked, false);
             m_Buffer = (byte *)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
             _align = align;
             _size = byteSize;
@@ -120,13 +129,17 @@ namespace StgSharp.Mathematics.Memory
             _maxSize = 32U * 1024U * 1024U;
         }
 
-        public HybridLayerSegregatedFitAllocator(nuint byteSize, int align, long maxBlockSize)
+        public HybridLayerSegregatedFitAllocator(
+               nuint byteSize,
+               int align,
+               long maxBlockSize
+        )
         {
             if (align < 16 || (align & (align - 1)) != 0) {
                 throw new ArgumentException(
                                 "Alignment must be a power of two and at least 16 bytes.");
             }
-            _entries = SlabAllocator<Entry>.Create(64, SlabBufferLayout.Chunked, false);
+            _entries = SlabAllocator.Create<Entry>(64, SlabBufferLayout.Chunked, false);
             m_Buffer = (byte*)NativeMemory.AlignedAlloc(byteSize, (nuint)align);
             _align = align;
             _size = byteSize;
@@ -151,13 +164,21 @@ namespace StgSharp.Mathematics.Memory
             _maxSize = maxBlockSize;
         }
 
+        public partial hlsfHandle Alloc(
+                                  long size
+        );
+
+        public partial void Collect();
+
         public void Dispose()
         {
             Dispose(disposing:true);
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void Dispose(
+                               bool disposing
+        )
         {
             if (!disposedValue)
             {
