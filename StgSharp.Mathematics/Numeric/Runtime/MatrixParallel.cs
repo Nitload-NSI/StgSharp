@@ -88,7 +88,7 @@ namespace StgSharp.Mathematics.Numeric
                 return;
             }
             MatrixParallelFactory.Init();
-            contextAllocator = SlabAllocator<IntrinsicContext>.Create(4, SlabBufferLayout.Chunked, false);
+            contextAllocator = SlabAllocator.Create<IntrinsicContext>(4, SlabBufferLayout.Chunked, false);
             contextMap = [];
             int count = Environment.ProcessorCount;
             _threads = new(count);

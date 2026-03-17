@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="L4.Predict"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,29 +36,87 @@ namespace StgSharp.HighPerformance.Memory
     public interface IPrefetchPredict
     {
 
-        int Predict(
-            Span<CacheLinePrediction> node
-        );
+        /// <summary>
+        ///   Writes predicted cache line descriptors into <paramref name="node" />.
+        /// </summary>
+        /// <param name="node">
+        ///   Prediction output buffer.
+        /// </param>
+        /// <param name="count">
+        ///   When this method returns, contains the number of valid entries written to <paramref
+        ///   name="node" />. The value must not exceed <paramref name="node" />.Length.
+        /// </param>
+        /// <returns>
+        ///   <see langword="true" /> if any prediction data was produced; otherwise, <see langword="false"
+        ///   />.
+        /// </returns>
+        bool Predict(Span<CacheLinePrediction> node, out int count);
 
-        bool Prefetch(
-             nuint origin,
-             ulong policy,
-             nuint cache
-        );
+        /// <summary>
+        ///   Materializes the cache line identified by <paramref name="origin" /> into <paramref
+        ///   name="cache" />.
+        /// </summary>
+        /// <param name="origin">
+        ///   Source address associated with the cache line.
+        /// </param>
+        /// <param name="policy">
+        ///   Mapping policy associated with the cache line.
+        /// </param>
+        /// <param name="cache">
+        ///   Destination cache line buffer.
+        /// </param>
+        void Prefetch(nuint origin, ulong policy, Span<byte> cache);
 
-        void WriteBack(
-             nuint origin,
-             ulong policy,
-             nuint cache
-        );
+        /// <summary>
+        ///   Writes the cache line in <paramref name="cache" /> back to <paramref name="origin" />.
+        /// </summary>
+        /// <param name="origin">
+        ///   Source address associated with the cache line.
+        /// </param>
+        /// <param name="policy">
+        ///   Mapping policy associated with the cache line.
+        /// </param>
+        /// <param name="cache">
+        ///   Source cache line buffer.
+        /// </param>
+        void WriteBack(nuint origin, ulong policy, ReadOnlySpan<byte> cache);
 
     }
 
-    public struct CacheLinePrediction
+    public struct CacheLinePrediction : IEquatable<CacheLinePrediction>
     {
 
+        public override readonly bool Equals(object? obj)
+        {
+            return obj is CacheLinePrediction prediction &&
+                   Address.Equals(prediction.Address) &&
+                   MapPolicy == prediction.MapPolicy;
+        }
+
+        public readonly bool Equals(CacheLinePrediction other)
+        {
+            return
+            Address == other.Address && MapPolicy == other.MapPolicy;
+        }
+
+        public override readonly int GetHashCode()
+        {
+            return HashCode.Combine(Address, MapPolicy);
+        }
+
+        public static bool operator !=(CacheLinePrediction left, CacheLinePrediction right)
+        {
+            return !(left == right);
+        }
+        public static bool operator ==(CacheLinePrediction left, CacheLinePrediction right)
+        {
+            return left.Equals(right);
+        }
+
+#pragma warning disable CA1051
         public nuint Address;
         public ulong MapPolicy;
 
+#pragma warning restore CA1051
     }
 }

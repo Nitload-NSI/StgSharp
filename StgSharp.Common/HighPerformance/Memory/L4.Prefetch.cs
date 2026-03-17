@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="L4.Prefetch"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,25 +25,27 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace StgSharp.HighPerformance.Memory
 {
     public unsafe partial class L4
     {
 
+        public const int MaxActivateCacheLineCount = 1024;
+
         private partial void Prefetch()
         {
             if (PrefetchPredict is null) {
                 return;
             }
+            if (_activeCount > MaxActivateCacheLineCount) {
+                throw new OverflowException("Too many activated cache line in external reference.");
+            }
             Span<CacheLinePrediction> span = new(_prediction, PredictionCount);
-            int actualCount = PrefetchPredict.Predict(span);
+            if (!(PrefetchPredict.Predict(span, out int actualCount) && actualCount > 0)) {
+                return;
+            }
             int missIndex = 0;
             AgeAll();
             for (int i = 0; i < actualCount; i++)
@@ -63,21 +65,45 @@ namespace StgSharp.HighPerformance.Memory
             {
                 ref CacheLinePrediction handle = ref span[i];
                 nuint address = handle.Address;
-                nuint mapPtr = _cacheLineAllocator.Allocate();
-                CacheLineHead* head = (CacheLineHead*)_entryAllocator.Allocate();
+                if (TestHit(address))
+                {
+                    continue;
+                }
 
+                int retryCount = 0, index, remain = missIndex - i;
+                const int maxRetry = 1024;
+                while (!TryGetEmptyLine(out index))
+                {
+                    remain = Evict(remain);
+                    retryCount++;
+                    if (retryCount > maxRetry) {
+                        throw new OverflowException($"Failed to evict cache line after {maxRetry} retries.");
+                    }
+                }
+                CacheLineHead* head = &_head[index];
+                head->_id = index;
+                head->_origin = address;
+                head->_profile = handle.MapPolicy;
+                head->_refCount = 0;
+                head->_address = (nuint)(&_data[index]);
 
                 // pre fetch them here
+                PrefetchPredict.Prefetch(head->_origin, head->_profile, new Span<byte>((byte*)head->_address, Unsafe.SizeOf<CacheLineData>()));
+                _ = _map.TryAddOrSet(address, (nuint)head, out _);
             }
+            _ = Interlocked.Add(ref _aheadCount, actualCount);
         }
 
-        private partial bool TestHit(nuint origin)
+        private partial bool TestHit(
+                             nuint origin
+        )
         {
             if (_map.TryGet(origin, out nuint handle))
             {
                 CacheLineHead* head = (CacheLineHead*)handle;
                 int index = head->_id;
                 (*_eviction)[index] = 0; // reset eviction counter
+                return true;
             }
             return false;
         }

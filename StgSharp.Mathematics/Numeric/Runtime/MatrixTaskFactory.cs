@@ -107,9 +107,9 @@ namespace StgSharp.Mathematics.Numeric
             if (_intermediateResult is null)
             {
                 _intermediateResult = new hlsfAllocator(64 * 16 * 16);
-                _scalarAllocator = SlabAllocator<ScalarPacket>.Create(64 * 1024, SlabBufferLayout.Chunked);
-                _wrapAllocator = SlabAllocator<MatrixParallelTask>.
-                    Create(128 * 1024, SlabBufferLayout.Chunked);
+                _scalarAllocator = SlabAllocator.Create<ScalarPacket>(64 * 1024, SlabBufferLayout.Chunked);
+                _wrapAllocator = SlabAllocator.
+                    Create<MatrixParallelTask>(128 * 1024, SlabBufferLayout.Chunked);
             }
         }
 
