@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>VssDev.Core</AssemblyName>
+    <RootNamespace>VssDev.Core</RootNamespace>
+    <Description>VSS architecture type scaffolding — upstream development bed for StgSharp.UserInterface VSS types.</Description>
+  </PropertyGroup>
+
+</Project>

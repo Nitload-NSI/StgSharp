@@ -1,0 +1,72 @@
+<Project>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  全局属性：所有 C# 项目共享                               -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <LangVersion>Preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AnalysisLevel>preview-all</AnalysisLevel>
+    <Platforms>x64;ARM64</Platforms>
+    <Configurations>Debug;Release</Configurations>
+    <!-- CA1716: Start/Stop is intentional VSS lifecycle API (C#-only project) -->
+    <NoWarn>1701;1702;0649;1591;0169;CA1716</NoWarn>
+
+    <!-- 包信息 -->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Nitload-NSI/stgsharp.vss.dev</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Nitload-NSI/stgsharp.vss.dev.git</RepositoryUrl>
+  </PropertyGroup>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  Configuration × Platform 属性                          -->
+  <!--  在这里统一定义，各项目 csproj 不再重复                    -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
+    <Optimize>False</Optimize>
+    <DebugType>portable</DebugType>
+    <Deterministic>False</Deterministic>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Optimize>True</Optimize>
+    <DebugType>none</DebugType>
+    <Deterministic>False</Deterministic>
+  </PropertyGroup>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  路径约定                                                -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <!-- 解决方案根目录（自动向上查找本文件来确定） -->
+    <SolutionRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Directory.Build.props'))\</SolutionRoot>
+  </PropertyGroup>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  OS / Arch 检测（编译机器，用于条件编译）                  -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+    <IsLinux   Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
+    <IsOSX     Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
+  </PropertyGroup>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  OS 条件编译符号                                         -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsOSX)'=='true'">
+    <DefineConstants>$(DefineConstants);OSX</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsLinux)'=='true'">
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+  </PropertyGroup>
+
+</Project>

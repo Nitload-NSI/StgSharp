@@ -1,0 +1,29 @@
+<Project>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!--  编译后：把输出拷贝到 build/<configuration>/ 目录         -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <Target Name="CopyOutputToBuildDir"
+          AfterTargets="Build"
+          Condition="'$(DisablePostBuildCopy)'!='true'">
+
+    <PropertyGroup>
+      <_BuildOutDir>$(SolutionRoot)build\$(Configuration)\</_BuildOutDir>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(_BuildOutDir)" />
+
+    <ItemGroup>
+      <_OutputFiles Include="$(OutputPath)**\*.*"
+                    Exclude="$(OutputPath)**\*.user" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_OutputFiles)"
+          DestinationFolder="$(_BuildOutDir)%(RecursiveDir)"
+          SkipUnchangedFiles="true" />
+
+    <Message Importance="high"
+             Text="[VssDev] $(MSBuildProjectName) → $(_BuildOutDir)" />
+  </Target>
+
+</Project>
