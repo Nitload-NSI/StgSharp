@@ -64,7 +64,10 @@ namespace StgSharp.Mathematics.Numeric
         {
             get
             {
-                if (y < 0 || y > _size.ElementColumnLength || x < 0 || x > _size.ElementRowLength) {
+                if ((y < 0) ||
+                    (y > _size.ElementColumnLength) ||
+                    (x < 0) ||
+                    (x > _size.ElementRowLength)) {
                     throw new ArgumentOutOfRangeException($"Index [{x},{y}] is out of matrix index range.");
                 }
                 long offset = GetElementOffset(x, y);
@@ -75,7 +78,10 @@ namespace StgSharp.Mathematics.Numeric
             }
             set
             {
-                if (y < 0 || y > _size.ElementColumnLength || x < 0 || x > _size.ElementRowLength) {
+                if ((y < 0) ||
+                    (y > _size.ElementColumnLength) ||
+                    (x < 0) ||
+                    (x > _size.ElementRowLength)) {
                     throw new ArgumentOutOfRangeException($"Index [{x},{y}] is out of matrix index range.");
                 }
                 long offset = GetElementOffset(x, y);
@@ -106,8 +112,8 @@ namespace StgSharp.Mathematics.Numeric
                                 ReadOnlySpan<MatrixIndex> row
         ]
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
         }
 
         /// <summary>
@@ -122,11 +128,7 @@ namespace StgSharp.Mathematics.Numeric
 
         public MatrixLayout Layout { get; init; }
 
-        internal MatrixKernel<T>* Buffer
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (MatrixKernel<T>*)_buffer.BufferPointer;
-        }
+        internal MatrixKernel<T>* Buffer => (MatrixKernel<T>*)_buffer.BufferPointer;
 
         protected internal int KernelColumnLength => _size.KernelColumnLength;
 
@@ -138,9 +140,9 @@ namespace StgSharp.Mathematics.Numeric
                                           int y
         )
         {
-            return ref _boarder.IsInBuffer(x, y, in _size) ?
-                       ref _buffer[_boarder.GetIndexOffset(x, y, in _size)] :
-                       ref Unsafe.NullRef<MatrixKernel<T>>();
+            return ref (_boarder.IsInBuffer(x, y, in _size) ?
+                        ref _buffer[_boarder.GetIndexOffset(x, y, in _size)] :
+                        ref Unsafe.NullRef<MatrixKernel<T>>());
         }
 
         internal long GetElementOffset(
@@ -158,7 +160,7 @@ namespace StgSharp.Mathematics.Numeric
             }
             long kernelOffset = _boarder.GetIndexOffset(k_r, k_c, in _size);
 
-            return kernelOffset * 16 + 4 * r + c;
+            return (kernelOffset * 16) + (4 * r) + c;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -195,8 +197,6 @@ namespace StgSharp.Mathematics.Numeric
             // Caller guarantees: indices in range, layout is dense square.
             int k_c = y / 4;
             int k_r = x / 4;
-            int c = y % 4;
-            int r = x % 4;
             return ref _buffer[_boarder.GetIndexOffset(k_c, k_r, in _size)];
         }
 

@@ -12,30 +12,12 @@
 #include "../lib/stbi/stb_image.h"
 
 #include "gl.h"
-#include "wgl.h"
+// #include "wgl.h"
 #define GLFWAPI INTERNAL
 #include "glfw\glfw3.h"
 #include <immintrin.h>
 #include <assert.h>
 #include <glfw_function.h>
-
-#ifndef SN_APIDEF
-
-#ifdef _WIN32
-#define SN_API __declspec(dllexport)
-#elif defined _LINUX_
-#define SN_API __attribute__((dllexport))
-#elif defined _APPLE_
-#define SN_API __attribute__((visibility("default")))
-#else
-#define SN_API
-#endif
-
-#endif // ! SN_APIDEF
-
-#if __cplusplus
-extern "C" {
-#endif
 
 #define byte char
 #define cs_char uint16_t
@@ -55,11 +37,10 @@ typedef struct Image {
 typedef char *(*imageLoader)(char const *filename, int *x, int *y, int *channels_in_file,
                              int desired_channels);
 
-SN_API char infolog[512];
+extern SN_API char infolog[512];
 SN_API int SN_DECL glCheckShaderStat(GladGLContext *context, uint64_t shaderHandle, int key,
                                      char **logRef);
 SN_API void SN_DECL initGL(int majorVersion, int minorVersion);
-SN_API unsigned int SN_DECL linkShaderProgram(GladGLContext *context, GLuint shadertype);
 SN_API void SN_DECL loadImageData(char *location, Image *out, imageLoader loader);
 SN_API GLFWglproc SN_DECL loadGlfuncDefault(char *procName);
 SN_API void SN_DECL unloadImageData(Image *out);
@@ -72,10 +53,9 @@ SN_API SIMDID SN_DECL sn_get_simd_level_global();
 SN_API SIMDID SN_DECL sn_get_simd_level_local();
 SN_API SIMDID SN_DECL sn_get_unite_simd(SIMDID left, SIMDID right);
 SN_API int SN_DECL sn_compare_simd(SIMDID left, SIMDID right);
-SN_API void SN_DECL sn_set_thread_affinity(int core_id);
-
-#ifdef __cplusplus
-}
-#endif
-
+SN_API void SN_DECL sn_set_thread_affinity(int core_id, int numa_id);
+SN_API void* SN_DECL sn_numa_alloc(size_t size, int numa_id);
+SN_API void SN_DECL sn_numa_free(void *ptr, size_t size, int numa_id);
+SN_API int SN_DECL sn_get_numa_each(int numa_id, uint64_t *internal, uint32_t *global);
+SN_API int SN_DECL sn_get_numa_overall(int *out_numa_count, int *count_of_each_numa);
 #endif

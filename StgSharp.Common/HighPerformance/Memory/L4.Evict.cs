@@ -42,16 +42,7 @@ namespace StgSharp.HighPerformance.Memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private unsafe void AgeAll()
         {
-            Vector128<byte> one = Vector128.Create((byte)0x01);
-            Vector128<byte> max = Vector128.Create((byte)0x03);
-            byte* p = (byte*)_eviction;
-            for (int i = 0; i < CacheLineCount; i += 16)
-            {
-                Vector128<byte> v = Sse2.LoadVector128(p + i);
-                v = Sse2.AddSaturate(v, one);
-                v = Sse2.Min(v, max);
-                Sse2.Store(p + i, v);
-            }
+            _intrinsic.AgeAll(_eviction);
         }
 
         /// <summary>
@@ -69,31 +60,40 @@ namespace StgSharp.HighPerformance.Memory
         )
         {
             int remain = count;
-            Vector128<byte> one = Vector128.Create((byte)0x01);
             Vector128<byte> three = Vector128.Create((byte)0x03);
             byte* p = (byte*)_eviction;
-            for (int i = 0; i < CacheLineCount && remain > 0; i += 16)
+            _predictors.RequestSpanOperation();
+            Span<IL4Predict> pSpan = _predictors.AsSpan();
+            try
             {
-                Vector128<byte> v = Sse2.LoadVector128(p + i);
-                Vector128<byte> mask = Sse2.CompareEqual(v, three);
-                int evictMask = Sse2.MoveMask(mask);
-                while (evictMask != 0 && remain > 0)
+                for (int i = 0; (i < CacheLineCount) && (remain > 0); i += 16)
                 {
-                    int bitPos = BitOperations.TrailingZeroCount(evictMask);
-                    int index = bitPos + i;
-                    CacheLineHead* head = &_head[index];
-                    if (Interlocked.CompareExchange(ref head->_refCount, int.MinValue, 0) == 0)
+                    int evictMask = _intrinsic.ScanEvict(p + i, three);
+                    while ((evictMask != 0) && (remain > 0))
                     {
-                        // EvictLine(i + index);
-                        _ = _map.TryRemove(head->_origin, out _);
-                        PrefetchPredict.WriteBack(head->_origin, head->_profile, new ReadOnlySpan<byte>((byte*)head->_address, Unsafe.SizeOf<CacheLineData>()));
-                        RecycleLine(index);
-                        remain--;
+                        int bitPos = BitOperations.TrailingZeroCount(evictMask);
+                        int index = bitPos + i;
+                        CacheLineHead* head = &_head[index];
+                        if (Interlocked.CompareExchange(ref head->_refCount, int.MinValue, 0) == 0)
+                        {
+                            // EvictLine(i + index);
+                            _ = _map.TryRemove(head->_origin, out _);
+                            int id = (int)head->_predictor;
+                            IL4Predict predict = pSpan[id] ??
+                                throw new L4PredictUnregisteredException(id);
+                            predict.WriteBack(head->_origin, head->_profile, new ReadOnlySpan<byte>((byte*)head->_address, Unsafe.SizeOf<CacheLineData>()));
+                            RecycleLine(index);
+                            remain--;
+                        }
+                        evictMask &= evictMask - 1;
                     }
-                    evictMask &= evictMask - 1;
                 }
+                return remain;
             }
-            return remain;
+            finally
+            {
+                _predictors.ReleaseSpanOperation();
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,0 +1,82 @@
+%% VSS 基座类型关系图
+%% 这份图优先表达“包含/从属关系”，其次才表达“交互关系”。
+%% 实线表示结构归属，虚线表示交互/消息流，不等同于当前代码里的具体成员实现。
+%% 整体按 View -> State -> Service 自上而下排列，避免横向摊开后破坏层次关系。
+%% observer 语义仍然存在，但在 UserInterface 中以源生成器织入到状态节点代码里的分布式 hooks 形式出现，
+%% 不再作为手写的公共基座类型单独暴露。
+
+flowchart TB
+    subgraph V[View 层]
+        direction LR
+        VH[ViewHost]
+        SCC[StateChangeCommand]
+        EC[ExecuteCommand]
+        CR[CommandResult]
+    end
+
+    subgraph S[State 层]
+        direction TB
+        subgraph SHBOX[StateHost]
+            direction TB
+            SH[唯一对外主机]
+
+            subgraph SU[上层]
+                direction LR
+                FCH[FrontCommandHost]
+            end
+
+            subgraph SM[中层]
+                direction LR
+                AS[AppState]
+                PS[PanelState]
+                GOBS[生成器织入的分布式 Observer Hooks]
+            end
+
+            subgraph SL[下层]
+                direction LR
+                MGR[ServiceManager]
+            end
+        end
+    end
+
+    subgraph SV[Service 层]
+        SLC[ServiceLoadCommand]
+        SHOST[ServiceHost]
+        SLAE[ServiceLoadAccomplishmentEvent]
+    end
+
+    SH --> FCH
+    SH --> AS
+    SH --> MGR
+    AS -->|聚合| PS
+    PS -. 节点写入后触发 .-> GOBS
+    MGR -->|管理| SHOST
+
+    VH -. 产生/投递 .-> SCC
+    VH -. 产生/投递 .-> EC
+    VH -. 命令送入 .-> SH
+    SH -. 统一回传 .-> CR
+    CR -. 返回给 .-> VH
+
+    FCH -. 接入/区分 .-> SCC
+    FCH -. 接入/区分 .-> EC
+    FCH -. 前侧结果组织 .-> CR
+
+    SH -. 下传执行请求 .-> MGR
+    MGR -. 调度具体服务 .-> SHOST
+    MGR -. 装载请求 .-> SLC
+    SHOST -. 执行结果回流 .-> MGR
+    SLC -. 初始化依据 .-> SHOST
+    SHOST -. 装载完成产出 .-> SLAE
+
+    classDef host fill:#1d3557,stroke:#f1faee,color:#f1faee,stroke-width:2px;
+    classDef state fill:#264653,stroke:#e9f5db,color:#f1faee;
+    classDef view fill:#3d405b,stroke:#f2cc8f,color:#f1faee;
+    classDef service fill:#4a4e69,stroke:#c9ada7,color:#f1faee;
+    classDef generated fill:#6d597a,stroke:#ffcad4,color:#f1faee;
+
+    class SH host;
+    class FCH,AS,PS,MGR state;
+    class GOBS generated;
+    class VH,SCC,EC,CR view;
+    class SHOST,SLC,SLAE service;

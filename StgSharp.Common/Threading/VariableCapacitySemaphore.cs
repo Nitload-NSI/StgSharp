@@ -1,6 +1,33 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="VariableCapacitySemaphore"
+// Project: StgSharp
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
+//     
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//     
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// file="VariableCapacitySemaphore"
 // Project: StgSharp.Common
 // AuthorGroup: Nitload
 // License: MIT
@@ -40,7 +67,11 @@ namespace StgSharp.Threading
         /// <param name="stripes">
         ///   Optional stripe count for MRES (<= 0 to auto choose by CPU).
         /// </param>
-        public VariableCapacitySemaphore(int initialCount = 0, int maxPermits = 1, int stripes = 0)
+        public VariableCapacitySemaphore(
+               int initialCount = 0,
+               int maxPermits = 1,
+               int stripes = 0
+        )
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(maxPermits, 1);
             ArgumentOutOfRangeException.ThrowIfNegative(initialCount);
@@ -48,14 +79,16 @@ namespace StgSharp.Threading
             _max = maxPermits;
             _current = Math.Min(initialCount, maxPermits);
 
-            int stripeCount = stripes > 0 ? stripes : ClampToPow2(Math.Min(Environment.ProcessorCount, 8));
+            int stripeCount = (stripes > 0) ?
+                              stripes :
+                              ClampToPow2(Math.Min(Environment.ProcessorCount, 8));
             _events = new ManualResetEventSlim[stripeCount];
             bool set = _current > 0;
             for (int i = 0; i < stripeCount; i++) {
                 _events[i] = new ManualResetEventSlim(set, 0);
             }
 
-            _stripeMask = IsPow2(stripeCount) ? (stripeCount - 1) : -1;
+            _stripeMask = IsPow2(stripeCount) ? (stripeCount - 1) : (-1);
         }
 
         /// <summary>
@@ -139,7 +172,9 @@ namespace StgSharp.Threading
         ///   count.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Release(int permits)
+        public int Release(
+                   int permits
+        )
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(permits);
             while (true)
@@ -150,7 +185,7 @@ namespace StgSharp.Threading
                     return cur;
                 }
 
-                long target = (long)cur + permits;
+                long target = ((long)cur) + permits;
                 if (target > max) {
                     target = max;
                 }
@@ -201,7 +236,7 @@ namespace StgSharp.Threading
             while (true)
             {
                 int cur = Volatile.Read(ref _current);
-                if (cur > 0 && Interlocked.CompareExchange(ref _current, cur - 1, cur) == cur)
+                if ((cur > 0) && (Interlocked.CompareExchange(ref _current, cur - 1, cur) == cur))
                 {
                     if (cur - 1 == 0) {
                         ResetAll();
@@ -222,7 +257,10 @@ namespace StgSharp.Threading
         /// <summary>
         ///   Block until a permit is available or canceled, then consume one.
         /// </summary>
-        public bool Wait(int millisecondsTimeout, CancellationToken cancellationToken = default)
+        public bool Wait(
+                    int millisecondsTimeout,
+                    CancellationToken cancellationToken = default
+        )
         {
             ManualResetEventSlim gate = GetStripeEvent();
             SpinWait spinner = new SpinWait();
@@ -232,7 +270,7 @@ namespace StgSharp.Threading
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 int cur = Volatile.Read(ref _current);
-                if (cur > 0 && Interlocked.CompareExchange(ref _current, cur - 1, cur) == cur)
+                if ((cur > 0) && (Interlocked.CompareExchange(ref _current, cur - 1, cur) == cur))
                 {
                     if (cur - 1 == 0) {
                         ResetAll();
@@ -263,7 +301,9 @@ namespace StgSharp.Threading
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int ClampToPow2(int x)
+        private static int ClampToPow2(
+                           int x
+        )
         {
             if (x < 1) {
                 x = 1;
@@ -274,7 +314,7 @@ namespace StgSharp.Threading
             }
 
             int p = 1;
-            while ((p << 1) <= x) {
+            while (p << 1 <= x) {
                 p <<= 1;
             }
 
@@ -294,7 +334,12 @@ namespace StgSharp.Threading
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsPow2(int x) => (x & (x - 1)) == 0;
+        private static bool IsPow2(
+                            int x
+        )
+        {
+            return (x & (x - 1)) == 0;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ResetAll()

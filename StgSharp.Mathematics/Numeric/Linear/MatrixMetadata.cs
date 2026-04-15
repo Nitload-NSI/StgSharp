@@ -90,10 +90,10 @@ namespace StgSharp.Mathematics.Numeric
                               int yKernel
         )
         {
-            return xKernel >= 0 &&
-                   yKernel >= 0 &&
-                   xKernel < enumerator.KernelColumnLength &&
-                   yKernel < enumerator.KernelRowLength;
+            return (xKernel >= 0) &&
+                   (yKernel >= 0) &&
+                   (xKernel < enumerator.KernelColumnLength) &&
+                   (yKernel < enumerator.KernelRowLength);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -104,7 +104,7 @@ namespace StgSharp.Mathematics.Numeric
         )
         {
             long order = GetTriangularOrder(enumerator);
-            return xKernel >= 0 && yKernel >= 0 && xKernel < order && yKernel < order;
+            return (xKernel >= 0) && (yKernel >= 0) && (xKernel < order) && (yKernel < order);
         }
 
         private sealed class DenseSquareKernelBoarder : MatrixKernelBoarder
@@ -122,7 +122,7 @@ namespace StgSharp.Mathematics.Numeric
                 long col = enumerator.KernelColumnLength;
 
                 // Console.Write($"Attempt to get offset at ({x},{y}), offset is {x * col + y}  ");
-                return x * col + y;
+                return (x * col) + y;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -151,7 +151,7 @@ namespace StgSharp.Mathematics.Numeric
                 long x = xKernel;
                 long y = yKernel;
 
-                long prefixColumns = x * order - (x * (x - 1L)) / 2L;
+                long prefixColumns = (x * order) - ((x * (x - 1L)) / 2L);
                 return prefixColumns + (y - x);
             }
 
@@ -162,7 +162,8 @@ namespace StgSharp.Mathematics.Numeric
                                  in MatrixSize enumerator
             )
             {
-                return IsWithinTriangularDomain(enumerator, xKernel, yKernel) && yKernel >= xKernel;
+                return IsWithinTriangularDomain(enumerator, xKernel, yKernel) &&
+                       (yKernel >= xKernel);
             }
 
         }
@@ -191,7 +192,8 @@ namespace StgSharp.Mathematics.Numeric
                                  in MatrixSize enumerator
             )
             {
-                return IsWithinTriangularDomain(enumerator, xKernel, yKernel) && yKernel <= xKernel;
+                return IsWithinTriangularDomain(enumerator, xKernel, yKernel) &&
+                       (yKernel <= xKernel);
             }
 
         }

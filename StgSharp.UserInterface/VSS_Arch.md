@@ -3,473 +3,311 @@
 > **作者**：Nitload-NSI  
 > **创建日期**：2026-03-17  
 > **所属项目**：StgSharp 框架 / 工业上位机架构预演  
-> **文档状态**：初稿
+> **文档状态**：精简版草案
 
 ---
 
-## 目录
+## 1. 文档定位
 
-1. [背景与动机](#1-背景与动机)
-2. [核心思想](#2-核心思想)
-3. [架构总览](#3-架构总览)
-4. [V 层：I/O 适配层](#4-v-层io-适配层)
-5. [S 层：状态机](#5-s-层状态机)
-6. [S 层：服务层](#6-s-层服务层)
-7. [层间通信协议](#7-层间通信协议)
-8. [与 MVVM 的对比](#8-与-mvvm-的对比)
-9. [适用场景](#9-适用场景)
-10. [参考实现索引](#10-参考实现索引)
+本文档用于说明 VSS 的整体架构思想、三层职责划分与层间关系。  
+具体类型定义、命名与边界，以《VSS 三层类型基座设计草案》为准。
+
+当前版本需要特别强调一点：  
+State 层不再被描述为几个并列的中枢对象，而是对外统一表现为一个单例 `StateHost`。
 
 ---
 
-## 1. 背景与动机
+## 2. 设计评估
 
-### 1.1 MVVM 的局限
+把整个 State 层对外收敛为 `StateHost` 单例，是比旧描述更合理的做法。
 
-MVVM（Model-View-ViewModel）是一种面向"轻型商用软件"设计的 UI 架构模式。其隐含前提为：
+原因有三点：
 
-- **Model 是被动的数据容器**，不具备独立生命周期
-- **ViewModel 是核心调度者**，负责连接 View 与 Model
-- **View 由数据变化驱动**（双向绑定）
+- 它明确了唯一中枢，避免旧版文档中的多个中枢概念同时被读成并列核心。
+- 它明确了所有权，说明命令接入、状态抽象和服务管理都属于同一个运行时边界。
+- 它更符合宿主型系统的实际组织方式，对外暴露一个主机，对内再展开结构，比暴露多个概念性中枢更稳定。
 
-这一前提在以下场景中失效：
+这个设计也有一个边界需要保留：  
+虽然 `ServiceManager` 现在被放入 `StateHost` 的下层，但这并不意味着状态与能力本体被混为一层。  
+`AppState` 仍然是状态抽象，`ServiceManager` 仍然只是服务管理结构，具体服务对象依然属于能力层。
 
-| 场景 | 失效原因 |
-|---|---|
-| 工业上位机 | 设备/硬件具有独立生命周期和状态机，不是"被动数据" |
-| 仿真集群软件 | 计算节点有自己的异步事件流，不受 ViewModel 调度 |
-| 多输入源 HMI | 鼠标、专用手柄、实体按钮等多源输入在 View 层打架 |
-| 重型可视化软件 | ViewModel 膨胀为"上帝类"，承担了所有业务逻辑 |
-
-### 1.2 直接动机
-
-本架构的直接动机来源于维护一套 WinForms + MVP 上位机项目时，**鼠标与专用手柄两种输入模式相互干扰**的问题。
-
-解决思路的核心转变：
-
-> **外设事件不应提交给 View，而应提交给 State。**  
-> View 只负责将当前 State 状态呈现出来。
-
-这一转变最终演化为完整的 VSS 架构。
-
-### 1.3 设计血统
-
-VSS 的部分设计思路借鉴自**游戏引擎架构**，核心哲学为：
-
-> **以输入为核心，以逻辑为驱动，界面显示是被动的副产品。**
-
-这与 Unity New Input System、虚幻引擎 Enhanced Input 等现代游戏输入系统的设计理念一脉相承。
-
----
-
-## 2. 核心思想
-
-### 2.1 两个根本原则
-
-**原则一：所有"意图"必须经过 State 归一化**
-
-```
-鼠标点击   ──┐
-手柄按键   ──┼──→  State.Dispatch(Intent)  ──→  统一的状态转移逻辑
-实体按钮   ──┤
-网络指令   ──┘
-```
-
-无论信号来源如何，进入 State 之前都转化为统一的 `Intent`。State 是**唯一的语义解释者**。
-
-**原则二：View 层可以完全换掉或关闭**
-
-```
-有头模式：   V(WPF)    + State + Service   （操作员在场）
-无头模式：             State + Service   （自动化运行/集群节点）
-远程模式：   V(薄客户端) + State + Service   （远程接管显示）
-HMI 模式：   V(实体面板) + State + Service   （无屏幕操作台）
-```
-
-State 和 Service 在任何模式下**零改动**。
-
-### 2.2 职责边界的时间维度
-
-不同层次的操作具有根本不同的时间特征，这是分层的真正依据：
-
-| 层 | 时间特征 | 驱动方式 |
-|---|---|---|
-| V（渲染输出） | 帧级，毫秒级刷新 | 时钟主动驱动 |
-| V（输入采集） | 事件级，异步到达 | 中断/回调驱动 |
-| State | 事件队列消费，微秒~毫秒 | 串行队列驱动 |
-| Service | 业务流程，毫秒~分钟 | Command 触发 |
-| 设备/集群节点 | 独立生命周期，跨越整个运行期 | 自驱动 |
-
-让 ViewModel 同时承担所有时间维度的调度，是 MVVM 在重型软件中失败的根本原因。
+另外，前侧命令链路只定义命令而不定义结果也是不完整的。  
+如果 `FrontCommandHost` 已经区分 `StateChangeCommand` 与 `ExecuteCommand`，那么还必须存在统一的 `CommandResult`，用于把执行完成状态回传给 View。
 
 ---
 
 ## 3. 架构总览
 
-```
-┌────────────────────────────────────────────────────────────┐
-│  V  —  View Layer（I/O 适配层集合）                         │
-│                                                            │
-│  ┌─────────────────────────┐  ┌────────────────────────┐   │
-│  │  输入适配器              │  │  输出适配器              │   │
-│  │  IInputAdapter          │  │  IOutputAdapter         │   │
-│  │                         │  │                         │   │
-│  │  · WpfInputAdapter      │  │  · WpfPresenter         │   │
-│  │    鼠标/键盘/触摸         │  │    帧时钟驱动 XAML 刷新  │   │
-│  │                         │  │                         │   │
-│  │  · HmiInputAdapter      │  │  · HmiOutputAdapter     │   │
-│  │    实体按钮/旋钮/急停     │  │    LED/炫彩/面板小屏    │   │
-│  │                         │  │                         │   │
-│  │  · DeviceInputAdapter   │  │  · NullOutputAdapter    │   │
-│  │    专用手柄/外接设备      │  │    无头模式，丢弃输出    │   │
-│  └──────────┬──────────────┘  └───────────┬────────────┘   │
-└─────────────┼──────────────────────────────┼───────────────┘
-              │ Intent（原始输入，无语义）      │ ← Snapshot（只读快照）
-              ↓                               ↑
-┌─────────────────────────────────────────────────────────────┐
-│  S  —  State（抽象状态机）                                   │
-│                                                             │
-│  · 串行 Intent 队列，保证状态转移原子性                       │
-│  · 持有所有 UI 可见状态，生成 Snapshot 通知 V 层             │
-│  · 接收所有输入源：V 层 Intent + Service Event              │
-│  · 向 Service 发送 Command（携带完整上下文）                 │
-│  · 不持有 Service 具体实现引用（依赖接口）                    │
-│  · 不知道 V 层的存在                                        │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ Command（有语义指令，携带完整上下文）
-                            ↕ Event（异步完成通知）
-┌───────────────────────────────────────────────────────────────┐
-│  S  —  Service Layer（业务服务层）                             │
-│                                                               │
-│  · 每个 Service 拥有独立生命周期和内部状态机                   │
-│  · 执行具体业务：设备控制、集群调度、数据持久化、通信协议等     │
-│  · 通过 Event 将异步结果回传给 State                          │
-│  · 完全不知道 V 层的存在                                      │
-│  · Command 应自描述，Service 执行时无需回调 State             │
-└───────────────────────────────────────────────────────────────┘
-```
+VSS 当前建议的核心结构如下：
+
+View / Electron / HMI / 外设 / 其他宿主  
+↓  
+StateHost（单例）  
+├─ 上层：FrontCommandHost  
+├─ 中层：AppState  
+└─ 下层：ServiceManager  
+↓  
+Service / ServiceHost / 具体能力实例
+
+这个结构表达的是：
+
+1. 对外，State 层只有一个统一入口，即 `StateHost`。
+2. 对内，`StateHost` 全息展开为上中下三层。
+3. 服务能力通过 `ServiceManager` 被纳入统一调度，而不是直接散落在外部结构中。
+
+其基本流程可以概括为：
+
+1. 外部宿主产生交互或控制请求。
+2. 请求进入 `StateHost`。
+3. `StateHost` 的上层 `FrontCommandHost` 接收并区分 `StateChangeCommand` 与 `ExecuteCommand`。
+4. `StateHost` 的中层 `AppState` 参与状态判断与状态更新。
+5. 当命令涉及能力执行时，`StateHost` 的下层 `ServiceManager` 负责调度服务。
+6. 命令处理完成后，`StateHost` 统一生成 `CommandResult` 回传给 View。
+7. 状态变化与结果通知分别承担状态同步和执行完成通知两类职责。
 
 ---
 
-## 4. V 层：I/O 适配层
+## 4. View 层
 
-### 4.1 重新定义"View"
+### 4.1 定位
 
-VSS 中的 V **不是"界面"**，而是**"所有与外部世界的 I/O 适配层的集合"**。
+View 层是前侧交互来源的统一抽象。  
+它不等同于传统窗口或页面，而是所有外部交互入口与宿主环境的集合。
 
-```
-V 层 = 输入适配器集合 ∪ 输出适配器集合
-```
+View 层只负责两件事：
 
-这一定义来源于对"实体 HMI 也是一种 View"的认识：
+- 承接交互
+- 将交互转化为命令并送入 `StateHost`
 
-- 实体按钮面板：有输入（按键），有输出（指示灯、小屏幕、炫彩灯带）
-- WPF 窗口：有输入（鼠标/键盘/触摸），有输出（屏幕渲染）
-- 无头节点：无 V 层，State + Service 直接运行
+同时，View 还需要能够接收由 `StateHost` 回传的 `CommandResult`，从而知道某次执行型命令是否已经完成。
 
-### 4.2 输入适配器（IInputAdapter）
+它不再承担中枢职责，也不直接持有服务调度责任。
 
-```csharp
-public interface IInputAdapter
-{
-    void Start(Action<Intent> dispatch);
-    void Stop();
-}
-```
+### 4.2 基础类型
 
-职责：
-- 监听来自特定输入源的原始信号
-- 将原始信号转化为 `Intent`（**不做语义判断**）
-- 通过 `dispatch` 委托投递到 State 的事件队列
+#### ViewHost
 
-**关键约束**：输入适配器只描述"发生了什么"，不判断"应该做什么"。
+`ViewHost` 是前侧宿主的统一抽象，用于表示任何可以承接界面表现、输入来源或外部交互来源的宿主对象。
 
-### 4.3 输出适配器（IOutputAdapter）与 Presenter
+#### StateChangeCommand
 
-```csharp
-public interface IOutputAdapter
-{
-    void Start();
-    void Stop();
-    void AcceptSnapshot(StateSnapshot snapshot);  // 可能在任意线程调用
-}
-```
+`StateChangeCommand` 用于表达对系统状态的直接修改请求。
 
-**Presenter 是输出适配器的一种**，负责屏幕渲染输出。
+#### ExecuteCommand
 
-WPF 环境下，Presenter 挂载于 `CompositionTarget.Rendering`——这是 WPF 暴露的帧循环钩子，与显示器刷新率同步（通常 60fps）。
+`ExecuteCommand` 用于表达需要进入执行流程的命令请求。
 
-```
-State.Commit()
-    ↓ AcceptSnapshot()（任意线程，原子写 _pending）
-CompositionTarget.Rendering（WPF 帧时钟，UI线程）
-    ↓ 检测 _pending 变化
-    ↓ PushToView()
-View.DataContext = snapshot（触发 XAML 绑定刷新）
-```
+#### CommandResult
 
-**帧合并机制**：State 在两帧之间可能产生多个 Snapshot（如高频设备数据更新），Presenter 的帧循环只取最新的 `_pending`，自动合并中间状态，保持渲染频率稳定。
+`CommandResult` 用于表达某次前侧命令处理完成后的统一结果通知。
 
-非屏幕输出适配器（如 HMI 灯带）使用独立低频定时器，无需挂载帧时钟。
+### 4.3 小结
 
-### 4.4 ViewLayer 容器
+View 层的职责不是承载业务逻辑，而是把复杂、多样、异构的交互来源收敛成稳定命令，然后统一送入 `StateHost`。
 
-```csharp
-public class ViewLayer
-{
-    public ViewLayer Add(IInputAdapter  adapter);
-    public ViewLayer Add(IOutputAdapter adapter);
-    public void Start(Action<Intent> dispatch);
-    public void Stop();
-    public void AcceptSnapshot(StateSnapshot snapshot);  // 广播给所有输出适配器
-}
-```
-
-V 层对外只暴露两个接口：
-- `Start(dispatch)`：启动所有适配器，传入 State 的 Dispatch 入口
-- `AcceptSnapshot(snapshot)`：接收新状态，广播给所有输出适配器
-
-### 4.5 WPF 中的 XAML 规范
-
-在 VSS 架构下，WPF 的 XAML 层应遵循以下规范：
-
-```
-✅ 允许：
-  · 纯布局声明（Grid、StackPanel、Border 等）
-  · DataContext 绑定（{Binding PropertyName}，单向或双向均可）
-  · Code-behind 中的事件转发（OnXxxClicked → Dispatch(Intent)）
-
-❌ 禁止：
-  · XAML 中的 Command 绑定（ICommand、RelayCommand 等）
-  · Code-behind 中的业务逻辑判断
-  · ViewModel 类（无 ViewModel 层）
-  · Code-behind 直接调用 Service
-```
-
-Code-behind 的唯一职责：
-
-```csharp
-// 用户操作 → 转发为 Intent，不做任何判断
-private void OnPrintClicked(object s, RoutedEventArgs e)
-    => _dispatch?.Invoke(new PrintRequestedIntent());
-```
+对于执行类命令，View 不能只依赖状态变化判断是否结束，还应通过 `CommandResult` 获得明确的完成通知。
 
 ---
 
-## 5. S 层：状态机
+## 5. State 层
 
-### 5.1 职责定义
+### 5.1 定位
 
-State 是 VSS 的核心，也是**唯一持有应用状态的地方**。
+State 层是 VSS 的唯一状态与调度中枢。  
+它对外统一表现为 `StateHost` 单例，对内展开为三层结构。
 
-```
-State 做且只做：
-  1. 接收 Intent
-  2. 决策状态如何转移
-  3. 向 Service 发 Command
-  4. 生成新 Snapshot 通知 V 层
-```
+### 5.2 内部结构
 
-State **不做**：
-- 任何 IO 操作
-- 任何耗时计算
-- 直接操作 UI 控件
-- 持有 Service 的具体实现（依赖接口）
+#### StateHost
 
-### 5.2 串行事件队列
+`StateHost` 是 State 层唯一对外暴露的运行时主机。
 
-State 内部维护一个串行消费队列，**所有输入源**（V 层 Intent + Service Event）都通过同一个队列进入：
+它负责：
 
-```
-[WPF鼠标事件] ──┐
-[手柄按键]    ──┤
-[实体按钮]    ──┼──→  Channel<Intent>  ──→  State（单线程消费）
-[Service完成] ──┤
-[定时器触发]  ──┘
-```
+- 接收来自外部宿主的命令
+- 统一组织命令接入、状态抽象和服务管理
+- 统一处理状态同步、事件广播、服务结果回流和 `CommandResult` 回传
 
-**意义**：状态转移是原子的，不会因并发输入导致内部状态撕裂。这是简化版的 **Actor 模型**。
+#### 上层：FrontCommandHost
 
-### 5.3 StateSnapshot
+`FrontCommandHost` 是 `StateHost` 的上层，用于承接前侧命令输入。  
+它属于 State 内部结构，不再被视为 View 层自己的中介中心。
 
-Snapshot 是 State 暴露给 V 层的**只读数据快照**，使用 C# `record` 定义以保证不可变性：
+在命令协议上，`FrontCommandHost` 至少要面对两类前向命令：
 
-```csharp
-public record StateSnapshot
-{
-    // 所有字段均为 init-only，外部无法修改
-    public bool   IsBusy        { get; init; }
-    public string StatusMessage { get; init; } = "";
-    // ... 其他字段
-}
-```
+- `StateChangeCommand`
+- `ExecuteCommand`
 
-State 内部通过 `with` 表达式生成新 Snapshot：
+对应地，State 在处理完成后还需要回传统一的 `CommandResult`。
 
-```csharp
-Commit(_snapshot with { IsBusy = true, StatusMessage = "处理中..." });
-```
+#### 中层：AppState
 
-### 5.4 Intent 与 Command 的区别
+`AppState` 是 `StateHost` 的中层状态抽象，是全局状态树根。  
+它代表状态本体，而不是状态宿主。
 
-| | Intent | Command |
-|---|---|---|
-| **方向** | V → State | State → Service |
-| **语义** | 无（描述事实） | 有（描述意图） |
-| **产生者** | V 层适配器 | State 状态机 |
-| **消费者** | State | Service |
-| **示例** | `MouseClickedIntent(x, y)` | `StartSimulationCommand(config)` |
+#### 下层：ServiceManager
 
-**同一个 Command 可以由多种 Intent 触发**，这是多输入源统一的关键。
+`ServiceManager` 是 `StateHost` 的下层服务管理结构。  
+它负责把命令向下转化为具体能力调度，并将结果回流状态体系。
 
----
+#### 配套结构
 
-## 6. S 层：服务层
+State 层还包括：
 
-### 6.1 职责定义
+- `PanelState`，用于表示局部状态单元
 
-Service 负责所有"重活"：
+此外，observer 语义仍然存在，但在 `StgSharp.UserInterface` 中不再通过 `OnStateChanged` / `StateChangeObserver` 这类手写公共类型表达。
 
-- 设备驱动与通信协议
-- 集群节点调度
-- 数据持久化与查询
-- 耗时计算与文件 IO
-- 网络请求
+这里更准确的说法是：状态写入后的轻量 observer 逻辑，改为由源生成器围绕具体状态节点直接分布式织入。
 
-Service 的核心特征：**有自己独立的生命周期和内部状态机**，不受 State 控制，只响应 Command。
+在传统 MVVM 中，observer 往往同时承担：
 
-### 6.2 Command 自描述原则
+- 内部逻辑回调
+- VM 内部广播变化
+- 通知 View 重绘
+- 通知 Data / 业务执行
 
-Command 应携带执行所需的**完整上下文**，Service 执行时无需回调 State 查询任何信息：
+而在 VSS 中，这四项职责被拆开处理：
 
-```csharp
-// ❌ 错误设计：Service 执行到一半还要问 State
-service.Execute(cmd);
-// Service 内部：var config = state.GetCurrentConfig(); ← 违反原则
+- 内部逻辑回调：由 Service 或具体业务实现承担
+- VM 内部广播变化：由源生成器生成的轻量 observer hook 承担
+- 通知 View 重绘：由 command/result 与同步符号链路承担
+- 通知 Data / 业务执行：由 command/result 与 service 调度承担
 
-// ✅ 正确设计：Command 是自描述的
-service.Execute(new StartSimulationCommand
-{
-    NodeCount      = 8,
-    ConfigSnapshot = currentConfig,   // 执行时的完整上下文快照
-    ResultEvent    = typeof(SimulationStartedEvent)  // 完成后回传的 Event 类型
-});
-```
+其中 `CommandResult` 仍用于通知某次命令已经处理完成。
 
-**意义**：当某个 Service 大到需要拆分为独立微服务时，Command 的接口几乎不需要修改——这是架构可扩展性的基础。
+### 5.3 小结
 
-### 6.3 Service 与 State 解耦
-
-```
-State → Service：Command（State 主动发起）
-Service → State：Event（Service 异步回传）
-
-Service 持有 State 的 Dispatch 委托（或事件总线）
-Service 不持有 State 的引用
-State 持有 Service 的接口引用
-Service 完全不知道 V 层的存在
-```
+State 层现在应被理解为一个统一主机，而不是多个同级中心。  
+`StateHost` 对外是单例边界，对内则由 `FrontCommandHost`、`AppState` 和 `ServiceManager` 三层共同构成。
 
 ---
 
-## 7. 层间通信协议
+## 6. Service 层
 
-### 7.1 完整数据流
+### 6.1 定位
 
-```
-[用户操作 / 外设信号]
-        ↓
-IInputAdapter.OnXxx()
-        ↓ dispatch(Intent)
-State 的串行 Channel<Intent>
-        ↓ HandleIntent(intent)
-State 内部状态转移
-        ↓ Commit(newSnapshot)
-IOutputAdapter.AcceptSnapshot()     ← 可能在非 UI 线程
-        ↓ （各适配器自行处理线程安全）
-屏幕渲染 / LED 更新 / 面板刷新      ← 各自的驱动时钟
-```
+Service 层仍然是系统能力的承载层，但其管理入口已经被明确收敛到 `StateHost` 的下层 `ServiceManager`。
 
-### 7.2 线程模型
+因此，Service 层关注的重点是：
 
-| 操作 | 线程 |
-|---|---|
-| `IInputAdapter` 事件采集 | 各自线程（WPF UI 线程 / 后台轮询线程） |
-| `State.Dispatch(Intent)` | 任意线程，线程安全（Channel 写入是原子的） |
-| `State` 内部消费循环 | 单一后台线程 |
-| `IOutputAdapter.AcceptSnapshot()` | State 的消费线程（非 UI 线程） |
-| `WpfPresenter.PushToView()` | WPF UI 线程（由 `CompositionTarget.Rendering` 保证） |
-| `HmiOutputAdapter.OnTick()` | Timer 回调线程 |
+- 被调度的具体服务对象
+- 服务装载与完成事件
+- 服务运行宿主与能力实例
 
-**核心结论**：整个架构中**只有 WpfPresenter 需要关心 UI 线程**，其余所有层次天然线程安全，无需到处写 `Dispatcher.Invoke`。
+Service 内部完成事件可以回流到 `StateHost`，但前侧最终接收到的仍应是统一的 `CommandResult`，而不是直接暴露服务内部事件。
 
-### 7.3 组装示例
+### 6.2 基础类型
 
-```csharp
-// Program / App.xaml.cs
-var window = new MainWindow();
+#### ServiceLoadCommand
 
-// 组装 V 层
-var view = new ViewLayer()
-    .Add(new WpfInputAdapter(window))
-    .Add(new HmiInputAdapter(hmiDriver))
-    .Add(new WpfPresenter(window))
-    .Add(new HmiOutputAdapter(hmiDriver));
+`ServiceLoadCommand` 用于表达服务装载请求。
 
-// 组装 Service 层
-var excelService   = new ExcelService();
-var printerService = new PrinterService();
-// ...
+#### ServiceLoadAccomplishmentEvent
 
-// 组装 State
-var state = new AppState(view.AcceptSnapshot, excelService, printerService);
+`ServiceLoadAccomplishmentEvent` 用于表达服务装载完成后的结果通知。
 
-// 启动
-view.Start(state.Dispatch);
-window.Show();
-```
+#### ServiceHost
+
+`ServiceHost` 用于表达某一类服务实例的直接宿主或执行载体。
+
+### 6.3 小结
+
+`ServiceManager` 属于 State 的下层管理结构，而 `ServiceHost` 与具体服务实例才属于能力层主体。  
+这样可以在统一调度和能力解耦之间保持清晰边界。
 
 ---
 
-## 8. 与 MVVM 的对比
+## 7. 层间关系
 
-| 维度 | MVVM | VSS |
-|---|---|---|
-| **核心驱动** | 数据变化驱动视图 | 输入驱动状态，状态驱动视图 |
-| **View 的角色** | 双向绑定的参与者 | 纯粹的 I/O 适配层 |
-| **逻辑入口** | ICommand 散落在 ViewModel | 统一的 Intent → State |
-| **多输入源** | 无原生支持，需自行处理 | 天然归一化到 State |
-| **ViewModel/State 职责** | 常膨胀为上帝类 | State 只做状态转移决策 |
-| **业务复杂度承载** | Model 层，无规范 | Service 层，有明确生命周期规范 |
-| **线程模型** | 需大量 Dispatcher.Invoke | 只有 Presenter 需要关心 UI 线程 |
-| **View 可替换性** | View 和 VM 生命周期耦合 | View 层可任意替换或完全关闭 |
-| **无头运行** | 困难 | 天然支持（移除 V 层即可） |
-| **适合场景** | 纯前端、纯数据展示类应用 | 工业上位机、仿真集群、多 HMI 软件 |
+### 7.1 View → State
+
+View 层通过命令把交互送入 `StateHost`。  
+命令首先由 `FrontCommandHost` 接入，再由 `StateHost` 统一协调后续动作。  
+当前前侧协议至少应包含：
+
+- `StateChangeCommand`
+- `ExecuteCommand`
+- `CommandResult`
+
+### 7.2 State 内部关系
+
+State 内部的关系是：
+
+- 上层 `FrontCommandHost` 负责接命令
+- 中层 `AppState` 负责持状态
+- 下层 `ServiceManager` 负责管服务
+
+三者共同组成一个统一的 State 运行时主机。
+
+### 7.3 State → Service
+
+当命令涉及能力执行时，`StateHost` 通过下层 `ServiceManager` 调度服务对象。  
+服务执行结果再统一回流 `StateHost`，由其决定状态更新与通知广播。  
+对于 View 而言，某次执行是否完成，应以 `CommandResult` 为准，而不是直接依赖服务内部事件。
+
+---
+
+## 8. 与 MVVM 的区别
+
+相较于 MVVM，VSS 更强调统一运行时主机，而不是围绕界面绑定建立系统中心。
+
+主要区别在于：
+
+- MVVM 通常以界面和 ViewModel 配合为中心，VSS 以 `StateHost` 为唯一中枢
+- MVVM 更适合界面驱动型应用，VSS 更适合多输入源、多宿主、强状态调度的软件
+- VSS 明确区分状态本体、命令接入和服务管理，但又把它们统一收束在同一个 State 边界内
 
 ---
 
 ## 9. 适用场景
 
-### ✅ VSS 强烈推荐
+VSS 更适合以下场景：
 
-- 工业上位机（需要驱动硬件设备）
-- 多输入源 HMI（鼠标 + 触摸 + 手柄 + 实体按钮）
-- 仿真计算软件（既可单机也可集群）
-- 需要"无头模式"运行的软件（自动化测试、远程节点）
-- 某个功能模块已大到可以单独拆出做服务的软件
+- 工业上位机
+- 多输入源 HMI
+- 仿真与控制软件
+- 支持无头运行的软件
+- 需要多宿主接入的系统
 
-### ⚠️ MVVM 仍然适用
-
-- 纯数据展示（Dashboard、报表工具）
-- 纯前端业务（表单填写、内容管理）
-- 业务逻辑简单，Model 没有独立生命周期
-
-### ❌ 两者都不适合
-
-- 分布式系统的后端服务（应使用 DDD / Clean Architecture）
-- 微服务内部逻辑（应使用领域模型 + CQRS）
+对于纯数据展示、轻量表单或前端页面驱动型应用，MVVM 仍可能是更直接的选择。
 
 ---
 
+## 10. 当前建议保留的最小类型清单
 
-*本文档随项目演进持续更新。架构思想的提出与设计版权归 Nitload-NSI 所有。*
+### View 层
+
+- `ViewHost`
+- `StateChangeCommand`
+- `ExecuteCommand`
+- `CommandResult`
+
+### State 层
+
+- `StateHost`
+- `FrontCommandHost`
+- `AppState`
+- `PanelState`
+- `ServiceManager`
+
+### Service 层
+
+- `ServiceLoadCommand`
+- `ServiceLoadAccomplishmentEvent`
+- `ServiceHost`
+
+---
+
+## 11. 结论
+
+VSS 的重点不在于先定义某一种具体界面实现，而在于先定义稳定的运行时骨架。  
+在当前阶段，更准确的表达应当是：
+
+- View 层负责交互来源
+- State 层对外统一表现为 `StateHost` 单例
+- `StateHost` 对内全息展开为 `FrontCommandHost`、`AppState`、`ServiceManager` 三层
+- 前侧命令协议由 `StateChangeCommand`、`ExecuteCommand`、`CommandResult` 构成闭环
+- Service 层负责承载被调度的具体能力对象
+
+这一定义比旧版本更清楚地表达了唯一中枢、运行时边界和内部层次关系。

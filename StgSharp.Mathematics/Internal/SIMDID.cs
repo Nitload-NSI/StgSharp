@@ -39,12 +39,35 @@ namespace StgSharp.Mathematics.Internal
     internal unsafe struct SIMDID
     {
 
-        [FieldOffset(0)]public fixed byte MaskByte[16];
-        [FieldOffset(0)]public ulong Mask;
+        [FieldOffset(0)] public fixed byte MaskByte[16];
+        [FieldOffset(0)] public ulong Mask;
+
+        internal SIMDID(
+                 ulong data
+        )
+        {
+            Mask = data;
+        }
 
         public SIMDID()
         {
             Unsafe.SkipInit(out this);
+        }
+
+        public static bool operator !=(
+                                    SIMDID left,
+                                    SIMDID right
+        )
+        {
+            return left.Mask != right.Mask;
+        }
+
+        public static bool operator ==(
+                                    SIMDID left,
+                                    SIMDID right
+        )
+        {
+            return left.Mask == right.Mask;
         }
 
     }

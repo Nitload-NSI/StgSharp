@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Common.HighPerformance.ProcessorAbstraction;
 using StgSharp.Mathematics;
 using System;
 using System.Reflection;
@@ -211,6 +212,8 @@ namespace StgSharp
             if (Dialogue.NeedShowWhenStartup) {
                 Dialogue.CreateDialogueProcessIfNotExist();
             }
+
+            Numa.Initialize();
             /**/
         }
 
@@ -228,7 +231,7 @@ namespace StgSharp
 
             public void UninitializeModule()
             {
-                throw new NotImplementedException();
+                return;
             }
 
         }

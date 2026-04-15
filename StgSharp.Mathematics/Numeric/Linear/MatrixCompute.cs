@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance.Memory;
 using StgSharp.Internal;
 using StgSharp.Mathematics;
 using System;
@@ -37,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    public partial class MatrixCompute
+    public static partial class MatrixCompute
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -45,8 +46,8 @@ namespace StgSharp.Mathematics.Numeric
                                              MatrixKernel<T>* buffer,
                                              int colLength,
                                              int x,
-                                             int y)
-            where T: unmanaged, INumber<T>
+                                             int y
+        ) where T : unmanaged, INumber<T>
         {
             return (MatrixKernel*)(buffer + (colLength * x + y));
         }

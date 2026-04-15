@@ -4,6 +4,7 @@
 
 #include "sn_intrinsic.h"
 #include "sn_intrinsic.std.h"
+#include "sn_intrinsic.context.x86.h"
 #include <math.h>
 
 static const float quality_threshold = 1e-6f;
@@ -118,23 +119,21 @@ SN_MK_PROC_DECL_STD(float, sse, , quality)
 {
         __mk_param_std(KERNEL, RIGHT_ANS, float);
 
-        static const __m128 tiny_source = { .m128_f32 = { 1e-6f, 1e-6f, 1e-6f, 1e-6f } };
-
-        register __m128 tiny = _mm_load_ps(tiny_source.m128_f32);
+        register __m128 tiny = _mm_set1_ps(1e-6f);
 
         register __m128 col0 = _mm_load_ps((float *)&right->f32_x[0]);
         register __m128 col1 = _mm_load_ps((float *)&right->f32_x[1]);
         register __m128 col2 = _mm_load_ps((float *)&right->f32_x[2]);
         register __m128 col3 = _mm_load_ps((float *)&right->f32_x[3]);
 
-        __m128 self_dot_src = { 0 };
+        SN_ALIGNAS(16) float self_dot_src[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
         // try in reigister mix later
-        DOT_F32_SSE(col0, col0, self_dot_src.m128_f32[0]);
-        DOT_F32_SSE(col1, col1, self_dot_src.m128_f32[1]);
-        DOT_F32_SSE(col2, col2, self_dot_src.m128_f32[2]);
-        DOT_F32_SSE(col3, col3, self_dot_src.m128_f32[3]);
+        DOT_F32_SSE(col0, col0, self_dot_src[0]);
+        DOT_F32_SSE(col1, col1, self_dot_src[1]);
+        DOT_F32_SSE(col2, col2, self_dot_src[2]);
+        DOT_F32_SSE(col3, col3, self_dot_src[3]);
 
-        register __m128 self_dot = _mm_load_ps(self_dot_src.m128_f32);
+        register __m128 self_dot = _mm_load_ps(self_dot_src);
 
         register __m128 max;
         FIND_MAX_F32_SSE(self_dot, max);
@@ -149,21 +148,21 @@ SN_MK_PROC_DECL_STD(float, sse, , quality)
         min = _mm_min_ps(min, min0);
 
         float quality = _mm_cvtss_f32(_mm_div_ps(min, _mm_add_ps(max, tiny)));
-        ans->f32_x[0].m128_f32[0] = quality;
+        ans->m[0][0] = quality;
         if (quality < quality_threshold) {
                 return;
         }
 
-        __m128 cross_dot_src[2];
-        DOT_F32_SSE(col0, col1, cross_dot_src[0].m128_f32[0]);
-        DOT_F32_SSE(col0, col2, cross_dot_src[0].m128_f32[1]);
-        DOT_F32_SSE(col0, col3, cross_dot_src[0].m128_f32[2]);
-        DOT_F32_SSE(col1, col2, cross_dot_src[0].m128_f32[3]);
-        DOT_F32_SSE(col1, col3, cross_dot_src[1].m128_f32[0]);
-        DOT_F32_SSE(col2, col3, cross_dot_src[1].m128_f32[1]);
+        SN_ALIGNAS(16) float cross_dot_src[2][4] = { 0 };
+        DOT_F32_SSE(col0, col1, cross_dot_src[0][0]);
+        DOT_F32_SSE(col0, col2, cross_dot_src[0][1]);
+        DOT_F32_SSE(col0, col3, cross_dot_src[0][2]);
+        DOT_F32_SSE(col1, col2, cross_dot_src[0][3]);
+        DOT_F32_SSE(col1, col3, cross_dot_src[1][0]);
+        DOT_F32_SSE(col2, col3, cross_dot_src[1][1]);
 
-        register __m128 cross_dot_0 = _mm_load_ps(cross_dot_src[0].m128_f32);
-        register __m128 cross_dot_1 = _mm_load_ps(cross_dot_src[1].m128_f32);
+        register __m128 cross_dot_0 = _mm_load_ps(cross_dot_src[0]);
+        register __m128 cross_dot_1 = _mm_load_ps(cross_dot_src[1]);
 
         register __m128 base_0 = _mm_shuffle_ps(self_dot, self_dot, _MM_SHUFFLE(1, 0, 0, 0));
         register __m128 base_1 = _mm_shuffle_ps(self_dot, self_dot, _MM_SHUFFLE(3, 3, 2, 1));
@@ -179,7 +178,7 @@ SN_MK_PROC_DECL_STD(float, sse, , quality)
 
         relation_0 = _mm_max_ps(relation_0, relation_1);
         FIND_MAX_F32_SSE(relation_0, relation_0);
-        ans->f32_x[0].m128_f32[1] = _mm_cvtss_f32(relation_0);
+        ans->m[0][1] = _mm_cvtss_f32(relation_0);
 }
 
 #endif

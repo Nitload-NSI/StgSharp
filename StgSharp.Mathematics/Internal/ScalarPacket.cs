@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using System;
 using System.Collections.Generic;
 using System.Linq;

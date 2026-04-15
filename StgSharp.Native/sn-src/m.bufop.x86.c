@@ -68,7 +68,7 @@ SN_MK_PROC_DECL_STD(double, avx, , fill)
 SN_MK_PROC_DECL_STD(double, 512, , fill)
 {
         __mk_param_std(BUFFER, ANS_SCALAR, double);
-        register __m512d vec = _mm512_broadcastsd_pd(_mm_loadu_pd(scalar));
+        register __m512d vec = _mm512_set1_pd(((double const *)scalar->data)[0]);
         for (size_t i = 0; i < count; i++) {
                 ans[i].f64_z[0] = vec;
                 ans[i].f64_z[1] = vec;
@@ -354,7 +354,7 @@ SN_MK_PROC_DECL_STD(double, 512, , scalar_mul)
 {
         __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, double);
 
-        register __m512d vec = _mm512_broadcastsd_pd(_mm_load_pd(scalar));
+        register __m512d vec = _mm512_set1_pd(((double const *)scalar->data)[0]);
         for (size_t i = 0; i < count; i++) {
                 register __m512d c0 = _mm512_mul_pd(right[i].f64_z[0], vec);
                 register __m512d c1 = _mm512_mul_pd(right[i].f64_z[1], vec);

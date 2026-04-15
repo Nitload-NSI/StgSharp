@@ -85,8 +85,8 @@
     <!-- 把 ARM64 → arm64，x64 保持 x64 -->
     <_ArchTag Condition="'$(Platform)'=='x64'">x64</_ArchTag>
     <_ArchTag Condition="'$(Platform)'=='ARM64'">arm64</_ArchTag>
-    <!-- 输出到 build/win-<arch>/ -->
-    <OutDir>$(SolutionDir)build\win-$(_ArchTag)\</OutDir>
+    <!-- 输出到 cmake_build/win_<arch>/，与 CMake 目录约定保持一致 -->
+    <OutDir>$(SolutionDir)cmake_build\win_$(_ArchTag)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -110,7 +110,7 @@
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)sn-head;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)sn-head;$(ProjectDir)sn-template;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <!-- DLL 应该用 Windows，不是 Console -->
@@ -172,10 +172,10 @@
   <!--  source files                                            -->
   <!-- ════════════════════════════════════════════════════════ -->
   <ItemGroup>
-    <ClCompile Include="sn-src\m.basic.x86.c" />
     <ClCompile Include="sn-src\dllmain.c" />
     <ClCompile Include="sn-src\m.bufop.x86.c" />
     <ClCompile Include="sn-src\m.solve.x86.c" />
+    <ClCompile Include="sn-src\m.transpose.x86.c" />
     <ClCompile Include="sn-src\mk.fma.x86.c" />
     <ClCompile Include="sn-src\s.factorial.x86.c" />
     <ClCompile Include="sn-src\sk.fma.x86.c" />
@@ -185,7 +185,8 @@
     <ClCompile Include="sn-src\simdid.x86.c" />
     <ClCompile Include="sn-src\simdid_compare.x86.c" />
     <ClCompile Include="sn-src\sn_native.c" />
-    <ClCompile Include="sn-src\t.affinity.c" />
+    <ClCompile Include="sn-src\thread.linux.c" />
+    <ClCompile Include="sn-src\thread.windows.c" />
     <ClCompile Include="sn-src\vector.c" />
     <ClCompile Include="sn-src\vector_dot.c" />
   </ItemGroup>
@@ -207,6 +208,7 @@
     <ClInclude Include="sn-head\sn_target.h" />
     <ClInclude Include="sn-head\StgSharpNative.h" />
     <ClInclude Include="sn-head\wgl.h" />
+    <ClInclude Include="sn-template\sn_template.fma.x86.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="naming.md" />

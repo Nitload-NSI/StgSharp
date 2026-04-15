@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallel.Publish"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +26,12 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Collections;
+using StgSharp.HighPerformance.Memory;
 using StgSharp.Mathematics;
-using StgSharp.Mathematics.Internal;
+using StgSharp.Mathematics.Numeric.Runtime;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -46,16 +48,10 @@ namespace StgSharp.Mathematics.Numeric
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
-        internal static unsafe MatrixParallelWrap ScheduleTask(
-                                                  MatrixParallelTask* package
-        )
-        {
-            return ScheduleBufferTask(package);
-        }
-
-        private static unsafe MatrixParallelWrap ScheduleBufferTask(
-                                                 MatrixParallelTask* package
-        )
+        internal static unsafe MatrixParallelWrap ScheduleTask<TTask>(
+                                                  MatrixParallelThread[] workers,
+                                                  MatrixParallelTask* package)
+            where TTask: IL4Predict
         {
             /*
             int primCount = package->PrimCount;
@@ -65,11 +61,7 @@ namespace StgSharp.Mathematics.Numeric
 
             // Console.WriteLine($"amount of kernels is {count}");
 
-            long recommendCount = /*count / /**/ 1024;
-            MatrixParallelThread[] pool = LeadParallel((int)recommendCount);
-            MatrixParallelWrap wrap = new MatrixParallelWrap(pool);
-            wrap.TaskQueue = MatrixParallelQueue.Rent(package);
-            return wrap;
+            return new(workers);
         }
 
     }

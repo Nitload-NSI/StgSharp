@@ -1,31 +1,36 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="MatrixParallelWrap"
+// file="MatrixParallelWrap.cs"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
+//     
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
+//     
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Collections;
+using StgSharp.HighPerformance.Memory;
+using StgSharp.Mathematics.Numeric.Runtime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -51,48 +56,34 @@ namespace StgSharp.Mathematics.Numeric
     {
 
         private MatrixParallelThread[] _threads;
-        private bool _disposed = false;
-        private int _count;
+        private bool _disposed;
+        private readonly CountdownEvent _countdownEvent;
 
-        internal MatrixParallelWrap(
-                 MatrixParallelThread[] threadArray
-        )
+        internal MatrixParallelWrap(MatrixParallelThread[] threadArray)
         {
             _threads = threadArray;
-            IsMultithread = threadArray.Length > 1;
-            _count = threadArray.Length;
+            _countdownEvent = new CountdownEvent(threadArray.Length);
         }
 
-        public ReadOnlySpan<MatrixParallelThread> Threads
-        {
-            get
-            {
-                ObjectDisposedException.ThrowIf(_disposed, nameof(MatrixParallelWrap));
-
-                return _threads;
-            }
-        }
+        public ReadOnlySpan<MatrixParallelThread> Threads => _disposed ? [] : _threads;
 
         public ThreadPriority AfterWork { get; private set; }
 
-        internal MatrixParallelQueue TaskQueue { get; set; }
+        internal L4 DataCache { get; set; }
 
-        private bool IsMultithread { get; init; }
+        internal PredictPolicy Policy { get; set; }
 
         public void Dispose()
         {
-            if (_disposed) {
-                return;
-            }
-            MatrixParallel.ReturnParallelResources(ref _threads);
-            _disposed = true;
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void LaunchParallel(
-                    SleepMode afterWork
-        )
+        public void LaunchParallel(SleepMode afterWork)
         {
+            ObjectDisposedException.ThrowIf(_disposed, nameof(MatrixParallelWrap));
             AfterWork = (ThreadPriority)afterWork;
             foreach (MatrixParallelThread thread in _threads)
             {
@@ -105,18 +96,29 @@ namespace StgSharp.Mathematics.Numeric
         public void WaitAllWraps()
         {
             if (_disposed) {
-                throw new ObjectDisposedException(typeof(MatrixParallelWrap).Name);
+                return;
             }
-            SpinWait.SpinUntil(() => Volatile.Read(ref _count) == 0);
+            _countdownEvent.Wait();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ReportThreadAccomplished()
         {
+            ObjectDisposedException.ThrowIf(_disposed, nameof(MatrixParallelWrap));
+            _ = _countdownEvent.Signal();
+        }
+
+        private void Dispose(bool disposing)
+        {
             if (_disposed) {
-                throw new ObjectDisposedException(typeof(MatrixParallelWrap).Name);
+                return;
             }
-            Interlocked.Decrement(ref _count);
+            if (disposing)
+            {
+                MatrixParallel.ReturnParallelResources(ref _threads);
+                _countdownEvent.Dispose();
+            }
+            _disposed = true;
         }
 
     }

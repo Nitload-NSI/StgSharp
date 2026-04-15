@@ -107,8 +107,6 @@ namespace StgSharp.Collections
                 byte ctrl = (byte)((hash >> EntryMaskWidth) & 0x7F);         // H2: upper 8 bits (highest bit is naturally 0)
                 Vector128<byte> ctrlVector = Vector128.Create(ctrl);
 
-                int firstAvailableSlot = -1;           // Record the first insertable slot
-
                 Vector128<byte> bucketCtrl = Sse2.LoadVector128(
                         (byte*)&bucket->Control);
 

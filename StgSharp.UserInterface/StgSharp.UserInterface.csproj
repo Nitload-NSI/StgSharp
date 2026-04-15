@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<IsRoslynComponent>true</IsRoslynComponent>
+		<RequiresNativeRuntime>true</RequiresNativeRuntime>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+		<CommonManagedOutput>$(SourceRoot)StgSharp.Common\bin\$(Platform)\$(Configuration)\$(TargetFramework)\StgSharp.Common.dll</CommonManagedOutput>
+		<CommonManagedPdb>$(SourceRoot)StgSharp.Common\bin\$(Platform)\$(Configuration)\$(TargetFramework)\StgSharp.Common.pdb</CommonManagedPdb>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="bin\**" />
+	  <EmbeddedResource Remove="bin\**" />
+	  <None Remove="bin\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\StgSharp.Common\StgSharp.Common.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="bin\x64\Debug\net8.0\StgSharp.UserInterface.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="$(OutputPath)$(AssemblyName).pdb" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="Exists('$(OutputPath)$(AssemblyName).pdb')" />
+		<None Include="$(CommonManagedOutput)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="Exists('$(CommonManagedOutput)')" />
+		<None Include="$(CommonManagedPdb)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="Exists('$(CommonManagedPdb)')" />
+	</ItemGroup>
+
+</Project>

@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="L4.Predict"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,10 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Common.Collections;
+using StgSharp.Mathematics.Memory;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,90 +36,68 @@ using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
-    public interface IPrefetchPredict
+    public partial class L4
     {
 
-        /// <summary>
-        ///   Writes predicted cache line descriptors into <paramref name="node" />.
-        /// </summary>
-        /// <param name="node">
-        ///   Prediction output buffer.
-        /// </param>
-        /// <param name="count">
-        ///   When this method returns, contains the number of valid entries written to <paramref
-        ///   name="node" />. The value must not exceed <paramref name="node" />.Length.
-        /// </param>
-        /// <returns>
-        ///   <see langword="true" /> if any prediction data was produced; otherwise, <see langword="false"
-        ///   />.
-        /// </returns>
-        bool Predict(Span<CacheLinePrediction> node, out int count);
+        private ConcurrentBufferStack<int> _idReuse = new(32);
 
-        /// <summary>
-        ///   Materializes the cache line identified by <paramref name="origin" /> into <paramref
-        ///   name="cache" />.
-        /// </summary>
-        /// <param name="origin">
-        ///   Source address associated with the cache line.
-        /// </param>
-        /// <param name="policy">
-        ///   Mapping policy associated with the cache line.
-        /// </param>
-        /// <param name="cache">
-        ///   Destination cache line buffer.
-        /// </param>
-        void Prefetch(nuint origin, ulong policy, Span<byte> cache);
+        private ConcurrentFlexibleArray<IL4Predict> _predictors = new(32);
 
-        /// <summary>
-        ///   Writes the cache line in <paramref name="cache" /> back to <paramref name="origin" />.
-        /// </summary>
-        /// <param name="origin">
-        ///   Source address associated with the cache line.
-        /// </param>
-        /// <param name="policy">
-        ///   Mapping policy associated with the cache line.
-        /// </param>
-        /// <param name="cache">
-        ///   Source cache line buffer.
-        /// </param>
-        void WriteBack(nuint origin, ulong policy, ReadOnlySpan<byte> cache);
+        private ConcurrentQueue<int> _predictionQueue = new();
 
-    }
+        private int _largestId ;
 
-    public struct CacheLinePrediction : IEquatable<CacheLinePrediction>
-    {
+        private IL4Predict CurrentPredict { get; set; }
 
-        public override readonly bool Equals(object? obj)
+        private int CurrentPredictIndex { get; set; }
+
+        public int RegisterPredict(
+                   IL4Predict predict
+        )
         {
-            return obj is CacheLinePrediction prediction &&
-                   Address.Equals(prediction.Address) &&
-                   MapPolicy == prediction.MapPolicy;
+            if (predict is null) {
+                return -1;
+            }
+            if (!_idReuse.TryPop(out int id)) {
+                id = _largestId++;
+            }
+            _predictors[id] = predict;
+            _predictionQueue.Enqueue(id);
+            return id;
         }
 
-        public readonly bool Equals(CacheLinePrediction other)
+        public IL4Predict? UnregisterPredict(
+                           int id
+        )
         {
-            return
-            Address == other.Address && MapPolicy == other.MapPolicy;
+            if (id < 0) {
+                return null;
+            }
+            IL4Predict p = _predictors[id];
+            if (p == null) {
+                return p;
+            }
+            _predictors[id] = null!;
+            _idReuse.Push(id);
+            return p;
         }
 
-        public override readonly int GetHashCode()
+        private bool TryGetNextPredict(
+        )
         {
-            return HashCode.Combine(Address, MapPolicy);
+            if (_predictionQueue.IsEmpty) {
+                return false;
+            }
+            if (_predictionQueue.TryDequeue(out int id))
+            {
+                IL4Predict predict = _predictors[id] ??
+                    throw new L4PredictUnregisteredException(id);
+                CurrentPredict = predict;
+                CurrentPredictIndex = id;
+                return true;
+            }
+            return false;
         }
 
-        public static bool operator !=(CacheLinePrediction left, CacheLinePrediction right)
-        {
-            return !(left == right);
-        }
-        public static bool operator ==(CacheLinePrediction left, CacheLinePrediction right)
-        {
-            return left.Equals(right);
-        }
-
-#pragma warning disable CA1051
-        public nuint Address;
-        public ulong MapPolicy;
-
-#pragma warning restore CA1051
     }
 }

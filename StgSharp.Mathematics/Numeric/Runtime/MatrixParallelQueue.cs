@@ -26,7 +26,8 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using Microsoft.VisualBasic.FileIO;
-using StgSharp.Mathematics.Internal;
+using StgSharp.HighPerformance.Memory;
+using StgSharp.Mathematics.Numeric.Runtime;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -38,45 +39,17 @@ using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    internal unsafe class MatrixParallelQueue
+    internal unsafe class MatrixParallelQueue<TPredictor>
+        where TPredictor : class, IMatrixCachePredictor<TPredictor>
     {
 
-        private static ConcurrentStack<MatrixParallelQueue> _recycle = [];
-        private MatrixParallelTask* _package;
-        private ulong _cursor;
-        private ulong _maxCount;
-
-        private MatrixParallelQueue() { }
-
-        public MatrixParallelTask* Package => _package;
-
-        public static MatrixParallelQueue Rent(
-                                          MatrixParallelTask* pack
-        )
-        {
-            if (!_recycle.TryPop(out MatrixParallelQueue? queue)) {
-                queue = new MatrixParallelQueue();
-            }
-            queue._package = pack;
-            queue._maxCount = (ulong)pack->CommonX * (ulong)pack->CommonY;
-            queue._cursor = 0;
-            return queue;
-        }
-
-        public static void Return(
-                           MatrixParallelQueue queue
-        )
-        {
-            _recycle.Push(queue);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (ulong count, ulong offset) Steal(
-                                           ulong request
+        public bool Steal(
+                    MatrixParallelTask* task
         )
         {
-            ulong cursor = Interlocked.Add(ref _cursor, request) - request;
-            return (Math.Min(request, Math.Max(0, _maxCount - cursor)), cursor);
+            // TODO 使用提取的内容填充task
+            throw new NotImplementedException();
         }
 
     }

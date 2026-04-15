@@ -12,8 +12,8 @@
 #define YMMCOUNT(T) (sizeof(T) / 2)
 #define ZMMCOUNT(T) (sizeof(T) / 4)
 
-#define MAT_KERNEL(T)                       \
-        union /* MAT_KERNEL_##T## /**/ {    \
+#define SN_DEFINE_MAT_KERNEL_TYPE(name, T) \
+        typedef union name {                \
                 __m128 f32_x[XMMCOUNT(T)];  \
                 __m256 f32_y[YMMCOUNT(T)];  \
                 __m512 f32_z[ZMMCOUNT(T)];  \
@@ -22,7 +22,18 @@
                 __m256d f64_y[YMMCOUNT(T)]; \
                 __m512d f64_z[ZMMCOUNT(T)]; \
                 T m[4][4];                  \
-        }
+        } name
+
+SN_DEFINE_MAT_KERNEL_TYPE(sn_mat_kernel_float, float);
+SN_DEFINE_MAT_KERNEL_TYPE(sn_mat_kernel_double, double);
+SN_DEFINE_MAT_KERNEL_TYPE(sn_mat_kernel_uint64_t, uint64_t);
+
+#define SN_MAT_KERNEL_TYPE(T) SN_MAT_KERNEL_TYPE_##T
+#define SN_MAT_KERNEL_TYPE_float sn_mat_kernel_float
+#define SN_MAT_KERNEL_TYPE_double sn_mat_kernel_double
+#define SN_MAT_KERNEL_TYPE_uint64_t sn_mat_kernel_uint64_t
+
+#define MAT_KERNEL(T) SN_MAT_KERNEL_TYPE(T)
 
 #define VEC(T)                                  \
         union {                                 \
@@ -36,8 +47,10 @@
                 T v[4];                         \
         }
 
+typedef VEC(float) sn_vec_f32;
+
 /* Provide a named alias for the zero kernel type to ensure consistent linkage in C++. */
-typedef MAT_KERNEL(uint64_t) sn_zero_kernel_u64;
+typedef sn_mat_kernel_uint64_t sn_zero_kernel_u64;
 
 /* Helpers (all compile-time): */
 #define SN_LANES(T_VEC, T) (sizeof(T_VEC) / sizeof(T))

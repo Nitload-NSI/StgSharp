@@ -25,12 +25,15 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Common.HighPerformance.ProcessorAbstraction;
 using StgSharp.Internal;
-using StgSharp.Mathematics.Internal;
+using StgSharp.Mathematics.Numeric.Runtime;
+using StgSharp.Threading;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics.Numeric
 {
@@ -45,39 +48,34 @@ namespace StgSharp.Mathematics.Numeric
 
     }
 
-    public unsafe partial class MatrixParallelThread : IDisposable
+    public unsafe partial class MatrixParallelThread : IEquatable<MatrixParallelThread>, IDisposable
     {
 
-        private IntPtr* _context;
-        private volatile bool _disposed, _isRetireRequested = false;
+        private IntrinsicContext* _context;
+        private readonly MatrixParallelTask* _currentTask;
+        private volatile bool _disposed;
         private readonly ManualResetEventSlim _resetEvent;
-        private readonly Thread _managedThread;
+
+        private volatile MatrixThreadState _target;
+        private Thread _managedThread;
 
         internal MatrixParallelThread(
-                 int poolId
+                 LogicalCore binded
         )
         {
             _resetEvent = new ManualResetEventSlim(false);
             _managedThread = new Thread(MatrixParallelWorkLoad);
             _managedThread.Start();
-            PoolId = poolId;
+            BindedLogicalCore = binded;
         }
 
-        public int PoolId { get; init; }
+        public LogicalCore BindedLogicalCore { get; init; }
 
         public ThreadPriority AfterWork { get; set; }
 
-        internal ManualResetEventSlim? LeaderEvent { get; set; }
+        internal MatrixThreadState State { get; private set; }
 
-        internal IntrinsicContext* Intrinsic { get; set; }
-
-        internal bool IsSingle { get; set; }
-
-        internal MatrixParallelWrap BindedWrap { get; set; }
-
-        internal MatrixThreadState State { get; set; }
-
-        internal SIMDID Simd { get; set; }
+        internal SIMDID Simd { get; private set; }
 
         public void Dispose()
         {
@@ -91,15 +89,17 @@ namespace StgSharp.Mathematics.Numeric
             _resetEvent.Set();
         }
 
-        [LibraryImport(Native.LibName, EntryPoint = "sn_get_simd_level_local")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static partial ulong GetSimdId();
-
-        [LibraryImport(Native.LibName, EntryPoint = "sn_set_thread_affinity")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        internal static partial void SetThreadAffinity(
-                                     int coreId
-        );
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Pause()
+        {
+            ObjectDisposedException.ThrowIf(_disposed, nameof(MatrixParallelThread));
+            if (State == MatrixThreadState.Retired) {
+                return;
+            }
+            _resetEvent.Set();
+            SpinWait.SpinUntil(() => State == MatrixThreadState.Retired);
+            _managedThread.Join();
+        }
 
         protected virtual void Dispose(
                                bool disposing
@@ -109,12 +109,11 @@ namespace StgSharp.Mathematics.Numeric
             {
                 if (disposing)
                 {
-                    _isRetireRequested = true;
+                    _disposed = true;
                     _resetEvent.Set();
                     _managedThread.Join();
                     _resetEvent.Dispose();
                 }
-                _disposed = true;
             }
         }
 
@@ -123,53 +122,77 @@ namespace StgSharp.Mathematics.Numeric
             State = MatrixThreadState.Born;
 
             // Bind OS-thread affinity once when the worker starts running
-            SetThreadAffinity(PoolId);
+            ThreadHelper.BindToLogicalCore(BindedLogicalCore);
             _ = Thread.Yield();
-            SIMDID feature = new()
+            if (Simd.Mask != 0)
             {
-                Mask = GetSimdId()
-            };
-            _context = (nint*)MatrixParallel.GetContext(feature);
+                SIMDID feature = new(GetSimdId());
+                IntrinsicContext* contextPtr = stackalloc IntrinsicContext[1];
+                LoadIntrinsicFunction(contextPtr, feature.Mask);
+                Simd = feature;
+                _context = contextPtr;
+            }
+            MatrixParallelTask* taskPtr = stackalloc MatrixParallelTask[4];
             State = MatrixThreadState.Ready;
             while (true)
             {
                 // Thread self = Thread.CurrentThread;
                 _resetEvent.Wait();
                 _resetEvent.Reset();
-                if (_isRetireRequested)
+                if (_disposed)
                 {
                     break;
                 }
-                State = MatrixThreadState.Running;
-                AfterWork = BindedWrap.AfterWork;
-                _managedThread.Priority = ThreadPriority.Highest;
-                if (IsSingle)
+                if (_target == MatrixThreadState.Idle)
                 {
-                    // TODO 将外部线程绑定到当前线程上，并执行任务包
-                } else
-                {
-                    MatrixParallelQueue taskQueue = BindedWrap.TaskQueue;
-                    MatrixParallelTask* p = taskQueue.Package;
-                    /*
-                    if (0 > (int)p ->ComputeHandle) {
-                        SpecialBufferCompute(p);
-                    }
-                    switch (p->ComputeMode)
-                    {
-                        case MatrixIndexStyle.BUFFER_INDEX:
-                            BufferCompute(p);
-                            break;
-                        default:
-                            break;
-                    }
-                    /**/
-                    BindedWrap.ReportThreadAccomplished();
+                    State = MatrixThreadState.Idle;
+                    continue;
                 }
+                State = MatrixThreadState.Idle;
+                State = MatrixThreadState.Running;
+                _managedThread.Priority = ThreadPriority.Highest;
+
+                // MatrixParallelQueue taskQueue = BindedWrap.TaskQueue;
+                /*
+                if (0 > (int)p ->ComputeHandle) {
+                    SpecialBufferCompute(p);
+                }
+                switch (p->ComputeMode)
+                {
+                    case MatrixIndexStyle.BUFFER_INDEX:
+                        BufferCompute(p);
+                        break;
+                    default:
+                        break;
+                }
+                /**/
+
                 _managedThread.Priority = AfterWork;
                 State = MatrixThreadState.Idle;
             }
             State = MatrixThreadState.Retired;
         }
 
+#pragma warning disable CA5393
+        [LibraryImport(Native.LibName, EntryPoint = "sn_get_simd_level_local")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+        internal static partial ulong GetSimdId();
+
+        [LibraryImport(Native.LibName, EntryPoint = "load_intrinsic_function")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+        private static unsafe partial void LoadIntrinsicFunction(
+                                           IntrinsicContext* context,
+                                           ulong id
+        );
+
+        public bool Equals(
+                    MatrixParallelThread? other
+        )
+        {
+            return (other is not null) && ReferenceEquals(this, other);
+        }
+#pragma warning restore CA5393
     }
 }

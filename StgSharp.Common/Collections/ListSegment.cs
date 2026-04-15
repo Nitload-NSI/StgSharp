@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 // file="ListSegment"
 // Project: StgSharp
@@ -50,7 +50,11 @@ namespace StgSharp.Collections
         private int _length;
         private List<T> _collection;
 
-        public ListSegment(List<T> collection, int begin, int length)
+        public ListSegment(
+               List<T> collection,
+               int begin,
+               int length
+        )
         {
             ArgumentNullException.ThrowIfNull(collection);
             ArgumentOutOfRangeException.ThrowIfLessThan(begin, 0);
@@ -61,7 +65,9 @@ namespace StgSharp.Collections
             _length = length;
         }
 
-        public T this[int indexValue]
+        public T this[
+                 int indexValue
+        ]
         {
             get
             {
@@ -71,11 +77,13 @@ namespace StgSharp.Collections
             }
         }
 
-        public T this[Index i]
+        public T this[
+                 Index i
+        ]
         {
             get
             {
-                int offset = i.IsFromEnd ? _length - i.Value : i.Value;
+                int offset = i.IsFromEnd ? (_length - i.Value) : i.Value;
                 ArgumentOutOfRangeException.ThrowIfLessThan(offset, 0);
                 ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(offset, _length);
                 return _collection[offset + _begin];
@@ -86,17 +94,22 @@ namespace StgSharp.Collections
 
         public int Count => _length;
 
-        public bool Contains(T item)
+        public bool Contains(
+                    T item
+        )
         {
             int index = _collection.IndexOf(item);
-            return index >= _begin && index < _length + index;
+            return (index >= _begin) && (index < _length + index);
         }
 
-        public void CopyTo(T[] array, int arrayIndex)
+        public void CopyTo(
+                    T[] array,
+                    int arrayIndex
+        )
         {
             ArgumentNullException.ThrowIfNull(array);
             Span<T> span = CollectionsMarshal.AsSpan<T>(_collection).Slice(_begin, _length);
-            Span<T> target = new Span<T>(array, arrayIndex, _length);
+            Span<T> target = new(array, arrayIndex, _length);
             span.CopyTo(target);
         }
 
@@ -107,7 +120,9 @@ namespace StgSharp.Collections
             }
         }
 
-        void ICollection<T>.Add(T item)
+        void ICollection<T>.Add(
+                            T item
+        )
         {
             throw new NotSupportedException();
         }
@@ -117,7 +132,9 @@ namespace StgSharp.Collections
             throw new NotSupportedException();
         }
 
-        bool ICollection<T>.Remove(T item)
+        bool ICollection<T>.Remove(
+                            T item
+        )
         {
             throw new NotSupportedException();
         }

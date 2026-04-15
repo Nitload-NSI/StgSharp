@@ -16,6 +16,9 @@
     <Filter Include="Document">
       <UniqueIdentifier>{fbd74b53-5314-4d9d-a788-07bd1b413f74}</UniqueIdentifier>
     </Filter>
+    <Filter Include="模板文件">
+      <UniqueIdentifier>{c7081772-a85a-4372-b55c-a6dac43c6913}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sn-src\dllmain.c">
@@ -39,9 +42,6 @@
     <ClCompile Include="sn-src\load_glfw.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\m.basic.x86.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="sn-src\sk.fma.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -60,10 +60,16 @@
     <ClCompile Include="sn-src\mk.fma.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\t.affinity.c">
+    <ClCompile Include="sn-src\simdid_compare.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\simdid_compare.x86.c">
+    <ClCompile Include="sn-src\thread.linux.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sn-src\thread.windows.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sn-src\m.transpose.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -109,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="sn-head\sn_intrinsic.std.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sn-template\sn_template.fma.x86.h">
+      <Filter>模板文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

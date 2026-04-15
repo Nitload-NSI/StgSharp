@@ -8,7 +8,7 @@
 #include <string.h>
 
 extern GladGLContext *currentContext;
-extern char infolog[512];
+char infolog[512];
 
 SN_API int SN_DECL glCheckShaderStat(GladGLContext *context, uint64_t shaderHandle, int key,
                                      char **logRef)
@@ -30,7 +30,7 @@ SN_API void SN_DECL initGL(int majorVersion, int minorVersion)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 }
 
-SN_API GLFWglproc SN_DECL loadGlfuncDefault(char const *procName)
+SN_API GLFWglproc SN_DECL loadGlfuncDefault(char *procName)
 {
         void *ret = glfwGetProcAddress(procName);
         // printf("%llu\n", (uint64_t)ret);
@@ -44,24 +44,11 @@ SN_API GLFWglproc SN_DECL loadGlfuncDefault(char const *procName)
         return (GLFWglproc)ret;
 }
 
-SN_API unsigned int linkShaderProgram(GladGLContext *context, GLuint shaderProgram)
-{
-        context->LinkProgram(shaderProgram);
 
-        int success;
-        context->GetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-        if (!success) {
-                context->GetProgramInfoLog(shaderProgram, 512, NULL, infolog);
-                return 0;
-        } else {
-                return shaderProgram;
-        }
-}
-
-SN_API void SN_DECL loadImageData(char const *location, Image *out, imageLoader loader)
+SN_API void SN_DECL loadImageData(char *location, Image *out, imageLoader loader)
 {
         if (loader == NULL) {
-                loader = stbi_load;
+                loader = (imageLoader)stbi_load;
         }
         out->pixelPtr = loader(location, &(out->width), &(out->height), &(out->channel), 0);
 }

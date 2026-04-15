@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="IntrinsicContext"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Mathematics.Numeric.Runtime;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -67,9 +68,7 @@ namespace StgSharp.Mathematics.Internal
 
         [FieldOffset(0)] public readonly ushort Size;
 
-        private MatrixElementType(
-                int mask
-        )
+        private MatrixElementType(int mask)
         {
             Unsafe.SkipInit(out this);
             Unsafe.SkipInit(out Size);
@@ -106,19 +105,14 @@ namespace StgSharp.Mathematics.Internal
         private nint handle;              //f32_panel_mul
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void Call(
-                             MatrixIntrinsicHandle index,
-                             MatrixParallelTask* task
-        )
+        public readonly void Call(MatrixIntrinsicHandle index, MatrixParallelTask* task)
         {
             nint ptr = this[(int)index];
             ((delegate* unmanaged[Cdecl]<MatrixParallelTask*, void>)ptr)(task);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly nint Get(
-                             MatrixIntrinsicHandle index
-        )
+        public readonly nint Get(MatrixIntrinsicHandle index)
         {
             return this[(int)index];
         }
@@ -149,14 +143,17 @@ namespace StgSharp.Mathematics.Internal
                              MatrixKernel* left,
                              MatrixKernel* right,
                              MatrixKernel* ans,
-                             ulong scalar
-        )
+                             ulong scalar)
         {
             nint ptr = this[(int)index];
-            ((delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, MatrixKernel*, ulong, void>)ptr)(left,
-                                                                                                        right,
-                                                                                                        ans,
-                                                                                                        scalar);
+            ((delegate* unmanaged[Cdecl]<MatrixKernel*, MatrixKernel*, MatrixKernel*, ulong, void>)ptr)(left, right,
+                                                                                                        ans, scalar);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly nint Get(MatrixIntrinsicHandle index)
+        {
+            return this[(int)index];
         }
 
     }

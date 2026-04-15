@@ -6,6 +6,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Numeric\Runtime\MatrixParallel.Publish.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\StgSharp.Common\StgSharp.Common.csproj" />
   </ItemGroup>
 

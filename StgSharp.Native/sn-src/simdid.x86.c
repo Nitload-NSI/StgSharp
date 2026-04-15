@@ -1,10 +1,11 @@
 #include "sn_target.h"
-#include "sn_intrinsic.h"
-#include "StgSharpNative.h"
 
-static SIMDID global_simdid = { 0 };
+/* clang-format off */
 
 #if SN_IS_ARCH(SN_ARCH_X86_64)
+#include "sn_intrinsic.h"
+#include "StgSharpNative.h"
+static SIMDID global_simdid = { 0 };
 
 #include "sn_intrinsic.context.x86.h"
 
@@ -141,7 +142,7 @@ SN_API SIMDID SN_DECL sn_get_simd_level_local()
         const int is_amd = (strcmp(vendor, "AuthenticAMD") == 0);
         const int is_hygon = (strcmp(vendor, "HygonGenuine") == 0);
         const int is_centaur = (strcmp(vendor, "CentaurHauls") == 0);
-        const int is_zhaoxin = (memcmp(vendor, "  Shanghai  ", 12) == 0);
+        const int is_zhaoxin = (strcmp(vendor, "  Shanghai  ") == 0);
         const int is_via = is_centaur || is_zhaoxin;
 
         get_cpuid(1, 0, &eax, &ebx, &ecx, &edx);
@@ -350,23 +351,6 @@ SN_API SIMDID SN_DECL sn_get_simd_level_global()
         return global_simdid;
 }
 
-#else
 
-SN_API SIMDID SN_DECL sn_get_simd_level_local()
-{
-        SIMDID simdid;
-        simdid.mask = 0;
-        return simdid;
-}
-
-SN_API SIMDID SN_DECL sn_get_simd_level_global()
-{
-        if (global_simdid.mask) {
-                return global_simdid;
-        }
-
-        global_simdid = sn_get_simd_level_local();
-        return global_simdid;
-}
 
 #endif

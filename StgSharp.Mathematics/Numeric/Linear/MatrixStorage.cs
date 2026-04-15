@@ -43,10 +43,7 @@ namespace StgSharp.Mathematics.Numeric
     public abstract class MatrixStorage<T> : IDisposable where T: unmanaged, INumber<T>
     {
 
-        internal unsafe ref MatrixKernel<T> this[long index]
-        {
-            get { return ref Unsafe.AsRef<MatrixKernel<T>>(BufferPointer + MatrixKernel<T>.Size * index); }
-        }
+        internal unsafe ref MatrixKernel<T> this[long index] => ref Unsafe.AsRef<MatrixKernel<T>>(BufferPointer + (MatrixKernel<T>.Size * index));
 
         protected internal abstract unsafe T* BufferPointer { get; }
 

@@ -14,6 +14,7 @@
 
 SN_SK_PROC_DECL_STD(float, sse, , fma)
 {
+        __sk_param_std(float);
         register __m128 c0 = _mm_load_ps((float *)&ans->f32_x[0]);
         register __m128 c1 = _mm_load_ps((float *)&ans->f32_x[1]);
         register __m128 c2 = _mm_load_ps((float *)&ans->f32_x[2]);
@@ -61,6 +62,7 @@ SN_SK_PROC_DECL_STD(float, sse, , fma)
 
 SN_SK_PROC_DECL_STD(float, avx, , fma)
 {
+        __sk_param_std(float);
         register __m256 c01 = _mm256_load_ps((float *)&ans->f32_y[0]);
         register __m256 c23 = _mm256_load_ps((float *)&ans->f32_y[1]);
 
@@ -86,22 +88,23 @@ SN_SK_PROC_DECL_STD(float, avx, , fma)
 
 SN_SK_PROC_DECL_STD(float, avx, _fma, fma)
 {
+        __sk_param_std(float);
         register __m256 c01 = _mm256_load_ps((float *)&ans->f32_y[0]);
         register __m256 c23 = _mm256_load_ps((float *)&ans->f32_y[1]);
 
         register __m256 b01 = _mm256_load_ps((float *)&right->f32_y[0]);
         register __m256 b23 = _mm256_load_ps((float *)&right->f32_y[1]);
 
-        register __m256 a0 = _mm256_broadcast_ps((float *)&left->f32_x[0]);
+        register __m256 a0 = _mm256_broadcast_ps(&left->f32_x[0]);
         c01 = _mm256_fmadd_ps(a0, b01, c01);
         c23 = _mm256_fmadd_ps(a0, b23, c23);
-        register __m256 a1 = _mm256_broadcast_ps((float *)&left->f32_x[1]);
+        register __m256 a1 = _mm256_broadcast_ps(&left->f32_x[1]);
         c01 = _mm256_fmadd_ps(a1, b01, c01);
         c23 = _mm256_fmadd_ps(a1, b23, c23);
-        register __m256 a2 = _mm256_broadcast_ps((float *)&left->f32_x[2]);
+        register __m256 a2 = _mm256_broadcast_ps(&left->f32_x[2]);
         c01 = _mm256_fmadd_ps(a2, b01, c01);
         c23 = _mm256_fmadd_ps(a2, b23, c23);
-        register __m256 a3 = _mm256_broadcast_ps((float *)&left->f32_x[3]);
+        register __m256 a3 = _mm256_broadcast_ps(&left->f32_x[3]);
         c01 = _mm256_fmadd_ps(a3, b01, c01);
         c23 = _mm256_fmadd_ps(a3, b23, c23);
 
@@ -111,6 +114,7 @@ SN_SK_PROC_DECL_STD(float, avx, _fma, fma)
 
 SN_SK_PROC_DECL_STD(float, 512, , fma)
 {
+        __sk_param_std(float);
         register __m512 c = _mm512_load_ps((float *)ans);
         // full right load：[kb_col0 | kb_col1 | kb_col2 | kb_col3]
         register __m512 b = _mm512_load_ps((float *)right);
@@ -137,31 +141,31 @@ SN_SK_PROC_DECL_STD(float, 512, , fma)
 #define DOUBLE_KERNEL_FMA_CYCLE(i)                                            \
         do {                                                                  \
                 /* k = 0 */                                                   \
-                register __m128d b_lo = _mm_load_pd(right + (2 * i + 0)); \
-                register __m128d b_hi = _mm_load_pd(right + (2 * i + 1)); \
-                register __m128d a_lo = _mm_load_pd(left + (0 * 2 + 0));  \
-                register __m128d a_hi = _mm_load_pd(left + (0 * 2 + 1));  \
+                register __m128d b_lo = _mm_load_pd(right_values + (2 * i + 0)); \
+                register __m128d b_hi = _mm_load_pd(right_values + (2 * i + 1)); \
+                register __m128d a_lo = _mm_load_pd(left_values + (0 * 2 + 0));  \
+                register __m128d a_hi = _mm_load_pd(left_values + (0 * 2 + 1));  \
                 register __m128d b = _mm_shuffle_pd(b_lo, b_lo, 0x0);         \
                 c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
                 c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
                                                                               \
                 /* group = 1 */                                               \
-                a_lo = _mm_load_pd(left + (1 * 2 + 0));                   \
-                a_hi = _mm_load_pd(left + (1 * 2 + 1));                   \
+                a_lo = _mm_load_pd(left_values + (1 * 2 + 0));                 \
+                a_hi = _mm_load_pd(left_values + (1 * 2 + 1));                 \
                 b = _mm_shuffle_pd(b_lo, b_lo, 0x3);                          \
                 c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
                 c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
                                                                               \
                 /* groupp = 2 */                                              \
-                a_lo = _mm_load_pd(left + (2 * 2 + 0));                   \
-                a_hi = _mm_load_pd(left + (2 * 2 + 1));                   \
+                a_lo = _mm_load_pd(left_values + (2 * 2 + 0));                 \
+                a_hi = _mm_load_pd(left_values + (2 * 2 + 1));                 \
                 b = _mm_shuffle_pd(b_hi, b_hi, 0x0);                          \
                 c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
                 c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
                                                                               \
                 /* froup = 3 */                                               \
-                a_lo = _mm_load_pd(left + (3 * 2 + 0));                   \
-                a_hi = _mm_load_pd(left + (3 * 2 + 1));                   \
+                a_lo = _mm_load_pd(left_values + (3 * 2 + 0));                 \
+                a_hi = _mm_load_pd(left_values + (3 * 2 + 1));                 \
                 b = _mm_shuffle_pd(b_hi, b_hi, 0x3);                          \
                 c##i##_lo = _mm_add_pd(c##i##_lo, _mm_mul_pd(a_lo, b));       \
                 c##i##_hi = _mm_add_pd(c##i##_hi, _mm_mul_pd(a_hi, b));       \
@@ -171,33 +175,38 @@ SN_SK_PROC_DECL_STD(float, 512, , fma)
 
 SN_SK_PROC_DECL_STD(double, sse, , fma)
 {
-        register __m128d c0_lo = _mm_load_pd(ans->f64_x + (0 * 2 + 0));
-        register __m128d c0_hi = _mm_load_pd(ans->f64_x + (0 * 2 + 1));
-        register __m128d c1_lo = _mm_load_pd(ans->f64_x + (1 * 2 + 0));
-        register __m128d c1_hi = _mm_load_pd(ans->f64_x + (1 * 2 + 1));
-        register __m128d c2_lo = _mm_load_pd(ans->f64_x + (2 * 2 + 0));
-        register __m128d c2_hi = _mm_load_pd(ans->f64_x + (2 * 2 + 1));
-        register __m128d c3_lo = _mm_load_pd(ans->f64_x + (3 * 2 + 0));
-        register __m128d c3_hi = _mm_load_pd(ans->f64_x + (3 * 2 + 1));
+        __sk_param_std(double);
+        const double *left_values = &left->m[0][0];
+        const double *right_values = &right->m[0][0];
+
+        register __m128d c0_lo = ans->f64_x[0];
+        register __m128d c0_hi = ans->f64_x[1];
+        register __m128d c1_lo = ans->f64_x[2];
+        register __m128d c1_hi = ans->f64_x[3];
+        register __m128d c2_lo = ans->f64_x[4];
+        register __m128d c2_hi = ans->f64_x[5];
+        register __m128d c3_lo = ans->f64_x[6];
+        register __m128d c3_hi = ans->f64_x[7];
 
         DOUBLE_KERNEL_FMA_CYCLE(0);
         DOUBLE_KERNEL_FMA_CYCLE(1);
         DOUBLE_KERNEL_FMA_CYCLE(2);
         DOUBLE_KERNEL_FMA_CYCLE(3);
 
-        _mm_store_pd(ans->f64_x + (0 * 2 + 0), c0_lo);
-        _mm_store_pd(ans->f64_x + (0 * 2 + 1), c0_hi);
-        _mm_store_pd(ans->f64_x + (1 * 2 + 0), c1_lo);
-        _mm_store_pd(ans->f64_x + (1 * 2 + 1), c1_hi);
-        _mm_store_pd(ans->f64_x + (2 * 2 + 0), c2_lo);
-        _mm_store_pd(ans->f64_x + (2 * 2 + 1), c2_hi);
-        _mm_store_pd(ans->f64_x + (3 * 2 + 0), c3_lo);
-        _mm_store_pd(ans->f64_x + (3 * 2 + 1), c3_hi);
+        ans->f64_x[0] = c0_lo;
+        ans->f64_x[1] = c0_hi;
+        ans->f64_x[2] = c1_lo;
+        ans->f64_x[3] = c1_hi;
+        ans->f64_x[4] = c2_lo;
+        ans->f64_x[5] = c2_hi;
+        ans->f64_x[6] = c3_lo;
+        ans->f64_x[7] = c3_hi;
 }
 
 // clang-format off
 SN_SK_PROC_DECL_STD(double, avx, , fma)
 {
+        __sk_param_std(double);
         register __m256d c0 = _mm256_load_pd((double *)&ans->f64_y[0]);
         register __m256d c1 = _mm256_load_pd((double *)&ans->f64_y[1]);
         register __m256d c2 = _mm256_load_pd((double *)&ans->f64_y[2]);
@@ -246,6 +255,7 @@ SN_SK_PROC_DECL_STD(double, avx, , fma)
 
 SN_SK_PROC_DECL_STD(double, avx, _fma, fma)
 {
+        __sk_param_std(double);
         register __m256d c0 = _mm256_load_pd((double *)&ans->f64_y[0]);
         register __m256d c1 = _mm256_load_pd((double *)&ans->f64_y[1]);
         register __m256d c2 = _mm256_load_pd((double *)&ans->f64_y[2]);
@@ -293,6 +303,7 @@ SN_SK_PROC_DECL_STD(double, avx, _fma, fma)
 
 SN_SK_PROC_DECL_STD(double, 512, , fma)
 {
+        __sk_param_std(double);
         register __m512d c01 = _mm512_load_pd((double *)&ans->f64_z[0]);
         register __m512d c23 = _mm512_load_pd((double *)&ans->f64_z[1]);
 

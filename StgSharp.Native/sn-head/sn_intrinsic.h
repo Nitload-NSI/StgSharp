@@ -47,36 +47,35 @@ typedef union scalar_pack {
         uint64_t data[8];
 } scalar_pack;
 
-/* Mirrors StgSharp.Mathematics.Numeric.MatrixParallelTaskPackage<T> (128 bytes). */
-#define MAT_TASK(T)                                                                             \
-        struct {                                                                                \
-                MAT_KERNEL(T) * mat_0; /* Offset 0: 1st matrix kernel base */                   \
-                MAT_KERNEL(T) * mat_1; /* Offset 8: 2nd matrix kernel base */                   \
-                MAT_KERNEL(T) * mat_2; /* Offset 16: 3rd matrix kernel base */                  \
-                void *scalar; /* Offset 24: scalar pack */                                      \
-                int32_t x; /* Offset 32: row index of the result tile */                        \
-                int32_t y; /* Offset 36: column index of the result tile */                     \
-                int32_t z; /* Offset 40: column index of the result tile */                     \
-                int32_t common_x; /* Offset 44: row index of the result tile */                 \
-                int32_t common_y; /* Offset 48: column index of the result tile */              \
-                int32_t common_z; /* Offset 52: column index of the result tile */              \
-                uint32_t mask; /* Offset 56: mask for task schedualing, not useful in C side */ \
-                uint32_t reverse; /* Offset 60: reserved for future use */                      \
-                scalar_pack padding; /* Offset 64: padding to make the struct size 128 bytes */ \
-        }
-typedef struct matrix_task matrix_task;
+typedef struct matrix_task {
+        void *mat_0;
+        void *mat_1;
+        void *mat_2;
+        void *scalar;
+        int32_t x;
+        int32_t y;
+        int32_t z;
+        int32_t common_x;
+        int32_t common_y;
+        int32_t common_z;
+        uint32_t mask;
+        uint32_t reverse;
+        scalar_pack padding;
+} matrix_task;
+
+#define MAT_TASK(T) matrix_task
 
 #if defined(__cplusplus)
 static_assert(sizeof(matrix_task) == 128, "matrix_parallel_task_package size mismatch");
 #elif defined(__STDC_VERSION__)
-static_assert(sizeof(MAT_TASK(float)) == 128, "matrix_parallel_task_package size mismatch");
+static_assert(sizeof(matrix_task) == 128, "matrix_parallel_task_package size mismatch");
 #endif
 
 typedef void(SN_DECL *UNI_MK_PROC)(matrix_task *task);
 typedef void(SN_DECL *UNI_SK_PROC)(mat_kernel const *left, mat_kernel const *right,
                                    mat_kernel *restrict ans, uint64_t scalar);
 
-typedef void(SN_DECL *VECTORNORMALIZEPROC)(__m128 *source, __m128 *target);
+typedef void(SN_DECL *VECTORNORMALIZEPROC)(sn_vec_f32 *source, sn_vec_f32 *target);
 typedef void(SN_DECL *DOTPROC)(void *transpose, __m128 *vector, __m128 *ans);
 typedef uint64_t(SN_DECL *FACTORIALROC)(int n);
 

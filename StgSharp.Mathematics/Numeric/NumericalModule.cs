@@ -61,29 +61,35 @@ namespace StgSharp.Mathematics.Numeric
 
         public string ModuleName => "Math.Numerical";
 
-        internal static IntrinsicContext GlobalContext
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get;
-        } = new();
+        internal static IntrinsicContext GlobalContext { get; set; } = new();
 
         internal static SIMDID GlobalIntrinsicMask { get; set; }
 
-        public void InitializeModule()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InitializeModule(
-                    IModuleInitializeProfile profile
-        )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InitializeModule()
         {
             MatrixParallel.Init();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void InitializeModule(
+                    IModuleInitializeProfile profile
+        )
+        {
+            try
+            {
+                MatrixParallel.Init();
+            }
+            finally
+            {
+                GC.Collect();
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UninitializeModule()
         {
-            throw new NotImplementedException();
+            MatrixParallel.Deinit();
         }
 
     }

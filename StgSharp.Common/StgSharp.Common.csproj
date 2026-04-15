@@ -23,8 +23,4 @@
 		<None Remove="Graphics\**" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="HighPerformance\RegisterAbstraction\" />
-	</ItemGroup>
-
 </Project>

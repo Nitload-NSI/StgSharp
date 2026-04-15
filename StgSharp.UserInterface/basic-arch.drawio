@@ -1,0 +1,371 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
+  <diagram name="第 1 页" id="cbTJhW8NyRPDnIMFj9ZQ">
+    <mxGraphModel dx="2367" dy="1027" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#797979" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="25TvGm5YAioSoPTIv9tO-4" value="视图托管接口VH&lt;br&gt;ViewHost" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=bottom;gradientColor=none;fillColor=#3399FF;fontColor=#000000;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-210" y="40" width="430" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="oCZHK8Ia19RPNdtHcHY8-36" value="状态宿主 StateHost" style="verticalLabelPosition=middle;verticalAlign=top;html=1;shape=mxgraph.basic.rect;fillColor2=none;strokeWidth=1;size=0;indent=0;fillColor=#3399FF;labelPosition=center;align=center;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-420" y="410" width="440" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="oCZHK8Ia19RPNdtHcHY8-37" value="呈现器VP&lt;br&gt;View Presenter" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-200" y="50" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="oCZHK8Ia19RPNdtHcHY8-38" value="视图描述VD&lt;br&gt;View Descriptor" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-200" y="120" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="oCZHK8Ia19RPNdtHcHY8-39" value="用户输入 I&lt;br&gt;Input" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="20" y="50" width="190" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-4" target="25TvGm5YAioSoPTIv9tO-10" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="150" y="275" />
+              <mxPoint x="60" y="275" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-4" target="25TvGm5YAioSoPTIv9tO-11" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="150" y="275" />
+              <mxPoint x="227" y="275" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-6" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;视图 View&lt;/h1&gt;&lt;p&gt;视图的类型基座是VieHost，一个用户界面应当具有唯一对应的ViewHost。&lt;br&gt;View形式多样，除了图形化操作系统窗体，手柄等HMI也属于视图。&lt;br&gt;跨进程图形界面通过State进程内的Host进行交互&lt;/p&gt;&lt;p&gt;视图本身不处理任何业务逻辑，只将用户的操作转为Command下发给State&lt;/p&gt;&lt;p&gt;在图形化界面中：&lt;br&gt;呈现器VP指OpenGL等底层渲染程序，skia等中层加速库，甚至electron框架&lt;br&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;视图描述VD指XAML，原生代码，CSS等描述界面上控件布局的代码&lt;/span&gt;&lt;/p&gt;&lt;p&gt;一个程序可以有很多个交互视图，且可以对视图的实现和布局进行丰富地修改&lt;br&gt;只要使用相同的命令，就可以和State进行交互。且设计良好的VSS程序中，&lt;br&gt;视图下线不应当影响State和Service的运行&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="247" y="40" width="460" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.481;entryY=1.021;entryDx=0;entryDy=0;strokeColor=#FFFF66;entryPerimeter=0;" parent="1" source="25TvGm5YAioSoPTIv9tO-7" target="25TvGm5YAioSoPTIv9tO-16" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-110" y="385" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#000000;" parent="1" source="25TvGm5YAioSoPTIv9tO-7" target="25TvGm5YAioSoPTIv9tO-33" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-530" y="700" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="50" y="460" />
+              <mxPoint x="50" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=#FFFF33;" parent="1" source="25TvGm5YAioSoPTIv9tO-7" target="25TvGm5YAioSoPTIv9tO-53" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-310" y="390" />
+              <mxPoint x="-310" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-7" value="前端命令调度器 CommandHandler" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-380" y="441" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#66FF66;entryX=0.946;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="25TvGm5YAioSoPTIv9tO-10" target="25TvGm5YAioSoPTIv9tO-7" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-40" y="440" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="60" y="390" />
+              <mxPoint x="-40" y="390" />
+              <mxPoint x="-40" y="440" />
+              <mxPoint x="-39" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-10" value="StateChangeCommand" style="rounded=1;whiteSpace=wrap;html=1;fontColor=#000000;strokeColor=none;fillColor=#66FF66;" parent="1" vertex="1">
+          <mxGeometry x="-13" y="310" width="146" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.945;entryY=0.011;entryDx=0;entryDy=0;strokeColor=#33FF33;entryPerimeter=0;" parent="1" source="25TvGm5YAioSoPTIv9tO-11" target="25TvGm5YAioSoPTIv9tO-7" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="230" y="390" />
+              <mxPoint x="-40" y="390" />
+              <mxPoint x="-40" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-11" value="CallOperationCommand" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=none;fillColor=#66FF66;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="154" y="310" width="146" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=1;entryDx=0;entryDy=0;strokeColor=#FFFF33;" parent="1" source="25TvGm5YAioSoPTIv9tO-16" target="25TvGm5YAioSoPTIv9tO-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-107" y="275" />
+              <mxPoint x="-102" y="275" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-16" value="CommandResult" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFF33;fontColor=#000000;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-180" y="310" width="146" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-19" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;前端命令 FrontCommand&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;View和State通过前端命令进行交互&lt;br&gt;进程内通信可以直接传递对象&lt;br&gt;跨进程交互可以传递序列化后的json数据包&lt;br&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;State中响应command的结果通过CommandResult&lt;br&gt;数据包返回给View&lt;/p&gt;&lt;p&gt;在需要时，View通过前端命令获取State的快照进行图形化展示&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=left;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="-790" y="250" width="290" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-37" value="&lt;font style=&quot;font-size: 12px; color: rgb(247, 247, 247);&quot;&gt;程序状态集 AppState&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000099;dashed=1;dashPattern=12 12;verticalAlign=top;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="-410" y="520" width="420" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-22" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;局部状态 PS&lt;br&gt;PanelState0&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#66FFFF;fontColor=#ffffff;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-400" y="540" width="90" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-23" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;PanelState1&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#66FFFF;fontColor=#ffffff;strokeColor=none;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="-300" y="540" width="300" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontColor=#000000;labelBackgroundColor=none;strokeColor=#000000;" parent="1" source="25TvGm5YAioSoPTIv9tO-33" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-380" y="460" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-450" y="720" />
+              <mxPoint x="-450" y="460" />
+              <mxPoint x="-380" y="460" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-70" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-33" target="25TvGm5YAioSoPTIv9tO-65" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-160" y="775" />
+              <mxPoint x="-126" y="775" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-86" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.657;entryY=0.001;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-33" target="25TvGm5YAioSoPTIv9tO-83" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint y="740" />
+              <mxPoint y="870" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-88" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-33" target="25TvGm5YAioSoPTIv9tO-79" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-390" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-33" value="后端命令调度器 CommandHandler" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-370" y="700" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-24" value="状态节点0&lt;br&gt;StateNode0" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#FFE599;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="-221" y="560" width="71" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-25" value="状态节点1" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#FFE599;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="-150" y="560" width="71" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-21" value="&lt;font style=&quot;color: rgb(0, 0, 0);&quot;&gt;状态变更管线&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000099;dashed=1;dashPattern=12 12;verticalAlign=top;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="-294" y="610" width="284" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#000000;" parent="1" source="25TvGm5YAioSoPTIv9tO-41" target="25TvGm5YAioSoPTIv9tO-26" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-80" y="650" />
+              <mxPoint x="-80" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-41" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;可更新检查&lt;br&gt;UpdateCheck&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" parent="1" vertex="1">
+          <mxGeometry x="-80" y="635" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-43" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="-210" y="630" width="121" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-26" value="状态节点2" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#FFE599;fontColor=#000000;" parent="25TvGm5YAioSoPTIv9tO-43" vertex="1">
+          <mxGeometry x="40" width="71" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-42" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;更新&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" parent="25TvGm5YAioSoPTIv9tO-43" vertex="1">
+          <mxGeometry x="10" width="30" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=1;entryDx=0;entryDy=0;strokeColor=#000000;" parent="1" source="25TvGm5YAioSoPTIv9tO-45" target="25TvGm5YAioSoPTIv9tO-7" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-256" y="600" />
+              <mxPoint x="-290" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-49" value="状态更新回调" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontColor=#000000;" parent="25TvGm5YAioSoPTIv9tO-48" vertex="1" connectable="0">
+          <mxGeometry x="0.6704" y="1" relative="1" as="geometry">
+            <mxPoint y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-45" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;状态更新观测器&lt;br&gt;UpdateObserver&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" parent="1" vertex="1">
+          <mxGeometry x="-291" y="625" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#000000;" parent="1" source="25TvGm5YAioSoPTIv9tO-42" target="25TvGm5YAioSoPTIv9tO-45" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-200" y="650" />
+              <mxPoint x="-200" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-50" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;状态 State&lt;/h1&gt;&lt;p&gt;State是VSS架构的核心，用于同步多种不同的视图输入并仲裁其操作&lt;br&gt;&lt;/p&gt;&lt;p&gt;状态层通过状态宿主SH托管，SH应当为单例模式且程序生命周期内唯一，&lt;br&gt;具有多个SH的程序将变为分布式程序，不是VSS架构支持的目标。&lt;/p&gt;&lt;p&gt;整个程序的状态存放在程序状态集AS中，并进一步按照可视化界面和功能组&lt;br&gt;分为不同的局部状态PS，一个状态节点一般为一个属性，PS整体形成向量状态机&lt;/p&gt;&lt;p&gt;前端命令通过状态更新管线进行，状态更新管线使用源生成器自动化构建，不需要手写&lt;br&gt;执行管线会将执行结果返回到前端中。&lt;/p&gt;&lt;p&gt;复杂的，涉及到重型任务的操作将提交给后端命令调度器执行，后端命令调度器将根据&lt;br&gt;当前状态和命令要求，针对每一个Service录制一组指令流下发，并在执行过程中进行同步&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="60" y="475" width="520" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeColor=#000000;" parent="1" source="25TvGm5YAioSoPTIv9tO-7" target="25TvGm5YAioSoPTIv9tO-41" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="70" y="850" as="targetPoint" />
+            <mxPoint x="60" y="590" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="50" y="460" />
+              <mxPoint x="50" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-58" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-53" target="25TvGm5YAioSoPTIv9tO-7" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-290" y="290" />
+              <mxPoint x="-290" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-53" value="ViewHost 1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;gradientColor=none;fillColor=#3399FF;fontColor=#000000;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-400" y="210" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-54" value="ViewHost 2" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;gradientColor=none;fillColor=#3399FF;fontColor=#000000;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-577" y="40" width="167" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFFF33;exitX=0;exitY=0;exitDx=0;exitDy=0;" parent="1" source="25TvGm5YAioSoPTIv9tO-7" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-355.34000000000003" y="390" as="sourcePoint" />
+            <mxPoint x="-490" y="240" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-380" y="330" />
+              <mxPoint x="-490" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.056;entryY=0.015;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-54" target="25TvGm5YAioSoPTIv9tO-7" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-470" y="310" />
+              <mxPoint x="-360" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-64" value="" style="group;fontColor=#000000;" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="-265" y="850" width="160" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-62" value="" style="group" parent="25TvGm5YAioSoPTIv9tO-64" vertex="1" connectable="0">
+          <mxGeometry y="17.391304347826086" width="160" height="182.6086956521739" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-60" value="服务宿主 ServiceHost" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#66B2FF;" parent="25TvGm5YAioSoPTIv9tO-62" vertex="1">
+          <mxGeometry width="160" height="23.18840579710145" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-61" value="服务功能 ServiceLogic" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0066CC;fontColor=#ffffff;strokeColor=#F5F5F5;" parent="25TvGm5YAioSoPTIv9tO-62" vertex="1">
+          <mxGeometry y="23.18840579710145" width="160" height="133.33333333333331" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-63" value="服务 Service" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="25TvGm5YAioSoPTIv9tO-62" vertex="1">
+          <mxGeometry y="156.52173913043478" width="160" height="26.08695652173913" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-65" value="ServiceCommand" style="rounded=1;whiteSpace=wrap;html=1;fontColor=#000000;strokeColor=none;fillColor=#66FF66;" parent="1" vertex="1">
+          <mxGeometry x="-180" y="810" width="107" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-71" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFFF33;" parent="1" source="25TvGm5YAioSoPTIv9tO-66" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-200" y="740" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-236" y="775" />
+              <mxPoint x="-200" y="775" />
+              <mxPoint x="-200" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-66" value="CommandResult" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFF33;fontColor=#000000;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-291" y="810" width="109" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-68" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=#FFFF33;" parent="1" source="25TvGm5YAioSoPTIv9tO-60" target="25TvGm5YAioSoPTIv9tO-66" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-190" y="850" />
+              <mxPoint x="-236" y="850" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-69" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-65" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-170" y="870" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-126" y="850" />
+              <mxPoint x="-170" y="850" />
+              <mxPoint x="-170" y="870" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-78" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="-420" y="870" width="120" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-79" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0066CC;fontColor=#ffffff;strokeColor=#F5F5F5;" parent="25TvGm5YAioSoPTIv9tO-78" vertex="1">
+          <mxGeometry width="119.99999999999999" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-80" value="服务 1&lt;br&gt;Service 1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="25TvGm5YAioSoPTIv9tO-78" vertex="1">
+          <mxGeometry y="75" width="119.99999999999999" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-82" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="-79" y="870" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-83" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0066CC;fontColor=#ffffff;strokeColor=#F5F5F5;" parent="25TvGm5YAioSoPTIv9tO-82" vertex="1">
+          <mxGeometry width="119.99999999999999" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-84" value="服务 0&lt;br&gt;Service 0" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="25TvGm5YAioSoPTIv9tO-82" vertex="1">
+          <mxGeometry y="16.666666666666664" width="119.99999999999999" height="6.666666666666666" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-85" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFFF33;" parent="1" source="25TvGm5YAioSoPTIv9tO-83" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-20" y="740" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-20" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-87" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFFF33;" parent="1" source="25TvGm5YAioSoPTIv9tO-79" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-360" y="740" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-360" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-89" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;后端命令 ServiceCommand&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;State通过后端命令控制Service进行交互&lt;br&gt;进程内通信可以直接传递对象&lt;br&gt;跨进程交互可以传递复杂的配置数据包&lt;br&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Service按照命令序列执行操作&lt;/p&gt;&lt;p&gt;有专门的Fence命令用以控制多个服务之间的同步&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=left;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="-780" y="740" width="330" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-90" value="跨进程界面&lt;br&gt;ExternalDisplaySurface" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#FFFF99;fillColor=#FFFF99;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="-400" y="40" width="180" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-92" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;endWidth=9.056603773584905;endSize=2.0638888888888887;startWidth=9.865229110512129;startSize=1.2074074074074073;width=2.7777777777777777;" parent="1" source="25TvGm5YAioSoPTIv9tO-53" target="25TvGm5YAioSoPTIv9tO-90" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="-360" y="290" as="sourcePoint" />
+            <mxPoint x="-260" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-93" value="json数据包" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontColor=#000000;" parent="25TvGm5YAioSoPTIv9tO-92" vertex="1" connectable="0">
+          <mxGeometry x="-0.2988" relative="1" as="geometry">
+            <mxPoint y="-6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-94" value="跨进程服务&lt;br&gt;ExternalService" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#FFFF99;fillColor=#FFFF99;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="-79" y="940" width="120" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-95" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;endWidth=6.633249791144528;endSize=2.0548872180451125;startWidth=6.633249791144528;startSize=2.481203007518797;width=2.7777777777777777;" parent="1" source="25TvGm5YAioSoPTIv9tO-83" target="25TvGm5YAioSoPTIv9tO-94" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="10" y="1100" as="sourcePoint" />
+            <mxPoint x="60" y="1080" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-96" value="数据包" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontColor=#000000;" parent="25TvGm5YAioSoPTIv9tO-95" vertex="1" connectable="0">
+          <mxGeometry x="-0.2988" relative="1" as="geometry">
+            <mxPoint x="39" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25TvGm5YAioSoPTIv9tO-97" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;服务 Service&lt;/h1&gt;&lt;p&gt;VSS中重型的任务应当抽象为服务&lt;br&gt;&lt;/p&gt;&lt;p&gt;诸如HPC数学计算，连续的数控操作等都应当各自抽象为一个服务，&lt;br&gt;甚至集群计算中的计算节点也可以抽象为集群管理软件的服务实例&lt;br&gt;一个VSS程序可以有很多个Service。&lt;/p&gt;&lt;p&gt;一个良好的设计的VSS架构程序中，一个服务的失效可能导致程序功能出错，&lt;br&gt;但是不可以影响其他Service实例的工作。&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="70" y="850" width="520" height="240" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

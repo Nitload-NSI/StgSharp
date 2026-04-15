@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="PlainInstancingBuffer"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,7 @@
 // -----------------------------------------------------------------------
 using StgSharp.Mathematics;
 using StgSharp.Mathematics.Graphics;
-using StgSharp.Mathematics.Numeric;
-
+using StgSharp.Mathematics.Numeric.Graphics;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -66,35 +65,15 @@ namespace StgSharp.Geometries
             mutex = new Mutex();
         }
 
-        public List<IInstancing> InstanceList
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => instanceList;
-        }
+        public List<IInstancing> InstanceList => instanceList;
 
-        public List<Vec4> CoordAndRotationList
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => coordList;
-        }
+        public List<Vec4> CoordAndRotationList => coordList;
 
-        public List<float> ScalingList
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => scalingList;
-        }
+        public List<float> ScalingList => scalingList;
 
-        public Span<Vec4> CoordAndRotationSpan
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => CollectionsMarshal.AsSpan(coordList);
-        }
+        public Span<Vec4> CoordAndRotationSpan => CollectionsMarshal.AsSpan(coordList);
 
-        public Span<float> ScalingSpan
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => CollectionsMarshal.AsSpan(scalingList);
-        }
+        public Span<float> ScalingSpan => CollectionsMarshal.AsSpan(scalingList);
 
         public int CreateInstanceID()
         {

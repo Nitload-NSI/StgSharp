@@ -76,6 +76,16 @@
 
 #define SN_IS_ARCH(arch) ((SN_ARCH_TARGET) == (arch))
 
+/*
+ * Per-function ISA selection is required for runtime-dispatched kernels that
+ * mix multiple x86 feature levels in one build target.
+ */
+#if defined(__clang__) && ((SN_ARCH_TARGET) == SN_ARCH_X86_64)
+#define SN_CLANG_TARGET_ATTR(options) __attribute__((target(options)))
+#else
+#define SN_CLANG_TARGET_ATTR(options)
+#endif
+
 typedef union SIMDID {
         uint64_t mask;
         char make_byte[8];

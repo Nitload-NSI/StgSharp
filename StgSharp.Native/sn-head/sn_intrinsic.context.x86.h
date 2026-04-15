@@ -5,6 +5,13 @@
 #include "sn_intrinsic.h"
 #include "sn_intrinsic.std.h"
 
+#ifndef SN_X86_TARGET_ATTR_sse
+#define SN_X86_TARGET_ATTR_sse SN_CLANG_TARGET_ATTR("sse2")
+#define SN_X86_TARGET_ATTR_avx SN_CLANG_TARGET_ATTR("avx")
+#define SN_X86_TARGET_ATTR_avx_fma SN_CLANG_TARGET_ATTR("avx,fma")
+#define SN_X86_TARGET_ATTR_512 SN_CLANG_TARGET_ATTR("avx512f,avx512vl")
+#endif
+
 // -----------------------------------------------------------------------------
 // SIMDID layout helpers (see SIMDID.x86.md)
 // bits [3..0]  : Root ISA
@@ -105,8 +112,7 @@
  * Higher numeric value == stronger / higher-capability topology. */
 #define SIMDID_UARCH_HYBRID_E (1U << 0) /* E-core (efficiency/small) in a hybrid topology */
 #define SIMDID_UARCH_HYBRID_P (1U << 1) /* P-core (performance/big) in a hybrid topology */
-#define SIMDID_UARCH_SIMD_DUAL \
-        (1U << 2) /* SIMD is glued/dual (summary: AVX_DUAL or AVX512_IMPL=DUAL) */
+#define SIMDID_UARCH_SIMD_DUAL (1U << 2) /* SIMD is glued/dual (summary: AVX_DUAL or AVX512_IMPL=DUAL) */
 #endif
 
 // Pack helpers (define locally to avoid missing macros when included standalone)
@@ -132,7 +138,7 @@
 
 #pragma region matix function
 
-INTERNAL void f32_normalize(VEC(float) * source, VEC(float) * target);
+INTERNAL void f32_normalize(sn_vec_f32 * source, sn_vec_f32 * target);
 
 SN_MK_PROC_DECL_STD(float, sse, , add);
 SN_MK_PROC_DECL_STD(float, avx, , add);
