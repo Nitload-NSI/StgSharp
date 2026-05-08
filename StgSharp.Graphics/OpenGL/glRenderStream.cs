@@ -137,7 +137,7 @@ namespace StgSharp.Graphics.OpenGL
             CustomizeDeinit();
         }
 
-        protected sealed override Uniform<Matrix44> NativeCameraUniform(
+        protected sealed override Uniform<GraphicsMatrix> NativeCameraUniform(
                                                     ShaderProgram source,
                                                     string name
         )

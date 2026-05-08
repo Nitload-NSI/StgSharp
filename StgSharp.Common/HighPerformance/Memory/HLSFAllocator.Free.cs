@@ -31,13 +31,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-using hlsfHandle = StgSharp.Mathematics.Memory.HybridLayerSegregatedFitAllocationHandle;
+using hlsfHandle = StgSharp.HighPerformance.Memory.HlsfHandle;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
     public enum FreePolicy
     {
@@ -58,8 +59,8 @@ namespace StgSharp.Mathematics.Memory
         public partial void Collect()
         {
             Entry* cur = _spareMemory->NextNear;
-            long size = 0;
-            while (cur != null && cur != _spareMemory)
+            nuint size = 0;
+            while ((cur != null) && (cur != _spareMemory))
             {
                 // cur is not empty, skip
                 if (cur->State != EntryState.Empty)
@@ -76,22 +77,22 @@ namespace StgSharp.Mathematics.Memory
                     RemoveFromBucket(cur->Level, DetermineSegmentIndex(_levelSizeArray, cur->Size, cur->Level), (BucketNode*)cur->Position);
                     RemoveFromPositionChain(cur);
                     cur = next;
-                } while (cur != null && cur != _spareMemory && cur->State == EntryState.Empty);
+                } while ((cur != null) && (cur != _spareMemory) && (cur->State == EntryState.Empty));
                 if (size > 0) {
-                    SliceMemory(cur, size);
+                    OrganizeMemory(cur, size);
                 }
             }
         }
 
         /// <summary>
-        ///   Free allocated memory block and perform adjacent block merging
-        /// </summary>
-        /// <param name="handle">
-        ///   Handle to the allocated memory block
-        ///  <param name="collectPolicy">
-        /// </param>
+		///   Free allocated memory block and perform adjacent block merging
+		/// </summary>
+		/// <param name="handle">
+		///   Handle to the allocated memory block
+		///  <param name="collectPolicy">
+		/// </param>
         public void Free(
-                    hlsfHandle handle,
+                    HlsfHandle handle,
                     FreePolicy collectPolicy = FreePolicy.NoCollect
         )
         {
@@ -113,7 +114,44 @@ namespace StgSharp.Mathematics.Memory
             }
 
             // Calculate final level and segment for the merged block
-            long finalSize = e->Size;
+            nuint finalSize = e->Size;
+            int finalLevel = GetLevelFromSize(finalSize);
+            e->Level = finalLevel;
+            int finalSegment = DetermineSegmentIndex(_levelSizeArray, finalSize, finalLevel);
+
+            // Push the merged entry back to appropriate bucket
+            PushBucketToLevel(finalLevel, finalSegment, (BucketNode*)e->Position);
+
+            // Console.WriteLine("one block freed");
+            if (collectPolicy == FreePolicy.FullCollect)
+            {
+                Collect();
+            }
+        }
+
+        internal void Free(
+                      Entry* e,
+                      FreePolicy collectPolicy = FreePolicy.NoCollect
+        )
+        {
+            if (e == null) {
+                return;
+            }
+            if (e->State != EntryState.Alloc) {
+                return;
+            }
+
+            // Mark as empty so it can be merged
+            e->State = EntryState.Empty;
+
+            // Try merge with adjacent free blocks and remove them from buckets
+            if (collectPolicy == FreePolicy.LazyCollect)
+            {
+                MergeAndRemoveFromBuckets(e);
+            }
+
+            // Calculate final level and segment for the merged block
+            nuint finalSize = e->Size;
             int finalLevel = GetLevelFromSize(finalSize);
             e->Level = finalLevel;
             int finalSegment = DetermineSegmentIndex(_levelSizeArray, finalSize, finalLevel);

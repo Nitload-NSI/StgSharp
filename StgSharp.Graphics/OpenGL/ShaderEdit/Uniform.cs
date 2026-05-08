@@ -145,8 +145,8 @@ namespace StgSharp.Graphics.OpenGL
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetUniformValue(
-                    [NotNull] Uniform<Matrix44> uniform,
-                    Matrix44 mat
+                    [NotNull] Uniform<GraphicsMatrix> uniform,
+                    GraphicsMatrix mat
         )
         {
             Context.glUniformMatrix4fv(uniform.id.SignedValue, 1, (byte)0, (float*)&mat);

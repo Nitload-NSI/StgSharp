@@ -29,7 +29,7 @@ using StgSharp.Timing;
 using System;
 using System.Runtime.CompilerServices;
 
-namespace StgSharp.Common.Timing
+namespace StgSharp.Timing
 {
     public abstract class TimeSequence
     {

@@ -29,7 +29,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
     [CollectionBuilder(typeof(BufferStackBuilder), nameof(BufferStackBuilder.Create))]
     public unsafe class BufferStack<T> : IDisposable where T: unmanaged

@@ -25,7 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Mathematics.Memory;
+using StgSharp.HighPerformance.Memory;
 
 using System;
 using System.Collections.Concurrent;

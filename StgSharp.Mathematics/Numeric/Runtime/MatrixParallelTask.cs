@@ -42,6 +42,8 @@ namespace StgSharp.Mathematics.Numeric.Runtime
 
     }
 
+    internal unsafe struct MatrixExecutionHandle { }
+
     [StructLayout(LayoutKind.Explicit)]
     internal unsafe struct MatrixParallelTask
     {
@@ -50,20 +52,20 @@ namespace StgSharp.Mathematics.Numeric.Runtime
         [FieldOffset(8)] public MatrixKernel* Mat2;
         [FieldOffset(16)] public MatrixKernel* Mat3;
         /// <summary>
-        ///   Being offset of first kernel in a L4 cache line.
-        /// </summary>
-        [FieldOffset(24)] public int CacheIndex;
-        /// <summary>
         ///   Count of kernels to be calculated in a L4 cache line.
         /// </summary>
         [FieldOffset(28)] public int CacheLength;
         [FieldOffset(32)] public int CommonK;
         [FieldOffset(36)] public int CommonX;
         [FieldOffset(40)] public int CommonY;
-        [FieldOffset(44)] public int SpanLength;
+        [FieldOffset(44)] public int VectorLength;
         [FieldOffset(48)] public MatrixElementType ElementType;
         [FieldOffset(52)] public MatrixIntrinsicHandle ComputeHandle;
-        [FieldOffset(56)] public nint Span;
+        /// <summary>
+        ///   Beginning offset of first kernel in a L4 cache line.
+        /// </summary>
+        [FieldOffset(24)] public nuint Offset;
+        [FieldOffset(56)] public nuint Vector;
         [FieldOffset(64)] public ScalarPacket Scalar;
 
         public MatrixParallelTask()

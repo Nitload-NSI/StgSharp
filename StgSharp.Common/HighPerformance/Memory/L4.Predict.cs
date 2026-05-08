@@ -25,8 +25,8 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Common.Collections;
-using StgSharp.Mathematics.Memory;
+using StgSharp.Collections;
+using StgSharp.HighPerformance.Memory;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -61,6 +61,9 @@ namespace StgSharp.HighPerformance.Memory
             if (!_idReuse.TryPop(out int id)) {
                 id = _largestId++;
             }
+            if (id > short.MaxValue) {
+                throw new OverflowException("Too many predictors in waiting");
+            }
             _predictors[id] = predict;
             _predictionQueue.Enqueue(id);
             return id;
@@ -90,8 +93,7 @@ namespace StgSharp.HighPerformance.Memory
             }
             if (_predictionQueue.TryDequeue(out int id))
             {
-                IL4Predict predict = _predictors[id] ??
-                    throw new L4PredictUnregisteredException(id);
+                IL4Predict predict = _predictors[id] ?? throw new L4PredictUnregisteredException(id);
                 CurrentPredict = predict;
                 CurrentPredictIndex = id;
                 return true;

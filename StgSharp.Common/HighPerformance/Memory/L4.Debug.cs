@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.HighPerformance.Memory
 {
+    /**/
     public partial class L4
     {
 
@@ -57,6 +58,8 @@ namespace StgSharp.HighPerformance.Memory
 
         public unsafe DebugSnapshot GetDebugSnapshot()
         {
+            throw new NotImplementedException();
+            /*
             int maxId = _maxId;
             byte[] rrpv = new byte[maxId];
             byte* p = (byte*)_eviction;
@@ -64,6 +67,7 @@ namespace StgSharp.HighPerformance.Memory
                 rrpv[i] = p[i];
             }
             return new DebugSnapshot(_activeCount, _aheadCount, maxId, rrpv);
+            /**/
         }
 
         public readonly struct DebugSnapshot
@@ -104,4 +108,5 @@ namespace StgSharp.HighPerformance.Memory
         }
 
     }
+    /**/
 }

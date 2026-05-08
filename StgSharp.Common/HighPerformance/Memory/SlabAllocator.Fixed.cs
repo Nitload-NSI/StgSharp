@@ -26,7 +26,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Collections;
-using StgSharp.Mathematics.Memory;
+using StgSharp.HighPerformance.Memory;
 using StgSharp.Threading;
 using System;
 using System.Collections.Generic;
@@ -50,10 +50,10 @@ namespace StgSharp.HighPerformance.Memory
 
         private nuint _Capacity, _currentIndex;
 
-        public FixedSlabAllocator(
-               nuint buffer,
-               nuint count,
-               Action<nuint> freeHandle
+        internal FixedSlabAllocator(
+                 nuint buffer,
+                 nuint count,
+                 Action<nuint> freeHandle
         )
         {
             _freeHandle = freeHandle;
@@ -68,7 +68,7 @@ namespace StgSharp.HighPerformance.Memory
             };
             Span<nuint> span = stackalloc nuint[initCount];
             for (int i = 0; i < initCount; i++) {
-                span[i] = _buffer + (nuint)(i * _elementSize);
+                span[i] = _buffer + ((nuint)(i * _elementSize));
             }
             _recycle = CapacityFixedStackBuilder.Create(span);
             _Capacity = count;
@@ -88,7 +88,7 @@ namespace StgSharp.HighPerformance.Memory
             }
             curIndex = _currentIndex;
             _currentIndex += 1;
-            return _buffer + ((nuint)_elementSize * curIndex);
+            return _buffer + (((nuint)_elementSize) * curIndex);
         }
 
         public override void Dispose()

@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Global"
+// file="QueueFactory"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,14 +25,18 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-global using StgSharp.Internal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-global using System;
-global using System.Runtime.CompilerServices;
-global using System.Threading;
+namespace StgSharp.Mathematics.Numeric
+{
+    internal interface IMatrixQueueFactory
+    {
 
-[assembly: InternalsVisibleTo("StgSharp.HighPerformance")]
-[assembly: InternalsVisibleTo("StgSharp.RegularAnalysis")]
-[assembly: InternalsVisibleTo("StgSharp.Graphics")]
-[assembly: InternalsVisibleTo("StgSharp.Mathematics")]
-[assembly: InternalsVisibleTo("StgSharpDebug")]
+        IMatrixParallelQueue<IMatrixParallelQueue> CreateSequential();
+
+    }
+}

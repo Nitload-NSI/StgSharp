@@ -26,6 +26,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Common.HighPerformance.ProcessorAbstraction;
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using StgSharp.Internal;
 using StgSharp.Mathematics.Numeric.Runtime;
 using StgSharp.Threading;

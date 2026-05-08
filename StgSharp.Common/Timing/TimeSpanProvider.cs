@@ -25,7 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Common.Timing;
+using StgSharp.Timing;
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;

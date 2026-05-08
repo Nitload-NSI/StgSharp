@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="SlabAllocator.Chunked"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,9 +33,9 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
-    internal sealed unsafe class ChunkedSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
+    internal sealed unsafe class ChunkedSlabAllocator<T> : SlabAllocator<T> where T : unmanaged
     {
 
         private bool _disposed;
@@ -47,9 +47,11 @@ namespace StgSharp.Mathematics.Memory
         private nuint _currentBuffer;
         private nuint _currentCapacity, _currentIndex;
 
-        public ChunkedSlabAllocator(nuint count)
+        public ChunkedSlabAllocator(
+               nuint count
+        )
         {
-            _currentBuffer = (nuint)NativeMemory.Alloc(count * (nuint)_elementSize);
+            _currentBuffer = (nuint)NativeMemory.Alloc(count * ((nuint)_elementSize));
 
             _currentCapacity = count;
             int initCount = count switch
@@ -60,7 +62,7 @@ namespace StgSharp.Mathematics.Memory
             };
             Span<nuint> span = stackalloc nuint[initCount];
             for (int i = 0; i < initCount; i++) {
-                span[i] = _currentBuffer + (nuint)(i * _elementSize);
+                span[i] = _currentBuffer + ((nuint)(i * _elementSize));
             }
             _buffers = new(4);
             _buffers.Push(_currentBuffer);
@@ -80,14 +82,14 @@ namespace StgSharp.Mathematics.Memory
             if (curIndex >= _currentCapacity)
             {
                 nuint cap = _currentCapacity;
-                nuint newBuffer = (nuint)NativeMemory.Alloc(cap * (nuint)_elementSize);
+                nuint newBuffer = (nuint)NativeMemory.Alloc(cap * ((nuint)_elementSize));
                 _buffers.Push(newBuffer);
                 _currentBuffer = newBuffer;
                 _currentIndex = 0;
             }
             curIndex = _currentIndex;
             _currentIndex += 1;
-            return _currentBuffer + ((nuint)_elementSize * curIndex);
+            return _currentBuffer + (((nuint)_elementSize) * curIndex);
         }
 
         public override void Dispose()
@@ -114,7 +116,9 @@ namespace StgSharp.Mathematics.Memory
         public override void ExitBufferReading() { }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Free(nuint index)
+        public override void Free(
+                             nuint index
+        )
         {
             _recycle.Push(index);
         }

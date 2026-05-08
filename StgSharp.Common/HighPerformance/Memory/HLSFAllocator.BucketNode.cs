@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.BucketNode"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,18 +30,32 @@ using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
 
-        private void PushBucketToLevel(int levelIndex, int sizeIndex, BucketNode* node)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void PushBucketToLevel(
+                     int levelIndex,
+                     int sizeIndex,
+                     BucketNode* node
+        )
         {
-            if (node == null || node->EntryRef == null) {
+            if ((node == null) || (node->EntryRef == null)) {
                 return;
             }
 
-            Index index = (levelIndex > MaxLevel) ? ^1 : (3 * levelIndex) + sizeIndex;
+            int index = (3 * levelIndex) + sizeIndex;
+            PushNodeToBucket(index, node);
+        }
+
+        private void PushNodeToBucket(
+                     int index,
+                     BucketNode* node
+        )
+        {
+            index = (index >= _bucketHeads.Length) ? _bucketHeads.Length : index;
             if (_bucketHeads[index] is null)
             {
                 _bucketHeads[index] = node;
@@ -69,12 +83,17 @@ namespace StgSharp.Mathematics.Memory
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RemoveFromBucket(int levelIndex, int sizeIndex, BucketNode* node)
+        private void RemoveFromBucket(
+                     int levelIndex,
+                     int sizeIndex,
+                     BucketNode* node
+        )
         {
-            Index index = (levelIndex > MaxLevel) ? ^1 : (3 * levelIndex) + sizeIndex;
+            int index = (3 * levelIndex) + sizeIndex;
+            index = (index >= _bucketHeads.Length) ? _bucketHeads.Length : index;
             if (_bucketHeads[index] == node)
             {
-                if (TryPopLevel(levelIndex, sizeIndex, out _)) {
+                if (TryPopBucket(index, out _)) {
                     return;
                 }
             }
@@ -94,10 +113,16 @@ namespace StgSharp.Mathematics.Memory
             return;
         }
 
-        private bool TryPopLevel(int levelIndex, int sizeIndex, out BucketNode* node)
+        private bool TryPopBucket(
+                     int index,
+                     out BucketNode* node
+        )
         {
-            Index index = levelIndex > MaxLevel ? ^1 : (3 * levelIndex) + sizeIndex;
-
+            /*
+             * Attention:
+             * This method is UNSAFE. Index may exceed range of _bucketHeads.
+             * Be careful when calling this method.
+             */
             BucketNode* head = _bucketHeads[index];
 
             if (head == null)
@@ -114,20 +139,37 @@ namespace StgSharp.Mathematics.Memory
                 _bucketHeads[index] = null;
                 node = head;
                 return true;
+            } else
+            {
+                next->PreviousLevel = null;
             }
             _bucketHeads[index] = head->NextLevel;
             node = head;
             node->IsInBucket = false;
             node->NextLevel = null;
-            if (next != null) {
-                next->PreviousLevel = null;
-            }
             return true;
         }
 
-        private bool TryRemoveFromBucket(int levelIndex, int sizeIndex, BucketNode* node)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool TryPopLevel(
+                     int levelIndex,
+                     int sizeIndex,
+                     out BucketNode* node
+        )
         {
-            Index index = levelIndex > 9 ? ^1 : (3 * levelIndex) + sizeIndex;
+            int index = (3 * levelIndex) + sizeIndex;
+            index = (index >= _bucketHeads.Length) ? (_bucketHeads.Length - 1) : index;
+            return TryPopBucket(index, out node);
+        }
+
+        private bool TryRemoveFromBucket(
+                     int levelIndex,
+                     int sizeIndex,
+                     BucketNode* node
+        )
+        {
+            int index = (3 * levelIndex) + sizeIndex;
+            index = (index >= _bucketHeads.Length) ? _bucketHeads.Length : index;
             if (_bucketHeads[index] == node)
             {
                 bool ok = TryPopLevel(levelIndex, sizeIndex, out _);
@@ -153,7 +195,7 @@ namespace StgSharp.Mathematics.Memory
 
         /// <summary>
         ///   BucketNode structure - specialized node for bucket linked lists Stored in main
-        ///   allocation area (user-overwritable region)
+        ///   allocation area (user-writable region)
         /// </summary>
         [StructLayout(LayoutKind.Explicit)]
         internal struct BucketNode
@@ -161,7 +203,7 @@ namespace StgSharp.Mathematics.Memory
 
             [FieldOffset(0)] internal Entry* EntryRef;     // Pointer to corresponding Entry
             // [FieldOffset(16)] internal ulong LockBuffer;
-            [FieldOffset(8)] internal  BucketNode* NextLevel;     // Bucket stack linked list: next pointer
+            [FieldOffset(8)] internal BucketNode* NextLevel;     // Bucket stack linked list: next pointer
             [FieldOffset(24)] internal BucketNode* PreviousLevel; // Bucket stack linked list: previous pointer
             [FieldOffset(32)] internal bool IsInBucket;     // Whether in bucket
 

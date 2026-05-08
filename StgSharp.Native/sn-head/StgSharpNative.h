@@ -23,6 +23,9 @@
 #define cs_char uint16_t
 #define sn_null_assert(ptr) assert(ptr != NULL)
 
+#ifndef SN_
+#endif
+
 #define ALIGN(simdVec) _mm_loadu_ps(&simdVec)
 #define ALIGN256(simdVec) _mm256_loadu_ps(&simdVec)
 #define ALIGN512(simdVec) _mm512_loadu_ps(&simdVec)

@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="MatrixCompute.Sequential"
+// file="MatrixCompute.Single"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,18 +25,16 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.HighPerformance.Memory;
 using StgSharp.Mathematics.Numeric.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 using unsafe MkProc = delegate* unmanaged[Cdecl]<StgSharp.Mathematics.Numeric.Runtime.MatrixParallelTask*, void>;
 
-namespace StgSharp.Mathematics.Numeric.Linear
+namespace StgSharp.Mathematics.Numeric
 {
     public static unsafe partial class MatrixCompute
     {
@@ -76,34 +74,6 @@ namespace StgSharp.Mathematics.Numeric.Linear
             t->ComputeHandle = MatrixIntrinsicHandle.Add;
             t->Scalar.Data<long>(0) = count;
             SequentialOperation(t, count);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void SequentialOperation(
-                            MatrixParallelTask* task,
-                            long count
-        )
-        {
-            MatrixElementType elementType = task->ElementType;
-            MatrixParallelThread[] pool;
-            MkProc op = (MkProc)NumericalModule.GlobalContext.
-                mat_mk[elementType.IntrinsicNode].
-                Get(task->ComputeHandle);
-            if ((count <= 256) || !MatrixParallel.IsParallelMeaningful)
-            {
-                op(task);
-                return;
-            } else if (count <= 1024)
-            {
-                pool = MatrixParallel.LeadParallel(1);
-                op(task);
-                MatrixParallel.ReturnParallelResources(ref pool);
-                return;
-            }
-            pool = MatrixParallel.LeadParallel(count / 1024);
-            MatrixParallelWrap taskGroup = MatrixParallel.ScheduleTask<BufferSequentialPredictor>(pool, task);
-            taskGroup.LaunchParallel(SleepMode.DeepSleep);
-            taskGroup.Dispose();
         }
 
     }

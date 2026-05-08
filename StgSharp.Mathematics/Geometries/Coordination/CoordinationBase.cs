@@ -36,12 +36,14 @@ namespace StgSharp.Geometries
 
         private bool globalCoordAvailable;
         private CoordinationBase localCoordination;
-        private Matrix44 coordMat;
+        private GraphicsMatrix coordMat;
 
-        public CoordinationBase(CoordinationBase localCoordination)
+        public CoordinationBase(
+               CoordinationBase localCoordination
+        )
         {
             this.localCoordination = localCoordination;
-            coordMat = new Matrix44();
+            coordMat = new GraphicsMatrix();
         }
 
         public virtual Point LocalOrigin
@@ -68,11 +70,7 @@ namespace StgSharp.Geometries
             set => coordMat.column[3].XYZ = value;
         }
 
-        protected ref Matrix44 CoordMat
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => ref coordMat;
-        }
+        protected ref GraphicsMatrix CoordMat => ref coordMat;
 
     }
 }

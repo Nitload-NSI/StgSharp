@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallel.Publish"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@ using StgSharp.Mathematics.Numeric.Runtime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -48,10 +49,9 @@ namespace StgSharp.Mathematics.Numeric
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 
-        internal static unsafe MatrixParallelWrap ScheduleTask<TTask>(
-                                                  MatrixParallelThread[] workers,
-                                                  MatrixParallelTask* package)
-            where TTask: IL4Predict
+        internal static unsafe MatrixParallelWrap ScheduleTask<TTaskQueue>(
+                                                  MatrixParallelTask* package
+        ) where TTaskQueue : IMatrixParallelQueue<TTaskQueue>
         {
             /*
             int primCount = package->PrimCount;
@@ -60,8 +60,31 @@ namespace StgSharp.Mathematics.Numeric
             /**/
 
             // Console.WriteLine($"amount of kernels is {count}");
+            long payload = 0;
+            int payloadIndex = 0;
+            ulong additionalPayload = 0;
+            for (int i = 0; i < _numaMeasurements.Length; i++)
+            {
+                MatrixParallelThread[] numa = _numaWaveFront[i];
+                if ((numa is null) || (numa.Length == 0))
+                {
+                    continue;
+                }
+                ulong total = (ulong)_numaWaveFront[i].Length;
+                NumaMeasurement measure = _numaMeasurements[i];
+                ulong numaPayload = measure.ActiveTasks;
 
-            return new(workers);
+                // uint numaActive = measure.ActiveThreadCount;
+                long curPayload = ((long)total) - (((long)(numaPayload + additionalPayload + 63)) / 64);
+                if (curPayload < payload)
+                {
+                    payload = curPayload;
+                    payloadIndex = i;
+                }
+            }
+            L4 cache = _numaBuffer[payloadIndex];
+            MatrixParallelThread[] selectedNuma = _numaWaveFront[payloadIndex];
+            throw new NotImplementedException();
         }
 
     }

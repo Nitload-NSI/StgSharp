@@ -1,37 +1,34 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
   <diagram name="第 1 页" id="cbTJhW8NyRPDnIMFj9ZQ">
-    <mxGraphModel dx="2367" dy="1027" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#797979" math="0" shadow="0">
+    <mxGraphModel dx="1516" dy="401" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#797979" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="25TvGm5YAioSoPTIv9tO-4" value="视图托管接口VH&lt;br&gt;ViewHost" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=bottom;gradientColor=none;fillColor=#3399FF;fontColor=#000000;strokeColor=none;" parent="1" vertex="1">
-          <mxGeometry x="-210" y="40" width="430" height="200" as="geometry" />
+          <mxGeometry x="-116" y="40" width="250" height="200" as="geometry" />
         </mxCell>
         <mxCell id="oCZHK8Ia19RPNdtHcHY8-36" value="状态宿主 StateHost" style="verticalLabelPosition=middle;verticalAlign=top;html=1;shape=mxgraph.basic.rect;fillColor2=none;strokeWidth=1;size=0;indent=0;fillColor=#3399FF;labelPosition=center;align=center;strokeColor=none;" parent="1" vertex="1">
           <mxGeometry x="-420" y="410" width="440" height="340" as="geometry" />
         </mxCell>
-        <mxCell id="oCZHK8Ia19RPNdtHcHY8-37" value="呈现器VP&lt;br&gt;View Presenter" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-200" y="50" width="210" height="70" as="geometry" />
-        </mxCell>
         <mxCell id="oCZHK8Ia19RPNdtHcHY8-38" value="视图描述VD&lt;br&gt;View Descriptor" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-200" y="120" width="210" height="70" as="geometry" />
+          <mxGeometry x="-106" y="50" width="110" height="140" as="geometry" />
         </mxCell>
         <mxCell id="oCZHK8Ia19RPNdtHcHY8-39" value="用户输入 I&lt;br&gt;Input" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="20" y="50" width="190" height="140" as="geometry" />
+          <mxGeometry x="15" y="50" width="99" height="140" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-4" target="25TvGm5YAioSoPTIv9tO-10" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="150" y="275" />
               <mxPoint x="60" y="275" />
+              <mxPoint x="-7" y="275" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-4" target="25TvGm5YAioSoPTIv9tO-11" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="150" y="275" />
-              <mxPoint x="227" y="275" />
+              <mxPoint x="60" y="275" />
+              <mxPoint x="153" y="275" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -54,11 +51,12 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="25TvGm5YAioSoPTIv9tO-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=#FFFF33;" parent="1" source="25TvGm5YAioSoPTIv9tO-7" target="25TvGm5YAioSoPTIv9tO-53" edge="1">
+        <mxCell id="25TvGm5YAioSoPTIv9tO-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.336;entryY=1.014;entryDx=0;entryDy=0;strokeColor=#FFFF33;entryPerimeter=0;" parent="1" source="25TvGm5YAioSoPTIv9tO-7" target="25TvGm5YAioSoPTIv9tO-53" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="-310" y="390" />
-              <mxPoint x="-310" y="390" />
+              <mxPoint x="-310" y="280" />
+              <mxPoint x="-280" y="280" />
+              <mxPoint x="-280" y="240" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -69,7 +67,7 @@
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="-40" y="440" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="60" y="390" />
+              <mxPoint x="-10" y="390" />
               <mxPoint x="-40" y="390" />
               <mxPoint x="-40" y="440" />
               <mxPoint x="-39" y="440" />
@@ -77,30 +75,30 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-10" value="StateChangeCommand" style="rounded=1;whiteSpace=wrap;html=1;fontColor=#000000;strokeColor=none;fillColor=#66FF66;" parent="1" vertex="1">
-          <mxGeometry x="-13" y="310" width="146" height="20" as="geometry" />
+          <mxGeometry x="-80" y="335" width="146" height="20" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.945;entryY=0.011;entryDx=0;entryDy=0;strokeColor=#33FF33;entryPerimeter=0;" parent="1" source="25TvGm5YAioSoPTIv9tO-11" target="25TvGm5YAioSoPTIv9tO-7" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="230" y="390" />
+              <mxPoint x="150" y="390" />
               <mxPoint x="-40" y="390" />
-              <mxPoint x="-40" y="440" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-11" value="CallOperationCommand" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=none;fillColor=#66FF66;fontColor=#000000;" parent="1" vertex="1">
-          <mxGeometry x="154" y="310" width="146" height="20" as="geometry" />
+          <mxGeometry x="80" y="335" width="146" height="20" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=1;entryDx=0;entryDy=0;strokeColor=#FFFF33;" parent="1" source="25TvGm5YAioSoPTIv9tO-16" target="25TvGm5YAioSoPTIv9tO-4" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="-107" y="275" />
-              <mxPoint x="-102" y="275" />
+              <mxPoint x="-160" y="280" />
+              <mxPoint x="-53" y="280" />
+              <mxPoint x="-53" y="240" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-16" value="CommandResult" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFF33;fontColor=#000000;strokeColor=none;" parent="1" vertex="1">
-          <mxGeometry x="-180" y="310" width="146" height="20" as="geometry" />
+          <mxGeometry x="-236" y="335" width="146" height="20" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-19" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;前端命令 FrontCommand&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;View和State通过前端命令进行交互&lt;br&gt;进程内通信可以直接传递对象&lt;br&gt;跨进程交互可以传递序列化后的json数据包&lt;br&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;State中响应command的结果通过CommandResult&lt;br&gt;数据包返回给View&lt;/p&gt;&lt;p&gt;在需要时，View通过前端命令获取State的快照进行图形化展示&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=left;fontColor=#000000;" parent="1" vertex="1">
           <mxGeometry x="-790" y="250" width="290" height="190" as="geometry" />
@@ -216,34 +214,36 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="25TvGm5YAioSoPTIv9tO-58" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-53" target="25TvGm5YAioSoPTIv9tO-7" edge="1">
+        <mxCell id="25TvGm5YAioSoPTIv9tO-58" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeColor=#66FF66;exitX=0.511;exitY=0.992;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="25TvGm5YAioSoPTIv9tO-53" target="25TvGm5YAioSoPTIv9tO-7" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="-290" y="290" />
-              <mxPoint x="-290" y="290" />
+              <mxPoint x="-260" y="240" />
+              <mxPoint x="-260" y="300" />
+              <mxPoint x="-290" y="300" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-53" value="ViewHost 1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;gradientColor=none;fillColor=#3399FF;fontColor=#000000;strokeColor=none;" parent="1" vertex="1">
-          <mxGeometry x="-400" y="210" width="180" height="30" as="geometry" />
+          <mxGeometry x="-340" y="210" width="180" height="30" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-54" value="ViewHost 2" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;gradientColor=none;fillColor=#3399FF;fontColor=#000000;strokeColor=none;" parent="1" vertex="1">
-          <mxGeometry x="-577" y="40" width="167" height="200" as="geometry" />
+          <mxGeometry x="-527" y="40" width="167" height="200" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFFF33;exitX=0;exitY=0;exitDx=0;exitDy=0;" parent="1" source="25TvGm5YAioSoPTIv9tO-7" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="-355.34000000000003" y="390" as="sourcePoint" />
-            <mxPoint x="-490" y="240" as="targetPoint" />
+            <mxPoint x="-450" y="240" as="targetPoint" />
             <Array as="points">
               <mxPoint x="-380" y="330" />
-              <mxPoint x="-490" y="330" />
+              <mxPoint x="-450" y="330" />
+              <mxPoint x="-450" y="240" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.056;entryY=0.015;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=#66FF66;" parent="1" source="25TvGm5YAioSoPTIv9tO-54" target="25TvGm5YAioSoPTIv9tO-7" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="-470" y="310" />
+              <mxPoint x="-410" y="310" />
               <mxPoint x="-360" y="310" />
             </Array>
           </mxGeometry>
@@ -298,13 +298,16 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-78" value="" style="group" parent="1" vertex="1" connectable="0">
-          <mxGeometry x="-420" y="870" width="120" height="180" as="geometry" />
+          <mxGeometry x="-420" y="870" width="210" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="25TvGm5YAioSoPTIv9tO-79" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0066CC;fontColor=#ffffff;strokeColor=#F5F5F5;" parent="25TvGm5YAioSoPTIv9tO-78" vertex="1">
+        <mxCell id="25TvGm5YAioSoPTIv9tO-79" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0066CC;fontColor=#ffffff;strokeColor=#F5F5F5;verticalAlign=top;" parent="25TvGm5YAioSoPTIv9tO-78" vertex="1">
           <mxGeometry width="119.99999999999999" height="180" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-80" value="服务 1&lt;br&gt;Service 1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="25TvGm5YAioSoPTIv9tO-78" vertex="1">
-          <mxGeometry y="75" width="119.99999999999999" height="30" as="geometry" />
+          <mxGeometry y="10" width="119.99999999999999" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="iwdWNZ0WjOj6HhX6wyoA-1" value="呈现器VP&lt;br&gt;View Presenter" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="25TvGm5YAioSoPTIv9tO-78">
+          <mxGeometry y="50" width="120" height="130" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-82" value="" style="group" parent="1" vertex="1" connectable="0">
           <mxGeometry x="-79" y="870" width="120" height="40" as="geometry" />
@@ -335,12 +338,12 @@
           <mxGeometry x="-780" y="740" width="330" height="155" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-90" value="跨进程界面&lt;br&gt;ExternalDisplaySurface" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#FFFF99;fillColor=#FFFF99;fontColor=#000000;" parent="1" vertex="1">
-          <mxGeometry x="-400" y="40" width="180" height="130" as="geometry" />
+          <mxGeometry x="-340" y="40" width="180" height="130" as="geometry" />
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-92" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;endWidth=9.056603773584905;endSize=2.0638888888888887;startWidth=9.865229110512129;startSize=1.2074074074074073;width=2.7777777777777777;" parent="1" source="25TvGm5YAioSoPTIv9tO-53" target="25TvGm5YAioSoPTIv9tO-90" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
-            <mxPoint x="-360" y="290" as="sourcePoint" />
-            <mxPoint x="-260" y="190" as="targetPoint" />
+            <mxPoint x="-300" y="290" as="sourcePoint" />
+            <mxPoint x="-200" y="190" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="25TvGm5YAioSoPTIv9tO-93" value="json数据包" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;fontColor=#000000;" parent="25TvGm5YAioSoPTIv9tO-92" vertex="1" connectable="0">

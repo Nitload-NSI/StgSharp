@@ -1,27 +1,30 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="HlsfAllocatorBench"
+// file="HlsfAllocatorBench.cs"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the “Software”), to deal in the Software without restriction, 
+// including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
+//     
+// The above copyright notice and 
+// this permission notice shall be included in all copies 
+// or substantial portions of the Software.
+//     
+// THE SOFTWARE IS PROVIDED “AS IS”, 
+// WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+// ARISING FROM, OUT OF OR IN CONNECTION WITH 
+// THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
@@ -42,17 +45,9 @@ namespace StgSharp.Benchmark
 
         private const int AllocationCount = 2048;
 
-        private static readonly int[] AllocSizes = [
-            64,
-            96,
-            150,
-            200,
-            400,
-            1024,
-            4096
-        ];
+        private static readonly int[] AllocSizes = [ 64, 96, 150, 200, 400, 1024, 4096 ];
         private HybridLayerSegregatedFitAllocator _hlsfAllocator = null!;
-        private readonly List<HybridLayerSegregatedFitAllocationHandle> _hlsfLocalList = new();
+        private readonly List<hlsfHandle> _hlsfLocalList = new();
         private readonly List<nint> _libcLocalList = new();
         private Random _random = new(42);
 
@@ -106,9 +101,7 @@ namespace StgSharp.Benchmark
             _hlsfAllocator = new HybridLayerSegregatedFitAllocator(GetArenaBytes(), align:(int)Alignment);
         }
 
-        private static uint AlignSize(
-                            uint size
-        )
+        private static uint AlignSize(uint size)
         {
             uint mask = Alignment - 1;
             return (size + mask) & ~mask;
@@ -121,9 +114,7 @@ namespace StgSharp.Benchmark
             int mb = defaultMb;
 
             string? env = Environment.GetEnvironmentVariable("HLSF_BENCH_ARENA_MB");
-            if (!string.IsNullOrWhiteSpace(env) &&
-                int.TryParse(env, out int parsed) &&
-                parsed >= minMb) {
+            if (!string.IsNullOrWhiteSpace(env) && int.TryParse(env, out int parsed) && parsed >= minMb) {
                 mb = parsed;
             }
 
@@ -132,17 +123,14 @@ namespace StgSharp.Benchmark
 
         private uint GetNextRandomSize() => (uint)AllocSizes[_random.Next(AllocSizes.Length)];
 
-        private void RunHlsf(
-                     HybridLayerSegregatedFitAllocator allocator,
-                     FreePolicy policy
-        )
+        private void RunHlsf(HybridLayerSegregatedFitAllocator allocator, FreePolicy policy)
         {
             _hlsfLocalList.Clear();
 
             for (int i = 0; i < AllocationCount; i++)
             {
                 uint size = AlignSize(GetNextRandomSize());
-                HybridLayerSegregatedFitAllocationHandle allocate = allocator.Alloc(size);
+                hlsfHandle allocate = allocator.Alloc(size);
                 _hlsfLocalList.Add(allocate);
             }
 

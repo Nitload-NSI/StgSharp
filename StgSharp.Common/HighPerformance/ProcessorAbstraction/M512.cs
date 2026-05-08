@@ -42,7 +42,13 @@ namespace StgSharp.HighPerformance.ProcessorAbstraction
     {
 
         [FieldOffset(0)] private fixed byte _buffer[64];
-        [FieldOffset(0)] private Vector512<float> Vec;
+        [FieldOffset(0)] private Vector512<byte> Vec;
+
+        public M512()
+        {
+            Unsafe.SkipInit(out this);
+            Unsafe.SkipInit(out Vec);
+        }
 
         public ref T AsRef<T>() where T : unmanaged, INumber<T>
         {
@@ -53,7 +59,7 @@ namespace StgSharp.HighPerformance.ProcessorAbstraction
                     T value
         ) where T : unmanaged, INumber<T>
         {
-            Vec = Vector512.Create(value).AsSingle();
+            Vec = Vector512.Create(value).AsByte();
         }
 
         public ref T Member<T>(

@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,16 +35,12 @@ using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
 
+using HlsfEntry = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator.Entry;
+
 namespace StgSharp.HighPerformance.Memory
 {
     public partial class L4
     {
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void AgeAll()
-        {
-            _intrinsic.AgeAll(_eviction);
-        }
 
         /// <summary>
         ///
@@ -59,61 +56,79 @@ namespace StgSharp.HighPerformance.Memory
                            int count = 1
         )
         {
+            count = (count < 0) ? 0 : count;
+            int* pPtr = (int*)_predictCount, mPtr = (int*)_mapCount;
+
+
             int remain = count;
-            Vector128<byte> three = Vector128.Create((byte)0x03);
-            byte* p = (byte*)_eviction;
-            _predictors.RequestSpanOperation();
-            Span<IL4Predict> pSpan = _predictors.AsSpan();
+            ConcurrentFlexibleArray<IL4Predict> predictors = _predictors;
+            predictors.RequestSpanOperation();
+            Span<IL4Predict> pSpan = predictors.AsSpan();
             try
             {
-                for (int i = 0; (i < CacheLineCount) && (remain > 0); i += 16)
+                for (int i = 0; i < CacheLineCount; i++)
                 {
-                    int evictMask = _intrinsic.ScanEvict(p + i, three);
-                    while ((evictMask != 0) && (remain > 0))
+                    if (pPtr[i] > mPtr[i])
                     {
-                        int bitPos = BitOperations.TrailingZeroCount(evictMask);
-                        int index = bitPos + i;
-                        CacheLineHead* head = &_head[index];
-                        if (Interlocked.CompareExchange(ref head->_refCount, int.MinValue, 0) == 0)
-                        {
-                            // EvictLine(i + index);
-                            _ = _map.TryRemove(head->_origin, out _);
-                            int id = (int)head->_predictor;
-                            IL4Predict predict = pSpan[id] ??
-                                throw new L4PredictUnregisteredException(id);
-                            predict.WriteBack(head->_origin, head->_profile, new ReadOnlySpan<byte>((byte*)head->_address, Unsafe.SizeOf<CacheLineData>()));
-                            RecycleLine(index);
-                            remain--;
-                        }
-                        evictMask &= evictMask - 1;
+                        continue;
                     }
+                    remain -= TryEvictAt(i, pSpan) ? 1 : 0;
                 }
-                return remain;
             }
             finally
             {
-                _predictors.ReleaseSpanOperation();
+                predictors.ReleaseSpanOperation();
             }
+            return remain;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RecycleLine(
-                     int id
+        private unsafe void RecycleLine(
+                            int id
         )
         {
-            _idMux.Push(id);
+            HlsfEntry* entry = (HlsfEntry*)(_entryManager._basePtr + id);
+            _bufferAllocator.Free(entry);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TryGetEmptyLine(
-                     out int index
+        private unsafe bool TryEvictAt(
+                            int index,
+                            Span<IL4Predict> predictorSpan
         )
         {
-            if (_idMux.TryPop(out index)) {
+            CacheLineHead* head = &_head[index];
+            if (Interlocked.CompareExchange(ref head->RefCount, int.MinValue, 0) == 0)
+            {
+                // EvictLine(i + index);
+                _ = _map.TryRemove(head->Origin, out _);
+                int id = head->Predictor;
+                IL4Predict predict = predictorSpan[id] ??
+                    throw new L4PredictUnregisteredException(id);
+                predict.WriteBack(head->Origin, head->Profile, new ReadOnlySpan<byte>((byte*)head->Address, (int)head->Size));
+                RecycleLine(index);
+                (*_mapCount)[index] = 0;
+                (*_predictCount)[index] = int.MaxValue;
                 return true;
             }
-            index = _maxId;
-            return Interlocked.Increment(ref _maxId) <= CacheLineCount;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe bool TryGetEmptyLine(
+                            nuint size,
+                            out int index
+
+        )
+        {
+            if (!_bufferAllocator.TryAlloc(size, out HlsfHandle handle))
+            {
+                index = 0;
+                return false;
+            }
+            CacheLineHead* entry = (CacheLineHead*)handle.EntryHandle;
+            index = entry->Id;
+            return true;
         }
 
     }

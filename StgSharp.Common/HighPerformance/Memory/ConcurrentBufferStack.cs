@@ -33,7 +33,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
     public static class BufferStackBuilder
     {
@@ -104,11 +104,7 @@ namespace StgSharp.Mathematics.Memory
             AllocateBuffer(capacity);
         }
 
-        public ulong Count
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (ulong)Volatile.Read(ref _count);
-        }
+        public ulong Count => (ulong)Volatile.Read(ref _count);
 
         public void Clear()
         {
@@ -191,7 +187,7 @@ namespace StgSharp.Mathematics.Memory
                             if (header->Top >= header->Capacity)
                             {
                                 int newCap = header->Capacity * 2;
-                                nuint newSize = (nuint)sizeof(Header) + ((nuint)newCap * (nuint)sizeof(T));
+                                nuint newSize = ((nuint)sizeof(Header)) + (((nuint)newCap) * ((nuint)sizeof(T)));
 
                                 _lock.EnterBufferCopy();
                                 try
@@ -291,8 +287,9 @@ namespace StgSharp.Mathematics.Memory
             T* dataStart = (T*)(_buffer + sizeof(Header));
 
             fixed (T* sourcePtr = span) {
-                Buffer.MemoryCopy(sourcePtr, dataStart, (nuint)header->Capacity * (nuint)sizeof(T),
-                                  (nuint)span.Length * (nuint)sizeof(T));
+                Buffer.MemoryCopy(sourcePtr, dataStart,
+                                  ((nuint)header->Capacity) * ((nuint)sizeof(T)),
+                                  ((nuint)span.Length) * ((nuint)sizeof(T)));
             }
 
             header->Top = span.Length;
@@ -303,7 +300,7 @@ namespace StgSharp.Mathematics.Memory
                      int capacity
         )
         {
-            nuint size = (nuint)sizeof(Header) + (nuint)capacity * (nuint)sizeof(T);
+            nuint size = ((nuint)sizeof(Header)) + (((nuint)capacity) * ((nuint)sizeof(T)));
             _buffer = (byte*)NativeMemory.Alloc(size);
             Header* header = (Header*)_buffer;
             header->Top = 0;

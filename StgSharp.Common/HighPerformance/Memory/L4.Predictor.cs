@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -45,44 +46,13 @@ namespace StgSharp.HighPerformance.Memory
     public interface IL4Predict
     {
 
-        /*
-         * Planned optimization contract types:
-         * 1. internal interface IL4PredictOptimizationContract
-         *    - Trusted extension point queried once during predictor registration.
-         *    - Produces normalized compatibility tokens for a given map policy.
-         * 2. readonly struct L4PredictCompatibilityToken
-         *    - Hot-path comparable descriptor cached by L4.
-         *    - Should at least carry ResidentFamily, FlushFamily and AccessMode.
-         * 3. enum L4PredictAccessMode
-         *    - Distinguishes read-only sources from write-back or write-through targets.
-         *
-         * L4 should only use these cached tokens in the prefetch path. Predictors without the
-         * internal contract stay on the conservative path: write back the old owner, then
-         * rematerialize the cache line for the new predictor.
-         */
-
-        /// <summary>
-        ///   Determines whether a cache line materialized by <paramref name="predict" /> under
-        ///   <paramref name="policy" /> can be adopted by the current predictor without an
-        ///   intermediate rematerialization.
-        /// </summary>
-        /// <remarks>
-        ///   This is intentionally stronger than comparing raw policy bits for equality. A true
-        ///   result means the resident bytes can continue to be interpreted safely after ownership
-        ///   is transferred to the current predictor.
-        /// </remarks>
-        bool IsSamePolicy(
-             uint policy,
-             IL4Predict predict
-        );
-
         PredictResult Predict(
-                      Span<CacheLinePrediction> node,
+                      Span<CacheLineDescription> node,
                       out int count
         );
 
         /// <summary>
-        ///   Materializes the cache line identified by <paramref name="origin" /> into <paramref
+        ///   Materializes the cache line identified by <paramref name="origin" /> into <paramref ///  
         ///   name="cache" />.
         /// </summary>
         /// <param name="origin">
@@ -120,20 +90,21 @@ namespace StgSharp.HighPerformance.Memory
 
     }
 
-    public struct CacheLinePrediction : IEquatable<CacheLinePrediction>
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CacheLineDescription : IEquatable<CacheLineDescription>
     {
 
         public override readonly bool Equals(
                                       object? obj
         )
         {
-            return (obj is CacheLinePrediction prediction) &&
+            return (obj is CacheLineDescription prediction) &&
                    Address.Equals(prediction.Address) &&
                    (MapPolicy == prediction.MapPolicy);
         }
 
         public readonly bool Equals(
-                             CacheLinePrediction other
+                             CacheLineDescription other
         )
         {
             return
@@ -142,28 +113,54 @@ namespace StgSharp.HighPerformance.Memory
 
         public override readonly int GetHashCode()
         {
-            return HashCode.Combine(Address, MapPolicy);
+            return (int)ComposePredictionKey64(Address, MapPolicy);
+        }
+
+        public readonly nuint GetHashCodeLong()
+        {
+            return ComposePredictionKey64(Address, MapPolicy);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static nuint ComposePredictionKey64(
+                             nuint address,
+                             ushort mapPolicy
+        )
+        {
+            nuint x = address;
+            nuint y = mapPolicy;
+            unchecked
+            {
+                nuint mixed = x ^ (y * ((nuint)0x9e3779b97f4a7c15UL));
+                mixed ^= mixed >> 30;
+                mixed *= (nuint)0xbf58476d1ce4e5b9UL;
+                mixed ^= mixed >> 27;
+                mixed *= (nuint)0x94d049bb133111ebUL;
+                mixed ^= mixed >> 31;
+                return mixed;
+            }
         }
 
         public static bool operator !=(
-                                    CacheLinePrediction left,
-                                    CacheLinePrediction right
+                                    CacheLineDescription left,
+                                    CacheLineDescription right
         )
         {
             return !(left == right);
         }
         public static bool operator ==(
-                                    CacheLinePrediction left,
-                                    CacheLinePrediction right
+                                    CacheLineDescription left,
+                                    CacheLineDescription right
         )
         {
             return left.Equals(right);
         }
 
 #pragma warning disable CA1051
-        public nuint Address;
-        public uint MapPolicy;
-        internal uint Predictor;
+        [FieldOffset(0)]public nuint Address;
+        [FieldOffset(8)]public uint Size;
+        [FieldOffset(12)]public ushort MapPolicy;
+        [FieldOffset(14)]internal short Predictor;
 #pragma warning restore CA1051
     }
 }

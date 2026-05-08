@@ -6,9 +6,9 @@
 #include "sn_intrinsic.std.h"
 
 #ifndef SN_X86_TARGET_ATTR_sse
-#define SN_X86_TARGET_ATTR_sse SN_CLANG_TARGET_ATTR("sse2")
+#define SN_X86_TARGET_ATTR_sse SN_CLANG_TARGET_ATTR("sse42")
 #define SN_X86_TARGET_ATTR_avx SN_CLANG_TARGET_ATTR("avx")
-#define SN_X86_TARGET_ATTR_avx_fma SN_CLANG_TARGET_ATTR("avx,fma")
+#define SN_X86_TARGET_ATTR_avx_fma SN_CLANG_TARGET_ATTR("avx,avx2,fma")
 #define SN_X86_TARGET_ATTR_512 SN_CLANG_TARGET_ATTR("avx512f,avx512vl")
 #endif
 
@@ -139,6 +139,8 @@
 #pragma region matix function
 
 INTERNAL void f32_normalize(sn_vec_f32 * source, sn_vec_f32 * target);
+
+SN_MK_PROC_DECL_STD(float, sse, , k_quality);
 
 SN_MK_PROC_DECL_STD(float, sse, , add);
 SN_MK_PROC_DECL_STD(float, avx, , add);

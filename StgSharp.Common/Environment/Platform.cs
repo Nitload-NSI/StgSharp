@@ -25,8 +25,8 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Common.HighPerformance.ProcessorAbstraction;
-using StgSharp.Mathematics;
+using StgSharp.HighPerformance;
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;

@@ -177,6 +177,7 @@
     <ClCompile Include="sn-src\m.solve.x86.c" />
     <ClCompile Include="sn-src\m.transpose.x86.c" />
     <ClCompile Include="sn-src\mk.fma.x86.c" />
+    <ClCompile Include="sn-src\mk.p_scan.x86.c" />
     <ClCompile Include="sn-src\s.factorial.x86.c" />
     <ClCompile Include="sn-src\sk.fma.x86.c" />
     <ClCompile Include="sn-src\s.hash.x86.c" />

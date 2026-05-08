@@ -32,7 +32,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Common.Collections
+namespace StgSharp.Collections
 {
     /// <summary>
     ///   Zero-overhead view over a contiguous region of unmanaged memory. Does not own the memory —
@@ -125,7 +125,7 @@ namespace StgSharp.Common.Collections
                        int length
         )
         {
-            Debug.Assert((uint)start + (uint)length <= (uint)Length,
+            Debug.Assert(((uint)start) + ((uint)length) <= (uint)Length,
                 "UnmanagedArray.AsSpan range out of bounds");
             return new Span<T>(Address + start, length);
         }
@@ -144,7 +144,7 @@ namespace StgSharp.Common.Collections
                    T* ptr
         )
         {
-            int offset = (int)(((nint)ptr - (nint)Address) / ElementSize);
+            int offset = (int)((((nint)ptr) - ((nint)Address)) / ElementSize);
             ArgumentOutOfRangeException.ThrowIfNegative(offset, nameof(ptr));
             ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(offset, Length, nameof(ptr));
             return offset;
@@ -169,7 +169,7 @@ namespace StgSharp.Common.Collections
                    T* ptr
         )
         {
-            return (int)(((nint)ptr - (nint)Address) / ElementSize);
+            return (int)((((nint)ptr) - ((nint)Address)) / ElementSize);
         }
 
     }

@@ -38,10 +38,15 @@ namespace StgSharp.Geometries
     public class PlainCoordinate : CoordinationBase
     {
 
-        public PlainCoordinate(CoordinationBase local, Point origin, Vec3 xAxis, Vec3 yAxis)
+        public PlainCoordinate(
+               CoordinationBase local,
+               Point origin,
+               Vec3 xAxis,
+               Vec3 yAxis
+        )
             : base(local)
         {
-            CoordMat = Matrix44.Unit;
+            CoordMat = GraphicsMatrix.Unit;
 
             CoordMat.column[0] = new Vec4(xAxis, 0);
             CoordMat.column[1] = new Vec4(yAxis, 0);
@@ -50,8 +55,10 @@ namespace StgSharp.Geometries
             LocalOrigin = origin;
         }
 
-        public static PlainCoordinate StandardPlainCoordination { get; } = new(null, new Point(0, 0, 0),
-                                                                               new Vec3(1, 0, 0), new Vec3(0, 1, 0));
+        public static PlainCoordinate StandardPlainCoordination { get; } = new(null,
+                                                                               new Point(0, 0, 0),
+                                                                               new Vec3(1, 0, 0),
+                                                                               new Vec3(0, 1, 0));
 
     }
 }

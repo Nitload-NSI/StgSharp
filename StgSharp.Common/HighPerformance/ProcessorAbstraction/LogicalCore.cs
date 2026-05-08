@@ -31,7 +31,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Common.HighPerformance.ProcessorAbstraction
+namespace StgSharp.HighPerformance.ProcessorAbstraction
 {
     public readonly struct LogicalCore
     {

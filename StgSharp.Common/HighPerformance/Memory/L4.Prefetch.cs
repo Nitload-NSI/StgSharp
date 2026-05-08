@@ -26,6 +26,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using System.ComponentModel;
+using System.Numerics;
 
 namespace StgSharp.HighPerformance.Memory
 {
@@ -44,7 +45,7 @@ namespace StgSharp.HighPerformance.Memory
             }
             IL4Predict predict = CurrentPredict;
             int predictIndex = CurrentPredictIndex;
-            Span<CacheLinePrediction> span = new(_prediction, PredictionCount);
+            Span<CacheLineDescription> span = new(_prediction, PredictionCount);
             PredictResult result = predict.Predict(span, out int actualCount);
             if ((result & PredictResult.Exhausted) != 0) {
                 _exhausted = !TryGetNextPredict();
@@ -55,12 +56,11 @@ namespace StgSharp.HighPerformance.Memory
                 return;
             }
             int missIndex = 0;
-            AgeAll();
             for (int i = 0; i < actualCount; i++)
             {
-                ref CacheLinePrediction handle = ref span[i];
+                ref CacheLineDescription handle = ref span[i];
                 nuint address = handle.Address;
-                if (!TestHit(address))
+                if (!_map.TryGet(address, out _))
                 {
                     // miss and record
                     span[missIndex] = handle;
@@ -75,32 +75,47 @@ namespace StgSharp.HighPerformance.Memory
                 for (int i = 0; i < missIndex; i++)
                 {
                     CacheLineHead* head;
-                    ref CacheLinePrediction pHandle = ref span[i];
+                    ref CacheLineDescription pHandle = ref span[i];
                     nuint address = pHandle.Address;
                     int index;
                     if (_map.TryGet(address, out nuint handle))
                     {
                         head = (CacheLineHead*)handle;
-                        index = head->_id;
-                        (*_eviction)[index] = 0; // reset eviction counter
+                        index = head->Id;
+                        (*_predictCount)[index] = 0; // reset eviction counter
 
                         #region update predictor belonging
 
-                        int predictId = head->_predictor;
+                        int predictId = head->Predictor;
                         IL4Predict belong = predictorSpan[predictId];
-                        // This branch performs resident-line adoption rather than a simple policy
-                        // equality check. Returning true means the current predictor can keep using
-                        // the existing cache bytes without a write-back plus re-prefetch cycle.
-                        if (predict.IsSamePolicy(head->_profile, belong))
+
+                        if (!ReferenceEquals(predict, belong))
                         {
-                            head->_predictor =predictIndex;
+                            throw new L4PredictConflictException(head->Origin, head->Profile, predictId);
                         } else
                         {
-                            // Compatibility failed, so the old owner must first flush its view of
-                            // the line before the new predictor rematerializes the cache bytes.
-                            belong.WriteBack(head->_origin, head->_profile, new ReadOnlySpan<byte>((byte*)head->_address, Unsafe.SizeOf<CacheLineData>()));
-                            head->_profile = pHandle.MapPolicy;
-                            predict.Prefetch(head->_origin, head->_profile, new Span<byte>((byte*)head->_address, Unsafe.SizeOf<CacheLineData>()));
+                            if ((*_predictCount)[index] > short.MaxValue / 2)
+                            {
+                                /*
+                                 * EXPERIMENTAL / INTENTIONALLY UNSAFE:
+                                 * This code performs a 32-bit atomic operation starting from a short reference.
+                                 *
+                                 * It is only valid in this specific storage layout because:
+                                 * - the runtime is little-endian;
+                                 * - arithmetic here does not cause harmful cross-16-bit carry/borrow;
+                                 * - the backing storage remains valid and accessible beyond the logical short-array boundary;
+                                 * - touching the adjacent 16 bits is acceptable for this allocation layout;
+                                 * - misaligned int access is acceptable on the target platform.
+                                 *
+                                 * This is safe only with the current L4 allocation/layout guarantees.
+                                 */
+                                short predictCount = Volatile.Read(ref (*_predictCount)[index]);
+                                short mapCount = Volatile.Read(ref (*_mapCount)[index]);
+                                int decrement = (short.Min(predictCount, mapCount) + 1) / 2;
+                                _ = Interlocked.Add(ref Unsafe.As<short, int>(ref (*_predictCount)[index]), -decrement);
+                                _ = Interlocked.Add(ref Unsafe.As<short, int>(ref (*_mapCount)[index]), -decrement);
+                            }
+                            (*_predictCount)[index]++;
                         }
 
                         #endregion
@@ -110,7 +125,7 @@ namespace StgSharp.HighPerformance.Memory
 
                     int retryCount = 0, remain = missIndex - i;
                     const int maxRetry = 1024;
-                    while (!TryGetEmptyLine(out index))
+                    while (!TryGetEmptyLine(pHandle.Size, out index))
                     {
                         remain = Evict(remain);
                         retryCount++;
@@ -121,16 +136,17 @@ namespace StgSharp.HighPerformance.Memory
                             Thread.Sleep(1);
                         }
                     }
-                    head = &_head[index];
-                    head->_id = index;
-                    head->_origin = address;
-                    head->_profile = pHandle.MapPolicy;
-                    head->_refCount = 0;
-                    head->_predictor = predictIndex;
-                    head->_address = (nuint)(_data + index);
+                    head = _head + index;
+                    head->Origin = address;
+                    head->Profile = pHandle.MapPolicy;
+                    head->RefCount = 0;
+                    head->Predictor = (short)predictIndex;
+
+                    (*_predictCount)[index] = 1;
+                    (*_mapCount)[index] = 1;
 
                     // pre fetch them here
-                    predict.Prefetch(head->_origin, head->_profile, new Span<byte>((byte*)head->_address, Unsafe.SizeOf<CacheLineData>()));
+                    predict.Prefetch(head->Origin, head->Profile, new Span<byte>((byte*)head->Address, (int)head->Size));
                     _ = _map.TryAddOrSet(address, (nuint)head, out _);
                 }
                 _ = Interlocked.Add(ref _aheadCount, actualCount);

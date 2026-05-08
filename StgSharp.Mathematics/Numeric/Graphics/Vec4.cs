@@ -122,17 +122,9 @@ namespace StgSharp.Mathematics.Graphics
             }
         }
 
-        public static Vec4 One
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new Vec4(1, 1, 1, 1);
-        }
+        public static Vec4 One => new Vec4(1, 1, 1, 1);
 
-        public static Vec4 Zero
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new Vec4(0, 0, 0, 0);
-        }
+        public static Vec4 Zero => new Vec4(0, 0, 0, 0);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vec4 Add(
@@ -152,7 +144,7 @@ namespace StgSharp.Mathematics.Graphics
                              object obj
         )
         {
-            return obj is Vec4 v && v == this;
+            return (obj is Vec4 v) && (v == this);
         }
 
         public static Vec4 FromSpan(
@@ -212,11 +204,11 @@ namespace StgSharp.Mathematics.Graphics
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vec4 operator *(
-                                    Matrix44 mat,
+                                    GraphicsMatrix mat,
                                     Vec4 vec
         )
         {
-            Matrix44 transpose = mat.Transpose;
+            GraphicsMatrix transpose = mat.Transpose;
             return new Vec4(Vector4.Dot(transpose.mat.colum0, vec.vec),
                             Vector4.Dot(transpose.mat.colum1, vec.vec),
                             Vector4.Dot(transpose.mat.colum2, vec.vec),

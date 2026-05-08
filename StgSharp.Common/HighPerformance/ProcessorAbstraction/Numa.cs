@@ -34,7 +34,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Common.HighPerformance.ProcessorAbstraction
+namespace StgSharp.HighPerformance.ProcessorAbstraction
 {
     public static partial class Numa
     {

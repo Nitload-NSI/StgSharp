@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="SlabAllocator.SequencialConcurrent"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,9 +32,10 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
-    public sealed unsafe class ConcurrentSequentialSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
+    public sealed unsafe class ConcurrentSequentialSlabAllocator<T> : SlabAllocator<T>
+        where T : unmanaged
     {
 
         private T* _buffer;
@@ -47,18 +48,20 @@ namespace StgSharp.Mathematics.Memory
         private nuint _highestAllocated;
         private ulong _capacity;
 
-        public ConcurrentSequentialSlabAllocator(nuint initialCapacity)
+        public ConcurrentSequentialSlabAllocator(
+               nuint initialCapacity
+        )
         {
             _elementSize = Unsafe.SizeOf<T>();
             _capacity = initialCapacity;
             _highestAllocated = 0;
 
-            _buffer = (T*)NativeMemory.Alloc((nuint)_capacity * (nuint)_elementSize);
+            _buffer = (T*)NativeMemory.Alloc(((nuint)_capacity) * ((nuint)_elementSize));
             int initCount = _capacity switch
             {
                 <= 4 => 4,
                 > 64 => 64,
-                _ => (int)_capacity / 4
+                _ => ((int)_capacity) / 4
             };
             Span<nuint> span = stackalloc nuint[initCount];
             for (int i = 0; i < initCount; i++) {
@@ -68,11 +71,7 @@ namespace StgSharp.Mathematics.Memory
             _highestAllocated += (nuint)initCount;
         }
 
-        internal T* BasePointer
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _buffer;
-        }
+        internal T* BasePointer => _buffer;
 
         public override nuint Allocate()
         {
@@ -92,7 +91,7 @@ namespace StgSharp.Mathematics.Memory
                         try
                         {
                             _capacity = Volatile.Read(ref _capacity) * 2;
-                            nuint newSize = (nuint)_capacity * (nuint)_elementSize;
+                            nuint newSize = ((nuint)_capacity) * ((nuint)_elementSize);
                             _lock.EnterBufferCopy();
                             try
                             {
@@ -144,7 +143,9 @@ namespace StgSharp.Mathematics.Memory
             _lock.ExitBufferRead();
         }
 
-        public override void Free(nuint index)
+        public override void Free(
+                             nuint index
+        )
         {
             _stack.Push(index);
         }

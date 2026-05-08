@@ -36,7 +36,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using HLSFAllocator = global::StgSharp.Mathematics.Memory.HybridLayerSegregatedFitAllocator;
-using HLSFHandle = global::StgSharp.Mathematics.Memory.HybridLayerSegregatedFitAllocationHandle;
+using HLSFHandle = global::StgSharp.Mathematics.Memory.hlsfHandle;
 
 namespace StgSharp.Mathematics.Numeric
 {

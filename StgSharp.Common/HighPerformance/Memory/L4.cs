@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="L4"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +26,12 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Collections;
-using StgSharp.Common.HighPerformance.ProcessorAbstraction;
+using StgSharp.HighPerformance.Memory;
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using System.Data;
 using System.Runtime.InteropServices;
+
+using HLSF = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
 
 namespace StgSharp.HighPerformance.Memory
 {
@@ -36,71 +39,80 @@ namespace StgSharp.HighPerformance.Memory
     {
 
         private const int CacheLineCount = 8192;
+        private const nuint PageSize = 4096;
         private const int PredictionCount = 2048;
         private const int PredictionLeastAhead = 1024;
 
-        private static readonly IIntrinsicKernel _intrinsic = IIntrinsicKernel.Instance;
-
-        private readonly CacheLineData* _data;
-        private readonly EvictionArray* _eviction;
+        // private static readonly IIntrinsicKernel _intrinsic = IIntrinsicKernel.Instance;
         private readonly CacheLineHead* _head;
-        private readonly CacheLinePrediction* _prediction;
+        private readonly MapArray* _mapCount;
+        private readonly PredictionArray* _predictCount;
+        private readonly CacheLineDescription* _prediction;
         private bool _disposed;
         private bool _exhausted;
+
+        private readonly HLSF _bufferAllocator;
         private int _activeCount;
 
         private int _aheadCount;
 
         private readonly int _bindedNuma;
-        private int _maxId;
         private volatile int _prefetching;
         private readonly nuint _baseAddress;
+        private readonly Slab _entryManager;
         private readonly SwissTable _map;
-        private readonly UnmanagedStack<int> _idMux;
 
-        public L4(
-               int bindedNuma
-        )
+        public L4(int bindedNuma, nuint bufferSize = 8192 * 8192, int align = 16, nuint maxCacheLineSize = 8192)
         {
             _bindedNuma = bindedNuma;
 
             // init order is fallow by align requirement of each component.
-            nuint cacheSize = ((nuint)Unsafe.SizeOf<CacheLineData>()) * CacheLineCount;   // SIMDID, no less than 16 byte bit
-            nuint entrySize = ((nuint)Unsafe.SizeOf<CacheLineHead>()) * CacheLineCount;   // 16 byte align
-            nuint predictionSize = ((nuint)Unsafe.SizeOf<CacheLinePrediction>()) * PredictionCount;   //16 byte align
-            nuint mapSize = (nuint)SwissTable.RequestedNativeMemorySize;     // 16 byte align
-            nuint rrpvSize = (nuint)Unsafe.SizeOf<EvictionArray>();           // 16 byte align
-            nuint stackSize = ((nuint)sizeof(int)) * CacheLineCount;                      // int align
+            nuint entrySize = Slab.RequestedAllocation;   // SIMDID, no less than 16 byte bit
+            nuint headSize = ((nuint)Unsafe.SizeOf<CacheLineHead>()) * CacheLineCount;   // 16 byte align
+            nuint predictionSize = ((nuint)Unsafe.SizeOf<CacheLineDescription>()) * PredictionCount;   //16 byte align
+            nuint mapSize = SwissTable.RequestedNativeMemorySize;     // 16 byte align
+            nuint predictionCountSize = (nuint)Unsafe.SizeOf<PredictionArray>();           // 16 byte align
+            nuint normalizedBufferSize = (bufferSize + (PageSize - 1)) & (~(PageSize - 1));    // align to 4096 byte, page size
+            ByteCapacity = normalizedBufferSize;
 
             // malloc all memory at once, and free at once in Dispose.
             // This is to avoid fragmentation and improve performance.
-            _baseAddress = (nuint)Numa.Alloc(bindedNuma, cacheSize + entrySize + stackSize + mapSize + predictionSize + rrpvSize);
+            _baseAddress = (nuint)Numa.Alloc(bindedNuma, entrySize + headSize + mapSize + predictionSize + (predictionCountSize * 2) + normalizedBufferSize);
             nuint ptr = _baseAddress;
 
+            AllocSize = entrySize;
+
             // init all components with the buffer, and move the buffer pointer forward.
-            nuint _buffer = _baseAddress;
-            _data = (CacheLineData*)_buffer;
-            ptr += cacheSize;
-            _head = (CacheLineHead*)ptr;
+            nuint _buffer = _baseAddress + normalizedBufferSize;
+            _entryManager = new Slab(_buffer);
+            _bufferAllocator = new HLSF(entrySize, align, maxCacheLineSize, (void*)_baseAddress, static _ => { },
+                                        _entryManager);
             ptr += entrySize;
-            _prediction = (CacheLinePrediction*)ptr;
+            _head = (CacheLineHead*)ptr;
+            ptr += headSize;
+            _prediction = (CacheLineDescription*)ptr;
             ptr += predictionSize;
             _map = SwissTable.Create(ptr, _ => { });
             ptr += mapSize;
-            _eviction = (EvictionArray*)ptr;
-            ptr += rrpvSize;
-            _idMux = new UnmanagedStack<int>((int*)ptr, CacheLineCount, _ => { });
-            ptr += stackSize;
+            _predictCount = (PredictionArray*)ptr;
+            ptr += predictionCountSize;
+            _mapCount = (MapArray*)ptr;
+            ptr += predictionCountSize;
+
+            M512* mPtr = (M512*)_head;
+            for (uint i = 0; i < CacheLineCount; i++) {
+                mPtr->BroadCastFrom<ulong>(i);
+            }
         }
 
-        public static nuint AllocSize { get; }
+        public nuint ByteCapacity { get; init; }
+
+        public nuint AllocSize { get; init; }
 
         // public IL4Predict PrefetchPredict { get; set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ContinueOnce(
-                    L4CacheLine line
-        )
+        public void ContinueOnce(L4CacheLine line)
         {
             if (line.Address > 0) {
                 _ = Interlocked.Decrement(ref _aheadCount);
@@ -111,7 +123,7 @@ namespace StgSharp.HighPerformance.Memory
                 "Design",
                 "CA1063:Implement IDisposable correctly",
                 Justification = """
-                    Only owns native memory via NativeMemory.AlignedFree();
+                    Only owns native memory via Numa.Free();
                     no managed IDisposable fields.
                     Dispose(bool) pattern is unnecessary.
                     """)]
@@ -122,23 +134,23 @@ namespace StgSharp.HighPerformance.Memory
             }
             _disposed = true;
             _map.Dispose();
-            _idMux.Dispose();
+            _entryManager.Dispose();
+            _bufferAllocator.Dispose();
 
 
-            nuint cacheSize = ((nuint)Unsafe.SizeOf<CacheLineData>()) * CacheLineCount;   // SIMDID, no less than 16 byte bit
-            nuint entrySize = ((nuint)Unsafe.SizeOf<CacheLineHead>()) * CacheLineCount;   // 16 byte align
-            nuint predictionSize = ((nuint)Unsafe.SizeOf<CacheLinePrediction>()) * PredictionCount;   //16 byte align
-            nuint mapSize = (nuint)SwissTable.RequestedNativeMemorySize;     // 16 byte align
-            nuint rrpvSize = (nuint)Unsafe.SizeOf<EvictionArray>();           // 16 byte align
-            nuint stackSize = ((nuint)sizeof(int)) * CacheLineCount;                      // int align
-            Numa.Free((void*)_baseAddress, _bindedNuma, cacheSize + entrySize + stackSize + mapSize + predictionSize + rrpvSize);
+            // init order is fallow by align requirement of each component.
+            nuint entrySize = Slab.RequestedAllocation;   // SIMDID, no less than 16 byte bit
+            nuint headSize = ((nuint)Unsafe.SizeOf<CacheLineHead>()) * CacheLineCount;   // 16 byte align
+            nuint predictionSize = ((nuint)Unsafe.SizeOf<CacheLineDescription>()) * PredictionCount;   //16 byte align
+            nuint mapSize = SwissTable.RequestedNativeMemorySize;     // 16 byte align
+            nuint predictionCountSize = (nuint)Unsafe.SizeOf<PredictionArray>();           // 16 byte align
+            nuint normalizedBufferSize = ByteCapacity;    // align to 4096 byte, page size
+            Numa.Free((void*)_baseAddress, _bindedNuma, entrySize + headSize + mapSize + predictionSize + (predictionCountSize * 2) + normalizedBufferSize);
             GC.SuppressFinalize(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public L4CacheLine Map(
-                           nuint origin
-        )
+        public L4CacheLine Map(ref CacheLineDescription prediction)
         {
             if ((_aheadCount < PredictionLeastAhead) && !_exhausted)
             {
@@ -160,19 +172,20 @@ namespace StgSharp.HighPerformance.Memory
             }
             while (true)
             {
-                if (_map.TryGet(origin, out nuint entryHandle))
+                if (_map.TryGet(prediction.GetHashCodeLong(), out nuint entryHandle))
                 {
                     // cache hit
                     CacheLineHead* entry = (CacheLineHead*)entryHandle;
-                    if (Interlocked.Increment(ref entry->_refCount) > 0)
+                    if (Interlocked.Increment(ref entry->RefCount) > 0)
                     {
-                        (*_eviction)[entry->_id] = 0;
+                        (*_predictCount)[entry->Id] = 0;
                         _ = Interlocked.Increment(ref _activeCount);
                         _ = Interlocked.Decrement(ref _aheadCount);
-                        return new L4CacheLine(entry->_address, ref _activeCount, ref entry->_refCount);
+                        _ = Interlocked.Decrement(ref (*_mapCount)[entry->Id]);
+                        return new L4CacheLine(entry->Address, ref _activeCount, ref entry->RefCount);
                     } else
                     {
-                        _ = Interlocked.Decrement(ref entry->_refCount);
+                        _ = Interlocked.Decrement(ref entry->RefCount);
                     }
                 }
                 Thread.Sleep(0);
@@ -180,13 +193,6 @@ namespace StgSharp.HighPerformance.Memory
         }
 
         private partial void Prefetch();
-
-        private struct CacheLineData
-        {
-
-            private fixed byte Data[8192];
-
-        }
 
     }
 
@@ -197,11 +203,7 @@ namespace StgSharp.HighPerformance.Memory
         private ref int _refCount;
         private nuint _handle;
 
-        internal L4CacheLine(
-                 nuint handle,
-                 ref int activeCount,
-                 ref int cacheRefCount
-        )
+        internal L4CacheLine(nuint handle, ref int activeCount, ref int cacheRefCount)
         {
             _handle = handle;
             _refCount = ref cacheRefCount;

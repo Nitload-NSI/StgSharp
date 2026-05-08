@@ -36,7 +36,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
     internal sealed unsafe class ConcurrentChunkedSlabAllocator<T> : SlabAllocator<T> where T: unmanaged
     {

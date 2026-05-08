@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="MatrixEnumerator"
+// file="MatrixCompute.Sequential"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -26,73 +26,21 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.HighPerformance.Memory;
+using StgSharp.Mathematics.Numeric.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics.Numeric.Runtime
+using unsafe MkProc = delegate* unmanaged[Cdecl]<StgSharp.Mathematics.Numeric.Runtime.MatrixParallelTask*, void>;
+
+namespace StgSharp.Mathematics.Numeric
 {
-    public enum PredictPolicy
+    public static unsafe partial class MatrixCompute
     {
 
-        Transparent = 0,
-        BufferSequential = 1,
-        SquareRowMajor = 2,
-        SquareColMajor = 3,
-
-    }
-
-    public unsafe interface IMatrixCachePredictor<TSelf> : IL4Predict
-        where TSelf : class, IMatrixCachePredictor<TSelf>
-    {
-
-        public static abstract PredictPolicy Policy { get; set; }
-
-    }
-
-    public sealed unsafe class BufferSequentialPredictor : IMatrixCachePredictor<BufferSequentialPredictor>
-    {
-
-        private readonly MatrixParallelTask* origin;
-        private readonly int _kernelSize;
-
-        public static PredictPolicy Policy { get; set; } = PredictPolicy.SquareRowMajor;
-
-        public bool IsSamePolicy(
-                    uint policy,
-                    IL4Predict predict
-        )
-        {
-            throw new NotImplementedException();
-        }
-
-        public PredictResult Predict(
-                             Span<CacheLinePrediction> node,
-                             out int count
-        )
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Prefetch(
-                    nuint origin,
-                    uint policy,
-                    Span<byte> cache
-        )
-        {
-            throw new NotImplementedException();
-        }
-
-        public void WriteBack(
-                    nuint origin,
-                    uint policy,
-                    ReadOnlySpan<byte> cache
-        )
-        {
-            throw new NotImplementedException();
-        }
 
     }
 }

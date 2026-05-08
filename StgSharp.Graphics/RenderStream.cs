@@ -50,24 +50,13 @@ namespace StgSharp.Graphics
         private protected ViewPort primeArgs;
         internal TimeSpanProvider _timeProvider;
 
-        public (int width, int height) Size
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (Width, Height);
-        }
+        public (int width, int height) Size => (Width, Height);
 
         public abstract bool IsContextSharable { get; }
 
-        public int Height
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => primeArgs.Height;
-        }
+        public int Height => primeArgs.Height;
 
-        public int Width
-        {
-            get => primeArgs.Width;
-        }
+        public int Width => primeArgs.Width;
 
         public IntPtr Monitor
         {
@@ -75,10 +64,7 @@ namespace StgSharp.Graphics
             internal set => primeArgs.Monitor = value;
         }
 
-        public string Name
-        {
-            get => primeArgs.Name;
-        }
+        public string Name => primeArgs.Name;
 
         public ViewPort BindedViewPortContext
         {
@@ -86,11 +72,7 @@ namespace StgSharp.Graphics
             internal set => primeArgs = value;
         }
 
-        internal IntPtr CanvasHandle
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => primeArgs.ViewPortHandle;
-        }
+        internal IntPtr CanvasHandle => primeArgs.ViewPortHandle;
 
         internal IntPtr ContextHandle
         {
@@ -104,29 +86,13 @@ namespace StgSharp.Graphics
             internal set => nativeCamera = value;
         }
 
-        protected float FramePassed
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _timeProvider.CurrentSpan;
-        }
+        protected float FramePassed => _timeProvider.CurrentSpan;
 
-        protected int PassedFrames
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _timeProvider.CurrentSpan;
-        }
+        protected int PassedFrames => _timeProvider.CurrentSpan;
 
-        protected float TimePassed
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (float)_timeProvider.CurrentSecond;
-        }
+        protected float TimePassed => (float)_timeProvider.CurrentSecond;
 
-        protected TimeSpanProvider TimeProvider
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _timeProvider;
-        }
+        protected TimeSpanProvider TimeProvider => _timeProvider;
 
         /// <summary>
         ///   Set the Size limit of current form
@@ -188,9 +154,9 @@ namespace StgSharp.Graphics
         );
 
         /// <summary>
-        ///   Get <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) uniform from a shader.
-        ///   This uniform will be used as projection matrix of this camera. Additionally, for
-        ///   multi- shader rendering, each shader requires a uniform,  so do not ignore return
+        ///   Get <see cref="Uniform{T}" />(TView is <see cref="GraphicsMatrix" />) uniform from a
+        ///   shader. This uniform will be used as projection matrix of this camera. Additionally,
+        ///   for multi- shader rendering, each shader requires a uniform,  so do not ignore return
         ///   value of this method.
         /// </summary>
         /// <param _label="source">
@@ -200,12 +166,12 @@ namespace StgSharp.Graphics
         ///   ContextName of projection camera named in shader
         /// </param>
         /// <returns>
-        ///   <see cref="Uniform{T}" />(TView is <see cref="Matrix44" />) representing  projection
-        ///   matrix in shader program.
+        ///   <see cref="Uniform{T}" />(TView is <see cref="GraphicsMatrix" />) representing 
+        ///   projection matrix in shader program.
         /// </returns>
-        protected abstract Uniform<Matrix44> NativeCameraUniform(
-                                             ShaderProgram source,
-                                             string name
+        protected abstract Uniform<GraphicsMatrix> NativeCameraUniform(
+                                                   ShaderProgram source,
+                                                   string name
         );
 
         #endregion

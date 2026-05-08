@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Matrix44"
+// file="GraphicsMatrix"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -38,8 +38,8 @@ using System.Runtime.Intrinsics.X86;
 
 namespace StgSharp.Mathematics.Graphics
 {
-    [StructLayout(LayoutKind.Explicit, Size = (16 * sizeof(float)), Pack = 16)]
-    public unsafe struct Matrix44 : IEquatable<Matrix44>
+    [StructLayout(LayoutKind.Explicit, Size = 16 * sizeof(float), Pack = 16)]
+    public unsafe struct GraphicsMatrix : IEquatable<GraphicsMatrix>
     {
 
         [FieldOffset(0 * sizeof(float))] internal Column column;
@@ -47,7 +47,7 @@ namespace StgSharp.Mathematics.Graphics
         [FieldOffset(0)] internal ColumnSet4 mat;
         [FieldOffset(0)] internal MatrixKernel<float> kernel;
 
-        internal Matrix44(
+        internal GraphicsMatrix(
                  ColumnSet4 mat
         )
         {
@@ -55,7 +55,7 @@ namespace StgSharp.Mathematics.Graphics
             this.mat = mat;
         }
 
-        internal Matrix44(
+        internal GraphicsMatrix(
                  Vector4 vec0,
                  Vector4 vec1,
                  Vector4 vec2,
@@ -69,12 +69,12 @@ namespace StgSharp.Mathematics.Graphics
             mat.colum3 = vec3;
         }
 
-        public Matrix44()
+        public GraphicsMatrix()
         {
             Unsafe.SkipInit(out this);
         }
 
-        public unsafe Matrix44(
+        public unsafe GraphicsMatrix(
                       float a00,
                       float a01,
                       float a02,
@@ -116,7 +116,7 @@ namespace StgSharp.Mathematics.Graphics
                     throw new ArgumentOutOfRangeException(nameof(columNum));
                 }
 #endif
-                return kernel[rowNum + 4 * columNum];
+                return kernel[rowNum + (4 * columNum)];
             }
             set
             {
@@ -129,33 +129,34 @@ namespace StgSharp.Mathematics.Graphics
                     throw new ArgumentOutOfRangeException(nameof(columNum));
                 }
 #endif
-                kernel[rowNum + 4 * columNum] = value;
+                kernel[rowNum + (4 * columNum)] = value;
             }
         }
 
-        public Matrix44 Transpose
+        public GraphicsMatrix Transpose
         {
             get
             {
-                Matrix44 transpose = new();
+                GraphicsMatrix transpose = new();
                 InternalTranspose(ref transpose);
                 return transpose;
             }
         }
 
-        public static Matrix44 Unit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        public static GraphicsMatrix Unit => new GraphicsMatrix(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+                                                                0, 0, 0, 1);
 
-        public static Matrix44 WNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
-                                                             0, 0, -1);
+        public static GraphicsMatrix WNegativeUnit => new GraphicsMatrix(1, 0, 0, 0, 0, 1, 0, 0, 0,
+                                                                         0, 1, 0, 0, 0, 0, -1);
 
-        public static Matrix44 XNegativeUnit => new Matrix44(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
-                                                             0, 0, 1);
+        public static GraphicsMatrix XNegativeUnit => new GraphicsMatrix(-1, 0, 0, 0, 0, 1, 0, 0, 0,
+                                                                         0, 1, 0, 0, 0, 0, 1);
 
-        public static Matrix44 YNegativeUnit => new Matrix44(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0,
-                                                             0, 0, 1);
+        public static GraphicsMatrix YNegativeUnit => new GraphicsMatrix(1, 0, 0, 0, 0, -1, 0, 0, 0,
+                                                                         0, 1, 0, 0, 0, 0, 1);
 
-        public static Matrix44 ZNegativeUnit => new Matrix44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0,
-                                                             0, 0, 1);
+        public static GraphicsMatrix ZNegativeUnit => new GraphicsMatrix(1, 0, 0, 0, 0, 1, 0, 0, 0,
+                                                                         0, -1, 0, 0, 0, 0, 1);
 
         public ReadOnlySpan<float> AsSpan()
         {
@@ -166,11 +167,11 @@ namespace StgSharp.Mathematics.Graphics
                              object? obj
         )
         {
-            return obj is Matrix44 x && Equals(x);
+            return (obj is GraphicsMatrix x) && Equals(x);
         }
 
         public bool Equals(
-                    Matrix44 other
+                    GraphicsMatrix other
         )
         {
             return mat.Equals(other.mat);
@@ -184,7 +185,7 @@ namespace StgSharp.Mathematics.Graphics
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void InternalTranspose(
-                             ref Matrix44 transpose
+                             ref GraphicsMatrix transpose
         )
         {
             const int f32 = 0;
@@ -196,46 +197,46 @@ namespace StgSharp.Mathematics.Graphics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Matrix44 operator -(
-                                               Matrix44 left,
-                                               Matrix44 right
+        public static unsafe GraphicsMatrix operator -(
+                                                     GraphicsMatrix left,
+                                                     GraphicsMatrix right
         )
         {
-            Matrix44 ret = new();
+            GraphicsMatrix ret = new();
             int f32 = MatrixElementType.F32.IntrinsicNode;
             NumericalModule.GlobalContext.mat_sk[f32].Call(MatrixIntrinsicHandle.Sub,
-                                                           (MatrixKernel*)&left,
-                                                           (MatrixKernel*)&right,
-                                                           (MatrixKernel*)&ret, 1);
+                                                           (MatrixKernel*)&left.kernel,
+                                                           (MatrixKernel*)&right.kernel,
+                                                           (MatrixKernel*)&ret.kernel, 1);
             return ret;
         }
 
         public static bool operator !=(
-                                    Matrix44 left,
-                                    Matrix44 right
+                                    GraphicsMatrix left,
+                                    GraphicsMatrix right
         )
         {
             return !(left == right);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Matrix44 operator *(
-                                               Matrix44 mat,
-                                               float value
+        public static unsafe GraphicsMatrix operator *(
+                                                     GraphicsMatrix mat,
+                                                     float value
         )
         {
             int f32 = MatrixElementType.F32.IntrinsicNode;
-            return new Matrix44(mat.mat.colum0 * value, mat.mat.colum1 * value,
-                                mat.mat.colum2 * value, mat.mat.colum3 * value);
+            return new GraphicsMatrix(mat.mat.colum0 * value, mat.mat.colum1 * value,
+                                      mat.mat.colum2 * value, mat.mat.colum3 * value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix44 operator *(
-                                        Matrix44 left,
-                                        Matrix44 right
+        public static GraphicsMatrix operator *(
+                                              GraphicsMatrix left,
+                                              GraphicsMatrix right
         )
         {
-            Matrix44 ret = new();
+            GraphicsMatrix ret = new();
             int f32 = MatrixElementType.F32.IntrinsicNode;
             NumericalModule.GlobalContext.mat_sk[f32].Call(MatrixIntrinsicHandle.Fma,
                                                            (MatrixKernel*)&left,
@@ -245,12 +246,12 @@ namespace StgSharp.Mathematics.Graphics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe Matrix44 operator +(
-                                               Matrix44 left,
-                                               Matrix44 right
+        public static unsafe GraphicsMatrix operator +(
+                                                     GraphicsMatrix left,
+                                                     GraphicsMatrix right
         )
         {
-            Matrix44 ret = new();
+            GraphicsMatrix ret = new();
             int f32 = MatrixElementType.F32.IntrinsicNode;
             NumericalModule.GlobalContext.mat_sk[f32].Call(MatrixIntrinsicHandle.Add,
                                                            (MatrixKernel*)&left,
@@ -260,8 +261,8 @@ namespace StgSharp.Mathematics.Graphics
         }
 
         public static bool operator ==(
-                                    Matrix44 left,
-                                    Matrix44 right
+                                    GraphicsMatrix left,
+                                    GraphicsMatrix right
         )
         {
             return left.Equals(right);

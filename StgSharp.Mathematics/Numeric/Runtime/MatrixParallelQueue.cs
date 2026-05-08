@@ -33,24 +33,97 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    internal unsafe class MatrixParallelQueue<TPredictor>
-        where TPredictor : class, IMatrixCachePredictor<TPredictor>
+    internal unsafe interface IMatrixParallelQueue<TSelf> where TSelf : IMatrixParallelQueue<TSelf>
     {
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Steal(
-                    MatrixParallelTask* task
+        bool InitNumaPredictor(
+             out IL4Predict predictor
+        );
+
+        bool RequestTaskResource(
+             MatrixParallelTask* task,
+             out L4CacheLine left,
+             out L4CacheLine right,
+             out L4CacheLine ans
+        );
+
+        void ReturnTaskResource(
+             MatrixParallelTask* task,
+             in L4CacheLine left,
+             in L4CacheLine right,
+             in L4CacheLine ans
+        );
+
+    }
+
+    internal interface IBufferQueueLeftRightAns : IMatrixParallelQueue<IBufferQueueLeftRightAns> { }
+
+    internal sealed unsafe class BufferQueueLeftRightAns_NoNuma : IMatrixParallelQueue<IBufferQueueLeftRightAns>
+    {
+
+        private MatrixParallelTask* _baseTask;
+        private readonly nuint _byteSize;
+        private readonly nuint _count;
+        private volatile nuint _cursor;
+
+        private volatile nuint _mat1;
+        private volatile nuint _mat2;
+        private volatile nuint _mat3;
+
+        private BufferQueueLeftRightAns_NoNuma() { }
+
+        internal BufferQueueLeftRightAns_NoNuma(
+                 MatrixParallelTask* baseTask
         )
         {
-            // TODO 使用提取的内容填充task
-            throw new NotImplementedException();
+            _baseTask = baseTask;
+            _count = ((nuint)_baseTask->CommonX) * ((nuint)_baseTask->CommonY);
+            _byteSize = ((nuint)_baseTask->Mat1) + (((nuint)_baseTask->CommonX) * ((nuint)_baseTask->CommonY) * _baseTask->ElementType.Size);
+
+
+            _mat1 = (nuint)_baseTask->Mat1;
+            _mat2 = (nuint)_baseTask->Mat2;
+            _mat3 = (nuint)_baseTask->Mat3;
+        }
+
+        public bool InitNumaPredictor(
+                    out IL4Predict predictor
+        )
+        {
+            predictor = null;
+            return false;
+        }
+
+        public unsafe bool RequestTaskResource(
+                           MatrixParallelTask* task,
+                           out L4CacheLine left,
+                           out L4CacheLine right,
+                           out L4CacheLine ans
+        )
+        {
+            left = new L4CacheLine(0, ref Unsafe.AsRef<int>(null), ref Unsafe.AsRef<int>(null));
+            right = new L4CacheLine(0, ref Unsafe.AsRef<int>(null), ref Unsafe.AsRef<int>(null));
+            ans = new L4CacheLine(0, ref Unsafe.AsRef<int>(null), ref Unsafe.AsRef<int>(null));
+            return true;
+        }
+
+        public unsafe void ReturnTaskResource(
+                           MatrixParallelTask* task,
+                           in L4CacheLine left,
+                           in L4CacheLine right,
+                           in L4CacheLine ans
+        )
+        {
+            return;
         }
 
     }
 }
+

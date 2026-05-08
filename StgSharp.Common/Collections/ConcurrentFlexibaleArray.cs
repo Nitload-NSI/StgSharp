@@ -31,7 +31,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Common.Collections
+namespace StgSharp.Collections
 {
     public class ConcurrentFlexibleArray<T>(
                  int capacity = 4

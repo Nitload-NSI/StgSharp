@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocator.Debug"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,12 +31,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
     public sealed class HLSFPositionChainBreakException : Exception
     {
 
-        public HLSFPositionChainBreakException() : base("Position chain of an HLSF allocator is broken") { }
+        public HLSFPositionChainBreakException()
+            : base("Position chain of an HLSF allocator is broken") { }
 
     }
 
@@ -45,7 +46,9 @@ namespace StgSharp.Mathematics.Memory
 
         private object _lock = new object();
 
-        public void DisplayEntryLayout(bool singleStep)
+        public void DisplayEntryLayout(
+                    bool singleStep
+        )
         {
             lock (_lock)
             {
@@ -61,7 +64,10 @@ namespace StgSharp.Mathematics.Memory
             }
         }
 
-        public void DumpPositionChain(bool singleStep = false, int maxCount = 4096)
+        public void DumpPositionChain(
+                    bool singleStep = false,
+                    int maxCount = 4096
+        )
         {
             lock (_lock)
             {
@@ -73,7 +79,7 @@ namespace StgSharp.Mathematics.Memory
                         cur = cur->NextNear;
                     }
                     Console.WriteLine(EntryToString(_spareMemory));
-                    while (cur != null && cur != _spareMemory && cnt < maxCount)
+                    while ((cur != null) && (cur != _spareMemory) && (cnt < maxCount))
                     {
                         Console.WriteLine(EntryToString(cur));
                         cnt++;
@@ -112,7 +118,9 @@ namespace StgSharp.Mathematics.Memory
             }
         }
 
-        private static string EntryToString(Entry* e)
+        private static string EntryToString(
+                              Entry* e
+        )
         {
             BucketNode* b = (BucketNode*)e->Position;
             return $"{(ulong)e->PreviousNear}<-prev- Position:{(ulong)e} Bucket:{{{(ulong)e->Position},{e->Level},{e->Size}}} -next->{(ulong)e->NextNear}";

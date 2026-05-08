@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.Collections;
 using StgSharp.HighPerformance.Memory;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,8 @@ namespace StgSharp.Mathematics.Numeric
         private static NumaMeasurement[] _numaMeasurements;
 
         private static int[] _numaPayload;
-        private static MatrixParallelThread[][] _numaThreads;
+        private static MatrixParallelThread[][] _numaSyncHeavy;
+        private static MatrixParallelThread[][] _numaWaveFront;
         private static MatrixParallelThread[] _threads;
 
         private static void UpdateThreadPayload()

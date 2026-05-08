@@ -36,26 +36,26 @@ namespace StgSharp.Mathematics.Graphics
     {
 
         private bool _isLookAtAvailable;
-        internal Matrix44 _lookAt;
-        internal Matrix44 _projection;
-        internal Matrix44 cameraAtt;
-        internal Matrix44 rotation;
-        internal Matrix44 rotationAtt;
+        internal GraphicsMatrix _lookAt;
+        internal GraphicsMatrix _projection;
+        internal GraphicsMatrix cameraAtt;
+        internal GraphicsMatrix rotation;
+        internal GraphicsMatrix rotationAtt;
         internal Radius _pitch;
         internal Radius _row;
         internal Radius _yaw;
-        internal Uniform<Matrix44> convertedUniform;
+        internal Uniform<GraphicsMatrix> convertedUniform;
         internal Vec3 _target, up;
 
         public Camera()
         {
-            cameraAtt = Matrix44.Unit;
+            cameraAtt = GraphicsMatrix.Unit;
             _target = Vec3.Zero;
             up = Vec3.Zero;
             _isLookAtAvailable = false;
-            _lookAt = Matrix44.Unit;
-            rotationAtt = Matrix44.Unit;
-            _projection = new Matrix44();
+            _lookAt = GraphicsMatrix.Unit;
+            rotationAtt = GraphicsMatrix.Unit;
+            _projection = new GraphicsMatrix();
         }
 
         public Camera(
@@ -65,24 +65,24 @@ namespace StgSharp.Mathematics.Graphics
         )
             : this()
         {
-            rotationAtt = Matrix44.Unit;
-            cameraAtt = new Matrix44();
+            rotationAtt = GraphicsMatrix.Unit;
+            cameraAtt = new GraphicsMatrix();
             SetViewDirection(position, target, up);
             _pitch = Radius.Zero;
             _row = Radius.Zero;
             _yaw = Radius.Zero;
         }
 
-        public Matrix44 Projection => _projection;
+        public GraphicsMatrix Projection => _projection;
 
-        public Matrix44 View
+        public GraphicsMatrix View
         {
             get
             {
                 if (_isLookAtAvailable) {
                     return _lookAt;
                 }
-                Matrix44 move = Matrix44.Unit;
+                GraphicsMatrix move = GraphicsMatrix.Unit;
                 move.column[3].vec -= cameraAtt.column[3].vec;
                 _lookAt = rotationAtt.Transpose * move;
                 _isLookAtAvailable = true;
@@ -90,7 +90,7 @@ namespace StgSharp.Mathematics.Graphics
             }
         }
 
-        public Matrix44 CameraMatrix()
+        public GraphicsMatrix CameraMatrix()
         {
             return Projection * View;
         }
@@ -118,11 +118,11 @@ namespace StgSharp.Mathematics.Graphics
                            params string[] uniformName
         )
         {
-            if (uniformName is null || uniformName.Length != 1) {
+            if ((uniformName is null) || (uniformName.Length != 1)) {
                 throw new ArgumentException(
                     "Camera needs exactly one uniform.", nameof(uniformName));
             }
-            convertedUniform = source.GetUniform<Matrix44>(uniformName[0]);
+            convertedUniform = source.GetUniform<GraphicsMatrix>(uniformName[0]);
         }
 
         public void MoveNear(
@@ -208,15 +208,15 @@ namespace StgSharp.Mathematics.Graphics
                 offsetX = offset.X,
                 offsetY = offset.Y,
                 width = MathF.Abs(GeometryScaler.Tan(fovRadius / 2) * near * 2),
-                height = width * size.Y / size.X;
+                height = (width * size.Y) / size.X;
 
-            _projection.column[0].X = 2 * near / width;
-            _projection.column[1].Y = 2 * near / height;
-            _projection.column[2].X = 2 * offsetX / width;
-            _projection.column[2].Y = 2 * offsetY / height;
+            _projection.column[0].X = (2 * near) / width;
+            _projection.column[1].Y = (2 * near) / height;
+            _projection.column[2].X = (2 * offsetX) / width;
+            _projection.column[2].Y = (2 * offsetY) / height;
             _projection.column[2].Z = (far + near) / (near - far);
             _projection.column[2].W = -1;
-            _projection.column[3].Z = 2 * near * far / (near - far);
+            _projection.column[3].Z = (2 * near * far) / (near - far);
         }
 
         public void Test(

@@ -25,7 +25,10 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using System.Runtime.InteropServices;
+
+using Hlsf = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
 
 namespace StgSharp.HighPerformance.Memory
 {
@@ -33,24 +36,51 @@ namespace StgSharp.HighPerformance.Memory
     {
 
         [InlineArray(CacheLineCount)]
-        private struct EvictionArray
+        private struct PredictionArray
         {
 
-            private byte pprv;
+            private int PredictionCount;
 
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 16)]
+        [InlineArray(CacheLineCount)]
+        private struct MapArray
+        {
+
+            private int MapCount;
+
+        }
+
+        [StructLayout(LayoutKind.Explicit, Size = 64, Pack = 16)]
         private unsafe struct CacheLineHead
         {
 
-            internal int _id;
-            internal int _predictor;
-            internal int _refCount;
-            internal nuint _address;
-            internal nuint _origin;
-            internal uint _profile;
+            [FieldOffset(0)] internal Hlsf.Entry AllocatorEntry;
+            [FieldOffset(0)] internal readonly M512 Buffer;
 
+            #region reference counting and state information
+
+            [FieldOffset(52)] internal int RefCount;
+            [FieldOffset(60)] private readonly int Reverse;
+            [FieldOffset(56)] internal readonly int Id;
+
+            #endregion
+
+
+            #region hlsf entry alias
+
+            [FieldOffset(24)] public readonly nuint Address;
+            [FieldOffset(16)] public readonly uint Size;
+
+            #endregion
+
+            #region cache line information
+
+            [FieldOffset(50)] internal short Predictor;
+            [FieldOffset(48)] internal ushort Profile;
+            [FieldOffset(40)] internal nuint Origin;
+
+        #endregion
         }
 
     }

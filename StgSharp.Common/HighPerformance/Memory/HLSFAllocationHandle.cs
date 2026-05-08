@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="HLSFAllocationHandle"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,17 +32,20 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-using Allocator = StgSharp.Mathematics.Memory.HybridLayerSegregatedFitAllocator;
+using Allocator = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
-    public readonly unsafe struct HybridLayerSegregatedFitAllocationHandle
+    public readonly unsafe struct HlsfHandle
     {
 
         internal readonly Allocator.Entry* EntryHandle;
-        public readonly long AllocSize;
+        public readonly nuint AllocSize;
 
-        internal HybridLayerSegregatedFitAllocationHandle(Allocator.Entry* handle, long s)
+        internal HlsfHandle(
+                 Allocator.Entry* handle,
+                 nuint s
+        )
         {
             EntryHandle = handle;
             Pointer = (byte*)handle->Position;
@@ -51,7 +54,9 @@ namespace StgSharp.Mathematics.Memory
             // Console.WriteLine($"{(ulong)handle->PreviousNear}<->{(ulong)handle->NextNear},\t{handle->Size}");
         }
 
-        public readonly ref byte this[uint index]
+        public readonly ref byte this[
+                                 uint index
+        ]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -63,11 +68,7 @@ namespace StgSharp.Mathematics.Memory
 
         public readonly byte* Pointer { get; init; }
 
-        public readonly Span<byte> BufferHandle
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new(Pointer, (int)AllocSize);
-        }
+        public readonly Span<byte> BufferHandle => new(Pointer, (int)AllocSize);
 
         public readonly Enumerator GetEnumerator()
         {
@@ -77,11 +78,13 @@ namespace StgSharp.Mathematics.Memory
         public ref struct Enumerator : IEnumerator<byte>
         {
 
-            private HybridLayerSegregatedFitAllocationHandle _handle;
+            private HlsfHandle _handle;
 
             private uint _index = ~0u;
 
-            internal Enumerator(HybridLayerSegregatedFitAllocationHandle span)
+            internal Enumerator(
+                     HlsfHandle span
+            )
             {
                 _handle = span;
                 Span = span.BufferHandle;

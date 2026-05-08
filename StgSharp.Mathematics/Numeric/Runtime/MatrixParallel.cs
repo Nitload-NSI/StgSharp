@@ -26,11 +26,10 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Collections;
-using StgSharp.Common.HighPerformance.ProcessorAbstraction;
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 
 namespace StgSharp.Mathematics.Numeric
 {
@@ -81,23 +80,23 @@ namespace StgSharp.Mathematics.Numeric
             }
             contextMap = [];
             int count = Environment.ProcessorCount;
-            SIMDID globalSimd = new SIMDID(0);
+            SIMDID globalSimd = new(0);
             _retiredThreads = new(RESERVED_THREAD_COUNT);
 
             // init thread on all logical cores
-            _numaThreads = Numa.CreateForeachThread<MatrixParallelThread>(
-                core => {
-                    MatrixParallelThread thread = new(core);
-                    SpinWait.SpinUntil(() => thread.State == MatrixThreadState.Ready);
+            _numaWaveFront = Numa.CreateForeachThread<MatrixParallelThread>(
+               core => {
+                   MatrixParallelThread thread = new(core);
+                   SpinWait.SpinUntil(() => thread.State == MatrixThreadState.Ready);
 
-                    SIMDID simd = thread.Simd;
-                    ulong mask = simd.Mask;
-                    contextMap[mask] = contextMap.TryGetValue(mask, out int contextCount) ?
-                                       (contextCount + 1) :
-                                       1;
-                    globalSimd = (globalSimd.Mask != 0) ? UniteSIMDID(globalSimd, simd) : simd;
-                    return thread;
-                });
+                   SIMDID simd = thread.Simd;
+                   ulong mask = simd.Mask;
+                   contextMap[mask] = contextMap.TryGetValue(mask, out int contextCount) ?
+                                      (contextCount + 1) :
+                                      1;
+                   globalSimd = (globalSimd.Mask != 0) ? UniteSIMDID(globalSimd, simd) : simd;
+                   return thread;
+               });
 
             // make global simd  context
             IntrinsicContext globalContext = new();
@@ -109,15 +108,15 @@ namespace StgSharp.Mathematics.Numeric
             // retire threads
             if (ContextCount == 1)
             {
-                MatrixParallelThread[] threadArr = _numaThreads[0];
+                MatrixParallelThread[] threadArr = _numaWaveFront[0];
                 int retireCount = Math.Min(RESERVED_THREAD_COUNT, Math.Max(0, threadArr.Length));
                 for (int i = 1; i <= retireCount; i++) {
                     RetireThread(threadArr[^i]);
                 }
-                _numaThreads[0] = threadArr[0..^retireCount];
+                _numaWaveFront[0] = threadArr[0..^retireCount];
             } else
             {
-                RetireWhenMultipleSIMDID();
+                RetireWhenMultipleSIMDID(_numaWaveFront);
             }
             _meaningful = _threads.Length > 1;
 
@@ -135,11 +134,13 @@ namespace StgSharp.Mathematics.Numeric
             _retiredThreads.Push(thread);
         }
 
-        private static void RetireWhenMultipleSIMDID()
+        private static void RetireWhenMultipleSIMDID(
+                            MatrixParallelThread[][] threads
+        )
         {
             MatrixParallelThread[] allThreads = new MatrixParallelThread[Environment.ProcessorCount];
             int offset = 0;
-            foreach (MatrixParallelThread[] threadArr in _numaThreads)
+            foreach (MatrixParallelThread[] threadArr in threads)
             {
                 Array.Copy(threadArr, 0, allThreads, offset, threadArr.Length);
                 offset += threadArr.Length;
@@ -150,7 +151,6 @@ namespace StgSharp.Mathematics.Numeric
             ) => CompareSIMDID(left.Simd, right.Simd));
             int retireCount = Math.Min(RESERVED_THREAD_COUNT, Math.Max(0, allThreads.Length));
 
-            // HashSet<MatrixParallelThread> retiredSet = [];
             MatrixParallelThread[] retireArr = new MatrixParallelThread[retireCount];
             for (int i = 0; i < retireCount; i++)
             {
@@ -160,9 +160,9 @@ namespace StgSharp.Mathematics.Numeric
             }
 
             // rebuild numa active arrays
-            for (int numa = 0; numa < _numaThreads.Length; numa++)
+            for (int numa = 0; numa < _numaWaveFront.Length; numa++)
             {
-                MatrixParallelThread[] source = _numaThreads[numa];
+                MatrixParallelThread[] source = threads[numa];
                 int keepCount = 0;
 
                 for (int i = 0; i < source.Length; i++)
@@ -182,7 +182,7 @@ namespace StgSharp.Mathematics.Numeric
                     }
                 }
 
-                _numaThreads[numa] = active;
+                _numaWaveFront[numa] = active;
             }
 
             _threads = allThreads[retireCount..];

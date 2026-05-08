@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="SlabAllocationHandle"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,14 +28,17 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace StgSharp.Mathematics.Memory
+namespace StgSharp.HighPerformance.Memory
 {
-    public unsafe struct SlabAllocationHandle<T> : IDisposable where T: unmanaged
+    public unsafe struct SlabAllocationHandle<T> : IDisposable where T : unmanaged
     {
 
         private readonly SlabAllocator<T> _allocator;
 
-        internal SlabAllocationHandle(SlabAllocator<T> allocator, bool locked)
+        internal SlabAllocationHandle(
+                 SlabAllocator<T> allocator,
+                 bool locked
+        )
         {
             _allocator = allocator;
             Locked = locked;
