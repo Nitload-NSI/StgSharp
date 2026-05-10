@@ -109,11 +109,11 @@ namespace StgSharp.HighPerformance.Memory
                                  *
                                  * This is safe only with the current L4 allocation/layout guarantees.
                                  */
-                                short predictCount = Volatile.Read(ref (*_predictCount)[index]);
-                                short mapCount = Volatile.Read(ref (*_mapCount)[index]);
-                                int decrement = (short.Min(predictCount, mapCount) + 1) / 2;
-                                _ = Interlocked.Add(ref Unsafe.As<short, int>(ref (*_predictCount)[index]), -decrement);
-                                _ = Interlocked.Add(ref Unsafe.As<short, int>(ref (*_mapCount)[index]), -decrement);
+                                int predictCount = Volatile.Read(ref (*_predictCount)[index]);
+                                int mapCount = Volatile.Read(ref (*_mapCount)[index]);
+                                int decrement = (int.Min(predictCount, mapCount) + 1) / 2;
+                                _ = Interlocked.Add(ref (*_predictCount)[index], -decrement);
+                                _ = Interlocked.Add(ref (*_mapCount)[index], -decrement);
                             }
                             (*_predictCount)[index]++;
                         }

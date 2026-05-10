@@ -39,7 +39,7 @@ namespace StgSharp.HighPerformance.Memory
 
         public void DebugAgeAll()
         {
-            AgeAll();
+            // AgeAll();
         }
 
         public bool DebugContains(

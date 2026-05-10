@@ -53,13 +53,13 @@ namespace StgSharp.HighPerformance.Memory
             Entry* entry = null;
             nuint requestedOffset = GetAllocSize(size);
             (int level, int segment) = GetIndexPairOnce(size);
-            int index = (3 * level) + segment;
+            int index = int.Min((3 * level) + segment, _bucketHeads.Length);
             int i = index;
-            while ((i < _bucketHeads.Length) && !TryPopLevelForAllocation(index, out entry)) {
+            while ((i < _bucketHeads.Length) && !TryPopLevelForAllocation(i, out entry)) {
                 i++;
             }
-            if ((i > _maxLevel) && !TryAllocateNewBlock(requestedOffset, out entry)) {
-                throw new OverflowException("Out of memory: Unable to allocate new 16MB block or find suitable bucket for allocation.");
+            if ((i >= _bucketHeads.Length) && !TryAllocateNewBlock(requestedOffset, out entry)) {
+                throw new OverflowException($"Out of memory: unable to satisfy request of {size} B (aligned {requestedOffset} B) from existing buckets or spare memory.");
             }
             if (entry != null)
             {
@@ -96,13 +96,13 @@ namespace StgSharp.HighPerformance.Memory
             Entry* entry = null;
             nuint requestedOffset = GetAllocSize(size);
             (int level, int segment) = GetIndexPairOnce(size);
-            int index = (3 * level) + segment;
+            int index = int.Min((3 * level) + segment, _bucketHeads.Length);
             int i = index;
-            while ((i < _bucketHeads.Length) && !TryPopLevelForAllocation(index, out entry)) {
+            while ((i < _bucketHeads.Length) && !TryPopLevelForAllocation(i, out entry)) {
                 i++;
             }
-            if ((i > _maxLevel) && !TryAllocateNewBlock(requestedOffset, out entry)) {
-                throw new OverflowException("Out of memory: Unable to allocate new 16MB block or find suitable bucket for allocation.");
+            if ((i >= _bucketHeads.Length) && !TryAllocateNewBlock(requestedOffset, out entry)) {
+                throw new OverflowException($"Out of memory: unable to satisfy request of {size} B (aligned {requestedOffset} B) from existing buckets or spare memory.");
             }
 
             if (entry != null)
@@ -138,10 +138,24 @@ namespace StgSharp.HighPerformance.Memory
         {
             Entry* next = e;
             nuint remain = sizeToSlice;                                          // remained size to slice
-            nuint offset = e->Position - sizeToSlice - ((nuint)m_Buffer);     // offset of buffer to slice
-            nuint end = e->Position - ((nuint)m_Buffer);                      // end offset of buffer to slice
+            nuint offset = e->Position - sizeToSlice - ((nuint)m_Buffer);        // offset of buffer to slice
+            nuint position = e->Position - sizeToSlice;                    // position of buffer to slice
+            nuint end = e->Position - ((nuint)m_Buffer);                         // end offset of buffer to slice
 
-            int i = (BitOperations.TrailingZeroCount(offset) - 6) / 2;
+            int i = GetBucketIndexOnce(sizeToSlice);
+
+            Entry* entry = (Entry*)_entries.Allocate();
+            SetEntryLevel(entry, position, remain);
+            entry->State = EntryState.Empty;
+            BucketNode* bucketNode = (BucketNode*)entry->Position;
+            bucketNode->EntryRef = entry;
+            PushNodeToBucket(i, bucketNode);
+
+            Entry* prev = next->PreviousNear;
+            prev->NextNear = entry;
+            entry->PreviousNear = prev;
+            entry->NextNear = next;
+            next->PreviousNear = entry;
         }
 
         /// <summary>

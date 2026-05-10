@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using StgSharp.Mathematics;
 using StgSharp.Mathematics.Internal;
 using StgSharp.Mathematics.Numeric;

@@ -71,7 +71,7 @@ namespace StgSharp.Mathematics.Numeric
                 op(task);
                 return;
             }
-            MatrixParallelWrap taskWrap = MatrixParallel.ScheduleTask<BufferQueueLeftRightAns_NoNuma>(task);
+            MatrixParallelWrap taskWrap = /**/ null/*MatrixParallel.ScheduleTask<BufferQueueLeftRightAns_NoNuma>(task)/**/;
             taskWrap.LaunchParallel(SleepMode.DeepSleep);
             taskWrap.Dispose();
         }

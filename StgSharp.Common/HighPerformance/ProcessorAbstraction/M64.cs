@@ -71,12 +71,27 @@ namespace StgSharp.HighPerformance.ProcessorAbstraction
             return value.GetHashCode();
         }
 
+        public ulong GetLowerBits(
+                     int bitCount
+        )
+        {
+            return value & ((1UL << bitCount) - 1);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T Member<T>(
                      int index
         ) where T : unmanaged, INumber<T>
         {
             return ref Unsafe.As<byte, T>(ref buffer[index * sizeof(T)]);
+        }
+
+        public void SetLowerBits(
+                    int bitCount,
+                    ulong bits
+        )
+        {
+            value = (value & (~(1UL << bitCount))) | (bits & (1UL << bitCount));
         }
 
         public static bool operator !=(

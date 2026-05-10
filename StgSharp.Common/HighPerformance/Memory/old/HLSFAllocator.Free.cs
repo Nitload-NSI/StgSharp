@@ -74,23 +74,25 @@ namespace StgSharp.HighPerformance.Memory
                 {
                     size += cur->Size;
                     Entry* next = cur->NextNear;
-                    RemoveFromBucket(cur->Level, DetermineSegmentIndex(_levelSizeArray, cur->Size, cur->Level), (BucketNode*)cur->Position);
+                    RemoveFromBucket(cur->Level, GetSegmentFromLevel(cur->Size, cur->Level), (BucketNode*)cur->Position);
                     RemoveFromPositionChain(cur);
                     cur = next;
                 } while ((cur != null) && (cur != _spareMemory) && (cur->State == EntryState.Empty));
-                if (size > 0) {
+                if (size > 0)
+                {
                     OrganizeMemory(cur, size);
+                    size = 0;
                 }
             }
         }
 
         /// <summary>
-		///   Free allocated memory block and perform adjacent block merging
-		/// </summary>
-		/// <param name="handle">
-		///   Handle to the allocated memory block
-		///  <param name="collectPolicy">
-		/// </param>
+        ///   Free allocated memory block and perform adjacent block merging
+        /// </summary>
+        /// <param name="handle">
+        ///   Handle to the allocated memory block
+        ///  <param name="collectPolicy">
+        /// </param>
         public void Free(
                     HlsfHandle handle,
                     FreePolicy collectPolicy = FreePolicy.NoCollect
@@ -108,16 +110,12 @@ namespace StgSharp.HighPerformance.Memory
             e->State = EntryState.Empty;
 
             // Try merge with adjacent free blocks and remove them from buckets
-            if (collectPolicy == FreePolicy.LazyCollect)
-            {
-                MergeAndRemoveFromBuckets(e);
-            }
+            MergeAndRemoveFromBuckets(e);
 
             // Calculate final level and segment for the merged block
             nuint finalSize = e->Size;
-            int finalLevel = GetLevelFromSize(finalSize);
+            (int finalLevel, int finalSegment) = GetIndexPairOnce(finalSize);
             e->Level = finalLevel;
-            int finalSegment = DetermineSegmentIndex(_levelSizeArray, finalSize, finalLevel);
 
             // Push the merged entry back to appropriate bucket
             PushBucketToLevel(finalLevel, finalSegment, (BucketNode*)e->Position);
@@ -145,16 +143,14 @@ namespace StgSharp.HighPerformance.Memory
             e->State = EntryState.Empty;
 
             // Try merge with adjacent free blocks and remove them from buckets
-            if (collectPolicy == FreePolicy.LazyCollect)
-            {
-                MergeAndRemoveFromBuckets(e);
-            }
+            /**/
+            MergeAndRemoveFromBuckets(e);
 
             // Calculate final level and segment for the merged block
             nuint finalSize = e->Size;
             int finalLevel = GetLevelFromSize(finalSize);
             e->Level = finalLevel;
-            int finalSegment = DetermineSegmentIndex(_levelSizeArray, finalSize, finalLevel);
+            int finalSegment = GetSegmentFromLevel(finalSize, finalLevel);
 
             // Push the merged entry back to appropriate bucket
             PushBucketToLevel(finalLevel, finalSegment, (BucketNode*)e->Position);

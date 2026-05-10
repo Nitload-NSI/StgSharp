@@ -42,13 +42,12 @@ namespace StgSharp.HighPerformance.Memory
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool AssertAdjacentTo(
-                            Entry* current,
-                            Entry* other
+                            Entry* front,
+                            Entry* back
         )
         {
             // Only a predicate; never throw here. Callers rely on false to skip merging.
-            return (other->Position + other->Size == current->Position) ||
-                   (current->Position + current->Size == other->Position);
+            return front->Position + front->Size == back->Position;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,7 +82,8 @@ namespace StgSharp.HighPerformance.Memory
         ///   strategy.
         /// </summary>
         private void MergeAndRemoveFromBuckets(
-                     Entry* entry
+                     Entry* entry,
+                     int maxScanRange = 4
         )
         {
             if (entry == null) {
@@ -94,7 +94,8 @@ namespace StgSharp.HighPerformance.Memory
             nuint size = entry->Size;
             int originLevel = entry->Level;
             int segment = GetSegmentFromLevel(size, originLevel);
-            do
+
+            for (int i = 0; i < maxScanRange; i++)
             {
                 // previous direction merge
                 Entry* p = entry->PreviousNear;
@@ -112,9 +113,9 @@ namespace StgSharp.HighPerformance.Memory
                 entry->Position = p->Position;
                 RemoveFromBucket(originLevel, GetSegmentFromLevel(p->Size, originLevel), (BucketNode*)p->Position);
                 RemoveFromPositionChain(p);
-            } while (true);
+            }
 
-            do
+            for (int i = 0; i < maxScanRange; i++)
             {
                 // next direction merge
                 Entry* n = entry->NextNear;
@@ -122,7 +123,7 @@ namespace StgSharp.HighPerformance.Memory
                     (n == _spareMemory) ||
                     (n->State != EntryState.Empty) ||
                     (n->Level != entry->Level) ||
-                    !AssertAdjacentTo(n, entry))
+                    !AssertAdjacentTo(entry, n))
                 {
                     break;
                 }
@@ -131,8 +132,9 @@ namespace StgSharp.HighPerformance.Memory
                 entry->Size += n->Size;
                 RemoveFromBucket(originLevel, GetSegmentFromLevel(n->Size, originLevel), (BucketNode*)n->Position);
                 RemoveFromPositionChain(n);
-            } while (true);
-            originLevel = int.Min(9, originLevel);
+            }
+
+            // originLevel = int.Min(9, originLevel);
             entry->Level = GetLevelFromSize(entry->Size);
 
             BucketNode* bucket = (BucketNode*)entry->Position;
@@ -181,13 +183,25 @@ namespace StgSharp.HighPerformance.Memory
         internal struct Entry
         {
 
-            [FieldOffset(0)]  internal Entry* NextNear;      // Position linked list: next pointer
+            [FieldOffset(0)] internal Entry* NextNear;      // Position linked list: next pointer
             [FieldOffset(8)] internal Entry* PreviousNear;  // Position linked list: previous pointer
 
             [FieldOffset(32)] internal int Level;           // Level of the block in the allocator
             [FieldOffset(16)] internal nuint Size;           // Block size information
             [FieldOffset(36)] public EntryState State;
-            [FieldOffset(24)]  public nuint Position;        // Memory block position
+            [FieldOffset(24)] public nuint Position;        // Memory block position
+
+        }
+
+        [StructLayout(LayoutKind.Explicit, Size = 32)]
+        internal struct Metadata
+        {
+
+            [FieldOffset(0)] internal int NextLevel;
+            [FieldOffset(4)] internal int NextNear;
+            [FieldOffset(8)] internal int PreviousLevel;
+            [FieldOffset(12)] internal int PreviousNear;
+            [FieldOffset(16)] internal nuint Size;
 
         }
 

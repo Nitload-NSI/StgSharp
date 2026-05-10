@@ -5,14 +5,6 @@
 		<IsNativeHost>true</IsNativeHost>
 	</PropertyGroup>
 
-	<ItemGroup Condition="'$(IsWindows)'=='true'">
-		<ProjectReference Include="..\StgSharp.Native\$(NativeLibName).vcxproj">
-			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-			<SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-			<GlobalPropertiesToRemove>TargetFramework</GlobalPropertiesToRemove>
-		</ProjectReference>
-	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 	</ItemGroup>

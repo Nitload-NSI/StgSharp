@@ -34,6 +34,12 @@ namespace StgSharp.HighPerformance.Memory
 {
     public unsafe partial class HybridLayerSegregatedFitAllocator
     {
+        /*
+         * All operations with style of (level, segment) 
+         * DO NOT assume that the level are valid. 
+         * They are just used to calculate the bucket index, 
+         * which may exceed the range of _bucketHeads.
+         */
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void PushBucketToLevel(
@@ -46,7 +52,7 @@ namespace StgSharp.HighPerformance.Memory
                 return;
             }
 
-            int index = (3 * levelIndex) + sizeIndex;
+            int index = Math.Min((3 * levelIndex) + sizeIndex, _bucketHeads.Length - 1);
             PushNodeToBucket(index, node);
         }
 
@@ -55,7 +61,7 @@ namespace StgSharp.HighPerformance.Memory
                      BucketNode* node
         )
         {
-            index = (index >= _bucketHeads.Length) ? _bucketHeads.Length : index;
+            index = Math.Min(index, _bucketHeads.Length - 1);
             if (_bucketHeads[index] is null)
             {
                 _bucketHeads[index] = node;
@@ -69,15 +75,12 @@ namespace StgSharp.HighPerformance.Memory
             {
                 BucketNode* head = _bucketHeads[index];
                 node->NextLevel = head;
-                BucketNode* headNode = head;
                 node->IsInBucket = true;
                 _bucketHeads[index] = node;
 
                 // Console.WriteLine($"Push to head of level of {levelIndex} {sizeIndex}, bucket pos {(ulong)node}, previous head is at {head}");
-                if (headNode != null)
-                {
-                    headNode->PreviousLevel = node;
-                }
+
+                head->PreviousLevel = node;
                 return;
             }
         }
@@ -89,8 +92,7 @@ namespace StgSharp.HighPerformance.Memory
                      BucketNode* node
         )
         {
-            int index = (3 * levelIndex) + sizeIndex;
-            index = (index >= _bucketHeads.Length) ? _bucketHeads.Length : index;
+            int index = Math.Min((3 * levelIndex) + sizeIndex, _bucketHeads.Length - 1);
             if (_bucketHeads[index] == node)
             {
                 if (TryPopBucket(index, out _)) {
@@ -157,8 +159,7 @@ namespace StgSharp.HighPerformance.Memory
                      out BucketNode* node
         )
         {
-            int index = (3 * levelIndex) + sizeIndex;
-            index = (index >= _bucketHeads.Length) ? (_bucketHeads.Length - 1) : index;
+            int index = int.Min((3 * levelIndex) + sizeIndex, _bucketHeads.Length - 1);
             return TryPopBucket(index, out node);
         }
 

@@ -32,21 +32,7 @@ using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains.InProcess.Emit;
 using StgSharp.Benchmark;
 
-namespace StgSharp.Benchmark
-{
-    internal static class Program
-    {
-
-        private static void Main(
-                            string[] args
-        )
-        {
-            IConfig config = ManualConfig.Create(DefaultConfig.Instance)
-                                         .AddLogger(ConsoleLogger.Default)
-                                         .AddJob(Job.Default
-                                                    .WithToolchain(InProcessEmitToolchain.Instance));
-            _ = BenchmarkRunner.Run<SwissTableBench>(config);
-        }
-
-    }
-}
+IConfig config = ManualConfig.Create(DefaultConfig.Instance)
+                             .AddLogger(ConsoleLogger.Default)
+                             .AddJob(Job.Default.WithToolchain(InProcessEmitToolchain.Instance));
+_ = BenchmarkRunner.Run<HlsfAllocatorBench>(config);

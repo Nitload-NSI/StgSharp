@@ -62,7 +62,7 @@ namespace StgSharp.HighPerformance.Memory
             level = Math.Min(level, _maxLevel);
             uint levelSize = 1u << (log2Size & (~1));
             int segment = ((int)(size / levelSize)) - 1;
-            return (level * 3) + segment;
+            return Math.Min((level * 3) + segment, _bucketHeads.Length - 1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,6 +82,19 @@ namespace StgSharp.HighPerformance.Memory
             return (level, segment);
         }
 
+        /// <summary>
+        ///   NOTICE: returned level may exceed maxLevel, caller is responsible for ensuring the
+        ///   returned level is within bounds. This method is designed for performance and does not
+        ///   perform bounds checking.
+        /// </summary>
+        /// <param name="size">
+        ///   Size of the memory block to determine level for. This method does not assume size is
+        ///   already aligned
+        /// </param>
+        /// <returns>
+        ///   Level corresponding to the given size. Level is determined based on the formula: level
+        ///   >= (log2(S) - 6) / 2
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetLevelFromSize(
                     nuint size
@@ -104,7 +117,7 @@ namespace StgSharp.HighPerformance.Memory
             int level = Math.Max(0, (log2Size - 6) / 2);
 
             // caller is responsible for ensuring level is within bounds
-            return Math.Min(level, _maxLevel);
+            return level;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

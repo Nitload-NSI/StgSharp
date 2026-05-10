@@ -25,7 +25,6 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Common.HighPerformance.ProcessorAbstraction;
 using StgSharp.HighPerformance.ProcessorAbstraction;
 using StgSharp.Internal;
 using StgSharp.Mathematics.Numeric.Runtime;
@@ -94,11 +93,11 @@ namespace StgSharp.Mathematics.Numeric
         internal void Pause()
         {
             ObjectDisposedException.ThrowIf(_disposed, nameof(MatrixParallelThread));
-            if (State == MatrixThreadState.Retired) {
+            if (State == MatrixThreadState.Idle) {
                 return;
             }
             _resetEvent.Set();
-            SpinWait.SpinUntil(() => State == MatrixThreadState.Retired);
+            SpinWait.SpinUntil(() => State == MatrixThreadState.Idle);
             _managedThread.Join();
         }
 

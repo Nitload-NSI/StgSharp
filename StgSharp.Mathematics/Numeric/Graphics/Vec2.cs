@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="Vec2"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using StgSharp.Mathematics;
 using StgSharp.Mathematics.Numeric;
 using System.Net.Http.Headers;
@@ -55,7 +56,9 @@ namespace StgSharp.Mathematics.Graphics
         [FieldOffset(4)]
         public float Y;
 
-        internal Vec2(Vector2 vec)
+        internal Vec2(
+                 Vector2 vec
+        )
         {
             Unsafe.SkipInit(out reg);
             Unsafe.SkipInit(out X);
@@ -63,7 +66,9 @@ namespace StgSharp.Mathematics.Graphics
             v = vec;
         }
 
-        internal Vec2(M128 vec)
+        internal Vec2(
+                 M128 vec
+        )
         {
             Unsafe.SkipInit(out reg);
             Unsafe.SkipInit(out X);
@@ -72,7 +77,10 @@ namespace StgSharp.Mathematics.Graphics
             reg.Member<ulong>(1) = 0;
         }
 
-        public Vec2(float x, float y)
+        public Vec2(
+               float x,
+               float y
+        )
         {
             v = new Vector2(x, y);
         }
@@ -81,11 +89,7 @@ namespace StgSharp.Mathematics.Graphics
 
         public static Vec2 Zero => new Vec2(0, 0);
 
-        public static Vec2 One
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new Vec2(1, 1);
-        }
+        public static Vec2 One => new Vec2(1, 1);
 
         public Vec2 XY
         {
@@ -104,56 +108,83 @@ namespace StgSharp.Mathematics.Graphics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float Cross(Vec2 right)
+        public float Cross(
+                     Vec2 right
+        )
         {
             return X * right.Y - Y * right.X;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float Dot(Vec2 vec)
+        public float Dot(
+                     Vec2 vec
+        )
         {
             return Vector2.Dot(v, vec.v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec2 operator -(Vec2 left, Vec2 right)
+        public static Vec2 operator -(
+                                    Vec2 left,
+                                    Vec2 right
+        )
         {
             return new Vec2(left.v - right.v);
         }
 
-        public static bool operator !=(Vec2 left, Vec2 right)
+        public static bool operator !=(
+                                    Vec2 left,
+                                    Vec2 right
+        )
         {
             return !(left == right);
         }
 
-        public static Vec2 operator *(Vec2 vec, float value)
+        public static Vec2 operator *(
+                                    Vec2 vec,
+                                    float value
+        )
         {
             return new Vec2(vec.v * value);
         }
-        public static Vec2 operator *(float value, Vec2 vec)
+        public static Vec2 operator *(
+                                    float value,
+                                    Vec2 vec
+        )
         {
             return new Vec2(vec.v * value);
         }
 
-        public static Vec2 operator /(Vec2 vec, float value)
+        public static Vec2 operator /(
+                                    Vec2 vec,
+                                    float value
+        )
         {
             return new Vec2(vec.v / value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec2 operator +(Vec2 left, Vec2 right)
+        public static Vec2 operator +(
+                                    Vec2 left,
+                                    Vec2 right
+        )
         {
             return new Vec2(left.v + right.v);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(Vec2 left, Vec2 right)
+        public static bool operator ==(
+                                    Vec2 left,
+                                    Vec2 right
+        )
         {
             return left.v == right.v;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vec2((float, float) tuple)
+        public static implicit operator Vec2(
+                                        (float, float) tuple
+        )
         {
             return new Vec2(tuple.Item1, tuple.Item2);
         }

@@ -38,6 +38,7 @@ namespace StgSharp.HighPerformance.Memory
 
         // Bucket system field - directly in main allocator class
         private readonly BucketNode*[] _bucketHeads;
+        private Metadata* _metadata;
 
         // _spareMemory is also the beginning position of allocator
         private Entry* _spareMemory;
@@ -46,9 +47,12 @@ namespace StgSharp.HighPerformance.Memory
         private readonly Action<nuint> _freeHandle;
         private bool disposedValue;
         private readonly int _align;
+        private readonly int _maxAllocCount;
         private readonly int _maxLevel;
+        private int unusedMetaData;
         private readonly nuint _maxAllocSize;
         private readonly nuint _size;
+        private Ptr64 _basePtr;
         private readonly SlabAllocator<Entry> _entries;
 
         internal HybridLayerSegregatedFitAllocator(
@@ -78,6 +82,8 @@ namespace StgSharp.HighPerformance.Memory
             _entries = entryManager ??
                 SlabAllocator.Create<Entry>(64, SlabBufferLayout.Chunked, false);
             m_Buffer = (byte*)externalPointer;
+            _basePtr = (Ptr64)(nuint)externalPointer;
+            _metadata = (Metadata*)((nuint)externalPointer + byteSize);
             _align = align;
             _size = byteSize;
 

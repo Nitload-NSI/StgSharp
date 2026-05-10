@@ -36,7 +36,6 @@ namespace StgSharp.Mathematics.Numeric
     internal interface IMatrixQueueFactory
     {
 
-        IMatrixParallelQueue<IMatrixParallelQueue> CreateSequential();
-
+        // IMatrixParallelQueue<IMatrixParallelQueue> CreateSequential();
     }
 }

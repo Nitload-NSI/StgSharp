@@ -26,6 +26,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.Graphics;
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using StgSharp.Mathematics;
 
 using System;
@@ -154,12 +155,12 @@ namespace StgSharp.Graphics.OpenGL
         public TextureProperty(
                TextureFilter onMagnify,
                TextureFilter onMinify,
-               TextureWrap onHorizontial,
+               TextureWrap onHorizontal,
                TextureWrap onVertical)
         {
             FilterOnMagnify = onMagnify;
             FilterOnMinify = onMinify;
-            WrapOnHorizontial = onHorizontial;
+            WrapOnHorizontial = onHorizontal;
             WrapOnVertical = onVertical;
         }
 

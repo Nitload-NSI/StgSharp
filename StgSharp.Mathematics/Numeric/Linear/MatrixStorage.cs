@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixStorage"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,8 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance.Memory;
 using StgSharp.Mathematics;
-using StgSharp.Mathematics.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,15 +35,16 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-using HLSFAllocator = global::StgSharp.Mathematics.Memory.HybridLayerSegregatedFitAllocator;
-using HLSFHandle = global::StgSharp.Mathematics.Memory.hlsfHandle;
+using HLSFAllocator = global::StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
 
 namespace StgSharp.Mathematics.Numeric
 {
-    public abstract class MatrixStorage<T> : IDisposable where T: unmanaged, INumber<T>
+    public abstract class MatrixStorage<T> : IDisposable where T : unmanaged, INumber<T>
     {
 
-        internal unsafe ref MatrixKernel<T> this[long index] => ref Unsafe.AsRef<MatrixKernel<T>>(BufferPointer + (MatrixKernel<T>.Size * index));
+        internal unsafe ref MatrixKernel<T> this[
+                                            long index
+        ] => ref Unsafe.AsRef<MatrixKernel<T>>(BufferPointer + (MatrixKernel<T>.Size * index));
 
         protected internal abstract unsafe T* BufferPointer { get; }
 
@@ -51,12 +52,14 @@ namespace StgSharp.Mathematics.Numeric
 
     }
 
-    internal class MatrixStorageHLSF<T>(HLSFAllocator allocator, HLSFHandle handle) : MatrixStorage<T>
-        where T: unmanaged, INumber<T>
+    internal class MatrixStorageHLSF<T>(
+                   HLSFAllocator allocator,
+                   HlsfHandle handle
+    ) : MatrixStorage<T> where T : unmanaged, INumber<T>
     {
 
-        internal HLSFAllocator _allocator = allocator;
-        internal HLSFHandle _handle = handle;
+        internal readonly HLSFAllocator _allocator = allocator;
+        internal readonly HlsfHandle _handle = handle;
 
         protected internal override unsafe T* BufferPointer => (T*)_handle.Pointer;
 
