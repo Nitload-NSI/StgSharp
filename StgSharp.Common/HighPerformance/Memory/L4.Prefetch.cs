@@ -33,15 +33,10 @@ namespace StgSharp.HighPerformance.Memory
     public unsafe partial class L4
     {
 
-        public const int MaxActivateCacheLineCount = 1024;
-
         private partial void Prefetch()
         {
             if (CurrentPredict is null) {
                 return;
-            }
-            if (_activeCount > MaxActivateCacheLineCount) {
-                throw new OverflowException("Too many activated cache line in external reference.");
             }
             IL4Predict predict = CurrentPredict;
             int predictIndex = CurrentPredictIndex;
@@ -74,13 +69,13 @@ namespace StgSharp.HighPerformance.Memory
                 // now prefetch the misses
                 for (int i = 0; i < missIndex; i++)
                 {
-                    CacheLineHead* head;
+                    CacheLineMetadata* head;
                     ref CacheLineDescription pHandle = ref span[i];
                     nuint address = pHandle.Address;
                     int index;
                     if (_map.TryGet(address, out nuint handle))
                     {
-                        head = (CacheLineHead*)handle;
+                        head = (CacheLineMetadata*)handle;
                         index = head->Id;
                         (*_predictCount)[index] = 0; // reset eviction counter
 
@@ -96,19 +91,6 @@ namespace StgSharp.HighPerformance.Memory
                         {
                             if ((*_predictCount)[index] > short.MaxValue / 2)
                             {
-                                /*
-                                 * EXPERIMENTAL / INTENTIONALLY UNSAFE:
-                                 * This code performs a 32-bit atomic operation starting from a short reference.
-                                 *
-                                 * It is only valid in this specific storage layout because:
-                                 * - the runtime is little-endian;
-                                 * - arithmetic here does not cause harmful cross-16-bit carry/borrow;
-                                 * - the backing storage remains valid and accessible beyond the logical short-array boundary;
-                                 * - touching the adjacent 16 bits is acceptable for this allocation layout;
-                                 * - misaligned int access is acceptable on the target platform.
-                                 *
-                                 * This is safe only with the current L4 allocation/layout guarantees.
-                                 */
                                 int predictCount = Volatile.Read(ref (*_predictCount)[index]);
                                 int mapCount = Volatile.Read(ref (*_mapCount)[index]);
                                 int decrement = (int.Min(predictCount, mapCount) + 1) / 2;
@@ -125,7 +107,7 @@ namespace StgSharp.HighPerformance.Memory
 
                     int retryCount = 0, remain = missIndex - i;
                     const int maxRetry = 1024;
-                    while (!TryGetEmptyLine(pHandle.Size, out index))
+                    while (!_bufferAllocator.TryAlloc(pHandle.Size, out index))
                     {
                         remain = Evict(remain);
                         retryCount++;
@@ -146,7 +128,7 @@ namespace StgSharp.HighPerformance.Memory
                     (*_mapCount)[index] = 1;
 
                     // pre fetch them here
-                    predict.Prefetch(head->Origin, head->Profile, new Span<byte>((byte*)head->Address, (int)head->Size));
+                    predict.Prefetch(head->Origin, head->Profile, new Span<byte>((byte*)(ulong)head->Position, (int)(ulong)head->SizeForAllocator));
                     _ = _map.TryAddOrSet(address, (nuint)head, out _);
                 }
                 _ = Interlocked.Add(ref _aheadCount, actualCount);

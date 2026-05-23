@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="HlsfAllocatorBench"
+// file="TlsfAllocatorBench"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -31,10 +31,12 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+using Tlsf = StgSharp.HighPerformance.Memory.TwoLayerSegregatedFitAllocator;
+
 namespace StgSharp.Benchmark
 {
     [MemoryDiagnoser]
-    public class HlsfAllocatorBench
+    public class TlsfAllocatorBench
     {
 
         private const uint Alignment = 64;
@@ -55,46 +57,46 @@ namespace StgSharp.Benchmark
         ];
         private readonly int[] _freeOrderByBatch = new int[TotalOperationsPerInvoke];
         private readonly uint[] _requestSizesByBatch = new uint[TotalOperationsPerInvoke];
-        private readonly List<HlsfHandle> _hlsfLocalList = new();
         private readonly List<nint> _libcLocalList = new();
+        private readonly List<Tlsf.Handle> _tlsfLocalList = new();
         private Random _random = new(42);
-        private HybridLayerSegregatedFitAllocator _hlsfAllocator = null!;
+        private TwoLayerSegregatedFitAllocator _tlsfAllocator = null!;
 
         [GlobalCleanup]
         public void Cleanup()
         {
-            _hlsfAllocator?.Dispose();
-            _hlsfLocalList.Clear();
-            _hlsfLocalList.TrimExcess();
+            _tlsfAllocator?.Dispose();
+            _tlsfLocalList.Clear();
+            _tlsfLocalList.TrimExcess();
             _libcLocalList.Clear();
             _libcLocalList.TrimExcess();
         }
 
         [Benchmark(OperationsPerInvoke = TotalOperationsPerInvoke)]
-        public void Hlsf()
+        public void Tlsf()
         {
             for (int batch = 0; batch < BatchCount; batch++) {
-                RunHlsf(batch, _hlsfAllocator, FreePolicy.NoCollect);
+                RunTlsf(batch, _tlsfAllocator, 4);
             }
         }
 
         [IterationCleanup]
         public void IterationCleanup()
         {
-            _hlsfAllocator?.Dispose();
-            _hlsfAllocator = null!;
-            _hlsfLocalList.Clear();
+            _tlsfAllocator?.Dispose();
+            _tlsfAllocator = null!;
+            _tlsfLocalList.Clear();
             _libcLocalList.Clear();
         }
 
         [IterationSetup]
         public void IterationSetup()
         {
-            _hlsfAllocator?.Dispose();
+            _tlsfAllocator?.Dispose();
             _random = new Random(42);
-            _hlsfAllocator = new HybridLayerSegregatedFitAllocator(GetArenaBytes(), align:(int)Alignment);
+            _tlsfAllocator = new TwoLayerSegregatedFitAllocator(GetArenaBytes(), align:(int)Alignment);
             BuildIterationWorkload();
-            _hlsfLocalList.Clear();
+            _tlsfLocalList.Clear();
             _libcLocalList.Clear();
         }
 
@@ -135,7 +137,10 @@ namespace StgSharp.Benchmark
             const int minMb = 64;
             int mb = defaultMb;
 
-            string? env = Environment.GetEnvironmentVariable("HLSF_BENCH_ARENA_MB");
+            string? env = Environment.GetEnvironmentVariable("TLSF_BENCH_ARENA_MB");
+            if (string.IsNullOrWhiteSpace(env)) {
+                env = Environment.GetEnvironmentVariable("HLSF_BENCH_ARENA_MB");
+            }
             if (!string.IsNullOrWhiteSpace(env) &&
                 int.TryParse(env, out int parsed) &&
                 parsed >= minMb) {
@@ -145,24 +150,24 @@ namespace StgSharp.Benchmark
             return (nuint)mb * 1024u * 1024u;
         }
 
-        private void RunHlsf(
+        private void RunTlsf(
                      int batch,
-                     HybridLayerSegregatedFitAllocator allocator,
-                     FreePolicy policy
+                     TwoLayerSegregatedFitAllocator allocator,
+                     int scanWindow = 4
         )
         {
             int batchOffset = batch * AllocationCount;
-            _hlsfLocalList.Clear();
+            _tlsfLocalList.Clear();
 
             for (int i = 0; i < AllocationCount; i++)
             {
                 uint size = _requestSizesByBatch[batchOffset + i];
-                HlsfHandle allocate = allocator.Alloc(size);
-                _hlsfLocalList.Add(allocate);
+                Tlsf.Handle allocate = allocator.Alloc(size);
+                _tlsfLocalList.Add(allocate);
             }
 
-            for (int i = 0; i < _hlsfLocalList.Count; i++) {
-                allocator.Free(_hlsfLocalList[_freeOrderByBatch[batchOffset + i]], policy);
+            for (int i = 0; i < _tlsfLocalList.Count; i++) {
+                allocator.Free(_tlsfLocalList[_freeOrderByBatch[batchOffset + i]], scanWindow);
             }
         }
 

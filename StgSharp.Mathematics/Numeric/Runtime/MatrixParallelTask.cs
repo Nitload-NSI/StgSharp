@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using StgSharp.HighPerformance.Memory;
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -39,6 +40,14 @@ namespace StgSharp.Mathematics.Numeric.Runtime
         public MatrixParallelTask Task;
         public ulong Count;
         public ulong Cursor;
+
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    internal unsafe ref struct MatrixTask
+    {
+
+        [FieldOffset(0)]public L4CacheLine Line;
 
     }
 

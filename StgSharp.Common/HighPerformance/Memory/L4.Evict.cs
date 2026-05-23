@@ -35,7 +35,7 @@ using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
 
-using HlsfEntry = StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator.Entry;
+using Tlsf = StgSharp.HighPerformance.Memory.TwoLayerSegregatedFitAllocator;
 
 namespace StgSharp.HighPerformance.Memory
 {
@@ -87,8 +87,8 @@ namespace StgSharp.HighPerformance.Memory
                             int id
         )
         {
-            HlsfEntry* entry = (HlsfEntry*)(_entryManager._basePtr + id);
-            _bufferAllocator.Free(entry);
+            _bufferAllocator.Free(id);
+            /**/
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -97,7 +97,7 @@ namespace StgSharp.HighPerformance.Memory
                             Span<IL4Predict> predictorSpan
         )
         {
-            CacheLineHead* head = &_head[index];
+            CacheLineMetadata* head = &_head[index];
             if (Interlocked.CompareExchange(ref head->RefCount, int.MinValue, 0) == 0)
             {
                 // EvictLine(i + index);
@@ -105,30 +105,13 @@ namespace StgSharp.HighPerformance.Memory
                 int id = head->Predictor;
                 IL4Predict predict = predictorSpan[id] ??
                     throw new L4PredictUnregisteredException(id);
-                predict.WriteBack(head->Origin, head->Profile, new ReadOnlySpan<byte>((byte*)head->Address, (int)head->Size));
+                predict.WriteBack(head->Origin, head->Profile, new ReadOnlySpan<byte>((byte*)(ulong)head->Position, (int)(ulong)head->SizeForAllocator));
                 RecycleLine(index);
                 (*_mapCount)[index] = 0;
                 (*_predictCount)[index] = int.MaxValue;
                 return true;
             }
             return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe bool TryGetEmptyLine(
-                            nuint size,
-                            out int index
-
-        )
-        {
-            if (!_bufferAllocator.TryAlloc(size, out HlsfHandle handle))
-            {
-                index = 0;
-                return false;
-            }
-            CacheLineHead* entry = (CacheLineHead*)handle.EntryHandle;
-            index = entry->Id;
-            return true;
         }
 
     }

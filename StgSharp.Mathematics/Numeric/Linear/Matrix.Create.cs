@@ -34,6 +34,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
+using Tlsf = global::StgSharp.HighPerformance.Memory.TwoLayerSegregatedFitAllocator;
+
 namespace StgSharp.Mathematics.Numeric
 {
     public unsafe partial class Matrix<T>
@@ -45,7 +47,7 @@ namespace StgSharp.Mathematics.Numeric
                                 int columnLength,
                                 int rowLength,
                                 MatrixLayout layout,
-                                HybridLayerSegregatedFitAllocator allocator
+                                TwoLayerSegregatedFitAllocator allocator
         )
         {
             ArgumentNullException.ThrowIfNull(allocator);
@@ -75,7 +77,7 @@ namespace StgSharp.Mathematics.Numeric
             long requiredBytes = kernelCount * MatrixKernel<T>.Size;
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(requiredBytes, nameof(requiredBytes));
 
-            HlsfHandle handle = allocator.Alloc((uint)requiredBytes);
+            Tlsf.Handle handle = allocator.Alloc((uint)requiredBytes);
             MatrixStorageHLSF<T> storage = new MatrixStorageHLSF<T>(allocator, handle);
 
             Matrix<T> matrix = new Matrix<T>(MatrixKernelBoarder.Create(layout), new MatrixSize(columnLength,

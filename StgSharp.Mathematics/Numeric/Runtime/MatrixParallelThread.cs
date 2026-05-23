@@ -152,6 +152,7 @@ namespace StgSharp.Mathematics.Numeric
                 State = MatrixThreadState.Running;
                 _managedThread.Priority = ThreadPriority.Highest;
 
+
                 // MatrixParallelQueue taskQueue = BindedWrap.TaskQueue;
                 /*
                 if (0 > (int)p ->ComputeHandle) {
@@ -175,12 +176,12 @@ namespace StgSharp.Mathematics.Numeric
 
 #pragma warning disable CA5393
         [LibraryImport(Native.LibName, EntryPoint = "sn_get_simd_level_local")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         internal static partial ulong GetSimdId();
 
         [LibraryImport(Native.LibName, EntryPoint = "load_intrinsic_function")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static unsafe partial void LoadIntrinsicFunction(
                                            IntrinsicContext* context,

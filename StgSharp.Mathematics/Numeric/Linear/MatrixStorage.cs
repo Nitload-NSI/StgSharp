@@ -35,7 +35,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-using HLSFAllocator = global::StgSharp.HighPerformance.Memory.HybridLayerSegregatedFitAllocator;
+using Tlsf = global::StgSharp.HighPerformance.Memory.TwoLayerSegregatedFitAllocator;
 
 namespace StgSharp.Mathematics.Numeric
 {
@@ -53,15 +53,16 @@ namespace StgSharp.Mathematics.Numeric
     }
 
     internal class MatrixStorageHLSF<T>(
-                   HLSFAllocator allocator,
-                   HlsfHandle handle
+                   Tlsf allocator,
+                   Tlsf.Handle handle
     ) : MatrixStorage<T> where T : unmanaged, INumber<T>
     {
 
-        internal readonly HLSFAllocator _allocator = allocator;
-        internal readonly HlsfHandle _handle = handle;
+        internal readonly Tlsf.Handle _handle = handle;
 
-        protected internal override unsafe T* BufferPointer => (T*)_handle.Pointer;
+        internal readonly Tlsf _allocator = allocator;
+
+        protected internal override unsafe T* BufferPointer => (T*)_handle.Address;
 
         public override void Dispose()
         {
