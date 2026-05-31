@@ -20,22 +20,20 @@ sn_resolve_target_identifiers(
 file(GLOB STGSHARP_NATIVE_SOURCES CONFIGURE_DEPENDS
   ${CMAKE_CURRENT_LIST_DIR}/sn-src/*.c)
 
-list(REMOVE_ITEM STGSHARP_NATIVE_SOURCES
-  ${CMAKE_CURRENT_LIST_DIR}/sn-src/formatted.c
-  ${CMAKE_CURRENT_LIST_DIR}/sn-src/StgSharpC.c)
+file(GLOB STGSHARP_NATIVE_HEADERS CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_LIST_DIR}/sn-head/*.h)
+
+file(GLOB STGSHARP_NATIVE_TEMPLATES CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_LIST_DIR}/sn-template/*.h
+  ${CMAKE_CURRENT_LIST_DIR}/sn-template/*.inl
+  ${CMAKE_CURRENT_LIST_DIR}/sn-template/*.inc
+  ${CMAKE_CURRENT_LIST_DIR}/sn-template/*.ipp)
 
 if(NOT STGSHARP_NATIVE_SOURCES)
   message(FATAL_ERROR "No source files found under sn-src/.")
 endif()
 
-get_filename_component(STGSHARP_SOURCE_ROOT ${CMAKE_CURRENT_LIST_DIR} DIRECTORY)
-get_filename_component(STGSHARP_SOURCE_ROOT_NAME ${STGSHARP_SOURCE_ROOT} NAME)
-
-if(STGSHARP_SOURCE_ROOT_NAME STREQUAL "src")
-  get_filename_component(STGSHARP_SOLUTION_ROOT ${STGSHARP_SOURCE_ROOT} DIRECTORY)
-else()
-  set(STGSHARP_SOLUTION_ROOT ${STGSHARP_SOURCE_ROOT})
-endif()
+get_filename_component(STGSHARP_SOLUTION_ROOT ${CMAKE_CURRENT_LIST_DIR} DIRECTORY)
 
 if(SN_RESOLVED_OS_NAME STREQUAL "windows")
   set(STGSHARP_OS_TAG win)
@@ -57,12 +55,16 @@ else()
   set(STGSHARP_ARCH_TAG ${SN_RESOLVED_ARCH_NAME})
 endif()
 
-set(STGSHARP_BUILD_OUTPUT_DIR ${STGSHARP_SOLUTION_ROOT}/cmake_build/${STGSHARP_OS_TAG}_${STGSHARP_ARCH_TAG})
+set(STGSHARP_BUILD_OUTPUT_DIR ${STGSHARP_SOLUTION_ROOT}/build/${STGSHARP_OS_TAG}-${STGSHARP_ARCH_TAG})
 set(STGSHARP_OBJECT_ROOT_DIR ${STGSHARP_SOLUTION_ROOT}/obj/${PROJECT_NAME})
+set(STGSHARP_NATIVE_PROJECT_FILES
+  ${STGSHARP_NATIVE_SOURCES}
+  ${STGSHARP_NATIVE_HEADERS}
+  ${STGSHARP_NATIVE_TEMPLATES})
 
-set(STGSHARP_C_FRONTEND_VARIANT "${CMAKE_C_COMPILER_FRONTEND_VARIANT}")
+add_library(${PROJECT_NAME} SHARED ${STGSHARP_NATIVE_PROJECT_FILES})
 
-add_library(${PROJECT_NAME} SHARED ${STGSHARP_NATIVE_SOURCES})
+source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${STGSHARP_NATIVE_PROJECT_FILES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   C_STANDARD 11
@@ -84,25 +86,35 @@ endforeach()
 set_target_properties(${PROJECT_NAME} PROPERTIES
   COMPILE_PDB_OUTPUT_DIRECTORY ${STGSHARP_OBJECT_ROOT_DIR}/$<CONFIG>/${STGSHARP_ARCH_TAG})
 
-if(MSVC OR STGSHARP_C_FRONTEND_VARIANT STREQUAL "MSVC")
+if(MSVC OR (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
   target_compile_options(${PROJECT_NAME} PRIVATE
     /Fd${STGSHARP_OBJECT_ROOT_DIR}/$<CONFIG>/${STGSHARP_ARCH_TAG}/)
 endif()
 
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND SN_RESOLVED_ARCH_NAME STREQUAL "x86_64")
-  if(STGSHARP_C_FRONTEND_VARIANT STREQUAL "MSVC")
+  # Keep the intrinsic type system and builtin declarations visible to all TUs.
+  # The runtime dispatch contract still follows T_arch/T_feature at the function level.
+  if(CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     target_compile_options(${PROJECT_NAME} PRIVATE
       /clang:-mavx
       /clang:-mavx2
       /clang:-mfma
+      /clang:-mf16c
       /clang:-mavx512f
+      /clang:-mavx512cd
+      /clang:-mavx512dq
+      /clang:-mavx512bw
       /clang:-mavx512vl)
   else()
     target_compile_options(${PROJECT_NAME} PRIVATE
       -mavx
       -mavx2
       -mfma
+      -mf16c
       -mavx512f
+      -mavx512cd
+      -mavx512dq
+      -mavx512bw
       -mavx512vl)
   endif()
 endif()
@@ -128,5 +140,4 @@ endif()
 
 message(STATUS "StgSharp.Native target OS: ${SN_RESOLVED_OS_NAME} (${SN_RESOLVED_OS_DEFINE})")
 message(STATUS "StgSharp.Native target ISA: ${SN_RESOLVED_ARCH_NAME} (${SN_RESOLVED_ARCH_DEFINE})")
-message(STATUS "StgSharp.Native compiler front-end: ${STGSHARP_C_FRONTEND_VARIANT}")
 message(STATUS "StgSharp.Native output dir: ${STGSHARP_BUILD_OUTPUT_DIR}")

@@ -1,8 +1,7 @@
-#ifndef SN_INTRINSIC_CallCONV_STD
-#define SN_INTRINSIC_CallCONV_STD
+#ifndef SN_INTRINSIC_CALLCONV_STD
+#define SN_INTRINSIC_CALLCONV_STD
 
 #include "sn_internal.h"
-#include "sn_target.h"
 #include "sn_intrinsic.h"
 
 #ifndef static_assert
@@ -10,7 +9,6 @@
 #endif
 
 #define SN_STD_TARGET_ATTR(T_arch, T_feature) SN_STD_TARGET_ATTR_IMPL(T_arch, T_feature)
-#define SN_STD_TARGET_ATTR_IMPL(T_arch, T_feature) SN_X86_TARGET_ATTR_##T_arch##T_feature
 
 #define MK_PROC_NAME_STD(T_type, T_arch, T_feature, T_op) \
         T_type##_multi_kernel_proc_##T_op##_##T_arch##_##T_feature

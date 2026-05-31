@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="L4.Tlsf"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ namespace StgSharp.HighPerformance.Memory
 
             public static readonly nuint RequestedAllocation = (nuint)MaxCacheLineCount * CacheLineMetadata.SizeOf;
 
-            private readonly int[] _bucket;
+            private readonly short[] _bucket;
             private readonly CacheLineMetadata* _spareMemory;
             private readonly int _align;
             private readonly int _maxLevel;
@@ -56,11 +56,7 @@ namespace StgSharp.HighPerformance.Memory
             private readonly ulong _maxAllocSize;
             private readonly ulong _totalSize;
 
-            internal TLSF(
-                     nuint byteSize,
-                     ulong maxBlockSize,
-                     void* externalPointer
-            )
+            internal TLSF(nuint byteSize, ulong maxBlockSize, void* externalPointer)
             {
                 _totalSize = byteSize;
                 _basePtr = (Ptr64)(ulong)externalPointer;
@@ -83,9 +79,7 @@ namespace StgSharp.HighPerformance.Memory
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private int GetLevel(
-                        ulong size
-            )
+            private int GetLevel(ulong size)
             {
                 int origin = 57 - BitOperations.LeadingZeroCount(size);
                 return int.Min(origin, _maxLevel);
@@ -97,19 +91,17 @@ namespace StgSharp.HighPerformance.Memory
             /// <param name="node">
             ///
             /// </param>
-            private void RecycleNode(
-                         CacheLineMetadata* node
-            )
+            private void RecycleNode(CacheLineMetadata* node)
             {
-                int nodeIdx = (int)(_spareMemory - node);
+                short nodeIdx = (short)(_spareMemory - node);
                 int level = GetLevel(node->SizeForAllocator);
-                int nextLevelIdx = node->NextLevel;
-                int prevLevelIdx = node->PreviousLevel;
+                short nextLevelIdx = node->NextLevel;
+                short prevLevelIdx = node->PreviousLevel;
                 RemoveFromBucket(level, node, nodeIdx);
 
                 // remove from position chain
-                int prevNearIdx = node->PreviousNear;
-                int nextNearIdx = node->NextNear;
+                short prevNearIdx = node->PreviousNear;
+                short nextNearIdx = node->NextNear;
                 CacheLineMetadata* prevNear = &_spareMemory[prevNearIdx];
                 prevNear->NextNear = nextNearIdx;
                 if (nextNearIdx != 0)
@@ -128,7 +120,7 @@ namespace StgSharp.HighPerformance.Memory
                 node->State = AllocationState.SpareOrCollect;
                 node->PreviousLevel = 0;
 
-                int nextIdx = _spareMemory->NextLevel;
+                short nextIdx = _spareMemory->NextLevel;
                 if (nextIdx != 0)
                 {
                     CacheLineMetadata* next = &_spareMemory[nextIdx];
@@ -139,23 +131,16 @@ namespace StgSharp.HighPerformance.Memory
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void RemoveFromBucket(
-                         CacheLineMetadata* node,
-                         int nodeIdx
-            )
+            private void RemoveFromBucket(CacheLineMetadata* node, int nodeIdx)
             {
                 RemoveFromBucket(GetLevel(node->SizeForAllocator), node, nodeIdx);
             }
 
-            private void RemoveFromBucket(
-                         int level,
-                         CacheLineMetadata* node,
-                         int nodeIdx
-            )
+            private void RemoveFromBucket(int level, CacheLineMetadata* node, int nodeIdx)
             {
                 int currentLevel = level;
-                int currentNextLevelIdx = node->NextLevel;
-                int currentPrevLevelIdx = node->PreviousLevel;
+                short currentNextLevelIdx = node->NextLevel;
+                short currentPrevLevelIdx = node->PreviousLevel;
 
                 if (_bucket[currentLevel] == nodeIdx)
                 {
@@ -175,11 +160,7 @@ namespace StgSharp.HighPerformance.Memory
             }
 
             // Assuming node to remove is head f bucket
-            private void RemoveFromBucketHead(
-                         int level,
-                         CacheLineMetadata* node,
-                         int nodeIdx
-            )
+            private void RemoveFromBucketHead(int level, CacheLineMetadata* node, int nodeIdx)
             {
                 int currentLevel = level;
                 int currentNextLevelIdx = node->NextLevel;
@@ -206,12 +187,9 @@ namespace StgSharp.HighPerformance.Memory
                 node->NextLevel = 0;
             }
 
-            private bool TryAllocNewChunk(
-                         ulong size,
-                         out CacheLineMetadata* meta
-            )
+            private bool TryAllocNewChunk(ulong size, out CacheLineMetadata* meta)
             {
-                int idx = _spareMemory->NextLevel;
+                short idx = _spareMemory->NextLevel;
                 ulong spareSize = _spareMemory->SizeForAllocator;
                 if (idx != 0)
                 {
@@ -221,7 +199,7 @@ namespace StgSharp.HighPerformance.Memory
                         return false;
                     }
                     meta = &_spareMemory[idx];
-                    int nextSpareIdx = meta->NextLevel;
+                    short nextSpareIdx = meta->NextLevel;
                     if (nextSpareIdx != 0)
                     {
                         CacheLineMetadata* nextSpare = &_spareMemory[nextSpareIdx];
@@ -242,7 +220,7 @@ namespace StgSharp.HighPerformance.Memory
                 _spareMemory->Position += size;
 
                 // insert the new chunk to position chain
-                int nearIdx = _spareMemory->PreviousNear;
+                short nearIdx = _spareMemory->PreviousNear;
                 CacheLineMetadata* near = &_spareMemory[nearIdx];
                 near->NextNear = idx;
                 meta->PreviousNear = nearIdx;
@@ -251,9 +229,7 @@ namespace StgSharp.HighPerformance.Memory
                 return true;
             }
 
-            private bool TryGetNewMetadata(
-                         out CacheLineMetadata* meta
-            )
+            private bool TryGetNewMetadata(out CacheLineMetadata* meta)
             {
                 ulong spareSize = _spareMemory->SizeForAllocator;
                 if (_metadataEnd >= MaxCacheLineCount)
@@ -266,10 +242,7 @@ namespace StgSharp.HighPerformance.Memory
                 return true;
             }
 
-            private bool TryTakeBucketEntry(
-                         ulong minimumSize,
-                         out CacheLineMetadata* entry
-            )
+            private bool TryTakeBucketEntry(ulong minimumSize, out CacheLineMetadata* entry)
             {
                 int level = GetLevel(minimumSize);
 
@@ -306,9 +279,7 @@ namespace StgSharp.HighPerformance.Memory
 
             #region alloc and free
 
-            public int Alloc(
-                       nuint size
-            )
+            public int Alloc(nuint size)
             {
                 ulong allocSize = ulong.Max(64, (~63UL) & ((ulong)size + 63));
                 if (allocSize > _maxAllocSize) {
@@ -318,7 +289,7 @@ namespace StgSharp.HighPerformance.Memory
                     !TryAllocNewChunk(allocSize, out entry)) {
                     throw new OverflowException("No available ");
                 }
-                int entryIdx = (int)(_spareMemory - entry);
+                short entryIdx = (short)(_spareMemory - entry);
                 ulong entrySize = entry->SizeForAllocator;
                 if (entrySize < allocSize) {
                     throw new OverflowException("Bucket returned an undersized block.");
@@ -326,15 +297,14 @@ namespace StgSharp.HighPerformance.Memory
                 ulong remain = entrySize - allocSize;
 
                 // slice tail
-                if (remain > ulong.Min(4096UL, entrySize >> 7) &&
-                    TryGetNewMetadata(out CacheLineMetadata* newEntry))
+                if (remain > ulong.Min(4096UL, entrySize >> 7) && TryGetNewMetadata(out CacheLineMetadata* newEntry))
                 {
-                    int newEntryIdx = (int)(_spareMemory - newEntry);
+                    short newEntryIdx = (short)(_spareMemory - newEntry);
                     newEntry->Position = entry->Position + allocSize;
                     newEntry->SizeForAllocator = remain;
                     newEntry->State = AllocationState.Free;
                     int newLevel = GetLevel(remain);
-                    int bucketHeadIdx = _bucket[newLevel];
+                    short bucketHeadIdx = _bucket[newLevel];
                     if (bucketHeadIdx != 0)
                     {
                         // if there is already an entry in the bucket, link it to the new entry
@@ -347,7 +317,7 @@ namespace StgSharp.HighPerformance.Memory
                     _bucket[newLevel] = newEntryIdx;
 
                     // push to position chain
-                    int afterIdx = entry->NextNear;
+                    short afterIdx = entry->NextNear;
                     CacheLineMetadata* after = &_spareMemory[afterIdx];
                     newEntry->NextNear = afterIdx;
                     after->PreviousNear = newEntryIdx;
@@ -363,7 +333,7 @@ namespace StgSharp.HighPerformance.Memory
 
             public void Collect()
             {
-                int currentIdx = _spareMemory->NextNear;
+                short currentIdx = _spareMemory->NextNear;
                 do
                 {
                     if (currentIdx == 0)
@@ -392,7 +362,7 @@ namespace StgSharp.HighPerformance.Memory
                             current->SizeForAllocator += size;
                             RemoveFromBucket(current, currentIdx);
                             int newLevel = GetLevel(current->SizeForAllocator);
-                            int bucketHeadIdx = _bucket[newLevel];
+                            short bucketHeadIdx = _bucket[newLevel];
                             if (bucketHeadIdx != 0)
                             {
                                 CacheLineMetadata* bucketHead = &_spareMemory[bucketHeadIdx];
@@ -407,13 +377,10 @@ namespace StgSharp.HighPerformance.Memory
                 } while (true);
             }
 
-            public void Free(
-                        int handle,
-                        int collectScanWindow = 4
-            )
+            public void Free(int handle, int collectScanWindow = 4)
             {
                 CacheLineMetadata* head = &_spareMemory[handle];
-                int headIdx = (int)(_spareMemory - head);
+                short headIdx = (short)(_spareMemory - head);
                 Ptr64 size = head->SizeForAllocator;
                 for (int i = 0; i < collectScanWindow; i++)
                 {
@@ -454,7 +421,7 @@ namespace StgSharp.HighPerformance.Memory
                 head->State = AllocationState.Free;
                 head->PreviousLevel = 0;
                 int level = GetLevel(head->SizeForAllocator);
-                int bucketHeadIdx = _bucket[level];
+                short bucketHeadIdx = _bucket[level];
                 head->NextLevel = 0;
                 if (bucketHeadIdx != 0)
                 {
@@ -466,10 +433,7 @@ namespace StgSharp.HighPerformance.Memory
                 return;
             }
 
-            public bool TryAlloc(
-                        nuint size,
-                        out int h
-            )
+            public bool TryAlloc(nuint size, out int h)
             {
                 ulong allocSize = ulong.Max(64, (~63UL) & ((ulong)size + 63));
                 if (allocSize > _maxAllocSize)
@@ -483,7 +447,7 @@ namespace StgSharp.HighPerformance.Memory
                     h = -1;
                     return false;
                 }
-                int entryIdx = (int)(_spareMemory - entry);
+                short entryIdx = (short)(_spareMemory - entry);
                 ulong entrySize = entry->SizeForAllocator;
                 if (entrySize < allocSize)
                 {
@@ -495,12 +459,12 @@ namespace StgSharp.HighPerformance.Memory
                 // slice tail
                 if (remain > (entrySize >> 7) && TryGetNewMetadata(out CacheLineMetadata* newEntry))
                 {
-                    int newEntryIdx = (int)(_spareMemory - newEntry);
+                    short newEntryIdx = (short)(_spareMemory - newEntry);
                     newEntry->Position = entry->Position + allocSize;
                     newEntry->SizeForAllocator = remain;
                     newEntry->State = AllocationState.Free;
                     int newLevel = GetLevel(remain);
-                    int bucketHeadIdx = _bucket[newLevel];
+                    short bucketHeadIdx = _bucket[newLevel];
                     if (bucketHeadIdx != 0)
                     {
                         // if there is already an entry in the bucket, link it to the new entry
@@ -515,7 +479,7 @@ namespace StgSharp.HighPerformance.Memory
                     _bucket[newLevel] = newEntryIdx;
 
                     // push to position chain
-                    int afterIdx = entry->NextNear;
+                    short afterIdx = entry->NextNear;
                     CacheLineMetadata* after = &_spareMemory[afterIdx];
                     newEntry->NextNear = afterIdx;
                     after->PreviousNear = newEntryIdx;

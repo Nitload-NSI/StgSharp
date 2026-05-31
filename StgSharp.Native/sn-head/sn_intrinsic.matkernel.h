@@ -138,17 +138,6 @@ extern __declspec(align(64)) sn_zero_kernel_u64 SN_ZERO_KERNEL;
                                                          int col_length, int row_length,       \
                                                          int col_index, int row_index)
 
-/* Declarations for AVX float variant 
-DECLARE_BUILD_PANEL(avx, float);
-DECLARE_BUILD_PANEL(512, float);
 
-DECLARE_STORE_PANEL(avx, float);
-DECLARE_STORE_PANEL(512, float);
-DECLARE_STORE_PANEL(512, float);
-
-DECLARE_BUILD_PANEL(512, double);
-
-DECLARE_STORE_PANEL(512, double);
-/**/
 
 #endif /* SN_MATKERNEL */

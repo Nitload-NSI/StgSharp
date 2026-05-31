@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="MatrixParallelThread"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -59,9 +59,7 @@ namespace StgSharp.Mathematics.Numeric
         private volatile MatrixThreadState _target;
         private Thread _managedThread;
 
-        internal MatrixParallelThread(
-                 LogicalCore binded
-        )
+        internal MatrixParallelThread(LogicalCore binded)
         {
             _resetEvent = new ManualResetEventSlim(false);
             _managedThread = new Thread(MatrixParallelWorkLoad);
@@ -101,9 +99,7 @@ namespace StgSharp.Mathematics.Numeric
             _managedThread.Join();
         }
 
-        protected virtual void Dispose(
-                               bool disposing
-        )
+        protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
             {
@@ -176,21 +172,16 @@ namespace StgSharp.Mathematics.Numeric
 
 #pragma warning disable CA5393
         [LibraryImport(Native.LibName, EntryPoint = "sn_get_simd_level_local")]
-        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         internal static partial ulong GetSimdId();
 
         [LibraryImport(Native.LibName, EntryPoint = "load_intrinsic_function")]
-        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        private static unsafe partial void LoadIntrinsicFunction(
-                                           IntrinsicContext* context,
-                                           ulong id
-        );
+        private static unsafe partial void LoadIntrinsicFunction(IntrinsicContext* context, ulong id);
 
-        public bool Equals(
-                    MatrixParallelThread? other
-        )
+        public bool Equals(MatrixParallelThread? other)
         {
             return (other is not null) && ReferenceEquals(this, other);
         }

@@ -6,7 +6,8 @@
 #include "sn_intrinsic.std.h"
 
 #ifndef SN_X86_TARGET_ATTR_sse
-#define SN_X86_TARGET_ATTR_sse SN_CLANG_TARGET_ATTR("sse42")
+#define SN_STD_TARGET_ATTR_IMPL(T_arch, T_feature) SN_X86_TARGET_ATTR_##T_arch##T_feature
+#define SN_X86_TARGET_ATTR_sse SN_CLANG_TARGET_ATTR("sse4.2")
 #define SN_X86_TARGET_ATTR_avx SN_CLANG_TARGET_ATTR("avx")
 #define SN_X86_TARGET_ATTR_avx_fma SN_CLANG_TARGET_ATTR("avx,avx2,fma")
 #define SN_X86_TARGET_ATTR_512 SN_CLANG_TARGET_ATTR("avx512f,avx512vl")

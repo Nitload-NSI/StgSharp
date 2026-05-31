@@ -13,7 +13,7 @@
 
 #include "gl.h"
 // #include "wgl.h"
-#define GLFWAPI INTERNAL
+// #define GLFWAPI INTERNAL
 #include "glfw\glfw3.h"
 #include <immintrin.h>
 #include <assert.h>

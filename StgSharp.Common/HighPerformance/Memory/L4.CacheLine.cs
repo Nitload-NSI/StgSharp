@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="L4.CacheLine"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -66,20 +66,23 @@ namespace StgSharp.HighPerformance.Memory
 
             #region tlsf area
 
+            // TLSF area use only 24 bytes
+
             internal const ulong Mask48Bits = 0x0000FFFFFFFFFFFF;
 
             [FieldOffset(0)] private readonly M512 FillingMask;
 
-            [FieldOffset(16)] private ulong PositionMask;
-            [FieldOffset(24)] private ulong SizeMask;
+            [FieldOffset(8)] private ulong PositionMask;
+            [FieldOffset(16)] private ulong SizeMask;
 
-            [FieldOffset(30)] internal AllocationState State;
-            [FieldOffset(31)] internal sbyte Level;
+            [FieldOffset(14)] internal AllocationState State;
 
-            [FieldOffset(0)] public int NextLevel;
-            [FieldOffset(4)] public int NextNear;
-            [FieldOffset(8)] public int PreviousLevel;
-            [FieldOffset(12)] public int PreviousNear;
+            // [FieldOffset(15)] internal sbyte Level;
+
+            [FieldOffset(0)] public short NextLevel;
+            [FieldOffset(2)] public short NextNear;
+            [FieldOffset(4)] public short PreviousLevel;
+            [FieldOffset(6)] public short PreviousNear;
 
             public Ptr64 Position
             {
@@ -106,13 +109,12 @@ namespace StgSharp.HighPerformance.Memory
             #region reference counting and state information
 
             [FieldOffset(24)] internal int RefCount;
-            [FieldOffset(28)] internal readonly int Id;
+            [FieldOffset(28)] internal readonly short Id;
 
             #endregion
 
             #region cache line information
 
-            [FieldOffset(32)] internal short Predictor;
             [FieldOffset(34)] internal ushort Profile;
             [FieldOffset(36)] internal nuint Origin;
 
@@ -126,10 +128,7 @@ namespace StgSharp.HighPerformance.Memory
             private CacheLineMetadata* _head;
             private nuint _handle;
 
-            private Handle(
-                    nuint handle,
-                    CacheLineMetadata* cacheRefCount
-            )
+            private Handle(nuint handle, CacheLineMetadata* cacheRefCount)
             {
                 _handle = handle;
                 _head = cacheRefCount;
