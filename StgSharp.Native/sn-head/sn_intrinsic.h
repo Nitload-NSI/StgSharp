@@ -47,6 +47,14 @@ typedef union scalar_pack {
         uint64_t data[8];
 } scalar_pack;
 
+typedef struct sn_L4_cache_head {
+        uint64_t reverse_mask_0;
+        uint32_t position_mask;
+        uint32_t size;
+        uint64_t reverse_mask_1;
+        uint64_t reverse_mask_2;
+} sn_L4_cache_head;
+
 typedef struct matrix_task {
         void *mat_0;
         void *mat_1;

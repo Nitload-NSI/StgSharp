@@ -12,26 +12,27 @@
 #define YMMCOUNT(T) (sizeof(T) / 2)
 #define ZMMCOUNT(T) (sizeof(T) / 4)
 
+#define SN_MAT_KERNEL_MEMBER(T) {\
+        __m128 x[XMMCOUNT(T)];  \
+        __m256 y[YMMCOUNT(T)];  \
+        __m512 z[ZMMCOUNT(T)];  \
+        T m[4][4];\
+}
+
 #define SN_DEFINE_MAT_KERNEL_TYPE(name, T) \
-        typedef union name {                \
-                __m128 f32_x[XMMCOUNT(T)];  \
-                __m256 f32_y[YMMCOUNT(T)];  \
-                __m512 f32_z[ZMMCOUNT(T)];  \
-                                            \
-                __m128d f64_x[XMMCOUNT(T)]; \
-                __m256d f64_y[YMMCOUNT(T)]; \
-                __m512d f64_z[ZMMCOUNT(T)]; \
-                T m[4][4];                  \
-        } name
+        typedef union name SN_MAT_KERNEL_MEMBER(T) name
 
 SN_DEFINE_MAT_KERNEL_TYPE(sn_mat_kernel_float, float);
 SN_DEFINE_MAT_KERNEL_TYPE(sn_mat_kernel_double, double);
 SN_DEFINE_MAT_KERNEL_TYPE(sn_mat_kernel_uint64_t, uint64_t);
 
+#define MAT_KERNEL_DEFINE(T) \
+        typedef union SN_MAT_KERNEL_TYPE_##T SN_MAT_KERNEL_MEMBER(T) SN_MAT_KERNEL_TYPE_##T
+
 #define SN_MAT_KERNEL_TYPE(T) SN_MAT_KERNEL_TYPE_##T
-#define SN_MAT_KERNEL_TYPE_float sn_mat_kernel_float
-#define SN_MAT_KERNEL_TYPE_double sn_mat_kernel_double
-#define SN_MAT_KERNEL_TYPE_uint64_t sn_mat_kernel_uint64_t
+MAT_KERNEL_DEFINE(float);
+MAT_KERNEL_DEFINE(double);
+MAT_KERNEL_DEFINE(uint64_t);
 
 #define MAT_KERNEL(T) SN_MAT_KERNEL_TYPE(T)
 

@@ -47,7 +47,7 @@ namespace StgSharp.Mathematics.Numeric.Runtime
     internal unsafe ref struct MatrixTask
     {
 
-        [FieldOffset(0)]public L4CacheLine Line;
+        [FieldOffset(0)]public L4.Handle Line;
 
     }
 

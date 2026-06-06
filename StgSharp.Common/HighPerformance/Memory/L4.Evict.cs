@@ -25,18 +25,6 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
-using System.Text;
-using System.Threading.Tasks;
-
-using Tlsf = StgSharp.HighPerformance.Memory.TwoLayerSegregatedFitAllocator;
-
 namespace StgSharp.HighPerformance.Memory
 {
     public partial class L4
@@ -57,44 +45,24 @@ namespace StgSharp.HighPerformance.Memory
         )
         {
             count = (count < 0) ? 0 : count;
-            int* pPtr = (int*)_predictCount, mPtr = (int*)_mapCount;
+            int* pPtr = _predictCount, mPtr = _mapCount;
 
 
             int remain = count;
-            ConcurrentFlexibleArray<IL4Predict> predictors = _predictors;
-            predictors.RequestSpanOperation();
-            Span<IL4Predict> pSpan = predictors.AsSpan();
-            try
+            for (int i = 0; i < CacheLineCount; i++)
             {
-                for (int i = 0; i < CacheLineCount; i++)
+                if (pPtr[i] > mPtr[i])
                 {
-                    if (pPtr[i] > mPtr[i])
-                    {
-                        continue;
-                    }
-                    remain -= TryEvictAt(i, pSpan) ? 1 : 0;
+                    continue;
                 }
-            }
-            finally
-            {
-                predictors.ReleaseSpanOperation();
+                remain -= TryEvictAt(i) ? 1 : 0;
             }
             return remain;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void RecycleLine(
-                            int id
-        )
-        {
-            _bufferAllocator.Free(id);
-            /**/
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private unsafe bool TryEvictAt(
-                            int index,
-                            Span<IL4Predict> predictorSpan
+                            int index
         )
         {
             CacheLineMetadata* head = &_head[index];
@@ -102,13 +70,11 @@ namespace StgSharp.HighPerformance.Memory
             {
                 // EvictLine(i + index);
                 _ = _map.TryRemove(head->Origin, out _);
-                int id = head->Predictor;
-                IL4Predict predict = predictorSpan[id] ??
-                    throw new L4PredictUnregisteredException(id);
-                predict.WriteBack(head->Origin, head->Profile, new ReadOnlySpan<byte>((byte*)(ulong)head->Position, (int)(ulong)head->SizeForAllocator));
-                RecycleLine(index);
-                (*_mapCount)[index] = 0;
-                (*_predictCount)[index] = int.MaxValue;
+                IL4Predict predict = CurrentPredict;
+                predict.WriteBack(head->Origin, head->CustomizeProfile, new ReadOnlySpan<byte>((byte*)(ulong)(head->PositionMask + _baseAddress), (int)(ulong)head->SizeMask));
+                _bufferAllocator.Free(index);
+                _mapCount[index] = 0;
+                _predictCount[index] = int.MaxValue;
                 return true;
             }
             return false;

@@ -31,10 +31,10 @@ SN_MK_PROC_DECL_STD(float, sse, , try_plu)
         MAT_KERNEL(float) a;
         const __m128 z = _mm_setzero_ps();
         for (int c = 0; c < 4; ++c) {
-                __m128 col = _mm_load_ps((float *)&source->f32_x[c]);
-                _mm_storeu_ps((float *)&a.f32_x[c], col);
-                _mm_store_ps((float *)&upper->f32_x[c], z);
-                _mm_store_ps((float *)&lower->f32_x[c], z);
+                __m128 col = _mm_load_ps((float *)&source->x[c]);
+                _mm_storeu_ps((float *)&a.x[c], col);
+                _mm_store_ps((float *)&upper->x[c], z);
+                _mm_store_ps((float *)&lower->x[c], z);
         }
 
         const float eps = 1e-12f;
@@ -121,10 +121,10 @@ SN_MK_PROC_DECL_STD(float, sse, , quality)
 
         register __m128 tiny = _mm_set1_ps(1e-6f);
 
-        register __m128 col0 = _mm_load_ps((float *)&right->f32_x[0]);
-        register __m128 col1 = _mm_load_ps((float *)&right->f32_x[1]);
-        register __m128 col2 = _mm_load_ps((float *)&right->f32_x[2]);
-        register __m128 col3 = _mm_load_ps((float *)&right->f32_x[3]);
+        register __m128 col0 = _mm_load_ps((float *)&right->x[0]);
+        register __m128 col1 = _mm_load_ps((float *)&right->x[1]);
+        register __m128 col2 = _mm_load_ps((float *)&right->x[2]);
+        register __m128 col3 = _mm_load_ps((float *)&right->x[3]);
 
         SN_ALIGNAS(16) float self_dot_src[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
         // try in reigister mix later

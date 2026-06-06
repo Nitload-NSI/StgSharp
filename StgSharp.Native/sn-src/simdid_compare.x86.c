@@ -3,7 +3,6 @@
 #if SN_IS_ARCH(SN_ARCH_X86_64)
 
 #include "StgSharpNative.h"
-#include "sn_intrinsic.h"
 #include "sn_intrinsic.context.x86.h"
 
 /* -----------------------------------------------------------------------

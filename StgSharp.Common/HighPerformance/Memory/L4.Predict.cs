@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="L4.Predict"
 // Project: StgSharp
-// AuthorGroup: Nitload
-// Copyright (c) Nitload. All rights reserved.
+// AuthorGroup: Nitload Space
+// Copyright (c) Nitload Space. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -39,66 +39,17 @@ namespace StgSharp.HighPerformance.Memory
     public partial class L4
     {
 
-        private ConcurrentBufferStack<int> _idReuse = new(32);
-
-        private ConcurrentFlexibleArray<IL4Predict> _predictors = new(32);
-
-        private ConcurrentQueue<int> _predictionQueue = new();
-
-        private int _largestId ;
-
         private IL4Predict CurrentPredict { get; set; }
 
-        private int CurrentPredictIndex { get; set; }
-
-        public int RegisterPredict(
-                   IL4Predict predict
-        )
+        public void ResetPredict(IL4Predict predict)
         {
-            if (predict is null) {
-                return -1;
-            }
-            if (!_idReuse.TryPop(out int id)) {
-                id = _largestId++;
-            }
-            if (id > short.MaxValue) {
-                throw new OverflowException("Too many predictors in waiting");
-            }
-            _predictors[id] = predict;
-            _predictionQueue.Enqueue(id);
-            return id;
-        }
-
-        public IL4Predict? UnregisterPredict(
-                           int id
-        )
-        {
-            if (id < 0) {
-                return null;
-            }
-            IL4Predict p = _predictors[id];
-            if (p == null) {
-                return p;
-            }
-            _predictors[id] = null!;
-            _idReuse.Push(id);
-            return p;
-        }
-
-        private bool TryGetNextPredict(
-        )
-        {
-            if (_predictionQueue.IsEmpty) {
-                return false;
-            }
-            if (_predictionQueue.TryDequeue(out int id))
+            if (CurrentPredict is null)
             {
-                IL4Predict predict = _predictors[id] ?? throw new L4PredictUnregisteredException(id);
                 CurrentPredict = predict;
-                CurrentPredictIndex = id;
-                return true;
+                return;
             }
-            return false;
+
+            // TODO: write back all and register new predictor
         }
 
     }

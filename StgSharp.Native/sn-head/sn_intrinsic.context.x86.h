@@ -1,9 +1,13 @@
+#ifndef SN_INTRINSIC_CONTEXT_X86_H
+#define SN_INTRINSIC_CONTEXT_X86_H
+
 #include "sn_target.h"
 
 #if SN_IS_ARCH(SN_ARCH_X86_64)
 
 #include "sn_intrinsic.h"
 #include "sn_intrinsic.std.h"
+#include "sn_intrinsic.context.base.h"
 
 #ifndef SN_X86_TARGET_ATTR_sse
 #define SN_STD_TARGET_ATTR_IMPL(T_arch, T_feature) SN_X86_TARGET_ATTR_##T_arch##T_feature
@@ -24,31 +28,17 @@
 // bits [55..48]: AVX10 Feature
 // bits [63..56]: uArchHi / Policy (optional)
 // -----------------------------------------------------------------------------
-#define SIMDID_SHIFT_ROOT 0
-#define SIMDID_SHIFT_MANU 4
-#define SIMDID_SHIFT_MAIN 8
 #define SIMDID_SHIFT_AVX512 16
 #define SIMDID_SHIFT_AMX 32
 #define SIMDID_SHIFT_AVX 40
 #define SIMDID_SHIFT_AVX10 48
 #define SIMDID_SHIFT_UARCH 56
 
-#define SIMDID_MASK_ROOT 0xFULL
-#define SIMDID_MASK_MANU (0xFULL << SIMDID_SHIFT_MANU)
-#define SIMDID_MASK_MAIN (0xFFULL << SIMDID_SHIFT_MAIN)
 #define SIMDID_MASK_AVX512 (0xFFFFULL << SIMDID_SHIFT_AVX512)
 #define SIMDID_MASK_AMX (0xFFULL << SIMDID_SHIFT_AMX)
 #define SIMDID_MASK_AVX (0xFFULL << SIMDID_SHIFT_AVX)
 #define SIMDID_MASK_AVX10 (0xFFULL << SIMDID_SHIFT_AVX10)
 #define SIMDID_MASK_UARCH (0xFFULL << SIMDID_SHIFT_UARCH)
-
-// Root ISA (low nibble)
-#define SIMDID_ROOT_UNKNOWN 0x0
-#define SIMDID_ROOT_X86_64 0x1
-#define SIMDID_ROOT_AARCH64 0x2
-#define SIMDID_ROOT_PPC64LE 0x3
-#define SIMDID_ROOT_RISCV64 0x4
-#define SIMDID_ROOT_LOONGARCH 0x5
 
 // Manufacture (x86-64 mapping; other ISAs may reinterpret)
 #define SIMDID_MANU_UNKNOWN 0x0
@@ -117,10 +107,9 @@
 #endif
 
 // Pack helpers (define locally to avoid missing macros when included standalone)
-#ifndef SIMDID_PACK_ROOT
-#define SIMDID_PACK_ROOT(root) (((uint64_t)(root) & 0xFULL) << SIMDID_SHIFT_ROOT)
-#define SIMDID_PACK_MANU(manu) (((uint64_t)(manu) & 0xFULL) << SIMDID_SHIFT_MANU)
-#define SIMDID_PACK_MAIN(main) (((uint64_t)(main) & 0xFFULL) << SIMDID_SHIFT_MAIN)
+#ifndef SIMDID_PACK_X86
+#define SIMDID_PACK_X86(root, manu, main) \
+        (SIMDID_PACK_ROOT(root) | SIMDID_PACK_MANU(manu) | SIMDID_PACK_MAIN(main))
 #define SIMDID_PACK_AVX512(avx512_bits) \
         (((uint64_t)(avx512_bits) & 0xFFFFULL) << SIMDID_SHIFT_AVX512)
 #define SIMDID_PACK_AMX(amx_bits) (((uint64_t)(amx_bits) & 0xFFULL) << SIMDID_SHIFT_AMX)
@@ -270,4 +259,5 @@ INTERNAL int SN_DECL index_pair_sse(short const *stram, uint32_t target, int len
 
 typedef enum intrinsic_level { SIMD0 = 0 } intrinsic_level;
 
+#endif
 #endif

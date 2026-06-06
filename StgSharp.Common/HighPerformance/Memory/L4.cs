@@ -48,11 +48,11 @@ namespace StgSharp.HighPerformance.Memory
         /// <summary>
         ///   Count of cache lines mapped for each prediction, used for eviction policy.
         /// </summary>
-        private readonly MapArray* _mapCount;
+        private readonly int* _mapCount;
         /// <summary>
         ///   Count of times each cache line is predicted, used for eviction policy.
         /// </summary>
-        private readonly PredictionArray* _predictCount;
+        private readonly int* _predictCount;
         /// <summary>
         ///   Original memory view for prediction span.
         /// </summary>
@@ -71,18 +71,20 @@ namespace StgSharp.HighPerformance.Memory
 
         public L4(
                int bindedNuma,
-               nuint bufferSize = 8192 * 8192,
+               uint bufferSize = 8192 * 8192,
                int align = 16,
-               nuint maxCacheLineSize = 8192
+               uint maxCacheLineSize = 8192
         )
         {
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(bufferSize, CacheLineMetadata.MaxBufferSize);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(maxCacheLineSize, CacheLineMetadata.MaxBufferSize);
             _bindedNuma = bindedNuma;
 
             // init order is fallow by align requirement of each component.
             nuint headSize = ((nuint)Unsafe.SizeOf<CacheLineMetadata>()) * CacheLineCount;   // 16 byte align
             nuint predictionSize = ((nuint)Unsafe.SizeOf<CacheLineDescription>()) * PredictionCount;   //16 byte align
             nuint mapCountSize = SwissTable.RequestedNativeMemorySize;     // 16 byte align
-            nuint predictionCountSize = (nuint)Unsafe.SizeOf<PredictionArray>();           // 16 byte align
+            nuint predictionCountSize = sizeof(int) * CacheLineCount;           // 16 byte align
             nuint normalizedBufferSize = (bufferSize + (PageSize - 1)) & (~(PageSize - 1));    // align to 4096 byte, page size
             ByteCapacity = normalizedBufferSize;
 
@@ -103,9 +105,9 @@ namespace StgSharp.HighPerformance.Memory
             ptr += predictionSize;
             _map = SwissTable.Create(ptr, _ => { });
             ptr += mapCountSize;
-            _predictCount = (PredictionArray*)ptr;
+            _predictCount = (int*)ptr;
             ptr += predictionCountSize;
-            _mapCount = (MapArray*)ptr;
+            _mapCount = (int*)ptr;
             ptr += predictionCountSize;
 
             M512* mPtr = (M512*)_head;
@@ -186,10 +188,11 @@ namespace StgSharp.HighPerformance.Memory
                     CacheLineMetadata* entry = (CacheLineMetadata*)entryHandle;
                     if (Interlocked.Increment(ref entry->RefCount) > 0)
                     {
-                        (*_predictCount)[entry->Id] = 0;
+                        _predictCount[entry - _head] = 0;
                         _ = Interlocked.Decrement(ref _aheadCount);
-                        _ = Interlocked.Decrement(ref (*_mapCount)[entry->Id]);
-                        return new Handle((nuint)entry->Position, ref entry->RefCount);
+                        _ = Interlocked.Decrement(ref _mapCount[entry - _head]);
+                        nuint* hPtr = stackalloc nuint[2] { entry->PositionMask + _baseAddress, (nuint)entry };
+                        return *(Handle*)hPtr;
                     } else
                     {
                         _ = Interlocked.Decrement(ref entry->RefCount);

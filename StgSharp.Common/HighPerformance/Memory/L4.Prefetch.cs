@@ -39,12 +39,9 @@ namespace StgSharp.HighPerformance.Memory
                 return;
             }
             IL4Predict predict = CurrentPredict;
-            int predictIndex = CurrentPredictIndex;
             Span<CacheLineDescription> span = new(_prediction, PredictionCount);
             PredictResult result = predict.Predict(span, out int actualCount);
-            if ((result & PredictResult.Exhausted) != 0) {
-                _exhausted = !TryGetNextPredict();
-            }
+            _exhausted = (result & PredictResult.Exhausted) != 0;
             if (actualCount <= 0)
             {
                 _exhausted = true;
@@ -62,81 +59,63 @@ namespace StgSharp.HighPerformance.Memory
                     missIndex++;
                 }
             }
-            _predictors.RequestSpanOperation();
-            Span<IL4Predict> predictorSpan = _predictors.AsSpan();
-            try
+
+            // now prefetch the misses
+            for (int i = 0; i < missIndex; i++)
             {
-                // now prefetch the misses
-                for (int i = 0; i < missIndex; i++)
+                CacheLineMetadata* head;
+                ref CacheLineDescription pHandle = ref span[i];
+                nuint address = pHandle.Address;
+                int index;
+                if (_map.TryGet(address, out nuint handle))
                 {
-                    CacheLineMetadata* head;
-                    ref CacheLineDescription pHandle = ref span[i];
-                    nuint address = pHandle.Address;
-                    int index;
-                    if (_map.TryGet(address, out nuint handle))
+                    head = (CacheLineMetadata*)handle;
+                    index = (int)(head - _head);
+                    _predictCount[index] = 0; // reset eviction counter
+
+                    #region update predictor belonging
+
+                    if (_predictCount[index] > short.MaxValue / 2)
                     {
-                        head = (CacheLineMetadata*)handle;
-                        index = head->Id;
-                        (*_predictCount)[index] = 0; // reset eviction counter
-
-                        #region update predictor belonging
-
-                        int predictId = head->Predictor;
-                        IL4Predict belong = predictorSpan[predictId];
-
-                        if (!ReferenceEquals(predict, belong))
-                        {
-                            throw new L4PredictConflictException(head->Origin, head->Profile, predictId);
-                        } else
-                        {
-                            if ((*_predictCount)[index] > short.MaxValue / 2)
-                            {
-                                int predictCount = Volatile.Read(ref (*_predictCount)[index]);
-                                int mapCount = Volatile.Read(ref (*_mapCount)[index]);
-                                int decrement = (int.Min(predictCount, mapCount) + 1) / 2;
-                                _ = Interlocked.Add(ref (*_predictCount)[index], -decrement);
-                                _ = Interlocked.Add(ref (*_mapCount)[index], -decrement);
-                            }
-                            (*_predictCount)[index]++;
-                        }
-
-                        #endregion
-
-                        continue;
+                        int predictCount = Volatile.Read(ref _predictCount[index]);
+                        int mapCount = Volatile.Read(ref _mapCount[index]);
+                        int decrement = (int.Min(predictCount, mapCount) + 1) / 2;
+                        _ = Interlocked.Add(ref _predictCount[index], -decrement);
+                        _ = Interlocked.Add(ref _mapCount[index], -decrement);
                     }
+                    _predictCount[index]++;
 
-                    int retryCount = 0, remain = missIndex - i;
-                    const int maxRetry = 1024;
-                    while (!_bufferAllocator.TryAlloc(pHandle.Size, out index))
-                    {
-                        remain = Evict(remain);
-                        retryCount++;
-                        if (retryCount > maxRetry) {
-                            throw new OverflowException($"Failed to evict cache line after {maxRetry} retries.");
-                        }
-                        if (retryCount > maxRetry / 2) {
-                            Thread.Sleep(1);
-                        }
-                    }
-                    head = _head + index;
-                    head->Origin = address;
-                    head->Profile = pHandle.MapPolicy;
-                    head->RefCount = 0;
-                    head->Predictor = (short)predictIndex;
+                    #endregion
 
-                    (*_predictCount)[index] = 1;
-                    (*_mapCount)[index] = 1;
-
-                    // pre fetch them here
-                    predict.Prefetch(head->Origin, head->Profile, new Span<byte>((byte*)(ulong)head->Position, (int)(ulong)head->SizeForAllocator));
-                    _ = _map.TryAddOrSet(address, (nuint)head, out _);
+                    continue;
                 }
-                _ = Interlocked.Add(ref _aheadCount, actualCount);
+
+                int retryCount = 0, remain = missIndex - i;
+                const int maxRetry = 1024;
+                while (!_bufferAllocator.TryAlloc(pHandle.Size, out index))
+                {
+                    remain = Evict(remain);
+                    retryCount++;
+                    if (retryCount > maxRetry) {
+                        throw new OverflowException($"Failed to evict cache line after {maxRetry} retries.");
+                    }
+                    if (retryCount > maxRetry / 2) {
+                        Thread.Sleep(1);
+                    }
+                }
+                head = _head + index;
+                head->Origin = address;
+                head->CustomizeProfile = pHandle.MapPolicy;
+                head->RefCount = 0;
+
+                _predictCount[index] = 1;
+                _mapCount[index] = 1;
+
+                // pre fetch them here
+                predict.Prefetch(head->Origin, head->CustomizeProfile, new Span<byte>((byte*)(head->PositionMask + _baseAddress), (int)head->SizeMask));
+                _ = _map.TryAddOrSet(address, (nuint)head, out _);
             }
-            finally
-            {
-                _predictors.ReleaseSpanOperation();
-            }
+            _ = Interlocked.Add(ref _aheadCount, actualCount);
         }
 
     }

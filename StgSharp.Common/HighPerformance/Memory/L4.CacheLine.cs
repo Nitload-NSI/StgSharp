@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="L4.CacheLine"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,28 +28,10 @@
 using StgSharp.HighPerformance.ProcessorAbstraction;
 using System.Runtime.InteropServices;
 
-using Tlsf = StgSharp.HighPerformance.Memory.TwoLayerSegregatedFitAllocator;
-
 namespace StgSharp.HighPerformance.Memory
 {
     public partial class L4
     {
-
-        [InlineArray(CacheLineCount)]
-        private struct PredictionArray
-        {
-
-            private int PredictionCount;
-
-        }
-
-        [InlineArray(CacheLineCount)]
-        private struct MapArray
-        {
-
-            private int MapCount;
-
-        }
 
         internal enum AllocationState : byte
         {
@@ -60,75 +42,56 @@ namespace StgSharp.HighPerformance.Memory
 
         }
 
-        [StructLayout(LayoutKind.Explicit, Size = 64, Pack = 64)]
+        [StructLayout(LayoutKind.Explicit, Size = 32, Pack = 32)]
         private unsafe struct CacheLineMetadata
         {
 
-            #region tlsf area
+            internal const uint MaxBufferSize = 0xFFFFFFFF - 64U;
 
-            // TLSF area use only 24 bytes
+            [FieldOffset(0)] private readonly M256 FillingMask;
 
-            internal const ulong Mask48Bits = 0x0000FFFFFFFFFFFF;
+            [FieldOffset(24)] internal nuint Origin;
 
-            [FieldOffset(0)] private readonly M512 FillingMask;
+            public static uint SizeOf { get; } = (uint)Unsafe.SizeOf<CacheLineMetadata>();
 
-            [FieldOffset(8)] private ulong PositionMask;
-            [FieldOffset(16)] private ulong SizeMask;
-
-            [FieldOffset(14)] internal AllocationState State;
-
-            // [FieldOffset(15)] internal sbyte Level;
+            #region tlsf linked list
 
             [FieldOffset(0)] public short NextLevel;
             [FieldOffset(2)] public short NextNear;
             [FieldOffset(4)] public short PreviousLevel;
             [FieldOffset(6)] public short PreviousNear;
 
-            public Ptr64 Position
-            {
-                readonly get => PositionMask;
-                set => PositionMask = value;
-            }
+            #endregion
 
-            public Ptr64 SizeForAllocator
-            {
-                readonly get => (Ptr64)(SizeMask & Mask48Bits);
-                set => SizeMask = (SizeMask & ~Mask48Bits) | ((ulong)value & Mask48Bits);
-            }
+            #region buffer
 
-            public Ptr64 SizeForSpare
-            {
-                readonly get => SizeMask;
-                set => SizeMask = value;
-            }
-
-            public static uint SizeOf { get; } = (uint)Unsafe.SizeOf<CacheLineMetadata>();
+            [FieldOffset(8)] public uint PositionMask;
+            [FieldOffset(12)] public uint SizeMask;
 
             #endregion
 
-            #region reference counting and state information
+            #region mask
 
-            [FieldOffset(24)] internal int RefCount;
-            [FieldOffset(28)] internal readonly short Id;
+            [FieldOffset(16)] internal AllocationState State;
+            [FieldOffset(17)] internal byte ReversedProfile;
+            [FieldOffset(18)] internal ushort CustomizeProfile;
+            [FieldOffset(20)] internal int RefCount;
 
-            #endregion
-
-            #region cache line information
-
-            [FieldOffset(34)] internal ushort Profile;
-            [FieldOffset(36)] internal nuint Origin;
-
-            #endregion
+        #endregion
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public unsafe ref struct Handle : IDisposable
+#pragma warning disable IDE0032
+        [StructLayout(LayoutKind.Explicit)]
+        public unsafe struct Handle : IDisposable
         {
 
-            private CacheLineMetadata* _head;
-            private nuint _handle;
+            [FieldOffset(8)] private readonly CacheLineMetadata* _head;
+            [FieldOffset(0)] private nuint _handle;
 
-            private Handle(nuint handle, CacheLineMetadata* cacheRefCount)
+            private Handle(
+                    nuint handle,
+                    CacheLineMetadata* cacheRefCount
+            )
             {
                 _handle = handle;
                 _head = cacheRefCount;
@@ -149,6 +112,6 @@ namespace StgSharp.HighPerformance.Memory
             }
 
         }
-
+#pragma warning restore IDE0032
     }
 }
