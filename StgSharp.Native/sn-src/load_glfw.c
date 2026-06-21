@@ -1,6 +1,5 @@
 #include "StgSharpNative.h"
 #include "glfw_function.h"
-#include <string.h>
 
 SN_API void SN_DECL load_glfw_functions(GLFWFunctionTable *table)
 {

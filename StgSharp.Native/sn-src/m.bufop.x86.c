@@ -1,17 +1,17 @@
 #include "sn_target.h"
-#include <immintrin.h>
 
 #if SN_IS_ARCH(SN_ARCH_X86_64)
 
+#include <immintrin.h>
 #include "sn_intrinsic.h"
 #include "sn_intrinsic.std.h"
 #include "sn_intrinsic.context.x86.h"
 
 SN_MK_PROC_DECL_STD(float, sse, , fill)
 {
-        __mk_param_std(BUFFER, ANS_SCALAR, float);
-        register __m128 vec = _mm_set_ps1(((float *)(scalar->data))[0]);
-        for (size_t i = 0; i < count; i++) {
+        __mk_param_std(ANS_SCALAR, float);
+        register __m128 vec = _mm_set_ps1(scalar.f32[0]);
+        for (size_t i = 0; i < count_2; i++) {
                 ans[i].x[0] = vec;
                 ans[i].x[1] = vec;
                 ans[i].x[2] = vec;
@@ -21,9 +21,9 @@ SN_MK_PROC_DECL_STD(float, sse, , fill)
 
 SN_MK_PROC_DECL_STD(float, avx, , fill)
 {
-        __mk_param_std(BUFFER, ANS_SCALAR, float);
-        register __m256 vec = _mm256_broadcast_ss(((float *)(scalar->data)));
-        for (size_t i = 0; i < count; i++) {
+        __mk_param_std(ANS_SCALAR, float);
+        register __m256 vec = _mm256_broadcast_ss(&scalar.f32[0]);
+        for (size_t i = 0; i < count_2; i++) {
                 ans[i].y[0] = vec;
                 ans[i].y[1] = vec;
         }
@@ -31,19 +31,19 @@ SN_MK_PROC_DECL_STD(float, avx, , fill)
 
 SN_MK_PROC_DECL_STD(float, 512, , fill)
 {
-        __mk_param_std(BUFFER, ANS_SCALAR, float);
-        register __m512 vec = _mm512_broadcastss_ps(((__m128 *)(scalar->data))[0]);
-        for (size_t i = 0; i < count; i++) {
+        __mk_param_std(ANS_SCALAR, float);
+        register __m512 vec = _mm512_broadcastss_ps(scalar.m128);
+        for (size_t i = 0; i < count_2; i++) {
                 ans[i].z[0] = vec;
         }
 }
 
 SN_MK_PROC_DECL_STD(double, sse, , fill)
 {
-        __mk_param_std(BUFFER, ANS_SCALAR, double);
-        register __m128d vec_d = _mm_set1_pd(((double *)(scalar->data))[0]);
+        __mk_param_std(ANS_SCALAR, double);
+        register __m128d vec_d = _mm_set1_pd(scalar.f64[0]);
         register __m128 vec = _mm_castpd_ps(vec_d);
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_2; i++) {
                 ans[i].x[0] = vec;
                 ans[i].x[1] = vec;
                 ans[i].x[2] = vec;
@@ -57,9 +57,9 @@ SN_MK_PROC_DECL_STD(double, sse, , fill)
 
 SN_MK_PROC_DECL_STD(double, avx, , fill)
 {
-        __mk_param_std(BUFFER, ANS_SCALAR, double);
-        register __m256d vec = _mm256_broadcast_sd(((double *)(scalar->data)));
-        for (size_t i = 0; i < count; i++) {
+        __mk_param_std(ANS_SCALAR, double);
+        register __m256d vec = _mm256_broadcast_sd(&scalar.f64[0]);
+        for (size_t i = 0; i < count_2; i++) {
                 ans[i].y[0] = _mm256_castpd_ps(vec);
                 ans[i].y[1] = _mm256_castpd_ps( vec);
                 ans[i].y[2] = _mm256_castpd_ps( vec);
@@ -69,9 +69,9 @@ SN_MK_PROC_DECL_STD(double, avx, , fill)
 
 SN_MK_PROC_DECL_STD(double, 512, , fill)
 {
-        __mk_param_std(BUFFER, ANS_SCALAR, double);
-        register __m512d vec = _mm512_set1_pd(((double const *)scalar->data)[0]);
-        for (size_t i = 0; i < count; i++) {
+        __mk_param_std(ANS_SCALAR, double);
+        register __m512d vec = _mm512_set1_pd(scalar.f64[0]);
+        for (size_t i = 0; i < count_2; i++) {
                 ans[i].z[0] = _mm512_castpd_ps(vec);
                 ans[i].z[1] = _mm512_castpd_ps(vec);
         }
@@ -79,9 +79,9 @@ SN_MK_PROC_DECL_STD(double, 512, , fill)
 
 SN_MK_PROC_DECL_STD(float, sse, , add)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+        __mk_param_std(LEFT_RIGHT_ANS, float);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m128 c0 = _mm_add_ps(left[i].x[0], right[i].x[0]);
                 register __m128 c1 = _mm_add_ps(left[i].x[1], right[i].x[1]);
                 register __m128 c2 = _mm_add_ps(left[i].x[2], right[i].x[2]);
@@ -96,9 +96,9 @@ SN_MK_PROC_DECL_STD(float, sse, , add)
 
 SN_MK_PROC_DECL_STD(float, avx, , add)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+        __mk_param_std(LEFT_RIGHT_ANS, float);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 size_t s = sizeof(MAT_KERNEL(float));
                 register __m256 c0 = _mm256_add_ps(left[i].y[0], right[i].y[0]);
                 register __m256 c1 = _mm256_add_ps(left[i].y[1], right[i].y[1]);
@@ -109,18 +109,18 @@ SN_MK_PROC_DECL_STD(float, avx, , add)
 
 SN_MK_PROC_DECL_STD(float, 512, , add)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+        __mk_param_std(LEFT_RIGHT_ANS, float);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m512 c0 = _mm512_add_ps(left[i].z[0], right[i].z[0]);
                 ans[i].z[0] = c0;
         }
 }
 SN_MK_PROC_DECL_STD(double, sse, , add)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+        __mk_param_std( LEFT_RIGHT_ANS, double);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m128d c0 = _mm_add_pd(_mm_castps_pd(left[i].x[0]),
                                                  _mm_castps_pd(right[i].x[0]));
                 register __m128d c1 = _mm_add_pd(_mm_castps_pd(left[i].x[1]),
@@ -151,9 +151,9 @@ SN_MK_PROC_DECL_STD(double, sse, , add)
 
 SN_MK_PROC_DECL_STD(double, avx, , add)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+        __mk_param_std( LEFT_RIGHT_ANS, double);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 size_t s = sizeof(MAT_KERNEL(float));
                 register __m256d c0 = _mm256_add_pd(left[i].y[0], right[i].y[0]);
                 register __m256d c1 = _mm256_add_pd(left[i].y[1], right[i].y[1]);
@@ -168,9 +168,9 @@ SN_MK_PROC_DECL_STD(double, avx, , add)
 
 SN_MK_PROC_DECL_STD(double, 512, , add)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+        __mk_param_std( LEFT_RIGHT_ANS, double);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m512d c0 = _mm512_add_pd(_mm512_castps_pd( left[i].z[0]), _mm512_castps_pd( right[i].z[0]));
                 register __m512d c1 = _mm512_add_pd(_mm512_castps_pd( left[i].z[1]), _mm512_castps_pd( right[i].z[1]));
                 ans[i].z[0] = c0;
@@ -180,9 +180,9 @@ SN_MK_PROC_DECL_STD(double, 512, , add)
 
 SN_MK_PROC_DECL_STD(float, sse, , sub)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+        __mk_param_std( LEFT_RIGHT_ANS, float);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m128 c0 = _mm_sub_ps(left[i].x[0], right[i].x[0]);
                 register __m128 c1 = _mm_sub_ps(left[i].x[1], right[i].x[1]);
                 register __m128 c2 = _mm_sub_ps(left[i].x[2], right[i].x[2]);
@@ -197,9 +197,9 @@ SN_MK_PROC_DECL_STD(float, sse, , sub)
 
 SN_MK_PROC_DECL_STD(float, avx, , sub)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+        __mk_param_std( LEFT_RIGHT_ANS, float);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m256 c0 = _mm256_sub_ps(left[i].y[0], right[i].y[0]);
                 register __m256 c1 = _mm256_sub_ps(left[i].y[1], right[i].y[1]);
                 ans[i].y[0] = c0;
@@ -209,9 +209,9 @@ SN_MK_PROC_DECL_STD(float, avx, , sub)
 
 SN_MK_PROC_DECL_STD(float, 512, , sub)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, float);
+        __mk_param_std( LEFT_RIGHT_ANS, float);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m512 c0 = _mm512_sub_ps(left[i].z[0], right[i].z[0]);
                 ans[i].z[0] = c0;
         }
@@ -219,9 +219,9 @@ SN_MK_PROC_DECL_STD(float, 512, , sub)
 
 SN_MK_PROC_DECL_STD(double, sse, , sub)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+        __mk_param_std( LEFT_RIGHT_ANS, double);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m128d c0 = _mm_sub_pd(left[i].x[0], right[i].x[0]);
                 register __m128d c1 = _mm_sub_pd(left[i].x[1], right[i].x[1]);
                 register __m128d c2 = _mm_sub_pd(left[i].x[2], right[i].x[2]);
@@ -244,9 +244,9 @@ SN_MK_PROC_DECL_STD(double, sse, , sub)
 
 SN_MK_PROC_DECL_STD(double, avx, , sub)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+        __mk_param_std( LEFT_RIGHT_ANS, double);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m256 c0 = _mm256_sub_ps(left[i].y[0], right[i].y[0]);
                 register __m256 c1 = _mm256_sub_ps(left[i].y[1], right[i].y[1]);
                 ans[i].y[0] = c0;
@@ -256,9 +256,9 @@ SN_MK_PROC_DECL_STD(double, avx, , sub)
 
 SN_MK_PROC_DECL_STD(double, 512, , sub)
 {
-        __mk_param_std(BUFFER, LEFT_RIGHT_ANS, double);
+        __mk_param_std( LEFT_RIGHT_ANS, double);
 
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count_0; i++) {
                 register __m512 c0 = _mm512_sub_ps(left[i].z[0], right[i].z[0]);
                 ans[i].z[0] = c0;
         }
@@ -266,10 +266,10 @@ SN_MK_PROC_DECL_STD(double, 512, , sub)
 
 SN_MK_PROC_DECL_STD(float, sse, , scalar_mul)
 {
-        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, float);
+        __mk_param_std( RIGHT_ANS_SCALAR, float);
 
-        register __m128 vec = _mm_set_ps1(((float *)(scalar->data))[0]);
-        for (size_t i = 0; i < count; i++) {
+        register __m128 vec = _mm_set_ps1(scalar.f32[0]);
+        for (size_t i = 0; i < count_1; i++) {
                 register __m128 c0 = _mm_mul_ps(right[i].x[0], vec);
                 register __m128 c1 = _mm_mul_ps(right[i].x[1], vec);
                 register __m128 c2 = _mm_mul_ps(right[i].x[2], vec);
@@ -284,10 +284,10 @@ SN_MK_PROC_DECL_STD(float, sse, , scalar_mul)
 
 SN_MK_PROC_DECL_STD(float, avx, , scalar_mul)
 {
-        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, float);
+        __mk_param_std( RIGHT_ANS_SCALAR, float);
 
-        register __m256 vec = _mm256_broadcast_ss(((float *)(scalar->data)));
-        for (size_t i = 0; i < count; i++) {
+        register __m256 vec = _mm256_broadcast_ss(&scalar.f32[0]);
+        for (size_t i = 0; i < count_1; i++) {
                 register __m256 c0 = _mm256_mul_ps(right[i].y[0], vec);
                 register __m256 c1 = _mm256_mul_ps(right[i].y[1], vec);
 
@@ -298,10 +298,10 @@ SN_MK_PROC_DECL_STD(float, avx, , scalar_mul)
 
 SN_MK_PROC_DECL_STD(float, 512, , scalar_mul)
 {
-        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, float);
+        __mk_param_std( RIGHT_ANS_SCALAR, float);
 
-        register __m512 vec = _mm512_broadcastss_ps(((__m128 *)(scalar->data))[0]);
-        for (size_t i = 0; i < count; i++) {
+        register __m512 vec = _mm512_broadcastss_ps(scalar.m128);
+        for (size_t i = 0; i < count_1; i++) {
                 register __m512 c0 = _mm512_mul_ps(right[i].z[0], vec);
 
                 ans[i].z[0] = c0;
@@ -310,10 +310,10 @@ SN_MK_PROC_DECL_STD(float, 512, , scalar_mul)
 
 SN_MK_PROC_DECL_STD(double, sse, , scalar_mul)
 {
-        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, double);
+        __mk_param_std( RIGHT_ANS_SCALAR, double);
 
-        register __m128d vec = _mm_set1_pd(((double *)(scalar->data))[0]);
-        for (size_t i = 0; i < count; i++) {
+        register __m128d vec = _mm_set1_pd(scalar.f64[0]);
+        for (size_t i = 0; i < count_1; i++) {
                 register __m128d c0 = _mm_mul_pd(right[i].x[0], vec);
                 register __m128d c1 = _mm_mul_pd(right[i].x[1], vec);
                 register __m128d c2 = _mm_mul_pd(right[i].x[2], vec);
@@ -336,10 +336,10 @@ SN_MK_PROC_DECL_STD(double, sse, , scalar_mul)
 
 SN_MK_PROC_DECL_STD(double, avx, , scalar_mul)
 {
-        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, double);
+        __mk_param_std( RIGHT_ANS_SCALAR, double);
 
-        register __m256d vec = _mm256_broadcast_sd(((double *)(scalar->data)));
-        for (size_t i = 0; i < count; i++) {
+        register __m256d vec = _mm256_broadcast_sd(&scalar.f64[0]);
+        for (size_t i = 0; i < count_1; i++) {
                 register __m256d c0 = _mm256_mul_pd(right[i].y[0], vec);
                 register __m256d c1 = _mm256_mul_pd(right[i].y[1], vec);
                 register __m256d c2 = _mm256_mul_pd(right[i].y[2], vec);
@@ -354,10 +354,10 @@ SN_MK_PROC_DECL_STD(double, avx, , scalar_mul)
 
 SN_MK_PROC_DECL_STD(double, 512, , scalar_mul)
 {
-        __mk_param_std(BUFFER, RIGHT_ANS_SCALAR, double);
+        __mk_param_std( RIGHT_ANS_SCALAR, double);
 
-        register __m512d vec = _mm512_set1_pd(((double const *)scalar->data)[0]);
-        for (size_t i = 0; i < count; i++) {
+        register __m512d vec = _mm512_set1_pd(scalar.f64[0]);
+        for (size_t i = 0; i < count_1; i++) {
                 register __m512d c0 = _mm512_mul_pd(right[i].z[0], vec);
                 register __m512d c1 = _mm512_mul_pd(right[i].z[1], vec);
 

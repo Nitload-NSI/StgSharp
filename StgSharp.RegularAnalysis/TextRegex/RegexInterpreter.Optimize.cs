@@ -37,7 +37,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace StgSharp.RegularAnalysis.TextRegex
+namespace StgSharp.RegularAnalysis.Text
 {
     public partial class RegexInterpreter
     {
@@ -106,8 +106,8 @@ namespace StgSharp.RegularAnalysis.TextRegex
             int length = 0;
             RegexAstNode right = root.Right;
             RegexAstNode left = root.Left;
-            if (left.EqualityTypeConvert != RegexElementLabel.UNIT_SPAN &&
-                left.EqualityTypeConvert != RegexElementLabel.UNIT) {
+            if (left.EqualityTypeConvert is not RegexElementLabel.UNIT_SPAN and
+                not RegexElementLabel.UNIT) {
                 return false;
             }
             string str = left.Value;
@@ -117,8 +117,8 @@ namespace StgSharp.RegularAnalysis.TextRegex
                    right.EqualityTypeConvert == RegexElementLabel.CONCAT)
             {
                 left = right.Left;
-                if (left.EqualityTypeConvert != RegexElementLabel.UNIT_SPAN &&
-                    left.EqualityTypeConvert != RegexElementLabel.UNIT)
+                if (left.EqualityTypeConvert is not RegexElementLabel.UNIT_SPAN and
+                    not RegexElementLabel.UNIT)
                 {
                     break;
                 }
@@ -130,8 +130,8 @@ namespace StgSharp.RegularAnalysis.TextRegex
                 right = root.Right;
                 right.Parent = root;
             }
-            if (right.EqualityTypeConvert == RegexElementLabel.UNIT_SPAN ||
-                right.EqualityTypeConvert == RegexElementLabel.UNIT)
+            if (right.EqualityTypeConvert is RegexElementLabel.UNIT_SPAN or
+                RegexElementLabel.UNIT)
             {
                 root.Right = RegexAstNode.Empty;
                 buffer.Add(right.Value);
@@ -211,7 +211,6 @@ namespace StgSharp.RegularAnalysis.TextRegex
         {
             UnionAlt union = new(0, cases);
             RegexAstNode root = union.AsNormal();
-
             return root;
         }
 
@@ -227,7 +226,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
                 : base(node.Source)
             {
                 Level = level;
-                Cases = new List<RegexAstNode>();
+                Cases = [];
 
                 RegexAstNode right = IsNullOrEmpty(node.Right) ?
                                      new RegexAstNode(
@@ -273,11 +272,12 @@ namespace StgSharp.RegularAnalysis.TextRegex
                 {
                     if ((Cases[i].EqualityTypeConvert & RegexElementLabel.SEQUENCE) != 0)
                     {
-                        RegexAstNode concat = new RegexAstNode(new Token<RegexElementLabel>(string.Empty,
-                                                                                            0,
-                                                                                            Cases[i].Source.Column,
-                                                                                            RegexElementLabel.CONCAT));
-                        concat.Left = Cases[i];
+                        RegexAstNode concat = new(new Token<RegexElementLabel>(string.Empty, 0,
+                                                                               Cases[i].Source.Column,
+                                                                               RegexElementLabel.CONCAT))
+                        {
+                            Left = Cases[i]
+                        };
                         Cases[i].Parent = concat;
                         concat.Right = Empty;
                         Cases[i] = concat;
@@ -367,8 +367,6 @@ namespace StgSharp.RegularAnalysis.TextRegex
                     Cases[i].Parent = UnionEnd;
                 }
                 UnionEnd.Right = Cases[0];
-                TreeEnumerator<RegexAstNode, RegexElementLabel> enumerator = new TreeEnumerator<RegexAstNode, RegexElementLabel>(UnionBegin);
-
                 return UnionBegin;
             }
 

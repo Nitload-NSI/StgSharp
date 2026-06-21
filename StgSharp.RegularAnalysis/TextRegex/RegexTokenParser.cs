@@ -34,7 +34,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.RegularAnalysis.TextRegex
+namespace StgSharp.RegularAnalysis.Text
 {
     internal class RegexTokenParser : TokenParser<RegexElementLabel, RegexElementLabel>
     {
@@ -68,6 +68,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
                 }
             } else
             {
+                Console.WriteLine("returns empty");
                 return Token<RegexElementLabel>.Empty;
             }
         }
@@ -82,7 +83,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
                 return false;
             }
             t = ReadToken();
-            return t == Token<RegexElementLabel>.Empty;
+            return t != Token<RegexElementLabel>.Empty;
         }
 
     }

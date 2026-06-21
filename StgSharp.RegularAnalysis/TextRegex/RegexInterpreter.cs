@@ -35,7 +35,7 @@ using System.Text;
 
 using System.Threading.Tasks;
 
-namespace StgSharp.RegularAnalysis.TextRegex
+namespace StgSharp.RegularAnalysis.Text
 {
     public partial class RegexInterpreter
     {
@@ -58,11 +58,9 @@ namespace StgSharp.RegularAnalysis.TextRegex
             }
         }
 
-        public static RegexInterpreter Analyze(
-                                       string regex
-        )
+        public static RegexInterpreter Analyze(string regex)
         {
-            RegexInterpreter interpreter = new RegexInterpreter();
+            RegexInterpreter interpreter = new();
             interpreter._source = regex;
             bool isSuccess;
             try
@@ -81,11 +79,12 @@ namespace StgSharp.RegularAnalysis.TextRegex
 
         private void Analyze()
         {
-            RegexTokenReader reader = new RegexTokenReader(_source);
+            RegexTokenReader reader = new(_source);
             TokenParser<RegexElementLabel, RegexElementLabel> lexer = reader.Pipe(() => new RegexTokenParser());
 
             while (lexer.TryReadToken(out Token<RegexElementLabel> token))
             {
+                // Console.WriteLine(token.Value);
                 if ((token.Flag & RegexElementLabel.SEQUENCE) != 0)
                 {
                     // char or charset
@@ -161,16 +160,15 @@ namespace StgSharp.RegularAnalysis.TextRegex
             throw new InvalidOperationException("Invalid regular expression syntax.");
         }
 
-        private void OptimizeTree(
-        )
+        private void OptimizeTree()
         {
             // phase0: scan container and remove no parent nodes
-            _tree.AllNodes.RemoveWhere(node => node.Parent == null && node != _tree.Root);
-            TreeEnumerator<RegexAstNode, RegexElementLabel> enumerator = new TreeEnumerator<RegexAstNode, RegexElementLabel>(_tree.Root);
+            _ = _tree.AllNodes.RemoveWhere(node => node.Parent == null && node != _tree.Root);
+            TreeEnumerator<RegexAstNode, RegexElementLabel> enumerator = new(_tree.Root);
             RegexAstNode current;
 
             // phase1: ALT flatten
-            // phase3: CONCAT normalize
+            // phase2: CONCAT normalize
             int i = 0;
             List<RegexAstNode> altNodes = [];
             while (enumerator.MoveNext())
@@ -189,7 +187,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
 
             List<RegexAstNode> cases = [];
 
-            // phase2: then ALT union
+            // phase3: then ALT union
             foreach (RegexAstNode item in altNodes)
             {
                 RegexAstNode _case = item.Right;
@@ -218,16 +216,15 @@ namespace StgSharp.RegularAnalysis.TextRegex
                     }
                 }
             }
+
+            // TODO enum AST again , do ALT tail merge and simple ALT front merge
         }
 
-        private void ProcessOperator(
-                     RegexAstNode op
-        )
+        private void ProcessOperator(RegexAstNode op)
         {
             if (op.EqualityTypeConvert == RegexElementLabel.CONCAT)
             {
-                if (_stack.TryPopOperand(out RegexAstNode? _1) &&
-                    _stack.TryPopOperand(out RegexAstNode? _2))
+                if (_stack.TryPopOperand(out RegexAstNode? _1) && _stack.TryPopOperand(out RegexAstNode? _2))
                 {
                     op.Left = _2;
                     op.Right = _1;
@@ -253,8 +250,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
                 }
             } else if (op.EqualityTypeConvert == RegexElementLabel.ALT)
             {
-                if (_stack.TryPopOperand(out RegexAstNode? _1) &&
-                    _stack.TryPopOperand(out RegexAstNode? _2))
+                if (_stack.TryPopOperand(out RegexAstNode? _1) && _stack.TryPopOperand(out RegexAstNode? _2))
                 {
                     op.Left = _2;
                     op.Right = _1;

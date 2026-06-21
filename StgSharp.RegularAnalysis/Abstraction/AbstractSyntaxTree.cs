@@ -42,42 +42,36 @@ namespace StgSharp.RegularAnalysis.Abstraction
         where TType : unmanaged
     {
 
-        private HashSet<TNode> _allToken = new();
+        public HashSet<TNode> AllNodes => AllToken;
 
-        public HashSet<TNode> AllNodes
-        {
-            get { return _allToken; }
-        }
-
-        public int Count
-        {
-            get { return _allToken.Count; }
-        }
+        public int Count => AllToken.Count;
 
         public TNode Root
         {
             get;
             internal set
             {
-                if (_allToken.Contains(value)) {
+                if (AllToken.Contains(value)) {
                     field = value;
                 }
             }
         }
+
+        private HashSet<TNode> AllToken { get; } = new();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool AddNode(
                     TNode node
         )
         {
-            return _allToken.Add(node);
+            return AllToken.Add(node);
         }
 
         public bool Contains(
                     TNode node
         )
         {
-            return _allToken.Contains(node);
+            return AllToken.Contains(node);
         }
 
         public IEnumerator<TNode> GetEnumerator()
@@ -92,11 +86,11 @@ namespace StgSharp.RegularAnalysis.Abstraction
     ) : IEnumerator<TNode> where TNode : ISyntaxNode<TNode, TType> where TType : unmanaged
     {
 
-        private bool _completed = false;
+        private bool _completed;
 
         private int _state, _target; // 0: not started, 1: on right, 2: ended
-        private Stack<Record> _recycle = [];
-        private Stack<Record> _stack = [];
+        private readonly Stack<Record> _recycle = [];
+        private readonly Stack<Record> _stack = [];
 
         // private TNode _lRoot;
         private TNode _root = root;

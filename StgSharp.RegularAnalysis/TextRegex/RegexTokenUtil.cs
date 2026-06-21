@@ -32,7 +32,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.RegularAnalysis.TextRegex
+namespace StgSharp.RegularAnalysis.Text
 {
     internal static class RegexTokenUtil
     {

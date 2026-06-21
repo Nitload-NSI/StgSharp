@@ -66,10 +66,12 @@ namespace StgSharp.Mathematics.Numeric
         }
 
         public bool TryGetTask(
-                    in MatrixParallelTask task
+                    out MatrixParallelTask task
         )
         {
-            if (_cursor >= _currentCapacity) {
+            if (_cursor >= _currentCapacity)
+            {
+                task = default;
                 return false;
             }
             task = _currentPack[_cursor++];

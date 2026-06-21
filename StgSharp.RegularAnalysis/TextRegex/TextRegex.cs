@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="Node.Boarder"
+// file="TextRegex"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -31,67 +31,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.RegularAnalysis
+namespace StgSharp.RegularAnalysis.Text
 {
-    internal class RegularExpressionLeftBoarderNode : RegularStateNode
+    public abstract class TextRegex
     {
-
-        public RegularExpressionLeftBoarderNode(
-               int index,
-               string name
-        )
+        public ref struct Match
         {
-            Boarder = new GroupIndex
-            {
-                Index = index,
-                Name = name
-            };
+            private ReadOnlySpan<char> _sequence;
+
+
         }
-
-        public event EventHandler<GroupIndex> OnBoarderEntered;
-
-        public GroupIndex Boarder { get; private set; }
-
-        public override NodeType Type => NodeType.LEFT_BOARDER;
-
-        public override bool IsValidateFrom(
-                             RegularStateNode former,
-                             RegularContext context
-        )
-        {
-            return true;
-        }
-
-    }
-
-    internal class RegularExpressionRightBoarderNode : RegularStateNode
-    {
-
-        public RegularExpressionRightBoarderNode(
-               int index,
-               string name
-        )
-        {
-            Boarder = new GroupIndex
-            {
-                Index = index,
-                Name = name
-            };
-        }
-
-        public event EventHandler<GroupIndex> OnBoarderEntered;
-
-        public GroupIndex Boarder { get; private set; }
-
-        public override NodeType Type => NodeType.RIGHT_BOARDER;
-
-        public override bool IsValidateFrom(
-                             RegularStateNode former,
-                             RegularContext context
-        )
-        {
-            return true;
-        }
-
     }
 }

@@ -26,25 +26,16 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.RegularAnalysis.Abstraction;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
-namespace StgSharp.RegularAnalysis.TextRegex
+namespace StgSharp.RegularAnalysis.Text
 {
     internal class RegexAstNode : ISyntaxNode<RegexAstNode, RegexElementLabel>
     {
 
         // private RegexAstNode _left, _right;
 
-        public RegexAstNode(
-               Token<RegexElementLabel> source
-        )
+        public RegexAstNode(Token<RegexElementLabel> source)
         {
             Source = source;
         }
@@ -96,19 +87,14 @@ namespace StgSharp.RegularAnalysis.TextRegex
 
         public Token<RegexElementLabel> Source { get; private protected set; }
 
-        public void AppendNode(
-                    RegexAstNode nextToken
-        )
+        public void AppendNode(RegexAstNode nextToken)
         {
             Next = nextToken;
             nextToken.Previous = this;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (bool Valid, int Value) ComparePrecedence(
-                                              RegexElementLabel left,
-                                              RegexElementLabel right
-        )
+        public static (bool Valid, int Value) ComparePrecedence(RegexElementLabel left, RegexElementLabel right)
         {
             left &= RegexElementLabel.OPERATOR;
             right &= RegexElementLabel.OPERATOR;
@@ -120,25 +106,19 @@ namespace StgSharp.RegularAnalysis.TextRegex
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNullOrEmpty(
-                           RegexAstNode node
-        )
+        public static bool IsNullOrEmpty(RegexAstNode node)
         {
             return node is null || ReferenceEquals(node, Empty);
         }
         /**/
 
-        public void PrependNode(
-                    RegexAstNode previousNode
-        )
+        public void PrependNode(RegexAstNode previousNode)
         {
             Previous = previousNode;
             previousNode.Next = this;
         }
 
-        public void RemoveChild(
-                    RegexAstNode node
-        )
+        public void RemoveChild(RegexAstNode node)
         {
             if (Left == node)
             {
@@ -156,9 +136,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
             return new EmptyRegexAstNode();
         }
 
-        internal void RemoveAndAsChild(
-                      bool useLeft
-        )
+        internal void RemoveAndAsChild(bool useLeft)
         {
             if (useLeft)
             {
@@ -174,9 +152,16 @@ namespace StgSharp.RegularAnalysis.TextRegex
         }
         /**/
 
-        internal void ReplaceBy(
-                      RegexAstNode node
-        )
+        /// <summary>
+        ///   Replace the current node with another node, and update the parent and sibling
+        ///   references accordingly.  This is implemented by copying metadata and nearby
+        ///   environment of the given node to the current node, and then update the nearby nodes to
+        ///   point to the current node.
+        /// </summary>
+        /// <param name="node">
+        ///   The node to replace the current node with.
+        /// </param>
+        internal void ReplaceBy(RegexAstNode node)
         {
             Source = node.Source;
             Left = node.Left;

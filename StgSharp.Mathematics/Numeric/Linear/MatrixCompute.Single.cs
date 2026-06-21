@@ -66,13 +66,14 @@ namespace StgSharp.Mathematics.Numeric
                 mat_mk[f32.IntrinsicNode].
                 Get(MatrixIntrinsicHandle.Add);
             MatrixParallelTask* t = stackalloc MatrixParallelTask[1];
-
+            /*
             t->Mat1 = (MatrixKernel*)leftPtr;
             t->Mat2 = (MatrixKernel*)rightPtr;
             t->Mat3 = (MatrixKernel*)ansPtr;
             t->ElementType = f32;
             t->ComputeHandle = MatrixIntrinsicHandle.Add;
             t->Scalar.Data<long>(0) = count;
+            /**/
             SequentialOperation(t, count);
         }
 

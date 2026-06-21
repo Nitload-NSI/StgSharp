@@ -1,9 +1,9 @@
-#ifdef _MSC_VER
-#pragma once
-#endif
-
 #ifndef SNative
 #define SNative
+
+#ifdef __cplusplus
+#error "This header is not meant to be included in C++ code. StgSharp.Native is a C library and should be used with C linkage."
+#endif
 
 #include "sn_internal.h"
 #include "sn_target.h"
@@ -25,10 +25,6 @@
 
 #ifndef SN_
 #endif
-
-#define ALIGN(simdVec) _mm_loadu_ps(&simdVec)
-#define ALIGN256(simdVec) _mm256_loadu_ps(&simdVec)
-#define ALIGN512(simdVec) _mm512_loadu_ps(&simdVec)
 
 typedef struct Image {
         int width;

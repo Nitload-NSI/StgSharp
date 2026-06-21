@@ -18,7 +18,15 @@
                 c3 = _mm256_fmadd_ps(c3, a3, _mm256_permute_ps(b3, _FMA_SELECT(i))); \
         } while (0)
 
-#define SN_FMA_512_PACK_COLUMN(col, target)                                   \
+#define SN_MK_FMA_F64_AVX2_CYCLE(i)                                                       \
+        do {                                                                             \
+                c0 = _mm512_fmadd_ps(c0, a0, _mm512_permutex_pd(b0, _FMA_SELECT(i))); \
+                c1 = _mm512_fmadd_ps(c1, a1, _mm512_permutex_pd(b1, _FMA_SELECT(i))); \
+                c2 = _mm512_fmadd_ps(c2, a2, _mm512_permutex_pd(b2, _FMA_SELECT(i))); \
+                c3 = _mm512_fmadd_ps(c3, a3, _mm512_permutex_pd(b3, _FMA_SELECT(i))); \
+        } while (0)
+
+#define SN_FMA_F32_512_PACK_COLUMN(col, target)                                   \
         do {                                                              \
                 register __m256 low = _mm512_castps512_ps256(col);        \
                 register __m256 high = _mm512_extractf32x8_ps(col, 1);    \
@@ -29,7 +37,15 @@
                 _mm_store_ps(target, half128);                            \
         } while (0)
 
-#define SN_FMA_AVX2_PACK_COLUMN(col, target)                                   \
+#define SN_FMA_F32_AVX2_PACK_COLUMN(col, target)                                   \
+        do {                                                              \
+                register __m128 high128 = _mm256_extractf32x4_ps(col, 1); \
+                register __m128 low128 = _mm256_castps256_ps128(col);    \
+                register __m128 half128 = _mm_add_ps(high128, low128);    \
+                _mm_store_ps(target, half128);                            \
+        } while (0)
+
+#define SN_FMA_F64_512_PACK_COLUMN(col, target)                                   \
         do {                                                              \
                 register __m128 high128 = _mm256_extractf32x4_ps(col, 1); \
                 register __m128 low128 = _mm256_castps256_ps128(col);    \

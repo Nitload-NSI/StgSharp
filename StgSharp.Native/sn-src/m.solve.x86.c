@@ -11,14 +11,14 @@ static const float quality_threshold = 1e-6f;
 
 SN_MK_PROC_DECL_STD(float, sse, , try_plu)
 {
-        __mk_param_std(TILE, LEFT_RIGHT_ANS_SCALAR, float);
+        __mk_param_std(LEFT_RIGHT_ANS_SCALAR, float);
 
         /* Aliases */
         MAT_KERNEL(float) *upper = left; /* U */
         MAT_KERNEL(float) *lower = right; /* L (unit diag) */
         MAT_KERNEL(float) *source = ans; /* A */
-        unsigned char *pivot = (unsigned char *)&scalar->data[0]; /* length = 4 */
-        int *success = (int *)&scalar->data[1];
+        unsigned char *pivot = (unsigned char *)&scalar.i64[0]; /* length = 4 */
+        int *success = (int *)&scalar.i64[1];
 
         /* Init permutation and outputs */
         pivot[0] = 0;
@@ -117,7 +117,7 @@ SN_MK_PROC_DECL_STD(float, sse, , try_plu)
 */
 SN_MK_PROC_DECL_STD(float, sse, , quality)
 {
-        __mk_param_std(KERNEL, RIGHT_ANS, float);
+        __mk_param_std(RIGHT_ANS, float);
 
         register __m128 tiny = _mm_set1_ps(1e-6f);
 

@@ -26,6 +26,7 @@
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
 using StgSharp.HighPerformance.Memory;
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -43,39 +44,20 @@ namespace StgSharp.Mathematics.Numeric.Runtime
 
     }
 
-    [StructLayout(LayoutKind.Explicit)]
-    internal unsafe ref struct MatrixTask
-    {
-
-        [FieldOffset(0)]public L4.Handle Line;
-
-    }
-
-    internal unsafe struct MatrixExecutionHandle { }
-
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Explicit, Size = 128)]
     internal unsafe struct MatrixParallelTask
     {
 
-        [FieldOffset(0)] public MatrixKernel* Mat1;
-        [FieldOffset(8)] public MatrixKernel* Mat2;
-        [FieldOffset(16)] public MatrixKernel* Mat3;
-        /// <summary>
-        ///   Count of kernels to be calculated in a L4 cache line.
-        /// </summary>
-        [FieldOffset(28)] public int CacheLength;
-        [FieldOffset(32)] public int CommonK;
-        [FieldOffset(36)] public int CommonX;
-        [FieldOffset(40)] public int CommonY;
-        [FieldOffset(44)] public int VectorLength;
-        [FieldOffset(48)] public MatrixElementType ElementType;
-        [FieldOffset(52)] public MatrixIntrinsicHandle ComputeHandle;
-        /// <summary>
-        ///   Beginning offset of first kernel in a L4 cache line.
-        /// </summary>
-        [FieldOffset(24)] public nuint Offset;
-        [FieldOffset(56)] public nuint Vector;
-        [FieldOffset(64)] public ScalarPacket Scalar;
+        [FieldOffset(104)] private ulong _reserved0;
+
+        [FieldOffset(0)] public L4.Handle Buffer0;
+        [FieldOffset(16)] public L4.Handle Buffer1;
+        [FieldOffset(32)] public L4.Handle Buffer2;
+        [FieldOffset(48)] public L4.Handle Buffer3;
+        [FieldOffset(112)] public M128 ScalarPack;
+        [FieldOffset(64)] public M512 Profile;
+        [FieldOffset(64)] public MatrixElementType ElementType;         //记录了类型掩码的类型位宽的union，大小4byte
+        [FieldOffset(68)] public MatrixIntrinsicHandle ComputeHandle;    //记录了函数指针在类型组中的索引，实际就是int，但是为每一个索引起了名字，于是变成了enum，大小4byte
 
         public MatrixParallelTask()
         {
@@ -92,5 +74,17 @@ namespace StgSharp.Mathematics.Numeric.Runtime
                               sizeof(MatrixParallelTask));
         }
 
+        #region offset and length settings
+
+        [FieldOffset(72)] public int Offset0;
+        [FieldOffset(76)] public int Count0;
+        [FieldOffset(80)] public int Offset1;
+        [FieldOffset(84)] public int Count1;
+        [FieldOffset(88)] public int Offset2;
+        [FieldOffset(92)] public int Count2;
+        [FieldOffset(96)] public int Offset3;
+        [FieldOffset(100)] public int Count3;
+
+    #endregion
     }
 }

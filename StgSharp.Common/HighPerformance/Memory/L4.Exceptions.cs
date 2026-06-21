@@ -27,6 +27,8 @@
 // -----------------------------------------------------------------------
 namespace StgSharp.HighPerformance.Memory
 {
+#pragma warning disable CA1032 // Implement standard exception constructors
+
     public sealed class L4PredictUnregisteredException : Exception
     {
 
@@ -48,4 +50,5 @@ namespace StgSharp.HighPerformance.Memory
             : base($"L4 predictor with id {current} has already registered a cache line with base pointer {basePtr} and policy {policy}.") { }
 
     }
+#pragma warning restore CA1032 // Implement standard exception constructors
 }

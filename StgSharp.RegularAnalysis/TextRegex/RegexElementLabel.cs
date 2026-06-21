@@ -31,7 +31,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.RegularAnalysis.TextRegex
+namespace StgSharp.RegularAnalysis.Text
 {
     [Flags]
     public enum RegexElementLabel
@@ -49,6 +49,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
         SEQUENCE = UNIT | UNIT_SPAN | UNIT_SET,
         SINGLE = UNIT | UNIT_SET,
         OPERATOR = COUNT | ALT | CONCAT,
+        VAST_OPERATOR = OPERATOR | GROUP_BEGIN,
         ATOM_BEGIN = SEQUENCE | GROUP_BEGIN ,
         ATOM_END = SEQUENCE | GROUP_END | COUNT,
 

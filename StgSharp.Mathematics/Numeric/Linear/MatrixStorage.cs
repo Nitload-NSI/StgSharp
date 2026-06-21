@@ -62,7 +62,7 @@ namespace StgSharp.Mathematics.Numeric
 
         internal readonly Tlsf _allocator = allocator;
 
-        protected internal override unsafe T* BufferPointer => (T*)_handle.Address;
+        protected internal override unsafe T* BufferPointer => (T*)(ulong)_handle.Address;
 
         public override void Dispose()
         {

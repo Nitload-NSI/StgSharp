@@ -128,7 +128,7 @@
 
 #pragma region matix function
 
-INTERNAL void f32_normalize(sn_vec_f32 * source, sn_vec_f32 * target);
+INTERNAL void f32_normalize(VEC_SEGMENT(float) * source, VEC_SEGMENT(float) * target);
 
 SN_MK_PROC_DECL_STD(float, sse, , k_quality);
 
@@ -170,15 +170,65 @@ SN_MK_PROC_DECL_STD(double, 512, , fill);
 
 SN_MK_PROC_DECL_STD(float, sse, , quality);
 
+/*
+* pack left matrix data to L4 buffer
+* 
+* CONVENSIONS:
+* 
+* buffer_1 is pointer to original colum, 
+* offset_1 is the offset to the original column, 
+* count_1 is the count can be packed
+* 
+* C# shceduler is responsible for calculating the offset and count based on the actual buffer size and matrix dimension, 
+* and make sure that count_1 will not exceeds lenght of the column
+* 
+* scalar pack carries column length and offset data:
+* [column length, empty, empty, empty]
+*/
+SN_MK_PROC_DECL_STD(float, sse, , fma_pack_left);
+SN_MK_PROC_DECL_STD(float, avx, , fma_pack_left);
+SN_MK_PROC_DECL_STD(float, 512, , fma_pack_left);
+
+/*
+* pack right matrix data to L4 buffer
+* 
+* CONVENSIONS:
+* 
+* buffer_1 is pointer to original row, 
+* offset_1 is the offset to the original row, 
+* count_1 is the count can be packed
+* 
+* C# shceduler is responsible for calculating the offset and count based on the actual buffer size and matrix dimension, 
+* and make sure that count_1 will not exceeds lenght of the row
+* 
+* scalar pack carries column length and offset data:
+* [column length, empty, empty, empty]
+*/
+SN_MK_PROC_DECL_STD(float, sse, , fma_pack_right);
+SN_MK_PROC_DECL_STD(float, avx, , fma_pack_right);
+SN_MK_PROC_DECL_STD(float, 512, , fma_pack_right);
+
 SN_MK_PROC_DECL_STD(float, sse, , fma);
 SN_MK_PROC_DECL_STD(float, avx, , fma);
 SN_MK_PROC_DECL_STD(float, avx, _fma, fma);
 SN_MK_PROC_DECL_STD(float, 512, , fma);
 
+SN_MK_PROC_DECL_STD(float, sse, , fma_unpack);
+SN_MK_PROC_DECL_STD(float, avx, , fma_unpack);
+SN_MK_PROC_DECL_STD(float, 512, , fma_unpack);
+
+SN_MK_PROC_DECL_STD(double, sse, , fma_pack_left);
+SN_MK_PROC_DECL_STD(double, avx, , fma_pack_left);
+SN_MK_PROC_DECL_STD(double, 512, , fma_pack_left);
+
 SN_MK_PROC_DECL_STD(double, sse, , fma);
 SN_MK_PROC_DECL_STD(double, avx, , fma);
 SN_MK_PROC_DECL_STD(double, avx, _fma, fma);
 SN_MK_PROC_DECL_STD(double, 512, , fma);
+
+SN_MK_PROC_DECL_STD(double, sse, , fma_unpack);
+SN_MK_PROC_DECL_STD(double, avx, , fma_unpack);
+SN_MK_PROC_DECL_STD(double, 512, , fma_unpack);
 
 SN_SK_PROC_DECL_STD(float, avx, , add);
 SN_SK_PROC_DECL_STD(float, 512, , add);

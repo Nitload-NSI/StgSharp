@@ -42,7 +42,9 @@ namespace StgSharp.Mathematics.Internal
         Transpose = 4,
         ClearPanel = 5,
         Fma = 6,
-        Pivot = 8,
+        PackFmaLeft = 7,
+        PackFmaRight = 8,
+        Pivot = 9,
 
     }
 

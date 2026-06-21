@@ -9,7 +9,7 @@
 // Matrix transpose implementations
 SN_MK_PROC_DECL_STD(float, sse, , transpose)
 {
-        __mk_param_std(KERNEL, RIGHT_ANS, float);
+        __mk_param_std(RIGHT_ANS, float);
 
         register __m128 col0 = right->x[0];
         register __m128 col1 = right->x[1];
@@ -28,7 +28,7 @@ SN_MK_PROC_DECL_STD(float, sse, , transpose)
 
 SN_MK_PROC_DECL_STD(float, avx, , transpose)
 {
-        __mk_param_std(KERNEL, RIGHT_ANS, float);
+        __mk_param_std(RIGHT_ANS, float);
         register __m256 col_low = right->y[0];
         register __m256 col_high = right->y[1];
 
@@ -44,7 +44,7 @@ SN_MK_PROC_DECL_STD(float, avx, , transpose)
 
 SN_MK_PROC_DECL_STD(float, 512, , transpose)
 {
-        __mk_param_std(KERNEL, RIGHT_ANS, float);
+        __mk_param_std(RIGHT_ANS, float);
         register __m512 matrix = right->z[0];
 
         const __m512i transpose_indices =

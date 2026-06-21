@@ -1,20 +1,19 @@
 
 #include "sn_target.h"
-#include <pmmintrin.h>
 
 #if SN_IS_ARCH(SN_ARCH_X86_64)
 
 #include "sn_internal.h"
 #include "sn_intrinsic.context.x86.h"
-#include "sn_intrinsic.h"
 #include "sn_intrinsic.std.h"
 #include "sn_intrinsic.matkernel.h"
 #include <emmintrin.h>
 #include <immintrin.h>
+#include <pmmintrin.h>
 
 SN_MK_PROC_DECL_STD(float, sse, , k_quality)
 {
-        __mk_param_std(TILE, RIGHT_ANS_SCALAR, float);
+        __mk_param_std(RIGHT_ANS_SCALAR, float);
 }
 
 INTERNAL SN_STD_TARGET_ATTR(sse, ) void kp_check_f32(mat_kernel *kernel)

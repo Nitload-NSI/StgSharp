@@ -40,4 +40,6 @@
 #define PRIVATE static
 #define INTERNAL extern
 
+#define u64 uint64_t
+
 #endif //

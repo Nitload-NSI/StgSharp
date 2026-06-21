@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="RegexTokenReader"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.RegularAnalysis.TextRegex
+namespace StgSharp.RegularAnalysis.Text
 {
     internal class RegexTokenReader : ITokenReader<RegexElementLabel>
     {
@@ -139,13 +139,14 @@ namespace StgSharp.RegularAnalysis.TextRegex
                     }
                     throw new InvalidOperationException("Unclosed count specifier");
                 case '*' or '+':
-                    int count = _source[pos + 1] == '?' ? 2 : 1;
+                    int count = pos + 1 >= _source.Length ? 1 : (_source[pos + 1] == '?' ? 2 : 1);
                     position = pos + count;
                     return new Token<RegexElementLabel>(_source[(pos)..(pos + count)], 0, pos, RegexElementLabel.COUNT);
                 case '?':
                     position = pos + 1;
                     return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos, RegexElementLabel.COUNT);
                 case '.':
+                    position = pos + 1;
                     return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos, RegexElementLabel.UNIT);
                 default:
                     position = pos + 1;
@@ -161,7 +162,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
                 return false;
             }
             t = ReadToken();
-            return Token<RegexElementLabel>.Empty == t;
+            return Token<RegexElementLabel>.Empty != t;
         }
 
         private Token<RegexElementLabel> ReadGroupBeginToken()
@@ -272,7 +273,7 @@ namespace StgSharp.RegularAnalysis.TextRegex
                 }
 
                 // Consume "(?<name>"
-                int consumedLen = (i - start) + 1; // include '>'
+                int consumedLen = i - start + 1; // include '>'
                 string text = _source.Substring(start, consumedLen);
                 position = start + consumedLen;
 

@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="RegularExpression.NodeState"
+// file="RegexInterpreter.SourceEmit"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -31,35 +31,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StgSharp.RegularAnalysis
+namespace StgSharp.RegularAnalysis.Text
 {
-    internal enum NodeType
-    {
-
-        // single unicode character: a、B、1、@、汉字 etc.
-        CHAR,
-
-        // collections of finate characters:  [abc]、[^abc]、\d、\w、\s、\D、\W、\S etc.
-        CHARSET,
-
-        // increase count of a counter, half function of *+? quantifiers
-        COUNT,
-
-        // left boarder of a sub sequnce, usually begin of match group or lookaround
-        LEFT_BOARDER,
-
-        // right boarder of a sub sequnce, usually end of match group or lookaround
-        RIGHT_BOARDER,
-
-        // zero length char or structure
-        EPSILON,
-
-        // more than one cases to match, like alter|nation
-        BRANCH,
-
-        // a sequence of nodes to match in order, each char should be fully defined but not charset
-        SEQUENCE
-
-    }
+    public partial class RegexInterpreter { }
 }
- 

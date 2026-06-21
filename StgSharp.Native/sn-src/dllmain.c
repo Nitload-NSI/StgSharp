@@ -5,13 +5,8 @@
 #ifdef _WIN32
 
 /* Define and initialize a global zero kernel aligned to 64 bytes for universal ISA usage */
-#ifdef __cplusplus
-extern "C" {
-#endif
-__declspec(align(64)) sn_zero_kernel_u64 SN_ZERO_KERNEL;
-#ifdef __cplusplus
-}
-#endif
+
+__declspec(align(64)) MAT_KERNEL(u64) SN_ZERO_KERNEL;
 
 static void init_zero_kernel(void)
 {

@@ -51,7 +51,8 @@ namespace StgSharp.Mathematics.Numeric
 
         internal static unsafe MatrixParallelWrap ScheduleTask<TTaskQueue>(
                                                   MatrixParallelTask* package
-        ) where TTaskQueue : IMatrixParallelQueue<TTaskQueue>
+        )
+
         {
             /*
             int primCount = package->PrimCount;

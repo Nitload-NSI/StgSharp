@@ -38,8 +38,6 @@ namespace StgSharp.RegularAnalysis.Abstraction
     public readonly struct Token<TLabel> where TLabel : unmanaged
     {
 
-        private static readonly Token<TLabel> EmptyToken = new Token<TLabel>();
-
         public readonly int Column;
         public readonly int Line;
         public readonly string Value;
@@ -66,7 +64,7 @@ namespace StgSharp.RegularAnalysis.Abstraction
             Flag = flag;
         }
 
-        public static Token<TLabel> Empty => EmptyToken;
+        public static Token<TLabel> Empty { get; } = new Token<TLabel>();
 
         public override bool Equals(
                              [NotNullWhen(true)] object? obj

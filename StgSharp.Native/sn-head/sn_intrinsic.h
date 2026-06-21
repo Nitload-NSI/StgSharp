@@ -4,9 +4,11 @@
 #define SSC_INTRIN_HEAD
 
 #include "StgSharpNative.h"
-#include "sn_intrinsic.matkernel.h"
+#include "sn_target.h"
+#include <xmmintrin.h>
 #include <immintrin.h>
 #include <smmintrin.h>
+#include "sn_intrinsic.matkernel.h"
 #include <stdint.h>
 
 #ifdef _MSC_VER
@@ -25,8 +27,30 @@
 #define M256_PERMUTE(s3, s2, s1, s0) \
         ((LASTTWO(s3) << 6) | (LASTTWO(s2) << 4) | (LASTTWO(s1) << 2) | (LASTTWO(s0)))
 #define BIT_CVRT(pack, index, T) *(T *)(pack->data + index)
+
+#if SN_IS_ARCH(x86_64)
+
+#define vec_128 __m128
+#define vec_256 __m256
+#define vec_512 __m512
+
 #define zero_vec _mm_setzero_ps()
 #define zero_vec_256 _mm256_setzero_ps()
+
+#define ALIGN(simdVec) _mm_loadu_ps(&simdVec)
+#define ALIGN256(simdVec) _mm256_loadu_ps(&simdVec)
+#define ALIGN512(simdVec) _mm512_loadu_ps(&simdVec)
+
+#else
+
+#define zero_vec
+#define zero_vec_256
+
+#define ALIGN(simdVec)
+#define ALIGN256(simdVec)
+#define ALIGN512(simdVec)
+
+#endif
 
 #define SPAN(T)                \
         struct SPAN_T {        \
@@ -41,11 +65,37 @@ typedef union uint64_u {
 
 typedef struct mat_kernel mat_kernel;
 
-typedef struct mat_panel mat_panel;
+typedef union M128{
+        #if SN_IS_ARCH(x86_64)
+        __m128 m128;
+        #endif
+        float f32[4];
+        double f64[2];
+        int32_t i32[4];
+        int64_t i64[2];
+}M128;
 
-typedef union scalar_pack {
-        uint64_t data[8];
-} scalar_pack;
+typedef union M256{
+        #if SN_IS_ARCH(x86_64)
+        __m256 m256;
+        #endif
+        float f32[8];
+        double f64[4];
+        int32_t i32[8];
+        int64_t i64[4];
+}M256;
+
+typedef union M512{
+        #if SN_IS_ARCH(x86_64)
+        __m512 m512;
+        #endif
+        uint64_t u64[8];
+        uint32_t u32[16];
+        float f32[16];
+        double f64[8];
+        int32_t i32[16];
+        int64_t i64[8];
+}M512;
 
 typedef struct sn_L4_cache_head {
         uint64_t reverse_mask_0;
@@ -55,20 +105,35 @@ typedef struct sn_L4_cache_head {
         uint64_t reverse_mask_2;
 } sn_L4_cache_head;
 
+typedef struct sn_L4_handle {
+        void *ptr;
+        sn_L4_cache_head* head;
+} sn_L4_handle;
+
 typedef struct matrix_task {
-        void *mat_0;
-        void *mat_1;
-        void *mat_2;
-        void *scalar;
-        int32_t x;
-        int32_t y;
-        int32_t z;
-        int32_t common_x;
-        int32_t common_y;
-        int32_t common_z;
-        uint32_t mask;
-        uint32_t reverse;
-        scalar_pack padding;
+        sn_L4_handle buffer_0;
+        sn_L4_handle buffer_1;
+        sn_L4_handle buffer_2;
+        sn_L4_handle buffer_3;
+        union {
+                struct {
+                        int32_t reverse_0;
+                        int32_t reverse_1;
+                        int32_t offset_0;
+                        int32_t count_0;
+                        int32_t offset_1;
+                        int32_t count_1;
+                        int32_t offset_2;
+                        int32_t count_2;
+                        int32_t offset_3;
+                        int32_t count_3;
+                        int32_t reverse_2;
+                        int32_t reverse_3;
+                        M128 scalar_pack;
+                };
+                M512 profile;
+        };
+
 } matrix_task;
 
 #define MAT_TASK(T) matrix_task
@@ -83,7 +148,7 @@ typedef void(SN_DECL *UNI_MK_PROC)(matrix_task *task);
 typedef void(SN_DECL *UNI_SK_PROC)(mat_kernel const *left, mat_kernel const *right,
                                    mat_kernel *restrict ans, uint64_t scalar);
 
-typedef void(SN_DECL *VECTORNORMALIZEPROC)(sn_vec_f32 *source, sn_vec_f32 *target);
+typedef void(SN_DECL *VECTORNORMALIZEPROC)(VEC_SEGMENT(float) *source, VEC_SEGMENT(float) *target);
 typedef void(SN_DECL *DOTPROC)(void *transpose, __m128 *vector, __m128 *ans);
 typedef uint64_t(SN_DECL *FACTORIALROC)(int n);
 
@@ -95,23 +160,11 @@ typedef int(SN_DECL *INDEX_PAIR)(short const *stram, uint32_t target, int length
 #pragma endregion
 
 typedef struct mat_mk_intrinsic {
-        UNI_MK_PROC add;
-        UNI_MK_PROC fill;
-        UNI_MK_PROC scalar_mul;
-        UNI_MK_PROC sub;
-        UNI_MK_PROC transpose;
-        UNI_MK_PROC fma;
-        UNI_MK_PROC pivot;
+        UNI_MK_PROC proc_array[10];
 } mat_mk_intrinsic;
 
 typedef struct mat_sk_intrinsic {
-        UNI_SK_PROC add;
-        UNI_SK_PROC fill;
-        UNI_SK_PROC scalar_mul;
-        UNI_SK_PROC sub;
-        UNI_SK_PROC transpose;
-        UNI_SK_PROC fma;
-        UNI_SK_PROC pivot;
+        UNI_SK_PROC proc_array[10];
 } mat_sk_intrinsic;
 
 // Mirrors C# IntrinsicContext field order so managed/unmanaged layouts stay in sync.
@@ -123,8 +176,19 @@ typedef struct sn_intrinsic {
         mat_sk_intrinsic mat_sk[0x0a];
 } sn_intrinsic;
 
-typedef enum elment_mask { F32 = 0, F64 = 1, I32 = 2, I64 = 3 } element_mask;
 
-#include "sn_target.h"
+typedef enum mat_proc_index {
+        Add = 0,
+        Fill = 1,
+        ScalarMul = 2,
+        Sub = 3,
+        Transpose = 4,
+        ClearPanel = 5,
+        Fma = 6,
+        PackFmaLeft = 7,
+        PackFmaRight = 8,
+        Pivot = 9,
+} mat_proc_index;
+typedef enum elment_mask { F32 = 0, F64 = 1, I32 = 2, I64 = 3 } element_mask;
 
 #endif
