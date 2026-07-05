@@ -45,7 +45,9 @@ namespace StgSharp.RegularAnalysis.Text
 
         public RegexTokenReader() { }
 
-        public RegexTokenReader(string source)
+        public RegexTokenReader(
+               string source
+        )
         {
             _source = source;
         }
@@ -65,9 +67,11 @@ namespace StgSharp.RegularAnalysis.Text
                     {
                         string value = _source[(pos + 1)..(pos + 3)];
                         pos += 4;
-                        if (uint.TryParse(value, out uint code) && Rune.TryCreate(code, out Rune result))
+                        if (uint.TryParse(value, out uint code) &&
+                            Rune.TryCreate(code, out Rune result))
                         {
-                            return new Token<RegexElementLabel>(result.ToString(), 0, pos, RegexElementLabel.UNIT);
+                            return new Token<RegexElementLabel>(result.ToString(), 0, pos,
+                                                                RegexElementLabel.UNIT);
                         } else
                         {
                             throw new InvalidCastException($"Failed to convert {value} to a valid ascii code point.");
@@ -76,9 +80,11 @@ namespace StgSharp.RegularAnalysis.Text
                     {
                         string value = _source[(pos + 1)..(pos + 5)];
                         pos += 6;
-                        if (uint.TryParse(value, out uint code) && Rune.TryCreate(code, out Rune result))
+                        if (uint.TryParse(value, out uint code) &&
+                            Rune.TryCreate(code, out Rune result))
                         {
-                            return new Token<RegexElementLabel>(result.ToString(), 0, pos, RegexElementLabel.UNIT);
+                            return new Token<RegexElementLabel>(result.ToString(), 0, pos,
+                                                                RegexElementLabel.UNIT);
                         } else
                         {
                             throw new InvalidCastException($"Failed to convert {value} to a valid unicode code point.");
@@ -99,6 +105,10 @@ namespace StgSharp.RegularAnalysis.Text
                             }
                         }
                         throw new InvalidOperationException("Unclosed Unicode property escape sequence.");
+                    } else if (_source[pos + 1] == '.')
+                    {
+                        position = pos + 2;
+                        return new Token<RegexElementLabel>(".", 0, pos, RegexElementLabel.UNIT);
                     } else
                     {
                         position = pos + 2;
@@ -112,21 +122,24 @@ namespace StgSharp.RegularAnalysis.Text
                         {
                             int length = (i - pos - 1);
                             position = i + 1;
-                            return new Token<RegexElementLabel>(_source[(pos)..(i + 1)], 0, position,
+                            return new Token<RegexElementLabel>(_source[(pos)..(i + 1)], 0,
+                                                                position,
                                                                 RegexElementLabel.UNIT_SET);
                         }
                     }
                     throw new InvalidOperationException("Unclosed character set");
                 case '|':
                     position = pos + 1;
-                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos, RegexElementLabel.ALT);
+                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos,
+                                                        RegexElementLabel.ALT);
                 case '(':
 
                     // very comlex here
                     return ReadGroupBeginToken();
                 case ')':
                     position = pos + 1;
-                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos, RegexElementLabel.GROUP_END);
+                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos,
+                                                        RegexElementLabel.GROUP_END);
                 case '{':
                     for (int i = pos + 1; i < _source.Length; i++)
                     {
@@ -141,20 +154,26 @@ namespace StgSharp.RegularAnalysis.Text
                 case '*' or '+':
                     int count = pos + 1 >= _source.Length ? 1 : (_source[pos + 1] == '?' ? 2 : 1);
                     position = pos + count;
-                    return new Token<RegexElementLabel>(_source[(pos)..(pos + count)], 0, pos, RegexElementLabel.COUNT);
+                    return new Token<RegexElementLabel>(_source[(pos)..(pos + count)], 0, pos,
+                                                        RegexElementLabel.COUNT);
                 case '?':
                     position = pos + 1;
-                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos, RegexElementLabel.COUNT);
+                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos,
+                                                        RegexElementLabel.COUNT);
                 case '.':
                     position = pos + 1;
-                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos, RegexElementLabel.UNIT);
+                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos,
+                                                        RegexElementLabel.UNIT_SET);
                 default:
                     position = pos + 1;
-                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos, RegexElementLabel.UNIT);
+                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos,
+                                                        RegexElementLabel.UNIT);
             }
         }
 
-        public bool TryReadToken(out Token<RegexElementLabel> t)
+        public bool TryReadToken(
+                    out Token<RegexElementLabel> t
+        )
         {
             if (IsEmpty)
             {

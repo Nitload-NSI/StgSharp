@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="RegexInterpreter"
+// file="RegexAnalyzer.ASTGenerate"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -27,58 +27,23 @@
 // -----------------------------------------------------------------------
 using StgSharp.RegularAnalysis.Abstraction;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Text;
-
 using System.Threading.Tasks;
 
 namespace StgSharp.RegularAnalysis.Text
 {
-    public partial class RegexInterpreter
+    public partial class RegexAnalyzerFrontEnd
     {
 
-        private AbstractSyntaxTree<RegexAstNode, RegexElementLabel> _tree = new();
-        private CompileStack<RegexAstNode, RegexElementLabel> _stack = new();
-        private Exception _interpreteException;
-        private string _source;
-
-        private RegexInterpreter() { }
-
-        internal AbstractSyntaxTree<RegexAstNode, RegexElementLabel> Tree
+        private static AbstractSyntaxTree<RegexAstNode, RegexElementLabel> GenerateAST(
+                                                                           string _source
+        )
         {
-            get
-            {
-                if (_interpreteException != null) {
-                    throw new InvalidOperationException("The regex interpretation failed.", _interpreteException);
-                }
-                return _tree;
-            }
-        }
-
-        public static RegexInterpreter Analyze(string regex)
-        {
-            RegexInterpreter interpreter = new();
-            interpreter._source = regex;
-            bool isSuccess;
-            try
-            {
-                interpreter.Analyze();
-                interpreter.OptimizeTree();
-                isSuccess = true;
-            }
-            catch (Exception ex)
-            {
-                interpreter._interpreteException = ex;
-                isSuccess = false;
-            }
-            return interpreter;
-        }
-
-        private void Analyze()
-        {
+            CompileStack<RegexAstNode, RegexElementLabel> _stack = new();
+            AbstractSyntaxTree<RegexAstNode, RegexElementLabel> _tree = new();
             RegexTokenReader reader = new(_source);
             TokenParser<RegexElementLabel, RegexElementLabel> lexer = reader.Pipe(() => new RegexTokenParser());
 
@@ -154,113 +119,58 @@ namespace StgSharp.RegularAnalysis.Text
                 if (_stack.OperandInDepthCount == 1 && _stack.OperatorInDepthCount == 0)
                 {
                     _tree.Root = _stack.PopOperand();
-                    return;
+                    return _tree;
                 }
             }
             throw new InvalidOperationException("Invalid regular expression syntax.");
-        }
 
-        private void OptimizeTree()
-        {
-            // phase0: scan container and remove no parent nodes
-            _ = _tree.AllNodes.RemoveWhere(node => node.Parent == null && node != _tree.Root);
-            TreeEnumerator<RegexAstNode, RegexElementLabel> enumerator = new(_tree.Root);
-            RegexAstNode current;
 
-            // phase1: ALT flatten
-            // phase2: CONCAT normalize
-            int i = 0;
-            List<RegexAstNode> altNodes = [];
-            while (enumerator.MoveNext())
+            void ProcessOperator(
+                 RegexAstNode op
+            )
             {
-                current = enumerator.Current;
-                if (current.EqualityTypeConvert == RegexElementLabel.ALT)
+                if (op.EqualityTypeConvert == RegexElementLabel.CONCAT)
                 {
-                    RegexAstNode union = FlattenAlt(current);
-                    altNodes.Add(current);
-                    current.Right = union;
-                    current.Left = RegexAstNode.Empty;
-                } else if (current.EqualityTypeConvert == RegexElementLabel.CONCAT) {
-                    RotateConcat(current);
-                }
-            }
-
-            List<RegexAstNode> cases = [];
-
-            // phase3: then ALT union
-            foreach (RegexAstNode item in altNodes)
-            {
-                RegexAstNode _case = item.Right;
-                do
-                {
-                    cases.Add(_case);
-                    _case = _case.Next;
-                } while (!RegexAstNode.IsNullOrEmpty(_case));
-                RegexAstNode newAlt = MergeAlt(cases);
-                item.ReplaceBy(newAlt);
-            }
-
-            // return;
-
-            // phase4: CONCAT merge
-            enumerator.Reset();
-            while (enumerator.MoveNext())
-            {
-                // suppose all concat is now in normalized form,
-                // we can merge adjacent unit nodes into a single unit node with string value
-                current = enumerator.Current;
-                if (current.EqualityTypeConvert == RegexElementLabel.CONCAT)
-                {
-                    if (MergeConcat(current)) {
-                        enumerator.SkipOnce();
+                    if (_stack.TryPopOperand(out RegexAstNode? _1) &&
+                        _stack.TryPopOperand(out RegexAstNode? _2))
+                    {
+                        op.Left = _2;
+                        op.Right = _1;
+                        _stack.PushOperand(op);
+                        _ = _tree.AddNode(op);
+                        _ = _tree.AddNode(_1);
+                        _ = _tree.AddNode(_2);
+                    } else
+                    {
+                        throw new InvalidOperationException("Insufficient operands for CONCAT operator.");
                     }
-                }
-            }
-
-            // TODO enum AST again , do ALT tail merge and simple ALT front merge
-        }
-
-        private void ProcessOperator(RegexAstNode op)
-        {
-            if (op.EqualityTypeConvert == RegexElementLabel.CONCAT)
-            {
-                if (_stack.TryPopOperand(out RegexAstNode? _1) && _stack.TryPopOperand(out RegexAstNode? _2))
+                } else if (op.EqualityTypeConvert == RegexElementLabel.COUNT)
                 {
-                    op.Left = _2;
-                    op.Right = _1;
-                    _stack.PushOperand(op);
-                    _tree.AddNode(op);
-                    _tree.AddNode(_1);
-                    _tree.AddNode(_2);
-                } else
+                    if (_stack.TryPopOperand(out RegexAstNode? _1))
+                    {
+                        op.Left = _1;
+                        _stack.PushOperand(op);
+                        _ = _tree.AddNode(_1);
+                        _ = _tree.AddNode(op);
+                    } else
+                    {
+                        throw new InvalidOperationException("Insufficient operands for CONCAT operator.");
+                    }
+                } else if (op.EqualityTypeConvert == RegexElementLabel.ALT)
                 {
-                    throw new InvalidOperationException("Insufficient operands for CONCAT operator.");
-                }
-            } else if (op.EqualityTypeConvert == RegexElementLabel.COUNT)
-            {
-                if (_stack.TryPopOperand(out RegexAstNode? _1))
-                {
-                    op.Left = _1;
-                    _stack.PushOperand(op);
-                    _tree.AddNode(_1);
-                    _tree.AddNode(op);
-                } else
-                {
-                    throw new InvalidOperationException("Insufficient operands for CONCAT operator.");
-                }
-            } else if (op.EqualityTypeConvert == RegexElementLabel.ALT)
-            {
-                if (_stack.TryPopOperand(out RegexAstNode? _1) && _stack.TryPopOperand(out RegexAstNode? _2))
-                {
-                    op.Left = _2;
-                    op.Right = _1;
-                    _stack.PushOperand(op);
-                    _tree.AddNode(op);
-                    _tree.AddNode(_1);
-                    _tree.AddNode(_2);
-                } else
-                {
-                    throw new InvalidOperationException("Insufficient operands for CONCAT operator.");
+                    if (_stack.TryPopOperand(out RegexAstNode? _1) &&
+                        _stack.TryPopOperand(out RegexAstNode? _2))
+                    {
+                        op.Left = _2;
+                        op.Right = _1;
+                        _stack.PushOperand(op);
+                        _ = _tree.AddNode(op);
+                        _ = _tree.AddNode(_1);
+                        _ = _tree.AddNode(_2);
+                    } else
+                    {
+                        throw new InvalidOperationException("Insufficient operands for CONCAT operator.");
+                    }
                 }
             }
         }

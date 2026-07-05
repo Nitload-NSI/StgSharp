@@ -2,8 +2,8 @@
 // -----------------------------------------------------------------------
 // file="CapacityFixedList"
 // Project: StgSharp
-// AuthorGroup: Nitload Space
-// Copyright (c) Nitload Space. All rights reserved.
+// AuthorGroup: Nitload
+// Copyright (c) Nitload. All rights reserved.
 //     
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,9 @@ namespace StgSharp.Collections
     public static class CapacityFixedListBuilder
     {
 
-        internal static CapacityFixedList<T> Create<T>(ReadOnlySpan<T> values)
+        internal static CapacityFixedList<T> Create<T>(
+                                             ReadOnlySpan<T> values
+        )
         {
             return new CapacityFixedList<T>(values);
         }
@@ -50,28 +52,39 @@ namespace StgSharp.Collections
         private readonly int _capacity;
         private int _index;
 
-        public CapacityFixedList(int size)
+        public CapacityFixedList(
+               int size
+        )
         {
             _values = new T[size];
             _capacity = size;
         }
 
-        public CapacityFixedList(ReadOnlySpan<T> values)
+        public CapacityFixedList(
+               ReadOnlySpan<T> values
+        )
         {
             _values = values.ToArray();
         }
 
-        public T this[int index]
+        public T this[
+                 int index
+        ]
         {
-            get => index < _index ? _values[index] : throw new ArgumentOutOfRangeException(nameof(index));
-            set => _values[index] = index < _index ? value : throw new ArgumentOutOfRangeException(nameof(index));
+            get => index < _index ?
+                   _values[index] :
+                   throw new ArgumentOutOfRangeException(nameof(index));
+            set => _values[index] =
+                   index < _index ? value : throw new ArgumentOutOfRangeException(nameof(index));
         }
 
         public bool IsReadOnly => false;
 
         public int Count => _index + 1;
 
-        public void Add(T item)
+        public void Add(
+                    T item
+        )
         {
             if (_index < _capacity - 1)
             {
@@ -82,12 +95,19 @@ namespace StgSharp.Collections
 
         public void Clear()
         {
-            _values = new T[_capacity];
+            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+                Array.Fill(_values, default);
+            }
             _index = 0;
         }
 
-        public bool Contains(T item)
+        public bool Contains(
+                    T item
+        )
         {
+            if (item is null) {
+                return false;
+            }
             for (int i = 0; i <= _index; i++)
             {
                 if (item.Equals(_values[i])) {
@@ -97,7 +117,10 @@ namespace StgSharp.Collections
             return false;
         }
 
-        public void CopyTo(T[] array, int arrayIndex)
+        public void CopyTo(
+                    T[] array,
+                    int arrayIndex
+        )
         {
             _values.CopyTo(array, arrayIndex);
         }
@@ -109,7 +132,9 @@ namespace StgSharp.Collections
             }
         }
 
-        public int IndexOf(T item)
+        public int IndexOf(
+                   T item
+        )
         {
             T v;
             for (int i = 0; i <= _index; i++)
@@ -121,7 +146,9 @@ namespace StgSharp.Collections
             return -1;
         }
 
-        public bool Remove(T item)
+        public bool Remove(
+                    T item
+        )
         {
             T v;
             for (int i = 0; i <= _index; i++)
@@ -136,8 +163,13 @@ namespace StgSharp.Collections
             return false;
         }
 
-        public void RemoveAll(Predicate<T> predicate)
+        public void RemoveAll(
+                    Predicate<T> predicate
+        )
         {
+            if (predicate is null) {
+                return;
+            }
             for (int i = _index; i > 0; i--)
             {
                 if (predicate(_values[i]))
@@ -148,18 +180,30 @@ namespace StgSharp.Collections
             }
         }
 
-        public void RemoveAt(int index)
+        public void RemoveAt(
+                    int index
+        )
         {
             if (index <= _index)
             {
-                _values[index] = _values[_index];
+                Array.Copy(_values, index + 1, _values, index, _index - index);
+                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>()) {
+                    _values[_index] = default!;
+                }
                 _index--;
             }
         }
 
-        public void Resize(int newSize)
+        public void Resize(
+                    int newSize
+        )
         {
             Array.Resize(ref _values, newSize);
+        }
+
+        internal Span<T> ToSpan()
+        {
+            return _values;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -167,7 +211,10 @@ namespace StgSharp.Collections
             yield return GetEnumerator();
         }
 
-        void IList<T>.Insert(int index, T item)
+        void IList<T>.Insert(
+                      int index,
+                      T item
+        )
         {
             throw new NotSupportedException();
         }

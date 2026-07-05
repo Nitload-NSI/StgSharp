@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="TextRegex"
+// file="TextHelper"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -33,13 +33,18 @@ using System.Threading.Tasks;
 
 namespace StgSharp.RegularAnalysis.Text
 {
-    public abstract class TextRegex
+    public static class TextHelper
     {
-        public ref struct Match
+
+        public static bool TryLastIndexOf(
+                           this ReadOnlySpan<char> span,
+                           ReadOnlySpan<char> value,
+                           out int index
+        )
         {
-            private ReadOnlySpan<char> _sequence;
-
-
+            index = span.LastIndexOf(value);
+            return index != -1;
         }
+
     }
 }

@@ -56,22 +56,14 @@ namespace StgSharp.RegularAnalysis.Text
             Count++;
         }
 
-        public void EmitConfigFail(
-                    int fail
-        )
-        {
-            _tail.Add(new RegexConfigFailIR(fail));
-            Count++;
-        }
-
-        public void EmitCount(
+        public void EmitCountComplex(
                     int min,
                     int max,
                     bool isGreedy,
                     int operation
         )
         {
-            _tail.Add(new RegexCountIR(min, max, isGreedy, operation));
+            _tail.Add(new RegexCountComplexIR(min, max, isGreedy, operation));
             Count++;
         }
 
@@ -122,6 +114,15 @@ namespace StgSharp.RegularAnalysis.Text
         )
         {
             _tail.Add(new RegexMatchSetIR(unit));
+            Count++;
+        }
+
+        public void EmitPack(
+                    bool condition,
+                    string name = ""
+        )
+        {
+            _tail.Add(new RegexPackIR(condition, name));
             Count++;
         }
 

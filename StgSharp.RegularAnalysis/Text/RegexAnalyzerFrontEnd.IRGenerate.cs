@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="RegexInterpreter.IREmit"
+// file="RegexInterpreter.IRGenerate"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -40,10 +40,12 @@ using System.Xml;
 
 namespace StgSharp.RegularAnalysis.Text
 {
-    public partial class RegexInterpreter
+    public partial class RegexAnalyzerFrontEnd
     {
 
-        internal static List<RegexIR> GenerateIR(AbstractSyntaxTree<RegexAstNode, RegexElementLabel> tree)
+        internal static List<RegexIR> GenerateIR(
+                                      AbstractSyntaxTree<RegexAstNode, RegexElementLabel> tree
+        )
         {
             return GenerateIRRecursion(tree.Root, 0).ToList();
         }
@@ -55,17 +57,17 @@ namespace StgSharp.RegularAnalysis.Text
                             int min,
                             int max,
                             bool isGreedy,
-                            RegexAstNode right)
+                            RegexAstNode right
+        )
         {
-            bool isRightOperator = !RegexAstNode.IsNullOrEmpty(right) &&
-                                   (right.Source.Flag & RegexElementLabel.OPERATOR) != 0;
+            bool is_operator = !RegexAstNode.IsNullOrEmpty(right) &&
+                               (right.Source.Flag & RegexElementLabel.OPERATOR) != 0;
 
-            if (isRightOperator)        // seq to be count is complex
+            if (is_operator)        // seq to be count is complex
             {
-                ir.EmitCount(min, max, isGreedy, 1);
-                RegexIRGenerator rightIR = GenerateIRRecursion(right, curDepth + 1);
-                ir.EmitTry(rightIR.Count);
-                ir.EmitIRStream(rightIR);
+                RegexIRGenerator right_ir = GenerateIRRecursion(right, curDepth + 1);
+                ir.EmitCountComplex(min, max, isGreedy, right_ir.Count);
+                ir.EmitIRStream(right_ir);
             } else
             {
                 RegexElementLabel count_source_mask = right.Source.Flag;
@@ -86,7 +88,10 @@ namespace StgSharp.RegularAnalysis.Text
             }
         }
 
-        private static RegexIRGenerator GenerateIRRecursion(RegexAstNode node, int depth)
+        private static RegexIRGenerator GenerateIRRecursion(
+                                        RegexAstNode node,
+                                        int depth
+        )
         {
 #pragma warning disable IDE0010
             if (depth > 1024)
@@ -110,7 +115,7 @@ namespace StgSharp.RegularAnalysis.Text
                     bool is_group = group_source.Length == 1;           // simple group: (pattern)
                     string group_name =
                         group_source.StartsWith(@"(?<", StringComparison.Ordinal) ?
-                        group_source[3..^2] :                   /* named group (?<name>) */
+                        group_source[3..^1] :                   /* named group (?<name>) */
                         string.Empty;                           /* unnamed group (?:) */
 
                     RegexIRGenerator groupIR = new();
@@ -118,7 +123,8 @@ namespace StgSharp.RegularAnalysis.Text
                     groupIR.EmitTry(rightIR.Count);
                     groupIR.EmitIRStream(rightIR);
                     groupIR.EmitCondition(2, 1);
-                    /*generate pack ir here*/
+                    groupIR.EmitPop(false);
+                    groupIR.EmitPack(true, group_name);
                     return groupIR;
                 case RegexElementLabel.COUNT:
                     string count_source = token.Value;
@@ -137,25 +143,25 @@ namespace StgSharp.RegularAnalysis.Text
                         _ => throw new InvalidOperationException("Unexpected sequence mask for count operator"),
                     };
                     ReadOnlySpan<char> count_source_span = count_source;
-                    RegexIRGenerator countIR = new();
+                    RegexIRGenerator count_ir = new();
 
                     if (count_source_span[0] == '*')              // infinite count
                     {
-                        EmitCount(curDepth, countIR, 0, int.MaxValue, isGreedy, seq);
+                        EmitCount(curDepth, count_ir, 0, -1, isGreedy, seq);
                     } else if (count_source_span[0] == '+')       // at least one
                     {
-                        EmitCount(curDepth, countIR, 1, int.MaxValue, isGreedy, seq);
+                        EmitCount(curDepth, count_ir, 1, -1, isGreedy, seq);
                     } else if (count_source_span[0] == '?')       // zero or one
                     {
-                        EmitCount(curDepth, countIR, 0, 1, isGreedy, seq);
+                        EmitCount(curDepth, count_ir, 0, 1, isGreedy, seq);
                     } else if (count_source_span[0] == '{')        // zero or one, non-greedy
                     {
                         int comma_pos = count_source_span.IndexOf(',');
                         if (comma_pos == -1)
                         {
-                            if (int.TryParse(count_source[1..(isGreedy ? ^3 : ^2)], out int count))
+                            if (int.TryParse(count_source[1..(isGreedy ? ^2 : ^1)], out int count))
                             {
-                                EmitCount(curDepth, countIR, count, count, isGreedy, seq);
+                                EmitCount(curDepth, count_ir, count, count, isGreedy, seq);
                             } else
                             {
                                 throw new InvalidCastException($"Invalid count format: {count_source}");
@@ -163,9 +169,9 @@ namespace StgSharp.RegularAnalysis.Text
                         } else
                         {
                             if (int.TryParse(count_source[1..comma_pos], out int min) &&
-                                int.TryParse(count_source[(comma_pos + 1)..(isGreedy ? ^3 : ^2)], out int max))
+                                int.TryParse(count_source[(comma_pos + 1)..(isGreedy ? ^1 : ^2)], out int max))
                             {
-                                EmitCount(curDepth, countIR, min, max, isGreedy, seq);
+                                EmitCount(curDepth, count_ir, min, max, isGreedy, seq);
                             } else
                             {
                                 throw new InvalidCastException($"Invalid count format: {count_source}");
@@ -176,7 +182,7 @@ namespace StgSharp.RegularAnalysis.Text
                         throw new InvalidOperationException();
                     }   // unknown count format
 
-                    return countIR;
+                    return count_ir;
                 case RegexElementLabel.CONCAT:
                     RegexIRGenerator concat = new();
 

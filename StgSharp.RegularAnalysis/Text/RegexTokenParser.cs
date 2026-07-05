@@ -68,7 +68,6 @@ namespace StgSharp.RegularAnalysis.Text
                 }
             } else
             {
-                Console.WriteLine("returns empty");
                 return Token<RegexElementLabel>.Empty;
             }
         }

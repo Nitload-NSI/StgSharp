@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="RegexInterpreter.Optimize"
+// file="RegexAnalyzer.ASTOptimize"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -39,7 +39,7 @@ using System.Xml.Linq;
 
 namespace StgSharp.RegularAnalysis.Text
 {
-    public partial class RegexInterpreter
+    public partial class RegexAnalyzerFrontEnd
     {
 
         private static RegexAstNode FlattenAlt(
@@ -154,6 +154,67 @@ namespace StgSharp.RegularAnalysis.Text
                                                                       RegexElementLabel.UNIT :
                                                                       RegexElementLabel.UNIT_SPAN));
             return true;
+        }
+
+        private static void OptimizeTree(
+                     AbstractSyntaxTree<RegexAstNode, RegexElementLabel> tree
+        )
+        {
+            // phase0: scan container and remove no parent nodes
+            _ = tree.AllNodes.RemoveWhere(node => node.Parent == null && node != tree.Root);
+            TreeEnumerator<RegexAstNode, RegexElementLabel> enumerator = new(tree.Root);
+            RegexAstNode current;
+
+            // phase1: ALT flatten
+            // phase2: CONCAT normalize
+            int i = 0;
+            List<RegexAstNode> altNodes = [];
+            while (enumerator.MoveNext())
+            {
+                current = enumerator.Current;
+                if (current.EqualityTypeConvert == RegexElementLabel.ALT)
+                {
+                    RegexAstNode union = FlattenAlt(current);
+                    altNodes.Add(current);
+                    current.Right = union;
+                    current.Left = RegexAstNode.Empty;
+                } else if (current.EqualityTypeConvert == RegexElementLabel.CONCAT) {
+                    RotateConcat(current);
+                }
+            }
+
+            List<RegexAstNode> cases = [];
+
+            // phase3: then ALT union
+            foreach (RegexAstNode item in altNodes)
+            {
+                RegexAstNode _case = item.Right;
+                do
+                {
+                    cases.Add(_case);
+                    _case = _case.Next;
+                } while (!RegexAstNode.IsNullOrEmpty(_case));
+                RegexAstNode newAlt = MergeAlt(cases);
+                item.ReplaceBy(newAlt);
+            }
+
+            // return;
+
+            // phase4: CONCAT merge
+            enumerator.Reset();
+            while (enumerator.MoveNext())
+            {
+                // suppose all concat is now in normalized form,
+                // we can merge adjacent unit nodes into a single unit node with string value
+                current = enumerator.Current;
+                if (current.EqualityTypeConvert == RegexElementLabel.CONCAT)
+                {
+                    if (MergeConcat(current)) {
+                        enumerator.SkipOnce();
+                    }
+                }
+            }
+
         }
 
         private static void RotateConcat(

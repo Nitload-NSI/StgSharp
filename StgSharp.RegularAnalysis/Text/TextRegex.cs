@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="ISyntaxNode"
+// file="TextRegex"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,67 +25,29 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-using StgSharp.Collections;
-
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace StgSharp.RegularAnalysis.Abstraction
+namespace StgSharp.RegularAnalysis.Text
 {
-    public interface ITrinitySyntaxNode<TNode, TLabel> : ISyntaxNode<TNode, TLabel>
-        where TNode : ISyntaxNode<TNode, TLabel>
-        where TLabel : unmanaged
+    public abstract class TextRegex
     {
 
-        TNode Third { get; set; }
-
-    }
-
-    public interface ISyntaxNode<TNode, TLabel> where TNode : ISyntaxNode<TNode, TLabel>
-        where TLabel : unmanaged
-    {
-
-        long NodeFlag { get; }
-
-        string CodeConvertTemplate { get; }
-
-        TLabel EqualityTypeConvert { get; }
-
-        TNode Previous { get; set; }
-
-        TNode Next { get; set; }
-
-        TNode Left { get; set; }
-
-        TNode Right { get; set; }
-
-        TNode Parent { get; set; }
-
-        static abstract TNode Empty { get; }
-
-        Token<TLabel> Source { get; }
-
-        protected internal int EnumState { get; set; }
-
-        void AppendNode(
-             TNode nextToken
+        public abstract bool IsMatch(
+                             ReadOnlySpan<char> text
         );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static virtual bool IsNullOrEmpty(
-                                   TNode node
-        )
+        public ref struct Match
         {
-            return node is null || node.Equals(TNode.Empty);
+
+            private ReadOnlySpan<char> _sequence;
+
         }
 
-        void PrependNode(
-             TNode previousNode
-        );
-
     }
+
+    public ref struct MatchResult { }
 }

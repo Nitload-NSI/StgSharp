@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-// file="RegexInterpreter.SourceEmit"
+// file="RegexAnalyzerBackEnd"
 // Project: StgSharp
 // AuthorGroup: Nitload
 // Copyright (c) Nitload. All rights reserved.
@@ -25,6 +25,7 @@
 //     
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,5 +34,15 @@ using System.Threading.Tasks;
 
 namespace StgSharp.RegularAnalysis.Text
 {
-    public partial class RegexInterpreter { }
+    internal static partial class RegexAnalyzerBackEnd
+    {
+
+        internal static string GenerateSource(
+                               List<RegexIR> ir
+        )
+        {
+            return string.Empty;
+        }
+
+    }
 }
