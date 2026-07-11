@@ -1,0 +1,312 @@
+// -----------------------------------------------------------------------------
+// file="Camera"
+// Project: StgSharp
+// Copyright (c) Nitload.
+// SPDX-License-Identifier: MIT
+// -----------------------------------------------------------------------------
+
+using StgSharp.Graphics.OpenGL;
+using StgSharp.Graphics.ShaderEdit;
+
+using System;
+
+namespace StgSharp.Mathematics.Graphics
+{
+    public sealed class Camera : IglConvertable
+    {
+
+        private bool _isLookAtAvailable;
+        internal GraphicsMatrix _lookAt;
+        internal GraphicsMatrix _projection;
+        internal GraphicsMatrix cameraAtt;
+        internal GraphicsMatrix rotation;
+        internal GraphicsMatrix rotationAtt;
+        internal Radius _pitch;
+        internal Radius _row;
+        internal Radius _yaw;
+        internal Uniform<GraphicsMatrix> convertedUniform;
+        internal Vec3 _target, up;
+
+        public Camera()
+        {
+            cameraAtt = GraphicsMatrix.Unit;
+            _target = Vec3.Zero;
+            up = Vec3.Zero;
+            _isLookAtAvailable = false;
+            _lookAt = GraphicsMatrix.Unit;
+            rotationAtt = GraphicsMatrix.Unit;
+            _projection = new GraphicsMatrix();
+        }
+
+        public Camera(
+               Vec3 position,
+               Vec3 target,
+               Vec3 up
+        )
+            : this()
+        {
+            rotationAtt = GraphicsMatrix.Unit;
+            cameraAtt = new GraphicsMatrix();
+            SetViewDirection(position, target, up);
+            _pitch = Radius.Zero;
+            _row = Radius.Zero;
+            _yaw = Radius.Zero;
+        }
+
+        public GraphicsMatrix Projection => _projection;
+
+        public GraphicsMatrix View
+        {
+            get
+            {
+                if (_isLookAtAvailable) {
+                    return _lookAt;
+                }
+                GraphicsMatrix move = GraphicsMatrix.Unit;
+                move.column[3].vec -= cameraAtt.column[3].vec;
+                _lookAt = rotationAtt.Transpose * move;
+                _isLookAtAvailable = true;
+                return _lookAt;
+            }
+        }
+
+        public GraphicsMatrix CameraMatrix()
+        {
+            return Projection * View;
+        }
+
+        public void DisplayGLtypeDefinition()
+        {
+            Console.WriteLine("uniform matrix4x4 cameraName;");
+        }
+
+        /// <summary>
+        ///   Get all uniform related to this <see cref="Camera" />.
+        /// </summary>
+        /// <param _label="source">
+        ///   Shader program requires this camera.
+        /// </param>
+        /// <param _label="uniformName">
+        ///   ContextName of all related uniforms. If you fallow form from <see ///  
+        ///   cref="IglConvertable.DisplayGLtypeDefinition" />
+        /// </param>
+        /// <exception cref="ArgumentException">
+        ///
+        /// </exception>
+        public unsafe void GainAllUniforms(
+                           ShaderProgram source,
+                           params string[] uniformName
+        )
+        {
+            if ((uniformName is null) || (uniformName.Length != 1)) {
+                throw new ArgumentException(
+                    "Camera needs exactly one uniform.", nameof(uniformName));
+            }
+            convertedUniform = source.GetUniform<GraphicsMatrix>(uniformName[0]);
+        }
+
+        public void MoveNear(
+                    float distance
+        )
+        {
+            cameraAtt.column[3].Z -= distance;
+            _isLookAtAvailable = false;
+        }
+
+        public void MoveRight(
+                    float distance
+        )
+        {
+            cameraAtt.column[3].X -= distance;
+            _isLookAtAvailable = false;
+        }
+
+        public void MoveUp(
+                    float distance
+        )
+        {
+            cameraAtt.column[3].Y -= distance;
+            _isLookAtAvailable = false;
+        }
+
+        public unsafe void SetAllUniforms()
+        {
+            // Console.WriteLine(Projection * ViewBase);
+            OpenGLFunction.CurrentGL.SetUniformValue(convertedUniform, Projection * View);
+        }
+
+        public void SetViewDirection(
+                    Vec3 position,
+                    Vec3 target,
+                    Vec3 up
+        )
+        {
+            Vec3 direction = position - target;
+            if ((position.reg == cameraAtt.column[3].reg) &&
+                (this.up == up) &&
+                (cameraAtt.column[3].reg == direction.reg)) {
+                return;
+            }
+            if (direction.GetLength() == 0)
+            {
+                // deadlock
+                throw new ArgumentException("Direction bust is not zero.");
+            }
+            if (Vec3.IsParallel(direction, up)) {
+                throw new ArgumentException("Direction and UP is on on same way");
+            }
+            _target = direction;
+            this.up = up;
+
+            _isLookAtAvailable = false;
+
+            direction.Orthogonalize(ref up);
+
+            Vec3 right = Linear.Orthogonalize(Linear.Cross(up, direction));
+
+            cameraAtt.column[0].reg = right.reg;
+            cameraAtt.column[1].reg = up.reg;
+            cameraAtt.column[2].reg = direction.reg;
+            cameraAtt.column[3].reg = position.reg;
+
+            InternalPitch();
+            InternalRow();
+            InternalYaw();
+        }
+
+        public void SetViewRange(
+                    Radius fovRadius,
+                    Vec2 size,
+                    Vec2 offset,
+                    (float front, float back) depthRange
+        )
+        {
+            float
+                distance = _target.GetLength(),
+                near = distance - depthRange.front,
+                far = distance + depthRange.back,
+                offsetX = offset.X,
+                offsetY = offset.Y,
+                width = MathF.Abs(GeometryScaler.Tan(fovRadius / 2) * near * 2),
+                height = (width * size.Y) / size.X;
+
+            _projection.column[0].X = (2 * near) / width;
+            _projection.column[1].Y = (2 * near) / height;
+            _projection.column[2].X = (2 * offsetX) / width;
+            _projection.column[2].Y = (2 * offsetY) / height;
+            _projection.column[2].Z = (far + near) / (near - far);
+            _projection.column[2].W = -1;
+            _projection.column[3].Z = (2 * near * far) / (near - far);
+        }
+
+        public void Test(
+                    params Vec4[] vec
+        )
+        {
+            Console.WriteLine(View);
+            Console.WriteLine(Projection);
+            Console.WriteLine(Projection * View);
+            Console.WriteLine(View);
+            foreach (Vec4 item in vec) {
+                Console.Write($"{Projection * View * item};");
+            }
+        }
+
+        ShaderStruct IglConvertable.GetConvertedGLtype()
+        {
+            throw new NotImplementedException();
+        }
+
+        ~Camera() { }
+
+        #region rotation
+
+        public void Yaw(
+                    Radius r
+        )
+        {
+            _yaw -= r;
+
+            // Console.WriteLine(_yaw._radius);
+            // Console.WriteLine(rotationAtt);
+            InternalYaw();
+        }
+
+        public void Pitch(
+                    Radius r
+        )
+        {
+            _pitch -= r;
+
+            // Console.WriteLine(_pitch._radius);
+            // Console.WriteLine(rotationAtt);
+            InternalPitch();
+        }
+
+        public void Row(
+                    Radius r
+        )
+        {
+            _row -= r;
+
+            // Console.WriteLine(_row._radius);
+            // Console.WriteLine(rotationAtt);
+            InternalRow();
+        }
+
+        internal void InternalPitch()
+        {
+            /*
+            _isLookAtAvailable = false;
+
+            Matrix32 partialCoord = new Matrix32(cameraAtt.colum1.vec, cameraAtt.colum2.vec);
+            float angle = _pitch._radius;
+
+            Matrix22 rotation = new Matrix22(
+                Scaler.Cos(angle), -Scaler.Sin(angle), Scaler.Sin(angle), Scaler.Cos(angle));
+
+            partialCoord *= rotation;
+            rotationAtt.colum1.reg = partialCoord.colum0.reg;
+            rotationAtt.colum2.reg = partialCoord.colum1.reg;
+            rotationAtt.isTransposed = false;
+            /**/
+        }
+
+        internal void InternalRow()
+        {
+            /*
+            _isLookAtAvailable = false;
+
+            Matrix32 partialCoord = new Matrix32(cameraAtt.colum0.vec, cameraAtt.colum1.vec);
+            float angle = _row._radius;
+
+            Matrix22 rotation = new Matrix22(
+                Scaler.Cos(angle), -Scaler.Sin(angle), Scaler.Sin(angle), Scaler.Cos(angle));
+
+            partialCoord *= rotation;
+            rotationAtt.colum0.reg = partialCoord.colum0.reg;
+            rotationAtt.colum1.reg = partialCoord.colum1.reg;
+            rotationAtt.isTransposed = false;
+        */
+        }
+
+        internal void InternalYaw()
+        {
+            /*
+            _isLookAtAvailable = false;
+
+            Matrix32 partialCoord = new Matrix32(cameraAtt.colum0.vec, cameraAtt.colum2.vec);
+            float angle = _yaw._radius;
+            Matrix22 rotation = new Matrix22(
+                Scaler.Cos(angle), -Scaler.Sin(angle), Scaler.Sin(angle), Scaler.Cos(angle));
+
+            partialCoord *= rotation;
+            rotationAtt.colum0.reg = partialCoord.colum0.reg;
+            rotationAtt.colum2.reg = partialCoord.colum1.reg;
+            rotationAtt.isTransposed = false;
+        */
+        }
+
+        #endregion
+    }
+}

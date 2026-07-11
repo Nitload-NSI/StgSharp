@@ -3,27 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11520.95 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Common", "StgSharp.Common\StgSharp.Common.csproj", "{3EAF2EE6-FA9E-4F57-951F-7E6F8125DFBF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Common", "src\StgSharp.Common\StgSharp.Common.csproj", "{3EAF2EE6-FA9E-4F57-951F-7E6F8125DFBF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{20CBFF26-6746-402E-992C-7B643E9423EB} = {20CBFF26-6746-402E-992C-7B643E9423EB}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StgSharp.Native", "StgSharp.Native\StgSharp.Native.vcxproj", "{20CBFF26-6746-402E-992C-7B643E9423EB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StgSharp.Native", "src\StgSharp.Native\StgSharp.Native.vcxproj", "{20CBFF26-6746-402E-992C-7B643E9423EB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0961B2BE-415C-45EA-8607-5B83623B2EF7}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.TerminalDialogue", "StgSharp.TerminalDialogue\StgSharp.TerminalDialogue.csproj", "{10B5819F-2A62-41B6-980A-EB9E76A0E95C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.TerminalDialogue", "src\StgSharp.TerminalDialogue\StgSharp.TerminalDialogue.csproj", "{10B5819F-2A62-41B6-980A-EB9E76A0E95C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Model", "StgSharp.Model\StgSharp.Model.csproj", "{D9538DE0-EE4C-4183-86D6-7DFC08A7BDFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Model", "src\StgSharp.Model\StgSharp.Model.csproj", "{D9538DE0-EE4C-4183-86D6-7DFC08A7BDFB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Mathematics", "StgSharp.Mathematics\StgSharp.Mathematics.csproj", "{9946599F-4D34-440F-840D-F9443D5AEFAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Mathematics", "src\StgSharp.Mathematics\StgSharp.Mathematics.csproj", "{9946599F-4D34-440F-840D-F9443D5AEFAA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.RegularAnalysis", "StgSharp.RegularAnalysis\StgSharp.RegularAnalysis.csproj", "{46339874-C6B8-4361-997E-2E30387E51F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.RegularAnalysis", "src\StgSharp.RegularAnalysis\StgSharp.RegularAnalysis.csproj", "{46339874-C6B8-4361-997E-2E30387E51F9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Graphics", "StgSharp.Graphics\StgSharp.Graphics.csproj", "{80CD3DDE-0642-451D-82DF-0DE422FC6E34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Graphics", "src\StgSharp.Graphics\StgSharp.Graphics.csproj", "{80CD3DDE-0642-451D-82DF-0DE422FC6E34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

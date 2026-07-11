@@ -1,0 +1,204 @@
+// -----------------------------------------------------------------------------
+// file="BidirectionalDictionary"
+// Project: StgSharp
+// Copyright (c) Nitload.
+// SPDX-License-Identifier: MIT
+// -----------------------------------------------------------------------------
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+namespace StgSharp.Collections
+{
+    public sealed class BidirectionalDictionary<TFirst, TSecond> : IBidirectionalDictionary<TFirst, TSecond>
+        where TFirst : notnull
+        where TSecond : notnull
+    {
+
+        private readonly Dictionary<TFirst, TSecond> _forward;
+        private readonly Dictionary<TSecond, TFirst> _reverse;
+
+        public BidirectionalDictionary()
+        {
+            _forward = [];
+            _reverse = [];
+        }
+
+        public TFirst this[
+                      TSecond key
+        ]
+        {
+            get => _reverse.TryGetValue(key, out TFirst value) ?
+                   value :
+                   throw new ArgumentException($"Cannot find key {key} in dictionary.");
+            set
+            {
+                if (_reverse.TryGetValue(key, out TFirst origin))
+                {
+                    _reverse[key] = value;
+                    _ = _forward.Remove(origin);
+                } else
+                {
+                    _reverse.Add(key, value);
+                }
+                _forward.Add(value, key);
+            }
+        }
+
+        public TSecond this[
+                       TFirst key
+        ]
+        {
+            get => _forward.TryGetValue(key, out TSecond value) ?
+                   value :
+                   throw new ArgumentException($"Cannot find key {key} in dictionary.");
+            set
+            {
+                if (_forward.TryGetValue(key, out TSecond origin))
+                {
+                    _forward[key] = value;
+                    _ = _reverse.Remove(origin);
+                } else
+                {
+                    _forward.Add(key, value);
+                }
+                _reverse.Add(value, key);
+            }
+        }
+
+        public bool IsReadOnly => false;
+
+        public ICollection<TFirst> FirstIndex => _forward.Keys;
+
+        public ICollection<TSecond> SecondIndex => _reverse.Keys;
+
+        public int Count => _forward.Count;
+
+        public IReadOnlyDictionary<TFirst, TSecond> Forward => new ReadOnlyDictionary<TFirst, TSecond>(
+            _forward);
+
+        public IReadOnlyDictionary<TSecond, TFirst> Reverse => new ReadOnlyDictionary<TSecond, TFirst>(
+            _reverse);
+
+        public void Add(
+                    KeyValuePair<TFirst, TSecond> item
+        )
+        {
+            if (_forward.ContainsKey(item.Key) || _reverse.ContainsKey(item.Value)) {
+                throw new ArgumentException("Duplicate key or value.");
+            }
+            _forward.Add(item.Key, item.Value);
+            _reverse.Add(item.Value, item.Key);
+        }
+
+        public void Add(
+                    TFirst key,
+                    TSecond value
+        )
+        {
+            if (_forward.ContainsKey(key) || _reverse.ContainsKey(value)) {
+                throw new ArgumentException("Duplicate key or value.");
+            }
+            _forward.Add(key, value);
+            _reverse.Add(value, key);
+        }
+
+        public void Clear()
+        {
+            _forward.Clear();
+            _reverse.Clear();
+        }
+
+        public bool Contains(
+                    KeyValuePair<TFirst, TSecond> item
+        )
+        {
+            return _forward.Contains(item) &&
+                   _reverse.TryGetValue(item.Value, out TFirst var) &&
+                   var!.Equals(item.Key);
+        }
+
+        public bool Contains(
+                    TSecond key
+        )
+        {
+            return _reverse.ContainsKey(key);
+        }
+
+        public bool Contains(
+                    TFirst key
+        )
+        {
+            return _forward.ContainsKey(key);
+        }
+
+        public void CopyTo(
+                    KeyValuePair<TFirst, TSecond>[] array,
+                    int arrayIndex
+        )
+        {
+            if (array == null) {
+                throw new ArgumentNullException(nameof(array));
+            }
+            if (arrayIndex < 0 || arrayIndex > array.Length) {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            }
+            if (array.Length - arrayIndex < _forward.Count) {
+                throw new ArgumentException("The array is too small to copy the elements.");
+            }
+
+            foreach (KeyValuePair<TFirst, TSecond> pair in _forward) {
+                array[arrayIndex++] = pair;
+            }
+        }
+
+        public IEnumerator<KeyValuePair<TFirst, TSecond>> GetEnumerator()
+        {
+            foreach (KeyValuePair<TFirst, TSecond> pair in _forward) {
+                yield return pair;
+            }
+        }
+
+        public bool Remove(
+                    TFirst key
+        )
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(
+                    KeyValuePair<TFirst, TSecond> item
+        )
+        {
+            if (_forward.Remove(item.Key)) {
+                return _reverse.Remove(item.Value);
+            }
+            return false;
+        }
+
+        public bool TryGetValue(
+                    TFirst key,
+                    out TSecond value
+        )
+        {
+            return _forward.TryGetValue(key, out value);
+        }
+
+        public bool TryGetValue(
+                    TSecond key,
+                    out TFirst value
+        )
+        {
+            return _reverse.TryGetValue(key, out value);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+    }
+}
