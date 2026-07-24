@@ -71,7 +71,7 @@ Terminal-based user interface application and components:
 
 - **Parallel Matrix Operations**: Multi-threaded matrix computations with optimized scheduling
 - **SIMD Acceleration**: Hardware-optimized vector operations
-- **Memory Management**: Custom allocators including HLSF (Hybrid Layer Segregated Fit)
+- **Memory Management**: Custom allocators including TLSF (Two Layer Segregated Fit)
 - **Thread Pool Management**: Efficient task scheduling and execution
 
 #### HLSF Benchmark Snapshot (BenchmarkDotNet)
@@ -212,7 +212,7 @@ allocator.Free(handle);
 
 ### Technical Documentation
 
-- [HLSF Allocator](StgSharp.Common/HighPerformance/Memory/InroductionToHLSF.md) - High-performance memory allocator documentation
+- [TLSF Allocator](StgSharp.Common/HighPerformance/Memory/InroductionToHLSF.md) - High-performance memory allocator documentation
 - [Native Library Naming](StgSharp.Native/naming.md) - Native library file naming conventions
 
 ## Contributing

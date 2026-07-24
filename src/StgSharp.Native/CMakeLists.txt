@@ -52,7 +52,7 @@ else()
   set(STGSHARP_ARCH_TAG ${SN_RESOLVED_ARCH_NAME})
 endif()
 
-set(STGSHARP_BUILD_OUTPUT_DIR ${STGSHARP_SOLUTION_ROOT}/bin/${STGSHARP_OS_TAG}_${STGSHARP_ARCH_TAG})
+set(STGSHARP_BUILD_OUTPUT_DIR ${STGSHARP_SOLUTION_ROOT}/bin/${STGSHARP_OS_TAG}-${STGSHARP_ARCH_TAG})
 # Compile-time intermediates (native PDB / .obj side files) live inside the CMake
 # build tree (cmake_build/<preset>) so they get cleaned up with it.
 set(STGSHARP_OBJECT_ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/obj/${PROJECT_NAME})

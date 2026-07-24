@@ -78,8 +78,11 @@
     <!-- 当前编译的 RID -->
     <BuildRid>$(_OsTag)-$(_ArchTag)</BuildRid>
 
-    <!-- 分层的 build 输出目录 -->
-    <NativeBuildDir>$(SolutionRoot)build\$(BuildRid)\</NativeBuildDir>
+    <!-- 托管项目分层输出目录 -->
+    <ManagedBuildDir>$(SolutionRoot)bin\$(BuildRid)\</ManagedBuildDir>
+
+    <!-- CMake native 最终二进制输出目录 -->
+    <NativeBuildDir>$(SolutionRoot)bin\$(BuildRid)\</NativeBuildDir>
   </PropertyGroup>
 
   <!-- ════════════════════════════════════════════════════════ -->

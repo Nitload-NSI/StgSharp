@@ -37,7 +37,10 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexFindComplexIR(bool nearest, int count) : RegexIR(RegexIRCommand.Find_Complex), IRegexComplex
+    internal sealed class RegexFindComplexIR(
+                          bool nearest,
+                          int count
+    ) : RegexIR(RegexIRCommand.Find_Complex), IRegexComplex
     {
 
         public bool IsFullyOptimized { get; set; }
@@ -53,7 +56,10 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexFindSeqIR(string pattern, bool isFirst) : RegexIR(RegexIRCommand.Find_Seq), IRegexSequence
+    internal sealed class RegexFindSeqIR(
+                          string pattern,
+                          bool isFirst
+    ) : RegexIR(RegexIRCommand.Find_Seq), IRegexSequence
     {
 
         public bool IsFirst { get; } = isFirst;
@@ -70,7 +76,9 @@ namespace StgSharp.RegularAnalysis.Text
     /// <summary>
     ///   Searches for a certain string pattern or charset from current position.
     /// </summary>
-    internal sealed class RegexMatchSeqIR(string pattern) : RegexIR(RegexIRCommand.Match_Seq), IRegexSequence
+    internal sealed class RegexMatchSeqIR(
+                          string pattern
+    ) : RegexIR(RegexIRCommand.Match_Seq), IRegexSequence
     {
 
         public string Pattern { get; } = pattern;
@@ -82,7 +90,9 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexMatchSetIR(string charset) : RegexIR(RegexIRCommand.Match_Set)
+    internal sealed class RegexMatchSetIR(
+                          string charset
+    ) : RegexIR(RegexIRCommand.Match_Set)
     {
 
         public string Charset { get; } = charset;
@@ -94,7 +104,10 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexConditionIR(int success, int fail) : RegexIR(RegexIRCommand.Condition)
+    internal sealed class RegexConditionIR(
+                          int success,
+                          int fail
+    ) : RegexIR(RegexIRCommand.Condition)
     {
 
         public int SuccessCase { get; } = success;
@@ -108,7 +121,10 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexPackIR(bool condition, string name = "") : RegexIR(RegexIRCommand.Pack)
+    internal sealed class RegexPackIR(
+                          bool condition,
+                          string name = ""
+    ) : RegexIR(RegexIRCommand.Pack)
     {
 
         public bool Condition { get; } = condition;
@@ -122,7 +138,12 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexCountComplexIR(int min, int max, bool isGreedy, int operation) : RegexIR(RegexIRCommand.Count_Complex), IRegexCount, IRegexComplex
+    internal sealed class RegexCountComplexIR(
+                          int min,
+                          int max,
+                          bool isGreedy,
+                          int operation
+    ) : RegexIR(RegexIRCommand.Count_Complex), IRegexCount, IRegexComplex
     {
 
         public bool IsGreedy { get; } = isGreedy;
@@ -146,7 +167,12 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexCountSeqIR(int min, int max, bool isGreedy, string seq) : RegexIR(RegexIRCommand.Count_Seq), IRegexCount, IRegexSequence
+    internal sealed class RegexCountSeqIR(
+                          int min,
+                          int max,
+                          bool isGreedy,
+                          string seq
+    ) : RegexIR(RegexIRCommand.Count_Seq), IRegexCount, IRegexSequence
     {
 
         public bool IsGreedy { get; } = isGreedy;
@@ -168,7 +194,12 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexCountSetIR(int min, int max, bool isGreedy, string set) : RegexIR(RegexIRCommand.Count_Set), IRegexCount
+    internal sealed class RegexCountSetIR(
+                          int min,
+                          int max,
+                          bool isGreedy,
+                          string set
+    ) : RegexIR(RegexIRCommand.Count_Set), IRegexCount
     {
 
         public bool IsGreedy { get; } = isGreedy;
@@ -192,7 +223,9 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexTryIR(int count) : RegexIR(RegexIRCommand.Try), IRegexComplex
+    internal sealed class RegexTryIR(
+                          int count
+    ) : RegexIR(RegexIRCommand.Try), IRegexComplex
     {
 
         public bool IsFullyOptimized { get; set; }
@@ -206,7 +239,26 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
-    internal sealed class RegexPopIR(bool isSuccess) : RegexIR(RegexIRCommand.Pop)
+    internal sealed class RegexFindSetIR(
+                          string charset,
+                          bool isFirst
+    ) : RegexIR(RegexIRCommand.Find_Set)
+    {
+
+        public bool IsFirst { get; } = isFirst;
+
+        public string Charset { get; } = charset;
+
+        protected override string AsCommand()
+        {
+            return $"FIND_SET \"{Charset}\"";
+        }
+
+    }
+
+    internal sealed class RegexPopIR(
+                          bool isSuccess
+    ) : RegexIR(RegexIRCommand.Pop)
     {
 
         public bool IsSuccess { get; } = isSuccess;

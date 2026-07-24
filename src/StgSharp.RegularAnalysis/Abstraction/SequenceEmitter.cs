@@ -38,6 +38,15 @@ namespace StgSharp.RegularAnalysis.Abstraction
                    emitter.Append(string.IsNullOrEmpty(line) ? string.Empty : line);
         }
 
+        public static SequenceEmitter<string> AppendLine(
+                                              this SequenceEmitter<string> emitter,
+                                              string line,
+                                              bool condition
+        )
+        {
+            return emitter is null ? null! : condition ? emitter.Append(line) : emitter;
+        }
+
     }
 
     public sealed class SequenceEmitter<T>
@@ -48,6 +57,15 @@ namespace StgSharp.RegularAnalysis.Abstraction
         private readonly Node _head;
         private Node _tail;
 
+        private SequenceEmitter(
+                Node node
+        )
+        {
+            _isRoot = true;
+            _head = node;
+            _tail = _head;
+        }
+
         public SequenceEmitter()
         {
             _isRoot = true;
@@ -56,8 +74,6 @@ namespace StgSharp.RegularAnalysis.Abstraction
         }
 
         public int Count { get; private set; }
-
-        private static bool IsString { get; } = typeof(T) == typeof(string);
 
         public SequenceEmitter<T> Append(
                                   T unit
@@ -90,6 +106,16 @@ namespace StgSharp.RegularAnalysis.Abstraction
             Count += emitter.Count;
             emitter._isRoot = false;
             return this;
+        }
+
+        public SequenceEmitter<T> Clone()
+        {
+            if (!_isRoot) {
+                throw new InvalidOperationException("This emitter has been appended to another emitter. It is now readonly.");
+            }
+            SequenceEmitter<T> clone = new();
+            Node current = _head;
+            return clone;
         }
 
         public Enumerator GetEnumerator()
@@ -173,6 +199,18 @@ namespace StgSharp.RegularAnalysis.Abstraction
         private sealed class Node
         {
 
+            public Node()
+            {
+                IRList = [];
+            }
+
+            public Node(
+                   int capacity
+            )
+            {
+                IRList = new(capacity);
+            }
+
             public T this[
                      int index
             ]
@@ -185,7 +223,7 @@ namespace StgSharp.RegularAnalysis.Abstraction
 
             public int Count => IRList.Count;
 
-            public List<T> IRList { get; } = [];
+            public List<T> IRList { get; }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Add(
@@ -193,6 +231,13 @@ namespace StgSharp.RegularAnalysis.Abstraction
             )
             {
                 IRList.Add(ir);
+            }
+
+            public void AddRange(
+                        IEnumerable<T> irs
+            )
+            {
+                IRList.AddRange(irs);
             }
 
         }

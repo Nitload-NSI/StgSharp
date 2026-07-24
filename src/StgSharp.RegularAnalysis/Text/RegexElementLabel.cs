@@ -16,7 +16,7 @@ namespace StgSharp.RegularAnalysis.Text
     [Flags]
     public enum RegexElementLabel
     {
-
+#pragma warning disable CA1707
         NONE = 0,
         UNIT = 1,
         UNIT_SET = 2,
@@ -33,5 +33,6 @@ namespace StgSharp.RegularAnalysis.Text
         ATOM_BEGIN = SEQUENCE | GROUP_BEGIN ,
         ATOM_END = SEQUENCE | GROUP_END | COUNT,
 
+#pragma warning restore CA1707
     }
 }

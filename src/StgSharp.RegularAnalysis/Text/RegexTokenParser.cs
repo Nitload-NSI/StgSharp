@@ -32,12 +32,10 @@ namespace StgSharp.RegularAnalysis.Text
             }
             if (Source.TryReadToken(out Token<RegexElementLabel> orig))
             {
-                if (((int)(orig.Flag & RegexElementLabel.ATOM_BEGIN) != 0) && ((int)_prev != 0))
+                if (((orig.Flag & RegexElementLabel.ATOM_BEGIN) != 0) && (_prev != 0))
                 {
-                    Token<RegexElementLabel> ret = new Token<RegexElementLabel>(string.Empty,
-                                                                                orig.Line,
-                                                                                orig.Column,
-                                                                                RegexElementLabel.CONCAT);
+                    Token<RegexElementLabel> ret = new(string.Empty, orig.Line, orig.Column,
+                                                       RegexElementLabel.CONCAT);
                     _buffer.Enqueue(orig);
                     _prev = orig.Flag & RegexElementLabel.ATOM_END;
                     return ret;

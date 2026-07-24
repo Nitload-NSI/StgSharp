@@ -1,14 +1,14 @@
 <Project>
 
   <!-- ════════════════════════════════════════════════════════ -->
-  <!--  编译后：把 C# 输出拷贝到 build/<rid>/ 目录                -->
+  <!--  编译后：把 C# 输出拷贝到 bin/<rid>/ 目录                 -->
   <!--  替代原来的 xcopy PostBuild                               -->
   <!-- ════════════════════════════════════════════════════════ -->
   <Target Name="CopyOutputToBuildDir"
           AfterTargets="Build"
           Condition="'$(DisablePostBuildCopy)'!='true'">
 
-    <MakeDir Directories="$(NativeBuildDir)" />
+    <MakeDir Directories="$(ManagedBuildDir)" />
 
     <!-- 拷贝所有编译输出（DLL + PDB + XML + deps.json） -->
     <ItemGroup>
@@ -17,15 +17,15 @@
     </ItemGroup>
 
     <Copy SourceFiles="@(_OutputFiles)"
-          DestinationFolder="$(NativeBuildDir)%(RecursiveDir)"
+          DestinationFolder="$(ManagedBuildDir)%(RecursiveDir)"
           SkipUnchangedFiles="true" />
 
     <Message Importance="high"
-             Text="[StgSharp] $(MSBuildProjectName) → $(NativeBuildDir)" />
+         Text="[StgSharp] $(MSBuildProjectName) → $(ManagedBuildDir)" />
   </Target>
 
   <!-- ════════════════════════════════════════════════════════ -->
-  <!--  调试时：从 build/<rid>/ 拷贝 native DLL 到项目输出目录   -->
+  <!--  调试时：从 bin/<rid>/ 拷贝 native DLL 到项目输出目录   -->
   <!--  这样 F5 调试时 P/Invoke 能找到 native                   -->
   <!-- ════════════════════════════════════════════════════════ -->
   <Target Name="CopyNativeToProjectOutput"
@@ -65,33 +65,33 @@
           Condition="'$(IsNativeHost)'=='true'">
 
     <ItemGroup>
-      <!-- 扫描 build/ 下所有 RID 子目录中的 native 文件 -->
-      <_PackNative Include="$(SolutionRoot)build\win-x64\$(NativeLibName).dll"
-                   Condition="Exists('$(SolutionRoot)build\win-x64\$(NativeLibName).dll')"
+      <!-- 扫描 bin/ 下所有 RID 子目录中的 native 文件 -->
+      <_PackNative Include="$(SolutionRoot)bin\win-x64\$(NativeLibName).dll"
+                   Condition="Exists('$(SolutionRoot)bin\win-x64\$(NativeLibName).dll')"
                    PackagePath="runtimes\win-x64\native" Pack="true" />
 
-      <_PackNative Include="$(SolutionRoot)build\win-arm64\$(NativeLibName).dll"
-                   Condition="Exists('$(SolutionRoot)build\win-arm64\$(NativeLibName).dll')"
+      <_PackNative Include="$(SolutionRoot)bin\win-arm64\$(NativeLibName).dll"
+                   Condition="Exists('$(SolutionRoot)bin\win-arm64\$(NativeLibName).dll')"
                    PackagePath="runtimes\win-arm64\native" Pack="true" />
 
-      <_PackNative Include="$(SolutionRoot)build\linux-x64\lib$(NativeLibName).so"
-                   Condition="Exists('$(SolutionRoot)build\linux-x64\lib$(NativeLibName).so')"
+      <_PackNative Include="$(SolutionRoot)bin\linux-x64\lib$(NativeLibName).so"
+                   Condition="Exists('$(SolutionRoot)bin\linux-x64\lib$(NativeLibName).so')"
                    PackagePath="runtimes\linux-x64\native" Pack="true" />
 
-      <_PackNative Include="$(SolutionRoot)build\linux-arm64\lib$(NativeLibName).so"
-                   Condition="Exists('$(SolutionRoot)build\linux-arm64\lib$(NativeLibName).so')"
+      <_PackNative Include="$(SolutionRoot)bin\linux-arm64\lib$(NativeLibName).so"
+                   Condition="Exists('$(SolutionRoot)bin\linux-arm64\lib$(NativeLibName).so')"
                    PackagePath="runtimes\linux-arm64\native" Pack="true" />
 
-      <_PackNative Include="$(SolutionRoot)build\linux-ppc64le\lib$(NativeLibName).so"
-                   Condition="Exists('$(SolutionRoot)build\linux-ppc64le\lib$(NativeLibName).so')"
+      <_PackNative Include="$(SolutionRoot)bin\linux-ppc64le\lib$(NativeLibName).so"
+                   Condition="Exists('$(SolutionRoot)bin\linux-ppc64le\lib$(NativeLibName).so')"
                    PackagePath="runtimes\linux-ppc64le\native" Pack="true" />
 
-      <_PackNative Include="$(SolutionRoot)build\osx-x64\lib$(NativeLibName).dylib"
-                   Condition="Exists('$(SolutionRoot)build\osx-x64\lib$(NativeLibName).dylib')"
+      <_PackNative Include="$(SolutionRoot)bin\osx-x64\lib$(NativeLibName).dylib"
+                   Condition="Exists('$(SolutionRoot)bin\osx-x64\lib$(NativeLibName).dylib')"
                    PackagePath="runtimes\osx-x64\native" Pack="true" />
 
-      <_PackNative Include="$(SolutionRoot)build\osx-arm64\lib$(NativeLibName).dylib"
-                   Condition="Exists('$(SolutionRoot)build\osx-arm64\lib$(NativeLibName).dylib')"
+      <_PackNative Include="$(SolutionRoot)bin\osx-arm64\lib$(NativeLibName).dylib"
+                   Condition="Exists('$(SolutionRoot)bin\osx-arm64\lib$(NativeLibName).dylib')"
                    PackagePath="runtimes\osx-arm64\native" Pack="true" />
 
       <None Include="@(_PackNative)" />
