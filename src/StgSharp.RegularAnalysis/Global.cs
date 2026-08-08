@@ -5,11 +5,11 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Runtime.CompilerServices;
+global using System.Text;
+global using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("StgSharpDebug")]

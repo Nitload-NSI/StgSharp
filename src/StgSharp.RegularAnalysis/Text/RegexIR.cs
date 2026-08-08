@@ -73,12 +73,14 @@ namespace StgSharp.RegularAnalysis.Text
 
     }
 
+    internal interface IRegexMatch { }
+
     /// <summary>
     ///   Searches for a certain string pattern or charset from current position.
     /// </summary>
     internal sealed class RegexMatchSeqIR(
                           string pattern
-    ) : RegexIR(RegexIRCommand.Match_Seq), IRegexSequence
+    ) : RegexIR(RegexIRCommand.Match_Seq), IRegexSequence, IRegexMatch
     {
 
         public string Pattern { get; } = pattern;
@@ -92,7 +94,7 @@ namespace StgSharp.RegularAnalysis.Text
 
     internal sealed class RegexMatchSetIR(
                           string charset
-    ) : RegexIR(RegexIRCommand.Match_Set)
+    ) : RegexIR(RegexIRCommand.Match_Set), IRegexMatch
     {
 
         public string Charset { get; } = charset;
@@ -225,7 +227,7 @@ namespace StgSharp.RegularAnalysis.Text
 
     internal sealed class RegexTryIR(
                           int count
-    ) : RegexIR(RegexIRCommand.Try), IRegexComplex
+    ) : RegexIR(RegexIRCommand.Try), IRegexComplex, IRegexMatch
     {
 
         public bool IsFullyOptimized { get; set; }

@@ -91,7 +91,8 @@ namespace StgSharp.RegularAnalysis.Text
             brace_count = 0;
             foreach (string line in ce)
             {
-                bool is_right_brace = line == "}";
+                bool is_right_brace = (line == "}") ||
+                                      line.StartsWith("} while", StringComparison.InvariantCulture);
                 brace_count -= is_right_brace ? 1 : 0;
                 for (int i = 0; i < brace_count; i++) {
                     _ = code_source.Append("    ");

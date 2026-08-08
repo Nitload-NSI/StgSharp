@@ -6,32 +6,108 @@
 // -----------------------------------------------------------------------------
 
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using StgSharp.RegularAnalysis.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace StgSharp.RegularAnalysis.Text
 {
     internal partial class TextRegexSourceGen
     {
+        /*
+         * ---------------------------------------------------------------------------------------
+         * NGRA text regex source generation backend
+         * ---------------------------------------------------------------------------------------
+         *
+         * The backend turns a fully prefixed IR stream into the body of one Match method. It is
+         * organised in layers, ordered by how many IR entries a single generator consumes:
+         *
+         *   L0  whole IR stream     method skeleton, slot declarations, entry guards
+         *   L1  several regions     ALT chain, group tail, complex count, complex find
+         *   L2  one region          the block a TRY lowers to
+         *   L3  two to eight IR     fixed windows worth collapsing into better code
+         *   L4  one IR              the fallback, one generator per RegexIRCommand
+         *   L5  zero IR             prefix decoration wrapped around L1 to L4 output
+         *
+         * File layout:
+         *
+         *   TextRegexSourceGen.GenClass.cs           this file, L0 and shared helpers
+         *   TextRegexSourceGen.GenClass.MultiIR.cs   L1, L2 and L3
+         *   TextRegexSourceGen.GenClass.SingleIR.cs  L4
+         *   TextRegexSourceGen.GenClass.Prefix.cs    L5
+         *   TextRegexSourceGen.GenContext.cs         variable naming and slot allocation
+         *
+         * Contract every generator honours:
+         *
+         *   1. A TryGenerateXxx returns how many IR entries it consumed, or -1 when the window
+         *      does not match its shape. It returns an entry count, never a character count or a
+         *      pattern length.
+         *   2. The dispatch chain offers a window to L1, then L2, then L3, then L4. Higher
+         *      consumption wins, so a shape spanning a whole region plus a tail is never split by
+         *      a smaller generator.
+         *   3. L2, L4, L5 and the required entries of L1 together are sufficient for correctness.
+         *      The flattening entries of L1 and all of L3 only improve the shape of what those
+         *      would already emit, so an unimplemented one must return -1 cleanly rather than
+         *      emit a partial result.
+         *   4. A prefix consumes no IR. L1 to L4 describe what an instruction does, L5 decides
+         *      when it runs and who reads the outcome.
+         *   5. Scope follows Prefix.WorkingRegion, not expression nesting.
+         *
+         * Control flow shape:
+         *
+         *   A region lowers to do { ... } while(false), and POP lowers to break. The goto plus
+         *   label scheme used by the .NET generated regex backend is deliberately not adopted.
+         *
+         *   A FIND lowers to a candidate retry loop nested inside the region block. That loop is
+         *   nearer than the region do block, so a POP inside it needs the __rN_done flag described
+         *   in TextRegexSourceGen.GenClass.MultiIR.cs rather than a plain break.
+         *
+         * Generated variable names are owned by SourceGenContext. No generator invents one.
+         *
+         * The per shape checklist this backend is rebuilt against lives in
+         * future/ngra-regex-sourcegen-goldens.md, and the handwritten target code for each shape
+         * lives in test/SingleFile/regex.cs.
+         */
 
-        private const string current_ptr = "cur_ptr_global";
-        private const string offset = "offset";
-        private const string orig_text = "text";
+        // private const string current_ptr = "cur_ptr_global";                // global match cursor
+        // private const string offset = "offset";                             // 
+        // private const string orig_text = "text";                            // 
 
+        #region L0 method level
+
+        /// <summary>
+        ///   Generates one <c> Match </c> method from a fully prefixed IR stream.
+        /// </summary>
+        /// <remarks>
+        ///   Not implemented yet. Returns an empty emitter so the generator pipeline stays runnable
+        ///   while the backend is being rebuilt.
+        /// </remarks>
         internal static SequenceEmitter<string> GenerateSource(
                                                 TextRegexSource source
         )
         {
+            //
+            // L0, method skeleton
+            //
+            // TODO  L0.1  Emit the Match signature from ROS_char and SourceGenContext.InputSpan.
+            // TODO  L0.2  Emit region anchor and region result slots, count from RegexInfo.RegionCount.
+            // TODO  L0.3  Emit line result slots, only for lines an Observe_Line prefix refers to.
+            // TODO  L0.5  Emit the cursor, the step result and any scratch declaration the context collected.
+            //
+
+            /*
+             * Slot demand is only known once the body exists, so the body has to be generated
+             * into a detached emitter first and spliced in after the declaration block.
+             *
+             * The dispatch chain that walks the IR stream belongs here too. It offers each window
+             * to L1, L2, L3 then L4, and adds the returned consumption count to the cursor. An
+             * unclaimed window must produce a hard build break rather than silently emit nothing,
+             * because code that compiles but matches incorrectly is far harder to diagnose.
+             */
+
             SequenceEmitter<string> se = new();
             List<SequenceEmitter<string>> sub_match_list = [];
             SourceGenContext sc = new();
@@ -47,7 +123,10 @@ namespace StgSharp.RegularAnalysis.Text
 
             while (true)
             {
-                GenerateRegion(region, sc, match_e, sub_match_list);
+                // GenerateRegion(region, sc, match_e, sub_match_list);
+                _ = TryGenerateAltChain(0, region, sc, match_e, sub_match_list);
+                _ = TryGenerateTryBlock(0, region, sc, match_e, sub_match_list);
+                _ = TryGenerateNamedCountAny(0, region, sc, match_e, sub_match_list);
                 if (end >= ir_sp.Length)
                 {
                     break;
@@ -60,6 +139,15 @@ namespace StgSharp.RegularAnalysis.Text
             _ = se.AppendLine($@"public override MatchResult Match({ROS_char} text)")//
                   .AppendLine(@"{");
 
+            int min_predict_length = info.MinPredictLength;
+            if (min_predict_length > 0) {
+                _ = se.AppendLine($@"if (text.Length < {min_predict_length})")
+                      .AppendLine(@"{")
+                      .AppendLine(@"return default;")
+                      .AppendLine(@"}")
+                      .AppendLine();
+            }
+
             int region_count = info.RegionCount;
             for (int i = 0; i < region_count; i++)
             {
@@ -67,12 +155,13 @@ namespace StgSharp.RegularAnalysis.Text
                       .AppendLine($@"int region_{i}_end = -1;")
                       .AppendLine($@"bool region_{i}_success;");
             }
-
+            /*
             _ = se.AppendLine($@"int {current_ptr} = 0;")
                   .AppendLine($@"int {offset} = 0;")
                   .AppendLine();
+            /**/
 
-            _ = sc.GenVarDefine(se);
+            // _ = sc.GenVarDefine(se);
 
             _ = se.Append(match_e);
 
@@ -86,6 +175,18 @@ namespace StgSharp.RegularAnalysis.Text
 
             return se;
         }
+
+            #endregion
+
+        private enum RegionExitMethod
+        {
+
+            Break,
+            Continue
+
+        }
+
+        #region shared helpers
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int FindRegionEnd(
@@ -111,151 +212,11 @@ namespace StgSharp.RegularAnalysis.Text
             return SyntaxFactory.Literal(str).Text;
         }
 
-        #region sub generator
-
-        private static int TryGenerateFindSeq(
-                           ReadOnlySpan<RegexIR> scan_win,
-                           SequenceEmitter<string> se,
-                           SourceGenContext ng
+        private static string FormatCharLiteral(
+                              char value
         )
         {
-            if (scan_win[0] is not RegexFindSeqIR seq) {
-                return -1;
-            }
-            string pattern = seq.Pattern;
-            int length = pattern.Length;
-            string index_caller = seq.IsFirst ? "IndexOf" : "LastIndexOf";
-
-            _ = se.AppendLine()
-                  .AppendLine($@"if(({offset} = [{current_ptr}..].{index_caller}({pattern})) != -1)")
-                  .AppendLine($@"{{")
-                  .AppendLine($@"{current_ptr} += {offset} + {length};")
-                  .AppendLine($@"}}");
-            return length;
-        }
-
-        private static int TryGenerateMatchSeq(
-                           ReadOnlySpan<RegexIR> scan_win,
-                           SequenceEmitter<string> se,
-                           SourceGenContext ng
-        )
-        {
-            if (scan_win[0] is not RegexFindSeqIR seq) {
-                return -1;
-            }
-            string pattern = FormatStringLiteral(seq.Pattern);
-            int length = pattern.Length;
-
-            _ = se.AppendLine()
-                  .AppendLine($@"if([{current_ptr}..({current_ptr} + {length})] == {pattern})")
-                  .AppendLine($@"{{")
-                  .AppendLine($@"{current_ptr} += {offset} + {length};")
-                  .AppendLine($@"}}");
-            return length;
-        }
-
-        private static int TryGenerateMatchSet(
-                           ReadOnlySpan<RegexIR> scan_win,
-                           SequenceEmitter<string> se,
-                           SourceGenContext ng
-        )
-        {
-            if (scan_win[0] is not RegexMatchSeqIR seq) {
-                return -1;
-            }
-            string pattern = seq.Pattern;
-            RegexCharSet[] set_pattern = FigureCharSetType(pattern, out bool accept);
-
-            string var_char = ng.CurChar;
-            _ = se.AppendLine($@"// match charset of {pattern}")
-                  .AppendLine($@"char {var_char} = {orig_text}[{current_ptr}];")
-                  .AppendLine();
-
-            _ = se.AppendLine("if(");
-            RegexCharSet p = set_pattern[0];
-            string _case = GenerateCase(p);
-            string _case_begin = accept ? string.Empty : "!(";
-            _ = se.AppendLine($@"if ({_case_begin}{_case}||");
-
-            for (int i = 1; i < set_pattern.Length - 1; i++)
-            {
-                p = set_pattern[i];
-                _case = GenerateCase(p);
-                if (string.IsNullOrEmpty(_case))
-                {
-                    continue;
-                }
-                _ = se.AppendLine($@"    {_case} ||");
-            }
-
-            p = set_pattern[^1];
-            _case = GenerateCase(p);
-            string _case_end = accept ? string.Empty : ")";
-            _ = se.AppendLine($@"{_case}{_case_end})")
-                  .AppendLine("{")
-                  .AppendLine($@"{current_ptr} += 1;")
-                  .AppendLine("}");
-
-            return 1;
-
-
-            string GenerateCase(
-                   RegexCharSet c
-            )
-            {
-                switch (c.Type)
-                {
-                    // Handle single character
-                    case CharSetType.Single:
-                        string set = c.Value;
-                        if (set.Length == 1)
-                        {
-                            return $@"{var_char} == '{c.Value}'";
-                        } else if (set.Length < 5)
-                        {
-                            StringBuilder sb = new();
-                            _ = sb.Append('(');
-                            foreach (char item in set) {
-                                _ = sb.Append(CultureInfo.InvariantCulture, $@"item == '{item}' or ");
-                            }
-                            _ = sb.Append(')');
-                            return sb.ToString();
-                        } else
-                        {
-                            return $@"""{c.Value}"".AsSpan().Contains({var_char})";
-                        }
-
-                    // Handle range of characters
-                    case CharSetType.Range:
-                        return $@"({var_char} >= '{c.Value[0]}' && {var_char} <= '{c.Value[1]}')";
-
-                    // Handle set of characters
-                    case CharSetType.Set:
-                        if (c.Accept)
-                        {
-                            return c.Value switch
-                            {
-                                "s" => $@"char.IsWhiteSpace({var_char})",
-                                "w" => $@"char.IsLetterOrDigit({var_char}) || {var_char} == '_'",
-                                "d" => $@"char.IsDigit({var_char})",
-                                _ => throw new InvalidCastException(),
-                            };
-                        } else
-                        {
-                            return c.Value switch
-                            {
-                                "s" => $@"!char.IsWhiteSpace({var_char})",
-                                "w" => $@"!char.IsLetterOrDigit({var_char}) && {var_char} != '_'",
-                                "d" => $@"!char.IsDigit({var_char})",
-                                _ => throw new InvalidCastException(),
-                            };
-                        }
-                    case CharSetType.None:
-                        return string.Empty;
-                    default:
-                        return string.Empty;
-                }
-            }
+            return SyntaxFactory.Literal(value).Text;
         }
 
             #endregion
@@ -272,14 +233,14 @@ namespace StgSharp.RegularAnalysis.Text
 
         }
 
-        internal record struct RegexCharSet(
-                               string Value,
-                               CharSetType Type,
-                               bool Accept
+        internal record class RegexCharSet(
+                              string Value,
+                              CharSetType Type,
+                              bool Accept
         )
         {
 
-            public override readonly string ToString()
+            public override string ToString()
             {
                 return $"{{value:{Value}, type:{Type}, accept:{Accept}}}";
             }
@@ -292,34 +253,46 @@ namespace StgSharp.RegularAnalysis.Text
         )
         {
             // range or single
+            HashSet<char> single_char = [];
             if (source[0] == '[')
             {
                 int idx;
                 accept = source[1] != '^';
                 idx = accept ? 1 : 2;
+                List<RegexCharSet> list = [];
                 ReadOnlySpan<char> seq = source.Slice(idx, source.Length - idx - 1);
                 if (seq.IndexOf('-') == -1)
                 {
-                    return [new RegexCharSet(seq.ToString(), CharSetType.Single, true)];
+                    SplitSet(single_char, seq, list);
+                    StringBuilder sb = new();
+                    foreach (char c in single_char) {
+                        _ = sb.Append(c);
+                    }
+                    list.Add(new(sb.ToString(), CharSetType.Single, true));
+                    return [.. list];
                 } else
                 {
-                    List<RegexCharSet> list = [];
                     for (; seq.Length > 0; )
                     {
                         int pos = seq.IndexOf('-');
                         if (pos == -1)
                         {
                             // has no range
-                            SplitSet(seq, list);
+                            SplitSet(single_char, seq, list);
                             break;
                         } else if (pos > 1)
                         {
                             // has other sequence before range
-                            SplitSet(seq[0..(pos - 1)], list);
+                            SplitSet(single_char, seq[0..(pos - 1)], list);
                         }
                         list.Add(new($"{seq[pos - 1]}{seq[pos + 1]}", CharSetType.Range, true));
                         seq = seq[(pos + 2)..];
                     }
+                    StringBuilder sb = new();
+                    foreach (char c in single_char) {
+                        _ = sb.Append(c);
+                    }
+                    list.Add(new(sb.ToString(), CharSetType.Single, true));
                     return [.. list];
                 }
             } else if (source[0] == '\\')
@@ -341,6 +314,7 @@ namespace StgSharp.RegularAnalysis.Text
             }
 
             static void SplitSet(
+                        HashSet<char> single_char,
                         ReadOnlySpan<char> seq,
                         List<RegexCharSet> sets
             )
@@ -358,19 +332,31 @@ namespace StgSharp.RegularAnalysis.Text
                         sets.Add(new RegexCharSet(singles.ToString(), CharSetType.Single, true));
                     }
                     bool accept = char.IsAsciiLetterUpper(remain[pos + 1]);
-                    RegexCharSet set_set = char.ToLower(remain[pos + 1], CultureInfo.InvariantCulture)
-                        switch
+
+                    switch (char.ToLower(remain[pos + 1], CultureInfo.InvariantCulture))
                     {
-                        's' => new("s", CharSetType.Set, accept),
-                        'w' => new("w", CharSetType.Set, accept),
-                        'd' => new("d", CharSetType.Set, accept),
-                        _ => throw new NotSupportedException()
-                    };
-                    sets.Add(set_set);
+                        case 's':
+                            sets.Add(new("s", CharSetType.Set, accept));
+                            break;
+                        case 'w':
+                            sets.Add(new("w", CharSetType.Set, accept));
+                            break;
+                        case 'd':
+                            sets.Add(new("d", CharSetType.Set, accept));
+                            break;
+                        case '[' or '(' or ')' or ']' or '\\' or '\"':
+                            _ = single_char.Add(remain[pos + 1]);
+                            break;
+                        default:
+                            throw new InvalidCastException($"Unknown char or charset {remain[0..1]}");
+                    }
                     remain = remain[(pos + 2)..];
                 }
-                if (remain.Length > 0) {
-                    sets.Add(new RegexCharSet(remain.ToString(), CharSetType.Single, true));
+                if (remain.Length > 0)
+                {
+                    foreach (char c in remain) {
+                        _ = single_char.Add(c);
+                    }
                 }
             }
         }

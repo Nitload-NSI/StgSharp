@@ -12,7 +12,6 @@
 
 #define _FMA_SELECT(i) _MM_SHUFFLE(i, i, i, i)
 
-
 SN_MK_PROC_DECL_STD(float, sse, , fma)
 {
         __mk_param_std(LEFT_RIGHT_ANS, float);
@@ -125,7 +124,7 @@ SN_MK_PROC_DECL_STD(float, avx, _fma, fma)
                 register __m256 a1 = _mm256_load_ps((float *)&a_base->y[1]);
                 register __m256 a2 = _mm256_load_ps((float *)&a_base->y[2]);
                 register __m256 a3 = _mm256_load_ps((float *)&a_base->y[3]);
-                
+
                 SN_MK_FMA_F32_AVX2_CYCLE(0);
                 SN_MK_FMA_F32_AVX2_CYCLE(1);
                 SN_MK_FMA_F32_AVX2_CYCLE(2);

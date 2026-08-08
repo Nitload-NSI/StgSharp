@@ -40,6 +40,20 @@ namespace StgSharp.RegularAnalysis.Abstraction
 
         public static SequenceEmitter<string> AppendLine(
                                               this SequenceEmitter<string> emitter,
+                                              params string[] lines
+        )
+        {
+            if (lines is null || lines.Length == 0) {
+                return emitter;
+            }
+            foreach (string line in lines) {
+                emitter = emitter.AppendLine(line);
+            }
+            return emitter;
+        }
+
+        public static SequenceEmitter<string> AppendLine(
+                                              this SequenceEmitter<string> emitter,
                                               string line,
                                               bool condition
         )

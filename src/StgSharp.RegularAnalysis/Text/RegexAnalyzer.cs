@@ -57,7 +57,9 @@ namespace StgSharp.RegularAnalysis.Text
     {
 
         public static TextRegexSource Analyze(
-                                      string regex
+                                      string regex,
+                                      bool require_ast = false,
+                                      bool require_origin_ir = false
         )
         {
 #pragma warning disable CA1031
@@ -81,17 +83,19 @@ namespace StgSharp.RegularAnalysis.Text
             }
             catch (Exception ex)
             {
-                return new TextRegexSource(regex, tree, null, null, info, ex);
+                return new TextRegexSource(regex, require_ast ? tree : null!, null, null, info, ex);
             }
             try
             {
                 ScanAndOptimizeIR(base_ir, out List<RegexIR> opt_ir);
                 List<RegexIR> prefix_ir = EmitPrefix(opt_ir, ref info);
-                return new TextRegexSource(regex, tree, base_ir, prefix_ir, info);
+                return new TextRegexSource(regex, require_ast ? tree : null!,
+                                           require_origin_ir ? base_ir : null!, prefix_ir, info);
             }
             catch (Exception ex)
             {
-                return new TextRegexSource(regex, tree, base_ir, null, info, ex);
+                return new TextRegexSource(regex, require_ast ? tree : null!,
+                                           require_origin_ir ? base_ir : null!, null!, info, ex);
             }
 #pragma warning restore CA1031 
         }
