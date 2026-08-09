@@ -2,11 +2,11 @@
 
 ![StgSharp Logo](STG%23LOGO.png)
 
-StgSharp is a modern C# framework that combines game engine capabilities with high-performance computing features. Originally designed as a next-generation STG (Shoot 'em Up) game engine, it has evolved to include advanced mathematical libraries, parallel computing capabilities, and comprehensive graphics APIs.
+StgSharp is an experimental .NET framework for graphics, numerical computing, language analysis, and other performance-sensitive applications. It began as the foundation of a next-generation STG (shoot 'em up) engine, but the current repository focuses on reusable low-level infrastructure rather than a complete, ready-to-use game engine.
 
 ## Overview
 
-StgSharp provides both low-level and high-level bindings to OpenGL, multimedia control, and device management, offering everything needed to create STG games and high-performance applications. The framework is built on .NET 8 and supports Windows and Linux platforms.
+The framework combines managed C# APIs with a C native library. Its current work includes OpenGL bindings and rendering infrastructure, generic matrix and vector types, SIMD-accelerated native kernels, custom allocators and collections, regular-language analysis, and state-oriented UI infrastructure. StgSharp targets .NET 8; platform and architecture coverage varies by module, with Windows and Linux as the principal native targets.
 
 ## Core Modules
 
@@ -14,12 +14,10 @@ StgSharp provides both low-level and high-level bindings to OpenGL, multimedia c
 
 The foundational library containing shared functionality:
 
-- **Mathematics**: High-performance linear algebra, matrix operations, and mathematical utilities
-- **Graphics**: OpenGL bindings, rendering pipeline, and graphics framework
-- **High Performance**: SIMD operations, memory management, and parallel computing
+- **High Performance**: Native-memory allocators and processor abstractions
 - **Collections**: Specialized data structures and containers
-- **MVVM**: Model-View-ViewModel framework for UI applications
-- **Entities**: Game entity system and behavior management
+- **Threading and Timing**: Synchronization primitives, task helpers, and time providers
+- **Pipeline and State**: Processing pipelines and reusable state-machine primitives
 - **Environment**: Platform abstraction and system integration
 
 ### StgSharp.Mathematics (Numeric)
@@ -32,28 +30,31 @@ Numerics and linear algebra built on top of the core library:
 
 ### StgSharp.RegularAnalysis
 
-Regular-language and parsing infrastructure (replaces the former Script module):
+Next-generation regular analysis (NGRA) infrastructure for recognizing and processing regular languages:
 
 - **Regex/Automata Core**: Regular expression processing and automata utilities
 - **Parsing Primitives**: Reusable tokenizer and grammar building blocks
 - **Analysis Pipeline**: Structured processing for language-like inputs
 
+NGRA is a foundation for higher-level language tooling. It does not replace `StgSharp.Script`; the planned Script implementation depends on NGRA and has not started yet. The source currently under `StgSharp.Script` is retained from the earlier EXPRESS implementation and is not part of the active core solution.
+
+### StgSharp.Graphics
+
+Managed graphics infrastructure built on Common and Mathematics:
+
+- **OpenGL Bindings**: Broad OpenGL 3.3-4.6 API bindings and context management
+- **Rendering Infrastructure**: Render streams, viewports, textures, framebuffers, and geometry
+- **Shader Support**: Shader compilation, program management, and shader-generation utilities
+- **Window Integration**: GLFW-based window and input access
+
 ### StgSharp.Native
 
 Native library integration:
 
-- **GLFW Integration**: Cross-platform window and input management
+- **GLFW Integration**: Native loading and interoperation used by the graphics layer
 - **SIMD Operations**: Hardware-accelerated vector operations
 - **Matrix Kernels**: Optimized matrix computation routines
-- **Context Management**: Graphics context and resource management
-
-### StgSharp.Device
-
-Low-level device and port abstractions:
-
-- **Command Interfaces**: Command shapes and serialization contracts
-- **Port Control**: Stream-oriented device access
-- **Decoder/Response Models**: Protocol-level data handling
+- **Platform Runtime**: Native thread and platform support for Windows and Linux
 
 ### StgSharp.TerminalDialogue
 
@@ -63,7 +64,7 @@ Terminal-based user interface application and components:
 - **Dialogue System**: User interaction and input handling
 - **Terminal Graphics**: Text-based UI rendering
 
-> Note: The legacy Script module has been superseded by RegularAnalysis. The Model module is under refactoring and is currently out of the core framework.
+> Note: `StgSharp.Script` is planned as a consumer of NGRA and has not started yet. Its existing EXPRESS sources belong to the earlier implementation. `StgSharp.Model` is currently an empty placeholder while its design is being reconsidered.
 
 ## Key Features
 
@@ -71,51 +72,49 @@ Terminal-based user interface application and components:
 
 - **Parallel Matrix Operations**: Multi-threaded matrix computations with optimized scheduling
 - **SIMD Acceleration**: Hardware-optimized vector operations
-- **Memory Management**: Custom allocators including TLSF (Two Layer Segregated Fit)
-- **Thread Pool Management**: Efficient task scheduling and execution
+- **Memory Management**: Arena, slab, and TLSF (Two-Layer Segregated Fit) allocators
+- **Parallel Runtime**: Dedicated scheduling and worker infrastructure for matrix operations
 
-#### HLSF Benchmark Snapshot (BenchmarkDotNet)
+#### TLSF Benchmark Snapshot (BenchmarkDotNet)
 
 ```
+BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.7548)
+Proxmox VE guest, 30 vCPUs, host CPU reported as Intel Xeon Gold 6242R 3.10GHz
+.NET SDK 10.0.301
+  [Host] : .NET 8.0.28 (8.0.28, 8.0.2826.26413), X64 RyuJIT x86-64-v4
 
-BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.7623)
-AMD Ryzen 7 6800H with Radeon Graphics, 1 CPU, 16 logical and 8 physical cores
-.NET SDK 10.0.102
-  [Host] : .NET 8.0.23 (8.0.2325.60607), X64 RyuJIT AVX2
-
-Toolchain=InProcessEmitToolchain  InvocationCount=2048  UnrollFactor=1
-
+Toolchain=InProcessEmitToolchain  InvocationCount=3  IterationCount=15
+LaunchCount=1  UnrollFactor=1  WarmupCount=6
 ```
 
 | Method | Mean | Error | StdDev | Ratio | RatioSD |
-|------- |-----:|-----:|------:|------:|-------:|
-| Hlsf | 76.23 µs | 0.355 µs | 0.315 µs | 0.44 | 0.01 |
-| Libc | 172.98 µs | 3.042 µs | 2.988 µs | 1.00 | 0.02 |
+|------- |-----:|------:|-------:|------:|--------:|
+| Libc | 129.96 ns | 10.123 ns | 9.469 ns | 1.00 | 0.10 |
+| Tlsf | 81.39 ns | 1.039 ns | 0.971 ns | 0.63 | 0.05 |
 
-This benchmark measures steady-state small-block allocation throughput (64B–4KB),  
-which represents the dominant allocation pattern in StgSharp's matrix computation pipeline.  
-HLSF uses a pre-allocated arena with size-class free lists, avoiding kernel-mode allocation calls.  
-Under this workload, HLSF achieves ~2.3× throughput over system malloc. This is not a general-purpose allocator comparison.
+This benchmark was run inside a Proxmox VE virtual machine configured with 30 vCPUs. BenchmarkDotNet reports those virtual CPUs as 30 logical and 30 physical processors; that is the guest topology rather than the physical topology of the Xeon Gold 6242R host CPU, whose nominal topology is 20 cores and 40 threads.
+
+The benchmark reports normalized time per allocation/free operation. Each iteration uses a 512 MB arena and 256 batches of 2,048 allocations, drawing request sizes from 64, 100, 200, 400, 1,024, and 4,096 bytes and freeing them in a deterministic shuffled order. TLSF uses a local coalescing window of four blocks. In this run TLSF used about 63% of the libc baseline time, or approximately 1.60x the throughput. The result describes this fixed small-block workload only; it is not a general-purpose allocator comparison.
 
 ### Graphics and Rendering
 
-- **OpenGL Integration**: Complete OpenGL API coverage
-- **Cross-Platform Support**: Windows and Linux compatibility
+- **OpenGL Integration**: Broad OpenGL 3.3-4.6 bindings
+- **Cross-Platform Direction**: Windows and Linux native targets, with feature coverage dependent on platform
 - **Rendering Pipeline**: Flexible and extensible graphics framework
 - **Shader Management**: Dynamic shader compilation and management
 
-### Game Engine Capabilities
+### Framework Infrastructure
 
-- **Entity System**: Flexible game object management
-- **State Machine**: Game state and behavior management
-- **Input Handling**: Comprehensive input and control systems
-- **Resource Management**: Efficient asset loading and management
+- **State Machines**: Reusable state and transition primitives
+- **Processing Pipelines**: Schedulable nodes and typed connections
+- **Window and Input Access**: Low-level GLFW integration
+- **Image and Texture Handling**: Image loading and GPU texture infrastructure
 
 ### Data Processing
 
-- **STEP File Support**: Industrial data format processing
-- **EXPRESS Language**: Domain-specific language compilation
-- **Pipeline Processing**: Efficient data transformation workflows
+- **NGRA**: Regex analysis, intermediate representation, optimization, and source generation
+- **EXPRESS (legacy/inactive)**: The repository retains an earlier experimental EXPRESS parser/compiler under `StgSharp.Script`
+- **Script (planned)**: A future language layer intended to build on NGRA; development has not started
 
 ## Requirements
 
@@ -130,8 +129,9 @@ StgSharp is currently in development and requires compilation from source. **NuG
 
 ### Prerequisites
 
-- **Windows**: Visual Studio 2022 or later with C++ development tools
-- **Linux**: CMake and compatible C++ compiler (planned support)
+- CMake 3.16 or later
+- Clang and a Ninja-compatible build environment for the supported C targets
+- **Windows (optional)**: Visual Studio may open the provided `.vcxproj` for navigation and editing
 - .NET 8.0 SDK or later
 - Git for source code retrieval
 
@@ -144,18 +144,22 @@ StgSharp is currently in development and requires compilation from source. **NuG
    cd StgSharp
    ```
 
-2. **Windows (Recommended)**:
-   - Open `StgSharp.sln` in Visual Studio
-   - Build the solution (Debug or Release configuration)
-   - The native components will be automatically compiled
-
-3. **Linux (Experimental)**:
+2. **Build the native library (recommended toolchain)**:
 
    ```bash
-   # Build .NET components only
-   # Note: Native components are not yet supported on Linux
-   dotnet build
+   cmake --preset clang-release -S src/StgSharp.Native
+   cmake --build cmake_build/clang-release
    ```
+
+   The supplied presets use Clang with Ninja and place native output under the repository's platform-specific `bin` directory. Use `clang-debug` for a debug build.
+
+3. **Build the managed projects**:
+
+   ```bash
+   dotnet build StgSharp.sln
+   ```
+
+   Managed builds copy an existing native binary into their output directory. They do not invoke CMake automatically, so build `StgSharp.Native` first when native functionality is required.
 
 ### Build Configuration
 
@@ -164,10 +168,10 @@ StgSharp is currently in development and requires compilation from source. **NuG
 
 ### Notes
 
-- Windows compilation with Visual Studio is fully supported and tested
-- Linux support is experimental and limited to .NET components only
-- Native components (StgSharp.Native) are currently Windows-only and require MSVC
-- CMake support for native components is not yet implemented
+- CMake is the maintained build path for `StgSharp.Native`; the checked-in presets primarily target Clang
+- The Visual Studio C project may be opened with MSVC tooling, but MSVC IntelliSense behavior and MSVC-produced binaries are not maintained or guaranteed
+- Windows and Linux platform implementations exist; actual feature and architecture coverage may differ
+- x86-64 currently has the most complete optimized kernel coverage
 - Some features may not be available on all platforms
 
 ## Quick Start
@@ -183,27 +187,36 @@ StgSharp is currently in development and requires compilation from source. **NuG
 ### Matrix Operations
 
 ```csharp
-using StgSharp.Mathematics;
+using StgSharp.HighPerformance.Memory;
+using StgSharp.Mathematics.Numeric;
 
-// Create matrices
-var matrixA = Matrix<float>.Create(4, 4);
-var matrixB = Matrix<float>.Create(4, 4);
+// Matrix storage is allocated explicitly from a native-memory arena.
+using var allocator = new TwoLayerSegregatedFitAllocator(64 * 1024 * 1024);
 
-// Perform parallel matrix multiplication
-var result = matrixA * matrixB;
+var matrix = Matrix<float>.Create(
+    4,
+    4,
+    MatrixLayout.DenseRectangle,
+    allocator);
+
+matrix[0, 0] = 1.0f;
 ```
+
+General matrix arithmetic does not currently provide operator overloads. Because matrix storage and result ownership involve explicit native-memory control, arithmetic operations are exposed through explicit computation APIs as they are implemented.
 
 ### Memory Management
 
 ```csharp
 using StgSharp.HighPerformance.Memory;
 
-// Create high-performance allocator
-using var allocator = new HybridLayerSegregatedFitAllocator(64 * 1024 * 1024);
+// Create a 64 MiB TLSF arena
+using var allocator = new TwoLayerSegregatedFitAllocator(64 * 1024 * 1024);
 
 // Allocate memory
 var handle = allocator.Alloc(1024);
-// Use allocated memory
+Span<byte> buffer = handle.AsSpan();
+buffer[0] = 42;
+
 allocator.Free(handle);
 ```
 
@@ -212,8 +225,9 @@ allocator.Free(handle);
 
 ### Technical Documentation
 
-- [TLSF Allocator](StgSharp.Common/HighPerformance/Memory/InroductionToHLSF.md) - High-performance memory allocator documentation
-- [Native Library Naming](StgSharp.Native/naming.md) - Native library file naming conventions
+- [TLSF Allocator](src/StgSharp.Common/HighPerformance/Memory/InroductionToTLSF.md) - Arena layout, allocation behavior, and benchmark methodology
+- [Native Library Build](src/StgSharp.Native/README.md) - Native build and source-layout notes
+- [Native Library Naming](src/StgSharp.Native/naming.md) - Native library file naming conventions
 
 ## Contributing
 
