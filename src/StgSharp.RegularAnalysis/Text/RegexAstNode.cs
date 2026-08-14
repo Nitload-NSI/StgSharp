@@ -10,6 +10,8 @@ using System.Runtime.CompilerServices;
 
 namespace StgSharp.RegularAnalysis.Text
 {
+    // TODO 现在存在的问题是，AstNode过于依赖NodeFlag表达其内部语义，这导致进行精细优化时识别节点语义复杂，
+    // TODO 当前Ast的类型差异过小，不利于保存特征数据，应当争取进一步细化，或者说这是AstNode一开始为了简化架构设计引入的妥协
     internal class RegexAstNode : ISyntaxNode<RegexAstNode, RegexElementLabel>
     {
 
@@ -18,13 +20,19 @@ namespace StgSharp.RegularAnalysis.Text
         public RegexAstNode(
                Token<RegexElementLabel> source
         )
+            : this(RegexCommonPayload.FromToken(source))
+        { }
+
+        public RegexAstNode(
+               RegexAstPayload payload
+        )
         {
-            Source = source;
+            Payload = payload;
         }
 
         public int EnumState { get; set; }
 
-        public long NodeFlag => (long)Source.Flag;
+        public long NodeFlag => (long)Label;
 
         public static RegexAstNode Empty { get; }
         = new EmptyRegexAstNode();
@@ -61,11 +69,24 @@ namespace StgSharp.RegularAnalysis.Text
             }
         }
 
-        public RegexElementLabel EqualityTypeConvert => Source.Flag;
+        public RegexElementLabel EqualityTypeConvert => Label;
 
-        public string Value => Source.Value;
+        public RegexElementLabel Label => Payload.Flag;
 
-        public Token<RegexElementLabel> Source { get; private protected set; }
+        public string Value => Payload switch
+        {
+            RegexLiteralPayload literal => literal.Text,
+            RegexCharSetPayload set => set.Source,
+            _ => Payload.Source
+        };
+
+        public RegexAstPayload Payload { get; private protected set; }
+
+        public ISyntaxPayload<RegexElementLabel> Source => Payload;
+
+        internal TPayload PayloadAs<TPayload>() where TPayload : RegexAstPayload =>
+            Payload as TPayload ?? throw new InvalidOperationException(
+                $"Node {Label} does not carry {typeof(TPayload).Name}.");
 
         public void AppendNode(
                     RegexAstNode nextToken
@@ -133,12 +154,12 @@ namespace StgSharp.RegularAnalysis.Text
         {
             if (useLeft)
             {
-                Source = Left.Source;
+                Payload = Left.Payload;
                 Left.Parent = Empty;
                 Left = Empty;
             } else
             {
-                Source = Right.Source;
+                Payload = Right.Payload;
                 Right.Parent = Empty;
                 Right = Empty;
             }
@@ -158,7 +179,7 @@ namespace StgSharp.RegularAnalysis.Text
                       RegexAstNode node
         )
         {
-            Source = node.Source;
+            Payload = node.Payload;
             Left = node.Left;
             Right = node.Right;
             if (!IsNullOrEmpty(Left)) {
@@ -184,7 +205,7 @@ namespace StgSharp.RegularAnalysis.Text
 
         {
 
-            public EmptyRegexAstNode() : base(Token<RegexElementLabel>.Empty) { }
+            public EmptyRegexAstNode() : base(new RegexEmptyPayload()) { }
 
         }
 

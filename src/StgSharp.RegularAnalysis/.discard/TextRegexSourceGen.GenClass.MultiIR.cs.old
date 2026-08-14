@@ -227,7 +227,7 @@ namespace StgSharp.RegularAnalysis.Text
              * [011] 0003, Sccs, DEF , LINE, 0010, PACK SUCCESS GROUP: "name"
              * [012] 0000, DEF , DEF , NONE, 0000, MATCH_SEQ "234"
              */
-            if (ir_span[0] is not RegexCountSetIR { IsDotStar: true } ||
+            if (ir_span[0] is not RegexFindComplexIR { CommandCount: -1 } ||
                 ir_span[1] is not RegexPackIR pack)
             {
                 return -1;

@@ -29,6 +29,8 @@ namespace StgSharp.RegularAnalysis.Abstraction
         where TLabel : unmanaged
     {
 
+        ISyntaxPayload<TLabel> Source { get; }
+
         long NodeFlag { get; }
 
         TLabel EqualityTypeConvert { get; }
@@ -44,8 +46,6 @@ namespace StgSharp.RegularAnalysis.Abstraction
         TNode Parent { get; set; }
 
         static abstract TNode Empty { get; }
-
-        Token<TLabel> Source { get; }
 
         protected internal int EnumState { get; set; }
 

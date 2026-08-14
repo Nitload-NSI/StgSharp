@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace StgSharp.RegularAnalysis.Text
 {
-    public partial class RegexAnalyzer
+    public static partial class RegexAnalyzer
     {
 
         private static RegexAstNode FlattenAlt(
@@ -128,11 +128,11 @@ namespace StgSharp.RegularAnalysis.Text
                     offset += buffer[i].Length;
                 }
             });
-            root.Left = new RegexAstNode(new Token<RegexElementLabel>(str, left.Source.Line,
-                                                                      left.Source.Column,
-                                                                      str.Length == 1 ?
-                                                                      RegexElementLabel.UNIT :
-                                                                      RegexElementLabel.UNIT_SPAN));
+            root.Left = new RegexAstNode(new RegexLiteralPayload(str, str, left.Payload.Row,
+                                                                 left.Payload.Column,
+                                                                 str.Length == 1 ?
+                                                                 RegexElementLabel.UNIT :
+                                                                 RegexElementLabel.UNIT_SPAN));
             return true;
         }
 
@@ -214,18 +214,18 @@ namespace StgSharp.RegularAnalysis.Text
                 RegexAstNode b = left.Right;
                 RegexAstNode c = root.Right;
                 root.Left = a;
-                if (RegexAstNode.IsNullOrEmpty(a)) {
+                if (!RegexAstNode.IsNullOrEmpty(a)) {
                     a.Parent = root;
                 }
 
                 root.Right = left;
                 left.Left = b;
                 left.Right = c;
-                if (RegexAstNode.IsNullOrEmpty(b)) {
+                if (!RegexAstNode.IsNullOrEmpty(b)) {
                     b.Parent = left;
                 }
 
-                if (RegexAstNode.IsNullOrEmpty(c)) {
+                if (!RegexAstNode.IsNullOrEmpty(c)) {
                     c.Parent = left;
                 }
                 left = root.Left;
@@ -262,15 +262,15 @@ namespace StgSharp.RegularAnalysis.Text
                     int level,
                     RegexAstNode node
             )
-                : base(node.Source)
+                : base(node.Payload)
             {
                 Level = level;
                 Cases = [];
 
                 RegexAstNode right = IsNullOrEmpty(node.Right) ?
                                      new RegexAstNode(
-                    new Token<RegexElementLabel>(node.Value, 0, node.Source.Column,
-                                                 RegexElementLabel.UNIT)
+                    new RegexLiteralPayload(node.Value, node.Value, node.Payload.Row,
+                                            node.Payload.Column, RegexElementLabel.UNIT)
                     ) :
                                      node.Right;
                 Cases.Add(right);
@@ -285,7 +285,7 @@ namespace StgSharp.RegularAnalysis.Text
                    int level,
                    List<RegexAstNode> c
             )
-                : base(c[0].Source)
+                : base(c[0].Payload)
             {
                 Cases = c;
                 Level = level;
@@ -312,7 +312,7 @@ namespace StgSharp.RegularAnalysis.Text
                     if ((Cases[i].EqualityTypeConvert & RegexElementLabel.SEQUENCE) != 0)
                     {
                         RegexAstNode concat = new(new Token<RegexElementLabel>(string.Empty, 0,
-                                                                               Cases[i].Source.Column,
+                                                                               Cases[i].Payload.Column,
                                                                                RegexElementLabel.CONCAT))
                         {
                             Left = Cases[i]
@@ -385,14 +385,14 @@ namespace StgSharp.RegularAnalysis.Text
                 if (IsNullOrEmpty(UnionEnd))
                 {
                     branch = new RegexAstNode(new Token<RegexElementLabel>(string.Empty, 0,
-                                                                           Source.Column,
+                                                                           Payload.Column,
                                                                            RegexElementLabel.ALT));
                     UnionBegin = branch;
                     UnionEnd = branch;
                 } else
                 {
                     branch = new RegexAstNode(new Token<RegexElementLabel>(string.Empty, 0,
-                                                                           UnionEnd.Source.Column,
+                                                                           UnionEnd.Payload.Column,
                                                                            RegexElementLabel.ALT));
                     UnionEnd.Right = branch;
                     branch.Parent = UnionEnd;
@@ -415,8 +415,8 @@ namespace StgSharp.RegularAnalysis.Text
             {
                 RegexAstNode right = IsNullOrEmpty(_case.Right) ?
                                      new RegexAstNode(
-                    new Token<RegexElementLabel>(_case.Value, 0, _case.Source.Column,
-                                                 RegexElementLabel.UNIT)
+                    new RegexLiteralPayload(_case.Value, _case.Value, _case.Payload.Row,
+                                            _case.Payload.Column, RegexElementLabel.UNIT)
                     ) :
                                      _case.Right;
                 Cases.Add(right);
@@ -432,14 +432,14 @@ namespace StgSharp.RegularAnalysis.Text
                 {
                     // then we suppose that alt has only one are same
                     return origin .EqualityTypeConvert == RegexElementLabel.CONCAT &&
-                           (origin.Left.EqualityTypeConvert & RegexElementLabel.SINGLE) != 0 &&
+                           (origin.Left.EqualityTypeConvert & RegexElementLabel.UNIT_SINGLE) != 0 &&
                            origin.Left.EqualityTypeConvert == alt.UnionEnd.Left.EqualityTypeConvert &&
                            origin.Left.Value == alt.UnionEnd.Left.Value;
                 } else
                 {
                     return origin.EqualityTypeConvert == RegexElementLabel.CONCAT &&
                            target.EqualityTypeConvert == RegexElementLabel.CONCAT &&
-                           (origin.Left.EqualityTypeConvert & RegexElementLabel.SINGLE) != 0 &&
+                           (origin.Left.EqualityTypeConvert & RegexElementLabel.UNIT_SINGLE) != 0 &&
                            origin.Left.EqualityTypeConvert == target.Left.EqualityTypeConvert &&
                            origin.Left.Value == target.Left.Value;
                 }

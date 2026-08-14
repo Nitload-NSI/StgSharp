@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace StgSharp.RegularAnalysis.Text
 {
-    public partial class RegexAnalyzer
+    public static partial class RegexAnalyzer
     {
 
         private static AbstractSyntaxTree<RegexAstNode, RegexElementLabel> GenerateAST(
@@ -50,10 +50,10 @@ namespace StgSharp.RegularAnalysis.Text
                     }
                     _stack.DecreaseDepth();
                     op = _stack.PopOperator();
-                    if (op.Source.Flag != RegexElementLabel.GROUP_BEGIN) {
+                    if (op.Label != RegexElementLabel.GROUP_BEGIN) {
                         throw new InvalidOperationException("Unmatched group begin and end symbol");
                     }
-                    if (op.Source.Value.Length > 1)
+                    if (op.Payload.Source.Length > 1)
                     {
                         op.Right = _stack.PopOperand();
                         _stack.PushOperand(op);
@@ -69,7 +69,7 @@ namespace StgSharp.RegularAnalysis.Text
                         // process operator by precedence
                         while (_stack.TryPeekOperator(out RegexAstNode topOp))
                         {
-                            (bool Valid, int Value) cmp = RegexAstNode.ComparePrecedence(topOp.Source.Flag, token.Flag);
+                            (bool Valid, int Value) cmp = RegexAstNode.ComparePrecedence(topOp.Label, token.Flag);
 
                             if (!cmp.Valid) {
                                 throw new InvalidOperationException("Operators with same precedence are not supported.");

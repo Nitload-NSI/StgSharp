@@ -56,6 +56,9 @@ namespace StgSharp.RegularAnalysis.Text
 
             public string StepResult { get; } = _stepResult;
 
+            // region id -> entry count from first to last occurrence, filled once per pattern
+            public int[] RegionExtent { get; set; } = [];
+
             public string[] BeginRegion()
             {
                 return [

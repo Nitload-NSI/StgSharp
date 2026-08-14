@@ -24,8 +24,6 @@ namespace StgSharp.RegularAnalysis.Text
         internal TextRegexSource(
                  string pattern,
                  AbstractSyntaxTree<RegexAstNode, RegexElementLabel> ast,
-                 List<RegexIR> base_ir,
-                 List<RegexIR> ir,
                  RegexInfo info,
                  Exception? analyseException = null
 
@@ -33,8 +31,6 @@ namespace StgSharp.RegularAnalysis.Text
         {
             Pattern = pattern;
             Ast = ast;
-            IRs = ir;
-            BaseIR = base_ir;
             AnalyseException = analyseException;
             Info = info;
         }
@@ -45,10 +41,6 @@ namespace StgSharp.RegularAnalysis.Text
 
         internal AbstractSyntaxTree<RegexAstNode, RegexElementLabel> Ast { get; }
 
-        internal List<RegexIR> BaseIR { get; }
-
-        internal List<RegexIR> IRs { get; }
-
         internal RegexInfo Info { get; }
 
     }
@@ -57,9 +49,7 @@ namespace StgSharp.RegularAnalysis.Text
     {
 
         public static TextRegexSource Analyze(
-                                      string regex,
-                                      bool require_ast = false,
-                                      bool require_origin_ir = false
+                                      string regex
         )
         {
 #pragma warning disable CA1031
@@ -71,15 +61,17 @@ namespace StgSharp.RegularAnalysis.Text
             {
                 tree = GenerateAST(regex);
                 OptimizeTree(tree);
+                return new TextRegexSource(regex, tree, info, null);
             }
             catch (Exception ex)
             {
-                return new TextRegexSource(regex, null, null, null, info, ex);
+                return new TextRegexSource(regex, null, info, ex);
             }
-            List<RegexIR> base_ir;
+            /*
+            // List<RegexIR> base_ir;
             try
             {
-                base_ir = GenerateIR(tree, ref info);
+                // base_ir = GenerateIR(tree, ref info);
             }
             catch (Exception ex)
             {
@@ -87,8 +79,8 @@ namespace StgSharp.RegularAnalysis.Text
             }
             try
             {
-                ScanAndOptimizeIR(base_ir, out List<RegexIR> opt_ir);
-                List<RegexIR> prefix_ir = EmitPrefix(opt_ir, ref info);
+                // ScanAndOptimizeIR(base_ir, out List<RegexIR> opt_ir);
+                // List<RegexIR> prefix_ir = EmitPrefix(opt_ir, ref info);
                 return new TextRegexSource(regex, require_ast ? tree : null!,
                                            require_origin_ir ? base_ir : null!, prefix_ir, info);
             }
@@ -97,6 +89,7 @@ namespace StgSharp.RegularAnalysis.Text
                 return new TextRegexSource(regex, require_ast ? tree : null!,
                                            require_origin_ir ? base_ir : null!, null!, info, ex);
             }
+            /**/
 #pragma warning restore CA1031 
         }
 

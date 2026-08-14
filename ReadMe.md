@@ -30,7 +30,7 @@ Numerics and linear algebra built on top of the core library:
 
 ### StgSharp.RegularAnalysis
 
-Next-generation regular analysis (NGRA) infrastructure for recognizing and processing regular languages:
+Nitload General Regular Analysis (NGRA) infrastructure for recognizing and processing regular languages:
 
 - **Regex/Automata Core**: Regular expression processing and automata utilities
 - **Parsing Primitives**: Reusable tokenizer and grammar building blocks

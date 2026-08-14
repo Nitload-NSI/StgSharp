@@ -27,7 +27,7 @@ namespace StgSharp.RegularAnalysis.Text
         CONCAT = 64,
         ALT = 128,
         SEQUENCE = UNIT | UNIT_SPAN | UNIT_SET,
-        SINGLE = UNIT | UNIT_SET,
+        UNIT_SINGLE = UNIT | UNIT_SET,
         OPERATOR = COUNT | ALT | CONCAT,
         VAST_OPERATOR = OPERATOR | GROUP_BEGIN,
         ATOM_BEGIN = SEQUENCE | GROUP_BEGIN ,

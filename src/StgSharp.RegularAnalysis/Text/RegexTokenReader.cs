@@ -37,6 +37,8 @@ namespace StgSharp.RegularAnalysis.Text
             int pos = position;
             switch (_source[pos])
             {
+                case '\r' or '\n':
+                    throw new NotSupportedException("Multi-line regular expressions are not supported yet.");
                 case '\\':
                     if (pos + 1 == _source.Length) {
                         throw new InvalidOperationException("Unclosed char");
@@ -85,6 +87,9 @@ namespace StgSharp.RegularAnalysis.Text
                         return new Token<RegexElementLabel>(".", 0, pos, RegexElementLabel.UNIT);
                     } else
                     {
+                        if (_source[pos + 1] is 'n' or 'r') {
+                            throw new NotSupportedException("Multi-line regular expressions are not supported yet.");
+                        }
                         position = pos + 2;
                         return new Token<RegexElementLabel>(_source[(pos)..(pos + 2)], 0, pos,
                                                             RegexElementLabel.UNIT_SET);
@@ -116,8 +121,12 @@ namespace StgSharp.RegularAnalysis.Text
                     {
                         if (_source[i] == '}')
                         {
-                            position = i + 1;
-                            return new Token<RegexElementLabel>(_source[(pos)..(i + 1)], 0, pos,
+                            int end = i + 1;
+                            if (end < _source.Length && _source[end] == '?') {
+                                end++;
+                            }
+                            position = end;
+                            return new Token<RegexElementLabel>(_source[pos..end], 0, pos,
                                                                 RegexElementLabel.COUNT);
                         }
                     }
@@ -127,8 +136,10 @@ namespace StgSharp.RegularAnalysis.Text
                     position = pos + count;
                     return new Token<RegexElementLabel>(_source[(pos)..(pos + count)], 0, pos, RegexElementLabel.COUNT);
                 case '?':
-                    position = pos + 1;
-                    return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos, RegexElementLabel.COUNT);
+                    int optionalCount = pos + 1 < _source.Length && _source[pos + 1] == '?' ? 2 : 1;
+                    position = pos + optionalCount;
+                    return new Token<RegexElementLabel>(_source[pos..(pos + optionalCount)], 0, pos,
+                                                        RegexElementLabel.COUNT);
                 case '.':
                     position = pos + 1;
                     return new Token<RegexElementLabel>(_source[(pos)..(pos + 1)], 0, pos, RegexElementLabel.UNIT_SET);
