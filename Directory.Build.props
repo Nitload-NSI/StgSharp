@@ -10,7 +10,6 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-    <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>preview-all</AnalysisLevel>
     <Platforms>x64;ARM64</Platforms>
     <Configurations>Debug;Release;PerformanceDebug</Configurations>
@@ -116,5 +115,9 @@
   <PropertyGroup Condition="'$(IsLinux)'=='true'">
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include=".discard\*.old" />
+  </ItemGroup>
 
 </Project>

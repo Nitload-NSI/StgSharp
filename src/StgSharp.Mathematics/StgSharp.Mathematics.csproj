@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <None Remove="Numeric\MatrixParallelHandle.cs.old" />
-    <None Remove="Numeric\MatrixParallelWrap.cs.old" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="Numeric\Runtime\MatrixParallel.Publish.cs" />
   </ItemGroup>
 

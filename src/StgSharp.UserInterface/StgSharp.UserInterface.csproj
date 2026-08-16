@@ -11,22 +11,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="bin\**" />
-	  <EmbeddedResource Remove="bin\**" />
-	  <None Remove="bin\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\StgSharp.Common\StgSharp.Common.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="bin\x64\Debug\net8.0\StgSharp.UserInterface.dll" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -8,12 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="bin\**" />
-    <EmbeddedResource Remove="bin\**" />
-    <None Remove="bin\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\StgSharp.Common\StgSharp.Common.csproj" />
   </ItemGroup>
 
@@ -22,28 +16,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="bin\x64\Debug\net8.0\StgSharp.RegularAnalysis.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
+<ItemGroup>
     <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Remove="bin\x64\Debug\net8.0\StgSharp.RegularAnalysis.pdb" />
     <None Include="$(OutputPath)$(AssemblyName).pdb" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="Exists('$(OutputPath)$(AssemblyName).pdb')" />
-    <None Remove="bin\x64\Debug\net8.0\StgSharp.Common.dll" />
     <None Include="$(OutputPath)StgSharp.Common.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="Exists('$(OutputPath)StgSharp.Common.dll')" />
-    <None Remove="bin\x64\Debug\net8.0\StgSharp.Common.pdb" />
     <None Include="$(OutputPath)StgSharp.Common.pdb" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="Exists('$(OutputPath)StgSharp.Common.pdb')" />
-    <None Include=".discard\RegexAnalyzer.IRGenerate.cs.old" />
-    <None Include=".discard\RegexAnalyzer.IROptimize.cs.old" />
-    <None Include=".discard\RegexAnalyzer.PrefixEmit.cs.old" />
-    <None Include=".discard\RegexIR.Abstraction.cs.old" />
-    <None Include=".discard\RegexIR.cs.old" />
-    <None Include=".discard\RegexIR.Prefix.cs.old" />
-    <None Include=".discard\RegexIRGenerator.cs.old" />
-    <None Include=".discard\TextRegexSourceGen.GenClass.MultiIR.cs.old" />
-    <None Include=".discard\TextRegexSourceGen.GenClass.Prefix.cs.old" />
-    <None Include=".discard\TextRegexSourceGen.GenClass.SingleIR.cs.old" />
   </ItemGroup>
 
 </Project>
