@@ -24,9 +24,9 @@ namespace StgSharp.RegularAnalysis.Text
                                                                               category:"NGRA.TextRegex",
                                                                               isEnabledByDefault:true);
 
-        private static readonly DiagnosticDescriptor CompileFailDiag = new(id:"NGRA005",
-                                                                           title:"Unexpected exception when compiling",
-                                                                           messageFormat:"Unexpected exception handles when compiling expression \"{0}\":{1}",
+        private static readonly DiagnosticDescriptor CompileFailDiag = new(id:"NGRA006",
+                                                                           title:"Regular expression compilation failed",
+                                                                           messageFormat:"Failed to compile expression \"{0}\": {1}",
                                                                            defaultSeverity:DiagnosticSeverity.Error,
                                                                            category:"NGRA.TextRegex",
                                                                            isEnabledByDefault:true);
@@ -39,8 +39,8 @@ namespace StgSharp.RegularAnalysis.Text
                                                                                        isEnabledByDefault:true);
 
         private static readonly DiagnosticDescriptor IncorrectReturnTypeDiag = new(id:"NGRA003",
-                                                                                   title:"Text regex binding must be partial",
-                                                                                   messageFormat:"Method {0} must be partial to receive generated code",
+                                                                                   title:$"Returning type must be {typeof(TextRegex).FullName}",
+                                                                                   messageFormat:$"Method {{0}} must return {typeof(TextRegex).FullName}",
                                                                                    defaultSeverity:DiagnosticSeverity.Error,
                                                                                    category:"NGRA.TextRegex",
                                                                                    isEnabledByDefault:true);
@@ -53,8 +53,8 @@ namespace StgSharp.RegularAnalysis.Text
                                                                                 isEnabledByDefault:true);
 
         private static readonly DiagnosticDescriptor NotPartialDiag = new(id:"NGRA001",
-                                                                          title:$"Returning type must be {typeof(TextRegex).FullName}",
-                                                                          messageFormat:$"Method {{0}} must return {typeof(TextRegex).FullName}",
+                                                                          title:"Text regex binding must be partial",
+                                                                          messageFormat:"Method {0} must be partial to receive generated code",
                                                                           defaultSeverity:DiagnosticSeverity.Error,
                                                                           category:"NGRA.TextRegex",
                                                                           isEnabledByDefault:true);

@@ -21,8 +21,6 @@ namespace StgSharp
 
         internal const int ssdSegmentLength = 16;
 
-        private static byte[] _currentHash = [];
-
         private static bool _inited;
 
         public static byte[] CurrentAssemblyHash
@@ -32,12 +30,10 @@ namespace StgSharp
                 if (_currentHash == null)
                 {
                     string route = Assembly.GetExecutingAssembly().Location;
-                    string time = DateTime.UtcNow.ToString();
-                    using (SHA256 sh = SHA256.Create())
-                    {
-                        byte[] bytes = Encoding.UTF8.GetBytes(route);
-                        _currentHash = sh.ComputeHash(bytes);
-                    }
+
+                    // string time = DateTime.UtcNow.ToString();
+                    byte[] bytes = Encoding.UTF8.GetBytes(route);
+                    _currentHash = SHA256.HashData(bytes);
                 }
                 return _currentHash;
             }
@@ -52,6 +48,8 @@ namespace StgSharp
             internal set => _mainThreadID = value;
         }
 
+        private static byte[] _currentHash { get; set; } = [];
+
         private static int _mainThreadID { get; set; } = -1;
 
         public static class GlobalSetting
@@ -62,9 +60,7 @@ namespace StgSharp
             public static bool VSyncActivated
             {
                 get => vsyncActivated;
-                set =>
- // GraphicFramework.glfwSwapInterval(value ? 1 : 0);
- vsyncActivated = value;
+                set => vsyncActivated = value; // GraphicFramework.glfwSwapInterval(value ? 1 : 0);
             }
 
         }

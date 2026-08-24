@@ -24,7 +24,6 @@ namespace StgSharp.RegularAnalysis.Text
         internal TextRegexSource(
                  string pattern,
                  AbstractSyntaxTree<RegexAstNode, RegexElementLabel> ast,
-                 RegexInfo info,
                  Exception? analyseException = null
 
         )
@@ -32,7 +31,6 @@ namespace StgSharp.RegularAnalysis.Text
             Pattern = pattern;
             Ast = ast;
             AnalyseException = analyseException;
-            Info = info;
         }
 
         public Exception? AnalyseException { get; set; }
@@ -40,8 +38,6 @@ namespace StgSharp.RegularAnalysis.Text
         public string Pattern { get; }
 
         internal AbstractSyntaxTree<RegexAstNode, RegexElementLabel> Ast { get; }
-
-        internal RegexInfo Info { get; }
 
     }
 
@@ -56,16 +52,15 @@ namespace StgSharp.RegularAnalysis.Text
             // RegexAnalyzer interpreter = new();
             // interpreter._source = regex;
             AbstractSyntaxTree<RegexAstNode, RegexElementLabel> tree;
-            RegexInfo info = new();
             try
             {
                 tree = GenerateAST(regex);
                 OptimizeTree(tree);
-                return new TextRegexSource(regex, tree, info, null);
+                return new TextRegexSource(regex, tree, null);
             }
             catch (Exception ex)
             {
-                return new TextRegexSource(regex, null, info, ex);
+                return new TextRegexSource(regex, null, ex);
             }
             /*
             // List<RegexIR> base_ir;
@@ -92,17 +87,6 @@ namespace StgSharp.RegularAnalysis.Text
             /**/
 #pragma warning restore CA1031 
         }
-
-    }
-
-    internal struct RegexInfo
-    {
-
-        public int RegionCount { get; set; }
-
-        public int MinPredictLength { get; set; }
-
-        public int SingleLineResultCount { get; set; }
 
     }
 }

@@ -24,6 +24,15 @@ namespace StgSharp.RegularAnalysis.Text
                                                                RegexElementLabel.NONE);
 
     /// <summary>
+    ///   A semantic empty expression. Unlike <see cref="RegexEmptyPayload"/>, this is a real AST
+    ///   node and represents a successful match that consumes no input.
+    /// </summary>
+    public sealed record RegexEpsilonPayload(
+                         int Row,
+                         int Column
+    ) : RegexAstPayload(string.Empty, Row, Column, RegexElementLabel.EPSILON);
+
+    /// <summary>
     ///   A deterministic literal sequence. Escapes represented as literals are consumed here.
     /// </summary>
     public sealed record RegexLiteralPayload(
@@ -218,7 +227,7 @@ namespace StgSharp.RegularAnalysis.Text
                     if (last < first) {
                         throw new InvalidCastException($"Invalid character range: {first}-{last}");
                     }
-                    rules.Add(new(content[first..last].ToString(), RegexCharSetType.Range, true));
+                    rules.Add(new($"{first}{last}", RegexCharSetType.Range, true));
                 } else
                 {
                     _ = singles.Add(first);

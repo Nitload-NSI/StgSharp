@@ -40,19 +40,19 @@ namespace StgSharp.HighPerformance.Memory
             _buffer = buffer;
 
             _Capacity = count;
-            int initCount = count switch
+            _recycle = new((int)_Capacity);
+            _recycle.FillRange(init, buffer);
+            _currentIndex = _Capacity;
+
+            static void init(
+                        Span<nuint> arr,
+                        nuint buffer
+            )
             {
-                <= 4 => 4,
-                > 64 => 64,
-                _ => (int)count
-            };
-            Span<nuint> span = stackalloc nuint[initCount];
-            for (int i = 0; i < initCount; i++) {
-                span[i] = _buffer + ((nuint)(i * _elementSize));
+                for (int i = 0; i < arr.Length; i++) {
+                    arr[i] = buffer + ((nuint)i * (nuint)Unsafe.SizeOf<T>());
+                }
             }
-            _recycle = CapacityFixedStackBuilder.Create(span);
-            _Capacity = count;
-            _currentIndex = (nuint)initCount;
         }
 
         public override nuint Allocate()

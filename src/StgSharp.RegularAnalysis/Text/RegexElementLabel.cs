@@ -26,12 +26,13 @@ namespace StgSharp.RegularAnalysis.Text
         COUNT = 32,
         CONCAT = 64,
         ALT = 128,
+        EPSILON = 256,
         SEQUENCE = UNIT | UNIT_SPAN | UNIT_SET,
         UNIT_SINGLE = UNIT | UNIT_SET,
         OPERATOR = COUNT | ALT | CONCAT,
         VAST_OPERATOR = OPERATOR | GROUP_BEGIN,
-        ATOM_BEGIN = SEQUENCE | GROUP_BEGIN ,
-        ATOM_END = SEQUENCE | GROUP_END | COUNT,
+        ATOM_BEGIN = SEQUENCE | GROUP_BEGIN | EPSILON,
+        ATOM_END = SEQUENCE | GROUP_END | COUNT | EPSILON,
 
 #pragma warning restore CA1707
     }

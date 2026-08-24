@@ -1,6 +1,6 @@
 # SIMDID (x86-64) 64-bit Specification (Completed per fixed layout)
 
-This document completes the **64-bit SIMDID** bit layout as specified, with emphasis on the design of the **AVX512 Feature section ([31..16])**, so it can cover the messy AVX-512 subsets while keeping branching logic compact. It also allocates an **AVX Feature byte** adjacent to the AVX512/AMX regions for AVX-family capabilities, and an **AVX10 Feature byte** for the converged AVX10 ISA.
+This document defines the compact **64-bit SIMDID** layout, including AVX/AVX-512/AVX10 capabilities and per-core execution-policy hints. AMX is not represented by the current policy.
 
 > Convention: bit0 is the least significant bit (LSB). Only x86-64 interpreter semantics are defined here; the header's Root ISA allows extension to other architectures.
 
@@ -12,7 +12,7 @@ This document completes the **64-bit SIMDID** bit layout as specified, with emph
 SIMDID (64 bits)  [63 ........................................................ 0]
 +----------+-----------+-----------+----------------+----------------+----------------+--------+-------+
 | [63..56] | [55..48]  | [47..40]  | [39..32]       | [31..16]       | [15..8]        | [7..4] | [3..0]|
-| uArchHi  | AVX10Feat | AVX Feat  | AMX Future     | AVX512 Feature | MainLevel      | Manuf  | Root  |
+| Reserved | uArchHi   | AVX10Feat | AVX Feature    | AVX512 Feature | MainLevel      | Manuf  | Root  |
 +----------+-----------+-----------+----------------+----------------+----------------+--------+-------+
 ```
 
@@ -20,10 +20,10 @@ SIMDID (64 bits)  [63 ........................................................ 0
 - **[7..4] Manufacture**: Vendor info (Intel/AMD for x86)
 - **[15..8] MainLevel**: Main ISA level (ascending, shared bit semantics)
 - **[31..16] AVX512 Feature**: AVX-512 features/subsets/implementation form (key part)
-- **[39..32] AMX Future**: AMX features (few bits for now)
-- **[47..40] AVX Feature**: AVX-family capabilities (base requires AVX+AVX2; key extensions include FMA/F16C)
-- **[55..48] AVX10 Feature**: AVX10 converged ISA version and vector width support
-- **[63..56] uArchHi**: Optional microarchitecture/policy hints (default 0, no functional impact).
+- **[39..32] AVX Feature**: AVX-family capabilities (base requires AVX+AVX2; key extensions include FMA/F16C)
+- **[47..40] AVX10 Feature**: AVX10 version and tracked discrete features
+- **[55..48] uArchHi**: Optional microarchitecture/policy hints
+- **[63..56] Reserved**: tail space for future extension
 
 ---
 
@@ -82,14 +82,11 @@ For other Root ISAs, this nibble is defined by their interpreters.
 | 0 | NONE |
 | 1 | SSE (full SSE family: SSE1..SSE4.2) |
 | 2 | AVX2 |
-| 3 | AVX2_FMA |
-| 4 | AVX2_FMA_F16C (from this level onward, 16-bit types are supported) |
-| 5 | AVX512 (check [31..16]) |
-| 6 | AMX |
-| 7 | AVX10 (check [55..48]) |
-| 8..255 | Reserved |
+| 3 | AVX512 (check [31..16]) |
+| 4 | AVX10 (check [47..40]) |
+| 5..255 | Reserved |
 
-> Scheduling suggestion: `MainLevel` is the primary switch; only when `MainLevel >= AVX512` should `AVX512 Feature` be parsed; only when `MainLevel >= AMX` should `AMX Future` be parsed; only when `MainLevel >= AVX10` should `AVX10 Feature` be parsed. AVX Feature sits beside AMX/AVX512 and is meaningful when AVX or higher is present.
+> `MainLevel` is the primary switch. Parse AVX512 Feature at AVX512 or later and AVX10 Feature only at AVX10.
 
 ---
 
@@ -97,7 +94,7 @@ For other Root ISAs, this nibble is defined by their interpreters.
 
 1) **Base AVX512 one-shot check**: Use 1 bit for the bundle `F + CD + VL + DQ + BW`, avoiding multiple subset checks.
 2) **Glue vs native**: Use an implementation field to distinguish `AVX512-DUAL` (glue/downclock risk) from `AVX512-NATIVE` (full 512-bit ALU).
-3) **Niche/AI extensions separated**: VNNI, BF16/FP16, and similar extensions each get a dedicated bit so the base path stays simple.
+3) **Minimal extension tracking**: VNNI is the only AVX-512 extension currently retained.
 
 ---
 
@@ -107,7 +104,7 @@ AVX512 Feature (bits 31..16)
 
 | **bit**   | 31  | 30  | 29   | 28   | 27   | 26    | 25   | 24   | 23    | 22    | 21 | 20   | 19 | 18 | 17 | 16 |
 |-----------|-----|-----|------|------|------|-------|------|------|-------|-------|----|------|----|----|----|----|
-| **Usage** | R   | R   | FP16 | BF16 | VNNI | VBMI2 | VBMI | R/AI | Impl1 | Impl0 | R  | BASE | R  | R  | R  | R  |
+| **Usage** | R   | R   | R    | R    | VNNI | R     | R    | R    | Impl1 | Impl0 | R  | BASE | R  | R  | R  | R  |
 
 Notes:
 
@@ -123,61 +120,56 @@ Notes:
 
 > **Note**: Intel SKX/CLX/CPX have two 512-bit FMA ports (port-0 + port-5) and are **NATIVE** — genuine 512-bit throughput. Intel downclocking on heavy ZMM workloads is a separate concern not encoded here. DUAL-PUMP applies only where a single 256-bit unit fires twice per 512-bit op (AMD Zen4-style).
 
-- **VBMI/VBMI2/VNNI/BF16/FP16 ([29..25])**: Commonly needed niche or AI-related small-type extensions; set as needed.
+- **VNNI (bit 27)**: the only AVX-512 extension currently tracked; the surrounding extension bits are reserved.
 - **R/AI (bit 24)**: Reserved for future AI or other non-crypto extensions.
 - **[31..30], [21], [19..16]**: Reserved for future allocation.
 
 ---
 
-## 7) AVX Feature Byte ([47..40], 8 bits)
+## 7) AVX Feature Byte ([39..32], 8 bits)
 
-Purpose: compact AVX-family capability encoding adjacent to AVX512/AMX. Base requirement: AVX **and** AVX2 present. Key extensions: FMA and F16C. Additional bits reserved for other extensions.
+Purpose: compact AVX-family capability encoding. Base requirement: AVX **and** AVX2 present. Key extensions: FMA and F16C.
 
-AVX Feature (bits 47..40)
+AVX Feature (bits 39..32)
 
-| bit | 47 | 46 | 45 | 44 | 43 | 42 | 41 | 40 |
+| bit | 39 | 38 | 37 | 36 | 35 | 34 | 33 | 32 |
 |-----|----|----|----|----|----|----|----|----|
 | use | R  | R  | R  | DUAL | F16C | FMA | AVX2 | AVX |
 
 Rules:
-- **AVX (bit 40)**: AVX present.
-- **AVX2 (bit 41)**: AVX2 present. For the AVX feature byte to be considered valid, both AVX and AVX2 must be set.
-- **FMA (bit 42)**: FMA present.
-- **F16C (bit 43)**: F16C present.
-- **DUAL (bit 44)**: YMM execution is **glued/split-lane** (two fused 128-bit units rather than a native 256-bit path). Detection: AMD Zen1/Zen+ (Family 0x17, model < 0x30), Hygon (all, Zen1-based), VIA/Zhaoxin (all). When set, code using YMM operations may incur split-register overhead; prefer 128-bit SSE paths on these targets.
-- **[45..47]**: Reserved for other AVX-family extensions (e.g., IFMA, XOP) as needed.
+- **AVX (bit 32)**: AVX present.
+- **AVX2 (bit 33)**: AVX2 present. For the AVX feature byte to be considered valid, both AVX and AVX2 must be set.
+- **FMA (bit 34)**: FMA present.
+- **F16C (bit 35)**: F16C present.
+- **DUAL (bit 36)**: YMM execution is **glued/split-lane** (two fused 128-bit units rather than a native 256-bit path). Detection: AMD Zen1/Zen+ (Family 0x17, model < 0x30), Hygon (all, Zen1-based), VIA/Zhaoxin (all). When set, code using YMM operations may incur split-register overhead; prefer 128-bit SSE paths on these targets.
+- **[37..39]**: Reserved for other AVX-family extensions as needed.
 
 ---
 
-## 8) AVX10 Feature Byte ([55..48], 8 bits)
+## 8) AVX10 Feature Byte ([47..40], 8 bits)
 
-Purpose: encode the converged AVX10 ISA version and supported vector widths. AVX10 unifies and replaces the fragmented AVX-512 subset model; a single version number implies a defined set of instructions (e.g., AVX10.1 implies F+CD+VL+DQ+BW+VBMI+VBMI2+VNNI+BF16+FP16 converged). The width bits indicate what maximum vector width the hardware actually implements.
+Purpose: encode the converged AVX10 ISA version and the discrete features relevant to this runtime. Under the current specification every AVX10 processor supports 128-, 256-, and 512-bit vector lengths, so vector width is not encoded.
 
 **CPUID detection**: `CPUID leaf 0x24, subleaf 0`.
 - EBX[7:0] = AVX10 converged ISA version number (≥ 1 if supported).
-- EBX[16] = 128-bit vector support (always 1 when AVX10 is present).
-- EBX[17] = 256-bit vector support.
-- EBX[18] = 512-bit vector support.
+- EBX[18:16] are reserved at 1. Earlier specifications used them for VL128/VL256/VL512; they must not be interpreted as width capabilities.
+- `CPUID.24H.1:ECX[2]` enumerates `AVX10_VNNI_INT` when subleaf 1 exists.
 
-AVX10 Feature (bits 55..48)
+AVX10 Feature (bits 47..40)
 
-| bit | 55 | 54 | 53 | 52   | 51   | 50 | 49 | 48   |
-|-----|----|----|----| ---- | ---- |----|----|------|
-| use | R  | R  | R  | 512W | 256W | V2 | V1 | AVX10 |
+| bit | 47       | 46..40  |
+|-----|----------|---------|
+| use | VNNI_INT | Version |
 
 Rules:
-- **AVX10 (bit 48)**: CPU declares AVX10 converged ISA support (leaf 0x24 reports a valid version ≥ 1).
-- **V1 (bit 49)**: AVX10 version ≥ 1 (AVX10.1). Set when `EBX[7:0] >= 1`.
-- **V2 (bit 50)**: AVX10 version ≥ 2 (AVX10.2). Set when `EBX[7:0] >= 2`.
-- **256W (bit 51)**: Hardware supports 256-bit vector width for AVX10 instructions (`EBX[17]` == 1).
-- **512W (bit 52)**: Hardware supports 512-bit vector width for AVX10 instructions (`EBX[18]` == 1).
-- **[53..55]**: Reserved for future AVX10 versions (V3, V4...) or additional width/feature bits.
+- **Version ([46..40])**: numeric AVX10 version, saturated to 7 bits. Zero means AVX10 is absent.
+- **VNNI_INT (bit 47)**: `CPUID.24H.1:ECX[2]`.
 
-> Note: When `AVX10 == 1`, the 128-bit width is always implied and does not need a dedicated bit. `V1` and `V2` are cumulative — if `V2` is set, `V1` must also be set.
+> AVX10 version comparison is numeric. Merging two SIMDIDs keeps the lower version and intersects discrete feature bits.
 
 **Relationship with AVX512 Feature**:
 - AVX10 is a superset specification. When `MainLevel == AVX10`, the `AVX512 Feature` field may still be populated for backward-compatible code paths (e.g., checking `AVX512_IMPL` to select DUAL vs NATIVE 512-bit policy).
-- AVX10/256 hardware does **not** support 512-bit operations; code should check `512W` before using zmm registers.
+- Current AVX10 hardware is architecturally AVX10/512. OS support still requires the full XCR0 SSE/AVX/opmask/ZMM state.
 
 ---
 
@@ -189,33 +181,18 @@ Rules:
   - Otherwise:
     - Check `BASE`; if 0, fall back to AVX2/FMA (or treat as detection failure).
     - Check `AVX512_IMPL`: `DUAL` uses 256-bit/downclock-safe path, `NATIVE` uses 512-bit path.
-    - When small-type/AI capabilities are required, consult `VNNI/BF16/FP16/VBMI/VBMI2` bits.
+    - Consult `VNNI` when the integer dot-product path requires it.
   - If `MainLevel == AVX10`: prefer AVX10 Feature for capability checks; `AVX512 Feature` remains valid for legacy branching.
 
 ---
 
-## 10) AMX Future ([39..32], 8 bits)
-
-A single byte is reserved; define three common bits for now, leave the rest reserved:
-
-| bit (relative to [39..32]) | Name | Note |
-|---:|------|------|
-| 0 | AMX_TILE | Tile base |
-| 1 | AMX_INT8 | INT8 tile |
-| 2 | AMX_BF16 | BF16 tile |
-| 3..7 | Reserved | |
-
-When `MainLevel < AMX`, this byte can be all zeros.
-
----
-
-## 11) uArchHi ([63..56], 8 bits)
+## 10) uArchHi ([55..48], 8 bits)
 
 Purpose: **bitmask** byte encoding core topology classification and SIMD execution-width policy for the detected core. All bits default to 0.
 
 uArchHi bitmask layout:
 
-| bit (relative to [63..56]) | Name | Note |
+| bit (relative to [55..48]) | Name | Note |
 |---:|------|------|
 | 0 | HYBRID_E | E-core (efficiency/small core) in a hybrid-topology processor (e.g., Intel Alder Lake+ E-core) |
 | 1 | HYBRID_P | P-core (performance/big core) in a hybrid-topology processor (e.g., Intel Alder Lake+ P-core) |
@@ -253,21 +230,20 @@ Detection:
    - Set `AVX512_IMPL`:
      - **Intel (all)**: NATIVE — all Intel AVX-512 CPUs have genuine 512-bit execution units
      - **AMD Zen4 (Family 0x19)**: DUAL — single 256-bit ALU, dual-pump
-     - **AMD Zen5+ (Family 0x1A+)**: NATIVE — native full-width 512-bit units
-     - **AMD other/future**: UNKNOWN (conservative)
+     - **AMD Family 0x1A models 00h..0Fh (EPYC 9005)**: NATIVE — full-width 512-bit path
+     - **AMD Family 0x1A models 10h..1Fh**: UNKNOWN — this CPUID range is shared by full-width EPYC 9005 Zen5c and 256-bit dual-pumped EPYC 8005 products
+     - **AMD other client/future models**: UNKNOWN unless their execution width can be identified without an ambiguous product-name heuristic
      - **Hygon**: UNKNOWN (AVX-512 characteristics unclear)
      - **VIA/other**: UNKNOWN
-   - When VNNI/BF16/FP16/VBMI/VBMI2 are detected, set the corresponding bits.
-4) If `MainLevel >= AMX`: fill the AMX byte.
-5) When AVX/AVX2 are present, populate the AVX Feature byte: set `AVX` and `AVX2`; set `FMA` and `F16C` when detected; set `DUAL` when the YMM execution path is split/glued (AMD Zen1/Zen+ Family 0x17 model < 0x30, Hygon all models, VIA/Zhaoxin all models).
-6) **AVX10 detection** (requires `CPUID leaf 7 subleaf 1, EDX[19] == 1` as the AVX10 convergence bit):
+   - Set VNNI when detected; other AVX-512 extension bits remain reserved.
+4) When AVX/AVX2 are present, populate the AVX Feature byte: set `AVX` and `AVX2`; set `FMA` and `F16C` when detected; set `DUAL` when the YMM execution path is split/glued (AMD Zen1/Zen+ Family 0x17 model < 0x30, Hygon all models, VIA/Zhaoxin all models).
+5) **AVX10 detection** (requires `CPUID leaf 7 subleaf 1, EDX[19] == 1` as the AVX10 convergence bit):
    - If AVX10 is indicated, query `CPUID leaf 0x24, subleaf 0`:
-     - Read `EBX[7:0]` for version number; set `AVX10`, `V1`, and optionally `V2`.
-     - Read `EBX[17]` for 256-bit support → set `256W`.
-     - Read `EBX[18]` for 512-bit support → set `512W`.
-   - Promote `MainLevel` to `AVX10` (value 7).
+     - Read `EBX[7:0]` as the numeric version; do not interpret `EBX[18:16]` as vector-width bits.
+     - If subleaf 1 exists, read `ECX[2]` as `AVX10_VNNI_INT`.
+   - Promote `MainLevel` to `AVX10` (value 4).
    - The `AVX512 Feature` field should still be filled for backward compatibility.
-7) Populate uArchHi:
+6) Populate uArchHi:
    - If `CPUID.7.0 EDX[15]` (HYBRID) **not** set: set `HYBRID_P | HYBRID_E` (unified = 11).
    - If HYBRID is set, read `CPUID.0x1A.0 EAX[31:24]`:
      - `0x40` (P-core) → set only `HYBRID_P` (topology = 10).
@@ -279,4 +255,4 @@ Detection:
 
 ## 13) Choice for High Bits Reservation
 
-`[31..24]` is reserved for AVX512 extensions/AI. `[47..45]` is reserved for AVX-family extensions (bit 44 is now `DUAL`). `[55..53]` is reserved for future AVX10 versions. uArchHi `[63..56]` bits [3..7] are reserved; bits [0..2] encode hybrid topology and SIMD-dual policy.
+`[31..24]` is reserved for AVX512 extensions/AI. `[39..37]` is reserved for AVX-family extensions. AVX10 `[47..40]` stores one tracked discrete feature plus a 7-bit version. uArchHi `[55..48]` bits [3..7] are reserved; bits [0..2] encode hybrid topology and SIMD-dual policy. `[63..56]` is reserved tail space.

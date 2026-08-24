@@ -86,6 +86,7 @@ namespace StgSharp.Mathematics.Numeric
                         1 => KernelSideCountSse<T>(),
                         2 => KernelSideCountAvx2<T>(),
                         3 => KernelSideCountAvx512<T>(),
+                        4 => KernelSideCountAvx512<T>(),
                         _ => throw new NotSupportedException("Unsupported SIMD level."),
                     };
                 default:
@@ -145,6 +146,7 @@ namespace StgSharp.Mathematics.Numeric
                         1 => PanelSideFromBits<T>(128),
                         2 => PanelSideFromBits<T>(256),
                         3 => PanelSideFromBits<T>(512),
+                        4 => PanelSideFromBits<T>(512),
                         _ => throw new NotSupportedException("Unsupported SIMD level."),
                     };
                 default:

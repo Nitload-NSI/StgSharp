@@ -36,27 +36,31 @@ static void get_cpuid(int leaf, int subleaf, int *eax, int *ebx, int *ecx, int *
 #endif
 }
 
-static int xgetbv_has_xmm_ymm(void)
+/* XCR0 is per logical processor. Reading it after thread affinity is applied
+ * verifies that the OS saves/restores the register state needed by this core. */
+static unsigned long long read_xcr0(void)
 {
 #if defined(_MSC_VER)
-        unsigned __int64 xcr0 = _xgetbv(0);
+        return _xgetbv(0);
 #else
-        unsigned long long xcr0 = __builtin_ia32_xgetbv(0);
+        return __builtin_ia32_xgetbv(0);
 #endif
-        return ((xcr0 & 0x6) == 0x6);
 }
 
-static int xgetbv_has_avx512_state(void)
+static int os_has_xsave_state(unsigned long long required)
 {
-        const unsigned long long mask = (1ull << 0) | (1ull << 1) | (1ull << 2) | (1ull << 5) |
-                                        (1ull << 6);
-#if defined(_MSC_VER)
-        unsigned __int64 xcr0 = _xgetbv(0);
-#else
-        unsigned long long xcr0 = __builtin_ia32_xgetbv(0);
-#endif
-        return ((xcr0 & mask) == mask);
+        return (read_xcr0() & required) == required;
 }
+
+#define XCR0_X87 (1ull << 0)
+#define XCR0_XMM (1ull << 1)
+#define XCR0_YMM (1ull << 2)
+#define XCR0_OPMASK (1ull << 5)
+#define XCR0_ZMM_HI256 (1ull << 6)
+#define XCR0_HI16_ZMM (1ull << 7)
+#define XCR0_AVX_STATE (XCR0_X87 | XCR0_XMM | XCR0_YMM)
+#define XCR0_AVX512_STATE \
+        (XCR0_AVX_STATE | XCR0_OPMASK | XCR0_ZMM_HI256 | XCR0_HI16_ZMM)
 
 static void decode_family_model(int cpuid1_eax, int *family, int *model)
 {
@@ -83,19 +87,23 @@ static void decode_family_model(int cpuid1_eax, int *family, int *model)
         *model = model_value;
 }
 
-/* AVX-512 execution-width classification for AMD, by CPU family.
- * Zen4 (0x19): single 256-bit ALU, 512-bit op = two 256-bit micro-ops (dual-pump) → DUAL.
- * Zen5+ (>=0x1A): native 512-bit execution units → NATIVE.
- * Other/future AMD families → UNKNOWN (conservative). */
-static uint64_t amd_avx512_impl(int family)
+/* AVX-512 execution-width classification for AMD.
+ * Family 19h (Zen4) uses a 256-bit dual-pumped path.
+ * Family 1Ah models 00h-0Fh are documented for the full-width EPYC 9005
+ * implementation. Models 10h-1Fh are intentionally UNKNOWN: that CPUID
+ * range is used by both full-width EPYC 9005 Zen5c and dual-pumped EPYC
+ * 8005 products, and CPUID has no architectural execution-width bit. */
+static uint64_t amd_avx512_impl(int family, int model)
 {
         if (family == 0x19) {
                 return SIMDID_AVX512_IMPL_DUAL;
-        } else if (family >= 0x1A) {
-                return SIMDID_AVX512_IMPL_NATIVE;
-        } else {
-                return SIMDID_AVX512_IMPL_UNKNOWN;
         }
+        if (family == 0x1A) {
+                if (model >= 0x00 && model <= 0x0F) {
+                        return SIMDID_AVX512_IMPL_NATIVE;
+                }
+        }
+        return SIMDID_AVX512_IMPL_UNKNOWN;
 }
 
 /* Returns 1 if this AMD/Hygon CPU uses split-lane YMM (two fused 128-bit execution units).
@@ -172,7 +180,6 @@ SN_API SIMDID SN_DECL sn_get_simd_level_local()
         uint64_t main_lvl = SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_NONE);
         uint64_t avx_bits = 0;
         uint64_t avx512_bits = 0;
-        uint64_t amx_bits = 0;
         uint64_t avx10_bits = 0;
         uint64_t uarch_bits = 0;
         int has_hybrid = 0;
@@ -181,7 +188,7 @@ SN_API SIMDID SN_DECL sn_get_simd_level_local()
                 main_lvl = SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_SSE);
         }
 
-        if (has_avx && has_osxsave && xgetbv_has_xmm_ymm()) {
+        if (has_avx && has_osxsave && os_has_xsave_state(XCR0_AVX_STATE)) {
                 avx_bits |= SIMDID_AVX;
 
                 if (is_amd_glue_ymm(vendor, cpuid1_eax) || is_via) {
@@ -194,24 +201,15 @@ SN_API SIMDID SN_DECL sn_get_simd_level_local()
                         const int has_avx2 = (ebx & (1 << 5)) != 0;
                         const int has_avx512f = (ebx & (1 << 16)) != 0;
                         const int has_avx512dq = (ebx & (1 << 17)) != 0;
+                        const int has_avx512cd = (ebx & (1 << 28)) != 0;
                         const int has_avx512bw = (ebx & (1 << 30)) != 0;
                         const int has_avx512vl = (ebx & (1u << 31)) != 0;
                         const int has_avx512_vnni = (ecx & (1 << 11)) != 0;
-                        const int has_vbmi = (ecx & (1 << 1)) != 0;
-                        const int has_vbmi2 = (ecx & (1 << 6)) != 0;
-
-                        const int has_amx_tile = (edx & (1 << 24)) != 0;
-                        const int has_amx_int8 = (edx & (1 << 25)) != 0;
-                        const int has_amx_bf16 = (edx & (1 << 22)) != 0;
                         has_hybrid = (edx & (1 << 15)) != 0;
 
-                        int has_bf16 = 0;
-                        int has_fp16 = 0;
                         int has_avx10 = 0;
                         if (eax >= 1) {
                                 get_cpuid(7, 1, &eax, &ebx, &ecx, &edx);
-                                has_bf16 = (eax & (1 << 5)) != 0;
-                                has_fp16 = (eax & (1 << 23)) != 0;
                                 has_avx10 = (edx & (1 << 19)) != 0;
                         }
 
@@ -226,46 +224,22 @@ SN_API SIMDID SN_DECL sn_get_simd_level_local()
                                 main_lvl = SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_AVX2);
                         }
 
-                        if (has_avx512f && xgetbv_has_avx512_state()) {
-                                if (has_avx512bw && has_avx512vl && has_avx512dq) {
-                                        avx512_bits |= SIMDID_AVX512_BASE;
-                                }
+                        if (has_avx512f && has_avx512cd && has_avx512dq && has_avx512bw &&
+                            has_avx512vl && os_has_xsave_state(XCR0_AVX512_STATE)) {
+                                avx512_bits |= SIMDID_AVX512_BASE;
                                 if (has_avx512_vnni) {
                                         avx512_bits |= SIMDID_AVX512_VNNI;
-                                }
-                                if (has_bf16) {
-                                        avx512_bits |= SIMDID_AVX512_BF16;
-                                }
-                                if (has_fp16) {
-                                        avx512_bits |= SIMDID_AVX512_FP16;
-                                }
-                                if (has_vbmi) {
-                                        avx512_bits |= SIMDID_AVX512_VBMI;
-                                }
-                                if (has_vbmi2) {
-                                        avx512_bits |= SIMDID_AVX512_VBMI2;
                                 }
 
                                 if (is_intel) {
                                         avx512_bits |= SIMDID_AVX512_IMPL_NATIVE;
                                 } else if (is_amd) {
-                                        avx512_bits |= amd_avx512_impl(family);
+                                        avx512_bits |= amd_avx512_impl(family, model);
                                 } else {
                                         avx512_bits |= SIMDID_AVX512_IMPL_UNKNOWN;
                                 }
 
                                 main_lvl = SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_AVX512);
-
-                                if (has_amx_tile) {
-                                        amx_bits |= SIMDID_AMX_TILE;
-                                        if (has_amx_int8) {
-                                                amx_bits |= SIMDID_AMX_INT8;
-                                        }
-                                        if (has_amx_bf16) {
-                                                amx_bits |= SIMDID_AMX_BF16;
-                                        }
-                                        main_lvl = SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_AMX);
-                                }
 
                                 if (has_avx10 && (max_basic_leaf >= 0x24)) {
                                         int a10_eax = 0;
@@ -273,23 +247,23 @@ SN_API SIMDID SN_DECL sn_get_simd_level_local()
                                         int a10_ecx = 0;
                                         int a10_edx = 0;
                                         int avx10_ver = 0;
-                                        int has_256w = 0;
-                                        int has_512w = 0;
 
                                         get_cpuid(0x24, 0, &a10_eax, &a10_ebx, &a10_ecx, &a10_edx);
                                         avx10_ver = a10_ebx & 0xFF;
                                         if (avx10_ver >= 1) {
-                                                avx10_bits |= SIMDID_AVX10 | SIMDID_AVX10_V1;
-                                                if (avx10_ver >= 2) {
-                                                        avx10_bits |= SIMDID_AVX10_V2;
+                                                unsigned max_avx10_subleaf = (unsigned)a10_eax;
+                                                unsigned stored_version = (unsigned)avx10_ver;
+                                                if (stored_version > SIMDID_AVX10_VERSION_MASK) {
+                                                        stored_version = SIMDID_AVX10_VERSION_MASK;
                                                 }
-                                                has_256w = (a10_ebx & (1 << 17)) != 0;
-                                                has_512w = (a10_ebx & (1 << 18)) != 0;
-                                                if (has_256w) {
-                                                        avx10_bits |= SIMDID_AVX10_256W;
-                                                }
-                                                if (has_512w) {
-                                                        avx10_bits |= SIMDID_AVX10_512W;
+                                                avx10_bits = stored_version;
+
+                                                if (max_avx10_subleaf >= 1) {
+                                                        get_cpuid(0x24, 1, &a10_eax, &a10_ebx,
+                                                                  &a10_ecx, &a10_edx);
+                                                        if ((a10_ecx & (1 << 2)) != 0) {
+                                                                avx10_bits |= SIMDID_AVX10_VNNI_INT;
+                                                        }
                                                 }
                                                 main_lvl = SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_AVX10);
                                         }
@@ -331,7 +305,6 @@ SN_API SIMDID SN_DECL sn_get_simd_level_local()
                 final_mask |= manu;
                 final_mask |= main_lvl;
                 final_mask |= SIMDID_PACK_AVX512(avx512_bits);
-                final_mask |= SIMDID_PACK_AMX(amx_bits);
                 final_mask |= SIMDID_PACK_AVX(avx_bits);
                 final_mask |= SIMDID_PACK_AVX10(avx10_bits);
                 final_mask |= SIMDID_PACK_UARCH(uarch_bits);

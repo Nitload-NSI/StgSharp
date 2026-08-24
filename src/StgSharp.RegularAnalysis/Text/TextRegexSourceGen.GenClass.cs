@@ -24,26 +24,63 @@ namespace StgSharp.RegularAnalysis.Text
                              RegexAstNode ast,
                              in SequenceEmitter<string> sc,
                              in List<SequenceEmitter<string>> func_list,
+                             in SourceGenContext context,
                              bool is_find = false
 
         )
         {
             RegexAstNode root = ast;
-            switch (root.Label & (RegexElementLabel.VAST_OPERATOR))
+            if (root.Label == RegexElementLabel.EPSILON) {
+                return;
+            }
+            RegexElementLabel op = root.Label & (RegexElementLabel.VAST_OPERATOR);
+            if (op != 0)
             {
-                case RegexElementLabel.CONCAT:
-                    GenerateConcat(root, sc, func_list);
-                    break;
-                case RegexElementLabel.COUNT:
-                    break;
-                case RegexElementLabel.GROUP_BEGIN:
-                    break;
-                case RegexElementLabel.ALT:
-                    break;
+                switch (op)
+                {
+                    case RegexElementLabel.CONCAT:
+                        GenerateConcat(root, sc, func_list, context);
+                        break;
+                    case RegexElementLabel.COUNT:
+                        GenerateCount(root, sc, func_list, context);
+                        break;
+                    case RegexElementLabel.GROUP_BEGIN:
+                        GenerateGroup(root, sc, func_list, context);
+                        break;
+                    case RegexElementLabel.ALT:
+                        GenerateAlt(root, sc, func_list, context);
+                        break;
+                }
+            } else
+            {
+                op = root.Label & (RegexElementLabel.SEQUENCE);
+                switch (op)
+                {
+                    case RegexElementLabel.UNIT:
+                        break;
+                    case RegexElementLabel.UNIT_SET:
+                        break;
+                    case RegexElementLabel.UNIT_SPAN:
+                        break;
+                }
             }
         }
 
         #region supporting method
+
+        private static string FormatStringLiteral(
+                              string value
+        )
+        {
+            return SyntaxFactory.Literal(value).Text;
+        }
+
+        private static string FormatCharLiteral(
+                              char value
+        )
+        {
+            return SyntaxFactory.Literal(value).Text;
+        }
 
         private static bool IsNamedFind(
                             RegexAstNode node
@@ -72,18 +109,77 @@ namespace StgSharp.RegularAnalysis.Text
 
             #endregion
 
-        #region verb generate
+        #region basic verb generate
 
         private static void GenerateAlt(
                             RegexAstNode node,
                             [NotNull] in SequenceEmitter<string> sc,
-                            in List<SequenceEmitter<string>> func_list
-        ) { }
+                            in List<SequenceEmitter<string>> func_list,
+                            in SourceGenContext context
+        )
+        {
+            RegexAstNode current = node.Right;
+            string exit_label = context.RequestExitAlt();
+            while (RegexAstNode.IsNullOrEmpty(current))
+            {
+                RegexElementLabel op = current.Label & RegexElementLabel.SEQUENCE;
+                if (op != 0)
+                {
+                    string code = current.SourceCode;
+                    switch (op)
+                    {
+                        case RegexElementLabel.UNIT:
+                            _ = sc.AppendLine(@$"if({context.RemainSpan}[0] == {FormatCharLiteral(code[0])})")
+                                  .AppendLine("{")
+                                  .AppendLine($@"goto {exit_label};")
+                                  .AppendLine("}");
+                            break;
+                        case RegexElementLabel.UNIT_SET:
+                            IReadOnlyList<RegexCharSet> split = current.PayloadAs<RegexCharSetPayload>()
+                                                                       .Set;
+                            RegexCharSet first_set = split[0];
+                            for (int i = 1; i < split.Count - 1; i++) { }
+                            RegexCharSet last_set = split[^1];
+                            break;
+                    }
+                } else
+                {
+                    GenerateMethodSource(current, sc, func_list, context);
+                    current = current.Next;
+                }
+            }
+            _ = sc.AppendLine($@"{exit_label}: {{ }}");
+        }
+
+        private static void GenerateGroup(
+                            RegexAstNode node,
+                            [NotNull] in SequenceEmitter<string> sc,
+                            in List<SequenceEmitter<string>> func_list,
+                            in SourceGenContext context
+        )
+        {
+            RegexAstNode left = node.Left;
+            RegexAstNode right = node.Right;
+
+            RegexGroupPayload config = node.PayloadAs<RegexGroupPayload>();
+
+            if (left is not null)
+            {
+                GenerateMethodSource(left, sc, func_list, context);
+            } else
+            if (right is not null) {
+                GenerateMethodSource(right, sc, func_list, context);
+            }
+
+            string group_name = config.Name;
+            throw new NotImplementedException();
+        }
 
         private static void GenerateConcat(
                             RegexAstNode node,
                             [NotNull] in SequenceEmitter<string> sc,
-                            in List<SequenceEmitter<string>> func_list
+                            in List<SequenceEmitter<string>> func_list,
+                            in SourceGenContext context
         )
         {
             RegexAstNode left = node.Left;
@@ -98,40 +194,41 @@ namespace StgSharp.RegularAnalysis.Text
                     right is not null)
                 {
                     // TODO use find
-                    GenerateMethodSource(right, sc, func_list, true);
+                    GenerateMethodSource(right, sc, func_list, context, true);
                 } else if (IsNamedFind(node))
                 {
                     if (right is not null)
                     {
                         // TODO named find
-                        GenerateMethodSource(right, sc, func_list, true);
+                        GenerateMethodSource(right, sc, func_list, context, true);
                     } else
                     {
                         // TODO pack rest of string to group
                     }
                 } else
                 {
-                    GenerateMethodSource(left, sc, func_list);
+                    GenerateMethodSource(left, sc, func_list, context);
                     if (right is not null) {
-                        GenerateMethodSource(right, sc, func_list);
+                        GenerateMethodSource(right, sc, func_list, context);
                     }
                 }
             }
             if (right is not null) {
-                GenerateMethodSource(right, sc, func_list);
+                GenerateMethodSource(right, sc, func_list, context);
             }
         }
 
         private static void GenerateCount(
                             RegexAstNode node,
                             [NotNull] in SequenceEmitter<string> sc,
-                            in List<SequenceEmitter<string>> func_list
+                            in List<SequenceEmitter<string>> func_list,
+                            in SourceGenContext context
         )
         {
             RegexAstNode value = node.Left ?? node.Right;
             if ((value.Label & RegexElementLabel.SEQUENCE) == 0)
             {
-                GenerateMethodSource(value, sc, func_list);
+                GenerateMethodSource(value, sc, func_list, context);
             } else
             {
                 RegexCountPayload payload = value.PayloadAs<RegexCountPayload>();

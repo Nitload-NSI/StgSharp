@@ -25,8 +25,6 @@ namespace StgSharp.Timing
         private EventHandler? _refreshHandler, _missHandler;
         private int _size, _id;
         private long _pendingSpans; // Number of unconsumed span ticks since last Wait.
-
-        private readonly ManualResetEventSlim _event = new();
         private readonly object _participantObject = new();
 
         public event EventHandler MissTimeSpanRefreshed
@@ -57,15 +55,17 @@ namespace StgSharp.Timing
         /// </summary>
         public long PendingSpanCount => Volatile.Read(ref _pendingSpans);
 
-        internal ManualResetEventSlim AwaitingEvent => _event;
+        internal ManualResetEventSlim ResetEvent { get; } = new();
 
         public void Dispose()
         {
+#pragma warning disable CA1816 
             // mark provider as ended so external users can observe terminal state
             Volatile.Write(ref _endedFlag, 1);
             s_unusedID.Push(TokenID);
-            _event.Set();
+            ResetEvent.Set();
             GC.SuppressFinalize(this);
+#pragma warning restore CA1816 
         }
 
         public override int GetHashCode()
@@ -84,7 +84,7 @@ namespace StgSharp.Timing
 
         public void WaitNextSpan()
         {
-            _event.Wait();
+            ResetEvent.Wait();
 
             // Consume one span slot (clamp at 0 so multiple subscribers won't make it negative).
             while (true)
@@ -99,7 +99,7 @@ namespace StgSharp.Timing
                     if (cur - 1 == 0)
                     {
                         // Last consumer resets the gate for the next tick.
-                        _event.Reset();
+                        ResetEvent.Reset();
                     }
                     return;
                 }
@@ -108,7 +108,7 @@ namespace StgSharp.Timing
 
         public async Task WaitNextSpanAsync()
         {
-            await Task.Run(() => _event.Wait()).ConfigureAwait(false);
+            await Task.Run(ResetEvent.Wait).ConfigureAwait(false);
             while (true)
             {
                 long cur = Volatile.Read(ref _pendingSpans);
@@ -120,7 +120,7 @@ namespace StgSharp.Timing
                 if (Interlocked.CompareExchange(ref _pendingSpans, cur - 1, cur) == cur)
                 {
                     if (cur - 1 == 0) {
-                        _event.Reset();
+                        ResetEvent.Reset();
                     }
 
                     break;
@@ -138,7 +138,7 @@ namespace StgSharp.Timing
         )
         {
             // Block the current thread until the event is signaled or cancellation requested.
-            _event.Wait(ct);
+            ResetEvent.Wait(ct);
 
             // consume one pending span (same logic as non-cancellable variant)
             while (true)
@@ -152,7 +152,7 @@ namespace StgSharp.Timing
                 if (Interlocked.CompareExchange(ref _pendingSpans, cur - 1, cur) == cur)
                 {
                     if (cur - 1 == 0) {
-                        _event.Reset();
+                        ResetEvent.Reset();
                     }
 
                     break;
@@ -203,7 +203,7 @@ namespace StgSharp.Timing
                 if (Interlocked.CompareExchange(ref _pendingSpans, toIssue, 0) == 0)
                 {
                     // Open the gate for all current waiters (up to `_size`).
-                    _event.Set();
+                    ResetEvent.Set();
                     _refreshHandler?.Invoke(this, EventArgs.Empty);
                 }
             } else

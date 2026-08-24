@@ -20,8 +20,7 @@ namespace StgSharp.RegularAnalysis.Text
         public RegexAstNode(
                Token<RegexElementLabel> source
         )
-            : this(RegexCommonPayload.FromToken(source))
-        { }
+            : this(RegexCommonPayload.FromToken(source)) { }
 
         public RegexAstNode(
                RegexAstPayload payload
@@ -31,6 +30,8 @@ namespace StgSharp.RegularAnalysis.Text
         }
 
         public int EnumState { get; set; }
+
+        public ISyntaxPayload<RegexElementLabel> Source => Payload;
 
         public long NodeFlag => (long)Label;
 
@@ -69,6 +70,8 @@ namespace StgSharp.RegularAnalysis.Text
             }
         }
 
+        public RegexAstPayload Payload { get; private protected set; }
+
         public RegexElementLabel EqualityTypeConvert => Label;
 
         public RegexElementLabel Label => Payload.Flag;
@@ -80,13 +83,7 @@ namespace StgSharp.RegularAnalysis.Text
             _ => Payload.Source
         };
 
-        public RegexAstPayload Payload { get; private protected set; }
-
-        public ISyntaxPayload<RegexElementLabel> Source => Payload;
-
-        internal TPayload PayloadAs<TPayload>() where TPayload : RegexAstPayload =>
-            Payload as TPayload ?? throw new InvalidOperationException(
-                $"Node {Label} does not carry {typeof(TPayload).Name}.");
+        public string SourceCode => Source.Source;
 
         public void AppendNode(
                     RegexAstNode nextToken
@@ -106,7 +103,7 @@ namespace StgSharp.RegularAnalysis.Text
             right &= RegexElementLabel.OPERATOR;
             int v_left = (int)left, v_right = (int)right;
             if (v_left == 0 || v_right == 0) {
-                return (false,0);
+                return (false, 0);
             }
             return (true,v_left - v_right);
         }
@@ -146,6 +143,14 @@ namespace StgSharp.RegularAnalysis.Text
         )
         {
             return new EmptyRegexAstNode();
+        }
+
+        internal TPayload PayloadAs<TPayload>() where TPayload : RegexAstPayload
+        {
+            return
+            Payload as TPayload ??
+                throw new InvalidOperationException(
+                $"Node {Label} does not carry {typeof(TPayload).Name}.");
         }
 
         internal void RemoveAndAsChild(

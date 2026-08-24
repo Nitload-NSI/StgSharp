@@ -31,7 +31,6 @@ namespace StgSharp.Mathematics.Numeric
                         2 => 32,
                         3 => 64,
                         4 => 64,
-                        5 => 64,
                         _ => 8,
                     },
                     _ => 8,
@@ -53,7 +52,7 @@ namespace StgSharp.Mathematics.Numeric
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void InitializeModule(
-                    IModuleInitializeProfile profile
+                    IModuleInitializeConfiguration profile
         )
         {
             try

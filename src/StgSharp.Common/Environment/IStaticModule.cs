@@ -27,11 +27,11 @@ namespace StgSharp
         ///   Performs all initialization work for this module using the provided profile.
         /// </summary>
         /// <param name="profile">
-        ///   The configuration profile supplied at registration time. Use <see
-        ///   cref="IModuleInitializeProfile.Empty" /> if no configuration is required.
+        ///   The configuration profile supplied at registration time. Use <see ///  
+        ///   cref="IModuleInitializeConfiguration.Empty" /> if no configuration is required.
         /// </param>
         void InitializeModule(
-             IModuleInitializeProfile profile
+             IModuleInitializeConfiguration profile
         );
 
         /// <summary>
@@ -46,15 +46,15 @@ namespace StgSharp
     ///   Marker interface for module initialization configuration. Implementations are plain data
     ///   carriers; no static factory is required.
     /// </summary>
-    public interface IModuleInitializeProfile
+    public interface IModuleInitializeConfiguration
     {
 
         /// <summary>
         ///   A shared, allocation-free empty profile for modules that require no configuration.
         /// </summary>
-        static readonly IModuleInitializeProfile Empty = EmptyModuleInitializeProfile.Instance;
+        static readonly IModuleInitializeConfiguration Empty = EmptyModuleInitializeProfile.Instance;
 
-        private sealed class EmptyModuleInitializeProfile : IModuleInitializeProfile
+        private sealed class EmptyModuleInitializeProfile : IModuleInitializeConfiguration
         {
 
             public static readonly EmptyModuleInitializeProfile Instance = new();
@@ -66,8 +66,8 @@ namespace StgSharp
     }
 
     /// <summary>
-    ///   Pairs an <see cref="IStaticModule" /> with its <see cref="IModuleInitializeProfile" />,
-    ///   ensuring the two are never stored or iterated independently.
+    ///   Pairs an <see cref="IStaticModule" /> with its <see cref="IModuleInitializeConfiguration"
+    ///   />, ensuring the two are never stored or iterated independently.
     /// </summary>
     /// <remarks>
     ///   Using a <see langword="readonly struct" /> avoids the boxing overhead that would occur if
@@ -77,20 +77,20 @@ namespace StgSharp
     {
 
         /// <summary>
-        ///   Initializes a new <see cref="ModuleDescriptor" /> using <see
-        ///   cref="IModuleInitializeProfile.Empty" /> as the profile.
+        ///   Initializes a new <see cref="ModuleDescriptor" /> using <see ///  
+        ///   cref="IModuleInitializeConfiguration.Empty" /> as the profile.
         /// </summary>
         public ModuleDescriptor(
                IStaticModule module
         )
-            : this(module, IModuleInitializeProfile.Empty) { }
+            : this(module, IModuleInitializeConfiguration.Empty) { }
 
         /// <summary>
         ///   Initializes a new <see cref="ModuleDescriptor" /> with an explicit profile.
         /// </summary>
         public ModuleDescriptor(
                IStaticModule module,
-               IModuleInitializeProfile profile
+               IModuleInitializeConfiguration profile
         )
         {
             Module = module;
@@ -100,7 +100,7 @@ namespace StgSharp
         /// <summary>
         ///   Gets the configuration profile associated with the module.
         /// </summary>
-        public IModuleInitializeProfile Profile { get; }
+        public IModuleInitializeConfiguration Profile { get; }
 
         /// <summary>
         ///   Gets the module to be initialized.
@@ -127,8 +127,8 @@ namespace StgSharp
 
     /// <summary>
     ///   An ordered collection of modules to be initialized during application startup and
-    ///   uninitialized on shutdown. Supports three registration strategies so that the <c> new()
-    ///   </c> generic constraint is never a hard requirement.
+    ///   uninitialized on shutdown. Supports three registration strategies so that the <c>new()
+    ///   ///</c> generic constraint is never a hard requirement.
     /// </summary>
     public sealed class ModuleToInitializeCollection : IEnumerable<IStaticModule>, IStaticModule
     {
@@ -136,10 +136,11 @@ namespace StgSharp
         private readonly List<ModuleDescriptor> _descriptors = [];
 
         internal ModuleToInitializeCollection(
-                 World.Initializer i
+                 World.Initializer init,
+                 World.InitializeConfiguration config
         )
         {
-            _descriptors.Add(new ModuleDescriptor(i));
+            _descriptors.Add(new ModuleDescriptor(init, config));
         }
 
         // ── IEnumerable<IStaticModule> ───────────────────────────────────────────
@@ -189,11 +190,11 @@ namespace StgSharp
         ///   public parameterless constructor.
         /// </typeparam>
         /// <param name="profile">
-        ///   Optional initialization profile. Defaults to <see
-        ///   cref="IModuleInitializeProfile.Empty" /> when <see langword="null" />.
+        ///   Optional initialization profile. Defaults to <see ///  
+        ///   cref="IModuleInitializeConfiguration.Empty" /> when <see langword="null" />.
         /// </param>
         public ModuleToInitializeCollection UseModule<T>(
-                                            IModuleInitializeProfile? profile = null
+                                            IModuleInitializeConfiguration? profile = null
         ) where T : IStaticModule, new()
         {
             return UseModule(static() => new T(), profile);
@@ -206,17 +207,17 @@ namespace StgSharp
         /// </summary>
         /// <param name="factory">
         ///   A delegate that constructs and returns the module instance. The delegate is invoked
-        ///   once, immediately at registration time. If <paramref name="factory" /> is <see
+        ///   once, immediately at registration time. If <paramref name="factory" /> is <see ///  
         ///   langword="null" /> or returns <see langword="null" />, the call is silently ignored
         ///   and the collection is returned unchanged.
         /// </param>
         /// <param name="profile">
-        ///   Optional initialization profile. Defaults to <see
-        ///   cref="IModuleInitializeProfile.Empty" /> when <see langword="null" />.
+        ///   Optional initialization profile. Defaults to <see ///  
+        ///   cref="IModuleInitializeConfiguration.Empty" /> when <see langword="null" />.
         /// </param>
         public ModuleToInitializeCollection UseModule(
                                             Func<IStaticModule> factory,
-                                            IModuleInitializeProfile? profile = null
+                                            IModuleInitializeConfiguration? profile = null
         )
         {
             if (factory is null) {
@@ -228,7 +229,7 @@ namespace StgSharp
             }
             _descriptors.Add(new ModuleDescriptor(
                 mod,
-                profile ?? IModuleInitializeProfile.Empty));
+                profile ?? IModuleInitializeConfiguration.Empty));
             return this;
         }
 
@@ -240,17 +241,17 @@ namespace StgSharp
         ///   The module instance to register.
         /// </param>
         /// <param name="profile">
-        ///   Optional initialization profile. Defaults to <see
-        ///   cref="IModuleInitializeProfile.Empty" /> when <see langword="null" />.
+        ///   Optional initialization profile. Defaults to <see ///  
+        ///   cref="IModuleInitializeConfiguration.Empty" /> when <see langword="null" />.
         /// </param>
         public ModuleToInitializeCollection UseModule(
                                             IStaticModule module,
-                                            IModuleInitializeProfile? profile = null
+                                            IModuleInitializeConfiguration? profile = null
         )
         {
             _descriptors.Add(new ModuleDescriptor(
                 module,
-                profile ?? IModuleInitializeProfile.Empty));
+                profile ?? IModuleInitializeConfiguration.Empty));
             return this;
         }
 
@@ -263,12 +264,12 @@ namespace StgSharp
         // ── IStaticModule explicit implementation ────────────────────────────────
 
         /// <summary>
-        ///   Explicit <see cref="IStaticModule" /> implementation. Delegates to <see
+        ///   Explicit <see cref="IStaticModule" /> implementation. Delegates to <see ///  
         ///   cref="InitializeModule()" />, ignoring the supplied profile because each contained module uses
         ///   its own registered profile.
         /// </summary>
         void IStaticModule.InitializeModule(
-                           IModuleInitializeProfile profile
+                           IModuleInitializeConfiguration profile
         )
         {
             InitializeModule();

@@ -6,13 +6,28 @@
 // -----------------------------------------------------------------------------
 
 using StgSharp;
-
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using System;
 using System.Linq;
 using System.Threading;
 
 namespace StgSharp.Timing
 {
+    public class TimeSourceStartupConfiguration(
+                 nuint bindedNumaNode = 0,
+                 nuint bindedCoreIndex = 0,
+                 ThreadPriority threadPriority = ThreadPriority.Highest
+    )
+    {
+
+        public nuint BindedNumaNode { get; } = bindedNumaNode;
+
+        public nuint BindedCoreIndex { get; } = bindedCoreIndex;
+
+        public ThreadPriority Priority { get; } = threadPriority;
+
+    }
+
     public abstract class TimeSourceProviderBase
     {
 
@@ -40,7 +55,9 @@ namespace StgSharp.Timing
             }
         }
 
-        public abstract void StartProvidingTime();
+        public abstract void StartProvidingTime(
+                             TimeSourceStartupConfiguration threadConfig
+        );
 
         public abstract void StopProvidingTime();
 

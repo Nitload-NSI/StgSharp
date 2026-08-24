@@ -23,19 +23,17 @@
 // bits [7..4]  : Manufacture (ISA-specific)
 // bits [15..8] : MainLevel (monotonic capability)
 // bits [31..16]: AVX512 Feature
-// bits [39..32]: AMX Feature
-// bits [47..40]: AVX Feature
-// bits [55..48]: AVX10 Feature
-// bits [63..56]: uArchHi / Policy (optional)
+// bits [39..32]: AVX Feature
+// bits [47..40]: AVX10 Feature
+// bits [55..48]: uArchHi / Policy (optional)
+// bits [63..56]: Reserved for future tail extension
 // -----------------------------------------------------------------------------
 #define SIMDID_SHIFT_AVX512 16
-#define SIMDID_SHIFT_AMX 32
-#define SIMDID_SHIFT_AVX 40
-#define SIMDID_SHIFT_AVX10 48
-#define SIMDID_SHIFT_UARCH 56
+#define SIMDID_SHIFT_AVX 32
+#define SIMDID_SHIFT_AVX10 40
+#define SIMDID_SHIFT_UARCH 48
 
 #define SIMDID_MASK_AVX512 (0xFFFFULL << SIMDID_SHIFT_AVX512)
-#define SIMDID_MASK_AMX (0xFFULL << SIMDID_SHIFT_AMX)
 #define SIMDID_MASK_AVX (0xFFULL << SIMDID_SHIFT_AVX)
 #define SIMDID_MASK_AVX10 (0xFFULL << SIMDID_SHIFT_AVX10)
 #define SIMDID_MASK_UARCH (0xFFULL << SIMDID_SHIFT_UARCH)
@@ -52,16 +50,10 @@
 #define SIMDID_MAIN_LVL_SSE 0x01u /* SSE1..SSE4.2 */
 #define SIMDID_MAIN_LVL_AVX2 0x02u
 #define SIMDID_MAIN_LVL_AVX512 0x03u
-#define SIMDID_MAIN_LVL_AMX 0x04u
-#define SIMDID_MAIN_LVL_AVX10 0x05u
+#define SIMDID_MAIN_LVL_AVX10 0x04u
 
 #ifndef SIMDID_AVX512_BASE
-#define SIMDID_AVX512_FP16 (1U << 13) /* relative bit 13 within [31..16] */
-#define SIMDID_AVX512_BF16 (1U << 12)
 #define SIMDID_AVX512_VNNI (1U << 11)
-#define SIMDID_AVX512_VBMI2 (1U << 10)
-#define SIMDID_AVX512_VBMI (1U << 9)
-#define SIMDID_AVX512_AI_RESERVED (1U << 8)
 #define SIMDID_AVX512_BASE (1U << 4)
 #define SIMDID_AVX512_IMPL_SHIFT 6
 #define SIMDID_AVX512_IMPL_MASK (0x3U << SIMDID_AVX512_IMPL_SHIFT)
@@ -71,7 +63,7 @@
 #endif
 
 #ifndef SIMDID_AVX_BASE
-#define SIMDID_AVX (1U << 0) /* relative bit 0 within [47..40] */
+#define SIMDID_AVX (1U << 0) /* relative bit 0 within [39..32] */
 #define SIMDID_AVX2 (1U << 1)
 #define SIMDID_AVX_FMA (1U << 2)
 #define SIMDID_AVX_F16C (1U << 3)
@@ -79,21 +71,12 @@
         (1U << 4) /* glued/split-lane YMM (two 128-bit units; Zen1, Hygon, VIA/Zhaoxin) */
 #endif
 
-#ifndef SIMDID_AMX_TILE
-#define SIMDID_AMX_TILE (1U << 0) /* relative bit 0 within [39..32] */
-#define SIMDID_AMX_INT8 (1U << 1)
-#define SIMDID_AMX_BF16 (1U << 2)
+#ifndef SIMDID_AVX10_VERSION_MASK
+#define SIMDID_AVX10_VERSION_MASK 0x7FU /* CPUID.24H.0:EBX[7:0], saturated to 7 bits */
+#define SIMDID_AVX10_VNNI_INT (1U << 7) /* CPUID.24H.1:ECX[2] */
 #endif
 
-#ifndef SIMDID_AVX10_BASE
-#define SIMDID_AVX10 (1U << 0) /* relative bit 0 within [55..48] */
-#define SIMDID_AVX10_V1 (1U << 1)
-#define SIMDID_AVX10_V2 (1U << 2)
-#define SIMDID_AVX10_256W (1U << 3)
-#define SIMDID_AVX10_512W (1U << 4)
-#endif
-
-/* uArchHi ([63..56]) bitmask — core topology and SIMD-width execution policy */
+/* uArchHi ([55..48]) bitmask — core topology and SIMD-width execution policy */
 #ifndef SIMDID_UARCH_HYBRID_P
 /* Topology 2-bit field (bits [1..0] of uArchHi byte):
  *   00 = unknown (undetected hybrid type or pre-CPUID.1A hardware)
@@ -112,7 +95,6 @@
         (SIMDID_PACK_ROOT(root) | SIMDID_PACK_MANU(manu) | SIMDID_PACK_MAIN(main))
 #define SIMDID_PACK_AVX512(avx512_bits) \
         (((uint64_t)(avx512_bits) & 0xFFFFULL) << SIMDID_SHIFT_AVX512)
-#define SIMDID_PACK_AMX(amx_bits) (((uint64_t)(amx_bits) & 0xFFULL) << SIMDID_SHIFT_AMX)
 #define SIMDID_PACK_AVX(avx_bits) (((uint64_t)(avx_bits) & 0xFFULL) << SIMDID_SHIFT_AVX)
 #define SIMDID_PACK_AVX10(avx10_bits) (((uint64_t)(avx10_bits) & 0xFFULL) << SIMDID_SHIFT_AVX10)
 #define SIMDID_PACK_UARCH(uarch_hi) (((uint64_t)(uarch_hi) & 0xFFULL) << SIMDID_SHIFT_UARCH)
@@ -123,7 +105,6 @@
 #define SIMDID_MAIN_ENC_SSE SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_SSE)
 #define SIMDID_MAIN_ENC_AVX2 SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_AVX2)
 #define SIMDID_MAIN_ENC_AVX512 SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_AVX512)
-#define SIMDID_MAIN_ENC_AMX SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_AMX)
 #define SIMDID_MAIN_ENC_AVX10 SIMDID_PACK_MAIN(SIMDID_MAIN_LVL_AVX10)
 
 #pragma region matix function

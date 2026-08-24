@@ -123,7 +123,8 @@ namespace StgSharp.HighPerformance.ProcessorAbstraction
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         internal static partial void SetThreadAffinity(
-                                     int coreId
+                                     int coreId,
+                                     int numaId
         );
 
         [MethodImpl(MethodImplOptions.NoInlining)]

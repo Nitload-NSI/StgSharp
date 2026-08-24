@@ -145,21 +145,22 @@ namespace StgSharp.RegularAnalysis.Text
             TreeEnumerator<RegexAstNode, RegexElementLabel> enumerator = new(tree.Root);
             RegexAstNode current;
 
-            // phase1: ALT flatten
-            // phase2: CONCAT normalize
-            int i = 0;
+            // phase1: normalize associative binary operators, then flatten ALT
             List<RegexAstNode> altNodes = [];
             while (enumerator.MoveNext())
             {
                 current = enumerator.Current;
+                if (current.EqualityTypeConvert is RegexElementLabel.CONCAT or
+                                                   RegexElementLabel.ALT)
+                {
+                    RotateAssociativeOperator(current, current.EqualityTypeConvert);
+                }
                 if (current.EqualityTypeConvert == RegexElementLabel.ALT)
                 {
                     RegexAstNode union = FlattenAlt(current);
                     altNodes.Add(current);
                     current.Right = union;
                     current.Left = RegexAstNode.Empty;
-                } else if (current.EqualityTypeConvert == RegexElementLabel.CONCAT) {
-                    RotateConcat(current);
                 }
             }
 
@@ -195,13 +196,28 @@ namespace StgSharp.RegularAnalysis.Text
             }
         }
 
-        private static void RotateConcat(
-                            RegexAstNode root
+        /// <summary>
+        ///   Converts a left-associated binary operator tree to a right spine while preserving
+        ///   operand order. For example, <c>(a op b) op c</c> becomes
+        ///   <c>a op (b op c)</c>.
+        /// </summary>
+        /// <remarks>
+        ///   A child with another label is an operand and is not rotated across. Keeping the target
+        ///   label explicit allows later associative operators to reuse the same tree operation.
+        /// </remarks>
+        private static void RotateAssociativeOperator(
+                            RegexAstNode root,
+                            RegexElementLabel operatorLabel
         )
         {
+            if (root.EqualityTypeConvert != operatorLabel) {
+                throw new ArgumentException("The root does not match the requested operator.",
+                                            nameof(operatorLabel));
+            }
+
             RegexAstNode left = root.Left;
             while (!RegexAstNode.IsNullOrEmpty(left) &&
-                   left.EqualityTypeConvert == RegexElementLabel.CONCAT)
+                   left.EqualityTypeConvert == operatorLabel)
             {
                 /*
                  *     root      →        root

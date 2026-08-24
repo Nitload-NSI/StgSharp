@@ -76,12 +76,17 @@ namespace StgSharp.RegularAnalysis.Text
             private TextRegexBinding(
                     List<Diagnostic> diagnostics,
                     SequenceEmitter<string> generatedSource,
-                    SourceRecord source
+                    SourceRecord source,
+                    SourceGenContext sourceContext,
+                    TextRegexSource? analyzedSource
             )
             {
                 _diagnostics = diagnostics ?? [];
                 GeneratedSource = generatedSource ?? new();
                 Source = source;
+                AnalyzedSource = analyzedSource;
+                IsValid = !_diagnostics.Exists(static diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
+                SourceContext = sourceContext;
             }
 
             public TextRegexBinding()
@@ -89,11 +94,15 @@ namespace StgSharp.RegularAnalysis.Text
                 _diagnostics = [];
             }
 
+            public TextRegexSource? AnalyzedSource { get; set; }
+
             public bool IsValid { get; private set; } = true;
 
             public IReadOnlyList<Diagnostic> RegexDiagnostic => _diagnostics;
 
-            public SequenceEmitter<string> GeneratedSource { get; set; }
+            public SequenceEmitter<string> GeneratedSource { get; set; } = new();
+
+            public SourceGenContext SourceContext { get; set; } = null!;
 
             public SourceRecord Source { get; set; }
 
@@ -121,7 +130,8 @@ namespace StgSharp.RegularAnalysis.Text
                 SequenceEmitter<string> code = GeneratedSource.Clone();
                 List<Diagnostic> diag = new(_diagnostics.Count);
                 diag.AddRange(this._diagnostics);
-                TextRegexBinding binding = new(diag, code, Source with { });
+                TextRegexBinding binding = new(diag, code, Source with { }, SourceContext,
+                                                AnalyzedSource);
                 return binding;
             }
 

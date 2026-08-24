@@ -32,7 +32,6 @@ SN_API void SN_DECL load_intrinsic_function(void *intrinsic_context, uint64_t id
                 load_intrinsic_avx(context, simdid);
                 break;
         case SIMDID_MAIN_LVL_AVX512:
-        case SIMDID_MAIN_LVL_AMX:
         case SIMDID_MAIN_LVL_AVX10:
                 load_intrinsic_512(context, simdid);
                 break;
@@ -65,7 +64,7 @@ void load_intrinsic_sse(sn_intrinsic *context, SIMDID id)
 
 void load_intrinsic_avx(sn_intrinsic *context, SIMDID id)
 {
-        char avx_seg = id.make_byte[5];
+        char avx_seg = id.make_byte[4];
         char is_fma = (avx_seg & SIMDID_AVX_FMA) != 0;
 
         context->city_hash_simplify = city_hash_simplify_sse;

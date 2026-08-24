@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------------
 
 using StgSharp.Collections;
+using StgSharp.HighPerformance.ProcessorAbstraction;
 using StgSharp.Timing;
 using System;
 using System.Diagnostics;
@@ -39,7 +40,9 @@ namespace StgSharp
             return mainProvider.ElapsedTicks;
         }
 
-        public sealed override void StartProvidingTime()
+        public sealed override void StartProvidingTime(
+                                    TimeSourceStartupConfiguration threadConfig
+        )
         {
             if (mainProvider.IsRunning) {
                 return;
@@ -49,9 +52,10 @@ namespace StgSharp
             timeProvideThread = new Thread(ProvideTime)
             {
                 IsBackground = true,
-                Name = "StgSharpTime"
+                Name = "StgSharpTime",
+                Priority = threadConfig.Priority,
             };
-            timeProvideThread.Start();
+            timeProvideThread.Start(threadConfig);
         }
 
         public override void StopProvidingTime()
@@ -82,13 +86,18 @@ namespace StgSharp
             _subscribers.Remove(subscriber);
         }
 
-        private void ProvideTime()
+        private void ProvideTime(
+                     object? param
+        )
         {
+            TimeSourceStartupConfiguration threadConfig = (TimeSourceStartupConfiguration)param!;
             long internalFrequency = Stopwatch.Frequency; // ticks per second
             lock (mainProvider) {
                 mainProvider.Restart();
             }
 
+            Thread.Sleep(10);
+            Numa.SetThreadAffinity((int)threadConfig.BindedCoreIndex, (int)threadConfig.BindedNumaNode);
             while (mainProvider.IsRunning)
             {
                 long elapsedTicks;

@@ -47,7 +47,7 @@ namespace StgSharp.Timing
             }
             TokenID = id;
             _size = maxWaitCount > 0 ? maxWaitCount : 1;
-            _event = new ManualResetEventSlim(initialState:false, spinCount:0);
+            ResetEvent = new ManualResetEventSlim(initialState:false, spinCount:0);
             _pendingSpans = 0;
         }
 

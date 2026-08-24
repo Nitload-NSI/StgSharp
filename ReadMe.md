@@ -225,7 +225,7 @@ allocator.Free(handle);
 
 ### Technical Documentation
 
-- [TLSF Allocator](src/StgSharp.Common/HighPerformance/Memory/InroductionToTLSF.md) - Arena layout, allocation behavior, and benchmark methodology
+- [TLSF Allocator](doc/InroductionToTLSF.md) - Arena layout, allocation behavior, and benchmark methodology
 - [Native Library Build](src/StgSharp.Native/README.md) - Native build and source-layout notes
 - [Native Library Naming](src/StgSharp.Native/naming.md) - Native library file naming conventions
 

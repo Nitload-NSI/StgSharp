@@ -19,7 +19,7 @@ namespace StgSharp.Mathematics.Internal
     internal unsafe struct SIMDID
     {
 
-        [FieldOffset(0)] public fixed byte MaskByte[16];
+        [FieldOffset(0)] public fixed byte MaskByte[8];
         [FieldOffset(0)] public ulong Mask;
 
         internal SIMDID(

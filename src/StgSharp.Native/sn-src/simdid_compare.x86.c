@@ -13,19 +13,18 @@
  *   [7..4]   Manufacture        make_byte[0] high nibble
  *   [15..8]  MainLevel          make_byte[1]
  *   [31..16] AVX512 Feature     make_byte[2..3]  (16 bits)
- *   [39..32] AMX Feature        make_byte[4]
- *   [47..40] AVX Feature        make_byte[5]
- *   [55..48] AVX10 Feature      make_byte[6]
- *   [63..56] uArchHi            make_byte[7]
+ *   [39..32] AVX Feature        make_byte[4]
+ *   [47..40] AVX10 Feature      make_byte[5]
+ *   [55..48] uArchHi            make_byte[6]
+ *   [63..56] Reserved           make_byte[7]
  * ----------------------------------------------------------------------- */
 
 #define FIELD_MAIN(id) ((unsigned char)(id).make_byte[1])
 #define FIELD_AVX512(id) \
         ((uint16_t)((unsigned char)(id).make_byte[2] | ((unsigned char)(id).make_byte[3] << 8)))
-#define FIELD_AMX(id) ((unsigned char)(id).make_byte[4])
-#define FIELD_AVX(id) ((unsigned char)(id).make_byte[5])
-#define FIELD_AVX10(id) ((unsigned char)(id).make_byte[6])
-#define FIELD_UARCH(id) ((unsigned char)(id).make_byte[7])
+#define FIELD_AVX(id) ((unsigned char)(id).make_byte[4])
+#define FIELD_AVX10(id) ((unsigned char)(id).make_byte[5])
+#define FIELD_UARCH(id) ((unsigned char)(id).make_byte[6])
 
 /* Portable popcount for a 16-bit value. */
 static int popcount16(uint16_t v)
@@ -56,9 +55,8 @@ static int impl_strength(uint16_t avx512)
  * capability set that is safe to use on BOTH cores:
  *   - MainLevel       : min  (only assume what both cores support)
  *   - AVX512 features : bitwise AND  (IMPL field: pick the weaker one)
- *   - AMX features    : bitwise AND
  *   - AVX features    : bitwise AND
- *   - AVX10 features  : bitwise AND
+ *   - AVX10 version   : min; discrete features: bitwise AND
  *   - Root / Manu     : keep left (must be same arch in practice)
  *   - uArchHi         : bitwise OR (HYBRID_P/E union; SIMD_DUAL set if either core is dual)
  * ----------------------------------------------------------------------- */
@@ -92,23 +90,28 @@ SN_API SIMDID SN_DECL sn_get_unite_simd(SIMDID left, SIMDID right)
         out.make_byte[2] = (char)(merged & 0xFF);
         out.make_byte[3] = (char)((merged >> 8) & 0xFF);
 
-        /* AMX (byte 4): AND */
+        /* AVX (byte 4): AND */
         out.make_byte[4] = left.make_byte[4] & right.make_byte[4];
 
-        /* AVX (byte 5): AND */
-        out.make_byte[5] = left.make_byte[5] & right.make_byte[5];
+        /* AVX10 (byte 5): minimum version and common discrete features. */
+        unsigned char lavx10 = FIELD_AVX10(left);
+        unsigned char ravx10 = FIELD_AVX10(right);
+        unsigned char lver = lavx10 & SIMDID_AVX10_VERSION_MASK;
+        unsigned char rver = ravx10 & SIMDID_AVX10_VERSION_MASK;
+        unsigned char common = (lavx10 & ravx10) & SIMDID_AVX10_VNNI_INT;
+        out.make_byte[5] = (char)((lver < rver ? lver : rver) | common);
 
-        /* AVX10 (byte 6): AND */
-        out.make_byte[6] = left.make_byte[6] & right.make_byte[6];
-
-        /* uArchHi (byte 7):
+        /* uArchHi (byte 6):
          *   topology bits [1..0]: AND — conservative intersection (weaker topology wins)
          *   SIMD_DUAL  bit  [2]:  OR  — dual if either core is dual */
         unsigned char lu = FIELD_UARCH(left);
         unsigned char ru = FIELD_UARCH(right);
         unsigned char topo = (lu & 0x3u) & (ru & 0x3u);
         unsigned char dual = (lu | ru) & (unsigned char)SIMDID_UARCH_SIMD_DUAL;
-        out.make_byte[7] = (char)(topo | dual);
+        out.make_byte[6] = (char)(topo | dual);
+
+        /* Reserved tail byte. */
+        out.make_byte[7] = 0;
 
         return out;
 }
@@ -125,19 +128,18 @@ SN_API SIMDID SN_DECL sn_get_unite_simd(SIMDID left, SIMDID right)
  *
  *   1. MainLevel ([15..8])
  *      Higher value = stronger. This is the primary discriminator:
- *        NONE < SSE < AVX2 < AVX512 < AMX < AVX10
+ *        NONE < SSE < AVX2 < AVX512 < AVX10
  *
- *   2. AVX10 vector width ([55..48])
+ *   2. AVX10 version and discrete features ([47..40])
  *      Only meaningful when both MainLevel == AVX10.
- *      512W > 256W-only. Compared by the full AVX10 byte value since
- *      width bits are in higher positions than version bits.
+ *      Higher versions are stronger; VNNI_INT is a tie-breaker.
  *
  *   3. AVX512 BASE bit (bit 4 of [31..16])
  *      Only meaningful when both MainLevel >= AVX512.
  *      BASE=1 (F+CD+VL+DQ+BW all present) > BASE=0.
  *
  *   4. AVX512 extension popcount
- *      Count of set extension bits (VNNI/BF16/FP16/VBMI/VBMI2/AI_RESERVED).
+ *      VNNI is currently the only tracked AVX512 extension.
  *      The IMPL and BASE bits are masked out before counting so they don't
  *      inflate the extension count.
  *
@@ -160,12 +162,19 @@ SN_API int SN_DECL sn_compare_simd(SIMDID left, SIMDID right)
         if (lm != rm)
                 return lm > rm ? 1 : -1;
 
-        /* 2. AVX10 width (only when MainLevel == AVX10) */
+        /* 2. AVX10 version and discrete features (only at AVX10). */
         if (lm >= SIMDID_MAIN_LVL_AVX10) {
                 unsigned la = FIELD_AVX10(left);
                 unsigned ra = FIELD_AVX10(right);
-                if (la != ra)
-                        return la > ra ? 1 : -1;
+                unsigned lv = la & SIMDID_AVX10_VERSION_MASK;
+                unsigned rv = ra & SIMDID_AVX10_VERSION_MASK;
+                if (lv != rv)
+                        return lv > rv ? 1 : -1;
+
+                int lvnni = (la & SIMDID_AVX10_VNNI_INT) != 0;
+                int rvnni = (ra & SIMDID_AVX10_VNNI_INT) != 0;
+                if (lvnni != rvnni)
+                        return lvnni ? 1 : -1;
         }
 
         /* 3. AVX512 BASE (only when MainLevel >= AVX512) */

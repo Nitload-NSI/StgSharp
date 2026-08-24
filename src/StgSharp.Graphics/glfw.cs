@@ -20,7 +20,7 @@ namespace StgSharp.Graphics
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void InitializeModule(
-                    IModuleInitializeProfile profile
+                    IModuleInitializeConfiguration profile
         )
         {
             GraphicFramework.LoadGlfw();

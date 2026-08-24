@@ -7,6 +7,7 @@
 
 using StgSharp.HighPerformance;
 using StgSharp.HighPerformance.ProcessorAbstraction;
+using StgSharp.Timing;
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -36,9 +37,11 @@ namespace StgSharp
         private static uint markCount = 0;
         internal static GraphicAPI API = default;
 
-        public static ModuleToInitializeCollection Initialize()
+        public static ModuleToInitializeCollection Initialize(
+                                                   InitializeConfiguration config
+        )
         {
-            return new ModuleToInitializeCollection(new Initializer());
+            return new ModuleToInitializeCollection(new Initializer(), config);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -177,10 +180,12 @@ namespace StgSharp
             }
         }
 
-        internal static unsafe void InternalInitialize()
+        internal static unsafe void InternalInitialize(
+                                    InitializeConfiguration config
+        )
         {
             // Initialize time provider and start providing time
-            MainTimeProvider.StartProvidingTime();
+            MainTimeProvider.StartProvidingTime(config.TimingConfig);
             DefaultLog.InternalAppendLog("\n\n\n");
             DefaultLog.InternalWriteLog(
                 $"Program {Assembly.GetEntryAssembly()!.FullName} on {Environment.MachineName} Started.", LogType.Info);
@@ -197,16 +202,26 @@ namespace StgSharp
             /**/
         }
 
+        public class InitializeConfiguration : IModuleInitializeConfiguration
+        {
+
+            public TimeSourceStartupConfiguration TimingConfig { get; set; }
+
+        }
+
         internal class Initializer : IStaticModule
         {
 
             public string ModuleName => "StgSharpCore";
 
             public void InitializeModule(
-                        IModuleInitializeProfile profile
+                        IModuleInitializeConfiguration config
             )
             {
-                World.InternalInitialize();
+                if (config is not InitializeConfiguration world_init) {
+                    throw new InvalidCastException();
+                }
+                World.InternalInitialize(world_init);
             }
 
             public void UninitializeModule()

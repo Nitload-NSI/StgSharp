@@ -9,14 +9,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using StgSharp.RegularAnalysis.Abstraction;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.AccessControl;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace StgSharp.RegularAnalysis.Text
 {
@@ -30,21 +24,54 @@ namespace StgSharp.RegularAnalysis.Text
                     IncrementalGeneratorInitializationContext context
         )
         {
-            IncrementalValuesProvider<TextRegexBinding> provider = context.SyntaxProvider
-                                                                          .ForAttributeWithMetadataName<TextRegexBinding>(
+            IncrementalValuesProvider<TextRegexBinding> candidates =
+
+                //
+                context.SyntaxProvider
+                       .ForAttributeWithMetadataName<TextRegexBinding>(
                 TextRegexTypeName,
                 static(
                 _,
                 _
                 ) => true, BindTextRegexCandidate);
 
-            IncrementalValuesProvider<TextRegexBinding> match = RegisterDiagnosticBypass(context, provider);
+            IncrementalValuesProvider<TextRegexBinding> validCandidates =
+                RegisterDiagnosticBypass(context, candidates);
 
-            IncrementalValuesProvider<TextRegexBinding> compile = match.Select(CompileRegexMethodSource);
+            IncrementalValuesProvider<TextRegexBinding> analyzed =
+                validCandidates.Select(AnalyzeRegexMethod);
 
-            IncrementalValuesProvider<TextRegexBinding> compile_success = RegisterDiagnosticBypass(context, compile);
+            IncrementalValuesProvider<TextRegexBinding> validAnalyzed =
+                RegisterDiagnosticBypass(context, analyzed);
 
-            context.RegisterSourceOutput(compile_success, GenerateRegexSourceFile);
+            IncrementalValuesProvider<TextRegexBinding> generated =
+                validAnalyzed.Select(CompileRegexMethodSource);
+
+            IncrementalValuesProvider<TextRegexBinding> validGenerated =
+                RegisterDiagnosticBypass(context, generated);
+            context.RegisterSourceOutput(validGenerated, GenerateRegexSourceFile);
+        }
+
+        private static TextRegexBinding AnalyzeRegexMethod(
+                                        TextRegexBinding binding,
+                                        CancellationToken cancellationToken
+        )
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!binding.IsValid) {
+                return binding;
+            }
+
+            TextRegexBinding result = binding.Clone();
+            string pattern = result.Source.Pattern;
+            TextRegexSource analyzedSource = RegexAnalyzer.Analyze(pattern);
+            result.AnalyzedSource = analyzedSource;
+            if (analyzedSource.AnalyseException is not null) {
+                result.AddDiagnostic(CompileFailDiag, result.Source.PatternDefineLocation, pattern,
+                                     analyzedSource.AnalyseException.Message);
+            }
+
+            return result;
         }
 
         private static TextRegexBinding BindTextRegexCandidate(
@@ -71,7 +98,7 @@ namespace StgSharp.RegularAnalysis.Text
 
             TextRegexBinding bind = new();
             if (!method_decl.Modifiers.Any(SyntaxKind.PartialKeyword)) {
-                bind.AddDiagnostic(NotPartialDiag, method_decl.GetLocation(), method_decl.GetText());
+                bind.AddDiagnostic(NotPartialDiag, method_decl.GetLocation(), method_symbol.Name);
             }
             if (method_decl.ParameterList.Parameters.Count != 0) {
                 bind.AddDiagnostic(NotParameterLessDiag, method_decl.GetLocation(), method_decl.GetText());
@@ -97,9 +124,9 @@ namespace StgSharp.RegularAnalysis.Text
             while (contain is not null)
             {
                 if (contain.IsRecord) {
-                    bind.AddDiagnostic(CanNotBeRecordDiag, method_decl.GetLocation(), method_symbol.Name);
+                    bind.AddDiagnostic(CanNotBeRecordDiag, method_decl.GetLocation(), contain.Name);
                 }
-                if (contain.TypeKind is not TypeKind.Class or TypeKind.Struct) {
+                if (contain.TypeKind is not (TypeKind.Class or TypeKind.Struct)) {
                     bind.AddDiagnostic(IncorrectContainingTypeDiag, method_decl.GetLocation(),
                                        method_symbol.Name, contain.TypeKind);
                 }
@@ -133,23 +160,28 @@ namespace StgSharp.RegularAnalysis.Text
         }
 
         private static TextRegexBinding CompileRegexMethodSource(
-                                        TextRegexBinding source,
-                                        CancellationToken ct
+                                        TextRegexBinding binding,
+                                        CancellationToken cancellationToken
         )
         {
-            ct.ThrowIfCancellationRequested();
-            TextRegexBinding result = source.Clone();
-            string pattern = result.Source.Pattern;
-            TextRegexSource analyze_result = RegexAnalyzer.Analyze(pattern);
-            if (analyze_result.AnalyseException is not null)
-            {
-                result.AddDiagnostic(CompileFailDiag, null, analyze_result.AnalyseException.Message);
-            } else
-            {
-                SequenceEmitter<string> method_source = GenerateSource(analyze_result);
-                result.GeneratedSource = method_source;
+            cancellationToken.ThrowIfCancellationRequested();
+
+            TextRegexBinding result = binding.Clone();
+            RegexAstNode root = result.AnalyzedSource!.Ast.Root;
+            SourceGenContext generationContext = new();
+            SequenceEmitter<string> methodSource = new();
+            List<SequenceEmitter<string>> localFunctions = [];
+
+            GenerateMethodSource(root, methodSource, localFunctions, generationContext);
+            foreach (SequenceEmitter<string> localFunction in localFunctions) {
+                _ = methodSource.AppendLine()
+                                .AppendLine()
+                                .AppendLine("// local method for matching")
+                                .Append(localFunction);
             }
 
+            result.SourceContext = generationContext;
+            result.GeneratedSource = methodSource;
             return result;
         }
 
@@ -158,19 +190,18 @@ namespace StgSharp.RegularAnalysis.Text
                                                                    IncrementalValuesProvider<TextRegexBinding> bindings
         )
         {
-            IncrementalValuesProvider<Diagnostic> error_path = bindings.Where(static binding => !binding.IsValid)
-                                                                       .SelectMany(static(
-                                                                                   binding,
-                                                                                   _
-                                                                       ) => binding.RegexDiagnostic);
-            IncrementalValuesProvider<TextRegexBinding> correct_path = bindings.Where(static binding => binding.IsValid);
+            IncrementalValuesProvider<Diagnostic> errorPath =
+                bindings.Where(static binding => !binding.IsValid)
+                        .SelectMany(static(
+                                    binding,
+                                    _
+                        ) => binding.RegexDiagnostic);
+            context.RegisterSourceOutput(errorPath, static(
+                                                    productionContext,
+                                                    diagnostic
+            ) => productionContext.ReportDiagnostic(diagnostic));
 
-            context.RegisterSourceOutput(error_path, (
-                                                     c,
-                                                     diag
-            ) => c.ReportDiagnostic(diag));
-
-            return correct_path;
+            return bindings.Where(static binding => binding.IsValid);
         }
 
     }

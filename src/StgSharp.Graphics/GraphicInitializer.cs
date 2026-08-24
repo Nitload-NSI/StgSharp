@@ -21,7 +21,7 @@ namespace StgSharp.Graphics
         public string ModuleName => "Graphics";
 
         public void InitializeModule(
-                    IModuleInitializeProfile profile
+                    IModuleInitializeConfiguration profile
         )
         {
             GraphicFramework.LoadGlfw();

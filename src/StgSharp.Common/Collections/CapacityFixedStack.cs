@@ -6,9 +6,11 @@
 // -----------------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Threading;
 
 namespace StgSharp.Collections
@@ -135,6 +137,18 @@ namespace StgSharp.Collections
             value = _values[_index];
             _values[_index] = default!;
             return true;
+        }
+
+        internal void FillRange(
+                      SpanAction<T, nuint> filling,
+                      nuint buffer
+        )
+        {
+            if (filling is not null)
+            {
+                filling(_values.AsSpan()[_index..], buffer);
+                _index = _values.Length;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
