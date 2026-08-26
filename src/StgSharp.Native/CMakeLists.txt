@@ -133,10 +133,6 @@ target_compile_definitions(${PROJECT_NAME}
 set(STGSHARP_NATIVE_EXTERNAL_TARGET ${PROJECT_NAME})
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib)
 
-if(WIN32)
-  target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)
-endif()
-
 message(STATUS "StgSharp.Native target OS: ${SN_RESOLVED_OS_NAME} (${SN_RESOLVED_OS_DEFINE})")
 message(STATUS "StgSharp.Native target ISA: ${SN_RESOLVED_ARCH_NAME} (${SN_RESOLVED_ARCH_DEFINE})")
 message(STATUS "StgSharp.Native output dir: ${STGSHARP_BUILD_OUTPUT_DIR}")

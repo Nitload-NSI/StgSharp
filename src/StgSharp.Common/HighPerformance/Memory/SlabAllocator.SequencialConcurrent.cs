@@ -43,12 +43,26 @@ namespace StgSharp.HighPerformance.Memory
                 > 64 => 64,
                 _ => ((int)_capacity) / 4
             };
-            Span<nuint> span = stackalloc nuint[initCount];
-            for (int i = 0; i < initCount; i++) {
-                span[i] = (nuint)i;
-            }
-            _stack = BufferStackBuilder.CreateConcurrent(span);
+            // Callback fill instead of scratch span + CreateConcurrent: avoids
+            // the stackalloc and the copy, and sidesteps the CS0411 inference
+            // gap. Safe without locking — not yet published to other threads.
+            //
+            // Note this variant stores *indices*, not addresses, so the buffer
+            // argument is unused here; it is kept to match the shared
+            // SpanAction<T, nuint> shape.
+            _stack = new(initCount);
+            _stack.FillRange(init, 0);
             _highestAllocated += (nuint)initCount;
+
+            static void init(
+                        Span<nuint> arr,
+                        nuint _
+            )
+            {
+                for (int i = 0; i < arr.Length; i++) {
+                    arr[i] = (nuint)i;
+                }
+            }
         }
 
         internal T* BasePointer => _buffer;

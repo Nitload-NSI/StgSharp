@@ -115,7 +115,7 @@
     <Link>
       <!-- DLL 应该用 Windows，不是 Console -->
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <!-- Debug 特有 -->
@@ -185,7 +185,6 @@
     <ClCompile Include="sn-src\load_glfw.c" />
     <ClCompile Include="sn-src\simdid.x86.c" />
     <ClCompile Include="sn-src\simdid_compare.x86.c" />
-    <ClCompile Include="sn-src\sn_native.c" />
     <ClCompile Include="sn-src\thread.linux.c" />
     <ClCompile Include="sn-src\thread.windows.c" />
     <ClCompile Include="sn-src\vector.c" />
@@ -198,9 +197,7 @@
     <ClInclude Include="lib\glfw\glfw3.h" />
     <ClInclude Include="lib\glfw\glfw3native.h" />
     <ClInclude Include="lib\stbi\stb_image.h" />
-    <ClInclude Include="sn-head\gl.h" />
     <ClInclude Include="sn-head\glfw_function.h" />
-    <ClInclude Include="sn-head\khrplatform.h" />
     <ClInclude Include="sn-head\sn_internal.h" />
     <ClInclude Include="sn-head\sn_intrinsic.context.x86.h" />
     <ClInclude Include="sn-head\sn_intrinsic.std.h" />
@@ -208,7 +205,6 @@
     <ClInclude Include="sn-head\sn_intrinsic.matkernel.h" />
     <ClInclude Include="sn-head\sn_target.h" />
     <ClInclude Include="sn-head\StgSharpNative.h" />
-    <ClInclude Include="sn-head\wgl.h" />
     <ClInclude Include="sn-template\sn_template.fma.x86.h" />
   </ItemGroup>
   <ItemGroup>

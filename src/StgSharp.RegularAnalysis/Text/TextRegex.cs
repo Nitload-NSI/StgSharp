@@ -84,21 +84,21 @@ namespace StgSharp.RegularAnalysis.Text
         ///   <see langword="false" />.
         /// </returns>
         /// <remarks>
-        ///   <para> /// This method operates on a single <see cref="char" />, and therefore /// on
-        ///   a single UTF-16 code unit rather than on a complete Unicode scalar /// value.
-        ///   ///</para> <para> /// Characters in the Unicode Basic Multilingual Plane are
-        ///   classified /// normally. A supplementary-plane character is represented by a ///
-        ///   surrogate pair and is therefore presented to this method as two /// separate surrogate
-        ///   code units. Neither surrogate is independently /// treated as a word character. This
-        ///   follows the char-based behavior of /// the corresponding .NET Regex helper. ///</para>
-        ///   <para> /// For ASCII input, the Unicode-category lookup is avoided. In ASCII, /// the
-        ///   accepted set is exactly: /// <c> [A-Za-z0-9_] </c>. ///</para> <para> /// This method
+        ///   <para>/// This method operates on a single <see cref="char" />, and therefore /// on a
+        ///   single UTF-16 code unit rather than on a complete Unicode scalar /// value. ///
+        ///   </para> <para>/// Characters in the Unicode Basic Multilingual Plane are classified
+        ///   /// normally. A supplementary-plane character is represented by a /// surrogate pair
+        ///   and is therefore presented to this method as two /// separate surrogate code units.
+        ///   Neither surrogate is independently /// treated as a word character. This follows the
+        ///   char-based behavior of /// the corresponding .NET Regex helper. /// </para> <para>///
+        ///   For ASCII input, the Unicode-category lookup is avoided. In ASCII, /// the accepted
+        ///   set is exactly: /// <c> [A-Za-z0-9_] </c>. /// </para> <para>/// This method
         ///   implements ordinary .NET <c> \w </c> semantics. It does /// not implement the ASCII-
-        ///   oriented behavior enabled by /// <c> RegexOptions.ECMAScript </c>. ///</para>
+        ///   oriented behavior enabled by /// <c> RegexOptions.ECMAScript </c>. /// </para>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static bool IsCharWord(
-                              char value
+        protected internal static bool IsCharWord(
+                                       char value
         )
         {
             /*

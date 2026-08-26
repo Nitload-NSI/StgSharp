@@ -36,9 +36,6 @@
     <ClCompile Include="sn-src\vector_dot.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="sn-src\sn_native.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="sn-src\load_glfw.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -77,19 +74,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sn-head\gl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="sn-head\khrplatform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="sn-head\sn_internal.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="sn-head\StgSharpNative.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="sn-head\wgl.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="sn-head\glfw_function.h">

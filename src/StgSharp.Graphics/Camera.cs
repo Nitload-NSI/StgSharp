@@ -5,14 +5,11 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.Graphics.OpenGL;
-using StgSharp.Graphics.ShaderEdit;
-
 using System;
 
 namespace StgSharp.Mathematics.Graphics
 {
-    public sealed class Camera : IglConvertable
+    public sealed class Camera
     {
 
         private bool _isLookAtAvailable;
@@ -24,7 +21,6 @@ namespace StgSharp.Mathematics.Graphics
         internal Radius _pitch;
         internal Radius _row;
         internal Radius _yaw;
-        internal Uniform<GraphicsMatrix> convertedUniform;
         internal Vec3 _target, up;
 
         public Camera()
@@ -75,36 +71,6 @@ namespace StgSharp.Mathematics.Graphics
             return Projection * View;
         }
 
-        public void DisplayGLtypeDefinition()
-        {
-            Console.WriteLine("uniform matrix4x4 cameraName;");
-        }
-
-        /// <summary>
-        ///   Get all uniform related to this <see cref="Camera" />.
-        /// </summary>
-        /// <param _label="source">
-        ///   Shader program requires this camera.
-        /// </param>
-        /// <param _label="uniformName">
-        ///   ContextName of all related uniforms. If you fallow form from <see ///  
-        ///   cref="IglConvertable.DisplayGLtypeDefinition" />
-        /// </param>
-        /// <exception cref="ArgumentException">
-        ///
-        /// </exception>
-        public unsafe void GainAllUniforms(
-                           ShaderProgram source,
-                           params string[] uniformName
-        )
-        {
-            if ((uniformName is null) || (uniformName.Length != 1)) {
-                throw new ArgumentException(
-                    "Camera needs exactly one uniform.", nameof(uniformName));
-            }
-            convertedUniform = source.GetUniform<GraphicsMatrix>(uniformName[0]);
-        }
-
         public void MoveNear(
                     float distance
         )
@@ -127,12 +93,6 @@ namespace StgSharp.Mathematics.Graphics
         {
             cameraAtt.column[3].Y -= distance;
             _isLookAtAvailable = false;
-        }
-
-        public unsafe void SetAllUniforms()
-        {
-            // Console.WriteLine(Projection * ViewBase);
-            OpenGLFunction.CurrentGL.SetUniformValue(convertedUniform, Projection * View);
         }
 
         public void SetViewDirection(
@@ -211,13 +171,6 @@ namespace StgSharp.Mathematics.Graphics
                 Console.Write($"{Projection * View * item};");
             }
         }
-
-        ShaderStruct IglConvertable.GetConvertedGLtype()
-        {
-            throw new NotImplementedException();
-        }
-
-        ~Camera() { }
 
         #region rotation
 

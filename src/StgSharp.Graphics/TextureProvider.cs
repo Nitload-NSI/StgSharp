@@ -8,23 +8,25 @@
 using StgSharp.Mathematics.Graphics;
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace StgSharp.Graphics
 {
-    public class TextureProvider : IImageProvider
+    public class TextureProvider
     {
 
         private Vec2[] _texCoord;
-        private Image _tex;
+        private Image<Rgba8> _image;
 
         public TextureProvider(
-               Image image,
+               Image<Rgba8> image,
                Vec2[] coord
         )
         {
-            _tex = image;
+            ArgumentNullException.ThrowIfNull(image);
+            ArgumentNullException.ThrowIfNull(coord);
+
+            _image = image;
             _texCoord = coord;
         }
 
@@ -38,32 +40,13 @@ namespace StgSharp.Graphics
 
         public Span<Vec2> TextureCoordinate => new Span<Vec2>(_texCoord);
 
-        public Image ProvideImage()
+        public Image<Rgba8> Image
         {
-            return _tex;
-        }
-
-        public void ReadImage(
-                    IImageProvider provider
-        )
-        {
-            _tex = provider.ProvideImage();
-        }
-
-        public void UpdateFromImage(
-                    [NotNull]Image i
-        )
-        {
-            if (i == _tex) {
-                return;
-            }
-            if (i.Size == _tex.Size)
+            get => _image;
+            set
             {
-                _tex = i;
-            } else
-            {
-                throw new ArgumentException(
-                    $"Size of {nameof(i)} does not equals to current image.");
+                ArgumentNullException.ThrowIfNull(value);
+                _image = value;
             }
         }
 

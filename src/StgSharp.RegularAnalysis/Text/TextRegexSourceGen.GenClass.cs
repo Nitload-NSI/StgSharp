@@ -8,6 +8,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using StgSharp.RegularAnalysis.Abstraction;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -82,6 +83,36 @@ namespace StgSharp.RegularAnalysis.Text
             return SyntaxFactory.Literal(value).Text;
         }
 
+        private static string GenerateCharSetExpression(
+                              RegexCharSet set
+        )
+        {
+            string remainSpan = SourceGenContext._remain_span;
+            string accept = set.Accept ? string.Empty : "!";
+            switch (set.Type)
+            {
+                case RegexCharSetType.Single:
+                    return $"{accept}({FormatStringLiteral(set.Value)}.{nameof(MemoryExtensions.Contains)}({remainSpan}[0]))";
+                case RegexCharSetType.Range:
+                    return $"{accept}({remainSpan}[0] >= {FormatCharLiteral(set.Value[0])} && {remainSpan}[0] <= {FormatCharLiteral(set.Value[1])})";
+                case RegexCharSetType.Set:
+                    switch (set.Value[0])
+                    {
+                        case 's':
+                            return $"{accept}char.IsWhiteSpace({remainSpan}[0])";
+                        case 'w':
+                            return $"{accept}{nameof(TextRegex.IsCharWord)}({remainSpan}[0])";
+                        case 'd':
+                            return $"{accept}char.IsDigit({remainSpan}[0])";
+                        default:
+                            break;
+                    }
+                    goto default;
+                default:
+                    return string.Empty;
+            }
+        }
+
         private static bool IsNamedFind(
                             RegexAstNode node
         )
@@ -131,15 +162,37 @@ namespace StgSharp.RegularAnalysis.Text
                         case RegexElementLabel.UNIT:
                             _ = sc.AppendLine(@$"if({context.RemainSpan}[0] == {FormatCharLiteral(code[0])})")
                                   .AppendLine("{")
+                                  .AppendLine($@"{context.RemainSpan} = {context.RemainSpan}.Slice(1);")
                                   .AppendLine($@"goto {exit_label};")
                                   .AppendLine("}");
                             break;
                         case RegexElementLabel.UNIT_SET:
-                            IReadOnlyList<RegexCharSet> split = current.PayloadAs<RegexCharSetPayload>()
-                                                                       .Set;
-                            RegexCharSet first_set = split[0];
-                            for (int i = 1; i < split.Count - 1; i++) { }
-                            RegexCharSet last_set = split[^1];
+                            RegexCharSetPayload payload = current.PayloadAs<RegexCharSetPayload>();
+                            IReadOnlyList<RegexCharSet> split = payload.Set;
+                            bool accept = payload.Accept;
+                            RegexCharSet _set = split[0];
+                            _ = sc.AppendLine($"if({(accept ? string.Empty : "!(")} {GenerateCharSetExpression(_set)} ||");
+                            for (int i = 1; i < split.Count - 1; i++)
+                            {
+                                _set = split[i];
+                                _ = sc.AppendLine($"    {GenerateCharSetExpression(_set)} ||");
+                            }
+                            _set = split[^1];
+                            _ = sc.AppendLine($"    {GenerateCharSetExpression(_set)} ){(accept ? string.Empty : ')')}")
+                                  .AppendLine("{")
+                                  .AppendLine($@"{context.RemainSpan} = {context.RemainSpan}.Slice(1);")
+                                  .AppendLine($@"goto {exit_label};")
+                                  .AppendLine("}");
+                            break;
+                        case RegexElementLabel.UNIT_SPAN:
+                            _ = sc.AppendLine(@$"if({context.RemainSpan}.{MemoryExtensions.StartsWith}({FormatStringLiteral(code)}))")
+                                  .AppendLine("{")
+                                  .AppendLine($@"{context.RemainSpan} = {context.RemainSpan}.Slice(1);")
+                                  .AppendLine($@"goto {exit_label};")
+                                  .AppendLine("}");
+
+                            break;
+                        default:
                             break;
                     }
                 } else

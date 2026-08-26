@@ -29,7 +29,8 @@
   <!--  这样 F5 调试时 P/Invoke 能找到 native                   -->
   <!-- ════════════════════════════════════════════════════════ -->
   <Target Name="CopyNativeToProjectOutput"
-          AfterTargets="Build">
+          AfterTargets="Build"
+          Condition="'$(DisableNativeCopy)'!='true'">
 
     <!-- native 库文件 -->
     <ItemGroup>

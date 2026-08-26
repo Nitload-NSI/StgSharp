@@ -16,7 +16,7 @@ namespace StgSharp.Graphics
     public class GraphicModule : IStaticModule
     {
 
-        public string ModuleName => "Graphic";
+        public string ModuleName => "Graphics";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void InitializeModule(
@@ -24,6 +24,9 @@ namespace StgSharp.Graphics
         )
         {
             GraphicFramework.LoadGlfw();
+            if (GraphicFramework.glfwInit() == 0) {
+                throw new InvalidOperationException("Failed to initialize GLFW.");
+            }
         }
 
         public void UninitializeModule()
@@ -325,7 +328,7 @@ namespace StgSharp.Graphics
         internal static unsafe void glfwSetWindowIcon(
                                     IntPtr window,
                                     int count,
-                                    GLFWimage* images
+                                    GlfwImageNative* images
         )
         {
             _glfw.glfwSetWindowIcon(window, count, (IntPtr)images);
@@ -750,7 +753,7 @@ namespace StgSharp.Graphics
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe IntPtr glfwCreateCursor(
-                                      GLFWimage* image,
+                                      GlfwImageNative* image,
                                       int xhot,
                                       int yhot
         )
@@ -1087,8 +1090,6 @@ namespace StgSharp.Graphics
             return _glfw.glfwGetRequiredInstanceExtensions(count);
         }
 
+        #endregion
     }
 }
-
-#endregion
-

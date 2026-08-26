@@ -5,171 +5,101 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.Graphics.OpenGL;
-
 using System;
-using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace StgSharp.Graphics
 {
-    public class Image : IImageProvider
+    /// <summary>
+    ///   Owns a tightly packed, two-dimensional managed pixel buffer.
+    /// </summary>
+    /// <typeparam name="TPixel">
+    ///   Unmanaged storage layout of one pixel.
+    /// </typeparam>
+    public sealed class Image<TPixel> where TPixel : unmanaged
     {
 
-        private byte[] _data;
-        private ImageInfo _rawInfo;
-        private int _pixelUpdateCount = 0;
+        private readonly TPixel[] _pixels;
 
-        internal unsafe Image()
-        {
-            _rawInfo = new ImageInfo();
-        }
+        public Image(
+               int width,
+               int height
+        ) : this(width, height, new TPixel[GetRequiredPixelCount(width, height)]) { }
 
-        internal Image(
-                 ImageInfo information
-        )
-        {
-            _rawInfo = information;
-            _data = [];
-
-            // int length = _rawInfo.width * _rawInfo.height * _rawInfo.channel;
-        }
-
-        public (int width, int height) Size => (_rawInfo.Width, _rawInfo.Height);
-
-        public byte[] PixelBuffer
-        {
-            get
-            {
-                if ((_data.Length == 0) || (_data == null))
-                {
-                    GetBytes();
-                    return _data!;
-                }
-                return _data;
-            }
-        }
-
-        public ImageChannel Channel => _rawInfo.Channel;
+        public Image(
+               (int width, int height) size
+        ) : this(size.width, size.height) { }
 
         /// <summary>
-        ///   Hash code of time pixels updated last time.
+        ///   Wraps <paramref name="pixels" /> without copying it.
         /// </summary>
-        public int PixelUpdateCount
-        {
-            get => _pixelUpdateCount;
-            internal set => _pixelUpdateCount = value;
-        }
-
-        public int ChannelCount => _rawInfo.ChannelCount;
-
-        public int Height
-        {
-            get => _rawInfo.Height;
-            internal set => _rawInfo.Height = value;
-        }
-
-        public int Width
-        {
-            get => _rawInfo.Width;
-            internal set => _rawInfo.Width = value;
-        }
-
-        public int PixelSize => ImageInfo.GetPixelSize(_rawInfo.pixelLayout, _rawInfo.Channel);
-
-        public PixelChannelLayout PixelLayout
-        {
-            get => _rawInfo.pixelLayout;
-            private set => _rawInfo.pixelLayout = value;
-        }
-
-        internal ref byte[] Data => ref _data;
-
-        public void FromBytes(
-                    byte[] stream
-        ) { }
-
-        public static unsafe Image FromFile(
-                                   string route,
-                                   ImageLoader loader
+        public Image(
+               int width,
+               int height,
+               TPixel[] pixels
         )
         {
-            Image ret = new Image();
-            fixed (ImageInfo* iptr = &ret._rawInfo) {
-                GraphicFramework.InternalLoadImage(route, iptr, loader);
+            ArgumentNullException.ThrowIfNull(pixels);
+
+            int requiredLength = GetRequiredPixelCount(width, height);
+            if (pixels.Length != requiredLength)
+            {
+                throw new ArgumentException(
+                    $"Pixel buffer length must be exactly {requiredLength}, but was {pixels.Length}.",
+                    nameof(pixels));
             }
-            return ret;
+
+            Width = width;
+            Height = height;
+            _pixels = pixels;
         }
 
-        public static Image FromMemory(
-                            (int width, int height) size,
-                            ImageChannel channel,
-                            byte[] stream
+        public Image(
+               (int width, int height) size,
+               TPixel[] pixels
+        ) : this(size.width, size.height, pixels) { }
+
+        /// <summary>
+        ///   Gets a writable byte view over the pixel buffer without copying it.
+        /// </summary>
+        public Span<byte> Bytes => MemoryMarshal.AsBytes(_pixels.AsSpan());
+
+        public int ByteLength => Bytes.Length;
+
+        public int Height { get; }
+
+        public int PixelCount => _pixels.Length;
+
+        /// <summary>
+        ///   Gets a writable typed view over the pixel buffer without copying it.
+        /// </summary>
+        public Span<TPixel> Pixels => _pixels;
+
+        public ReadOnlySpan<byte> ReadOnlyBytes => MemoryMarshal.AsBytes(_pixels.AsSpan());
+
+        public ReadOnlySpan<TPixel> ReadOnlyPixels => _pixels;
+
+        public (int width, int height) Size => (Width, Height);
+
+        public int Width { get; }
+
+        public static explicit operator Span<byte>(
+                                        Image<TPixel> image
         )
         {
-            ImageInfo _info = new ImageInfo
-            {
-                Height = size.height,
-                Width = size.width,
-                Channel = channel,
-                StreamPtr = IntPtr.Zero
-            };
-            Image ret = new Image(_info);
-            ret.PixelLayout = PixelChannelLayout.Byte;
-            ret._data = stream;
-            return ret;
+            ArgumentNullException.ThrowIfNull(image);
+            return image.Bytes;
         }
 
-        public static Image FromMemory(
-                            (int width, int height) size,
-                            ImageChannel channel,
-                            PixelChannelLayout layout,
-                            byte[] stream
+        private static int GetRequiredPixelCount(
+                           int width,
+                           int height
         )
         {
-            ImageInfo _info = new ImageInfo
-            {
-                Height = size.height,
-                Width = size.width,
-                Channel = channel,
-                StreamPtr = IntPtr.Zero
-            };
-            Image ret = new Image(_info);
-            ret.PixelLayout = layout;
-            ret._data = stream;
-            return ret;
-        }
+            ArgumentOutOfRangeException.ThrowIfNegative(width);
+            ArgumentOutOfRangeException.ThrowIfNegative(height);
 
-        public unsafe byte[] GetBytes()
-        {
-            if (_data.Length == 0)
-            {
-                int size = Width * Height * ImageInfo.GetPixelSize(PixelLayout, Channel);
-                _data = new Span<byte>((byte*)_rawInfo.StreamPtr, size).ToArray();
-                fixed (ImageInfo* pptr = &_rawInfo) {
-                    GraphicFramework.InternalUnloadImage(pptr);
-                }
-                _rawInfo.StreamPtr = IntPtr.Zero;
-            }
-            return _data;
-        }
-
-        public Image ProvideImage()
-        {
-            return this;
-        }
-
-        internal static Image FromMemory(
-                              ImageInfo info,
-                              byte[] data,
-                              int operationCount
-        )
-        {
-            return new Image
-            {
-                _rawInfo = info,
-                _data = data,
-                _pixelUpdateCount = operationCount
-            };
+            return checked(width * height);
         }
 
     }

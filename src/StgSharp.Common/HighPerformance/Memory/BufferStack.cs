@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------------
 
 using System;
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -90,6 +91,50 @@ namespace StgSharp.HighPerformance.Memory
             T* dataStart = (T*)(_buffer + sizeof(Header));
             value = dataStart[header->Top];
             return true;
+        }
+
+        /// <summary>
+        /// Fills the stack in place via a caller-supplied callback, mirroring
+        /// <c>CapacityFixedStack&lt;T&gt;.FillRange</c>.
+        /// </summary>
+        /// <remarks>
+        /// Preferred over building a temporary span and handing it to
+        /// <see cref="BufferStackBuilder.Create{T}(ReadOnlySpan{T})"/>:
+        /// <list type="bullet">
+        /// <item>The caller no longer needs a scratch buffer at all — the
+        /// callback writes straight into this stack's native storage, so there
+        /// is no <c>stackalloc</c> to size and no copy afterwards.</item>
+        /// <item><c>Span&lt;T&gt;</c> does not implicitly convert to
+        /// <c>ReadOnlySpan&lt;T&gt;</c> in a way that participates in generic
+        /// type inference before C# 14, so <c>Create(span)</c> fails with
+        /// CS0411 on older compilers. Passing the element type through the
+        /// enclosing instance sidesteps inference entirely.</item>
+        /// </list>
+        /// </remarks>
+        internal unsafe void FillRange(
+                             SpanAction<T, nuint> filling,
+                             nuint buffer
+        )
+        {
+            if (filling is null) {
+                return;
+            }
+
+            Header* header = (Header*)_buffer;
+            T* dataStart = (T*)(_buffer + sizeof(Header));
+
+            // Hand out only the unused tail, matching CapacityFixedStack:
+            // filling is an append, not a rewrite of live entries.
+            int start = (int)header->Top;
+            int room = (int)header->Capacity - start;
+            if (room <= 0) {
+                return;
+            }
+
+            filling(new Span<T>(dataStart + start, room), buffer);
+
+            header->Top = header->Capacity;
+            _count = header->Capacity;
         }
 
         // Internal method for efficient bulk initialization

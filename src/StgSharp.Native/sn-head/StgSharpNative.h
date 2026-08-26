@@ -8,13 +8,6 @@
 #include "sn_internal.h"
 #include "sn_target.h"
 
-#define STBIDEF SN_API
-#include "../lib/stbi/stb_image.h"
-
-#include "gl.h"
-// #include "wgl.h"
-// #define GLFWAPI INTERNAL
-#include "glfw\glfw3.h"
 #include <immintrin.h>
 #include <assert.h>
 #include <glfw_function.h>
@@ -26,24 +19,6 @@
 #ifndef SN_
 #endif
 
-typedef struct Image {
-        int width;
-        int height;
-        int channel;
-        char *pixelPtr;
-} Image;
-
-typedef char *(*imageLoader)(char const *filename, int *x, int *y, int *channels_in_file,
-                             int desired_channels);
-
-extern SN_API char infolog[512];
-SN_API int SN_DECL glCheckShaderStat(GladGLContext *context, uint64_t shaderHandle, int key,
-                                     char **logRef);
-SN_API void SN_DECL initGL(int majorVersion, int minorVersion);
-SN_API void SN_DECL loadImageData(char *location, Image *out, imageLoader loader);
-SN_API GLFWglproc SN_DECL loadGlfuncDefault(char *procName);
-SN_API void SN_DECL unloadImageData(Image *out);
-SN_API char *SN_DECL readLog(void);
 SN_API void SN_DECL load_glfw_functions(GLFWFunctionTable *table);
 SN_API void SN_DECL load_intrinsic_function(void *intrinsic_context, uint64_t id);
 SN_API SIMDID SN_DECL sn_get_simd_level_global();

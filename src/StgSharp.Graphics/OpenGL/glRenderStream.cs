@@ -117,15 +117,6 @@ namespace StgSharp.Graphics.OpenGL
             CustomizeDeinit();
         }
 
-        protected sealed override Uniform<GraphicsMatrix> NativeCameraUniform(
-                                                          ShaderProgram source,
-                                                          string name
-        )
-        {
-            NativeCamera.GainAllUniforms(source, name);
-            return NativeCamera.convertedUniform;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected sealed override void NativeCameraViewRange(
                                        Radius fieldOfRange,

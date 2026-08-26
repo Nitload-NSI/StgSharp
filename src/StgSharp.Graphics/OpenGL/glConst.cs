@@ -4532,12 +4532,7 @@ namespace StgSharp.Graphics.OpenGL
                            int i
         )
         {
-            #if DEBUG
-            if ((i > OpenGLFunction.CurrentGL.AttachmentColorRange) || (i < 0))
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-            #endif
+            ArgumentOutOfRangeException.ThrowIfNegative(i);
             return (uint)(glConst.COLOR_ATTACHMENT0 + i);
         }
 

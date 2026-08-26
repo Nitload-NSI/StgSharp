@@ -8,6 +8,7 @@
 using StgSharp.Threading;
 
 using System;
+using System.Buffers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -251,6 +252,49 @@ namespace StgSharp.HighPerformance.Memory
                 }
                 Thread.Sleep(0);
             }
+        }
+
+        /// <summary>
+        /// Fills the stack in place via a caller-supplied callback, mirroring
+        /// <c>CapacityFixedStack&lt;T&gt;.FillRange</c>.
+        /// </summary>
+        /// <remarks>
+        /// Intended for construction only, and therefore takes no lock — the
+        /// instance is not yet published to other threads at that point. Do not
+        /// call it on a stack that is already in concurrent use.
+        /// <para>
+        /// Preferred over building a temporary span and handing it to
+        /// <see cref="BufferStackBuilder.CreateConcurrent{T}(ReadOnlySpan{T})"/>
+        /// for the same two reasons as the non-concurrent variant: the callback
+        /// writes straight into native storage (no scratch buffer, no copy),
+        /// and passing the element type through the enclosing instance avoids
+        /// the <c>Span</c>-to-<c>ReadOnlySpan</c> inference gap that yields
+        /// CS0411 before C# 14.
+        /// </para>
+        /// </remarks>
+        internal unsafe void FillRange(
+                             SpanAction<T, nuint> filling,
+                             nuint buffer
+        )
+        {
+            if (filling is null) {
+                return;
+            }
+
+            Header* header = (Header*)_buffer;
+            T* dataStart = (T*)(_buffer + sizeof(Header));
+
+            // Append into the unused tail only, matching CapacityFixedStack.
+            int start = header->Top;
+            int room = header->Capacity - start;
+            if (room <= 0) {
+                return;
+            }
+
+            filling(new Span<T>(dataStart + start, room), buffer);
+
+            header->Top = header->Capacity;
+            Volatile.Write(ref _count, header->Capacity);
         }
 
         // Internal method for efficient bulk initialization

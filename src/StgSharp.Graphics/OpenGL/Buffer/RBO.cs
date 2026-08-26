@@ -5,53 +5,17 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Security.Principal;
-using System.Text;
-
 namespace StgSharp.Graphics.OpenGL
 {
-    public sealed class RenderBuffer : GlBufferObjectBase
+    /// <summary>A set of OpenGL renderbuffer handles.</summary>
+    public sealed record class RenderBuffer(
+        GlHandle[] Handles
+    )
     {
 
-        public RenderBuffer(
-               int count,
-               glRender binding
-        )
-            : base(binding)
-        {
-            _bufferHandle = GL.GenRenderBuffer(count);
-        }
+        public int Count => Handles.Length;
 
-        public override void Bind(
-                             int index
-        )
-        {
-            GL.BindRenderBuffer(this[index]);
-        }
-
-        public void Store(
-                    RenderBufferInternalFormat format,
-                    (int width, int height) size
-        )
-        {
-            if ((size.width > binding.Width) || (size.height > binding.Height)) {
-                World.LogWarning("FrameBuffer is larger than current canvas binding");
-            }
-        }
-
-        protected override void Dispose(
-                                bool disposing
-        )
-        {
-            foreach (GlHandle item in _bufferHandle)
-            {
-                Console.WriteLine("removing a render buffer");
-                GL.DeleteRenderBuffer(item);
-            }
-        }
+        public GlHandle this[int index] => Handles[index];
 
     }
 }

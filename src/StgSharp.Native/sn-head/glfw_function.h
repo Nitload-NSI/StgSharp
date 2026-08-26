@@ -1,6 +1,10 @@
 #ifndef GLFW_FUNCTION_TABLE_H
 #define GLFW_FUNCTION_TABLE_H
 
+#ifndef GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_NONE
+#endif
+
 #include "../lib/glfw/glfw3.h"
 
 #ifdef __cplusplus

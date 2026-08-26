@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.Graphics.OpenGL;
 using StgSharp.Mathematics;
 using StgSharp.Mathematics.Graphics;
 using StgSharp.Timing;
@@ -133,27 +132,6 @@ namespace StgSharp.Graphics
                                 Vec3 up
         );
 
-        /// <summary>
-        ///   Get <see cref="Uniform{T}" />(TView is <see cref="GraphicsMatrix" />) uniform from a
-        ///   shader. This uniform will be used as projection matrix of this camera. Additionally,
-        ///   for multi- shader rendering, each shader requires a uniform,  so do not ignore return
-        ///   value of this method.
-        /// </summary>
-        /// <param _label="source">
-        ///   Shader using this camera
-        /// </param>
-        /// <param _label="name">
-        ///   ContextName of projection camera named in shader
-        /// </param>
-        /// <returns>
-        ///   <see cref="Uniform{T}" />(TView is <see cref="GraphicsMatrix" />) representing 
-        ///   projection matrix in shader program.
-        /// </returns>
-        protected abstract Uniform<GraphicsMatrix> NativeCameraUniform(
-                                                   ShaderProgram source,
-                                                   string name
-        );
-
         #endregion
 
         #region internal operation
@@ -200,15 +178,5 @@ namespace StgSharp.Graphics
 
         #endregion
 
-        #region public resource generator
-
-        protected abstract Shader CreateShaderSegment(
-                                  ShaderType type,
-                                  int count
-        );
-
-        protected abstract ShaderProgram CreateShaderProgram();
-
-    #endregion
     }
 }

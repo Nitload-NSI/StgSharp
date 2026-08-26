@@ -38,11 +38,9 @@ namespace StgSharp.Graphics
             _shape = shape;
         }
 
-        // private Image _texture;
-
         public PlainGeometryMesh(
                PlainGeometry shape,
-               Image texture,
+               Image<Rgba8> texture,
                Vec2[] texCoord
         )
         {
@@ -59,10 +57,10 @@ namespace StgSharp.Graphics
 
         public Vec4[] VertexArray => _shape.VertexStream;
 
-        public Image TextureImage
+        public Image<Rgba8> TextureImage
         {
-            get => _texture.ProvideImage();
-            internal set => _texture.ReadImage(value);
+            get => _texture.Image;
+            internal set => _texture.Image = value;
         }
 
         public ReadOnlySpan<int> MeshIndices => _shape.VertexIndices;

@@ -40,15 +40,28 @@ namespace StgSharp.HighPerformance.Memory
                 > 64 => 64,
                 _ => (int)count
             };
-            Span<nuint> span = stackalloc nuint[initCount];
-            for (int i = 0; i < initCount; i++) {
-                span[i] = _currentBuffer + ((nuint)(i * _elementSize));
-            }
             _buffers = new(4);
             _buffers.Push(_currentBuffer);
-            _recycle = BufferStackBuilder.Create(span);
+
+            // Fill through a callback rather than building a scratch span and
+            // passing it to BufferStackBuilder.Create: no stackalloc, no copy,
+            // and no reliance on Span-to-ReadOnlySpan inference (CS0411 before
+            // C# 14). Same shape as FixedSlabAllocator.
+            int elementSize = _elementSize;
+            _recycle = new(initCount);
+            _recycle.FillRange(init, _currentBuffer);
             _currentCapacity = count;
             _currentIndex = (nuint)initCount;
+
+            void init(
+                 Span<nuint> arr,
+                 nuint buffer
+            )
+            {
+                for (int i = 0; i < arr.Length; i++) {
+                    arr[i] = buffer + ((nuint)(i * elementSize));
+                }
+            }
         }
 
         public override nuint Allocate()
