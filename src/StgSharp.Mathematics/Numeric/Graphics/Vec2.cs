@@ -5,168 +5,65 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.HighPerformance.ProcessorAbstraction;
-using StgSharp.Mathematics;
-using StgSharp.Mathematics.Numeric;
-using System.Net.Http.Headers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 
-namespace StgSharp.Mathematics.Graphics
+namespace StgSharp.Mathematics.Numeric.Graphics
 {
-    /// <summary>
-    ///   A two dimension vector defined by two elements. Vec2 in World are default used as colum
-    ///   vector.
-    /// </summary>
-    [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public struct Vec2 : IUnmanagedVector<Vec2>
+    public static class Vec2
     {
 
-        [FieldOffset(0)] internal unsafe fixed float num[2];
-
-        [FieldOffset(0)]
-        internal M128 reg;
-
-        [FieldOffset(0)]
-        internal Vector2 v;
-
-        [FieldOffset(0)]
-        public float X;
-        [FieldOffset(4)]
-        public float Y;
-
-        internal Vec2(
-                 Vector2 vec
-        )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector128<T> AsVector128Safe<T>(this Vec2<T> source) where T: unmanaged, INumber<T>
         {
-            Unsafe.SkipInit(out reg);
-            Unsafe.SkipInit(out X);
-            Unsafe.SkipInit(out Y);
-            v = vec;
-        }
-
-        internal Vec2(
-                 M128 vec
-        )
-        {
-            Unsafe.SkipInit(out reg);
-            Unsafe.SkipInit(out X);
-            Unsafe.SkipInit(out Y);
-            reg = vec;
-            reg.Member<ulong>(1) = 0;
-        }
-
-        public Vec2(
-               float x,
-               float y
-        )
-        {
-            v = new Vector2(x, y);
-        }
-
-        public static Vec2 Unit => new Vec2(1, 1);
-
-        public static Vec2 Zero => new Vec2(0, 0);
-
-        public static Vec2 One => new Vec2(1, 1);
-
-        public Vec2 XY
-        {
-            readonly get => this;
-            set => this = value;
-        }
-
-        public Vec3 XYZ
-        {
-            readonly get => new(reg);
-            set
-            {
-                reg = value.reg;
-                reg.Member<ulong>(1) = 0;
-            }
+            Vector128<T> result = Vector128<T>.Zero;
+            Unsafe.WriteUnaligned(ref Unsafe.As<Vector128<T>, byte>(ref result), source);
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float Cross(
-                     Vec2 right
-        )
+        internal static Vector128<T> AsVector128Unsafe<T>(this Vec2<T> source) where T: unmanaged, INumber<T>
         {
-            return X * right.Y - Y * right.X;
+            Unsafe.SkipInit(out Vector128<T> result);
+            Unsafe.WriteUnaligned(ref Unsafe.As<Vector128<T>, byte>(ref result), source);
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float Dot(
-                     Vec2 vec
-        )
+        internal static Vec2<T> FromVector128Safe<T>(Vector128<T> source) where T: unmanaged, INumber<T>
         {
-            return Vector2.Dot(v, vec.v);
+            return Unsafe.As<Vector128<T>, Vec2<T>>(ref source);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec2 operator -(
-                                    Vec2 left,
-                                    Vec2 right
-        )
+        internal static Vec2<T> FromVector128Unsafe<T>(Vector128<T> source) where T: unmanaged, INumber<T>
         {
-            return new Vec2(left.v - right.v);
-        }
-
-        public static bool operator !=(
-                                    Vec2 left,
-                                    Vec2 right
-        )
-        {
-            return !(left == right);
-        }
-
-        public static Vec2 operator *(
-                                    Vec2 vec,
-                                    float value
-        )
-        {
-            return new Vec2(vec.v * value);
-        }
-        public static Vec2 operator *(
-                                    float value,
-                                    Vec2 vec
-        )
-        {
-            return new Vec2(vec.v * value);
-        }
-
-        public static Vec2 operator /(
-                                    Vec2 vec,
-                                    float value
-        )
-        {
-            return new Vec2(vec.v / value);
+            return Unsafe.As<Vector128<T>, Vec2<T>>(ref source);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec2 operator +(
-                                    Vec2 left,
-                                    Vec2 right
-        )
+        public static Vec2<float> ConvertToSingle(Vec2<int> source)
         {
-            return new Vec2(left.v + right.v);
+            return FromVector128Unsafe(Vector128.ConvertToSingle(source.AsVector128Safe()));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(
-                                    Vec2 left,
-                                    Vec2 right
-        )
+        public static Vec2<float> ConvertToSingle(Vec2<uint> source)
         {
-            return left.v == right.v;
+            return FromVector128Unsafe(Vector128.ConvertToSingle(source.AsVector128Safe()));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vec2(
-                                        (float, float) tuple
-        )
+        public static Vec2<double> ConvertToDouble(Vec2<long> source)
         {
-            return new Vec2(tuple.Item1, tuple.Item2);
+            return FromVector128Unsafe(Vector128.ConvertToDouble(source.AsVector128Safe()));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec2<double> ConvertToDouble(Vec2<ulong> source)
+        {
+            return FromVector128Unsafe(Vector128.ConvertToDouble(source.AsVector128Safe()));
         }
 
     }

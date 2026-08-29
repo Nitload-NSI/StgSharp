@@ -6,7 +6,8 @@
 // -----------------------------------------------------------------------------
 
 using StgSharp.Mathematics;
-using StgSharp.Mathematics.Graphics;
+using StgSharp.Mathematics.Numeric.Graphics;
+using StgSharp.Mathematics.Numeric.Graphics;
 using StgSharp.Timing;
 
 using System;
@@ -176,7 +177,6 @@ namespace StgSharp.Graphics
         /// </summary>
         public abstract void RenderEnd();
 
-        #endregion
-
+    #endregion
     }
 }

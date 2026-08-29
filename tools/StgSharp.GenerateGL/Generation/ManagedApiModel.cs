@@ -16,7 +16,8 @@ namespace StgSharp.GenerateGL.Generation
         IReadOnlyList<ManagedParameterDefinition> Parameters,
         GlCommandDefinition NativeCommand,
         ManagedInvocation Invocation,
-        bool WrapHandleReturn = false
+        bool WrapHandleReturn = false,
+        string? DocumentationPage = null
     );
 
     internal sealed record ManagedParameterDefinition(
@@ -51,6 +52,12 @@ namespace StgSharp.GenerateGL.Generation
         int TransposeParameterIndex,
         int MatrixParameterIndex,
         bool IsSpan
+    ) : ManagedInvocation;
+
+    internal sealed record QuerySpanInvocation(
+        IReadOnlyList<ManagedArgument> PrefixArguments,
+        int SpanParameterIndex,
+        string ElementType
     ) : ManagedInvocation;
 
     internal abstract record ManagedArgument;

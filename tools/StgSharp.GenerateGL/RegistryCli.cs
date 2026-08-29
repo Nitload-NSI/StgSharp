@@ -19,8 +19,7 @@ namespace StgSharp.GenerateGL
     internal static class RegistryCli
     {
 
-        private const int DefaultFindLimit = 10;
-        private const int DefaultListLimit = 20;
+        private const int ShowAllResults = int.MaxValue;
         private const int QueryErrorExitCode = 1;
         private const int SuccessExitCode = 0;
         private const int UsageErrorExitCode = 2;
@@ -559,7 +558,7 @@ namespace StgSharp.GenerateGL
             }
 
             filter = null;
-            limit = DefaultListLimit;
+            limit = ShowAllResults;
             int index = 1;
             if (index < arguments.Count && !arguments[index].StartsWith(
                     "--",
@@ -571,7 +570,8 @@ namespace StgSharp.GenerateGL
             while (index < arguments.Count)
             {
                 string argument = arguments[index++];
-                if (argument == "--limit" && TryReadPositiveInt(
+                if ((argument == "--showcount" || argument == "--limit") &&
+                    TryReadPositiveInt(
                         arguments,
                         ref index,
                         out limit))
@@ -608,7 +608,7 @@ namespace StgSharp.GenerateGL
 
             text = arguments[0];
             exact = false;
-            limit = DefaultFindLimit;
+            limit = ShowAllResults;
             int index = 1;
             while (index < arguments.Count)
             {
@@ -619,7 +619,8 @@ namespace StgSharp.GenerateGL
                     continue;
                 }
 
-                if (argument == "--limit" && TryReadPositiveInt(
+                if ((argument == "--showcount" || argument == "--limit") &&
+                    TryReadPositiveInt(
                         arguments,
                         ref index,
                         out limit))
@@ -653,12 +654,13 @@ namespace StgSharp.GenerateGL
             }
 
             name = arguments[1];
-            limit = DefaultListLimit;
+            limit = ShowAllResults;
             int index = 2;
             while (index < arguments.Count)
             {
                 string argument = arguments[index++];
-                if (argument == "--limit" && TryReadPositiveInt(
+                if ((argument == "--showcount" || argument == "--limit") &&
+                    TryReadPositiveInt(
                         arguments,
                         ref index,
                         out limit))

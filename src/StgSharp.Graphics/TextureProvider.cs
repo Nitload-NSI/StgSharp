@@ -5,8 +5,7 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.Mathematics.Graphics;
-
+using StgSharp.Mathematics.Numeric.Graphics;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -38,8 +37,6 @@ namespace StgSharp.Graphics
             get => ref _texCoord[index];
         }
 
-        public Span<Vec2> TextureCoordinate => new Span<Vec2>(_texCoord);
-
         public Image<Rgba8> Image
         {
             get => _image;
@@ -49,6 +46,8 @@ namespace StgSharp.Graphics
                 _image = value;
             }
         }
+
+        public Span<Vec2> TextureCoordinate => new Span<Vec2>(_texCoord);
 
     }
 }

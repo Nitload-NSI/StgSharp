@@ -23,8 +23,8 @@ namespace StgSharp.Graphics.OpenGL
 
         private OpenGLFunction()
         {
-            textureUnitCountGetter = glConst.MAX_TEXTURE_IMAGE_UNITS;
-            UnusedTextureImageUint = [];
+            // textureUnitCountGetter = glConst.MAX_TEXTURE_IMAGE_UNITS;
+            // UnusedTextureImageUint = [];
             _attachmentColorRange = new Lazy<int>(
                 () => GetMaskInteger(glConst.MAX_COLOR_ATTACHMENTS));
         }

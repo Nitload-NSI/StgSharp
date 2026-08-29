@@ -5,4 +5,8 @@
 	  <ProjectReference Include="..\StgSharp.Mathematics\StgSharp.Mathematics.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="OpenGL\Generated\" />
+	</ItemGroup>
+
 </Project>

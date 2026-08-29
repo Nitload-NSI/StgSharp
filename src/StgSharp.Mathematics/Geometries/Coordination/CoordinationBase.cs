@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.Mathematics.Graphics;
+using StgSharp.Mathematics.Numeric.Graphics;
 
 using System.Runtime.CompilerServices;
 

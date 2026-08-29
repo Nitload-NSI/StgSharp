@@ -5,9 +5,10 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
+using StgSharp.Mathematics.Numeric.Graphics;
 using System;
 
-namespace StgSharp.Mathematics.Graphics
+namespace StgSharp.Mathematics.Numeric.Graphics
 {
     public sealed class Camera
     {

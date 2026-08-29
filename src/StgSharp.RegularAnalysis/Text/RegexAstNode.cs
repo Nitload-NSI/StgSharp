@@ -10,21 +10,14 @@ using System.Runtime.CompilerServices;
 
 namespace StgSharp.RegularAnalysis.Text
 {
-    // TODO 现在存在的问题是，AstNode过于依赖NodeFlag表达其内部语义，这导致进行精细优化时识别节点语义复杂，
-    // TODO 当前Ast的类型差异过小，不利于保存特征数据，应当争取进一步细化，或者说这是AstNode一开始为了简化架构设计引入的妥协
     internal class RegexAstNode : ISyntaxNode<RegexAstNode, RegexElementLabel>
     {
 
         // private RegexAstNode _left, _right;
 
-        public RegexAstNode(
-               Token<RegexElementLabel> source
-        )
-            : this(RegexCommonPayload.FromToken(source)) { }
+        public RegexAstNode(Token<RegexElementLabel> source) : this(RegexCommonPayload.FromToken(source)) { }
 
-        public RegexAstNode(
-               RegexAstPayload payload
-        )
+        public RegexAstNode(RegexAstPayload payload)
         {
             Payload = payload;
         }
@@ -85,19 +78,14 @@ namespace StgSharp.RegularAnalysis.Text
 
         public string SourceCode => Source.Source;
 
-        public void AppendNode(
-                    RegexAstNode nextToken
-        )
+        public void AppendNode(RegexAstNode nextToken)
         {
             Next = nextToken;
             nextToken.Previous = this;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (bool Valid, int Value) ComparePrecedence(
-                                              RegexElementLabel left,
-                                              RegexElementLabel right
-        )
+        public static (bool Valid, int Value) ComparePrecedence(RegexElementLabel left, RegexElementLabel right)
         {
             left &= RegexElementLabel.OPERATOR;
             right &= RegexElementLabel.OPERATOR;
@@ -109,25 +97,19 @@ namespace StgSharp.RegularAnalysis.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNullOrEmpty(
-                           RegexAstNode node
-        )
+        public static bool IsNullOrEmpty(RegexAstNode node)
         {
             return node is null || ReferenceEquals(node, Empty);
         }
         /**/
 
-        public void PrependNode(
-                    RegexAstNode previousNode
-        )
+        public void PrependNode(RegexAstNode previousNode)
         {
             Previous = previousNode;
             previousNode.Next = this;
         }
 
-        public void RemoveChild(
-                    RegexAstNode node
-        )
+        public void RemoveChild(RegexAstNode node)
         {
             if (Left == node)
             {
@@ -145,7 +127,7 @@ namespace StgSharp.RegularAnalysis.Text
             return new EmptyRegexAstNode();
         }
 
-        internal TPayload PayloadAs<TPayload>() where TPayload : RegexAstPayload
+        internal TPayload PayloadAs<TPayload>() where TPayload: RegexAstPayload
         {
             return
             Payload as TPayload ??
@@ -153,9 +135,7 @@ namespace StgSharp.RegularAnalysis.Text
                 $"Node {Label} does not carry {typeof(TPayload).Name}.");
         }
 
-        internal void RemoveAndAsChild(
-                      bool useLeft
-        )
+        internal void RemoveAndAsChild(bool useLeft)
         {
             if (useLeft)
             {
@@ -180,9 +160,7 @@ namespace StgSharp.RegularAnalysis.Text
         /// <param name="node">
         ///   The node to replace the current node with.
         /// </param>
-        internal void ReplaceBy(
-                      RegexAstNode node
-        )
+        internal void ReplaceBy(RegexAstNode node)
         {
             Payload = node.Payload;
             Left = node.Left;

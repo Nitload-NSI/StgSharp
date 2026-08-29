@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using StgSharp.GenerateGL.Analysis;
 using StgSharp.GenerateGL.Registry;
 
 namespace StgSharp.GenerateGL.Generation
@@ -22,9 +23,6 @@ namespace StgSharp.GenerateGL.Generation
     /// </summary>
     internal static class OpenGlGenerator
     {
-
-        private const string ApiName = "gl";
-        private const string CoreProfile = "core";
 
         private static readonly HashSet<string> _csharpKeywords = new HashSet<string>(
             new[]
@@ -44,28 +42,47 @@ namespace StgSharp.GenerateGL.Generation
             StringComparer.Ordinal);
 
         public static GeneratedFileSet Generate(
-                                                GlRegistryModel registry
+                                                GlRegistryProjection projection
         )
         {
-            ArgumentNullException.ThrowIfNull(registry);
+            ArgumentNullException.ThrowIfNull(projection);
 
-            IReadOnlyList<GlCommandGroup> commandGroups = ReadCoreCommandGroups(registry);
+            IReadOnlyList<GlCommandGroup> commandGroups = ReadCoreCommandGroups(projection);
             IReadOnlyList<GlCommandDefinition> commands = Array.AsReadOnly(
                 commandGroups.SelectMany(value => value.Commands).ToArray());
-            GlEquivalentTypeMapper typeMapper = new GlEquivalentTypeMapper(registry);
-            ManagedApiPlanner apiPlanner = new ManagedApiPlanner(typeMapper);
+            GlEquivalentTypeMapper typeMapper = new GlEquivalentTypeMapper(projection.Source);
+            GlFunctionFamilyAnalysis familyAnalysis = GlFunctionFamilyAnalyzer.Analyze(projection);
+            ManagedApiPlanner apiPlanner = new ManagedApiPlanner(typeMapper, familyAnalysis);
+            IReadOnlyList<ManagedMethodDefinition> managedMethods = apiPlanner.Plan(commands);
+            Dictionary<string, IReadOnlyList<ManagedMethodDefinition>> methodsByCommand =
+                managedMethods.GroupBy(value => value.NativeCommand.Name, StringComparer.Ordinal)
+                              .ToDictionary(
+                                  value => value.Key,
+                                  value => (IReadOnlyList<ManagedMethodDefinition>)Array.AsReadOnly(
+                                      value.ToArray()),
+                                  StringComparer.Ordinal);
             List<ManagedCommandGroup> managedGroups = commandGroups.Select(
                 group => new ManagedCommandGroup(
                     group,
-                    apiPlanner.Plan(group.Commands))).ToList();
+                    Array.AsReadOnly(
+                        group.Commands.SelectMany(
+                            command => methodsByCommand.TryGetValue(
+                                command.Name,
+                                out IReadOnlyList<ManagedMethodDefinition>? methods)
+                                    ? methods
+                                    : Array.Empty<ManagedMethodDefinition>())
+                             .ToArray()))).ToList();
             ManagedApiPlanner.Validate(
                 managedGroups.SelectMany(value => value.Methods));
             List<GeneratedFile> files = new List<GeneratedFile>
             {
-                new GeneratedFile("glconst.cs", GenerateConstants(registry)),
+                new GeneratedFile("glconst.cs", GenerateConstants(projection.Enums)),
                 new GeneratedFile(
                     "OpenglContext.g.cs",
                     GenerateContext(commands, typeMapper)),
+                new GeneratedFile(
+                    "glContextShadow.g.cs",
+                    GenerateContextShadow(commands)),
             };
             for (int index = 0; index < managedGroups.Count; index++)
             {
@@ -84,67 +101,26 @@ namespace StgSharp.GenerateGL.Generation
         }
 
         private static ReadOnlyCollection<GlCommandGroup> ReadCoreCommandGroups(
-                                                                                GlRegistryModel registry
+                                                                                GlRegistryProjection projection
         )
         {
-            Dictionary<string, GlCommandDefinition> definitions = new Dictionary<string, GlCommandDefinition>(
-                StringComparer.Ordinal);
-            foreach (GlCommandDefinition command in registry.Commands)
-            {
-                if (!definitions.TryAdd(command.Name, command))
-                {
-                    throw new InvalidDataException(
-                        $"Command '{command.Name}' has more than one definition.");
-                }
-            }
-
-            List<string> order = new List<string>();
-            HashSet<string> known = new HashSet<string>(StringComparer.Ordinal);
-            HashSet<string> active = new HashSet<string>(StringComparer.Ordinal);
-            Dictionary<string, string> introducedVersions = new Dictionary<string, string>(
-                StringComparer.Ordinal);
-            foreach (GlFeatureDefinition feature in registry.Features.Where(
-                         value => string.Equals(value.Api, ApiName, StringComparison.Ordinal)))
-            {
-                foreach (GlRequirementBlock block in feature.Requirements.Where(AppliesToCoreGl))
-                {
-                    foreach (GlRegistryReference reference in block.References.Where(
-                                 value => value.Kind == GlRegistryReferenceKind.Command))
-                    {
-                        if (!definitions.ContainsKey(reference.Name))
-                        {
-                            throw new InvalidDataException(
-                                $"Feature '{feature.Name}' references undefined command " +
-                                $"'{reference.Name}'.");
-                        }
-
-                        if (block.Operation == GlRequirementOperation.Require)
-                        {
-                            active.Add(reference.Name);
-                            if (known.Add(reference.Name))
-                            {
-                                order.Add(reference.Name);
-                                introducedVersions.Add(reference.Name, feature.Number);
-                            }
-                        }
-                        else
-                        {
-                            active.Remove(reference.Name);
-                        }
-                    }
-                }
-            }
-
             List<GlCommandDefinition> foundation = new List<GlCommandDefinition>();
             Dictionary<string, List<GlCommandDefinition>> versionGroups = new Dictionary<string, List<GlCommandDefinition>>(
                 StringComparer.Ordinal);
             List<string> versionOrder = new List<string>();
-            foreach (string commandName in order.Where(active.Contains))
+            foreach (GlCommandDefinition command in projection.Commands)
             {
-                string version = introducedVersions[commandName];
+                if (!projection.CommandIntroducedVersions.TryGetValue(
+                        command.Name,
+                        out string? version))
+                {
+                    throw new InvalidDataException(
+                        $"Command '{command.Name}' has no introduction version.");
+                }
+
                 if (IsFoundationVersion(version))
                 {
-                    foundation.Add(definitions[commandName]);
+                    foundation.Add(command);
                     continue;
                 }
 
@@ -157,7 +133,7 @@ namespace StgSharp.GenerateGL.Generation
                     versionOrder.Add(version);
                 }
 
-                commands.Add(definitions[commandName]);
+                commands.Add(command);
             }
 
             List<GlCommandGroup> groups = new List<GlCommandGroup>
@@ -203,23 +179,8 @@ namespace StgSharp.GenerateGL.Generation
             return major < 3 || major == 3 && minor <= 2;
         }
 
-        private static bool AppliesToCoreGl(
-                                            GlRequirementBlock block
-        )
-        {
-            bool matchesApi = block.Api is null || string.Equals(
-                block.Api,
-                ApiName,
-                StringComparison.Ordinal);
-            bool matchesProfile = block.Profile is null || string.Equals(
-                block.Profile,
-                CoreProfile,
-                StringComparison.Ordinal);
-            return matchesApi && matchesProfile;
-        }
-
         private static string GenerateConstants(
-                                                GlRegistryModel registry
+                                                IReadOnlyList<GlEnumDefinition> enums
         )
         {
             StringBuilder builder = new StringBuilder(512 * 1024);
@@ -231,8 +192,7 @@ namespace StgSharp.GenerateGL.Generation
 
             Dictionary<string, GlEnumDefinition> emitted = new Dictionary<string, GlEnumDefinition>(
                 StringComparer.Ordinal);
-            foreach (GlEnumDefinition value in registry.EnumBlocks.SelectMany(
-                         block => block.Enums).Where(IsDesktopEnum))
+            foreach (GlEnumDefinition value in enums)
             {
                 if (value.Value is null)
                 {
@@ -265,16 +225,6 @@ namespace StgSharp.GenerateGL.Generation
             builder.Append("\n    }\n");
             builder.Append("}\n");
             return builder.ToString();
-        }
-
-        private static bool IsDesktopEnum(
-                                          GlEnumDefinition value
-        )
-        {
-            return value.Api is null || string.Equals(
-                value.Api,
-                ApiName,
-                StringComparison.Ordinal);
         }
 
         private static ConstantExpression ReadConstantExpression(
@@ -382,9 +332,10 @@ namespace StgSharp.GenerateGL.Generation
             AppendGeneratedHeader(builder, "Desktop OpenGL core function pointer table");
             builder.Append("namespace StgSharp.Graphics.OpenGL\n");
             builder.Append("{\n");
+            builder.Append("    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]\n");
             builder.Append("    public unsafe partial struct OpenglContext\n");
             builder.Append("    {\n");
-            foreach (GlCommandDefinition command in commands)
+            foreach (GlCommandDefinition command in OrderCommands(commands))
             {
                 builder.Append("        internal delegate* unmanaged<");
                 foreach (GlParameterDefinition parameter in command.Parameters)
@@ -402,6 +353,38 @@ namespace StgSharp.GenerateGL.Generation
             builder.Append("    }\n");
             builder.Append("}\n");
             return builder.ToString();
+        }
+
+        private static string GenerateContextShadow(
+                                                    IReadOnlyList<GlCommandDefinition> commands
+        )
+        {
+            StringBuilder builder = new StringBuilder(64 * 1024);
+            AppendGeneratedHeader(builder, "Native-address shadow of the OpenGL function pointer table");
+            builder.Append("namespace StgSharp.Graphics.OpenGL\n");
+            builder.Append("{\n");
+            builder.Append("    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]\n");
+            builder.Append("    internal struct glContextShadow\n");
+            builder.Append("    {\n");
+            foreach (GlCommandDefinition command in OrderCommands(commands))
+            {
+                builder.Append("        internal nint ");
+                builder.Append(command.Name);
+                builder.Append(";\n");
+            }
+
+            builder.Append("    }\n");
+            builder.Append("}\n");
+            return builder.ToString();
+        }
+
+        private static IEnumerable<GlCommandDefinition> OrderCommands(
+                                                                       IReadOnlyList<GlCommandDefinition> commands
+        )
+        {
+            return commands.OrderBy(
+                value => value.Name,
+                StringComparer.Ordinal);
         }
 
         private static string GenerateFunctions(
@@ -430,6 +413,7 @@ namespace StgSharp.GenerateGL.Generation
 
             foreach (ManagedMethodDefinition method in methods)
             {
+                AppendMethodDocumentation(builder, method);
                 builder.Append("\n        [MethodImpl(MethodImplOptions.AggressiveInlining)]\n");
                 builder.Append("        public ");
                 builder.Append(method.ReturnType);
@@ -460,6 +444,44 @@ namespace StgSharp.GenerateGL.Generation
             return builder.ToString();
         }
 
+        private static void AppendMethodDocumentation(
+            StringBuilder builder,
+            ManagedMethodDefinition method
+        )
+        {
+            string declaration = ReadNativeDeclaration(method.NativeCommand);
+            string page = method.DocumentationPage ?? method.NativeCommand.Name;
+            builder.Append("\n        /// <summary>\n");
+            builder.Append("        /// <para>Forwards to the native OpenGL entry point.</para>\n");
+            builder.Append("        /// <para><c>");
+            builder.Append(EscapeXml(declaration));
+            builder.Append("</c></para>\n");
+            builder.Append("        /// <para>See <see href=\"https://docs.gl/gl4/");
+            builder.Append(page);
+            builder.Append("\">docs.gl</see>.</para>\n");
+            builder.Append("        /// </summary>");
+        }
+
+        private static string ReadNativeDeclaration(
+            GlCommandDefinition command
+        )
+        {
+            return $"{command.Return.DeclarationText}(" +
+                   string.Join(", ", command.Parameters.Select(value => value.DeclarationText)) +
+                   ");";
+        }
+
+        private static string EscapeXml(
+            string value
+        )
+        {
+            return value.Replace("&", "&amp;", StringComparison.Ordinal)
+                        .Replace("<", "&lt;", StringComparison.Ordinal)
+                        .Replace(">", "&gt;", StringComparison.Ordinal)
+                        .Replace("\"", "&quot;", StringComparison.Ordinal)
+                        .Replace("'", "&apos;", StringComparison.Ordinal);
+        }
+
         private static void AppendInvocation(
             StringBuilder builder,
             ManagedMethodDefinition method
@@ -479,10 +501,40 @@ namespace StgSharp.GenerateGL.Generation
                 case Matrix4Invocation matrix:
                     AppendMatrix4Invocation(builder, method, matrix);
                     break;
+                case QuerySpanInvocation query:
+                    AppendQuerySpanInvocation(builder, method, query);
+                    break;
                 default:
                     throw new InvalidOperationException(
                         $"Unsupported managed invocation '{method.Invocation.GetType().Name}'.");
             }
+        }
+
+        private static void AppendQuerySpanInvocation(
+            StringBuilder builder,
+            ManagedMethodDefinition method,
+            QuerySpanInvocation invocation
+        )
+        {
+            ManagedParameterDefinition span = method.Parameters[invocation.SpanParameterIndex];
+            string spanName = EscapeIdentifier(span.Name);
+            builder.Append("            fixed (");
+            builder.Append(invocation.ElementType);
+            builder.Append("* __value = ");
+            builder.Append(spanName);
+            builder.Append(")\n");
+            builder.Append("            {\n");
+            builder.Append("                __context->");
+            builder.Append(method.NativeCommand.Name);
+            builder.Append('(');
+            AppendArguments(builder, method, invocation.PrefixArguments);
+            if (invocation.PrefixArguments.Count != 0)
+            {
+                builder.Append(", ");
+            }
+
+            builder.Append("__value);\n");
+            builder.Append("            }\n");
         }
 
         private static void AppendDirectInvocation(

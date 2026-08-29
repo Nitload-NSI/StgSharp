@@ -34,6 +34,10 @@ namespace StgSharp.GenerateGL.Generation
             @"^glVertexAttrib(?<width>[1-4])(?<type>d|f|s)(?<vector>v?)$",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+        private static readonly Regex _redundantVertexAttributeVectorPattern = new Regex(
+            @"^glVertexAttrib(?:I[1-4](?:i|ui)|L[1-4]d|P[1-4]ui|4Nub)v$",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
         private static readonly string[] _components = { "X", "Y", "Z", "W" };
 
         public IReadOnlyList<ManagedMethodDefinition> Apply(
@@ -45,6 +49,11 @@ namespace StgSharp.GenerateGL.Generation
             ArgumentNullException.ThrowIfNull(command);
             ArgumentNullException.ThrowIfNull(methods);
             ArgumentNullException.ThrowIfNull(typeMapper);
+
+            if (_redundantVertexAttributeVectorPattern.IsMatch(command.Name))
+            {
+                return Array.Empty<ManagedMethodDefinition>();
+            }
 
             Match matrixMatch = _matrixUniformPattern.Match(command.Name);
             if (matrixMatch.Success)

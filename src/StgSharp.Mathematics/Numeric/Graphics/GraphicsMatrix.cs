@@ -16,7 +16,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 
-namespace StgSharp.Mathematics.Graphics
+namespace StgSharp.Mathematics.Numeric.Graphics
 {
     [StructLayout(LayoutKind.Explicit, Size = 16 * sizeof(float), Pack = 16)]
     public unsafe struct GraphicsMatrix : IEquatable<GraphicsMatrix>

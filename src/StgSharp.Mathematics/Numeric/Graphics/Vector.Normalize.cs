@@ -5,68 +5,55 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.Mathematics.Graphics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
-namespace StgSharp.Mathematics.Graphics
+namespace StgSharp.Mathematics.Numeric.Graphics
 {
     public static partial class Linear
     {
 
-        public static Vec4 Normalize(
-                           Vec4 vec
-        )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec2<T> Normalize<T>(this Vec2<T> vec) where T: unmanaged, INumber<T>, IRootFunctions<T>
         {
-            return new Vec4
-            {
-                vec = Vector4.Normalize(vec.vec)
-            };
+            return vec / T.Sqrt(vec.Dot(vec));
         }
 
-        public static Vec3 Normalize(
-                           Vec3 vec
-        )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec3<T> Normalize<T>(this Vec3<T> vec) where T: unmanaged, INumber<T>, IRootFunctions<T>
         {
-            return new Vec3
-            {
-                v = Vector3.Normalize(vec.v)
-            };
+            return vec / T.Sqrt(vec.Dot(vec));
         }
 
-        public static unsafe void Normalize(
-                                  ref Vec4 source,
-                                  ref Vec4 target
-        )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec4<T> Normalize<T>(this Vec4<T> vec) where T: unmanaged, INumber<T>, IRootFunctions<T>
         {
-            Vector4 s = source.vec;
-            Vector4 t = target.vec;
-
-            s = Vector4.Normalize(s);
-
-            Vector4 projection = Vector4.Multiply(s, t);
-
-            t -= projection;
-
-            source.vec = s;
-            target.vec = t;
+            return vec / T.Sqrt(vec.Dot(vec));
         }
 
-        public static unsafe void Normalize(
-                                  ref Vec3 source,
-                                  ref Vec3 target
-        )
-        {
-            Vector3 s = source.v;
-            Vector3 t = target.v;
+        public static Vec2<float> Normalize(this Vec2<int> vec) => Vec2.ConvertToSingle(vec).Normalize();
 
-            s = Vector3.Normalize(s);
-            Vector3 projection = Vector3.Dot(t, s) / Vector3.Dot(s, s) * s;
-            t -= projection;
-            t = Vector3.Normalize(t);
+        public static Vec2<float> Normalize(this Vec2<uint> vec) => Vec2.ConvertToSingle(vec).Normalize();
 
-            source.v = s;
-            target.v = t;
-        }
+        public static Vec2<double> Normalize(this Vec2<long> vec) => Vec2.ConvertToDouble(vec).Normalize();
+
+        public static Vec2<double> Normalize(this Vec2<ulong> vec) => Vec2.ConvertToDouble(vec).Normalize();
+
+        public static Vec3<float> Normalize(this Vec3<int> vec) => Vec3.ConvertToSingle(vec).Normalize();
+
+        public static Vec3<float> Normalize(this Vec3<uint> vec) => Vec3.ConvertToSingle(vec).Normalize();
+
+        public static Vec3<double> Normalize(this Vec3<long> vec) => Vec3.ConvertToDouble(vec).Normalize();
+
+        public static Vec3<double> Normalize(this Vec3<ulong> vec) => Vec3.ConvertToDouble(vec).Normalize();
+
+        public static Vec4<float> Normalize(this Vec4<int> vec) => Vec4.ConvertToSingle(vec).Normalize();
+
+        public static Vec4<float> Normalize(this Vec4<uint> vec) => Vec4.ConvertToSingle(vec).Normalize();
+
+        public static Vec4<double> Normalize(this Vec4<long> vec) => Vec4.ConvertToDouble(vec).Normalize();
+
+        public static Vec4<double> Normalize(this Vec4<ulong> vec) => Vec4.ConvertToDouble(vec).Normalize();
 
     }
 }

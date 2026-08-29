@@ -5,219 +5,65 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.HighPerformance.ProcessorAbstraction;
-using StgSharp.Mathematics;
-using StgSharp.Mathematics.Internal;
-using StgSharp.Mathematics.Numeric;
-using System;
-using System.Data.Common;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 
-namespace StgSharp.Mathematics.Graphics
+namespace StgSharp.Mathematics.Numeric.Graphics
 {
-    [CollectionBuilder(builderType:typeof(Vec4), methodName: nameof(Vec4.FromSpan))]
-    [StructLayout(LayoutKind.Explicit, Size = 16, Pack = 16)]
-    public unsafe struct Vec4 : IEquatable<Vec4>, IUnmanagedVector<Vec4>
+    public static class Vec4
     {
 
-        [FieldOffset(0)] internal unsafe fixed float num[4];
-
-        [FieldOffset(0)] internal M128 reg;
-
-        [FieldOffset(0)] internal Vector4 vec;
-        [FieldOffset(12)] public float W;
-
-        [FieldOffset(0)] public float X;
-        [FieldOffset(4)] public float Y;
-        [FieldOffset(8)] public float Z;
-
-        internal Vec4(
-                 Vector4 v
-        )
-        {
-            Unsafe.SkipInit(out X);
-            Unsafe.SkipInit(out Y);
-            Unsafe.SkipInit(out Z);
-            Unsafe.SkipInit(out W);
-            Unsafe.SkipInit(out reg);
-
-            vec = v;
-        }
-
-        internal Vec4(
-                 M128 v
-        )
-        {
-            Unsafe.SkipInit(out X);
-            Unsafe.SkipInit(out Y);
-            Unsafe.SkipInit(out Z);
-            Unsafe.SkipInit(out W);
-            Unsafe.SkipInit(out vec);
-
-            reg = v;
-        }
-
-        public Vec4(
-               Vec3 v3,
-               float w
-        )
-        {
-            Unsafe.SkipInit(out X);
-            Unsafe.SkipInit(out Y);
-            Unsafe.SkipInit(out Z);
-            Unsafe.SkipInit(out W);
-            reg = v3.reg;
-            W = w;
-        }
-
-        public Vec4(
-               float x,
-               float y,
-               float z,
-               float w
-        )
-        {
-            vec = new Vector4(x, y, z, w);
-        }
-
-        public unsafe Vec2 XY
-        {
-            get => new Vec2(reg);
-            set
-            {
-                X = value.X;
-                Y = value.Y;
-            }
-        }
-
-        public unsafe Vec3 XYZ
-        {
-            get => new Vec3(reg);
-            set
-            {
-                float w = W;
-                reg = value.reg;
-                W = w;
-            }
-        }
-
-        public static Vec4 One => new Vec4(1, 1, 1, 1);
-
-        public static Vec4 Zero => new Vec4(0, 0, 0, 0);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec4 Add(
-                           Vec4 left,
-                           Vec4 right
-        )
+        internal static Vector128<T> AsVector128Unsafe<T>(this Vec4<T> source) where T: unmanaged, INumber<T>
         {
-            return left + right;
-        }
-
-        public ReadOnlySpan<float> AsSpan()
-        {
-            return MemoryMarshal.CreateReadOnlySpan(ref reg.Member<float>(0), 4);
-        }
-
-        public override bool Equals(
-                             object obj
-        )
-        {
-            return (obj is Vec4 v) && (v == this);
-        }
-
-        public static Vec4 FromSpan(
-                           ReadOnlySpan<float> span
-        )
-        {
-            if (span.Length < 4) {
-                throw new ArgumentException("Span length must be at least 4.", nameof(span));
-            }
-
-            // Read 4 floats as a Vector4 in one operation without per-element copy.
-            Vector4 v = MemoryMarshal.Read<Vector4>(MemoryMarshal.AsBytes(span));
-            return new Vec4(v);
+            Unsafe.SkipInit(out Vector128<T> result);
+            Unsafe.WriteUnaligned(ref Unsafe.As<Vector128<T>, byte>(ref result), source);
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ReadOnlySpan<float>.Enumerator GetEnumerator()
+        internal static Vector256<T> AsVector256Unsafe<T>(this Vec4<T> source) where T: unmanaged, INumber<T>
         {
-            return AsSpan().GetEnumerator();
-        }
-
-        public override int GetHashCode()
-        {
-            return vec.GetHashCode();
+            Unsafe.SkipInit(out Vector256<T> result);
+            Unsafe.WriteUnaligned(ref Unsafe.As<Vector256<T>, byte>(ref result), source);
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec4 Subtract(
-                           Vec4 left,
-                           Vec4 right
-        )
+        internal static Vec4<T> FromVector128Unsafe<T>(Vector128<T> source) where T: unmanaged, INumber<T>
         {
-            return left - right;
-        }
-
-        public override string ToString()
-        {
-            return vec.ToString();
+            return Unsafe.As<Vector128<T>, Vec4<T>>(ref source);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec4 operator -(
-                                    Vec4 left,
-                                    Vec4 right
-        )
+        internal static Vec4<T> FromVector256Unsafe<T>(Vector256<T> source) where T: unmanaged, INumber<T>
         {
-            return new Vec4(left.vec - right.vec);
-        }
-
-        public static bool operator !=(
-                                    Vec4 left,
-                                    Vec4 right
-        )
-        {
-            return !(left == right);
+            return Unsafe.As<Vector256<T>, Vec4<T>>(ref source);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec4 operator *(
-                                    GraphicsMatrix mat,
-                                    Vec4 vec
-        )
+        public static Vec4<float> ConvertToSingle(Vec4<int> source)
         {
-            GraphicsMatrix transpose = mat.Transpose;
-            return new Vec4(Vector4.Dot(transpose.mat.colum0, vec.vec),
-                            Vector4.Dot(transpose.mat.colum1, vec.vec),
-                            Vector4.Dot(transpose.mat.colum2, vec.vec),
-                            Vector4.Dot(transpose.mat.colum3, vec.vec));
+            return FromVector128Unsafe(Vector128.ConvertToSingle(source.AsVector128Unsafe()));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec4 operator +(
-                                    Vec4 left,
-                                    Vec4 right
-        )
+        public static Vec4<float> ConvertToSingle(Vec4<uint> source)
         {
-            return new Vec4(left.vec + right.vec);
+            return FromVector128Unsafe(Vector128.ConvertToSingle(source.AsVector128Unsafe()));
         }
 
-        public static bool operator ==(
-                                    Vec4 left,
-                                    Vec4 right
-        )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec4<double> ConvertToDouble(Vec4<long> source)
         {
-            return left.vec == right.vec;
+            return FromVector256Unsafe(Vector256.ConvertToDouble(source.AsVector256Unsafe()));
         }
 
-        bool IEquatable<Vec4>.Equals(
-                              Vec4 other
-        )
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec4<double> ConvertToDouble(Vec4<ulong> source)
         {
-            return vec == other.vec;
+            return FromVector256Unsafe(Vector256.ConvertToDouble(source.AsVector256Unsafe()));
         }
 
     }

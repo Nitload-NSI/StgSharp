@@ -5,10 +5,10 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using StgSharp.Mathematics.Graphics;
+using StgSharp.Mathematics.Numeric.Graphics;
 using System.Numerics;
 
-namespace StgSharp.Mathematics.Graphics
+namespace StgSharp.Mathematics.Numeric.Graphics
 {
     public static partial class Linear
     {

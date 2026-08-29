@@ -14,6 +14,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using StgSharp.GenerateGL.Analysis;
 using StgSharp.GenerateGL.Generation;
 using StgSharp.GenerateGL.Registry;
 using StgSharp.GenerateGL.Tree;
@@ -26,10 +27,9 @@ namespace StgSharp.GenerateGL
         internal const int LoadErrorExitCode = 3;
 
         private const int DefaultDepth = 2;
-        private const int DefaultLimit = 20;
-        private const int DefaultSearchLimit = 5;
+        private const int ShowAllResults = int.MaxValue;
         private const int ReadableDepth = 6;
-        private const int SearchReadableChildLimit = 8;
+        private const int SearchContextParentChildThreshold = 20;
         private const int SearchReadableDepth = 4;
         private const int QueryErrorExitCode = 1;
         private const int SuccessExitCode = 0;
@@ -85,6 +85,12 @@ namespace StgSharp.GenerateGL
                         command,
                         arguments),
                     "GENERATE" or "GEN" => QueryGenerate(session, arguments),
+                    "TARGET" => TargetRegistryCli.Execute(
+                        session.TargetRegistry,
+                        arguments),
+                    "FAMILY" or "FAMILIES" => FunctionFamilyCli.Execute(
+                        session.FunctionFamilies,
+                        arguments),
                     "PREVIEW" => GenerateCli.Preview(
                         session.GeneratedFiles,
                         arguments),
@@ -113,7 +119,7 @@ namespace StgSharp.GenerateGL
         )
         {
             int result = GenerateCli.Generate(
-                session.Registry,
+                session.TargetRegistry,
                 arguments,
                 out GeneratedFileSet? generatedFiles);
             if (generatedFiles is not null)
@@ -192,7 +198,7 @@ namespace StgSharp.GenerateGL
                     context,
                     0,
                     SearchReadableDepth,
-                    SearchReadableChildLimit);
+                    ShowAllResults);
             }
 
             WriteTruncation(matches.Length, displayedCount);
@@ -229,7 +235,7 @@ namespace StgSharp.GenerateGL
                 }
 
                 Console.WriteLine($"[{index + 1}] {GetElementPath(element)}");
-                WriteReadableElement(element, 0, ReadableDepth, DefaultLimit);
+                WriteReadableElement(element, 0, ReadableDepth, ShowAllResults);
             }
 
             WriteTruncation(matches.Length, displayedCount);
@@ -610,8 +616,11 @@ namespace StgSharp.GenerateGL
                     break;
                 }
 
-                if (parentLevels is null && parent.Elements().Take(DefaultLimit + 1).Count() >
-                    DefaultLimit)
+                if (parentLevels is null && parent.Elements()
+                                                    .Take(
+                                                        SearchContextParentChildThreshold + 1)
+                                                    .Count() >
+                    SearchContextParentChildThreshold)
                 {
                     break;
                 }
@@ -1115,7 +1124,7 @@ namespace StgSharp.GenerateGL
         {
             string xpath = "/*";
             int depth = DefaultDepth;
-            int limit = DefaultLimit;
+            int limit = ShowAllResults;
             bool includeWhitespace = false;
             int index = 0;
             if (arguments.Count != 0 && !arguments[0].StartsWith("--", StringComparison.Ordinal))
@@ -1141,7 +1150,8 @@ namespace StgSharp.GenerateGL
                     continue;
                 }
 
-                if (argument == "--limit" && TryReadPositiveInt(
+                if ((argument == "--showcount" || argument == "--limit") &&
+                    TryReadPositiveInt(
                         arguments,
                         ref index,
                         out limit))
@@ -1173,7 +1183,7 @@ namespace StgSharp.GenerateGL
             }
 
             string text = arguments[0];
-            int limit = DefaultSearchLimit;
+            int limit = ShowAllResults;
             int? parentLevels = null;
             bool exact = false;
             int index = 1;
@@ -1186,7 +1196,8 @@ namespace StgSharp.GenerateGL
                     continue;
                 }
 
-                if (argument == "--limit" && TryReadPositiveInt(
+                if ((argument == "--showcount" || argument == "--limit") &&
+                    TryReadPositiveInt(
                         arguments,
                         ref index,
                         out limit))
@@ -1228,12 +1239,13 @@ namespace StgSharp.GenerateGL
             }
 
             string xpath = arguments[0];
-            int limit = DefaultLimit;
+            int limit = ShowAllResults;
             int index = 1;
             while (index < arguments.Count)
             {
                 string argument = arguments[index++];
-                if (argument == "--limit" && TryReadPositiveInt(
+                if ((argument == "--showcount" || argument == "--limit") &&
+                    TryReadPositiveInt(
                         arguments,
                         ref index,
                         out limit))
@@ -1391,9 +1403,24 @@ namespace StgSharp.GenerateGL
                 return;
             }
 
+            if (arguments is { Length: 1 } && (
+                    string.Equals(
+                        arguments[0],
+                        "family",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(
+                        arguments[0],
+                        "families",
+                        StringComparison.OrdinalIgnoreCase)))
+            {
+                FunctionFamilyCli.WriteHelp();
+                return;
+            }
+
             if (arguments is { Length: > 0 })
             {
-                Console.Error.WriteLine("error: help accepts only the 'generate' topic.");
+                Console.Error.WriteLine(
+                    "error: help accepts only the 'generate' or 'families' topic.");
                 return;
             }
 
@@ -1404,12 +1431,15 @@ namespace StgSharp.GenerateGL
             Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] shell");
             Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] summary");
             Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] list <category> " +
-                              "[filter] [--limit <n>]");
+                              "[filter] [--showcount <n>]");
             Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] find <text> " +
-                              "[--exact] [--limit <n>]");
+                              "[--exact] [--showcount <n>]");
             Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] show <category> <name> " +
-                              "[--limit <n>]");
-            Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] generate");
+                              "[--showcount <n>]");
+            Console.WriteLine(
+                "  StgSharp.GenerateGL [--xml <path>] generate [output-directory]");
+            Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] target summary");
+            Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] families <command>");
             Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] list files");
             Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] preview <filename>");
             Console.WriteLine("  StgSharp.GenerateGL [--xml <path>] xml <command> [...]");
@@ -1424,7 +1454,11 @@ namespace StgSharp.GenerateGL
             Console.WriteLine("  StgSharp.GenerateGL find glBindBuffer");
             Console.WriteLine("  StgSharp.GenerateGL show command glBindBuffer");
             Console.WriteLine("  StgSharp.GenerateGL show extension GL_KHR_debug");
+            Console.WriteLine("  StgSharp.GenerateGL target summary");
+            Console.WriteLine("  StgSharp.GenerateGL families show VertexAttribP");
             Console.WriteLine("  StgSharp.GenerateGL generate");
+            Console.WriteLine(
+                "  StgSharp.GenerateGL generate src/StgSharp.Graphics/OpenGL/Generated");
             Console.WriteLine("  StgSharp.GenerateGL list files");
             Console.WriteLine("  StgSharp.GenerateGL preview glconst.cs");
             Console.WriteLine("  StgSharp.GenerateGL xml tree --depth 1");
@@ -1443,13 +1477,13 @@ namespace StgSharp.GenerateGL
             Console.WriteLine("  xml summary");
             Console.WriteLine("  xml raw");
             Console.WriteLine(
-                "  xml tree [xpath] [--depth <n>] [--limit <n>] [--whitespace]");
+                "  xml tree [xpath] [--depth <n>] [--showcount <n>] [--whitespace]");
             Console.WriteLine(
-                "  xml find <text> [--exact] [--up <n>] [--limit <n>]");
-            Console.WriteLine("  xml show <xpath> [--limit <n>]");
-            Console.WriteLine("  xml select <xpath> [--limit <n>]");
-            Console.WriteLine("  xml text <xpath> [--limit <n>]");
-            Console.WriteLine("  xml attributes <xpath> [--limit <n>]");
+                "  xml find <text> [--exact] [--up <n>] [--showcount <n>]");
+            Console.WriteLine("  xml show <xpath> [--showcount <n>]");
+            Console.WriteLine("  xml select <xpath> [--showcount <n>]");
+            Console.WriteLine("  xml text <xpath> [--showcount <n>]");
+            Console.WriteLine("  xml attributes <xpath> [--showcount <n>]");
         }
 
         private sealed class CliSession
@@ -1462,11 +1496,17 @@ namespace StgSharp.GenerateGL
             {
                 Document = document;
                 Registry = registry;
+                TargetRegistry = DesktopGlCoreRegistryFilter.Apply(registry);
+                FunctionFamilies = GlFunctionFamilyAnalyzer.Analyze(TargetRegistry);
             }
 
             public XmlTreeDocument Document { get; }
 
             public GlRegistryModel Registry { get; }
+
+            public GlRegistryProjection TargetRegistry { get; }
+
+            public GlFunctionFamilyAnalysis FunctionFamilies { get; }
 
             public GeneratedFileSet GeneratedFiles { get; set; } = GeneratedFileSet.Empty;
 

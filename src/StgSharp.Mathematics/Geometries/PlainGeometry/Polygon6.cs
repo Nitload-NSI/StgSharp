@@ -6,8 +6,8 @@
 // -----------------------------------------------------------------------------
 
 using StgSharp.Mathematics;
-using StgSharp.Mathematics.Graphics;
-
+using StgSharp.Mathematics.Numeric.Graphics;
+using StgSharp.Mathematics.Numeric.Graphics;
 using System;
 using System.Numerics;
 
