@@ -28,5 +28,9 @@ build.ninja
 .cache/
 BenchmarkDotNet.Artifacts/
 
+# Khronos OpenGL Registry input is supplied locally; keep only its instructions.
+/tools/StgSharp.GenerateGL/xml/*
+!/tools/StgSharp.GenerateGL/xml/README.md
+
 /StgSharp.Native/lib/
 !/StgSharp.Native/lib/**/CMakeLists.txt
