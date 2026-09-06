@@ -1,0 +1,37 @@
+// -----------------------------------------------------------------------------
+// file="InternalShaderType"
+// Project: StgSharp
+// Copyright (c) Nitload.
+// SPDX-License-Identifier: MIT
+// -----------------------------------------------------------------------------
+
+namespace Nitload.Graphics.ShaderEdit
+{
+    // Temporary compatibility type for ShaderStruct. The new shader model will replace it.
+    public enum InternalShaderType
+    {
+#pragma warning disable CS1591
+        Struct,
+        Void,
+        Int,
+        UInt,
+        Float,
+        Double,
+        Vector2,
+        Vector3,
+        Vector4,
+        VectorD2,
+        VectorD3,
+        VectorD4,
+        Matrix2x2,
+        Matrix2x3,
+        Matrix2x4,
+        Matrix3x2,
+        Matrix3x3,
+        Matrix3x4,
+        Matrix4x2,
+        Matrix4x3,
+        Matrix4x4,
+#pragma warning restore CS1591
+    }
+}

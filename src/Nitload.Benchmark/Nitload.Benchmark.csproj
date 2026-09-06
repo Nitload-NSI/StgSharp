@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <SolutionDir Condition="'$(SolutionDir)'=='' Or '$(SolutionDir)'=='*Undefined*'">$(MSBuildProjectDirectory)\..\</SolutionDir>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nitload.Common\Nitload.Common.csproj" Properties="DisablePostBuildCopy=true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <NativeArtifacts Include="$(SolutionDir)build\**\Nitload.Native*.dll" />
+    <NativeArtifacts Include="$(SolutionDir)build\**\Nitload.Native*.pdb" />
+  </ItemGroup>
+
+  <Target Name="CopyNativeArtifacts" AfterTargets="Build" Condition="'$(DisableNativeCopy)'!='true'">
+    <Copy SourceFiles="@(NativeArtifacts)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="@(NativeArtifacts) != ''" />
+  </Target>
+</Project>

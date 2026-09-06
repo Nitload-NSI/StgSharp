@@ -147,7 +147,7 @@ StgSharp is currently in development and requires compilation from source. **NuG
 2. **Build the native library (recommended toolchain)**:
 
    ```bash
-   cmake --preset clang-release -S src/StgSharp.Native
+   cmake --preset clang-release -S src/Nitload.Native
    cmake --build cmake_build/clang-release
    ```
 
@@ -156,7 +156,7 @@ StgSharp is currently in development and requires compilation from source. **NuG
 3. **Build the managed projects**:
 
    ```bash
-   dotnet build StgSharp.sln
+   dotnet build Nitload.sln
    ```
 
    Managed builds copy an existing native binary into their output directory. They do not invoke CMake automatically, so build `StgSharp.Native` first when native functionality is required.
@@ -226,8 +226,8 @@ allocator.Free(handle);
 ### Technical Documentation
 
 - [TLSF Allocator](doc/InroductionToTLSF.md) - Arena layout, allocation behavior, and benchmark methodology
-- [Native Library Build](src/StgSharp.Native/README.md) - Native build and source-layout notes
-- [Native Library Naming](src/StgSharp.Native/naming.md) - Native library file naming conventions
+- [Native Library Build](src/Nitload.Native/README.md) - Native build and source-layout notes
+- [Native Library Naming](src/Nitload.Native/naming.md) - Native library file naming conventions
 
 ## Contributing
 

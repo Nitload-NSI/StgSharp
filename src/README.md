@@ -23,9 +23,9 @@ This directory contains the production source code, native runtime, supporting a
 Build the native library before running managed components that require it:
 
 ```powershell
-cmake --preset clang-release -S src/StgSharp.Native
+cmake --preset clang-release -S src/Nitload.Native
 cmake --build cmake_build/clang-release
-dotnet build StgSharp.sln
+dotnet build Nitload.sln
 ```
 
-Managed builds copy an existing native binary when one is available; they do not invoke CMake automatically. Generated OpenGL files under `StgSharp.Graphics/OpenGL/Generated` should be updated through the generator in `tools/StgSharp.GenerateGL`, not edited by hand.
+Managed builds copy an existing native binary when one is available; they do not invoke CMake automatically. Generated OpenGL files under `Nitload.Graphics/OpenGL/Generated` should be updated through the generator in `tools/Nitload.GenerateGL`, not edited by hand.

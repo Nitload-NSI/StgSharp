@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Document">
+      <UniqueIdentifier>{fbd74b53-5314-4d9d-a788-07bd1b413f74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="模板文件">
+      <UniqueIdentifier>{c7081772-a85a-4372-b55c-a6dac43c6913}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="nif-src\dllmain.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\s.factorial.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\s.hash.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\vector.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\vector_dot.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\load_glfw.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\sk.fma.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\load_intrinsic.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\m.bufop.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\m.solve.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\simdid.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\mk.fma.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\simdid_compare.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\thread.linux.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\thread.windows.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\m.transpose.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="nif-src\mk.p_scan.x86.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="nif-head\nif_internal.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nif-head\NitloadFrameWork.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nif-head\glfw_function.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nif-head\nif_intrinsic.matkernel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glfw\glfw3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\glfw\glfw3native.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\stbi\stb_image.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nif-head\nif_target.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nif-head\nif_intrinsic.context.x86.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nif-head\nif_intrinsic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nif-head\nif_intrinsic.std.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="nif-template\nif_template.fma.x86.h">
+      <Filter>模板文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\glfw\glfw3.lib">
+      <Filter>资源文件</Filter>
+    </Library>
+    <Library Include="lib\glfw\glfw3_mt.lib">
+      <Filter>资源文件</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SIMDID.x86.md">
+      <Filter>Document</Filter>
+    </None>
+    <None Include="naming.md">
+      <Filter>Document</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Nitload.Common\Nitload.Common.csproj" />
+	  <ProjectReference Include="..\Nitload.Mathematics\Nitload.Mathematics.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="OpenGL\Generated\" />
+	</ItemGroup>
+
+</Project>

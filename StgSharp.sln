@@ -10,11 +10,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Common", "src\StgS
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StgSharp.Native", "src\StgSharp.Native\StgSharp.Native.vcxproj", "{20CBFF26-6746-402E-992C-7B643E9423EB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0961B2BE-415C-45EA-8607-5B83623B2EF7}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.TerminalDialogue", "src\StgSharp.TerminalDialogue\StgSharp.TerminalDialogue.csproj", "{10B5819F-2A62-41B6-980A-EB9E76A0E95C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StgSharp.Model", "src\StgSharp.Model\StgSharp.Model.csproj", "{D9538DE0-EE4C-4183-86D6-7DFC08A7BDFB}"
@@ -92,6 +87,14 @@ Global
 		{80CD3DDE-0642-451D-82DF-0DE422FC6E34}.Release|x64.ActiveCfg = Release|x64
 		{80CD3DDE-0642-451D-82DF-0DE422FC6E34}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E13615C2-4C8D-4072-95A1-124440983818}
+	EndGlobalSection
+EndGlobal
+ion
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

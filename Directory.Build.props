@@ -51,7 +51,7 @@
     <SolutionRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Directory.Build.props'))\</SolutionRoot>
 
     <!-- native 库名称 -->
-    <NativeLibName>StgSharp.Native</NativeLibName>
+    <NativeLibName>Nitload.Native</NativeLibName>
   </PropertyGroup>
 
   <!-- ════════════════════════════════════════════════════════ -->

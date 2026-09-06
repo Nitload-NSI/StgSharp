@@ -21,7 +21,7 @@
           SkipUnchangedFiles="true" />
 
     <Message Importance="high"
-         Text="[StgSharp] $(MSBuildProjectName) → $(ManagedBuildDir)" />
+         Text="[Nitload] $(MSBuildProjectName) → $(ManagedBuildDir)" />
   </Target>
 
   <!-- ════════════════════════════════════════════════════════ -->
@@ -50,16 +50,16 @@
           Condition="'@(_NativeLibFile)'!='' Or '@(_NativeSymFile)'!=''" />
 
     <Message Importance="high"
-             Text="[StgSharp] Native $(NativeFileName) ($(BuildRid)) → $(OutputPath)"
+             Text="[Nitload] Native $(NativeFileName) ($(BuildRid)) → $(OutputPath)"
              Condition="'@(_NativeLibFile)'!=''" />
 
-    <Warning Text="[StgSharp] Native library not found at $(NativeBuildDir)$(NativeFileName). Build StgSharp.Native first!"
+    <Warning Text="[Nitload] Native library not found at $(NativeBuildDir)$(NativeFileName). Build Nitload.Native first!"
              Condition="!Exists('$(NativeBuildDir)$(NativeFileName)')" />
   </Target>
 
   <!-- ════════════════════════════════════════════════════════ -->
   <!--  NuGet 打包：把所有已存在的 RID native 放进 runtimes/     -->
-  <!--  只在 StgSharp.Common 里生效（通过 IsNativeHost 属性）    -->
+  <!--  只在 Nitload.Common 里生效（通过 IsNativeHost 属性）    -->
   <!-- ════════════════════════════════════════════════════════ -->
   <Target Name="CollectNativeForPack"
           BeforeTargets="GenerateNuspec"

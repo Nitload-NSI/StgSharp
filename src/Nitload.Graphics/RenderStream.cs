@@ -1,0 +1,182 @@
+// -----------------------------------------------------------------------------
+// file="RenderStream"
+// Project: StgSharp
+// Copyright (c) Nitload.
+// SPDX-License-Identifier: MIT
+// -----------------------------------------------------------------------------
+
+using Nitload.Mathematics;
+using Nitload.Mathematics.Numeric.Graphics;
+using Nitload.Mathematics.Numeric.Graphics;
+using Nitload.Common.Timing;
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Nitload.Graphics
+{
+    public abstract class RenderStream
+    {
+
+        private Camera nativeCamera;
+
+        private protected ViewSurface primeArgs;
+        internal TimeSpanProvider _timeProvider;
+
+        public (int width, int height) Size => (Width, Height);
+
+        public abstract bool IsContextSharable { get; }
+
+        public int Height => primeArgs.Height;
+
+        public int Width => primeArgs.Width;
+
+        public IntPtr Monitor
+        {
+            get => primeArgs.Monitor;
+            internal set => primeArgs.Monitor = value;
+        }
+
+        public string Name => primeArgs.Name;
+
+        public ViewSurface BindedViewPortContext
+        {
+            get => primeArgs;
+            internal set => primeArgs = value;
+        }
+
+        internal IntPtr CanvasHandle => primeArgs.ViewPortHandle;
+
+        internal IntPtr ContextHandle
+        {
+            get => primeArgs.GraphicHandle;
+            private protected set => primeArgs.GraphicHandle = value;
+        }
+
+        protected internal Camera NativeCamera
+        {
+            get => nativeCamera;
+            internal set => nativeCamera = value;
+        }
+
+        protected float FramePassed => _timeProvider.CurrentSpan;
+
+        protected int PassedFrames => _timeProvider.CurrentSpan;
+
+        protected float TimePassed => (float)_timeProvider.CurrentSecond;
+
+        protected TimeSpanProvider TimeProvider => _timeProvider;
+
+        /// <summary>
+        ///   Set the Size limit of current form
+        /// </summary>
+        /// <param _label="minWidth">
+        ///   Minimum width of current form
+        /// </param>
+        /// <param _label="minHeight">
+        ///   Minimum height of current form
+        /// </param>
+        /// <param _label="maxWidth">
+        ///   Maximum width of current form
+        /// </param>
+        /// <param _label="maxHeight">
+        ///   Maximum height of current form
+        /// </param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract void SetSizeLimit(
+                             int minWidth,
+                             int minHeight,
+                             int maxWidth,
+                             int maxHeight
+        );
+
+        public static TTarget ShareContextFrom<TSource, TTarget>(
+                              [NotNull]TSource source
+        ) where TSource : RenderStream where TTarget : RenderStream, new()
+        {
+            TTarget target = new TTarget();
+            target.Initialize(source.BindedViewPortContext, source._timeProvider);
+            return target;
+        }
+
+        /**/
+        protected internal static void PollEvents()
+        {
+            GraphicFramework.glfwPollEvents();
+        }
+
+        private protected void SwapBuffers()
+        {
+            GraphicFramework.glfwSwapBuffers(CanvasHandle);
+        }
+
+        /**/
+
+        #region native camera operation
+
+        protected abstract void NativeCameraViewRange(
+                                Radius fieldOfRange,
+                                Vec2 offset,
+                                (float frontDepth, float backDepth) viewDepth
+        );
+
+        protected abstract void NativeCameraViewTarget(
+                                Vec3 position,
+                                Vec3 direction,
+                                Vec3 up
+        );
+
+        #endregion
+
+        #region internal operation
+
+        public void Initialize(
+                    ViewSurface v,
+                    TimeSpanProvider timeProvider
+        )
+        {
+            if (v == null) {
+                throw new ArgumentNullException(nameof(v));
+            }
+            primeArgs = v;
+            this._timeProvider = timeProvider;
+            nativeCamera = new Camera();
+            PlatformSpecifiedInitialize();
+            CustomizeInit();
+            GraphicFramework.glfwMakeContextCurrent(IntPtr.Zero);
+        }
+
+        internal abstract void PlatformSpecifiedInitialize();
+
+        internal abstract void Terminate();
+
+        #endregion
+
+        #region public operation
+
+        protected abstract void CustomizeDeinit();
+
+        protected abstract void CustomizeInit();
+
+        /// <summary>
+        ///   Marking the start of current render operations,  and set this renser context as
+        ///   current.
+        /// </summary>
+        public abstract void RenderStart();
+
+        /// <summary>
+        ///   Marking the end of current render operations,  and release the binding of this renser
+        ///   context to current,  making it available for another thread as current.
+        /// </summary>
+        public abstract void RenderEnd();
+
+    #endregion
+    }
+}

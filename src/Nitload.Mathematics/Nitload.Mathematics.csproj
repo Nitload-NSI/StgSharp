@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <None Include="Numeric\Runtime\MatrixParallel.Publish.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nitload.Common\Nitload.Common.csproj" />
+  </ItemGroup>
+
+</Project>
