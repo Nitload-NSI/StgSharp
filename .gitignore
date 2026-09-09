@@ -29,7 +29,7 @@ build.ninja
 BenchmarkDotNet.Artifacts/
 
 # Khronos OpenGL Registry input is supplied locally; keep only its instructions.
-/tools/Nitload.GenerateGL/xml/*
+/tools/*GenerateGL/xml/*
 !/tools/Nitload.GenerateGL/xml/README.md
 
 /src/Nitload.Native/lib/*
