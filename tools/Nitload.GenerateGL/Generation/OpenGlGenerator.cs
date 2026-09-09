@@ -740,7 +740,7 @@ namespace StgSharp.GenerateGL.Generation
             string matrixName = EscapeIdentifier(matrix.Name);
             if (invocation.IsSpan)
             {
-                builder.Append("            fixed (GraphicsMatrix* __value = ");
+                builder.Append("            fixed (GMatrix44<float>* __value = ");
                 builder.Append(matrixName);
                 builder.Append(")\n");
                 builder.Append("            {\n");

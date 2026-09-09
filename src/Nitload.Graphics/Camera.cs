@@ -15,11 +15,11 @@ namespace Nitload.Mathematics.Numeric.Graphics
     {
 
         private bool _isLookAtAvailable;
-        internal GraphicsMatrix _lookAt;
-        internal GraphicsMatrix _projection;
-        internal GraphicsMatrix cameraAtt;
-        internal GraphicsMatrix rotation;
-        internal GraphicsMatrix rotationAtt;
+        internal GMatrix44<float> _lookAt;
+        internal GMatrix44<float> _projection;
+        internal GMatrix44<float> cameraAtt;
+        internal GMatrix44<float> rotation;
+        internal GMatrix44<float> rotationAtt;
         internal Radius _pitch;
         internal Radius _row;
         internal Radius _yaw;
@@ -27,13 +27,13 @@ namespace Nitload.Mathematics.Numeric.Graphics
 
         public Camera()
         {
-            cameraAtt = GraphicsMatrix.Unit;
+            cameraAtt = GMatrix44<float>.Unit;
             _target = Vec3<float>.Zero;
             up = Vec3<float>.Zero;
             _isLookAtAvailable = false;
-            _lookAt = GraphicsMatrix.Unit;
-            rotationAtt = GraphicsMatrix.Unit;
-            _projection = new GraphicsMatrix();
+            _lookAt = GMatrix44<float>.Unit;
+            rotationAtt = GMatrix44<float>.Unit;
+            _projection = new GMatrix44<float>();
         }
 
         public Camera(
@@ -43,32 +43,32 @@ namespace Nitload.Mathematics.Numeric.Graphics
         )
             : this()
         {
-            rotationAtt = GraphicsMatrix.Unit;
-            cameraAtt = new GraphicsMatrix();
+            rotationAtt = GMatrix44<float>.Unit;
+            cameraAtt = new GMatrix44<float>();
             SetViewDirection(position, target, up);
             _pitch = Radius.Zero;
             _row = Radius.Zero;
             _yaw = Radius.Zero;
         }
 
-        public GraphicsMatrix Projection => _projection;
+        public GMatrix44<float> Projection => _projection;
 
-        public GraphicsMatrix View
+        public GMatrix44<float> View
         {
             get
             {
                 if (_isLookAtAvailable) {
                     return _lookAt;
                 }
-                GraphicsMatrix move = GraphicsMatrix.Unit;
-                move.column[3] -= cameraAtt.column[3];
+                GMatrix44<float> move = GMatrix44<float>.Unit;
+                move[3] = move[3] - cameraAtt[3];
                 _lookAt = rotationAtt.Transpose * move;
                 _isLookAtAvailable = true;
                 return _lookAt;
             }
         }
 
-        public GraphicsMatrix CameraMatrix()
+        public GMatrix44<float> CameraMatrix()
         {
             return Projection * View;
         }
@@ -77,7 +77,7 @@ namespace Nitload.Mathematics.Numeric.Graphics
                     float distance
         )
         {
-            cameraAtt.column[3].Z -= distance;
+            cameraAtt[3, 2] -= distance;
             _isLookAtAvailable = false;
         }
 
@@ -85,7 +85,7 @@ namespace Nitload.Mathematics.Numeric.Graphics
                     float distance
         )
         {
-            cameraAtt.column[3].X -= distance;
+            cameraAtt[3, 0] -= distance;
             _isLookAtAvailable = false;
         }
 
@@ -93,7 +93,7 @@ namespace Nitload.Mathematics.Numeric.Graphics
                     float distance
         )
         {
-            cameraAtt.column[3].Y -= distance;
+            cameraAtt[3, 1] -= distance;
             _isLookAtAvailable = false;
         }
 
@@ -104,9 +104,9 @@ namespace Nitload.Mathematics.Numeric.Graphics
         )
         {
             Vec3<float> direction = position - target;
-            if ((position == cameraAtt.column[3].XYZ) &&
+            if ((position == new Vec3<float>(cameraAtt[3, 0], cameraAtt[3, 1], cameraAtt[3, 2])) &&
                 (this.up == up) &&
-                (cameraAtt.column[3].XYZ == direction)) {
+                (new Vec3<float>(cameraAtt[3, 0], cameraAtt[3, 1], cameraAtt[3, 2]) == direction)) {
                 return;
             }
             if (direction.GetLength() == 0)
@@ -126,10 +126,10 @@ namespace Nitload.Mathematics.Numeric.Graphics
 
             Vec3<float> right = Linear.Orthogonalize(Vec3.Cross(up, direction));
 
-            cameraAtt.column[0].XYZ = right;
-            cameraAtt.column[1].XYZ = up;
-            cameraAtt.column[2].XYZ = direction;
-            cameraAtt.column[3].XYZ = position;
+            cameraAtt[0] = new Vec4<float>(right, 0);
+            cameraAtt[1] = new Vec4<float>(up, 0);
+            cameraAtt[2] = new Vec4<float>(direction, 0);
+            cameraAtt[3] = new Vec4<float>(position, 1);
 
             InternalPitch();
             InternalRow();
@@ -152,13 +152,13 @@ namespace Nitload.Mathematics.Numeric.Graphics
                 width = MathF.Abs(GeometryScaler.Tan(fovRadius / 2) * near * 2),
                 height = (width * size.Y) / size.X;
 
-            _projection.column[0].X = (2 * near) / width;
-            _projection.column[1].Y = (2 * near) / height;
-            _projection.column[2].X = (2 * offsetX) / width;
-            _projection.column[2].Y = (2 * offsetY) / height;
-            _projection.column[2].Z = (far + near) / (near - far);
-            _projection.column[2].W = -1;
-            _projection.column[3].Z = (2 * near * far) / (near - far);
+            _projection[0].X = (2 * near) / width;
+            _projection[1].Y = (2 * near) / height;
+            _projection[2].X = (2 * offsetX) / width;
+            _projection[2].Y = (2 * offsetY) / height;
+            _projection[2].Z = (far + near) / (near - far);
+            _projection[2].W = -1;
+            _projection[3].Z = (2 * near * far) / (near - far);
         }
 
         public void Test(

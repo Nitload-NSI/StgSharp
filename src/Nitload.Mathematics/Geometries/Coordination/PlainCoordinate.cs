@@ -26,11 +26,11 @@ namespace Nitload.Geometries
         )
             : base(local)
         {
-            CoordMat = GraphicsMatrix.Unit;
+            CoordMat = GMatrix44<float>.Unit;
 
-            CoordMat.column[0] = new Vec4<float>(xAxis, 0);
-            CoordMat.column[1] = new Vec4<float>(yAxis, 0);
-            CoordMat.column[2] = new Vec4<float>(Linear.Normalize(Vec3.Cross(xAxis, yAxis)), 0);
+            CoordMat[0] = new Vec4<float>(xAxis, 0);
+            CoordMat[1] = new Vec4<float>(yAxis, 0);
+            CoordMat[2] = new Vec4<float>(Linear.Normalize(Vec3.Cross(xAxis, yAxis)), 0);
 
             LocalOrigin = origin;
         }

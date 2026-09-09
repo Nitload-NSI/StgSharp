@@ -1,6 +1,6 @@
 # Khronos OpenGL Registry input
 
-This directory intentionally does not track the third-party Khronos registry files. Before building or running `StgSharp.GenerateGL`, supply a registry snapshot from the canonical [KhronosGroup/OpenGL-Registry](https://github.com/KhronosGroup/OpenGL-Registry) repository.
+This directory intentionally does not track the third-party Khronos registry files. Before building or running `Nitload.GenerateGL`, supply a registry snapshot from the canonical [KhronosGroup/OpenGL-Registry](https://github.com/KhronosGroup/OpenGL-Registry) repository.
 
 1. Clone or download one coherent revision of `KhronosGroup/OpenGL-Registry`.
 2. Copy the contents of its `xml/` directory directly into this directory.

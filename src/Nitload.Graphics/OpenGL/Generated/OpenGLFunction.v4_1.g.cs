@@ -631,9 +631,12 @@ namespace Nitload.Graphics.OpenGL
         /// <para>See <see href="https://docs.gl/gl4/glProgramUniform">docs.gl</see>.</para>
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ProgramUniform(GlHandle program, int location, bool transpose, GraphicsMatrix value)
+        public void ProgramUniform(GlHandle program, int location, bool transpose, GMatrix44<float> value)
         {
-            __context->glProgramUniformMatrix4fv(program.Value, location, 1, transpose ? (byte)1 : (byte)0, (float*)&value);
+            fixed (GMatrix44<float>* __value = &value)
+            {
+                __context->glProgramUniformMatrix4fv(program.Value, location, 1, transpose ? (byte)1 : (byte)0, (float*)__value);
+            }
         }
 
         /// <summary>
@@ -642,9 +645,9 @@ namespace Nitload.Graphics.OpenGL
         /// <para>See <see href="https://docs.gl/gl4/glProgramUniform">docs.gl</see>.</para>
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ProgramUniform(GlHandle program, int location, bool transpose, ReadOnlySpan<GraphicsMatrix> values)
+        public void ProgramUniform(GlHandle program, int location, bool transpose, ReadOnlySpan<GMatrix44<float>> values)
         {
-            fixed (GraphicsMatrix* __value = values)
+            fixed (GMatrix44<float>* __value = values)
             {
                 __context->glProgramUniformMatrix4fv(program.Value, location, values.Length, transpose ? (byte)1 : (byte)0, (float*)__value);
             }

@@ -1,14 +1,14 @@
 # Development Tools
 
-This directory contains repository-maintenance and source-generation programs. Tools are kept outside `src` because they help build or maintain StgSharp but are not shipped as part of the runtime libraries.
+This directory contains repository-maintenance and source-generation programs. Tools are kept outside `src` because they help build or maintain Nitload but are not shipped as part of the runtime libraries.
 
 ## Directory map
 
 | Directory | Purpose |
 | --- | --- |
-| `StgSharp.GenerateGL` | Reads the Khronos `gl.xml` registry, projects the OpenGL 4.6 Core API, analyzes function families, and generates the managed OpenGL bindings used by `StgSharp.Graphics`. |
+| `Nitload.GenerateGL` | Reads the Khronos `gl.xml` registry, projects the OpenGL 4.6 Core API, analyzes function families, and generates the managed OpenGL bindings used by `Nitload.Graphics`. |
 
-`StgSharp.GenerateGL` has its own `README.md` with its pipeline, naming rules, and interactive commands. The common direct-generation command is:
+`Nitload.GenerateGL` has its own `README.md` with its pipeline, naming rules, and interactive commands. The common direct-generation command is:
 
 ```powershell
 dotnet run --project tools/Nitload.GenerateGL/Nitload.GenerateGL.csproj -- generate all src/Nitload.Graphics/OpenGL/Generated

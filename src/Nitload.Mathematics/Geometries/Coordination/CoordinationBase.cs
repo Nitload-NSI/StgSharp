@@ -16,41 +16,61 @@ namespace Nitload.Geometries
 
         private bool globalCoordAvailable;
         private CoordinationBase localCoordination;
-        private GraphicsMatrix coordMat;
+        private GMatrix44<float> coordMat;
 
         public CoordinationBase(
                CoordinationBase localCoordination
         )
         {
             this.localCoordination = localCoordination;
-            coordMat = new GraphicsMatrix();
+            coordMat = new GMatrix44<float>();
         }
 
         public virtual Point LocalOrigin
         {
-            get => new Point(coordMat.column[3].XYZ);
-            internal set => coordMat.column[3].XYZ = value.Coord;
+            get => new Point(new Vec3<float>(coordMat[3, 0], coordMat[3, 1], coordMat[3, 2]));
+            internal set
+            {
+                coordMat[3, 0] = value.Coord.X;
+                coordMat[3, 1] = value.Coord.Y;
+                coordMat[3, 2] = value.Coord.Z;
+            }
         }
 
         public virtual Vec3<float> LocalX
         {
-            get => coordMat.column[3].XYZ;
-            internal set => coordMat.column[3].XYZ = value;
+            get => new Vec3<float>(coordMat[3, 0], coordMat[3, 1], coordMat[3, 2]);
+            internal set
+            {
+                coordMat[3, 0] = value.X;
+                coordMat[3, 1] = value.Y;
+                coordMat[3, 2] = value.Z;
+            }
         }
 
         public virtual Vec3<float> LocalY
         {
-            get => coordMat.column[3].XYZ;
-            internal set => coordMat.column[3].XYZ = value;
+            get => new Vec3<float>(coordMat[3, 0], coordMat[3, 1], coordMat[3, 2]);
+            internal set
+            {
+                coordMat[3, 0] = value.X;
+                coordMat[3, 1] = value.Y;
+                coordMat[3, 2] = value.Z;
+            }
         }
 
         public virtual Vec3<float> LocalZ
         {
-            get => coordMat.column[3].XYZ;
-            set => coordMat.column[3].XYZ = value;
+            get => new Vec3<float>(coordMat[3, 0], coordMat[3, 1], coordMat[3, 2]);
+            set
+            {
+                coordMat[3, 0] = value.X;
+                coordMat[3, 1] = value.Y;
+                coordMat[3, 2] = value.Z;
+            }
         }
 
-        protected ref GraphicsMatrix CoordMat => ref coordMat;
+        protected ref GMatrix44<float> CoordMat => ref coordMat;
 
     }
 }

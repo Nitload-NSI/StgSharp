@@ -1,16 +1,18 @@
-# StgSharp
+# Nitload
 
-![StgSharp Logo](STG%23LOGO.png)
+![Nitload Logo](STG%23LOGO.png)
 
-StgSharp is an experimental .NET framework for graphics, numerical computing, language analysis, and other performance-sensitive applications. It began as the foundation of a next-generation STG (shoot 'em up) engine, but the current repository focuses on reusable low-level infrastructure rather than a complete, ready-to-use game engine.
+Nitload (formerly StgSharp) is an experimental .NET framework for graphics, numerical computing, language analysis, and other performance-sensitive applications. It began as the foundation of a next-generation STG (shoot 'em up) engine, but the current repository focuses on reusable low-level infrastructure rather than a complete, ready-to-use game engine.
+
+The managed libraries now use the `Nitload.*` namespace and project prefix. Repository URLs, the logo filename, and some legacy test artifacts still retain the StgSharp name.
 
 ## Overview
 
-The framework combines managed C# APIs with a C native library. Its current work includes OpenGL bindings and rendering infrastructure, generic matrix and vector types, SIMD-accelerated native kernels, custom allocators and collections, regular-language analysis, and state-oriented UI infrastructure. StgSharp targets .NET 8; platform and architecture coverage varies by module, with Windows and Linux as the principal native targets.
+The framework combines managed C# APIs with a C native library. Its current work includes OpenGL bindings and rendering infrastructure, generic matrix and vector types, SIMD-accelerated native kernels, custom allocators and collections, regular-language analysis, and state-oriented UI infrastructure. Nitload targets .NET 8; platform and architecture coverage varies by module, with Windows and Linux as the principal native targets.
 
 ## Core Modules
 
-### StgSharp.Common
+### Nitload.Common
 
 The foundational library containing shared functionality:
 
@@ -20,7 +22,7 @@ The foundational library containing shared functionality:
 - **Pipeline and State**: Processing pipelines and reusable state-machine primitives
 - **Environment**: Platform abstraction and system integration
 
-### StgSharp.Mathematics (Numeric)
+### Nitload.Mathematics (Numeric)
 
 Numerics and linear algebra built on top of the core library:
 
@@ -28,7 +30,7 @@ Numerics and linear algebra built on top of the core library:
 - **Numeric Utilities**: Core numeric helpers and algorithms
 - **SIMD-Friendly Kernels**: Data layouts optimized for hardware acceleration
 
-### StgSharp.RegularAnalysis
+### Nitload.RegularAnalysis
 
 Nitload General Regular Analysis (NGRA) infrastructure for recognizing and processing regular languages:
 
@@ -36,9 +38,9 @@ Nitload General Regular Analysis (NGRA) infrastructure for recognizing and proce
 - **Parsing Primitives**: Reusable tokenizer and grammar building blocks
 - **Analysis Pipeline**: Structured processing for language-like inputs
 
-NGRA is a foundation for higher-level language tooling. It does not replace `StgSharp.Script`; the planned Script implementation depends on NGRA and has not started yet. The source currently under `StgSharp.Script` is retained from the earlier EXPRESS implementation and is not part of the active core solution.
+NGRA is a foundation for higher-level language tooling. It does not replace `Nitload.Script`; the planned Script implementation depends on NGRA and has not started yet. The source currently under `Nitload.Script` is retained from the earlier EXPRESS implementation and is not part of the active core solution.
 
-### StgSharp.Graphics
+### Nitload.Graphics
 
 Managed graphics infrastructure built on Common and Mathematics:
 
@@ -47,7 +49,7 @@ Managed graphics infrastructure built on Common and Mathematics:
 - **Shader Support**: Shader compilation, program management, and shader-generation utilities
 - **Window Integration**: GLFW-based window and input access
 
-### StgSharp.Native
+### Nitload.Native
 
 Native library integration:
 
@@ -56,7 +58,7 @@ Native library integration:
 - **Matrix Kernels**: Optimized matrix computation routines
 - **Platform Runtime**: Native thread and platform support for Windows and Linux
 
-### StgSharp.TerminalDialogue
+### Nitload.TerminalDialogue
 
 Terminal-based user interface application and components:
 
@@ -64,7 +66,7 @@ Terminal-based user interface application and components:
 - **Dialogue System**: User interaction and input handling
 - **Terminal Graphics**: Text-based UI rendering
 
-> Note: `StgSharp.Script` is planned as a consumer of NGRA and has not started yet. Its existing EXPRESS sources belong to the earlier implementation. `StgSharp.Model` is currently an empty placeholder while its design is being reconsidered.
+> Note: `Nitload.Script` is planned as a consumer of NGRA and has not started yet. Its existing EXPRESS sources belong to the earlier implementation. `Nitload.Model` is currently an empty placeholder while its design is being reconsidered.
 
 ## Key Features
 
@@ -113,7 +115,7 @@ The benchmark reports normalized time per allocation/free operation. Each iterat
 ### Data Processing
 
 - **NGRA**: Regex analysis, intermediate representation, optimization, and source generation
-- **EXPRESS (legacy/inactive)**: The repository retains an earlier experimental EXPRESS parser/compiler under `StgSharp.Script`
+- **EXPRESS (legacy/inactive)**: The repository retains an earlier experimental EXPRESS parser/compiler under `Nitload.Script`
 - **Script (planned)**: A future language layer intended to build on NGRA; development has not started
 
 ## Requirements
@@ -125,7 +127,7 @@ The benchmark reports normalized time per allocation/free operation. Each iterat
 
 ## Installation
 
-StgSharp is currently in development and requires compilation from source. **NuGet packages are not yet available** - you must build the project from source code.
+Nitload is currently in development and requires compilation from source. **NuGet packages are not yet available** - you must build the project from source code.
 
 ### Prerequisites
 
@@ -159,7 +161,7 @@ StgSharp is currently in development and requires compilation from source. **NuG
    dotnet build Nitload.sln
    ```
 
-   Managed builds copy an existing native binary into their output directory. They do not invoke CMake automatically, so build `StgSharp.Native` first when native functionality is required.
+   Managed builds copy an existing native binary into their output directory. They do not invoke CMake automatically, so build `Nitload.Native` first when native functionality is required.
 
 ### Build Configuration
 
@@ -168,7 +170,7 @@ StgSharp is currently in development and requires compilation from source. **NuG
 
 ### Notes
 
-- CMake is the maintained build path for `StgSharp.Native`; the checked-in presets primarily target Clang
+- CMake is the maintained build path for `Nitload.Native`; the checked-in presets primarily target Clang
 - The Visual Studio C project may be opened with MSVC tooling, but MSVC IntelliSense behavior and MSVC-produced binaries are not maintained or guaranteed
 - Windows and Linux platform implementations exist; actual feature and architecture coverage may differ
 - x86-64 currently has the most complete optimized kernel coverage
@@ -187,8 +189,8 @@ StgSharp is currently in development and requires compilation from source. **NuG
 ### Matrix Operations
 
 ```csharp
-using StgSharp.HighPerformance.Memory;
-using StgSharp.Mathematics.Numeric;
+using Nitload.Common.HighPerformance.Memory;
+using Nitload.Mathematics.Numeric;
 
 // Matrix storage is allocated explicitly from a native-memory arena.
 using var allocator = new TwoLayerSegregatedFitAllocator(64 * 1024 * 1024);
@@ -207,7 +209,7 @@ General matrix arithmetic does not currently provide operator overloads. Because
 ### Memory Management
 
 ```csharp
-using StgSharp.HighPerformance.Memory;
+using Nitload.Common.HighPerformance.Memory;
 
 // Create a 64 MiB TLSF arena
 using var allocator = new TwoLayerSegregatedFitAllocator(64 * 1024 * 1024);
@@ -231,7 +233,7 @@ allocator.Free(handle);
 
 ## Contributing
 
-StgSharp is developed by Nitload Space. Contributions are welcome, particularly in:
+Nitload is developed by Nitload Space. Contributions are welcome, particularly in:
 
 - Performance optimizations
 - Cross-platform compatibility
@@ -240,7 +242,7 @@ StgSharp is developed by Nitload Space. Contributions are welcome, particularly 
 
 ## License
 
-StgSharp is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+Nitload is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Future Plans
 

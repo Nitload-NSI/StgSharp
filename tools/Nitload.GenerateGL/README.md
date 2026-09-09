@@ -1,8 +1,12 @@
-# StgSharp.GenerateGL
+# Nitload.GenerateGL
 
-`StgSharp.GenerateGL` generates the StgSharp desktop OpenGL C# bindings from the Khronos `gl.xml` registry.
+`Nitload.GenerateGL` generates the Nitload desktop OpenGL C# bindings from the Khronos `gl.xml` registry.
 
 The current target is OpenGL 4.6 Core. The generator does not emit OpenGL ES or mix extension entry points into the core API. `gl.xml` is the authoritative generation input; the retained `gl.h` is reference material only.
+
+## Namespace migration
+
+The project and directory are named `Nitload.GenerateGL`, but the implementation namespace and generated-source templates still contain `StgSharp.*`. Update the templates in `Generation/OpenGlGenerator.cs` to emit `Nitload.Graphics.OpenGL` and import `Nitload.Mathematics.Numeric.Graphics` before regenerating the renamed graphics library. The CLI commands below use the current project paths; they do not automatically migrate generated namespaces.
 
 ## Usage
 
@@ -92,7 +96,7 @@ The generator merges a family only when it can validate the resulting signatures
 | `glUniform1*v` | `Uniform(..., ReadOnlySpan<T>)` |
 | `glUniform4*v` | `Uniform(..., ReadOnlySpan<Vec4<T>>)` |
 | `glUniform2*v` and `glUniform3*v` | Omitted because `Vec2` and `Vec3` storage is not a tightly packed C array |
-| `glUniformMatrix4fv` | `Uniform(..., GraphicsMatrix)` and matrix-span overloads |
+| `glUniformMatrix4fv` | `Uniform(..., GMatrix44<float>)` and matrix-span overloads |
 | Other matrix sizes and double matrices | Omitted because only the graphics-oriented 4x4 float layout is defined |
 | `glGetBooleanv`, `glGetFloatv`, `glGetIntegerv`, and related queries | `GetValue(..., Span<T>)` |
 | `glVertexAttrib1f/2f/3f/4f` and equivalent scalar forms | `VertexAttribute(...)`; component count is expressed by the parameter list |

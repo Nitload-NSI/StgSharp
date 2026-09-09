@@ -20,11 +20,7 @@ namespace Nitload.Mathematics.Numeric.Graphics
     public struct Vec4<T> : IUnmanagedVector<Vec4<T>> where T : unmanaged, INumber<T>
     {
 
-        public T W;
-
-        public T X;
-        public T Y;
-        public T Z;
+        private Buffer _buffer;
 
         public Vec4(
                Vec3<T> v3,
@@ -50,9 +46,41 @@ namespace Nitload.Mathematics.Numeric.Graphics
             W = w;
         }
 
+        public T this[
+                 int index
+        ]
+        {
+            get => _buffer[index];
+            set => _buffer[index] = value;
+        }
+
+        public T X
+        {
+            get => _buffer[0];
+            set => _buffer[0] = value;
+        }
+
+        public T Y
+        {
+            get => _buffer[1];
+            set => _buffer[1] = value;
+        }
+
+        public T Z
+        {
+            get => _buffer[2];
+            set => _buffer[2] = value;
+        }
+
+        public T W
+        {
+            get => _buffer[3];
+            set => _buffer[3] = value;
+        }
+
         public Vec2<T> XY
         {
-            get => Unsafe.As<T, Vec2<T>>(ref X);
+            get => Unsafe.As<T, Vec2<T>>(ref _buffer[0]);
             set
             {
                 X = value.X;
@@ -62,11 +90,60 @@ namespace Nitload.Mathematics.Numeric.Graphics
 
         public Vec3<T> XYZ
         {
-            get => Unsafe.As<T, Vec3<T>>(ref X);
+            get => Unsafe.As<T, Vec3<T>>(ref _buffer[0]);
             set
             {
                 T w = W;
-                Unsafe.As<T, Vec3<T>>(ref X) = value;
+                Unsafe.As<T, Vec3<T>>(ref _buffer[0]) = value;
+                W = w;
+            }
+        }
+
+        public Vec3<T> ZXY
+        {
+            readonly get
+            {
+                if (Unsafe.SizeOf<T>() == 4)
+                {
+                    Vector128<T> source = this.AsVector128Unsafe();
+                    Vector128<int> bits = Unsafe.As<Vector128<T>, Vector128<int>>(ref source);
+                    Vector128<int> result = Vector128.Shuffle(bits, Vector128.Create(2, 0, 1, 3));
+                    Vector128<T> shuffled = Unsafe.As<Vector128<int>, Vector128<T>>(ref result);
+                    return Vec3.FromVector128Unsafe(shuffled);
+                }
+                if (Unsafe.SizeOf<T>() == 8)
+                {
+                    Vector256<T> source = this.AsVector256Unsafe();
+                    Vector256<long> bits = Unsafe.As<Vector256<T>, Vector256<long>>(ref source);
+                    Vector256<long> result = Vector256.Shuffle(bits, Vector256.Create(2L, 0L, 1L,
+                                                                                      3L));
+                    Vector256<T> shuffled = Unsafe.As<Vector256<long>, Vector256<T>>(ref result);
+                    return Vec3.FromVector256Unsafe(shuffled);
+                }
+                throw GraphicVector.ThrowUnsupportedTypeException<T>();
+            }
+            set
+            {
+                T w = W;
+                if (Unsafe.SizeOf<T>() == 4)
+                {
+                    Vector128<T> source = value.AsVector128Unsafe();
+                    Vector128<int> bits = Unsafe.As<Vector128<T>, Vector128<int>>(ref source);
+                    Vector128<int> result = Vector128.Shuffle(bits, Vector128.Create(1, 2, 0, 3));
+                    Vector128<T> shuffled = Unsafe.As<Vector128<int>, Vector128<T>>(ref result);
+                    Unsafe.As<T, Vec3<T>>(ref _buffer[0]) = Vec3.FromVector128Unsafe(shuffled);
+                } else if (Unsafe.SizeOf<T>() == 8)
+                {
+                    Vector256<T> source = value.AsVector256Unsafe();
+                    Vector256<long> bits = Unsafe.As<Vector256<T>, Vector256<long>>(ref source);
+                    Vector256<long> result = Vector256.Shuffle(bits, Vector256.Create(1L, 2L, 0L,
+                                                                                      3L));
+                    Vector256<T> shuffled = Unsafe.As<Vector256<long>, Vector256<T>>(ref result);
+                    Unsafe.As<T, Vec3<T>>(ref _buffer[0]) = Vec3.FromVector256Unsafe(shuffled);
+                } else
+                {
+                    throw GraphicVector.ThrowUnsupportedTypeException<T>();
+                }
                 W = w;
             }
         }
@@ -86,7 +163,7 @@ namespace Nitload.Mathematics.Numeric.Graphics
 
         public ReadOnlySpan<T> AsSpan()
         {
-            return MemoryMarshal.CreateReadOnlySpan(ref X, 4);
+            return MemoryMarshal.CreateReadOnlySpan(ref _buffer[0], 4);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -98,8 +175,7 @@ namespace Nitload.Mathematics.Numeric.Graphics
             {
                 Vec4<T> product = Vec4.FromVector128Unsafe(this.AsVector128Unsafe() * right.AsVector128Unsafe());
                 return product.X + product.Y + product.Z + product.W;
-            }
-            if (Unsafe.SizeOf<T>() == 8)
+            } else if (Unsafe.SizeOf<T>() == 8)
             {
                 Vec4<T> product = Vec4.FromVector256Unsafe(this.AsVector256Unsafe() * right.AsVector256Unsafe());
                 return product.X + product.Y + product.Z + product.W;
@@ -114,20 +190,6 @@ namespace Nitload.Mathematics.Numeric.Graphics
             return (obj is Vec4<T> v) && (v == this);
         }
 
-        public static Vec4<T> FromSpan(
-                              ReadOnlySpan<T> span
-        )
-        {
-            if (span.Length < 4) {
-                throw new ArgumentException("Span length must be at least 4.", nameof(span));
-            }
-
-            Unsafe.SkipInit(out Vec4<T> result);
-            Span<T> target = MemoryMarshal.CreateSpan(ref result.X, 4);
-            span[..4].CopyTo(target);
-            return result;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ReadOnlySpan<T>.Enumerator GetEnumerator()
         {
@@ -139,16 +201,41 @@ namespace Nitload.Mathematics.Numeric.Graphics
             return HashCode.Combine(X, Y, Z, W);
         }
 
+        public Vec4<T> Shuffle(
+                       int t0,
+                       int t1,
+                       int t2,
+                       int t3
+        )
+        {
+            if (Unsafe.SizeOf<T>() == 4)
+            {
+                Vector128<T> v = this.AsVector128Unsafe();
+                Vector128<int> bits = Unsafe.As<Vector128<T>, Vector128<int>>(ref v);
+                Vector128<int> result = Vector128.Shuffle(bits, Vector128.Create(t0, t1, t2, t3));
+                return Vec4.FromVector128Unsafe(Unsafe.As<Vector128<int>, Vector128<T>>(ref result));
+            } else if (Unsafe.SizeOf<T>() == 8)
+            {
+                Vector256<T> v = this.AsVector256Unsafe();
+                Vector256<long> bits = Unsafe.As<Vector256<T>, Vector256<long>>(ref v);
+                Vector256<long> result = Vector256.Shuffle(bits, Vector256.Create(t0, t1, t2, t3));
+                return Vec4.FromVector256Unsafe(Unsafe.As<Vector256<long>, Vector256<T>>(ref result));
+            } else
+            {
+                throw GraphicVector.ThrowUnsupportedTypeException<T>();
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vec4<T> operator -(
                                        Vec4<T> left,
                                        Vec4<T> right
         )
         {
-            if (Unsafe.SizeOf<T>() == 4) {
+            if (Unsafe.SizeOf<T>() == 4)
+            {
                 return Vec4.FromVector128Unsafe(left.AsVector128Unsafe() - right.AsVector128Unsafe());
-            }
-            if (Unsafe.SizeOf<T>() == 8) {
+            } else if (Unsafe.SizeOf<T>() == 8) {
                 return Vec4.FromVector256Unsafe(left.AsVector256Unsafe() - right.AsVector256Unsafe());
             }
             throw GraphicVector.ThrowUnsupportedTypeException<T>();
@@ -168,10 +255,10 @@ namespace Nitload.Mathematics.Numeric.Graphics
                                        T scalar
         )
         {
-            if (Unsafe.SizeOf<T>() == 4) {
+            if (Unsafe.SizeOf<T>() == 4)
+            {
                 return Vec4.FromVector128Unsafe(vector.AsVector128Unsafe() * Vector128.Create(scalar));
-            }
-            if (Unsafe.SizeOf<T>() == 8) {
+            } else if (Unsafe.SizeOf<T>() == 8) {
                 return Vec4.FromVector256Unsafe(vector.AsVector256Unsafe() * Vector256.Create(scalar));
             }
             throw GraphicVector.ThrowUnsupportedTypeException<T>();
@@ -184,6 +271,14 @@ namespace Nitload.Mathematics.Numeric.Graphics
         )
         {
             return vector * scalar;
+        }
+
+        public static Vec4<T> operator *(
+                                       GMatrix44<T> mat,
+                                       Vec4<T> vec
+        )
+        {
+            return (mat[0] * vec.X) + (mat[1] * vec.Y) + (mat[2] * vec.Z) + (mat[3] * vec.W);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -201,10 +296,10 @@ namespace Nitload.Mathematics.Numeric.Graphics
                                        T scalar
         )
         {
-            if (Unsafe.SizeOf<T>() == 4) {
+            if (Unsafe.SizeOf<T>() == 4)
+            {
                 return Vec4.FromVector128Unsafe(vector.AsVector128Unsafe() / Vector128.Create(scalar));
-            }
-            if (Unsafe.SizeOf<T>() == 8) {
+            } else if (Unsafe.SizeOf<T>() == 8) {
                 return Vec4.FromVector256Unsafe(vector.AsVector256Unsafe() / Vector256.Create(scalar));
             }
             throw GraphicVector.ThrowUnsupportedTypeException<T>();
@@ -216,10 +311,10 @@ namespace Nitload.Mathematics.Numeric.Graphics
                                        Vec4<T> right
         )
         {
-            if (Unsafe.SizeOf<T>() == 4) {
+            if (Unsafe.SizeOf<T>() == 4)
+            {
                 return Vec4.FromVector128Unsafe(left.AsVector128Unsafe() + right.AsVector128Unsafe());
-            }
-            if (Unsafe.SizeOf<T>() == 8) {
+            } else if (Unsafe.SizeOf<T>() == 8) {
                 return Vec4.FromVector256Unsafe(left.AsVector256Unsafe() + right.AsVector256Unsafe());
             }
             throw GraphicVector.ThrowUnsupportedTypeException<T>();
@@ -230,15 +325,23 @@ namespace Nitload.Mathematics.Numeric.Graphics
                                     Vec4<T> right
         )
         {
-            if (Unsafe.SizeOf<T>() == 4) {
+            if (Unsafe.SizeOf<T>() == 4)
+            {
                 return left.AsVector128Unsafe() == right.AsVector128Unsafe();
-            }
-            if (Unsafe.SizeOf<T>() == 8) {
+            } else if (Unsafe.SizeOf<T>() == 8) {
                 return left.AsVector256Unsafe() == right.AsVector256Unsafe();
             }
 #pragma warning disable CA1065
             throw GraphicVector.ThrowUnsupportedTypeException<T>();
 #pragma warning restore CA1065
+        }
+
+        [InlineArray(4)]
+        private struct Buffer
+        {
+
+            private T _element;
+
         }
 
     }

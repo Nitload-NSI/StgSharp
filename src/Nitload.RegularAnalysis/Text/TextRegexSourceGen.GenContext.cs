@@ -26,8 +26,8 @@ namespace Nitload.RegularAnalysis.Text
         /// <remarks>
         ///   Method level state is limited to the active cursor and the result of the most recent
         ///   instruction. Everything else is either a region slot, a line slot, a capture slot, or
-        ///   a block scoped scratch variable. Scratch indices remain unique while rented and are
-        ///   recycled after their generated lexical scope has closed.
+        ///   a scratch variable. Scratch indices remain unique throughout the generated method;
+        ///   flattened regions cannot release their names for reuse by later nodes.
         /// </remarks>
         internal sealed class SourceGenContext
         {
@@ -36,11 +36,9 @@ namespace Nitload.RegularAnalysis.Text
 
             public const string _remain_span = "__remain";
 
-            private int _exit_alt_count;
+            private int _max_exit_lable;
 
             private int _scratch_scope_count;
-
-            private readonly Stack<int> _free_scratch_scope_indices = [];
 
             public string RemainSpan { get; } = _remain_span;
 
@@ -55,36 +53,22 @@ namespace Nitload.RegularAnalysis.Text
                 return sc.AppendLine($@"{ROS_char} {RemainSpan};");
             }
 
-            public string RequestExitLabel()
+            public ExitLabel RequestExitLabel(
+                             ExitMode exitMode
+            )
             {
-                string code = $@"_exit_alt_{_exit_alt_count}";
-                _exit_alt_count++;
-                return code;
+                int index = _max_exit_lable;
+                _max_exit_lable++;
+                return new(exitMode, index);
             }
 
-            public int RentScratchScopeIndex()
+            public int RequestScratchScopeIndex()
             {
-                if (_free_scratch_scope_indices.TryPop(out int recycled_index)) {
-                    return recycled_index;
-                }
-
+                // TODO(NGRA-NAMING): Integrate scratch names with the method-wide exclusive-name
+                // allocator. Until then, reserve each suffix permanently for this method.
                 int index = _scratch_scope_count;
                 _scratch_scope_count++;
                 return index;
-            }
-
-            public void ReturnScratchScopeIndex(
-                        int index
-            )
-            {
-                if ((uint)index >= (uint)_scratch_scope_count) {
-                    throw new ArgumentOutOfRangeException(nameof(index));
-                }
-                if (_free_scratch_scope_indices.Contains(index)) {
-                    throw new InvalidOperationException($"Scratch scope {index} was returned twice.");
-                }
-
-                _free_scratch_scope_indices.Push(index);
             }
 
         }

@@ -101,6 +101,27 @@ namespace Nitload.RegularAnalysis.Text
         {
             return node is null || ReferenceEquals(node, Empty);
         }
+
+        /// <summary>
+        ///   Recognizes zero-or-more repetitions of one non-negated Any atom, including lazy
+        ///   repetition. Callers inspect the COUNT payload's IsGreedy flag separately.
+        /// </summary>
+        public static bool IsDotStar(RegexAstNode? node)
+        {
+            if (node?.Payload is not RegexCountPayload { IsStar: true }) {
+                return false;
+            }
+
+            bool left_empty = IsNullOrEmpty(node.Left);
+            bool right_empty = IsNullOrEmpty(node.Right);
+            if (left_empty == right_empty) {
+                return false;
+            }
+
+            RegexAstNode operand = left_empty ? node.Right : node.Left;
+            return operand.Payload is RegexCharSetPayload { IsAny: true, Accept: true } set &&
+                   set.Set[0].Accept;
+        }
         /**/
 
         public void PrependNode(RegexAstNode previousNode)

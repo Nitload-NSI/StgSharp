@@ -41,13 +41,11 @@ namespace Nitload.Geometries
 
         public Vec3<float> CenterPositionGlobal { get; internal set; }
 
-        public Vec3<float> Coord//
- { get => GlobalBuffer.CoordAndRotationList[BufferId].XYZ;//
- set
- {
-     Vec4<float> v = new(value, 0);
-     GlobalBuffer.CoordAndRotationList[BufferId] = v;
- } }
+        public Vec3<float> Coord { get => GlobalBuffer.CoordAndRotationList[BufferId].XYZ; set
+                                                                                           {
+                                                                                               Vec4<float> v = new(value, 0);
+                                                                                               GlobalBuffer.CoordAndRotationList[BufferId] = v;
+                                                                                           } }
 
         public void Move()
         {

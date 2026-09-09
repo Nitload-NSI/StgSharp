@@ -232,13 +232,13 @@ namespace StgSharp.GenerateGL.Generation
             List<ManagedParameterDefinition> singleParameters = new List<ManagedParameterDefinition>(prefix)
             {
                 new ManagedParameterDefinition("bool", "transpose", transposeSource),
-                new ManagedParameterDefinition("GraphicsMatrix", "value", valueSource),
+                new ManagedParameterDefinition("GMatrix44<float>", "value", valueSource),
             };
             List<ManagedParameterDefinition> spanParameters = new List<ManagedParameterDefinition>(prefix)
             {
                 new ManagedParameterDefinition("bool", "transpose", transposeSource),
                 new ManagedParameterDefinition(
-                    "ReadOnlySpan<GraphicsMatrix>",
+                    "ReadOnlySpan<GMatrix44<float>>",
                     "values",
                     valueSource),
             };

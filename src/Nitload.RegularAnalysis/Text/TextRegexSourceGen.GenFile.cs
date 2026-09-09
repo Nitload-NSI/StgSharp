@@ -60,7 +60,7 @@ namespace Nitload.RegularAnalysis.Text
             string static_modifier;
 
             int brace_count = 0;
-            do
+            while (type is not null)
             {
                 _ = file_name_sb.Append(CultureInfo.InvariantCulture, $@"{type.TypeName}.");
                 string declare_type = type.DeclType switch
@@ -74,7 +74,7 @@ namespace Nitload.RegularAnalysis.Text
                       .AppendLine("{");
                 brace_count++;
                 type = type.InnerType!;
-            } while (type is not null);
+            }
 
             static_modifier = gen_source.IsMethodStatic ? "static" : string.Empty;
             _ = ce.AppendLine(@$"{ToKeyword(gen_source.MethodAccessibility)} {static_modifier} {Text_Regex} {gen_source.MethodName}({ROS_char} {regex_gen_context.InputString})")
@@ -90,8 +90,7 @@ namespace Nitload.RegularAnalysis.Text
             brace_count = 0;
             foreach (string line in ce)
             {
-                bool is_right_brace = (line == "}") ||
-                                      line.StartsWith("} while", StringComparison.InvariantCulture);
+                bool is_right_brace = line == "}";
                 brace_count -= is_right_brace ? 1 : 0;
                 for (int i = 0; i < brace_count; i++) {
                     _ = code_source.Append("    ");
