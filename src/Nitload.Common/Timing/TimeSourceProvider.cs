@@ -14,15 +14,15 @@ using System.Threading;
 namespace Nitload.Common.Timing
 {
     public class TimeSourceStartupConfiguration(
-                 nuint bindedNumaNode = 0,
-                 nuint bindedCoreIndex = 0,
+                 nuint processorGroupId = 0,
+                 nuint cpuIndex = 0,
                  ThreadPriority threadPriority = ThreadPriority.Highest
     )
     {
 
-        public nuint BindedNumaNode { get; } = bindedNumaNode;
+        public nuint ProcessorGroupId { get; } = processorGroupId;
 
-        public nuint BindedCoreIndex { get; } = bindedCoreIndex;
+        public nuint CpuIndex { get; } = cpuIndex;
 
         public ThreadPriority Priority { get; } = threadPriority;
 

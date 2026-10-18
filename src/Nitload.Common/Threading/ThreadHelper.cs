@@ -37,7 +37,7 @@ namespace Nitload.Threading
                            LogicalCore core
         )
         {
-            SetThreadAffinity(core.GlobalCpuId, core.NumaNodeId);
+            SetThreadAffinity(core.CpuIndex, core.ProcessorGroupId);
         }
 
         [Conditional("DEBUG")]
@@ -51,12 +51,12 @@ namespace Nitload.Threading
 
 #pragma warning disable CA5393
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_set_thread_affinity")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_set_thread_affinity")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static partial void SetThreadAffinity(
-                                    uint globalCoreId,
-                                    uint numaNodeId
+                                    uint cpuIndex,
+                                    uint processorGroupId
         );
 
 #pragma warning restore CA5393

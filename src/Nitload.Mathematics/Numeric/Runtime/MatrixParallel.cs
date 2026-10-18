@@ -170,7 +170,7 @@ namespace Nitload.Mathematics.Numeric
 
         #region C invoke
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_compare_simd")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_compare_simd")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static partial int CompareSIMDID(
@@ -178,7 +178,7 @@ namespace Nitload.Mathematics.Numeric
                                    SIMDID right
         );
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_load_intrinsic_function")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_load_intrinsic_function")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static partial void LoadIntrinsicFunction(
@@ -186,7 +186,7 @@ namespace Nitload.Mathematics.Numeric
                                     ulong id
         );
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_get_unite_simd")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_get_unite_simd")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static partial SIMDID UniteSIMDID(

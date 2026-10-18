@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
-if(NOT DEFINED NIF_NATIVE_EXTERNAL_TARGET)
-  message(FATAL_ERROR "NIF_NATIVE_EXTERNAL_TARGET must be set before adding lib/.")
+if(NOT DEFINED NFN_NATIVE_EXTERNAL_TARGET)
+  message(FATAL_ERROR "NFN_NATIVE_EXTERNAL_TARGET must be set before adding lib/.")
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/../ExternalLibs.cmake OPTIONAL)
@@ -17,6 +17,6 @@ foreach(_pkg ${LIB_PACKAGE_DIRS})
   if(EXISTS ${_pkg_dir}/CMakeLists.txt)
     add_subdirectory(${_pkg_dir})
   else()
-    nif_register_external_package(${NIF_NATIVE_EXTERNAL_TARGET} ${_pkg} ${_pkg_dir})
+    nfn_register_external_package(${NFN_NATIVE_EXTERNAL_TARGET} ${_pkg} ${_pkg_dir})
   endif()
 endforeach()

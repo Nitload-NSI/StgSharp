@@ -19,20 +19,21 @@ namespace Nitload.Common.HighPerformance.Memory
     public partial class L4
     {
 
-        private unsafe class TLSF
+        private unsafe struct TLSF
         {
 
             public const int MaxCacheLineCount = 8192;
 
-            public static readonly nuint RequestedAllocation = (nuint)MaxCacheLineCount * CacheLineMetadata.SizeOf;
-
-            private readonly short[] _bucket;
+            public static readonly nuint RequestedAllocation =
+                    ((nuint)MaxCacheLineCount + 1u) * CacheLineMetadata.SizeOf;
             private readonly CacheLineMetadata* _spareMemory;
             private readonly int _align;
             private readonly int _maxLevel;
 
             private int _metadataEnd;
             private readonly Ptr64 _basePtr;
+
+            private fixed short _bucket[64];
             private readonly uint _maxAllocSize;
             private readonly uint _totalSize;
 
@@ -48,7 +49,9 @@ namespace Nitload.Common.HighPerformance.Memory
                 _maxAllocSize = uint.Max(64, (~64U) & (uint.Min(maxBlockSize, CacheLineMetadata.MaxBufferSize) + 63U));
                 _maxLevel = int.MaxValue;
                 _maxLevel = GetLevel(_maxAllocSize);
-                _bucket = new short[GetLevel(_maxAllocSize) + 2];
+
+                // _bucket = new short[GetLevel(_maxAllocSize) + 2];
+                _bucket[63] = (short)(GetLevel(_maxAllocSize) + 2);
                 _spareMemory = (CacheLineMetadata*)(ulong)(_basePtr + _totalSize);
                 _metadataEnd = 0;
 
@@ -268,7 +271,7 @@ namespace Nitload.Common.HighPerformance.Memory
                         idx = candidate->NextLevel;
                     }
                 }
-                for (int i = level + 1; i < _bucket.Length; i++)
+                for (int i = level + 1; i < _bucket[63]; i++)
                 {
                     int idx = _bucket[i];
                     if (idx != 0)

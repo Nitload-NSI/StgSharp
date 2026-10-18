@@ -15,4 +15,5 @@ global using System.Threading;
 [assembly: InternalsVisibleTo("Nitload.RegularAnalysis")]
 [assembly: InternalsVisibleTo("Nitload.Graphics")]
 [assembly: InternalsVisibleTo("Nitload.Mathematics")]
+[assembly: InternalsVisibleTo("Nitload.Benchmark")]
 [assembly: InternalsVisibleTo("StgSharpDebug")]

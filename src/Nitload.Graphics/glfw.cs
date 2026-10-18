@@ -43,7 +43,7 @@ namespace Nitload.Graphics
 
         public static GLFWFunction glfwContext => _glfw;
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_load_glfw_functions")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_load_glfw_functions")]
         internal static unsafe partial void glfwLoadLibrary(
                                             GLFWFunction* context
         );

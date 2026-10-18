@@ -1,19 +1,37 @@
 <Project>
 
+  <!-- Native builds are opt-in for executable hosts, not repeated by every library project. -->
+  <Target Name="BuildNativeLibrary"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(BuildNativeBeforeManaged)'=='true' And '$(DesignTimeBuild)'!='true'">
+    <PropertyGroup>
+      <NativeCMakePreset Condition="'$(NativeCMakePreset)'=='' And '$(Configuration)'=='Debug'">clang-debug</NativeCMakePreset>
+      <NativeCMakePreset Condition="'$(NativeCMakePreset)'==''">clang-release</NativeCMakePreset>
+      <NativeCMakeBuildDir Condition="'$(NativeCMakeBuildDir)'==''">$(SolutionRoot)cmake_build/$(NativeCMakePreset)</NativeCMakeBuildDir>
+      <_NativeCMakeOutputDir>$([System.String]::Copy('$(NativeBuildDir)').Replace('\', '/'))</_NativeCMakeOutputDir>
+    </PropertyGroup>
+    <Exec Command="cmake --preset &quot;$(NativeCMakePreset)&quot; -S &quot;$(SolutionRoot)src/Nitload.Native&quot; -B &quot;$(NativeCMakeBuildDir)&quot; &quot;-DNFN_BUILD_OUTPUT_DIR:PATH=$(_NativeCMakeOutputDir)&quot; &quot;-DNFN_EXPECTED_RID:STRING=$(BuildRid)&quot;" />
+    <Exec Command="cmake --build &quot;$(NativeCMakeBuildDir)&quot; --target &quot;$(NativeLibName)&quot;" />
+    <Error Condition="!Exists('$(NativeBuildDir)$(NativeFileName)')"
+           Text="CMake did not produce the expected native library: $(NativeBuildDir)$(NativeFileName). Check the target OS, architecture and output name." />
+  </Target>
+
   <!-- ════════════════════════════════════════════════════════ -->
   <!--  编译后：把 C# 输出拷贝到 bin/<rid>/ 目录                 -->
   <!--  替代原来的 xcopy PostBuild                               -->
   <!-- ════════════════════════════════════════════════════════ -->
   <Target Name="CopyOutputToBuildDir"
           AfterTargets="Build"
-          Condition="'$(DisablePostBuildCopy)'!='true'">
+          Condition="'$(DisablePostBuildCopy)'!='true' And '$(MSBuildProjectExtension)'=='.csproj' And '$(DesignTimeBuild)'!='true'">
 
     <MakeDir Directories="$(ManagedBuildDir)" />
 
     <!-- 拷贝所有编译输出（DLL + PDB + XML + deps.json） -->
     <ItemGroup>
-      <_OutputFiles Include="$(OutputPath)**\*.*"
-                    Exclude="$(OutputPath)**\*.user" />
+      <!-- Native artifacts flow from CMake to hosts only. Never copy an old deployed DLL
+           back over the authoritative CMake output, including pre-rename artifacts. -->
+      <_OutputFiles Include="$(TargetDir)**\*.*"
+                    Exclude="$(TargetDir)**\*.user;$(TargetDir)**\$(NativeLibName).*;$(TargetDir)**\lib$(NativeLibName).*;$(TargetDir)**\StgSharp.Native.*;$(TargetDir)**\libStgSharp.Native.*" />
     </ItemGroup>
 
     <Copy SourceFiles="@(_OutputFiles)"
@@ -30,7 +48,11 @@
   <!-- ════════════════════════════════════════════════════════ -->
   <Target Name="CopyNativeToProjectOutput"
           AfterTargets="Build"
-          Condition="'$(DisableNativeCopy)'!='true'">
+          BeforeTargets="CopyOutputToBuildDir"
+          Condition="'$(DisableNativeCopy)'!='true' And '$(MSBuildProjectExtension)'=='.csproj' And '$(DesignTimeBuild)'!='true'">
+
+    <Error Text="Native library not found at $(NativeBuildDir)$(NativeFileName). Build Nitload.Native with CMake, or enable BuildNativeBeforeManaged."
+           Condition="'$(RequireNativeLibrary)'=='true' And !Exists('$(NativeBuildDir)$(NativeFileName)')" />
 
     <!-- native 库文件 -->
     <ItemGroup>
@@ -45,12 +67,12 @@
     </ItemGroup>
 
     <Copy SourceFiles="@(_NativeLibFile);@(_NativeSymFile)"
-          DestinationFolder="$(OutputPath)"
+          DestinationFolder="$(TargetDir)"
           SkipUnchangedFiles="true"
           Condition="'@(_NativeLibFile)'!='' Or '@(_NativeSymFile)'!=''" />
 
     <Message Importance="high"
-             Text="[Nitload] Native $(NativeFileName) ($(BuildRid)) → $(OutputPath)"
+             Text="[Nitload] Native $(NativeFileName) ($(BuildRid)) → $(TargetDir)"
              Condition="'@(_NativeLibFile)'!=''" />
 
     <Warning Text="[Nitload] Native library not found at $(NativeBuildDir)$(NativeFileName). Build Nitload.Native first!"

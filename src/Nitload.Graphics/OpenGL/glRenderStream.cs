@@ -42,10 +42,11 @@ namespace Nitload.Graphics.OpenGL
             {
                 ContextHandle = Marshal.AllocHGlobal(Marshal.SizeOf<OpenglContext>());
                 OpenglContext* contextID = (OpenglContext*)ContextHandle;
-                contextID->glGetString = (delegate*<uint,byte*>)IntPtr.Zero;
+                contextID->glGetString = (delegate* unmanaged[Cdecl]<uint,byte*>)IntPtr.Zero;
             }
-            if (GL == null) {
-                _context = OpenGLFunction.BuildGlFunctionPackage(ContextHandle);
+            if (GL == null)
+            {
+                // _context = OpenGLFunction.BuildGlFunctionPackage(ContextHandle);
             }
         }
 
@@ -60,7 +61,8 @@ namespace Nitload.Graphics.OpenGL
         public unsafe void MakeAsCurrentContext()
         {
             GraphicFramework.glfwMakeContextCurrent(CanvasHandle);
-            OpenGLFunction.CurrentGL = this.GL;
+
+            // OpenGLFunction.CurrentGL = this.GL;
         }
 
         /// <inheritdoc />
@@ -73,7 +75,8 @@ namespace Nitload.Graphics.OpenGL
             SwapBuffers();
             renderToThread[this] = ThreadHelper.EmptyThread;
             GraphicFramework.glfwMakeContextCurrent(IntPtr.Zero);
-            OpenGLFunction.CurrentGL = null;
+
+            // OpenGLFunction.CurrentGL = null;
         }
 
         /// <inheritdoc />
@@ -121,7 +124,7 @@ namespace Nitload.Graphics.OpenGL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected sealed override void NativeCameraViewRange(
                                        Radius fieldOfRange,
-                                       Vec2 offset,
+                                       Vec2<float> offset,
                                        (float frontDepth, float backDepth) viewDepth
         )
         {
@@ -130,9 +133,9 @@ namespace Nitload.Graphics.OpenGL
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected sealed override void NativeCameraViewTarget(
-                                       Vec3 position,
-                                       Vec3 direction,
-                                       Vec3 up
+                                       Vec3<float> position,
+                                       Vec3<float> direction,
+                                       Vec3<float> up
         )
         {
             NativeCamera.SetViewDirection(position, direction, up);

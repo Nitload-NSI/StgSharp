@@ -16,59 +16,37 @@ namespace Nitload.Mathematics.Numeric.Graphics
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-<<<<<<< HEAD
-        public static Vec3<double> ConvertToDouble(Vec3<long> source)
-=======
         public static Vec3<double> ConvertToDouble(
                                    Vec3<long> source
         )
->>>>>>> 8755185e78a8091ca252c1342249110180446be3
         {
             return FromVector256Unsafe(Vector256.ConvertToDouble(source.AsVector256Safe()));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-<<<<<<< HEAD
-        public static Vec3<double> ConvertToDouble(Vec3<ulong> source)
-=======
         public static Vec3<double> ConvertToDouble(
                                    Vec3<ulong> source
         )
->>>>>>> 8755185e78a8091ca252c1342249110180446be3
         {
             return FromVector256Unsafe(Vector256.ConvertToDouble(source.AsVector256Safe()));
         }
 
-<<<<<<< HEAD
-        #region cast
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vec3<float> ConvertToSingle(Vec3<int> source)
-=======
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vec3<float> ConvertToSingle(
                                   Vec3<int> source
         )
->>>>>>> 8755185e78a8091ca252c1342249110180446be3
         {
             return FromVector128Unsafe(Vector128.ConvertToSingle(source.AsVector128Safe()));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-<<<<<<< HEAD
-        public static Vec3<float> ConvertToSingle(Vec3<uint> source)
-=======
         public static Vec3<float> ConvertToSingle(
                                   Vec3<uint> source
         )
->>>>>>> 8755185e78a8091ca252c1342249110180446be3
         {
             return FromVector128Unsafe(Vector128.ConvertToSingle(source.AsVector128Safe()));
         }
 
-<<<<<<< HEAD
-        public static bool IsParallel<T>(Vec3<T> left, Vec3<T> right) where T: unmanaged,INumber<T>
-=======
         public static Vec3<T> FromSpan<T>(
                               ReadOnlySpan<T> span
         ) where T : unmanaged, INumber<T>
@@ -84,7 +62,6 @@ namespace Nitload.Mathematics.Numeric.Graphics
                            Vec3<T> left,
                            Vec3<T> right
         ) where T : unmanaged,INumber<T>
->>>>>>> 8755185e78a8091ca252c1342249110180446be3
         {
             return Cross(left, right).Equals(T.Zero);
         }
@@ -145,11 +122,6 @@ namespace Nitload.Mathematics.Numeric.Graphics
             return Unsafe.As<Vector256<T>, Vec3<T>>(ref source);
         }
 
-<<<<<<< HEAD
-#ednregion
-
-=======
->>>>>>> 8755185e78a8091ca252c1342249110180446be3
         #region cross
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

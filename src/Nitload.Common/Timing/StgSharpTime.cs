@@ -97,7 +97,7 @@ namespace Nitload
             }
 
             Thread.Sleep(10);
-            Numa.SetThreadAffinity((int)threadConfig.BindedCoreIndex, (int)threadConfig.BindedNumaNode);
+            Numa.SetThreadAffinity((int)threadConfig.CpuIndex, (int)threadConfig.ProcessorGroupId);
             while (mainProvider.IsRunning)
             {
                 long elapsedTicks;

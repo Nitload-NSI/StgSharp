@@ -217,7 +217,7 @@ Detection:
 - **Unknown hybrid** (flag set but core type unrecognised): leave topology at 00.
 - **SIMD_DUAL**: set when any of the following: `AVX Feature DUAL=1` (glued YMM), or `AVX512_IMPL=DUAL`.
 
-`nif_get_unite_simd` computes topology bits [1..0] with bitwise **AND** (conservative intersection — weaker topology wins) and SIMD_DUAL with bitwise **OR** (dual if either core is dual). `nif_compare_simd` compares topology value numerically as step 6 and SIMD_DUAL as the final (step 7) tie-break.
+`nfn_get_unite_simd` computes topology bits [1..0] with bitwise **AND** (conservative intersection — weaker topology wins) and SIMD_DUAL with bitwise **OR** (dual if either core is dual). `nfn_compare_simd` compares topology value numerically as step 6 and SIMD_DUAL as the final (step 7) tie-break.
 
 ---
 

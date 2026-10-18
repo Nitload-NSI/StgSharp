@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using Nitload.RegularAnalysis.Text;
 using System;
 using System.Collections;
 using System.Collections.Generic;

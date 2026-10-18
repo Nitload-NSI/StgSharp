@@ -155,12 +155,12 @@ namespace Nitload.Mathematics.Numeric
         }
 
 #pragma warning disable CA5393
-        [LibraryImport(Native.LibName, EntryPoint = "nif_get_simd_level_local")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_get_simd_level_local")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         internal static partial ulong GetSimdId();
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_load_intrinsic_function")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_load_intrinsic_function")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static unsafe partial void LoadIntrinsicFunction(

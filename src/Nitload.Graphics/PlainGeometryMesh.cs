@@ -16,14 +16,15 @@ namespace Nitload.Graphics
     public class PlainGeometryMesh
     {
 
-        private readonly PlainGeometry _shape;
-        private readonly Vec2[] _textureCoordinates;
+        private readonly Vec2<float>[] _textureCoordinates;
         private readonly Image<Rgba8> _textureImage;
+
+        private readonly PlainGeometry _shape;
 
         public PlainGeometryMesh(
                PlainGeometry shape,
                Image<Rgba8> texture,
-               Vec2[] texCoord
+               Vec2<float>[] texCoord
         )
         {
             ArgumentNullException.ThrowIfNull(shape);
@@ -40,14 +41,13 @@ namespace Nitload.Graphics
             _textureCoordinates = texCoord;
         }
 
-        public Vec4[] VertexArray => _shape.VertexStream;
+        public Vec3<float>[] VertexArray => _shape.VertexStream;
 
         public Image<Rgba8> TextureImage => _textureImage;
 
         public ReadOnlySpan<int> MeshIndices => _shape.VertexIndices;
 
-        public ReadOnlySpan<Vec4> TextureCoord => MemoryMarshal.Cast<Vec2, Vec4>(
-            _textureCoordinates);
+        public ReadOnlySpan<Vec2<float>> TextureCoord => _textureCoordinates;
 
         public PlainGeometryMesh Resize(
                                  PlainGeometry newShape

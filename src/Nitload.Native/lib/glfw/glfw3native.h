@@ -207,7 +207,7 @@ GLFWAPI const char *glfwGetWin32Monitor(GLFWmonitor *monitor);
  *  GLFW_PLATFORM_UNAVAILABLE.
  *
  *  @remark The `HDC` associated with the window can be queried with the
- *  [GetDC](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getdc)
+ *  [GetDC](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nfn-winuser-getdc)
  *  function.
  *  @code
  *  HDC dc = GetDC(glfwGetWin32Window(window));
@@ -234,7 +234,7 @@ GLFWAPI HWND glfwGetWin32Window(GLFWwindow *window);
  *  GLFW_PLATFORM_UNAVAILABLE and @ref GLFW_NO_WINDOW_CONTEXT.
  *
  *  @remark The `HDC` associated with the window can be queried with the
- *  [GetDC](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getdc)
+ *  [GetDC](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nfn-winuser-getdc)
  *  function.
  *  @code
  *  HDC dc = GetDC(glfwGetWin32Window(window));

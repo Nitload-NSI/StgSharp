@@ -16,22 +16,21 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
     public readonly struct LogicalCore
     {
 
-        public readonly uint GlobalCpuId;
-        public readonly uint NumaGroupId;
-
-        /// <summary>
-        ///   Stays 0 on linux.
-        /// </summary>
+        public readonly uint ProcessorGroupId;
+        public readonly uint SocketId;
+        public readonly uint CpuIndex;
         public readonly uint NumaNodeId;
 
         internal LogicalCore(
-                 uint globalCpuId,
-                 uint numaGroupId,
+                 uint processorGroupId,
+                 uint socketId,
+                 uint cpuIndex,
                  uint numaNodeId
         )
         {
-            GlobalCpuId = globalCpuId;
-            NumaGroupId = numaGroupId;
+            ProcessorGroupId = processorGroupId;
+            SocketId = socketId;
+            CpuIndex = cpuIndex;
             NumaNodeId = numaNodeId;
         }
 

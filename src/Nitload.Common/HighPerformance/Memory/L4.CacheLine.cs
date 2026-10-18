@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using Nitload.Common.HighPerformance.ProcessorAbstraction;
 using System.Runtime.InteropServices;
 
 namespace Nitload.Common.HighPerformance.Memory
@@ -23,14 +22,12 @@ namespace Nitload.Common.HighPerformance.Memory
         }
 
         [StructLayout(LayoutKind.Explicit, Size = 32, Pack = 32)]
-        private unsafe struct CacheLineMetadata
+        private struct CacheLineMetadata
         {
 
             internal const uint MaxBufferSize = 0xFFFFFFFF - 64U;
 
-            [FieldOffset(0)] private readonly M256 FillingMask;
-
-            [FieldOffset(24)] internal nuint Origin;
+            [FieldOffset(16)] internal AllocationState State;
 
             public static uint SizeOf { get; } = (uint)Unsafe.SizeOf<CacheLineMetadata>();
 
@@ -48,33 +45,25 @@ namespace Nitload.Common.HighPerformance.Memory
             [FieldOffset(8)] public uint PositionMask;
             [FieldOffset(12)] public uint SizeMask;
 
-            #endregion
-
-            #region mask
-
-            [FieldOffset(16)] internal AllocationState State;
-            [FieldOffset(17)] internal byte ReversedProfile;
-            [FieldOffset(18)] internal ushort CustomizeProfile;
-            [FieldOffset(20)] internal int RefCount;
-
         #endregion
         }
 
 #pragma warning disable IDE0032
-        [StructLayout(LayoutKind.Explicit)]
+        [StructLayout(LayoutKind.Explicit, Size = 16)]
         public unsafe struct Handle : IDisposable
         {
 
-            [FieldOffset(8)] private readonly CacheLineMetadata* _head;
             [FieldOffset(0)] private nuint _handle;
 
-            private Handle(
-                    nuint handle,
-                    CacheLineMetadata* cacheRefCount
+            [FieldOffset(8)] private nuint _reserved;
+
+            internal Handle(
+                     nuint handle,
+                     nuint reserved
             )
             {
                 _handle = handle;
-                _head = cacheRefCount;
+                _reserved = reserved;
             }
 
             [Obsolete("You should not create a CacheLineHandle instance outside a L4", true)]
@@ -88,7 +77,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     return;
                 }
                 _handle = 0;
-                _ = Interlocked.Decrement(ref _head->RefCount);
+                _reserved = 0;
             }
 
         }

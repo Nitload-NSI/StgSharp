@@ -21,69 +21,69 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="nif-src\dllmain.c">
+    <ClCompile Include="nfn-src\dllmain.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\s.factorial.x86.c">
+    <ClCompile Include="nfn-src\s.factorial.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\s.hash.x86.c">
+    <ClCompile Include="nfn-src\s.hash.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\vector.c">
+    <ClCompile Include="nfn-src\vector.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\vector_dot.c">
+    <ClCompile Include="nfn-src\vector_dot.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\load_glfw.c">
+    <ClCompile Include="nfn-src\load_glfw.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\sk.fma.x86.c">
+    <ClCompile Include="nfn-src\sk.fma.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\load_intrinsic.x86.c">
+    <ClCompile Include="nfn-src\load_intrinsic.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\m.bufop.x86.c">
+    <ClCompile Include="nfn-src\m.bufop.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\m.solve.x86.c">
+    <ClCompile Include="nfn-src\m.solve.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\simdid.x86.c">
+    <ClCompile Include="nfn-src\simdid.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\mk.fma.x86.c">
+    <ClCompile Include="nfn-src\mk.fma.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\simdid_compare.x86.c">
+    <ClCompile Include="nfn-src\simdid_compare.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\thread.linux.c">
+    <ClCompile Include="nfn-src\thread.linux.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\thread.windows.c">
+    <ClCompile Include="nfn-src\thread.windows.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\m.transpose.x86.c">
+    <ClCompile Include="nfn-src\m.transpose.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nif-src\mk.p_scan.x86.c">
+    <ClCompile Include="nfn-src\mk.p_scan.x86.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="nif-head\nif_internal.h">
+    <ClInclude Include="nfn-head\nfn_internal.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="nif-head\NitloadFrameWork.h">
+    <ClInclude Include="nfn-head\NitloadFrameWork.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="nif-head\glfw_function.h">
+    <ClInclude Include="nfn-head\glfw_function.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="nif-head\nif_intrinsic.matkernel.h">
+    <ClInclude Include="nfn-head\nfn_intrinsic.matkernel.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="lib\glfw\glfw3.h">
@@ -95,19 +95,19 @@
     <ClInclude Include="lib\stbi\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="nif-head\nif_target.h">
+    <ClInclude Include="nfn-head\nfn_target.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="nif-head\nif_intrinsic.context.x86.h">
+    <ClInclude Include="nfn-head\nfn_intrinsic.context.x86.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="nif-head\nif_intrinsic.h">
+    <ClInclude Include="nfn-head\nfn_intrinsic.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="nif-head\nif_intrinsic.std.h">
+    <ClInclude Include="nfn-head\nfn_intrinsic.std.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="nif-template\nif_template.fma.x86.h">
+    <ClInclude Include="nfn-template\nfn_template.fma.x86.h">
       <Filter>模板文件</Filter>
     </ClInclude>
   </ItemGroup>

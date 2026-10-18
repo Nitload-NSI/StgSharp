@@ -10,7 +10,7 @@ This directory contains the production source code, native runtime, supporting a
 | `Nitload.Mathematics` | Numeric types, vectors, matrices, geometry, and managed access to accelerated math operations. |
 | `Nitload.Graphics` | OpenGL bindings, rendering infrastructure, shaders, textures, windows, and input integration. |
 | `Nitload.Native` | C native runtime, GLFW/STBI integration, allocators, platform code, and optimized SIMD/matrix kernels. See its own `README.md` for native build details. |
-| `Nitload.RegularAnalysis` | NGRA regular-language analysis, regex processing, intermediate representations, and source-generation infrastructure. |
+| `Nitload.RegularAnalysis` | NGRA generic AST/token infrastructure, transitioning toward ε-NFA sequence analysis. Text Regex and its source generator are archived under `Legacy` and excluded from compilation. |
 | `Nitload.UserInterface` | State-oriented user-interface framework and its incremental source generator. |
 | `Nitload.TerminalDialogue` | Terminal user-interface components and an interactive terminal application. |
 | `Nitload.Benchmark` | BenchmarkDotNet workloads for measuring selected runtime and allocation behavior. |
@@ -28,4 +28,4 @@ cmake --build cmake_build/clang-release
 dotnet build Nitload.sln
 ```
 
-Managed builds copy an existing native binary when one is available; they do not invoke CMake automatically. Generated OpenGL files under `Nitload.Graphics/OpenGL/Generated` should be updated through the generator in `tools/Nitload.GenerateGL`, not edited by hand.
+Managed library builds copy an existing native binary when one is available; they do not invoke CMake automatically. The `test/StgSharpDebug` executable explicitly enables the CMake build before managed compilation. Generated OpenGL files under `Nitload.Graphics/OpenGL/Generated` should be updated through the generator in `tools/Nitload.GenerateGL`, not edited by hand.

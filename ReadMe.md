@@ -1,14 +1,12 @@
-# Nitload
+![nFramework Logo](logo/nFramework-horizontal-light.png)
 
-![Nitload Logo](STG%23LOGO.png)
+# nFramework
 
-Nitload (formerly StgSharp) is an experimental .NET framework for graphics, numerical computing, language analysis, and other performance-sensitive applications. It began as the foundation of a next-generation STG (shoot 'em up) engine, but the current repository focuses on reusable low-level infrastructure rather than a complete, ready-to-use game engine.
-
-The managed libraries now use the `Nitload.*` namespace and project prefix. Repository URLs, the logo filename, and some legacy test artifacts still retain the StgSharp name.
+nFramework (formerly StgSharp, now also nitload.Framework) is an experimental framework built on .NET for graphics, numerical computing, language analysis, and other performance-sensitive applications. It combines managed C# libraries with a C native runtime, targets .NET 8, and provides Windows and Linux native implementations.
 
 ## Overview
 
-The framework combines managed C# APIs with a C native library. Its current work includes OpenGL bindings and rendering infrastructure, generic matrix and vector types, SIMD-accelerated native kernels, custom allocators and collections, regular-language analysis, and state-oriented UI infrastructure. Nitload targets .NET 8; platform and architecture coverage varies by module, with Windows and Linux as the principal native targets.
+nFramework combines managed C# APIs with a C native library. Its current work includes OpenGL bindings and rendering infrastructure, generic matrix and vector types, SIMD-accelerated native kernels, custom allocators and collections, regular-language analysis, and state-oriented UI infrastructure. nFramework targets .NET 8; platform and architecture coverage varies by module, with Windows and Linux as the principal native targets.
 
 ## Core Modules
 
@@ -34,11 +32,23 @@ Numerics and linear algebra built on top of the core library:
 
 Nitload General Regular Analysis (NGRA) infrastructure for recognizing and processing regular languages:
 
-- **Regex/Automata Core**: Regular expression processing and automata utilities
+- **NFA Direction**: Planned generic ε-NFA sequence execution, followed by weighted automata and NGRA-Tensor research
 - **Parsing Primitives**: Reusable tokenizer and grammar building blocks
 - **Analysis Pipeline**: Structured processing for language-like inputs
 
 NGRA is a foundation for higher-level language tooling. It does not replace `Nitload.Script`; the planned Script implementation depends on NGRA and has not started yet. The source currently under `Nitload.Script` is retained from the earlier EXPRESS implementation and is not part of the active core solution.
+
+The former Text Regex parser, matcher, and source generator are [archived](src/Nitload.RegularAnalysis/Legacy/README.md)
+and excluded from compilation. Generic AST and token infrastructure remain active.
+
+Although Text Regex development is frozen, it produced valuable reusable results: the five-link
+AST model, tree normalization and merging techniques, token/analysis infrastructure, and practical
+experience with COUNT continuations, group boundaries, and rollback. These results remain available
+to inform the new NFA architecture.
+
+Future string-regex functionality will use .NET `GeneratedRegex`. NGRA will no longer pursue
+custom `Span<char>` or SIMD optimizations for string matching; its research focus is generalized
+sequence analysis and, later, weighted relation networks.
 
 ### Nitload.Graphics
 
@@ -127,7 +137,7 @@ The benchmark reports normalized time per allocation/free operation. Each iterat
 
 ## Installation
 
-Nitload is currently in development and requires compilation from source. **NuGet packages are not yet available** - you must build the project from source code.
+nFramework is currently in development and requires compilation from source. **NuGet packages are not yet available** - you must build the project from source code.
 
 ### Prerequisites
 
@@ -161,7 +171,7 @@ Nitload is currently in development and requires compilation from source. **NuGe
    dotnet build Nitload.sln
    ```
 
-   Managed builds copy an existing native binary into their output directory. They do not invoke CMake automatically, so build `Nitload.Native` first when native functionality is required.
+   Managed library builds copy an existing native binary into their output directory. Build `Nitload.Native` first when native functionality is required. The `StgSharpDebug` executable is an exception: its project enables an incremental CMake build before managed compilation and requires the native DLL for the normal runtime path.
 
 ### Build Configuration
 
@@ -233,7 +243,7 @@ allocator.Free(handle);
 
 ## Contributing
 
-Nitload is developed by Nitload Space. Contributions are welcome, particularly in:
+nFramework is developed by Nitload Space under the Nitload brand. Contributions are welcome, particularly in:
 
 - Performance optimizations
 - Cross-platform compatibility
@@ -242,7 +252,7 @@ Nitload is developed by Nitload Space. Contributions are welcome, particularly i
 
 ## License
 
-Nitload is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+nFramework is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Future Plans
 

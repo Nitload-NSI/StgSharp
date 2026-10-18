@@ -85,9 +85,10 @@
     <!-- 把 ARM64 → arm64，x64 保持 x64 -->
     <_ArchTag Condition="'$(Platform)'=='x64'">x64</_ArchTag>
     <_ArchTag Condition="'$(Platform)'=='ARM64'">arm64</_ArchTag>
-    <!-- 输出到 cmake_build/win_<arch>/，与 CMake 目录约定保持一致 -->
-    <OutDir>$(SolutionDir)cmake_build\win_$(_ArchTag)\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <!-- Keep the navigation project's artifact paths aligned with CMake and managed deployment. -->
+    <TargetName>Nitload.Native</TargetName>
+    <OutDir>$(NativeBuildDir)</OutDir>
+    <IntDir>$(SolutionRoot)obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <RunCodeAnalysis>true</RunCodeAnalysis>
@@ -110,7 +111,7 @@
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)nif-head;$(ProjectDir)nif-template;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)lib;$(ProjectDir)nfn-head;$(ProjectDir)nfn-template;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <!-- DLL 应该用 Windows，不是 Console -->
@@ -172,23 +173,23 @@
   <!--  source files                                            -->
   <!-- ════════════════════════════════════════════════════════ -->
   <ItemGroup>
-    <ClCompile Include="nif-src\dllmain.c" />
-    <ClCompile Include="nif-src\m.bufop.x86.c" />
-    <ClCompile Include="nif-src\m.solve.x86.c" />
-    <ClCompile Include="nif-src\m.transpose.x86.c" />
-    <ClCompile Include="nif-src\mk.fma.x86.c" />
-    <ClCompile Include="nif-src\mk.p_scan.x86.c" />
-    <ClCompile Include="nif-src\s.factorial.x86.c" />
-    <ClCompile Include="nif-src\sk.fma.x86.c" />
-    <ClCompile Include="nif-src\s.hash.x86.c" />
-    <ClCompile Include="nif-src\load_intrinsic.x86.c" />
-    <ClCompile Include="nif-src\load_glfw.c" />
-    <ClCompile Include="nif-src\simdid.x86.c" />
-    <ClCompile Include="nif-src\simdid_compare.x86.c" />
-    <ClCompile Include="nif-src\thread.linux.c" />
-    <ClCompile Include="nif-src\thread.windows.c" />
-    <ClCompile Include="nif-src\vector.c" />
-    <ClCompile Include="nif-src\vector_dot.c" />
+    <ClCompile Include="nfn-src\dllmain.c" />
+    <ClCompile Include="nfn-src\m.bufop.x86.c" />
+    <ClCompile Include="nfn-src\m.solve.x86.c" />
+    <ClCompile Include="nfn-src\m.transpose.x86.c" />
+    <ClCompile Include="nfn-src\mk.fma.x86.c" />
+    <ClCompile Include="nfn-src\mk.p_scan.x86.c" />
+    <ClCompile Include="nfn-src\s.factorial.x86.c" />
+    <ClCompile Include="nfn-src\sk.fma.x86.c" />
+    <ClCompile Include="nfn-src\s.hash.x86.c" />
+    <ClCompile Include="nfn-src\load_intrinsic.x86.c" />
+    <ClCompile Include="nfn-src\load_glfw.c" />
+    <ClCompile Include="nfn-src\simdid.x86.c" />
+    <ClCompile Include="nfn-src\simdid_compare.x86.c" />
+    <ClCompile Include="nfn-src\thread.linux.c" />
+    <ClCompile Include="nfn-src\thread.windows.c" />
+    <ClCompile Include="nfn-src\vector.c" />
+    <ClCompile Include="nfn-src\vector_dot.c" />
   </ItemGroup>
   <!-- ════════════════════════════════════════════════════════ -->
   <!--  header files                                            -->
@@ -197,15 +198,15 @@
     <ClInclude Include="lib\glfw\glfw3.h" />
     <ClInclude Include="lib\glfw\glfw3native.h" />
     <ClInclude Include="lib\stbi\stb_image.h" />
-    <ClInclude Include="nif-head\glfw_function.h" />
-    <ClInclude Include="nif-head\nif_internal.h" />
-    <ClInclude Include="nif-head\nif_intrinsic.context.x86.h" />
-    <ClInclude Include="nif-head\nif_intrinsic.std.h" />
-    <ClInclude Include="nif-head\nif_intrinsic.h" />
-    <ClInclude Include="nif-head\nif_intrinsic.matkernel.h" />
-    <ClInclude Include="nif-head\nif_target.h" />
-    <ClInclude Include="nif-head\NitloadFrameWork.h" />
-    <ClInclude Include="nif-template\nif_template.fma.x86.h" />
+    <ClInclude Include="nfn-head\glfw_function.h" />
+    <ClInclude Include="nfn-head\nfn_internal.h" />
+    <ClInclude Include="nfn-head\nfn_intrinsic.context.x86.h" />
+    <ClInclude Include="nfn-head\nfn_intrinsic.std.h" />
+    <ClInclude Include="nfn-head\nfn_intrinsic.h" />
+    <ClInclude Include="nfn-head\nfn_intrinsic.matkernel.h" />
+    <ClInclude Include="nfn-head\nfn_target.h" />
+    <ClInclude Include="nfn-head\NitloadFrameWork.h" />
+    <ClInclude Include="nfn-template\nfn_template.fma.x86.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="naming.md" />

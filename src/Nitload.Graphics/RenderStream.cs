@@ -5,10 +5,10 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
+using Nitload.Common.Timing;
 using Nitload.Mathematics;
 using Nitload.Mathematics.Numeric.Graphics;
 using Nitload.Mathematics.Numeric.Graphics;
-using Nitload.Common.Timing;
 
 using System;
 using System.Collections.Generic;
@@ -123,14 +123,14 @@ namespace Nitload.Graphics
 
         protected abstract void NativeCameraViewRange(
                                 Radius fieldOfRange,
-                                Vec2 offset,
+                                Vec2<float> offset,
                                 (float frontDepth, float backDepth) viewDepth
         );
 
         protected abstract void NativeCameraViewTarget(
-                                Vec3 position,
-                                Vec3 direction,
-                                Vec3 up
+                                Vec3<float> position,
+                                Vec3<float> direction,
+                                Vec3<float> up
         );
 
         #endregion

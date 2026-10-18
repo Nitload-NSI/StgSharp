@@ -633,11 +633,9 @@ namespace Nitload.Graphics.OpenGL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ProgramUniform(GlHandle program, int location, bool transpose, GMatrix44<float> value)
         {
-            fixed (GMatrix44<float>* __value = &value)
-            {
-                __context->glProgramUniformMatrix4fv(program.Value, location, 1, transpose ? (byte)1 : (byte)0, (float*)__value);
+                __context->glProgramUniformMatrix4fv(program.Value, location, 1, transpose ? (byte)1 : (byte)0, (float*)&value);
             }
-        }
+        
 
         /// <summary>
         /// <para>Forwards to the native OpenGL entry point.</para>

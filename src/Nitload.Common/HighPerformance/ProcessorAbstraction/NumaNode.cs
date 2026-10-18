@@ -22,15 +22,25 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         internal NumaNode(
                  uint numaId,
                  int count,
-                 Span<uint> logicalCoreIds
+                 Span<uint> processorGroupIds,
+                 Span<uint> socketIds,
+                 Span<uint> cpuIndices,
+                 Span<uint> numaNodeIds
 
         )
         {
+            NumaNodeId = numaId;
             _logicalCores = new LogicalCore[count];
             for (int i = 0; i < count; i++) {
-                _logicalCores[i] = new LogicalCore(1, numaId, logicalCoreIds[i]);
+                _logicalCores[i] = new LogicalCore(
+                    processorGroupIds[i],
+                    socketIds[i],
+                    cpuIndices[i],
+                    numaNodeIds[i]);
             }
         }
+
+        public uint NumaNodeId { get; }
 
         public int LogicalCoreCount => _logicalCores.Length;
 

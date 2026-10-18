@@ -24,12 +24,11 @@ namespace Nitload.Mathematics.Numeric.Graphics
 
         private Buffer _buffer;
 
-        public Vec4<T> this[
-                       int x
+        internal unsafe ref Vec4<T> this[
+                                    int x
         ]
         {
-            readonly get => _buffer[x];
-            set => _buffer[x] = value;
+            get => ref Unsafe.Add(ref Unsafe.As<GMatrix44<T>, Vec4<T>>(ref this), x);
         }
 
         public T this[
@@ -176,6 +175,75 @@ namespace Nitload.Mathematics.Numeric.Graphics
 
                 throw GraphicVector.ThrowUnsupportedTypeException<T>();
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GMatrix44<T> operator -(
+                                            GMatrix44<T> left,
+                                            GMatrix44<T> right
+        )
+        {
+            Unsafe.SkipInit(out GMatrix44<T> result);
+            result._buffer[0] = left._buffer[0] - right._buffer[0];
+            result._buffer[1] = left._buffer[1] - right._buffer[1];
+            result._buffer[2] = left._buffer[2] - right._buffer[2];
+            result._buffer[3] = left._buffer[3] - right._buffer[3];
+
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GMatrix44<T> operator *(
+                                            GMatrix44<T> left,
+                                            T right
+        )
+        {
+            Unsafe.SkipInit(out GMatrix44<T> result);
+            result._buffer[0] = left._buffer[0] * right;
+            result._buffer[1] = left._buffer[1] * right;
+            result._buffer[2] = left._buffer[2] * right;
+            result._buffer[3] = left._buffer[3] * right;
+
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GMatrix44<T> operator *(
+                                            T left,
+                                            GMatrix44<T> right
+        )
+        {
+            return right * left;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GMatrix44<T> operator *(
+                                            GMatrix44<T> left,
+                                            GMatrix44<T> right
+        )
+        {
+            Unsafe.SkipInit(out GMatrix44<T> result);
+            result._buffer[0] = left._buffer[0] + right._buffer[0];
+            result._buffer[1] = left._buffer[1] + right._buffer[1];
+            result._buffer[2] = left._buffer[2] + right._buffer[2];
+            result._buffer[3] = left._buffer[3] + right._buffer[3];
+
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GMatrix44<T> operator +(
+                                            GMatrix44<T> left,
+                                            GMatrix44<T> right
+        )
+        {
+            Unsafe.SkipInit(out GMatrix44<T> result);
+            result._buffer[0] = left._buffer[0] + right._buffer[0];
+            result._buffer[1] = left._buffer[1] + right._buffer[1];
+            result._buffer[2] = left._buffer[2] + right._buffer[2];
+            result._buffer[3] = left._buffer[3] + right._buffer[3];
+
+            return result;
         }
 
         [InlineArray(4)]

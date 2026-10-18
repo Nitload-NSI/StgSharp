@@ -33,7 +33,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             if (_numaNodes.Length == 0) {
                 throw new InvalidOperationException("Numa info has not been loaded.");
             }
-            if ((numaId < 0) || (numaId >= _numaNodes.Length)) {
+            if ((numaId < 0) || !ContainsNode((uint)numaId)) {
                 throw new ArgumentOutOfRangeException(nameof(numaId), "Invalid NUMA node ID.");
             }
             return NumaAllocNative(size, numaId);
@@ -69,22 +69,24 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             if (_numaNodes.Length == 0) {
                 throw new InvalidOperationException("Numa info has not been loaded.");
             }
-            if ((numaId < 0) || (numaId >= _numaNodes.Length)) {
+            if ((numaId < 0) || !ContainsNode((uint)numaId)) {
                 throw new ArgumentOutOfRangeException(nameof(numaId), "Invalid NUMA node ID.");
             }
             NumaFreeNative(address, size, numaId);
         }
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_get_numa_each")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_each")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         public static partial int GetNumaEach(
                                   uint numaId,
-                                  Span<ulong> CpuIndexInNuma,
-                                  Span<uint> globalCpuIdInNuma
+                                  Span<uint> processorGroupIds,
+                                  Span<uint> socketIds,
+                                  Span<uint> cpuIndices,
+                                  Span<uint> numaNodeIds
         );
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_get_numa_overall")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_overall")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         public static partial int GetNumaOverall(
@@ -97,10 +99,10 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             if (_numaNodes.Length == 0) {
                 throw new InvalidOperationException("Numa info has not been loaded.");
             }
-            L4[] buffers = new L4[NumaNodeCount];
-            for (int i = 0; i < NumaNodeCount; i++)
+            L4[] buffers = new L4[_numaNodes.Length];
+            for (int i = 0; i < _numaNodes.Length; i++)
             {
-                L4 buffer = new L4(i);
+                L4 buffer = new L4((int)_numaNodes[i].NumaNodeId);
                 buffers[i] = buffer;
             }
             return buffers;
@@ -108,23 +110,38 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
 
         internal static void Initialize()
         {
-            Span<int> coreCountInNuma = stackalloc int[(Environment.ProcessorCount / 32) + 1];
             int numaNodeCount = 0;
-            if (0 == GetNumaOverall(ref numaNodeCount, coreCountInNuma)) {
+            if (0 == GetNumaOverall(ref numaNodeCount, default)) {
                 throw new InvalidOperationException("Failed to get NUMA overall information.");
             }
-            _numaNodes = new NumaNode[numaNodeCount];
-            for (uint i = 0; i < numaNodeCount; i++) {
-                _numaNodes[i] = InitNumaNode(i, coreCountInNuma[(int)i]);
+            int[] coreCountInNuma = new int[numaNodeCount];
+            if (0 == GetNumaOverall(ref numaNodeCount, coreCountInNuma)) {
+                throw new InvalidOperationException("Failed to get NUMA node processor counts.");
+            }
+            int activeNodeCount = 0;
+            for (int i = 0; i < coreCountInNuma.Length; i++) {
+                if (coreCountInNuma[i] > 0) {
+                    activeNodeCount++;
+                }
+            }
+            NumaNodeCount = activeNodeCount;
+            _numaNodes = new NumaNode[activeNodeCount];
+            int nodeIndex = 0;
+            for (uint numaId = 0; numaId < numaNodeCount; numaId++) {
+                int coreCount = coreCountInNuma[(int)numaId];
+                if (coreCount == 0) {
+                    continue;
+                }
+                _numaNodes[nodeIndex++] = InitNumaNode(numaId, coreCount);
             }
         }
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_set_thread_affinity")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_set_thread_affinity")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         internal static partial void SetThreadAffinity(
-                                     int coreId,
-                                     int numaId
+                                     int cpuIndex,
+                                     int processorGroupId
         );
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -133,12 +150,27 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
                                 int count
         )
         {
-            Span<uint> globalIndex = stackalloc uint[count];
-            _ = GetNumaEach(numaId, null, globalIndex);
-            return new(numaId, count, globalIndex);
+            Span<uint> processorGroupIds = stackalloc uint[count];
+            Span<uint> socketIds = stackalloc uint[count];
+            Span<uint> cpuIndices = stackalloc uint[count];
+            Span<uint> numaNodeIds = stackalloc uint[count];
+            if (0 == GetNumaEach(numaId, processorGroupIds, socketIds, cpuIndices, numaNodeIds)) {
+                throw new InvalidOperationException($"Failed to enumerate processors for NUMA node {numaId}.");
+            }
+            return new(numaId, count, processorGroupIds, socketIds, cpuIndices, numaNodeIds);
         }
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_numa_alloc")]
+        private static bool ContainsNode(uint numaId)
+        {
+            foreach (NumaNode node in _numaNodes) {
+                if (node.NumaNodeId == numaId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_numa_alloc")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static unsafe partial void* NumaAllocNative(
@@ -146,7 +178,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
                                             int numaId
         );
 
-        [LibraryImport(Native.LibName, EntryPoint = "nif_numa_free")]
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_numa_free")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static unsafe partial void NumaFreeNative(
