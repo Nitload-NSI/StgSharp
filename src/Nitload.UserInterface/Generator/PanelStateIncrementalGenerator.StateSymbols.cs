@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PanelStateIncrementalGenerator.StateSymbols"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -13,9 +13,7 @@ namespace Nitload.UserInterface.Generator
     internal static class PanelStateIncrementalGeneratorStateSymbols
     {
 
-        public static PanelStateSymbolPartAnalysis Analyze(
-                                                   PanelStateIncrementalGeneratorTypeTarget target
-        )
+        public static PanelStateSymbolPartAnalysis Analyze(PanelStateIncrementalGeneratorTypeTarget target)
         {
             ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> members = target.MarkedMembers
                                                                                        .Where(static member => PanelStateIncrementalGeneratorKnownAttributes.IsStateSymbolAttribute(member.AttributeMetadataName))

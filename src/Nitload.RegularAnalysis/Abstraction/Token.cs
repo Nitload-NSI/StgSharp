@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="Token"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Nitload.RegularAnalysis.Abstraction
 {
-    public readonly struct Token<TLabel> where TLabel : unmanaged
+    public readonly struct Token<TLabel> where TLabel: unmanaged
     {
 
         public readonly int Column;
@@ -31,12 +31,7 @@ namespace Nitload.RegularAnalysis.Abstraction
             Flag = default;
         }
 
-        public Token(
-               string chars,
-               int lineNumber,
-               int columnNumber,
-               TLabel flag
-        )
+        public Token(string chars, int lineNumber, int columnNumber, TLabel flag)
         {
             Value = chars;
             Line = lineNumber;
@@ -46,34 +41,24 @@ namespace Nitload.RegularAnalysis.Abstraction
 
         public static Token<TLabel> Empty { get; } = new Token<TLabel>();
 
-        public override bool Equals(
-                             [NotNullWhen(true)] object? obj
-        )
+        public override bool Equals([NotNullWhen(true)] object? obj)
         {
             return base.Equals(obj);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Token<TLabel> ReLocate(
-                             int line,
-                             int column
-        )
+        public Token<TLabel> ReLocate(int line, int column)
         {
             return new Token<TLabel>(Value, line, column, Flag);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Token<TNewLabel> Remark<TNewLabel>(
-                                TNewLabel label
-        ) where TNewLabel : unmanaged
+        public Token<TNewLabel> Remark<TNewLabel>(TNewLabel label) where TNewLabel: unmanaged
         {
             return new Token<TNewLabel>(Value, Line, Column, label);
         }
 
-        public static bool operator !=(
-                                    Token<TLabel> left,
-                                    Token<TLabel> right
-        )
+        public static bool operator !=(Token<TLabel> left, Token<TLabel> right)
         {
             return !left.Value.SequenceEqual(right.Value) ||
                    left.Line != right.Line ||
@@ -81,10 +66,7 @@ namespace Nitload.RegularAnalysis.Abstraction
                    !left.Flag.Equals(right.Flag);
         }
 
-        public static bool operator ==(
-                                    Token<TLabel> left,
-                                    Token<TLabel> right
-        )
+        public static bool operator ==(Token<TLabel> left, Token<TLabel> right)
         {
             return left.Value.SequenceEqual(right.Value) &&
                    left.Line == right.Line &&

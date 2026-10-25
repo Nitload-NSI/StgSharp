@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="ITokenParser"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -13,8 +13,7 @@ using System.Threading.Tasks;
 
 namespace Nitload.RegularAnalysis.Abstraction
 {
-    public abstract class TokenParser<TIn, TOut> : ITokenReader<TOut> where TIn : unmanaged
-        where TOut : unmanaged
+    public abstract class TokenParser<TIn, TOut> : ITokenReader<TOut> where TIn: unmanaged where TOut: unmanaged
     {
 
         public abstract bool IsEmpty { get; }
@@ -23,9 +22,7 @@ namespace Nitload.RegularAnalysis.Abstraction
 
         public abstract Token<TOut> ReadToken();
 
-        public abstract bool TryReadToken(
-                             out Token<TOut> t
-        );
+        public abstract bool TryReadToken(out Token<TOut> t);
 
     }
 }

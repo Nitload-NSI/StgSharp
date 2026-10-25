@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="AbstractSyntaxTree"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -18,8 +18,7 @@ using System.Xml.Schema;
 
 namespace Nitload.RegularAnalysis.Abstraction
 {
-    public sealed class AbstractSyntaxTree<TNode, TType> where TNode : ISyntaxNode<TNode, TType>
-        where TType : unmanaged
+    public sealed class AbstractSyntaxTree<TNode, TType> where TNode: ISyntaxNode<TNode, TType> where TType: unmanaged
     {
 
         public HashSet<TNode> AllNodes => AllToken;
@@ -40,16 +39,12 @@ namespace Nitload.RegularAnalysis.Abstraction
         private HashSet<TNode> AllToken { get; } = new();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool AddNode(
-                    TNode node
-        )
+        public bool AddNode(TNode node)
         {
             return AllToken.Add(node);
         }
 
-        public bool Contains(
-                    TNode node
-        )
+        public bool Contains(TNode node)
         {
             return AllToken.Contains(node);
         }
@@ -61,9 +56,8 @@ namespace Nitload.RegularAnalysis.Abstraction
 
     }
 
-    internal class TreeEnumerator<TNode, TType>(
-                   TNode root
-    ) : IEnumerator<TNode> where TNode : ISyntaxNode<TNode, TType> where TType : unmanaged
+    internal class TreeEnumerator<TNode, TType>(TNode root) : IEnumerator<TNode> where TNode: ISyntaxNode<TNode, TType>
+        where TType: unmanaged
     {
 
         private bool _completed;
@@ -75,10 +69,7 @@ namespace Nitload.RegularAnalysis.Abstraction
         // private TNode _lRoot;
         private TNode _root = root;
 
-        internal TreeEnumerator(
-                 AbstractSyntaxTree<TNode, TType> tree
-        )
-            : this(tree.Root) { }
+        internal TreeEnumerator(AbstractSyntaxTree<TNode, TType> tree) : this(tree.Root) { }
 
         public int Depth => _stack.Count;
 
@@ -164,9 +155,7 @@ namespace Nitload.RegularAnalysis.Abstraction
         /// <param name="node">
         ///   The node to skip.
         /// </param>
-        public void SkipNode(
-                    TNode node
-        )
+        public void SkipNode(TNode node)
         {
             if (_stack.TryPeek(out Record? r) && ReferenceEquals(r.Node, node))
             {
@@ -207,9 +196,7 @@ namespace Nitload.RegularAnalysis.Abstraction
             }
         }
 
-        private Record GetNewRecord(
-                       TNode node
-        )
+        private Record GetNewRecord(TNode node)
         {
             if (_recycle.TryPop(out Record? r))
             {
@@ -222,10 +209,7 @@ namespace Nitload.RegularAnalysis.Abstraction
 
         object IEnumerator.Current => Current;
 
-        private class Record(
-                      TNode node,
-                      int state
-        )
+        private class Record(TNode node, int state)
         {
 
             public int State { get; set; } = state;

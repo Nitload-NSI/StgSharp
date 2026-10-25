@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="State.PanelState"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -13,9 +13,7 @@ namespace Nitload.UserInterface
     public abstract class PanelState
     {
 
-        protected PanelState(
-                  string name
-        )
+        protected PanelState(string name)
         {
             Name = string.IsNullOrWhiteSpace(name) ?
                    throw new ArgumentException("Value cannot be null or whitespace.", nameof(name)) :

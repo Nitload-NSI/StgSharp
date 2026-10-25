@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PanelStateIncrementalGenerator.StateCommandHandlers"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -17,8 +17,7 @@ namespace Nitload.UserInterface.Generator
         public static StateChangeCommandHandlerPartAnalysis Analyze(
                                                             PanelStateIncrementalGeneratorTypeTarget target,
                                                             PanelStateSymbolPartAnalysis stateSymbols,
-                                                            StateChangeBindingPartAnalysis stateChangeBindings
-        )
+                                                            StateChangeBindingPartAnalysis stateChangeBindings)
         {
             ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> members = MergeMembers(
                 stateChangeBindings.Members,
@@ -32,8 +31,7 @@ namespace Nitload.UserInterface.Generator
         private static void AddMembers(
                             ImmutableArray<PanelStateIncrementalGeneratorMarkedMember>.Builder builder,
                             HashSet<string> seen,
-                            ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> members
-        )
+                            ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> members)
         {
             foreach (PanelStateIncrementalGeneratorMarkedMember member in members)
             {
@@ -49,8 +47,7 @@ namespace Nitload.UserInterface.Generator
 
         private static ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> MergeMembers(
                                                                                   ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> primaryMembers,
-                                                                                  ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> secondaryMembers
-        )
+                                                                                  ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> secondaryMembers)
         {
             if (primaryMembers.IsDefaultOrEmpty && secondaryMembers.IsDefaultOrEmpty) {
                 return ImmutableArray<PanelStateIncrementalGeneratorMarkedMember>.Empty;

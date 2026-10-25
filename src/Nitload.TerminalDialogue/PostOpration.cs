@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PostOpration"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -14,10 +14,7 @@ namespace StgSharpTerminalDialogue
 
         private static DialogueView _dv;
 
-        internal static void PostOperation(
-                             string instruction,
-                             string operand
-        )
+        internal static void PostOperation(string instruction, string operand)
         {
             switch (instruction)
             {

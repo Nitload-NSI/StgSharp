@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="Relation"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -13,18 +13,15 @@ using System.Threading.Tasks;
 
 namespace Nitload.RegularAnalysis.Abstraction
 {
-    public class Relation<TElement, TValue, TEvaluator>(
-                 TEvaluator evaluator
-    ) where TEvaluator : IRelationEvaluator<TElement, TValue>
+    public class Relation<TElement, TValue, TEvaluator>(TEvaluator evaluator)
+        where TEvaluator: IRelationEvaluator<TElement, TValue>
     {
 
         public TEvaluator Evaluator { get; init; } = evaluator;
 
         public TValue Weight { get; private set; } = default!;
 
-        public TValue Evaluate(
-                      ReadOnlySpan<TElement> sequence
-        )
+        public TValue Evaluate(ReadOnlySpan<TElement> sequence)
         {
             Weight = Evaluate(sequence);
             return Weight;
@@ -32,16 +29,12 @@ namespace Nitload.RegularAnalysis.Abstraction
 
     }
 
-    public class Relation<TElement, TValue>(
-                 IRelationEvaluator<TElement, TValue> evaluator
-    ) : Relation<TElement, TValue, IRelationEvaluator<TElement, TValue>>(evaluator) { }
+    public class Relation<TElement, TValue>(IRelationEvaluator<TElement, TValue> evaluator) : Relation<TElement, TValue, IRelationEvaluator<TElement, TValue>>(evaluator) { }
 
     public interface IRelationEvaluator<TElement, TValue>
     {
 
-        TValue Evaluate(
-               ReadOnlySpan<TElement> sequence
-        );
+        TValue Evaluate(ReadOnlySpan<TElement> sequence);
 
     }
 }

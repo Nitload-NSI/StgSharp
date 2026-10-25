@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="State.Host"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -14,17 +14,11 @@ namespace Nitload.UserInterface
     public abstract class StateHost
     {
 
-        protected StateHost(
-                  FrontCommandHost frontCommandHost,
-                  AppState appState,
-                  ServiceManager serviceManager
-        )
+        protected StateHost(FrontCommandHost frontCommandHost, AppState appState, ServiceManager serviceManager)
         {
-            FrontCommandHost = frontCommandHost ??
-                throw new ArgumentNullException(nameof(frontCommandHost));
+            FrontCommandHost = frontCommandHost ?? throw new ArgumentNullException(nameof(frontCommandHost));
             AppState = appState ?? throw new ArgumentNullException(nameof(appState));
-            ServiceManager = serviceManager ??
-                throw new ArgumentNullException(nameof(serviceManager));
+            ServiceManager = serviceManager ?? throw new ArgumentNullException(nameof(serviceManager));
 
             FrontCommandHost.Attach(this);
             ServiceManager.Attach(this);
@@ -39,8 +33,7 @@ namespace Nitload.UserInterface
         public virtual async Task<CommandResult> PostAsync(
                                                  ViewHost source,
                                                  StateChangeCommand command,
-                                                 CancellationToken cancellationToken = default
-        )
+                                                 CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(source);
             ArgumentNullException.ThrowIfNull(command);
@@ -54,8 +47,7 @@ namespace Nitload.UserInterface
         public virtual async Task<CommandResult> PostAsync(
                                                  ViewHost source,
                                                  ExecuteCommand command,
-                                                 CancellationToken cancellationToken = default
-        )
+                                                 CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(source);
             ArgumentNullException.ThrowIfNull(command);

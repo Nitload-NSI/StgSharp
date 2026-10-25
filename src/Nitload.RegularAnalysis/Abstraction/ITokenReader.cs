@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="ITokenReader"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -14,8 +14,9 @@ namespace Nitload.RegularAnalysis.Abstraction
 
         public static TokenParser<TIn, TOut> Pipe<TIn, TOut>(
                                              this ITokenReader<TIn> source,
-                                             Func<TokenParser<TIn, TOut>> builder
-        ) where TIn : unmanaged where TOut : unmanaged
+                                             Func<TokenParser<TIn, TOut>> builder)
+            where TIn: unmanaged
+            where TOut: unmanaged
         {
             TokenParser<TIn, TOut> parser = builder();
             parser.Source = source;
@@ -24,16 +25,14 @@ namespace Nitload.RegularAnalysis.Abstraction
 
     }
 
-    public interface ITokenReader<TLabel> where TLabel : unmanaged
+    public interface ITokenReader<TLabel> where TLabel: unmanaged
     {
 
         bool IsEmpty { get; }
 
         Token<TLabel> ReadToken();
 
-        bool TryReadToken(
-             out Token<TLabel> t
-        );
+        bool TryReadToken(out Token<TLabel> t);
 
     }
 }

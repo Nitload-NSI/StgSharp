@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PanelStateIncrementalGenerator.Analysis"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -14,9 +14,7 @@ namespace Nitload.UserInterface.Generator
     internal static class PanelStateIncrementalGeneratorAnalysis
     {
 
-        public static PanelStateIncrementalGeneratorOutput Analyze(
-                                                           PanelStateIncrementalGeneratorInput input
-        )
+        public static PanelStateIncrementalGeneratorOutput Analyze(PanelStateIncrementalGeneratorInput input)
         {
             if (input.TypeTargets.IsDefaultOrEmpty) {
                 return new PanelStateIncrementalGeneratorOutput(
@@ -40,8 +38,7 @@ namespace Nitload.UserInterface.Generator
                 StateChangeBindingPartAnalysis stateChangeBindings = PanelStateIncrementalGeneratorStateChangeBindings.Analyze(target);
 
                 builder.Add(
-                    new PanelStateIncrementalGeneratorTypeAnalysis(target, stateSymbols,
-                                                                   stateChangeBindings,
+                    new PanelStateIncrementalGeneratorTypeAnalysis(target, stateSymbols, stateChangeBindings,
                                                                    PanelStateIncrementalGeneratorStateCommandHandlers.Analyze(
                             target,
                             stateSymbols,

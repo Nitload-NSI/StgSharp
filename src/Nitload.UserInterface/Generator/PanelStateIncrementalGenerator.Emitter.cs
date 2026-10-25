@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PanelStateIncrementalGenerator.Emitter"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -15,10 +15,7 @@ namespace Nitload.UserInterface.Generator
     internal static class PanelStateIncrementalGeneratorEmitter
     {
 
-        public static void Emit(
-                           SourceProductionContext context,
-                           PanelStateIncrementalGeneratorOutput source
-        )
+        public static void Emit(SourceProductionContext context, PanelStateIncrementalGeneratorOutput source)
         {
             if (source.TypeAnalyses.IsDefaultOrEmpty) {
                 return;

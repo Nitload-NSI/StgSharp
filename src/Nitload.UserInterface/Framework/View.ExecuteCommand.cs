@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="View.ExecuteCommand"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -13,9 +13,7 @@ namespace Nitload.UserInterface
     public abstract record ExecuteCommand
     {
 
-        protected ExecuteCommand(
-                  string operationName
-        )
+        protected ExecuteCommand(string operationName)
         {
             OperationName = string.IsNullOrWhiteSpace(operationName) ?
                             throw new ArgumentException("Value cannot be null or whitespace.", nameof(operationName)) :

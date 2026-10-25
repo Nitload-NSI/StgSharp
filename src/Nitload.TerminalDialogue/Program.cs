@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="Program"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -20,16 +20,11 @@ namespace StgSharpTerminalDialogue
 
         private static AnonymousPipeClientStream _callerClientPipe, _callerServerPipe;
 
-        private static void Main(
-                            string[] args
-        )
+        private static void Main(string[] args)
         {
             Application.Init();
 
-            Console.CancelKeyPress += (
-                                      sender,
-                                      e
-            ) => {
+            Console.CancelKeyPress += (sender, e) => {
                 e.Cancel = true;
                 Application.RequestStop();
             };
@@ -39,8 +34,7 @@ namespace StgSharpTerminalDialogue
                                   ) => {
                                       _dv = DialogueView.Single;
                                       Application.Run(view:_dv);
-                                  }, CancellationToken.None, TaskCreationOptions.None,
-                                            TaskScheduler.Default);
+                                  }, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
 
             /**/
             if (args.Length != 2)

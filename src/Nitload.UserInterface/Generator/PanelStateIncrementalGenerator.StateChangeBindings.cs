@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PanelStateIncrementalGenerator.StateChangeBindings"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -13,9 +13,7 @@ namespace Nitload.UserInterface.Generator
     internal static class PanelStateIncrementalGeneratorStateChangeBindings
     {
 
-        public static StateChangeBindingPartAnalysis Analyze(
-                                                     PanelStateIncrementalGeneratorTypeTarget target
-        )
+        public static StateChangeBindingPartAnalysis Analyze(PanelStateIncrementalGeneratorTypeTarget target)
         {
             ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> members = target.MarkedMembers
                                                                                        .Where(static member => member.AttributeMetadataName == PanelStateIncrementalGeneratorKnownAttributes.StateChangeBindingAttribute)

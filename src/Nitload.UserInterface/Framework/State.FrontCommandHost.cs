@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="State.FrontCommandHost"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -19,18 +19,14 @@ namespace Nitload.UserInterface
         public abstract Task<CommandResult> AcceptAsync(
                                             ViewHost source,
                                             StateChangeCommand command,
-                                            CancellationToken cancellationToken = default
-        );
+                                            CancellationToken cancellationToken = default);
 
         public abstract Task<CommandResult> AcceptAsync(
                                             ViewHost source,
                                             ExecuteCommand command,
-                                            CancellationToken cancellationToken = default
-        );
+                                            CancellationToken cancellationToken = default);
 
-        internal void Attach(
-                      StateHost stateHost
-        )
+        internal void Attach(StateHost stateHost)
         {
             StateHost = stateHost ?? throw new ArgumentNullException(nameof(stateHost));
         }

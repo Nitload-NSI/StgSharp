@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="CompileDepthState"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -24,23 +24,14 @@ namespace Nitload.RegularAnalysis.Abstraction
     public class CompileDepthMark
     {
 
-        internal CompileDepthMark(
-                 int operatorBegin,
-                 int operandBegin,
-                 int usage
-        )
+        internal CompileDepthMark(int operatorBegin, int operandBegin, int usage)
         {
             OperatorBegin = operatorBegin;
             OperandBegin = operandBegin;
             Usage = usage;
         }
 
-        internal CompileDepthMark(
-                 int operatorBegin,
-                 int operandBegin,
-                 int usage,
-                 ICompileDepthState stateCache
-        )
+        internal CompileDepthMark(int operatorBegin, int operandBegin, int usage, ICompileDepthState stateCache)
         {
             OperatorBegin = operatorBegin;
             OperandBegin = operandBegin;

@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="View.Host"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -14,10 +14,7 @@ namespace Nitload.UserInterface
     public abstract class ViewHost
     {
 
-        protected ViewHost(
-                  string name,
-                  StateHost stateHost
-        )
+        protected ViewHost(string name, StateHost stateHost)
         {
             Name = string.IsNullOrWhiteSpace(name) ?
                    throw new ArgumentException("Value cannot be null or whitespace.", nameof(name)) :
@@ -31,8 +28,7 @@ namespace Nitload.UserInterface
 
         public virtual Task<CommandResult> PostAsync(
                                            StateChangeCommand command,
-                                           CancellationToken cancellationToken = default
-        )
+                                           CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(command);
             return StateHost.PostAsync(this, command, cancellationToken);
@@ -40,8 +36,7 @@ namespace Nitload.UserInterface
 
         public virtual Task<CommandResult> PostAsync(
                                            ExecuteCommand command,
-                                           CancellationToken cancellationToken = default
-        )
+                                           CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(command);
             return StateHost.PostAsync(this, command, cancellationToken);
@@ -49,8 +44,7 @@ namespace Nitload.UserInterface
 
         public virtual ValueTask ReceiveCommandResultAsync(
                                  CommandResult result,
-                                 CancellationToken cancellationToken = default
-        )
+                                 CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(result);
             return ValueTask.CompletedTask;

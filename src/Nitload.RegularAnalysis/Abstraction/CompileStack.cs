@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="CompileStack"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -17,8 +17,7 @@ using System.Threading.Tasks;
 
 namespace Nitload.RegularAnalysis.Abstraction
 {
-    public partial class CompileStack<TNode, TLabel> where TNode : ISyntaxNode<TNode, TLabel>
-        where TLabel : unmanaged
+    public partial class CompileStack<TNode, TLabel> where TNode: ISyntaxNode<TNode, TLabel> where TLabel: unmanaged
     {
 
         private readonly RandomAccessibleStack<DepthMark> _depthMarks = [];
@@ -36,11 +35,7 @@ namespace Nitload.RegularAnalysis.Abstraction
 
         public int Depth => _depthMarks.Count;
 
-        private record struct DepthMark(
-                              int OperandPos,
-                              int OperatorPos,
-                              int Mark
-        );
+        private record struct DepthMark(int OperandPos, int OperatorPos, int Mark);
 
         #region operator
 
@@ -55,17 +50,13 @@ namespace Nitload.RegularAnalysis.Abstraction
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PushOperator(
-                    TNode operatorNode
-        )
+        public void PushOperator(TNode operatorNode)
         {
             _operators.Push(operatorNode);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryPopOperator(
-                    out TNode op
-        )
+        public bool TryPopOperator(out TNode op)
         {
             if (OperatorInDepthCount > 0)
             {
@@ -77,9 +68,7 @@ namespace Nitload.RegularAnalysis.Abstraction
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryPeekOperator(
-                    out TNode op
-        )
+        public bool TryPeekOperator(out TNode op)
         {
             if (OperatorInDepthCount > 0)
             {
@@ -105,17 +94,13 @@ namespace Nitload.RegularAnalysis.Abstraction
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PushOperand(
-                    TNode operatorNode
-        )
+        public void PushOperand(TNode operatorNode)
         {
             _operands.Push(operatorNode);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryPopOperand(
-                    out TNode op
-        )
+        public bool TryPopOperand(out TNode op)
         {
             if (OperandInDepthCount > 0)
             {
@@ -127,9 +112,7 @@ namespace Nitload.RegularAnalysis.Abstraction
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryPeekOperand(
-                    out TNode op
-        )
+        public bool TryPeekOperand(out TNode op)
         {
             if (OperandInDepthCount > 0)
             {
@@ -155,9 +138,7 @@ namespace Nitload.RegularAnalysis.Abstraction
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void IncreaseDepth(
-                    int mark
-        )
+        public void IncreaseDepth(int mark)
         {
             _depthMarks.Push(new DepthMark(_operands.Count, _operators.Count, mark));
         }

@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PropertyEvaluator"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -17,9 +17,7 @@ namespace Nitload.RegularAnalysis.PropertyRegex
     internal abstract class PropertyEvaluator<T> : IRelationEvaluator<T, PropertyMatchState>
     {
 
-        public abstract PropertyMatchState Evaluate(
-                                           ReadOnlySpan<T> sequence
-        );
+        public abstract PropertyMatchState Evaluate(ReadOnlySpan<T> sequence);
 
     }
 }

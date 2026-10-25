@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="ISyntaxPayload"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Nitload.RegularAnalysis.Abstraction
 {
-    public interface ISyntaxPayload<TLabel> where TLabel : unmanaged
+    public interface ISyntaxPayload<TLabel> where TLabel: unmanaged
     {
 
         int Column { get; }

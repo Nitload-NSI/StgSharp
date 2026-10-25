@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="Service.LoadCommand"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -13,9 +13,7 @@ namespace Nitload.UserInterface
     public abstract record ServiceLoadCommand
     {
 
-        protected ServiceLoadCommand(
-                  string serviceName
-        )
+        protected ServiceLoadCommand(string serviceName)
         {
             ServiceName = string.IsNullOrWhiteSpace(serviceName) ?
                           throw new ArgumentException("Value cannot be null or whitespace.", nameof(serviceName)) :

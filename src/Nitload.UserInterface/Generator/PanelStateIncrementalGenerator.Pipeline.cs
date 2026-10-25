@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PanelStateIncrementalGenerator.Pipeline"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -15,18 +15,14 @@ namespace Nitload.UserInterface.Generator
     internal static class PanelStateIncrementalGeneratorPipeline
     {
 
-        public static bool IsCandidate(
-                           SyntaxNode node
-        )
+        public static bool IsCandidate(SyntaxNode node)
         {
-            return node is TypeDeclarationSyntax typeDeclaration &&
-                   HasAttributedMembers(typeDeclaration);
+            return node is TypeDeclarationSyntax typeDeclaration && HasAttributedMembers(typeDeclaration);
         }
 
         public static PanelStateIncrementalGeneratorTypeTarget? Transform(
                                                                 GeneratorSyntaxContext context,
-                                                                CancellationToken cancellationToken
-        )
+                                                                CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -50,8 +46,7 @@ namespace Nitload.UserInterface.Generator
         }
 
         private static ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> CollectMarkedMembers(
-                                                                                  INamedTypeSymbol typeSymbol
-        )
+                                                                                  INamedTypeSymbol typeSymbol)
         {
             ImmutableArray<PanelStateIncrementalGeneratorMarkedMember>.Builder builder =
                 ImmutableArray.CreateBuilder<PanelStateIncrementalGeneratorMarkedMember>();
@@ -67,8 +62,7 @@ namespace Nitload.UserInterface.Generator
                     }
 
                     builder.Add(
-                        new PanelStateIncrementalGeneratorMarkedMember(member, metadataName!,
-                                                                       member.Name,
+                        new PanelStateIncrementalGeneratorMarkedMember(member, metadataName!, member.Name,
                                                                        GetSymbolTypeName(member)));
                     break;
                 }
@@ -77,14 +71,11 @@ namespace Nitload.UserInterface.Generator
             return builder.ToImmutable();
         }
 
-        private static string GetSymbolTypeName(
-                              ISymbol symbol
-        )
+        private static string GetSymbolTypeName(ISymbol symbol)
         {
             return symbol switch
             {
-                IFieldSymbol fieldSymbol => fieldSymbol.Type
-                                                       .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                IFieldSymbol fieldSymbol => fieldSymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 IPropertySymbol propertySymbol => propertySymbol.Type
                                                                 .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                 IMethodSymbol methodSymbol => methodSymbol.ReturnType
@@ -93,9 +84,7 @@ namespace Nitload.UserInterface.Generator
             };
         }
 
-        private static bool HasAttributedMembers(
-                            TypeDeclarationSyntax typeDeclaration
-        )
+        private static bool HasAttributedMembers(TypeDeclarationSyntax typeDeclaration)
         {
             foreach (MemberDeclarationSyntax member in typeDeclaration.Members)
             {

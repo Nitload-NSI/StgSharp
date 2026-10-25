@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PanelStateIncrementalGenerator.Models"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -17,17 +17,12 @@ namespace Nitload.UserInterface.Generator
 
         public const string StateChangeBindingAttribute = "Nitload.UserInterface.StateChangeBindingAttribute";
 
-        public static bool IsKnown(
-                           string? metadataName
-        )
+        public static bool IsKnown(string? metadataName)
         {
-            return IsStateSymbolAttribute(metadataName) ||
-                   metadataName == StateChangeBindingAttribute;
+            return IsStateSymbolAttribute(metadataName) || metadataName == StateChangeBindingAttribute;
         }
 
-        public static bool IsStateSymbolAttribute(
-                           string? metadataName
-        )
+        public static bool IsStateSymbolAttribute(string? metadataName)
         {
             return metadataName == PanelStateNodeAttribute;
         }
@@ -38,44 +33,36 @@ namespace Nitload.UserInterface.Generator
                            ISymbol Symbol,
                            string AttributeMetadataName,
                            string SymbolName,
-                           string SymbolTypeName
-    );
+                           string SymbolTypeName);
 
     internal sealed record PanelStateIncrementalGeneratorTypeTarget(
                            INamedTypeSymbol Type,
                            string TypeDisplayName,
-                           ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> MarkedMembers
-    );
+                           ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> MarkedMembers);
 
     internal readonly record struct PanelStateIncrementalGeneratorInput(
                                     Compilation Compilation,
-                                    ImmutableArray<PanelStateIncrementalGeneratorTypeTarget> TypeTargets
-    );
+                                    ImmutableArray<PanelStateIncrementalGeneratorTypeTarget> TypeTargets);
 
     internal sealed record PanelStateIncrementalGeneratorTypeAnalysis(
                            PanelStateIncrementalGeneratorTypeTarget Target,
                            PanelStateSymbolPartAnalysis StateSymbols,
                            StateChangeBindingPartAnalysis StateChangeBindings,
-                           StateChangeCommandHandlerPartAnalysis StateChangeCommandHandlers
-    );
+                           StateChangeCommandHandlerPartAnalysis StateChangeCommandHandlers);
 
     internal readonly record struct PanelStateIncrementalGeneratorOutput(
                                     Compilation Compilation,
-                                    ImmutableArray<PanelStateIncrementalGeneratorTypeAnalysis> TypeAnalyses
-    );
+                                    ImmutableArray<PanelStateIncrementalGeneratorTypeAnalysis> TypeAnalyses);
 
     internal sealed record PanelStateSymbolPartAnalysis(
                            string OwnerTypeName,
-                           ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> Members
-    );
+                           ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> Members);
 
     internal sealed record StateChangeBindingPartAnalysis(
                            string OwnerTypeName,
-                           ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> Members
-    );
+                           ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> Members);
 
     internal sealed record StateChangeCommandHandlerPartAnalysis(
                            string OwnerTypeName,
-                           ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> Members
-    );
+                           ImmutableArray<PanelStateIncrementalGeneratorMarkedMember> Members);
 }

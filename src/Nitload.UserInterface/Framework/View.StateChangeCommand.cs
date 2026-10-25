@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="View.StateChangeCommand"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -12,9 +12,7 @@ namespace Nitload.UserInterface
     public abstract record StateChangeCommand
     {
 
-        protected StateChangeCommand(
-                  string statePath
-        )
+        protected StateChangeCommand(string statePath)
         {
             StatePath = string.IsNullOrWhiteSpace(statePath) ?
                         throw new ArgumentException("Value cannot be null or whitespace.", nameof(statePath)) :

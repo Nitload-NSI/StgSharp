@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="View.StateValueCommand"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -12,10 +12,7 @@ namespace Nitload.UserInterface
     public sealed record StateValueCommand<TValue> : StateChangeCommand
     {
 
-        public StateValueCommand(
-               string statePath,
-               TValue value
-        )
+        public StateValueCommand(string statePath, TValue value)
             : base(statePath)
         {
             Value = value;

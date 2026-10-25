@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PanelStateSample"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -22,9 +22,7 @@ namespace Nitload.UserInterface.Sample
 
         // 实际项目里这整个 StateChangeHandler 都由源生成器产出；
         // 这里手写展开，只是为了展示“没有生成器时 VSS 代码长什么样”。
-        public void ApplySampleStateChangeCommand(
-                    StateValueCommand<int> command
-        )
+        public void ApplySampleStateChangeCommand(StateValueCommand<int> command)
         {
             ArgumentNullException.ThrowIfNull(command);
 
@@ -40,10 +38,7 @@ namespace Nitload.UserInterface.Sample
 
         // 生成器拆分后，这里相当于某个节点写入后的 post-change hook，
         // 对应手写体系里常见的 OnChange 位置。
-        private static void BroadcastSampleStateChanged(
-                            int origin,
-                            int current
-        )
+        private static void BroadcastSampleStateChanged(int origin, int current)
         {
             _ = origin;
             _ = current;
@@ -54,11 +49,7 @@ namespace Nitload.UserInterface.Sample
 
         // 生成器拆分后，这里相当于某个节点 handler 的 guard，
         // 对应 ICommand 语义中的 CanExecute。
-        private static bool CanApplySampleStateChange(
-                            int origin,
-                            int current,
-                            StateValueCommand<int> command
-        )
+        private static bool CanApplySampleStateChange(int origin, int current, StateValueCommand<int> command)
         {
             return string.Equals(command.StatePath, SampleStatePath, StringComparison.Ordinal) &&
                    current >= 0 &&

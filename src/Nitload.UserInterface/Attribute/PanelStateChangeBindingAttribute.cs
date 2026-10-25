@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PanelStateChangeBindingAttribute"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -14,10 +14,7 @@ using System.Threading.Tasks;
 namespace Nitload.UserInterface
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = true)]
-    public sealed class PanelStateChangeBindingAttribute(
-                        string statePath,
-                        string panelHostPath
-    ) : Attribute
+    public sealed class PanelStateChangeBindingAttribute(string statePath, string panelHostPath) : Attribute
     {
 
         public string StatePath { get; } = string.IsNullOrWhiteSpace(statePath) ?

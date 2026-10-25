@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="ISyntaxNode"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -17,16 +17,15 @@ using System.Text;
 namespace Nitload.RegularAnalysis.Abstraction
 {
     public interface ITrinitySyntaxNode<TNode, TLabel> : ISyntaxNode<TNode, TLabel>
-        where TNode : ISyntaxNode<TNode, TLabel>
-        where TLabel : unmanaged
+        where TNode: ISyntaxNode<TNode, TLabel>
+        where TLabel: unmanaged
     {
 
         TNode Third { get; set; }
 
     }
 
-    public interface ISyntaxNode<TNode, TLabel> where TNode : ISyntaxNode<TNode, TLabel>
-        where TLabel : unmanaged
+    public interface ISyntaxNode<TNode, TLabel> where TNode: ISyntaxNode<TNode, TLabel> where TLabel: unmanaged
     {
 
         ISyntaxPayload<TLabel> Source { get; }
@@ -49,21 +48,15 @@ namespace Nitload.RegularAnalysis.Abstraction
 
         protected internal int EnumState { get; set; }
 
-        void AppendNode(
-             TNode nextToken
-        );
+        void AppendNode(TNode nextToken);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static virtual bool IsNullOrEmpty(
-                                   TNode node
-        )
+        public static virtual bool IsNullOrEmpty(TNode node)
         {
             return node is null || node.Equals(TNode.Empty);
         }
 
-        void PrependNode(
-             TNode previousNode
-        );
+        void PrependNode(TNode previousNode);
 
     }
 }

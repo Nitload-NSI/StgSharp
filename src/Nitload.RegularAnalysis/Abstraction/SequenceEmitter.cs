@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="SequenceEmitter"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -20,27 +20,17 @@ namespace Nitload.RegularAnalysis.Abstraction
     public static class SequenceEmitterExtensions
     {
 
-        public static SequenceEmitter<string> AppendLine(
-                                              this SequenceEmitter<string> emitter
-        )
+        public static SequenceEmitter<string> AppendLine(this SequenceEmitter<string> emitter)
         {
             return emitter is null ? null! : emitter.Append(string.Empty);
         }
 
-        public static SequenceEmitter<string> AppendLine(
-                                              this SequenceEmitter<string> emitter,
-                                              string line
-        )
+        public static SequenceEmitter<string> AppendLine(this SequenceEmitter<string> emitter, string line)
         {
-            return emitter is null ?
-                   null! :
-                   emitter.Append(string.IsNullOrEmpty(line) ? string.Empty : line);
+            return emitter is null ? null! : emitter.Append(string.IsNullOrEmpty(line) ? string.Empty : line);
         }
 
-        public static SequenceEmitter<string> AppendLine(
-                                              this SequenceEmitter<string> emitter,
-                                              params string[] lines
-        )
+        public static SequenceEmitter<string> AppendLine(this SequenceEmitter<string> emitter, params string[] lines)
         {
             if (lines is null || lines.Length == 0) {
                 return emitter;
@@ -54,8 +44,7 @@ namespace Nitload.RegularAnalysis.Abstraction
         public static SequenceEmitter<string> AppendLine(
                                               this SequenceEmitter<string> emitter,
                                               string line,
-                                              bool condition
-        )
+                                              bool condition)
         {
             return emitter is null ? null! : condition ? emitter.Append(line) : emitter;
         }
@@ -70,9 +59,7 @@ namespace Nitload.RegularAnalysis.Abstraction
         private readonly Node _head;
         private Node _tail;
 
-        private SequenceEmitter(
-                Node node
-        )
+        private SequenceEmitter(Node node)
         {
             _isRoot = true;
             _head = node;
@@ -88,9 +75,7 @@ namespace Nitload.RegularAnalysis.Abstraction
 
         public int Count { get; private set; }
 
-        public SequenceEmitter<T> Append(
-                                  T unit
-        )
+        public SequenceEmitter<T> Append(T unit)
         {
             if (!_isRoot) {
                 throw new InvalidOperationException("This emitter has been appended to another emitter. It is now readonly.");
@@ -100,9 +85,7 @@ namespace Nitload.RegularAnalysis.Abstraction
             return this;
         }
 
-        public SequenceEmitter<T> Append(
-                                  SequenceEmitter<T> emitter
-        )
+        public SequenceEmitter<T> Append(SequenceEmitter<T> emitter)
         {
             if (emitter == null || emitter.Count == 0) {
                 return this;
@@ -152,9 +135,7 @@ namespace Nitload.RegularAnalysis.Abstraction
 
 #pragma warning disable CA1063
 #pragma warning disable CA1816 
-        public class Enumerator(
-                     [NotNull] SequenceEmitter<T> emitter
-        ) : IEnumerator<T>
+        public class Enumerator([NotNull] SequenceEmitter<T> emitter) : IEnumerator<T>
         {
 
             private int _index = -1;
@@ -217,16 +198,12 @@ namespace Nitload.RegularAnalysis.Abstraction
                 IRList = [];
             }
 
-            public Node(
-                   int capacity
-            )
+            public Node(int capacity)
             {
                 IRList = new(capacity);
             }
 
-            public T this[
-                     int index
-            ]
+            public T this[int index]
             {
                 get => IRList[index];
                 set => IRList[index] = value;
@@ -239,16 +216,12 @@ namespace Nitload.RegularAnalysis.Abstraction
             public List<T> IRList { get; }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Add(
-                        T ir
-            )
+            public void Add(T ir)
             {
                 IRList.Add(ir);
             }
 
-            public void AddRange(
-                        IEnumerable<T> irs
-            )
+            public void AddRange(IEnumerable<T> irs)
             {
                 IRList.AddRange(irs);
             }

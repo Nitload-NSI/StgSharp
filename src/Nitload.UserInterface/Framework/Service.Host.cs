@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="Service.Host"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -14,9 +14,7 @@ namespace Nitload.UserInterface
     public abstract class ServiceHost
     {
 
-        protected ServiceHost(
-                  string name
-        )
+        protected ServiceHost(string name)
         {
             Name = string.IsNullOrWhiteSpace(name) ?
                    throw new ArgumentException("Value cannot be null or whitespace.", nameof(name)) :
@@ -27,17 +25,13 @@ namespace Nitload.UserInterface
 
         public abstract Task<object?> ExecuteAsync(
                                       ExecuteCommand command,
-                                      CancellationToken cancellationToken = default
-        );
+                                      CancellationToken cancellationToken = default);
 
         public abstract ValueTask InitializeAsync(
                                   ServiceLoadCommand command,
-                                  CancellationToken cancellationToken = default
-        );
+                                  CancellationToken cancellationToken = default);
 
-        public abstract ValueTask StopAsync(
-                                  CancellationToken cancellationToken = default
-        );
+        public abstract ValueTask StopAsync(CancellationToken cancellationToken = default);
 
     }
 }
