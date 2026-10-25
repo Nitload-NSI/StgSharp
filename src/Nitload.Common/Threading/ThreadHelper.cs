@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="ThreadHelper"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -27,7 +27,7 @@ namespace Nitload.Threading
         }
 
         /// <summary>
-        ///   An individual thread doing nothing,  and its <see cref="Thread.IsAlive" /> <see
+        ///   An individual thread doing nothing,  and its <see cref="Thread.IsAlive" /> <see ///
         ///   langword="property" /> always returns false.
         /// </summary>
         public static Thread EmptyThread { get; } = new(() => { });

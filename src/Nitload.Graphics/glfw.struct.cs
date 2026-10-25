@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="glfw.struct"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -21,9 +21,10 @@ namespace Nitload.Common.Internal
     internal unsafe struct GlfwImageNative
     {
 
-        internal int Width;
-        internal int Height;
         internal byte* Pixels;
+        internal int Height;
+
+        internal int Width;
 
     }
 

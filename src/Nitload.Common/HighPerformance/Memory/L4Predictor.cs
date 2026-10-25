@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="L4Predictor"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -22,6 +22,12 @@ namespace Nitload.Common.HighPerformance.Memory
             in Span<L4.AddressSource> RequiredBuffer
         );
 
+        void Prefetch(
+             L4.AddressSource RequiredBuffer,
+             nuint allocBuffer,
+             nuint bufferSize
+        );
+
     }
 
     public interface IL4Predictor<TMission> : IL4Predictor
@@ -32,5 +38,4 @@ namespace Nitload.Common.HighPerformance.Memory
         );
 
     }
-
 }

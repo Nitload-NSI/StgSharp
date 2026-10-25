@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="M128"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -23,41 +23,18 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
     {
 
         [FieldOffset(0)] internal fixed byte Buffer[16];
-        [FieldOffset(0)] internal Vector128<float> Vec;
-
-        internal M128(
-                 Vector4 v
-        )
-        {
-            Unsafe.SkipInit(out this);
-            Unsafe.SkipInit(out Vec);
-            Vec = v.AsVector128();
-        }
-
-        internal M128(
-                 Vector128<float> v
-        )
-        {
-            Unsafe.SkipInit(out this);
-            Vec = v;
-        }
+        [FieldOffset(0)] internal Vector128<byte> Vec;
 
         public ref T AsRef<T>() where T : unmanaged, INumber<T>
         {
             return ref Unsafe.As<byte, T>(ref Buffer[0]);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Vector4 AsVector4()
-        {
-            return Vec.AsVector4();
-        }
-
         public void BroadCastFrom<T>(
                     T value
         ) where T : unmanaged, INumber<T>
         {
-            Vec = Vector128.Create<T>(value).AsSingle();
+            Vec = Vector128.Create<T>(value).AsByte();
         }
 
         public override readonly bool Equals(

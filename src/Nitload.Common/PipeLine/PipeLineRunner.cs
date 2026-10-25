@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="PipeLineRunner"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -149,8 +149,8 @@ namespace Nitload.Common.PipeLine
 
         /// <summary>
         ///   <para> Only the following occasions of calling are valid: </para> <para>1. no bp is
-        ///   running or the only bp is quitting.</para><para>2. calling from the main thread or a
-        ///   thread the current bp is running on. </para>
+        ///   ///   running or the only bp is quitting.</para><para>2. calling from the main thread
+        ///   or a ///   thread the current bp is running on. </para>
         /// </summary>
         internal static bool IsValidCalling()
         {

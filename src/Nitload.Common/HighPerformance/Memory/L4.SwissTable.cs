@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="L4.SwissTable"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -39,8 +39,9 @@ namespace Nitload.Common.HighPerformance.Memory
         public struct AddressSource : IEquatable<AddressSource>
         {
 
+            public uint Description;
+            public uint Size;
             public ulong Address;
-            public ulong Description;
 
             public readonly bool Equals(
                                  AddressSource other
@@ -96,16 +97,18 @@ namespace Nitload.Common.HighPerformance.Memory
         }
 
         internal unsafe struct SwissEnumerator(
-                               byte* buffer
+                               byte* buffer,
+                               int begins_at = 0
         )
         {
 
             private readonly SwissBucket* _buckets = (SwissBucket*)(buffer + IdealCount);
             private readonly Vector128<byte>* _control_bytes = (Vector128<byte>*)buffer;
-            private int _current_group;
-            private int _current_mask;
-            private int _current_offset;
-            private bool _group_loaded;
+            private bool _group_loaded = false;
+            private int _current_group = (begins_at / BucketCapacity) & (GroupCount - 1);
+            private int _current_mask = 0;
+            private int _current_offset = 0;
+            private int _visited_group = 0;
 
             public (AddressSource key, ulong value) Current
             {
@@ -118,9 +121,11 @@ namespace Nitload.Common.HighPerformance.Memory
                 }
             }
 
+            public readonly int CurrentOffset => (_current_group * BucketCapacity) + _current_offset;
+
             public bool MoveNext()
             {
-                while (_current_group < GroupCount)
+                while (_visited_group < GroupCount)
                 {
                     if (!_group_loaded)
                     {
@@ -141,7 +146,8 @@ namespace Nitload.Common.HighPerformance.Memory
                         return true;
                     }
 
-                    _current_group++;
+                    _current_group = (_current_group + 1) & (GroupCount - 1);
+                    _visited_group++;
                     _group_loaded = false;
                 }
                 return false;
@@ -176,6 +182,15 @@ namespace Nitload.Common.HighPerformance.Memory
                 _buffer_write = null;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void RemoveAtOffset(
+                        int offset
+            )
+            {
+                _buffer_write[offset] = (byte)SwissControl.Deleted;
+                _delete_count++;
+            }
+
             /// <summary>
             ///   Publishes the write buffer. The caller must provide the phase barrier around this
             ///   operation.
@@ -190,8 +205,8 @@ namespace Nitload.Common.HighPerformance.Memory
             ///   Writes to the inactive buffer. The caller must serialize all writes.
             /// </summary>
             public bool TryAddOrSet(
-                                 AddressSource key,
-                                 ulong value
+                        AddressSource key,
+                        ulong value
             )
             {
                 if (Sse42.IsSupported) {
@@ -217,11 +232,27 @@ namespace Nitload.Common.HighPerformance.Memory
                 throw new NotImplementedException("The Swiss backend is not implemented for this ISA.");
             }
 
+            /// <summary>
+            ///   Reads the inactive write buffer. The caller must serialize this query with all
+            ///   writes.
+            /// </summary>
+            public readonly bool TryGetWrite(
+                                 AddressSource key,
+                                 out ulong value
+            )
+            {
+                if (Sse42.IsSupported) {
+                    return SwissReaderX86.TryGet(_buffer_write, key, out value);
+                }
+
+                throw new NotImplementedException("The Swiss backend is not implemented for this ISA.");
+            }
+
             public void TryRehash()
             {
                 if (_delete_count < 2048)
                 {
-                    NativeMemory.Copy(_buffer_write, (byte*)_published_buffer, (nuint)TableBufferSize);
+                    NativeMemory.Copy((byte*)_published_buffer, _buffer_write, (nuint)TableBufferSize);
                     return;
                 }
                 try
@@ -233,8 +264,8 @@ namespace Nitload.Common.HighPerformance.Memory
                         while (e.MoveNext())
                         {
                             (AddressSource key, ulong value) = e.Current;
-                            if (!SwissWriterX86.TryAddOrSet(_buffer_write, key, value, ref _delete_count))
-                            {
+                            if (!SwissWriterX86.TryAddOrSet(_buffer_write, key, value,
+                                                            ref _delete_count)) {
                                 throw new InvalidOperationException("The Swiss table could not fit all active entries during rehash.");
                             }
                         }
@@ -251,9 +282,7 @@ namespace Nitload.Common.HighPerformance.Memory
                 }
             }
 
-            /// <summary>
-            ///   Removes from the inactive buffer. The caller must serialize all writes.
-            /// </summary>
+            // Removes from the inactive buffer. The caller must serialize all writes.
             public bool TryRemove(
                         AddressSource key,
                         out ulong value
@@ -261,7 +290,8 @@ namespace Nitload.Common.HighPerformance.Memory
             {
                 if (Sse42.IsSupported)
                 {
-                    return SwissWriterX86.TryRemove(_buffer_write, key, out value, ref _delete_count);
+                    return SwissWriterX86.TryRemove(_buffer_write, key, out value,
+                                                    ref _delete_count);
                 } else
                 {
                     throw new NotImplementedException("The Swiss backend is not implemented for this ISA.");
@@ -274,6 +304,14 @@ namespace Nitload.Common.HighPerformance.Memory
             {
                 ArgumentNullException.ThrowIfNull(buffers);
                 return new SwissTable(buffers);
+            }
+
+            // Enumerates the write buffer; the caller must serialize writers and prevent swaps.
+            internal readonly SwissEnumerator GetWriteBufferEnumerator(
+                                              int begins_at = 0
+            )
+            {
+                return new SwissEnumerator(_buffer_write, begins_at);
             }
 
             private static void InitializeBuffer(

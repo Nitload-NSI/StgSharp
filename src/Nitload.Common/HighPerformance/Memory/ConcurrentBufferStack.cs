@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="ConcurrentBufferStack"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -255,22 +255,18 @@ namespace Nitload.Common.HighPerformance.Memory
         }
 
         /// <summary>
-        /// Fills the stack in place via a caller-supplied callback, mirroring
-        /// <c>CapacityFixedStack&lt;T&gt;.FillRange</c>.
+        ///   Fills the stack in place via a caller-supplied callback, mirroring <c>
+        ///   CapacityFixedStack&lt;T&gt;.FillRange</c>.
         /// </summary>
         /// <remarks>
-        /// Intended for construction only, and therefore takes no lock — the
-        /// instance is not yet published to other threads at that point. Do not
-        /// call it on a stack that is already in concurrent use.
-        /// <para>
-        /// Preferred over building a temporary span and handing it to
-        /// <see cref="BufferStackBuilder.CreateConcurrent{T}(ReadOnlySpan{T})"/>
-        /// for the same two reasons as the non-concurrent variant: the callback
-        /// writes straight into native storage (no scratch buffer, no copy),
-        /// and passing the element type through the enclosing instance avoids
-        /// the <c>Span</c>-to-<c>ReadOnlySpan</c> inference gap that yields
-        /// CS0411 before C# 14.
-        /// </para>
+        ///   Intended for construction only, and therefore takes no lock — the instance is not yet
+        ///   published to other threads at that point. Do not call it on a stack that is already in
+        ///   concurrent use. <para>/// Preferred over building a temporary span and handing it to
+        ///   /// <see cref="BufferStackBuilder.CreateConcurrent{T}(ReadOnlySpan{T})" /> /// for the
+        ///   same two reasons as the non-concurrent variant: the callback /// writes straight into
+        ///   native storage (no scratch buffer, no copy), /// and passing the element type through
+        ///   the enclosing instance avoids /// the <c> Span </c>-to-<c> ReadOnlySpan </c> inference
+        ///   gap that yields /// CS0411 before C# 14. /// </para>
         /// </remarks>
         internal unsafe void FillRange(
                              SpanAction<T, nuint> filling,

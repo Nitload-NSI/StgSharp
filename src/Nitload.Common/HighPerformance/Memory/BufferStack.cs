@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="BufferStack"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -99,10 +99,10 @@ namespace Nitload.Common.HighPerformance.Memory
         /// </summary>
         /// <remarks>
         ///   Preferred over building a temporary span and handing it to <see
-        ///   cref="BufferStackBuilder.Create{T}(ReadOnlySpan{T})" />: <list type="bullet"> ///
-        ///   <item> The caller no longer needs a scratch buffer at all — the /// callback writes
-        ///   straight into this stack's native storage, so there /// is no <c> stackalloc </c> to
-        ///   size and no copy afterwards. </item> /// <item><c> Span&lt;T&gt; </c> does not
+        ///   cref="BufferStackBuilder.Create{T}(ReadOnlySpan{T})" />: <list type="bullet">
+        ///   ///<item> The caller no longer needs a scratch buffer at all — the /// callback writes
+        ///   straight into this stack's native storage, so there /// is no <c> stackalloc</c> to
+        ///   size and no copy afterwards. </item> /// <item><c>Span&lt;T&gt;</c> does not
         ///   implicitly convert to /// <c> ReadOnlySpan&lt;T&gt; </c> in a way that participates in
         ///   generic /// type inference before C# 14, so <c> Create(span) </c> fails with ///
         ///   CS0411 on older compilers. Passing the element type through the /// enclosing instance

@@ -1,11 +1,12 @@
 // -----------------------------------------------------------------------------
 // file="MatrixParallel"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
 using Nitload.Common.Collections;
+using Nitload.Common.HighPerformance.Memory;
 using Nitload.Common.HighPerformance.ProcessorAbstraction;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -67,7 +68,7 @@ namespace Nitload.Mathematics.Numeric
             _numaWaveFront = Numa.CreateForeachThread<MatrixParallelThread>(
                core => {
                    MatrixParallelThread thread = new(core);
-                   SpinWait.SpinUntil(() => thread.State == MatrixThreadState.Ready);
+                   SpinWait.SpinUntil(() => thread.State == L4AwareThreadState.Ready);
 
                    SIMDID simd = thread.Simd;
                    ulong mask = simd.Mask;

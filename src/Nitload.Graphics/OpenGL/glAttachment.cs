@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
-// file="glConst"
-// Project: StgSharp
+// file="glAttachment"
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------

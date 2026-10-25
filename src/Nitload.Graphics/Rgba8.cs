@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="Rgba8"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -16,10 +16,11 @@ namespace Nitload.Graphics
     public struct Rgba8
     {
 
-        public byte R;
-        public byte G;
-        public byte B;
         public byte A;
+        public byte B;
+        public byte G;
+
+        public byte R;
 
         public Rgba8(
                byte red,

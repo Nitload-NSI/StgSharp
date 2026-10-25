@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="NumaNode"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -20,7 +20,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         private LogicalCore[] _logicalCores;
 
         internal NumaNode(
-                 uint numaId,
+                 int numaId,
                  int count,
                  Span<uint> processorGroupIds,
                  Span<uint> socketIds,
@@ -32,17 +32,14 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             NumaNodeId = numaId;
             _logicalCores = new LogicalCore[count];
             for (int i = 0; i < count; i++) {
-                _logicalCores[i] = new LogicalCore(
-                    processorGroupIds[i],
-                    socketIds[i],
-                    cpuIndices[i],
-                    numaNodeIds[i]);
+                _logicalCores[i] = new LogicalCore(processorGroupIds[i], socketIds[i],
+                                                   cpuIndices[i], numaNodeIds[i]);
             }
         }
 
-        public uint NumaNodeId { get; }
-
         public int LogicalCoreCount => _logicalCores.Length;
+
+        public int NumaNodeId { get; }
 
         public ReadOnlySpan<LogicalCore> LogicalCores => _logicalCores;
 

@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="LogicalCore"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -13,13 +13,14 @@ using System.Threading.Tasks;
 
 namespace Nitload.Common.HighPerformance.ProcessorAbstraction
 {
-    public readonly struct LogicalCore
+    public readonly record struct LogicalCore
     {
+
+        public readonly uint CpuIndex;
+        public readonly uint NumaNodeId;
 
         public readonly uint ProcessorGroupId;
         public readonly uint SocketId;
-        public readonly uint CpuIndex;
-        public readonly uint NumaNodeId;
 
         internal LogicalCore(
                  uint processorGroupId,

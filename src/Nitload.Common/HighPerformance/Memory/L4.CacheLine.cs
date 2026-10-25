@@ -1,11 +1,12 @@
 // -----------------------------------------------------------------------------
 // file="L4.CacheLine"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
 using System.Runtime.InteropServices;
+using System.Xml.Serialization;
 
 namespace Nitload.Common.HighPerformance.Memory
 {
@@ -27,9 +28,45 @@ namespace Nitload.Common.HighPerformance.Memory
 
             internal const uint MaxBufferSize = 0xFFFFFFFF - 64U;
 
-            [FieldOffset(16)] internal AllocationState State;
+            [FieldOffset(31)] internal AllocationState State;
 
             public static uint SizeOf { get; } = (uint)Unsafe.SizeOf<CacheLineMetadata>();
+
+            /// <summary>
+            ///   only available in L4.Predict()
+            /// </summary>
+            public void CheckCount()
+            {
+                uint count = Volatile.Read(ref ConsumeCount);
+                if (ushort.MaxValue < count)
+                {
+                    uint delta = unchecked(0u - count);
+                    _ = Interlocked.Add(ref ConsumeCount, delta);
+                    _ = Interlocked.Add(ref MapCount, delta);
+                    _ = Interlocked.Add(ref PredictCount, delta);
+                }
+            }
+
+            public void IncreaseConsumeCount()
+            {
+                unchecked {
+                    _ = Interlocked.Increment(ref ConsumeCount);
+                }
+            }
+
+            public void IncreaseMapCount()
+            {
+                unchecked {
+                    _ = Interlocked.Increment(ref MapCount);
+                }
+            }
+
+            public void IncreasePredictCount()
+            {
+                unchecked {
+                    _ = Interlocked.Increment(ref PredictCount);
+                }
+            }
 
             #region tlsf linked list
 
@@ -42,8 +79,17 @@ namespace Nitload.Common.HighPerformance.Memory
 
             #region buffer
 
-            [FieldOffset(8)] public uint PositionMask;
+            // Payload offset from the L4 arena base.
+            [FieldOffset(8)] public uint Position;
             [FieldOffset(12)] public uint SizeMask;
+
+            #endregion
+
+            #region count
+
+            [FieldOffset(16)] public uint PredictCount;
+            [FieldOffset(20)] public uint MapCount;
+            [FieldOffset(24)] public uint ConsumeCount;
 
         #endregion
         }
@@ -76,6 +122,7 @@ namespace Nitload.Common.HighPerformance.Memory
                 if (_handle == 0) {
                     return;
                 }
+                _ = Interlocked.Increment(ref ((CacheLineMetadata*)_reserved)->ConsumeCount);
                 _handle = 0;
                 _reserved = 0;
             }

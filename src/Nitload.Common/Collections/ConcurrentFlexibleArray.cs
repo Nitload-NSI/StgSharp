@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="ConcurrentFlexibleArray"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------

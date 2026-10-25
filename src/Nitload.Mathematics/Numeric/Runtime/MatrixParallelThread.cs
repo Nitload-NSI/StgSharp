@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="MatrixParallelThread"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -61,6 +61,13 @@ namespace Nitload.Mathematics.Numeric
         {
             Dispose(disposing:true);
             GC.SuppressFinalize(this);
+        }
+
+        public bool Equals(
+                    MatrixParallelThread? other
+        )
+        {
+            return (other is not null) && ReferenceEquals(this, other);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -168,12 +175,6 @@ namespace Nitload.Mathematics.Numeric
                                            ulong id
         );
 
-        public bool Equals(
-                    MatrixParallelThread? other
-        )
-        {
-            return (other is not null) && ReferenceEquals(this, other);
-        }
 #pragma warning restore CA5393
     }
 }

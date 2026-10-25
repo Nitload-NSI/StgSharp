@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="M256"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -22,7 +22,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
     {
 
         [FieldOffset(0)] internal fixed byte Buffer[32];
-        [FieldOffset(0)] internal Vector256<float> Vec;
+        [FieldOffset(0)] internal Vector256<byte> Vec;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T AsRef<T>() where T : unmanaged, INumber<T>
@@ -34,7 +34,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
                     T value
         ) where T : unmanaged, INumber<T>
         {
-            Vec = Vector256.Create(value).AsSingle();
+            Vec = Vector256.Create(value).AsByte();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

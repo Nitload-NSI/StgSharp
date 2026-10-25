@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="glException"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -30,5 +30,4 @@ namespace Nitload.Graphics.OpenGL
             : base($"Critical OpenGL error: {errorCode}") { }
 
     }
-
 }

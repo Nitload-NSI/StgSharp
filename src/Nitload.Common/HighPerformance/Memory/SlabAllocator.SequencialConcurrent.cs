@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="SlabAllocator.SequencialConcurrent"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -43,6 +43,7 @@ namespace Nitload.Common.HighPerformance.Memory
                 > 64 => 64,
                 _ => ((int)_capacity) / 4
             };
+
             // Callback fill instead of scratch span + CreateConcurrent: avoids
             // the stackalloc and the copy, and sidesteps the CS0411 inference
             // gap. Safe without locking — not yet published to other threads.

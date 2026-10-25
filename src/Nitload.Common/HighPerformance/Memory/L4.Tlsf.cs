@@ -1,31 +1,33 @@
 // -----------------------------------------------------------------------------
 // file="L4.Tlsf"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using Nitload.Common.HighPerformance.ProcessorAbstraction;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection.Metadata;
 
 namespace Nitload.Common.HighPerformance.Memory
 {
     public partial class L4
     {
 
+        /// <summary>
+        ///   L4-specific TLSF allocator whose metadata nodes also serve as cache-line headers.
+        /// </summary>
+        /// <remarks>
+        ///   Payload occupies the first arena region; a fixed metadata slab follows it and is
+        ///   carved backward from its aligned high end. Handle 0 is the sentinel, and positive
+        ///   handles are metadata slot indices. This layout is intentionally coupled to L4.
+        /// </remarks>
         private unsafe struct TLSF
         {
 
-            public const int MaxCacheLineCount = 8192;
+            public const int MaxCacheLineCount = MaxActiveCacheLineCount;
 
             public static readonly nuint RequestedAllocation =
-                    ((nuint)MaxCacheLineCount + 1u) * CacheLineMetadata.SizeOf;
+                    (((nuint)MaxCacheLineCount + 1u) * CacheLineMetadata.SizeOf) + CacheLineMetadata.SizeOf - 1u;
             private readonly CacheLineMetadata* _spareMemory;
             private readonly int _align;
             private readonly int _maxLevel;
@@ -52,12 +54,16 @@ namespace Nitload.Common.HighPerformance.Memory
 
                 // _bucket = new short[GetLevel(_maxAllocSize) + 2];
                 _bucket[63] = (short)(GetLevel(_maxAllocSize) + 2);
-                _spareMemory = (CacheLineMetadata*)(ulong)(_basePtr + _totalSize);
+
+                // Metadata occupies the reservation after payload: handle 0 is the sentinel, and handles 1..MaxCacheLineCount are carved backward from the aligned high end until the slab is full.
+                nuint metadataRegionEnd = (nuint)externalPointer + byteSize + RequestedAllocation;
+                nuint alignedMetadataEnd = metadataRegionEnd & ~((nuint)CacheLineMetadata.SizeOf - 1u);
+                _spareMemory = (CacheLineMetadata*)(alignedMetadataEnd - CacheLineMetadata.SizeOf);
                 _metadataEnd = 0;
 
                 // init spare memory node
 
-                _spareMemory->PositionMask = 0;
+                _spareMemory->Position = 0;
                 _spareMemory->SizeMask = _totalSize;
                 _spareMemory->NextLevel = 0;
                 _spareMemory->NextNear = 0;
@@ -66,8 +72,16 @@ namespace Nitload.Common.HighPerformance.Memory
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private int GetLevel(
-                        uint size
+            internal readonly CacheLineMetadata* MetadataAt(
+                                                 int handle
+            )
+            {
+                return _spareMemory - handle;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private readonly int GetLevel(
+                                 uint size
             )
             {
                 int origin = 25 - BitOperations.LeadingZeroCount(size);
@@ -93,11 +107,11 @@ namespace Nitload.Common.HighPerformance.Memory
                 // remove from position chain
                 short prevNearIdx = node->PreviousNear;
                 short nextNearIdx = node->NextNear;
-                CacheLineMetadata* prevNear = &_spareMemory[prevNearIdx];
+                CacheLineMetadata* prevNear = MetadataAt(prevNearIdx);
                 prevNear->NextNear = nextNearIdx;
                 if (nextNearIdx != 0)
                 {
-                    CacheLineMetadata* nextNear = &_spareMemory[nextNearIdx];
+                    CacheLineMetadata* nextNear = MetadataAt(nextNearIdx);
                     nextNear->PreviousNear = prevNearIdx;
                 } else
                 {
@@ -106,7 +120,7 @@ namespace Nitload.Common.HighPerformance.Memory
                 node->PreviousNear = 0;
                 node->NextNear = 0;
 
-                node->PositionMask = 0;
+                node->Position = 0;
                 node->SizeMask = 0;
                 node->State = AllocationState.SpareOrCollect;
                 node->PreviousLevel = 0;
@@ -114,7 +128,7 @@ namespace Nitload.Common.HighPerformance.Memory
                 short nextIdx = _spareMemory->NextLevel;
                 if (nextIdx != 0)
                 {
-                    CacheLineMetadata* next = &_spareMemory[nextIdx];
+                    CacheLineMetadata* next = MetadataAt(nextIdx);
                     next->PreviousLevel = nodeIdx;
                 }
                 node->NextLevel = nextIdx;
@@ -145,12 +159,12 @@ namespace Nitload.Common.HighPerformance.Memory
                     _bucket[currentLevel] = currentNextLevelIdx;
                 } else if (currentPrevLevelIdx != 0)
                 {
-                    CacheLineMetadata* prevLevel = &_spareMemory[currentPrevLevelIdx];
+                    CacheLineMetadata* prevLevel = MetadataAt(currentPrevLevelIdx);
                     prevLevel->NextLevel = currentNextLevelIdx;
                 }
                 if (currentNextLevelIdx != 0)
                 {
-                    CacheLineMetadata* nextLevel = &_spareMemory[currentNextLevelIdx];
+                    CacheLineMetadata* nextLevel = MetadataAt(currentNextLevelIdx);
                     nextLevel->PreviousLevel = currentPrevLevelIdx;
                 }
                 node->PreviousLevel = 0;
@@ -203,11 +217,11 @@ namespace Nitload.Common.HighPerformance.Memory
                         meta = null;
                         return false;
                     }
-                    meta = &_spareMemory[idx];
+                    meta = MetadataAt(idx);
                     short nextSpareIdx = meta->NextLevel;
                     if (nextSpareIdx != 0)
                     {
-                        CacheLineMetadata* nextSpare = &_spareMemory[nextSpareIdx];
+                        CacheLineMetadata* nextSpare = MetadataAt(nextSpareIdx);
                         nextSpare->PreviousLevel = 0;
                     }
                     _spareMemory->NextLevel = nextSpareIdx;
@@ -215,18 +229,19 @@ namespace Nitload.Common.HighPerformance.Memory
                 if (!TryGetNewMetadata(out meta)) {
                     return false;
                 }
+                idx = (short)(_spareMemory - meta);
                 spareSize -= size;
                 meta->SizeMask = size;
-                meta->PositionMask = _spareMemory->PositionMask;
+                meta->Position = _spareMemory->Position;
                 meta->State = AllocationState.Free;
                 meta->PreviousLevel = 0;
                 meta->NextLevel = 0;
                 _spareMemory->SizeMask = spareSize;
-                _spareMemory->PositionMask += size;
+                _spareMemory->Position += size;
 
                 // insert the new chunk to position chain
                 short nearIdx = _spareMemory->PreviousNear;
-                CacheLineMetadata* near = &_spareMemory[nearIdx];
+                CacheLineMetadata* near = MetadataAt(nearIdx);
                 near->NextNear = idx;
                 meta->PreviousNear = nearIdx;
                 _spareMemory->PreviousNear = idx;
@@ -245,7 +260,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     return false;
                 }
                 _metadataEnd++;
-                meta = &_spareMemory[_metadataEnd];
+                meta = MetadataAt(_metadataEnd);
                 return true;
             }
 
@@ -261,7 +276,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     int idx = _bucket[level];
                     while (idx != 0)
                     {
-                        CacheLineMetadata* candidate = &_spareMemory[idx];
+                        CacheLineMetadata* candidate = MetadataAt(idx);
                         if (candidate->SizeMask >= minimumSize)
                         {
                             RemoveFromBucket(level, candidate, idx);
@@ -276,7 +291,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     int idx = _bucket[i];
                     if (idx != 0)
                     {
-                        CacheLineMetadata* candidate = &_spareMemory[idx];
+                        CacheLineMetadata* candidate = MetadataAt(idx);
                         RemoveFromBucketHead(i, candidate, idx);
                         entry = candidate;
                         return true;
@@ -313,7 +328,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     TryGetNewMetadata(out CacheLineMetadata* newEntry))
                 {
                     short newEntryIdx = (short)(_spareMemory - newEntry);
-                    newEntry->PositionMask = entry->PositionMask + allocSize;
+                    newEntry->Position = entry->Position + allocSize;
                     newEntry->SizeMask = remain;
                     newEntry->State = AllocationState.Free;
                     int newLevel = GetLevel(remain);
@@ -321,7 +336,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     if (bucketHeadIdx != 0)
                     {
                         // if there is already an entry in the bucket, link it to the new entry
-                        CacheLineMetadata* bucketHead = &_spareMemory[bucketHeadIdx];
+                        CacheLineMetadata* bucketHead = MetadataAt(bucketHeadIdx);
                         bucketHead->PreviousLevel = newEntryIdx;
                     }
                     newEntry->NextLevel = bucketHeadIdx;
@@ -331,14 +346,14 @@ namespace Nitload.Common.HighPerformance.Memory
 
                     // push to position chain
                     short afterIdx = entry->NextNear;
-                    CacheLineMetadata* after = &_spareMemory[afterIdx];
+                    CacheLineMetadata* after = MetadataAt(afterIdx);
                     newEntry->NextNear = afterIdx;
                     after->PreviousNear = newEntryIdx;
                     entry->NextNear = newEntryIdx;
                     newEntry->PreviousNear = entryIdx;
                 }
                 entry->State = AllocationState.Alloc;
-                if (entry->PositionMask - (ulong)_basePtr > _totalSize) {
+                if (entry->Position > _totalSize) {
                     throw new OverflowException("Allocated memory address exceeds the maximum block size.");
                 }
                 return entryIdx;
@@ -353,7 +368,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     {
                         break;
                     }
-                    CacheLineMetadata* current = &_spareMemory[currentIdx];
+                    CacheLineMetadata* current = MetadataAt(currentIdx);
                     if (current->State == AllocationState.Free)
                     {
                         // scan next
@@ -361,7 +376,7 @@ namespace Nitload.Common.HighPerformance.Memory
                         int nextIdx = current->NextNear;
                         while (nextIdx != 0)
                         {
-                            CacheLineMetadata* next = &_spareMemory[nextIdx];
+                            CacheLineMetadata* next = MetadataAt(nextIdx);
                             if (next->State != AllocationState.Free)
                             {
                                 break;
@@ -378,7 +393,7 @@ namespace Nitload.Common.HighPerformance.Memory
                             short bucketHeadIdx = _bucket[newLevel];
                             if (bucketHeadIdx != 0)
                             {
-                                CacheLineMetadata* bucketHead = &_spareMemory[bucketHeadIdx];
+                                CacheLineMetadata* bucketHead = MetadataAt(bucketHeadIdx);
                                 bucketHead->PreviousLevel = currentIdx;
                             }
                             current->NextLevel = bucketHeadIdx;
@@ -391,11 +406,10 @@ namespace Nitload.Common.HighPerformance.Memory
             }
 
             public void Free(
-                        int handle,
+                        CacheLineMetadata* head,
                         int collectScanWindow = 4
             )
             {
-                CacheLineMetadata* head = &_spareMemory[handle];
                 short headIdx = (short)(_spareMemory - head);
                 uint size = head->SizeMask;
                 for (int i = 0; i < collectScanWindow; i++)
@@ -406,13 +420,13 @@ namespace Nitload.Common.HighPerformance.Memory
                     {
                         break;
                     }
-                    CacheLineMetadata* prev = &_spareMemory[forwardIdx];
+                    CacheLineMetadata* prev = MetadataAt(forwardIdx);
                     if (prev->State != AllocationState.Free)
                     {
                         break;
                     }
                     size += prev->SizeMask;
-                    head->PositionMask = prev->PositionMask;
+                    head->Position = prev->Position;
                     RecycleNode(prev);
                 }
                 for (int i = 0; i < collectScanWindow; i++)
@@ -423,7 +437,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     {
                         break;
                     }
-                    CacheLineMetadata* prev = &_spareMemory[nextIdx];
+                    CacheLineMetadata* prev = MetadataAt(nextIdx);
                     if (prev->State != AllocationState.Free)
                     {
                         break;
@@ -434,6 +448,9 @@ namespace Nitload.Common.HighPerformance.Memory
 
                 // recycle to level;
                 head->SizeMask = size;
+                head->PredictCount = 0;
+                head->MapCount = 0;
+                head->ConsumeCount = 0;
                 head->State = AllocationState.Free;
                 head->PreviousLevel = 0;
                 int level = GetLevel(head->SizeMask);
@@ -441,12 +458,32 @@ namespace Nitload.Common.HighPerformance.Memory
                 head->NextLevel = 0;
                 if (bucketHeadIdx != 0)
                 {
-                    CacheLineMetadata* bucketHead = &_spareMemory[bucketHeadIdx];
+                    CacheLineMetadata* bucketHead = MetadataAt(bucketHeadIdx);
                     bucketHead->PreviousLevel = headIdx;
                     head->NextLevel = bucketHeadIdx;
                 }
                 _bucket[level] = headIdx;
                 return;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Free(
+                        ulong handle,
+                        int collectScanWindow = 4
+            )
+            {
+                CacheLineMetadata* head = (CacheLineMetadata*)handle;
+                Free(head, collectScanWindow);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Free(
+                        int handle,
+                        int collectScanWindow = 4
+            )
+            {
+                CacheLineMetadata* head = MetadataAt(handle);
+                Free(head, collectScanWindow);
             }
 
             public bool TryAlloc(
@@ -479,7 +516,7 @@ namespace Nitload.Common.HighPerformance.Memory
                 if (remain > (entrySize >> 7) && TryGetNewMetadata(out CacheLineMetadata* newEntry))
                 {
                     short newEntryIdx = (short)(_spareMemory - newEntry);
-                    newEntry->PositionMask = entry->PositionMask + allocSize;
+                    newEntry->Position = entry->Position + allocSize;
                     newEntry->SizeMask = remain;
                     newEntry->State = AllocationState.Free;
                     int newLevel = GetLevel(remain);
@@ -487,7 +524,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     if (bucketHeadIdx != 0)
                     {
                         // if there is already an entry in the bucket, link it to the new entry
-                        CacheLineMetadata* bucketHead = &_spareMemory[bucketHeadIdx];
+                        CacheLineMetadata* bucketHead = MetadataAt(bucketHeadIdx);
                         newEntry->NextLevel = bucketHeadIdx;
                         bucketHead->PreviousLevel = newEntryIdx;
                     } else
@@ -499,14 +536,14 @@ namespace Nitload.Common.HighPerformance.Memory
 
                     // push to position chain
                     short afterIdx = entry->NextNear;
-                    CacheLineMetadata* after = &_spareMemory[afterIdx];
+                    CacheLineMetadata* after = MetadataAt(afterIdx);
                     newEntry->NextNear = afterIdx;
                     after->PreviousNear = newEntryIdx;
                     entry->NextNear = newEntryIdx;
                     newEntry->PreviousNear = entryIdx;
                 }
                 entry->State = AllocationState.Alloc;
-                if (entry->PositionMask - (ulong)_basePtr > _totalSize)
+                if (entry->Position > _totalSize)
                 {
                     h = default;
                     throw new OverflowException("Allocated memory address exceeds the maximum block size.");

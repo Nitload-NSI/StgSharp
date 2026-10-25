@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="L4"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -12,7 +12,12 @@ namespace Nitload.Common.HighPerformance.Memory
     public sealed unsafe partial class L4 : IDisposable
     {
 
+        private const int MaxActiveCacheLineCount = 8192;
+
         private const nuint PageSize = 4096;
+        private const int PredictorRingCapacity = 256;
+
+        private readonly IL4Predictor[] _ring;
 
         private bool _disposed;
         private readonly int _bindedNuma;
@@ -29,11 +34,12 @@ namespace Nitload.Common.HighPerformance.Memory
         {
             ArgumentOutOfRangeException.ThrowIfGreaterThan(bufferSize, CacheLineMetadata.MaxBufferSize);
             ArgumentOutOfRangeException.ThrowIfGreaterThan(maxCacheLineSize, CacheLineMetadata.MaxBufferSize);
+            _ring = new IL4Predictor[PredictorRingCapacity];
             _bindedNuma = bindedNuma;
             _predict_slow_path_count = GetPredictSlowPathCount(bindedNuma);
             nuint normalizedBufferSize = (bufferSize + (PageSize - 1)) & (~(PageSize - 1));
             ByteCapacity = normalizedBufferSize;
-            nuint swissBufferOffset = normalizedBufferSize + TLSF.RequestedAllocation;
+            nuint swissBufferOffset = (normalizedBufferSize + TLSF.RequestedAllocation + 15u) & ~15u;
             AllocSize = swissBufferOffset + (nuint)BufferSize;
             _baseAddress = (nuint)Numa.Alloc(bindedNuma, AllocSize);
             _bufferAllocator = new TLSF(bufferSize, maxCacheLineSize, (void*)_baseAddress);
@@ -73,6 +79,8 @@ namespace Nitload.Common.HighPerformance.Memory
             _bufferAllocator.Free(handle);
         }
 
+        internal partial int Predict();
+
         internal bool TryAllocate(
                       uint size,
                       out int handle
@@ -82,14 +90,15 @@ namespace Nitload.Common.HighPerformance.Memory
             return _bufferAllocator.TryAlloc(size, out handle);
         }
 
-        internal partial int Predict();
-
-        private static int GetPredictSlowPathCount(int bindedNuma)
+        private static int GetPredictSlowPathCount(
+                           int bindedNuma
+        )
         {
             foreach (NumaNode node in Numa.AllNumaNode)
             {
-                if (node.NumaNodeId == (uint)bindedNuma)
+                if (node.NumaNodeId == (uint)bindedNuma) {
                     return checked(node.LogicalCoreCount * 2);
+                }
             }
 
             throw new ArgumentOutOfRangeException(nameof(bindedNuma), "No topology information exists for the bound NUMA node.");

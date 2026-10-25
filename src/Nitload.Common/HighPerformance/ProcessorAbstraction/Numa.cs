@@ -1,25 +1,19 @@
 // -----------------------------------------------------------------------------
 // file="Numa"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
 using Nitload.Common.HighPerformance.Memory;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nitload.Common.HighPerformance.ProcessorAbstraction
 {
     public static partial class Numa
     {
 
-        private static NumaNode[] _numaNodes;
+        private static NumaNode[] _numaNodes = [];
 
         public static int NumaNodeCount { get; private set; }
 
@@ -75,25 +69,6 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             NumaFreeNative(address, size, numaId);
         }
 
-        [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_each")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        public static partial int GetNumaEach(
-                                  uint numaId,
-                                  Span<uint> processorGroupIds,
-                                  Span<uint> socketIds,
-                                  Span<uint> cpuIndices,
-                                  Span<uint> numaNodeIds
-        );
-
-        [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_overall")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        public static partial int GetNumaOverall(
-                                  ref int count,
-                                  Span<int> coreCountInNuma
-        );
-
         public static L4[] RequestBufferForEachNuma()
         {
             if (_numaNodes.Length == 0) {
@@ -102,7 +77,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             L4[] buffers = new L4[_numaNodes.Length];
             for (int i = 0; i < _numaNodes.Length; i++)
             {
-                L4 buffer = new L4((int)_numaNodes[i].NumaNodeId);
+                L4 buffer = new(_numaNodes[i].NumaNodeId);
                 buffers[i] = buffer;
             }
             return buffers;
@@ -119,7 +94,8 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
                 throw new InvalidOperationException("Failed to get NUMA node processor counts.");
             }
             int activeNodeCount = 0;
-            for (int i = 0; i < coreCountInNuma.Length; i++) {
+            for (int i = 0; i < coreCountInNuma.Length; i++)
+            {
                 if (coreCountInNuma[i] > 0) {
                     activeNodeCount++;
                 }
@@ -127,26 +103,33 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             NumaNodeCount = activeNodeCount;
             _numaNodes = new NumaNode[activeNodeCount];
             int nodeIndex = 0;
-            for (uint numaId = 0; numaId < numaNodeCount; numaId++) {
-                int coreCount = coreCountInNuma[(int)numaId];
-                if (coreCount == 0) {
+            for (int numaId = 0; numaId < numaNodeCount; numaId++)
+            {
+                int coreCount = coreCountInNuma[numaId];
+                if (coreCount == 0)
+                {
                     continue;
                 }
                 _numaNodes[nodeIndex++] = InitNumaNode(numaId, coreCount);
             }
         }
 
-        [LibraryImport(Native.LibName, EntryPoint = "nfn_set_thread_affinity")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        internal static partial void SetThreadAffinity(
-                                     int cpuIndex,
-                                     int processorGroupId
-        );
+        private static bool ContainsNode(
+                            uint numaId
+        )
+        {
+            foreach (NumaNode node in _numaNodes)
+            {
+                if (node.NumaNodeId == numaId) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static NumaNode InitNumaNode(
-                                uint numaId,
+                                int numaId,
                                 int count
         )
         {
@@ -160,15 +143,36 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             return new(numaId, count, processorGroupIds, socketIds, cpuIndices, numaNodeIds);
         }
 
-        private static bool ContainsNode(uint numaId)
-        {
-            foreach (NumaNode node in _numaNodes) {
-                if (node.NumaNodeId == numaId) {
-                    return true;
-                }
-            }
-            return false;
-        }
+        #region native invoke
+
+#pragma warning disable CA5393
+
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_each")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+        public static partial int GetNumaEach(
+                                  int numaId,
+                                  Span<uint> processorGroupIds,
+                                  Span<uint> socketIds,
+                                  Span<uint> cpuIndices,
+                                  Span<uint> numaNodeIds
+        );
+
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_overall")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+        public static partial int GetNumaOverall(
+                                  ref int count,
+                                  Span<int> coreCountInNuma
+        );
+
+        [LibraryImport(Native.LibName, EntryPoint = "nfn_set_thread_affinity")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+        internal static partial void SetThreadAffinity(
+                                     int cpuIndex,
+                                     int processorGroupId
+        );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_numa_alloc")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -187,5 +191,8 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
                                            int numa_id
         );
 
+#pragma warning restore CA5393
+
+    #endregion
     }
 }

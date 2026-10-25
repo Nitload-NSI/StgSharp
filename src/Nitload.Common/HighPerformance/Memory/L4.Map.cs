@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="L4.Map"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -44,11 +44,16 @@ namespace Nitload.Common.HighPerformance.Memory
                             while (Volatile.Read(ref _swiss_reader_counter) != 0) { }
 
                             _addressMap.SwapBuffers();
-                            Volatile.Write(ref _predict_count, effectivePredictionCount);
+                            _ = Interlocked.Add(ref _predict_count, effectivePredictionCount);
                             _addressMap.TryRehash();
                         }
 
-                        if (_addressMap.TryGet(source, out handle)) {
+                        if (effectivePredictionCount < 2048)
+                        {
+                            // TODO: Implement prediction-exhausted mode and keep checking predictors for more work.
+                        }
+
+                        if (!_addressMap.TryGet(source, out handle)) {
                             throw new InvalidOperationException($"Unexpected map request: [address source: 0x{source.Address:x16}; layout profile: {source.Description:x16}].");
                         }
                     }
@@ -70,10 +75,9 @@ namespace Nitload.Common.HighPerformance.Memory
             }
 
             CacheLineMetadata* metadata = (CacheLineMetadata*)handle;
+            metadata->IncreaseMapCount();
 
-            // process metadata, unfinished
-            uint offset = metadata->PositionMask;
-            nuint address = /*base ptr + */ offset;
+            nuint address = _baseAddress + metadata->Position;
             _ = Interlocked.Decrement(ref _predict_count);
 
             return new Handle(address, (nuint)handle);

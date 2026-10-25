@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="IRegisterType"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
     {
 
         /// <summary>
-        ///   Gets a reference to the first element of the register reinterpreted as type <typeparamref
+        ///   Gets a reference to the first element of the register reinterpreted as type <typeparamref ///
         ///   name="T" />.
         /// </summary>
         /// <typeparam name="T">
@@ -35,7 +35,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         /// </returns>
         /// <remarks>
         ///   Intended for treating the register as a contiguous block of elements. The returned reference
-        ///   must remain valid for the lifetime of the register and be identical to <see
+        ///   must remain valid for the lifetime of the register and be identical to <see ///
         ///   cref="Member{T}(int)" /> with index 0. Caller must choose a type layout compatible with the
         ///   actual register representation.
         /// </remarks>
