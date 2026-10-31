@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="MatrixParallelTask"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -25,19 +25,14 @@ namespace Nitload.Mathematics.Numeric.Runtime
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 128)]
-    internal unsafe struct MatrixParallelTask
+    public unsafe struct MatrixParallelTask
     {
 
-        [FieldOffset(104)] private ulong _reserved0;
+        #region mask
 
-        [FieldOffset(0)] public L4.Handle Buffer0;
-        [FieldOffset(16)] public L4.Handle Buffer1;
-        [FieldOffset(32)] public L4.Handle Buffer2;
-        [FieldOffset(48)] public L4.Handle Buffer3;
-        [FieldOffset(112)] public M128 ScalarPack;
         [FieldOffset(64)] public M512 Profile;
-        [FieldOffset(64)] public MatrixElementType ElementType;         //记录了类型掩码的类型位宽的union，大小4byte
-        [FieldOffset(68)] public MatrixIntrinsicHandle ComputeHandle;    //记录了函数指针在类型组中的索引，实际就是int，但是为每一个索引起了名字，于是变成了enum，大小4byte
+
+        #endregion
 
         public MatrixParallelTask()
         {
@@ -54,8 +49,16 @@ namespace Nitload.Mathematics.Numeric.Runtime
                               sizeof(MatrixParallelTask));
         }
 
-        #region offset and length settings
+        #region layout
 
+        [FieldOffset(104)] private ulong _reserved0;
+
+        [FieldOffset(0)] public L4.Handle Buffer0;
+        [FieldOffset(16)] public L4.Handle Buffer1;
+        [FieldOffset(32)] public L4.Handle Buffer2;
+        [FieldOffset(48)] public L4.Handle Buffer3;
+        [FieldOffset(64)] public MatrixElementType ElementType;         //记录了类型掩码的类型位宽的union，大小4byte
+        [FieldOffset(68)] internal MatrixIntrinsicHandle ComputeHandle;    //记录了函数指针在类型组中的索引，实际就是int，但是为每一个索引起了名字，于是变成了enum，大小4byte
         [FieldOffset(72)] public int Offset0;
         [FieldOffset(76)] public int Count0;
         [FieldOffset(80)] public int Offset1;
@@ -64,7 +67,38 @@ namespace Nitload.Mathematics.Numeric.Runtime
         [FieldOffset(92)] public int Count2;
         [FieldOffset(96)] public int Offset3;
         [FieldOffset(100)] public int Count3;
+        [FieldOffset(112)] public M128 ScalarPack;
 
-    #endregion
+        public override readonly bool Equals(
+                                      object obj
+        )
+        {
+            return (obj is not null) &&
+                   (obj is MatrixParallelTask task) &&
+                   Profile.Equals(task.Profile);
+        }
+
+        public override readonly int GetHashCode()
+        {
+            return Profile.GetHashCode();
+        }
+
+        public static bool operator ==(
+                                    MatrixParallelTask left,
+                                    MatrixParallelTask right
+        )
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(
+                                    MatrixParallelTask left,
+                                    MatrixParallelTask right
+        )
+        {
+            return !(left == right);
+        }
+
+        #endregion
     }
 }

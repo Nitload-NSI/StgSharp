@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
+using Nitload.Common.HighPerformance.Memory;
 using Nitload.Common.HighPerformance.ProcessorAbstraction;
 using Nitload.Common.Internal;
 using Nitload.Mathematics.Numeric.Runtime;
@@ -28,40 +29,19 @@ namespace Nitload.Mathematics.Numeric
 
     }
 
-    public unsafe partial class MatrixParallelThread : IEquatable<MatrixParallelThread>, IDisposable
+    public sealed unsafe partial class MatrixParallelThread : L4AwareThread
     {
 
         private IntrinsicContext* _context;
+
         private readonly MatrixParallelTask* _currentTask;
-        private volatile bool _disposed;
         private readonly ManualResetEventSlim _resetEvent;
 
-        private volatile MatrixThreadState _target;
-        private Thread _managedThread;
-
-        internal MatrixParallelThread(
-                 LogicalCore binded
-        )
-        {
-            _resetEvent = new ManualResetEventSlim(false);
-            _managedThread = new Thread(MatrixParallelWorkLoad);
-            _managedThread.Start();
-            BindedLogicalCore = binded;
-        }
-
-        public LogicalCore BindedLogicalCore { get; init; }
+        // private volatile MatrixThreadState _target;
 
         public ThreadPriority AfterWork { get; set; }
 
-        internal MatrixThreadState State { get; private set; }
-
         internal SIMDID Simd { get; private set; }
-
-        public void Dispose()
-        {
-            Dispose(disposing:true);
-            GC.SuppressFinalize(this);
-        }
 
         public bool Equals(
                     MatrixParallelThread? other
@@ -70,47 +50,18 @@ namespace Nitload.Mathematics.Numeric
             return (other is not null) && ReferenceEquals(this, other);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Restart()
+        protected override void CustomizeDispose()
         {
-            _resetEvent.Set();
+            throw new NotImplementedException();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Pause()
+        protected override void CustomizeInitialization()
         {
-            ObjectDisposedException.ThrowIf(_disposed, nameof(MatrixParallelThread));
-            if (State == MatrixThreadState.Idle) {
-                return;
-            }
-            _resetEvent.Set();
-            SpinWait.SpinUntil(() => State == MatrixThreadState.Idle);
-            _managedThread.Join();
+            throw new NotImplementedException();
         }
 
-        protected virtual void Dispose(
-                               bool disposing
-        )
+        protected override void ThreadMain()
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _disposed = true;
-                    _resetEvent.Set();
-                    _managedThread.Join();
-                    _resetEvent.Dispose();
-                }
-            }
-        }
-
-        private unsafe void MatrixParallelWorkLoad()
-        {
-            State = MatrixThreadState.Born;
-
-            // Bind OS-thread affinity once when the worker starts running
-            ThreadHelper.BindToLogicalCore(BindedLogicalCore);
-            _ = Thread.Yield();
             if (Simd.Mask != 0)
             {
                 SIMDID feature = new(GetSimdId());
@@ -120,24 +71,26 @@ namespace Nitload.Mathematics.Numeric
                 _context = contextPtr;
             }
             MatrixParallelTask* taskPtr = stackalloc MatrixParallelTask[4];
-            State = MatrixThreadState.Ready;
+            State = L4AwareThreadState.Ready;
             while (true)
             {
                 // Thread self = Thread.CurrentThread;
                 _resetEvent.Wait();
                 _resetEvent.Reset();
-                if (_disposed)
+                if (Disposed)
                 {
                     break;
                 }
+                /*
                 if (_target == MatrixThreadState.Idle)
                 {
                     State = MatrixThreadState.Idle;
                     continue;
                 }
-                State = MatrixThreadState.Idle;
-                State = MatrixThreadState.Running;
-                _managedThread.Priority = ThreadPriority.Highest;
+                /**/
+                State = L4AwareThreadState.Idle;
+                State = L4AwareThreadState.Running;
+                ManagedThread.Priority = ThreadPriority.Highest;
 
 
                 // MatrixParallelQueue taskQueue = BindedWrap.TaskQueue;
@@ -155,10 +108,10 @@ namespace Nitload.Mathematics.Numeric
                 }
                 /**/
 
-                _managedThread.Priority = AfterWork;
-                State = MatrixThreadState.Idle;
+                ManagedThread.Priority = AfterWork;
+                State = L4AwareThreadState.Idle;
             }
-            State = MatrixThreadState.Retired;
+            State = L4AwareThreadState.Retired;
         }
 
 #pragma warning disable CA5393

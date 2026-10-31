@@ -8,6 +8,7 @@
 using Nitload.Common.Collections;
 using Nitload.Common.HighPerformance.Memory;
 using Nitload.Common.HighPerformance.ProcessorAbstraction;
+using Nitload.Mathematics.Numeric.Runtime;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -21,7 +22,9 @@ namespace Nitload.Mathematics.Numeric
 
         private static bool _meaningful;
 
-        private static CapacityFixedStack<MatrixParallelThread> _retiredThreads;
+        // private static CapacityFixedStack<MatrixParallelThread> _retiredThreads;
+
+        private static L4Manager<MatrixParallelThread> _workregion;
 
         public static bool IsParallelSupported { get; } = Environment.ProcessorCount > 6;
 
@@ -35,14 +38,12 @@ namespace Nitload.Mathematics.Numeric
 
         internal static void Deinit()
         {
-            foreach (MatrixParallelThread t in _threads)
-            {
-                t.Pause();
-                t.Dispose();
-            }
-            foreach (MatrixParallelThread t in _retiredThreads) {
-                t.Dispose();
-            }
+            _workregion.ForeachThread(thread => {
+                thread.RequestStop();
+                thread.Dispose();
+            });
+            _workregion.Dispose();
+
             ContextCount = 0;
             IsInitialized = false;
         }
@@ -62,9 +63,11 @@ namespace Nitload.Mathematics.Numeric
             contextMap = [];
             int count = Environment.ProcessorCount;
             SIMDID globalSimd = new(0);
-            _retiredThreads = new(RESERVED_THREAD_COUNT);
+
+            // _retiredThreads = new(RESERVED_THREAD_COUNT);
 
             // init thread on all logical cores
+            /*
             _numaWaveFront = Numa.CreateForeachThread<MatrixParallelThread>(
                core => {
                    MatrixParallelThread thread = new(core);
@@ -78,6 +81,20 @@ namespace Nitload.Mathematics.Numeric
                    globalSimd = (globalSimd.Mask != 0) ? UniteSIMDID(globalSimd, simd) : simd;
                    return thread;
                });
+            /**/
+#pragma warning disable CA2000
+            L4Manager<MatrixParallelThread> manager = L4Manager.Create<MatrixParallelThread>(
+                () => new(), 8192 * 8192, L4ManagerCapacityLayout.PerNuma
+             );
+#pragma warning restore CA2000
+            manager.ForeachThread(thread => {
+                SIMDID simd = thread.Simd;
+                ulong mask = simd.Mask;
+                contextMap[mask] = contextMap.TryGetValue(mask, out int contextCount) ?
+                                   (contextCount + 1) :
+                                   1;
+                globalSimd = (globalSimd.Mask != 0) ? UniteSIMDID(globalSimd, simd) : simd;
+            });
 
             // make global simd  context
             IntrinsicContext globalContext = new();
@@ -86,7 +103,10 @@ namespace Nitload.Mathematics.Numeric
             NumericalModule.GlobalIntrinsicMask = globalSimd;
             ContextCount = contextMap.Count;
 
+            manager.RetireByOrder(SimdComparer.Instance, L4ManagerRetirePolicy.Auto);
+
             // retire threads
+            /*
             if (ContextCount == 1)
             {
                 MatrixParallelThread[] threadArr = _numaWaveFront[0];
@@ -99,12 +119,14 @@ namespace Nitload.Mathematics.Numeric
             {
                 RetireWhenMultipleSIMDID(_numaWaveFront);
             }
-            _meaningful = _threads.Length > 1;
+            /**/
+            _meaningful = _workregion.ActiveThreadCount > 1;
 
             // _awaitingLeaderHandle = new AwaitingQueue();
             IsInitialized = true;
         }
 
+        /*
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void RetireThread(
                             MatrixParallelThread thread
@@ -114,60 +136,7 @@ namespace Nitload.Mathematics.Numeric
             thread.Dispose();
             _retiredThreads.Push(thread);
         }
-
-        private static void RetireWhenMultipleSIMDID(
-                            MatrixParallelThread[][] threads
-        )
-        {
-            MatrixParallelThread[] allThreads = new MatrixParallelThread[Environment.ProcessorCount];
-            int offset = 0;
-            foreach (MatrixParallelThread[] threadArr in threads)
-            {
-                Array.Copy(threadArr, 0, allThreads, offset, threadArr.Length);
-                offset += threadArr.Length;
-            }
-            Array.Sort(allThreads, static(
-                                   left,
-                                   right
-            ) => CompareSIMDID(left.Simd, right.Simd));
-            int retireCount = Math.Min(RESERVED_THREAD_COUNT, Math.Max(0, allThreads.Length));
-
-            MatrixParallelThread[] retireArr = new MatrixParallelThread[retireCount];
-            for (int i = 0; i < retireCount; i++)
-            {
-                MatrixParallelThread thread = allThreads[i];
-                retireArr[i] = thread;
-                RetireThread(thread);
-            }
-
-            // rebuild numa active arrays
-            for (int numa = 0; numa < _numaWaveFront.Length; numa++)
-            {
-                MatrixParallelThread[] source = threads[numa];
-                int keepCount = 0;
-
-                for (int i = 0; i < source.Length; i++)
-                {
-                    if (!retireArr.Contains(source[i])) {
-                        keepCount++;
-                    }
-                }
-
-                MatrixParallelThread[] active = new MatrixParallelThread[keepCount];
-                int index = 0;
-                for (int i = 0; i < source.Length; i++)
-                {
-                    MatrixParallelThread thread = source[i];
-                    if (!retireArr.Contains(thread)) {
-                        active[index++] = thread;
-                    }
-                }
-
-                _numaWaveFront[numa] = active;
-            }
-
-            _threads = allThreads[retireCount..];
-        }
+        /**/
 
         #region C invoke
 

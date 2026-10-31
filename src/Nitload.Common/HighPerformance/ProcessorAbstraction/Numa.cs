@@ -33,27 +33,6 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             return NumaAllocNative(size, numaId);
         }
 
-        public static T[][] CreateForeachThread<T>(
-                            Func<LogicalCore, T> factory
-        )
-        {
-            if (factory is null) {
-                return [];
-            }
-            T[][] arr = new T[_numaNodes.Length][];
-            for (int i = 0; i < _numaNodes.Length; i++)
-            {
-                NumaNode node = _numaNodes[i];
-                T[] values = new T[node.LogicalCoreCount];
-                ReadOnlySpan<LogicalCore> cores = node.LogicalCores;
-                for (int j = 0; j < cores.Length; j++) {
-                    values[j] = factory(cores[j]);
-                }
-                arr[i] = values;
-            }
-            return arr;
-        }
-
         public static unsafe void Free(
                                   void* address,
                                   int numaId,
@@ -148,7 +127,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
 #pragma warning disable CA5393
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_each")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         public static partial int GetNumaEach(
                                   int numaId,
@@ -159,7 +138,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_overall")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         public static partial int GetNumaOverall(
                                   ref int count,
@@ -167,7 +146,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_set_thread_affinity")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         internal static partial void SetThreadAffinity(
                                      int cpuIndex,
@@ -175,7 +154,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_numa_alloc")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static unsafe partial void* NumaAllocNative(
                                             nuint size,
@@ -183,7 +162,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_numa_free")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static unsafe partial void NumaFreeNative(
                                            void* ptr,

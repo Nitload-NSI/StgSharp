@@ -14,18 +14,15 @@ namespace Nitload.Common.HighPerformance.Memory
     public abstract class L4AwareThread : IEquatable<L4AwareThread>, IDisposable
     {
 
-        private bool _disposed;
         private bool _started;
         private volatile bool _stopRequested;
         private volatile L4AwareThreadState _state;
         private readonly ManualResetEventSlim _workSignal = new(false);
         private readonly object _lifeCycleLock = new();
 
-        private readonly Thread _mainThread;
-
         protected L4AwareThread()
         {
-            _mainThread = new Thread(Work);
+            ManagedThread = new Thread(Work);
         }
 
         public NumaNode? BindedNumaNode { get; private set; }
@@ -38,11 +35,13 @@ namespace Nitload.Common.HighPerformance.Memory
 
         public LogicalCore BindedLogicalCore { get; private set; }
 
-        public ThreadPriority AfterWork { get; set; }
-
         protected internal L4? BindedL4 { get; private set; }
 
+        protected bool Disposed { get; private set; }
+
         protected bool IsStopRequested => _stopRequested;
+
+        protected Thread ManagedThread { init; get; }
 
         public void Dispose()
         {
@@ -66,7 +65,7 @@ namespace Nitload.Common.HighPerformance.Memory
 
         public override int GetHashCode()
         {
-            return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this);
+            return RuntimeHelpers.GetHashCode(this);
         }
 
         public void Initialize(
@@ -82,7 +81,7 @@ namespace Nitload.Common.HighPerformance.Memory
 
             lock (_lifeCycleLock)
             {
-                ObjectDisposedException.ThrowIf(_disposed, this);
+                ObjectDisposedException.ThrowIf(Disposed, this);
                 if (_started) {
                     throw new InvalidOperationException("A started worker thread cannot be reconfigured.");
                 }
@@ -92,12 +91,24 @@ namespace Nitload.Common.HighPerformance.Memory
             }
         }
 
+        public void RequestStop()
+        {
+            lock (_lifeCycleLock)
+            {
+                if (Disposed) {
+                    return;
+                }
+                _stopRequested = true;
+                _workSignal.Set();
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Start()
         {
             lock (_lifeCycleLock)
             {
-                ObjectDisposedException.ThrowIf(_disposed, this);
+                ObjectDisposedException.ThrowIf(Disposed, this);
                 if (_started) {
                     return;
                 }
@@ -105,7 +116,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     throw new InvalidOperationException("The worker thread must be initialized before it is started.");
                 }
                 _started = true;
-                _mainThread.Start();
+                ManagedThread.Start();
             }
         }
 
@@ -113,7 +124,7 @@ namespace Nitload.Common.HighPerformance.Memory
         {
             lock (_lifeCycleLock)
             {
-                if (!_disposed) {
+                if (!Disposed) {
                     _workSignal.Set();
                 }
             }
@@ -133,17 +144,17 @@ namespace Nitload.Common.HighPerformance.Memory
             if (!disposing) {
                 return;
             }
-            if (ReferenceEquals(Thread.CurrentThread, _mainThread)) {
+            if (ReferenceEquals(Thread.CurrentThread, ManagedThread)) {
                 throw new InvalidOperationException("A worker thread cannot dispose itself.");
             }
 
             bool joinThread;
             lock (_lifeCycleLock)
             {
-                if (_disposed) {
+                if (Disposed) {
                     return;
                 }
-                _disposed = true;
+                Disposed = true;
                 _stopRequested = true;
                 _workSignal.Set();
                 joinThread = _started;
@@ -151,7 +162,7 @@ namespace Nitload.Common.HighPerformance.Memory
 
             if (joinThread)
             {
-                _mainThread.Join();
+                ManagedThread.Join();
             } else
             {
                 State = L4AwareThreadState.Retired;
