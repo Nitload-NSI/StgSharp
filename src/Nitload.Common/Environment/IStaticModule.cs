@@ -27,12 +27,10 @@ namespace Nitload
         ///   Performs all initialization work for this module using the provided profile.
         /// </summary>
         /// <param name="profile">
-        ///   The configuration profile supplied at registration time. Use <see ///  
+        ///   The configuration profile supplied at registration time. Use <see ///   ///  
         ///   cref="IModuleInitializeConfiguration.Empty" /> if no configuration is required.
         /// </param>
-        void InitializeModule(
-             IModuleInitializeConfiguration profile
-        );
+        void InitializeModule(IModuleInitializeConfiguration profile);
 
         /// <summary>
         ///   Releases all resources acquired during <see cref="InitializeModule" />. Implementations should
@@ -77,21 +75,15 @@ namespace Nitload
     {
 
         /// <summary>
-        ///   Initializes a new <see cref="ModuleDescriptor" /> using <see ///  
+        ///   Initializes a new <see cref="ModuleDescriptor" /> using <see ///   ///  
         ///   cref="IModuleInitializeConfiguration.Empty" /> as the profile.
         /// </summary>
-        public ModuleDescriptor(
-               IStaticModule module
-        )
-            : this(module, IModuleInitializeConfiguration.Empty) { }
+        public ModuleDescriptor(IStaticModule module) : this(module, IModuleInitializeConfiguration.Empty) { }
 
         /// <summary>
         ///   Initializes a new <see cref="ModuleDescriptor" /> with an explicit profile.
         /// </summary>
-        public ModuleDescriptor(
-               IStaticModule module,
-               IModuleInitializeConfiguration profile
-        )
+        public ModuleDescriptor(IStaticModule module, IModuleInitializeConfiguration profile)
         {
             Module = module;
             Profile = profile;
@@ -127,7 +119,7 @@ namespace Nitload
 
     /// <summary>
     ///   An ordered collection of modules to be initialized during application startup and
-    ///   uninitialized on shutdown. Supports three registration strategies so that the <c>new()
+    ///   uninitialized on shutdown. Supports three registration strategies so that the <c>new() ///
     ///   ///</c> generic constraint is never a hard requirement.
     /// </summary>
     public sealed class ModuleToInitializeCollection : IEnumerable<IStaticModule>, IStaticModule
@@ -135,10 +127,7 @@ namespace Nitload
 
         private readonly List<ModuleDescriptor> _descriptors = [];
 
-        internal ModuleToInitializeCollection(
-                 World.Initializer init,
-                 World.InitializeConfiguration config
-        )
+        internal ModuleToInitializeCollection(World.Initializer init, World.InitializeConfiguration config)
         {
             _descriptors.Add(new ModuleDescriptor(init, config));
         }
@@ -190,12 +179,12 @@ namespace Nitload
         ///   public parameterless constructor.
         /// </typeparam>
         /// <param name="profile">
-        ///   Optional initialization profile. Defaults to <see ///  
+        ///   Optional initialization profile. Defaults to <see
         ///   cref="IModuleInitializeConfiguration.Empty" /> when <see langword="null" />.
         /// </param>
-        public ModuleToInitializeCollection UseModule<T>(
-                                            IModuleInitializeConfiguration? profile = null
-        ) where T : IStaticModule, new()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ModuleToInitializeCollection UseModule<T>(IModuleInitializeConfiguration? profile = null)
+            where T: IStaticModule, new()
         {
             return UseModule(static() => new T(), profile);
         }
@@ -207,18 +196,17 @@ namespace Nitload
         /// </summary>
         /// <param name="factory">
         ///   A delegate that constructs and returns the module instance. The delegate is invoked
-        ///   once, immediately at registration time. If <paramref name="factory" /> is <see ///  
+        ///   once, immediately at registration time. If <paramref name="factory" /> is <see
         ///   langword="null" /> or returns <see langword="null" />, the call is silently ignored
         ///   and the collection is returned unchanged.
         /// </param>
         /// <param name="profile">
-        ///   Optional initialization profile. Defaults to <see ///  
+        ///   Optional initialization profile. Defaults to <see
         ///   cref="IModuleInitializeConfiguration.Empty" /> when <see langword="null" />.
         /// </param>
         public ModuleToInitializeCollection UseModule(
                                             Func<IStaticModule> factory,
-                                            IModuleInitializeConfiguration? profile = null
-        )
+                                            IModuleInitializeConfiguration? profile = null)
         {
             if (factory is null) {
                 return this;
@@ -241,13 +229,12 @@ namespace Nitload
         ///   The module instance to register.
         /// </param>
         /// <param name="profile">
-        ///   Optional initialization profile. Defaults to <see ///  
+        ///   Optional initialization profile. Defaults to <see
         ///   cref="IModuleInitializeConfiguration.Empty" /> when <see langword="null" />.
         /// </param>
         public ModuleToInitializeCollection UseModule(
                                             IStaticModule module,
-                                            IModuleInitializeConfiguration? profile = null
-        )
+                                            IModuleInitializeConfiguration? profile = null)
         {
             _descriptors.Add(new ModuleDescriptor(
                 module,
@@ -264,13 +251,11 @@ namespace Nitload
         // ── IStaticModule explicit implementation ────────────────────────────────
 
         /// <summary>
-        ///   Explicit <see cref="IStaticModule" /> implementation. Delegates to <see ///  
+        ///   Explicit <see cref="IStaticModule" /> implementation. Delegates to <see
         ///   cref="InitializeModule()" />, ignoring the supplied profile because each contained module uses
         ///   its own registered profile.
         /// </summary>
-        void IStaticModule.InitializeModule(
-                           IModuleInitializeConfiguration profile
-        )
+        void IStaticModule.InitializeModule(IModuleInitializeConfiguration profile)
         {
             InitializeModule();
         }

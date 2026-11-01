@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 
 namespace Nitload.Mathematics.Numeric
 {
+    internal abstract class MatrixParallelTaskQueue { }
+
     internal unsafe class MatrixParallelQueue : IDisposable
     {
 
@@ -45,9 +47,7 @@ namespace Nitload.Mathematics.Numeric
             GC.SuppressFinalize(this);
         }
 
-        public bool TryGetTask(
-                    out MatrixParallelTask task
-        )
+        public bool TryGetTask(out MatrixParallelTask task)
         {
             if (_cursor >= _currentCapacity)
             {
@@ -58,9 +58,7 @@ namespace Nitload.Mathematics.Numeric
             return true;
         }
 
-        protected virtual void Dispose(
-                               bool disposing
-        )
+        protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

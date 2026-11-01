@@ -23,8 +23,8 @@ namespace Nitload.Common.HighPerformance.Memory
                                          uint memorySize,
                                          L4ManagerCapacityLayout layout,
                                          int align = 16,
-                                         uint maxCacheLineSize = 8192
-        ) where TThread : L4AwareThread
+                                         uint maxCacheLineSize = 8192)
+            where TThread: L4AwareThread
         {
             ArgumentNullException.ThrowIfNull(threadFactory, nameof(threadFactory));
             L4Manager<TThread> manager = new();
@@ -35,7 +35,7 @@ namespace Nitload.Common.HighPerformance.Memory
 
     }
 
-    public class L4Manager<TThread> : IDisposable where TThread : L4AwareThread
+    public class L4Manager<TThread> : IDisposable where TThread: L4AwareThread
     {
 
         private TThread[] _allThreads = [];
@@ -56,9 +56,7 @@ namespace Nitload.Common.HighPerformance.Memory
             GC.SuppressFinalize(this);
         }
 
-        public void ForeachThread(
-                    Action<TThread> action
-        )
+        public void ForeachThread(Action<TThread> action)
         {
             if (action is not null)
             {
@@ -71,10 +69,7 @@ namespace Nitload.Common.HighPerformance.Memory
             }
         }
 
-        public void RetireByOrder(
-                    IComparer<TThread> comparer,
-                    L4ManagerRetirePolicy policy
-        )
+        public void RetireByOrder(IComparer<TThread> comparer, L4ManagerRetirePolicy policy)
         {
             ArgumentNullException.ThrowIfNull(comparer);
             auto:
@@ -108,9 +103,7 @@ namespace Nitload.Common.HighPerformance.Memory
                     IEnumerable<TThread> activeThreads = _allThreads
                         .Where(thread => thread.State != L4AwareThreadState.Retired);
                     int activeCount = activeThreads.Count();
-                    int remainCount = activeCount == 0 ?
-                                      0 :
-                                      Math.Min(Math.Max(activeCount / 4, 1), 4);
+                    int remainCount = activeCount == 0 ? 0 : Math.Min(Math.Max(activeCount / 4, 1), 4);
                     ActiveThreadCount -= RetireWeakest(activeThreads, activeCount - remainCount, comparer);
                     break;
                 case L4ManagerRetirePolicy.Auto:
@@ -128,6 +121,7 @@ namespace Nitload.Common.HighPerformance.Memory
 
         )
         {
+            layout = layout == default ? L4ManagerCapacityLayout.PerThread : layout;
             uint size = layout switch
             {
                 L4ManagerCapacityLayout.Default => memorySize,
@@ -157,9 +151,7 @@ namespace Nitload.Common.HighPerformance.Memory
             ActiveThreadCount = _allThreads.Length;
         }
 
-        internal void MakeThreads(
-                      Func<TThread> threadFactory
-        )
+        internal void MakeThreads(Func<TThread> threadFactory)
         {
             Dictionary<int, TThread[]> threads = new(Numa.NumaNodeCount);
             List<TThread> allThreads = [];
@@ -180,9 +172,7 @@ namespace Nitload.Common.HighPerformance.Memory
             _allThreads = [.. allThreads];
         }
 
-        protected virtual void Dispose(
-                               bool disposing
-        )
+        protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
@@ -197,11 +187,7 @@ namespace Nitload.Common.HighPerformance.Memory
             }
         }
 
-        private static int RetireWeakest(
-                           IEnumerable<TThread> threads,
-                           int maxRetireCount,
-                           IComparer<TThread> comparer
-        )
+        private static int RetireWeakest(IEnumerable<TThread> threads, int maxRetireCount, IComparer<TThread> comparer)
         {
             if (maxRetireCount <= 0) {
                 return 0;
@@ -232,9 +218,8 @@ namespace Nitload.Common.HighPerformance.Memory
 
         /// <summary>
         ///   L4 manager will automatically select a retire policy based on current machine's
-        ///   topology and numa node count. Selected policy will be either <see
-        ///   cref="GlobalWeakest"> FourGlobalWeakest </see> or <see cref="PerNumaWeakest">
-        ///   FourPerNumaWeakest </see>.
+        ///   topology and numa node count. Selected policy will be either <see 
+        ///   cref="GlobalWeakest" /> or <see cref="PerNumaWeakest" />.
         /// </summary>
         Auto,
         /// <summary>
@@ -245,9 +230,9 @@ namespace Nitload.Common.HighPerformance.Memory
         /// </summary>
         GlobalWeakest,
         /// <summary>
-        ///   Similar to <see cref="FourGlobalWeakest" />, but current machine has multiple numa
-        ///   nodes, commonly a HEDT workstation, so the four threads will be selected from all
-        ///   threads in the same numa node, and the weakest four threads will be retired.
+        ///   Similar to <see cref="GlobalWeakest" />, but current machine has multiple numa nodes,
+        ///   commonly a HEDT workstation, so the four threads will be selected from all threads in
+        ///   the same numa node, and the weakest four threads will be retired.
         /// </summary>
         PerNumaWeakest,
         /// <summary>
@@ -269,6 +254,9 @@ namespace Nitload.Common.HighPerformance.Memory
     public enum L4ManagerCapacityLayout
     {
 
+        /// <summary>
+        ///   Same as <see cref="PerThread"> L4ManagerCapacityLayout </see>
+        /// </summary>
         Default = 0,
         /// <summary>
         ///   Amount from all numa nodes is provided, and each numa node will get the same capacity

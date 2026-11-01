@@ -1,17 +1,11 @@
 // -----------------------------------------------------------------------------
 // file="NumericalModule"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using Nitload.Mathematics.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nitload.Mathematics.Numeric
 {
@@ -45,19 +39,13 @@ namespace Nitload.Mathematics.Numeric
         internal static SIMDID GlobalIntrinsicMask { get; set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InitializeModule()
-        {
-            MatrixParallel.Init();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void InitializeModule(
-                    IModuleInitializeConfiguration profile
-        )
+        public void InitializeModule(IModuleInitializeConfiguration profile)
         {
             try
             {
-                MatrixParallel.Init();
+                NumericModuleInitProfile? p = profile as NumericModuleInitProfile;
+                p ??= NumericModuleInitProfile.Default;
+                MatrixParallel.Init(p);
             }
             finally
             {

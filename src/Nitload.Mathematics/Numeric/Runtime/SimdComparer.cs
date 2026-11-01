@@ -1,19 +1,13 @@
 // -----------------------------------------------------------------------------
-// file="SimdComaprer"
+// file="SimdComparer"
 // Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using Nitload.Common.HighPerformance.Memory;
-using Nitload.Common.PipeLine;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nitload.Mathematics.Numeric.Runtime
 {
@@ -24,10 +18,7 @@ namespace Nitload.Mathematics.Numeric.Runtime
 
         public static SimdComparer Instance { get; } = new();
 
-        public int Compare(
-                   MatrixParallelThread? x,
-                   MatrixParallelThread? y
-        )
+        public int Compare(MatrixParallelThread? x, MatrixParallelThread? y)
         {
             if (x is null && y is null) {
                 return 0;
@@ -48,10 +39,7 @@ namespace Nitload.Mathematics.Numeric.Runtime
         [LibraryImport(Native.LibName, EntryPoint = "nfn_compare_simd")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        private static partial int CompareSIMDID(
-                                   SIMDID left,
-                                   SIMDID right
-        );
+        private static partial int CompareSIMDID(SIMDID left, SIMDID right);
 
     }
 }

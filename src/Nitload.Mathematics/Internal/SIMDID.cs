@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="SIMDID"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -22,9 +22,7 @@ namespace Nitload.Mathematics.Internal
         [FieldOffset(0)] public fixed byte MaskByte[8];
         [FieldOffset(0)] public ulong Mask;
 
-        internal SIMDID(
-                 ulong data
-        )
+        internal SIMDID(ulong data)
         {
             Mask = data;
         }
@@ -34,20 +32,19 @@ namespace Nitload.Mathematics.Internal
             Unsafe.SkipInit(out this);
         }
 
-        public static bool operator !=(
-                                    SIMDID left,
-                                    SIMDID right
-        )
+        public static bool operator !=(SIMDID left, SIMDID right)
         {
             return left.Mask != right.Mask;
         }
 
-        public static bool operator ==(
-                                    SIMDID left,
-                                    SIMDID right
-        )
+        public static bool operator ==(SIMDID left, SIMDID right)
         {
             return left.Mask == right.Mask;
+        }
+
+        public static explicit operator SIMDID(ulong mask)
+        {
+            return new SIMDID(mask);
         }
 
     }

@@ -18,19 +18,15 @@ namespace Nitload.Mathematics.Numeric
     public static unsafe partial class MatrixParallel
     {
 
-        private const int RESERVED_THREAD_COUNT = 4;
-
         private static bool _meaningful;
 
         // private static CapacityFixedStack<MatrixParallelThread> _retiredThreads;
 
-        private static L4Manager<MatrixParallelThread> _workregion;
+        private static L4Manager<MatrixParallelThread> _workRegion;
 
         public static bool IsParallelSupported { get; } = Environment.ProcessorCount > 6;
 
-        public static bool IsParallelMeaningful => IsParallelSupported &&
-                                                   IsInitialized &&
-                                                   _meaningful;
+        public static bool IsParallelMeaningful => IsParallelSupported && IsInitialized && _meaningful;
 
         public static int ContextCount { get; private set; }
 
@@ -38,17 +34,17 @@ namespace Nitload.Mathematics.Numeric
 
         internal static void Deinit()
         {
-            _workregion.ForeachThread(thread => {
+            _workRegion.ForeachThread(thread => {
                 thread.RequestStop();
                 thread.Dispose();
             });
-            _workregion.Dispose();
+            _workRegion.Dispose();
 
             ContextCount = 0;
             IsInitialized = false;
         }
 
-        internal static void Init()
+        internal static void Init(NumericModuleInitProfile p)
         {
             Dictionary<ulong, int> contextMap = [];
 
@@ -84,16 +80,14 @@ namespace Nitload.Mathematics.Numeric
             /**/
 #pragma warning disable CA2000
             L4Manager<MatrixParallelThread> manager = L4Manager.Create<MatrixParallelThread>(
-                () => new(), 8192 * 8192, L4ManagerCapacityLayout.PerNuma
+                () => new(), p.CacheSize, p.CacheSizeLayout
              );
 #pragma warning restore CA2000
             manager.ForeachThread(thread => {
                 SIMDID simd = thread.Simd;
                 ulong mask = simd.Mask;
-                contextMap[mask] = contextMap.TryGetValue(mask, out int contextCount) ?
-                                   (contextCount + 1) :
-                                   1;
-                globalSimd = (globalSimd.Mask != 0) ? UniteSIMDID(globalSimd, simd) : simd;
+                contextMap[mask] = contextMap.TryGetValue(mask, out int contextCount) ? (contextCount + 1) : 1;
+                globalSimd = (globalSimd.Mask != 0) ? (SIMDID)UniteSIMDID(globalSimd.Mask, simd.Mask) : simd;
             });
 
             // make global simd  context
@@ -103,7 +97,7 @@ namespace Nitload.Mathematics.Numeric
             NumericalModule.GlobalIntrinsicMask = globalSimd;
             ContextCount = contextMap.Count;
 
-            manager.RetireByOrder(SimdComparer.Instance, L4ManagerRetirePolicy.Auto);
+            manager.RetireByOrder(SimdComparer.Instance, p.RuntimeRole);
 
             // retire threads
             /*
@@ -120,7 +114,7 @@ namespace Nitload.Mathematics.Numeric
                 RetireWhenMultipleSIMDID(_numaWaveFront);
             }
             /**/
-            _meaningful = _workregion.ActiveThreadCount > 1;
+            _meaningful = _workRegion.ActiveThreadCount > 1;
 
             // _awaitingLeaderHandle = new AwaitingQueue();
             IsInitialized = true;
@@ -140,29 +134,15 @@ namespace Nitload.Mathematics.Numeric
 
         #region C invoke
 
-        [LibraryImport(Native.LibName, EntryPoint = "nfn_compare_simd")]
-        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        private static partial int CompareSIMDID(
-                                   SIMDID left,
-                                   SIMDID right
-        );
-
         [LibraryImport(Native.LibName, EntryPoint = "nfn_load_intrinsic_function")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        private static partial void LoadIntrinsicFunction(
-                                    IntrinsicContext* context,
-                                    ulong id
-        );
+        private static partial void LoadIntrinsicFunction(IntrinsicContext* context, ulong id);
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_get_unite_simd")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        private static partial SIMDID UniteSIMDID(
-                                      SIMDID left,
-                                      SIMDID right
-        );
+        private static partial ulong UniteSIMDID(ulong left, ulong right);
 
     #endregion
     }
