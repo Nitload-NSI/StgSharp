@@ -8,21 +8,21 @@
 using System;
 using System.Threading;
 
-namespace Nitload.Threading
+namespace Nitload.Common.Threading
 {
     /// <summary>
     ///   A single-consumer bell/signal primitive.
     /// </summary>
     /// <remarks>
     ///   <para>Producers can call <see cref="Set" /> multiple times to publish signals. The bell
-    ///   ///   keeps a pending count of not-yet-consumed signals. The consumer uses <see ///
-    ///   cref="Wait(object, CancellationToken)" /> or <see cref="TryWait(object)" /> to consume ///
-    ///   signals. </para> <para>When a producer increments the pending count from 0 to 1, the ///
+    ///   keeps a pending count of not-yet-consumed signals. The consumer uses <see
+    ///   cref="Wait(object, CancellationToken)" /> or <see cref="TryWait(object)" /> to consume
+    ///   signals. </para> <para>When a producer increments the pending count from 0 to 1, the
     ///   internal event is set to wake the consumer. Consuming via <see cref="TryWait(object)" />
-    ///   ///   or <see cref="Wait(object, CancellationToken)" /> clears the entire pending count
-    ///   ///   (aggregate consumption). If new signals arrive while resetting, the event is set
-    ///   again to ///   avoid missed signals. </para> <para>Ownership: only the specified
-    ///   <c>owner</c> can call ///   the consumer APIs. </para>
+    ///   or <see cref="Wait(object, CancellationToken)" /> clears the entire pending count
+    ///   (aggregate consumption). If new signals arrive while resetting, the event is set again to
+    ///   avoid missed signals. </para> <para>Ownership: only the specified<c> owner </c> can call
+    ///   the consumer APIs. </para>
     /// </remarks>
     public sealed class SingleConsumerBell : IDisposable
     {

@@ -14,10 +14,10 @@ using System.Threading.Tasks;
 
 namespace Nitload.Common.HighPerformance.ProcessorAbstraction
 {
-    public class NumaNode
+    public sealed class NumaNode
     {
 
-        private LogicalCore[] _logicalCores;
+        private readonly LogicalCore[] _logicalCores;
 
         internal NumaNode(
                  int numaId,

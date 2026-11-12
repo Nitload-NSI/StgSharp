@@ -86,6 +86,16 @@ namespace Nitload.Common.HighPerformance.Memory
             return new FixedSlabAllocator<T>(buffer, count, freeHandle);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SlabAllocator<T> FromBuffer<T>(
+                                       UnmanagedMemoryProperty memory,
+                                       nuint count,
+                                       Action<UnmanagedMemoryProperty> freeHandle
+        ) where T : unmanaged
+        {
+            return FixedSlabAllocator<T>.FromMemory(memory, count, freeHandle);
+        }
+
     }
 
     public abstract class SlabAllocator<T> : IDisposable where T : unmanaged

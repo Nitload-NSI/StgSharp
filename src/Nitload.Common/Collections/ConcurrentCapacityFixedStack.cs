@@ -35,9 +35,7 @@ namespace Nitload.Common.Collections
                int capacity
         )
         {
-            if (capacity <= 0) {
-                throw new ArgumentOutOfRangeException(nameof(capacity));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
 
             _capacity = capacity;
             _values = new T[capacity];
@@ -157,7 +155,7 @@ namespace Nitload.Common.Collections
         {
             int expected = Math.Min(Volatile.Read(ref _count), _capacity);
             if (expected == 0) {
-                return Array.Empty<T>();
+                return [];
             }
 
             T[] snap = new T[expected];

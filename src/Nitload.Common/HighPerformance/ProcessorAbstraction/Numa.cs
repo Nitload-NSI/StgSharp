@@ -48,20 +48,6 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             NumaFreeNative(address, size, numaId);
         }
 
-        public static L4[] RequestBufferForEachNuma()
-        {
-            if (_numaNodes.Length == 0) {
-                throw new InvalidOperationException("Numa info has not been loaded.");
-            }
-            L4[] buffers = new L4[_numaNodes.Length];
-            for (int i = 0; i < _numaNodes.Length; i++)
-            {
-                L4 buffer = new(_numaNodes[i].NumaNodeId);
-                buffers[i] = buffer;
-            }
-            return buffers;
-        }
-
         internal static void Initialize()
         {
             int numaNodeCount = 0;
@@ -116,10 +102,10 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
             Span<uint> socketIds = stackalloc uint[count];
             Span<uint> cpuIndices = stackalloc uint[count];
             Span<uint> numaNodeIds = stackalloc uint[count];
-            if (0 == GetNumaEach(numaId, processorGroupIds, socketIds, cpuIndices, numaNodeIds)) {
-                throw new InvalidOperationException($"Failed to enumerate processors for NUMA node {numaId}.");
-            }
-            return new(numaId, count, processorGroupIds, socketIds, cpuIndices, numaNodeIds);
+            int result = GetNumaEach(numaId, processorGroupIds, socketIds, cpuIndices, numaNodeIds);
+            return 0 == result ?
+                   throw new InvalidOperationException($"Failed to enumerate processors for NUMA node {numaId}.") :
+                   new(numaId, count, processorGroupIds, socketIds, cpuIndices, numaNodeIds);
         }
 
         #region native invoke
@@ -127,7 +113,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
 #pragma warning disable CA5393
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_each")]
-        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         public static partial int GetNumaEach(
                                   int numaId,
@@ -138,7 +124,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_get_numa_overall")]
-        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         public static partial int GetNumaOverall(
                                   ref int count,
@@ -146,7 +132,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_set_thread_affinity")]
-        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         internal static partial void SetThreadAffinity(
                                      int cpuIndex,
@@ -154,7 +140,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_numa_alloc")]
-        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static unsafe partial void* NumaAllocNative(
                                             nuint size,
@@ -162,7 +148,7 @@ namespace Nitload.Common.HighPerformance.ProcessorAbstraction
         );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_numa_free")]
-        [UnmanagedCallConv(CallConvs = [ typeof(CallConvCdecl) ])]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
         private static unsafe partial void NumaFreeNative(
                                            void* ptr,

@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Nitload.Threading
+namespace Nitload.Common.Threading
 {
     public class CancellableTask : IDisposable
     {
@@ -32,6 +32,7 @@ namespace Nitload.Threading
                           Action<CancellationToken> action
         )
         {
+            _startup = action;
             _internalTask = new Task(InternalAction);
             cts = new CancellationTokenSource();
         }
@@ -68,10 +69,7 @@ namespace Nitload.Threading
                                       Action<CancellationToken> startup
         )
         {
-            CancellableTask ret = new CancellableTask
-            {
-                _startup = startup
-            };
+            CancellableTask ret = new(startup);
             ret._internalTask = Task.Run(ret.InternalAction);
             return ret;
         }

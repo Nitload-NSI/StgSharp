@@ -5,10 +5,10 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
+using Nitload.Common.Threading;
 using Nitload.Mathematics;
 using Nitload.Mathematics.Numeric.Graphics;
 using Nitload.Mathematics.Numeric.Graphics;
-using Nitload.Threading;
 
 using System;
 using System.Collections.Concurrent;

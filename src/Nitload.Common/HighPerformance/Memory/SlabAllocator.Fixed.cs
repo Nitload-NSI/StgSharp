@@ -7,7 +7,7 @@
 
 using Nitload.Common.Collections;
 using Nitload.Common.HighPerformance.Memory;
-using Nitload.Threading;
+using Nitload.Common.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,28 +20,27 @@ namespace Nitload.Common.HighPerformance.Memory
     internal unsafe class FixedSlabAllocator<T> : SlabAllocator<T> where T : unmanaged
     {
 
-        private Action<nuint> _freeHandle;
+        private readonly Action<UnmanagedMemoryProperty> _freeMemory;
 
         private bool _disposed;
         private CapacityFixedStack<nuint> _recycle;
         private readonly int _elementSize = Unsafe.SizeOf<T>();
 
-        private nuint _buffer;
-
         private nuint _Capacity, _currentIndex;
+        private readonly UnmanagedMemoryProperty _memory;
 
-        internal FixedSlabAllocator(
-                 nuint buffer,
-                 nuint count,
-                 Action<nuint> freeHandle
+        private FixedSlabAllocator(
+                UnmanagedMemoryProperty memory,
+                nuint count,
+                Action<UnmanagedMemoryProperty> freeHandle
         )
         {
-            _freeHandle = freeHandle;
-            _buffer = buffer;
+            _memory = memory;
+            _freeMemory = freeHandle;
 
             _Capacity = count;
             _recycle = new((int)_Capacity);
-            _recycle.FillRange(init, buffer);
+            _recycle.FillRange(init, memory.Address);
             _currentIndex = _Capacity;
 
             static void init(
@@ -54,6 +53,15 @@ namespace Nitload.Common.HighPerformance.Memory
                 }
             }
         }
+
+        internal FixedSlabAllocator(
+                 nuint buffer,
+                 nuint count,
+                 Action<nuint> freeHandle
+        )
+            : this(new UnmanagedMemoryProperty(buffer, checked(count * (nuint)Unsafe.SizeOf<T>()),
+                                               1,
+                                               -1), count, memory => freeHandle(memory.Address)) { }
 
         public override nuint Allocate()
         {
@@ -68,7 +76,7 @@ namespace Nitload.Common.HighPerformance.Memory
             }
             curIndex = _currentIndex;
             _currentIndex += 1;
-            return _buffer + (((nuint)_elementSize) * curIndex);
+            return _memory.Address + (((nuint)_elementSize) * curIndex);
         }
 
         public override void Dispose()
@@ -77,7 +85,7 @@ namespace Nitload.Common.HighPerformance.Memory
                 return;
             }
             _disposed = true;
-            _freeHandle(_buffer);
+            _freeMemory(_memory);
             _recycle = null!;
             GC.SuppressFinalize(this);
         }
@@ -100,6 +108,15 @@ namespace Nitload.Common.HighPerformance.Memory
         public override SlabAllocationHandle<T> ReadAllocation()
         {
             return new SlabAllocationHandle<T>(this, false);
+        }
+
+        internal static FixedSlabAllocator<T> FromMemory(
+                                              UnmanagedMemoryProperty memory,
+                                              nuint count,
+                                              Action<UnmanagedMemoryProperty> freeHandle
+        )
+        {
+            return new FixedSlabAllocator<T>(memory, count, freeHandle);
         }
 
         ~FixedSlabAllocator()

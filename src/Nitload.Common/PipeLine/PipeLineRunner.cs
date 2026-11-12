@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using Nitload.Threading;
+using Nitload.Common.Threading;
 
 using System;
 using System.Collections.Concurrent;

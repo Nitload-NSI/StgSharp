@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Nitload.Threading
+namespace Nitload.Common.Threading
 {
     /// <summary>
     ///   Provide a lock for managing concurrent access to a buffer that can be expanded and use a

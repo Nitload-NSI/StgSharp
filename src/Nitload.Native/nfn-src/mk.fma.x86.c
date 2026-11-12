@@ -16,7 +16,7 @@ NFN_MK_PROC_DECL_STD(float, sse, , fma)
 {
         __mk_param_std(LEFT_RIGHT_ANS, float);
 
-        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2;
+        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2 ;
 
         register __m128 c0 = _mm_load_ps((float *)&ans_cur->x[0]);
         register __m128 c1 = _mm_load_ps((float *)&ans_cur->x[1]);
@@ -71,7 +71,7 @@ NFN_MK_PROC_DECL_STD(float, sse, , fma)
 NFN_MK_PROC_DECL_STD(float, avx, , fma)
 {
         __mk_param_std(LEFT_RIGHT_ANS, float);
-        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2;
+        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2 ;
         register __m256 c0 = _mm256_load_ps((float *)&ans_cur->y[0]);
         register __m256 c1 = _mm256_load_ps((float *)&ans_cur->y[1]);
         register __m256 c2 = _mm256_load_ps((float *)&ans_cur->y[2]);
@@ -105,7 +105,7 @@ NFN_MK_PROC_DECL_STD(float, avx, , fma)
 NFN_MK_PROC_DECL_STD(float, avx, _fma, fma)
 {
         __mk_param_std(LEFT_RIGHT_ANS, float);
-        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2;
+        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2 ;
         register __m256 c0 = _mm256_load_ps((float *)&ans_cur->y[0]);
         register __m256 c1 = _mm256_load_ps((float *)&ans_cur->y[1]);
         register __m256 c2 = _mm256_load_ps((float *)&ans_cur->y[2]);
@@ -139,7 +139,7 @@ NFN_MK_PROC_DECL_STD(float, avx, _fma, fma)
 NFN_MK_PROC_DECL_STD(float, 512, , fma)
 {
         __mk_param_std(LEFT_RIGHT_ANS, float);
-        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2;
+        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2 ;
         register __m512 c0 = _mm512_load_ps((float *)&ans_cur->z[0]);
         register __m512 c1 = _mm512_load_ps((float *)&ans_cur->z[0]);
         register __m512 c2 = _mm512_load_ps((float *)&ans_cur->z[0]);
@@ -174,7 +174,7 @@ NFN_MK_PROC_DECL_STD(double, sse, , fma)
 {
         __mk_param_std(LEFT_RIGHT_ANS, double);
 
-        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2;
+        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2 ;
 
         register __m128d c0_lo = ans_cur->x[0];
         register __m128d c0_hi = ans_cur->x[1];
@@ -192,11 +192,8 @@ NFN_MK_PROC_DECL_STD(double, sse, , fma)
                 const double *left_values = &left_base->m[0][0];
 
                 NFN_MK_FMA_F64_SSE_PHASE(0);
-
                 NFN_MK_FMA_F64_SSE_PHASE(1);
-
                 NFN_MK_FMA_F64_SSE_PHASE(2);
-
                 NFN_MK_FMA_F64_SSE_PHASE(3);
         }
 
@@ -214,7 +211,7 @@ NFN_MK_PROC_DECL_STD(double, avx, , fma)
 {
         __mk_param_std(LEFT_RIGHT_ANS, double);
 
-        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2;
+        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2 ;
 
         register __m256d c0 = _mm256_load_pd((double *)&ans_cur->y[0]);
         register __m256d c1 = _mm256_load_pd((double *)&ans_cur->y[1]);
@@ -286,7 +283,7 @@ NFN_MK_PROC_DECL_STD(double, avx, _fma, fma)
 {
         __mk_param_std(LEFT_RIGHT_ANS, double);
 
-        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2;
+        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2 ;
 
         register __m256d c0 = _mm256_load_pd((double *)&ans_cur->y[0]);
         register __m256d c1 = _mm256_load_pd((double *)&ans_cur->y[1]);
@@ -341,7 +338,7 @@ NFN_MK_PROC_DECL_STD(double, avx, _fma, fma)
 NFN_MK_PROC_DECL_STD(double, 512, , fma)
 {
         __mk_param_std(LEFT_RIGHT_ANS, double);
-        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2;
+        NFN_MAT_KERNEL_LOCAL *restrict ans_cur = ans + offset_2  ;
 
         register __m512d c0 = _mm512_load_pd((double *)&ans_cur->z[0]);
         register __m512d c1 = _mm512_load_pd((double *)&ans_cur->z[1]);

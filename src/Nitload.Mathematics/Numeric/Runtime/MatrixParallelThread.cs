@@ -6,17 +6,10 @@
 // -----------------------------------------------------------------------------
 
 using Nitload.Common.HighPerformance.Memory;
-using Nitload.Common.HighPerformance.ProcessorAbstraction;
-using Nitload.Common.Internal;
-using Nitload.Mathematics.Numeric.Runtime;
-using Nitload.Threading;
-using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Nitload.Mathematics.Numeric
+namespace Nitload.Mathematics.Numeric.Runtime
 {
     internal enum MatrixThreadState : int
     {
@@ -34,7 +27,7 @@ namespace Nitload.Mathematics.Numeric
 
         private IntrinsicContext* _context;
 
-        private readonly MatrixParallelTask* _currentTask;
+        // private readonly MatrixParallelTask* _currentTask;
         private readonly ManualResetEventSlim _resetEvent;
 
         // private volatile MatrixThreadState _target;
@@ -92,6 +85,8 @@ namespace Nitload.Mathematics.Numeric
                 State = L4AwareThreadState.Running;
                 ManagedThread.Priority = ThreadPriority.Highest;
 
+                L4 l4 = BindedL4;
+                while (l4.TryGetCurrentPredictor(out IL4Predictor? predictor)) { }
 
                 // MatrixParallelQueue taskQueue = BindedWrap.TaskQueue;
                 /*

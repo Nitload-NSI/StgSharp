@@ -9,7 +9,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Nitload.Threading
+namespace Nitload.Common.Threading
 {
     /// <summary>
     ///   A counting semaphore with adjustable maximum capacity at runtime. Implemented using one or
@@ -67,24 +67,24 @@ namespace Nitload.Threading
         /// <summary>
         ///   Current number of available permits.
         /// </summary>
-        public int CurrentCount => Volatile.Read(ref _current);
+        public int CurrentCount => _current;
 
         /// <summary>
         ///   Logical maximum number of permits. Can be changed at runtime.
         /// </summary>
         public int MaxPermits
         {
-            get => Volatile.Read(ref _max);
+            get => _max;
             set
             {
                 ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
-                Volatile.Write(ref _max, value);
+                _max = value;
 
                 // Clamp current to not exceed the new max (do not block; let Wait() consume down).
                 while (true)
                 {
-                    int cur = Volatile.Read(ref _current);
+                    int cur = _current;
                     if (cur <= value)
                     {
                         break;
@@ -97,7 +97,7 @@ namespace Nitload.Threading
                 }
 
                 // Reflect availability to gates
-                if (Volatile.Read(ref _current) > 0)
+                if (_current > 0)
                 {
                     SetAll();
                 } else
@@ -123,8 +123,8 @@ namespace Nitload.Threading
         {
             while (true)
             {
-                int cur = Volatile.Read(ref _current);
-                int max = Volatile.Read(ref _max);
+                int cur = _current;
+                int max = _max;
                 if (cur >= max) {
                     return cur;
                 }
@@ -152,8 +152,8 @@ namespace Nitload.Threading
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(permits);
             while (true)
             {
-                int cur = Volatile.Read(ref _current);
-                int max = Volatile.Read(ref _max);
+                int cur = _current;
+                int max = _max;
                 if (cur >= max) {
                     return cur;
                 }
@@ -182,7 +182,7 @@ namespace Nitload.Threading
         {
             while (true)
             {
-                int cur = Volatile.Read(ref _current);
+                int cur = _current;
                 if (cur == 0) {
                     return false;
                 }
@@ -205,10 +205,10 @@ namespace Nitload.Threading
         public void Wait()
         {
             ManualResetEventSlim gate = GetStripeEvent();
-            SpinWait spinner = new SpinWait();
+            SpinWait spinner = new();
             while (true)
             {
-                int cur = Volatile.Read(ref _current);
+                int cur = _current;
                 if ((cur > 0) && (Interlocked.CompareExchange(ref _current, cur - 1, cur) == cur))
                 {
                     if (cur - 1 == 0) {
@@ -236,13 +236,13 @@ namespace Nitload.Threading
         )
         {
             ManualResetEventSlim gate = GetStripeEvent();
-            SpinWait spinner = new SpinWait();
+            SpinWait spinner = new();
             int start = Environment.TickCount;
             int remaining = millisecondsTimeout;
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                int cur = Volatile.Read(ref _current);
+                int cur = _current;
                 if ((cur > 0) && (Interlocked.CompareExchange(ref _current, cur - 1, cur) == cur))
                 {
                     if (cur - 1 == 0) {

@@ -6,7 +6,7 @@
 // -----------------------------------------------------------------------------
 
 using Nitload.Common.HighPerformance.ProcessorAbstraction;
-using Nitload.Threading;
+using Nitload.Common.Threading;
 
 namespace Nitload.Common.HighPerformance.Memory
 {

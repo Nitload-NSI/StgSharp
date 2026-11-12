@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="104" viewBox="0 0 128 104" role="img" aria-labelledby="title desc">
+  <title id="title">nFramework icon</title>
+  <desc id="desc">The geometric nFramework mark, with a diagonal slash suggesting an N.</desc>
+  <metadata>Copyright (c) 2026 Nitload. Licensed under CC BY-NC-ND 4.0: https://creativecommons.org/licenses/by-nc-nd/4.0/</metadata>
+  <g fill="#59B2DA" transform="translate(13.6 13.6) scale(0.8)">
+    <polygon points="8,8 31,8 31,20 20,20 20,76 31,76 31,88 8,88" />
+    <polygon points="97,8 120,8 120,88 97,88 97,76 108,76 108,20 97,20" />
+    <polygon points="40,16 53,16 53,45 40,45" />
+    <circle cx="80" cy="76" r="8" />
+  </g>
+</svg>

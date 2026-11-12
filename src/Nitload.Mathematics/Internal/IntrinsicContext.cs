@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="IntrinsicContext"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 
 namespace Nitload.Mathematics.Internal
 {
-    internal enum MatrixIntrinsicHandle : int
+    internal enum MatrixIntrinsicHandle : ushort
     {
 
         Add = 0,
@@ -28,30 +28,30 @@ namespace Nitload.Mathematics.Internal
 
     }
 
-    [StructLayout(LayoutKind.Explicit, Size = 4)]
+    [StructLayout(LayoutKind.Explicit, Size = 2)]
     public struct MatrixElementType
     {
 
         public const int IntrinsicCount = 0x0a;
 
-        public static readonly MatrixElementType F32 = new(0x00000004);
-        public static readonly MatrixElementType F64 = new(0x00010008);
-        public static readonly MatrixElementType I08 = new(0x00020001);
-        public static readonly MatrixElementType I16 = new(0x00030002);
-        public static readonly MatrixElementType I32 = new(0x00040004);
-        public static readonly MatrixElementType I64 = new(0x00050008);
-        public static readonly MatrixElementType U08 = new(0x00060001);
-        public static readonly MatrixElementType U16 = new(0x00070002);
-        public static readonly MatrixElementType U32 = new(0x00080004);
-        public static readonly MatrixElementType U64 = new(0x00090008);
+        public static readonly MatrixElementType F32 = new(0x0004);
+        public static readonly MatrixElementType F64 = new(0x0108);
+        public static readonly MatrixElementType I08 = new(0x0201);
+        public static readonly MatrixElementType I16 = new(0x0302);
+        public static readonly MatrixElementType I32 = new(0x0404);
+        public static readonly MatrixElementType I64 = new(0x0508);
+        public static readonly MatrixElementType U08 = new(0x0601);
+        public static readonly MatrixElementType U16 = new(0x0702);
+        public static readonly MatrixElementType U32 = new(0x0804);
+        public static readonly MatrixElementType U64 = new(0x0908);
 
         [FieldOffset(0)] internal readonly int Mask;
-        [FieldOffset(2)] public readonly ushort IntrinsicNode;
+        [FieldOffset(1)] public readonly ushort IntrinsicNode;
 
         [FieldOffset(0)] public readonly ushort Size;
 
         private MatrixElementType(
-                int mask
+                ushort mask
         )
         {
             Unsafe.SkipInit(out this);
@@ -88,6 +88,7 @@ namespace Nitload.Mathematics.Internal
         public delegate* unmanaged[Cdecl]<int, ulong> factorial_simd;                       // factorial_simd
         public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;                 // index_pair
         public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> vec_f32_normalize_3;   // f32_normalize_3
+        public MatrixCacheIOIntrinsicArray mat_io;                                                          // mat[4] in native order
         public MatrixMultiKernelIntrinsicArray mat_mk;                                              // mat[4] in native order
         public MatrixSingleKernelIntrinsicArray mat_sk;                                              // mat[4] in native order
 
@@ -97,6 +98,35 @@ namespace Nitload.Mathematics.Internal
         }
 
     }
+
+    #region io
+
+    [InlineArray(4)]
+    internal unsafe struct MatrixCacheIOIntrinsic
+    {
+
+        private nint handle;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly nint Get(
+                             MatrixIntrinsicHandle index
+        )
+        {
+            return this[(int)index];
+        }
+
+    }
+
+    [InlineArray(MatrixElementType.IntrinsicCount)]
+    internal unsafe struct MatrixCacheIOIntrinsicArray
+    {
+
+        private MatrixCacheIOIntrinsic e0;
+
+    }
+
+        #endregion
+
 
     #region mk
 

@@ -56,8 +56,38 @@ namespace Nitload.Common.HighPerformance.Memory
             GC.SuppressFinalize(this);
         }
 
-        public void ForeachThread(Action<TThread> action)
+        public void ForeachNuma(
+                    Action<int> actionOnNuma
+        )
         {
+            ObjectDisposedException.ThrowIf(disposedValue, this);
+            if (ReferenceEquals(FrozenDictionary<int, L4>.Empty, _memory)) {
+                return;
+            }
+            if (actionOnNuma is not null)
+            {
+                foreach (KeyValuePair<int, TThread[]> kvp in _threadsInNuma)
+                {
+                    foreach (TThread t in kvp.Value)
+                    {
+                        if (t.State != L4AwareThreadState.Retired)
+                        {
+                            actionOnNuma(kvp.Key);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void ForeachThread(
+                    Action<TThread> action
+        )
+        {
+            ObjectDisposedException.ThrowIf(disposedValue, this);
+            if (ReferenceEquals(FrozenDictionary<int, L4>.Empty, _memory)) {
+                return;
+            }
             if (action is not null)
             {
                 foreach (TThread t in _allThreads)
@@ -193,9 +223,7 @@ namespace Nitload.Common.HighPerformance.Memory
                 return 0;
             }
 
-            TThread[] candidates = threads
-                .Where(thread => thread.State != L4AwareThreadState.Retired)
-                .ToArray();
+            TThread[] candidates = [.. threads.Where(thread => thread.State != L4AwareThreadState.Retired)];
             Array.Sort(candidates, comparer);
 
             int retireCount = Math.Min(maxRetireCount, candidates.Length);
@@ -218,8 +246,8 @@ namespace Nitload.Common.HighPerformance.Memory
 
         /// <summary>
         ///   L4 manager will automatically select a retire policy based on current machine's
-        ///   topology and numa node count. Selected policy will be either <see 
-        ///   cref="GlobalWeakest" /> or <see cref="PerNumaWeakest" />.
+        ///   topology and numa node count. Selected policy will be either <see
+    ///   cref="GlobalWeakest" /> or <see cref="PerNumaWeakest" />.
         /// </summary>
         Auto,
         /// <summary>

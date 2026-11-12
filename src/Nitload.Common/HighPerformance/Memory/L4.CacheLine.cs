@@ -99,9 +99,9 @@ namespace Nitload.Common.HighPerformance.Memory
         public unsafe struct Handle : IDisposable
         {
 
-            [FieldOffset(0)] private nuint _handle;
+            [FieldOffset(8)] private nuint _handle;
 
-            [FieldOffset(8)] private nuint _reserved;
+            [FieldOffset(0)] private nuint _reserved;
 
             internal Handle(
                      nuint handle,

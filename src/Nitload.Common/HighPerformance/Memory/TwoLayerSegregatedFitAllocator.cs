@@ -5,20 +5,8 @@
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
 
-using Nitload.Common.HighPerformance.Memory;
-using Nitload.Common.HighPerformance.ProcessorAbstraction;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
 using System.Numerics;
-using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using static Nitload.Common.HighPerformance.Memory.TwoLayerSegregatedFitAllocator;
 
 namespace Nitload.Common.HighPerformance.Memory
 {
@@ -29,15 +17,46 @@ namespace Nitload.Common.HighPerformance.Memory
 
         private readonly int[] _bucket;
         private readonly Metadata* _spareMemory;
-        private readonly Action<nuint> _freeHandle;
+        private readonly Action<UnmanagedMemoryProperty> _freeHandle;
         private bool disposedValue;
-        private readonly int _align;
         private readonly int _maxLevel;
 
         private int _metadataEnd;
-        private readonly Ptr64 _basePtr;
         private readonly ulong _maxAllocSize;
-        private readonly ulong _totalSize;
+
+        private readonly UnmanagedMemoryProperty _memoryProperty;
+
+        internal TwoLayerSegregatedFitAllocator(
+                 UnmanagedMemoryProperty memory,
+                 ulong maxBlockSize,
+                 Action<UnmanagedMemoryProperty> freeHandle
+        )
+        {
+            if (memory.Address == 0) {
+                throw new OutOfMemoryException();
+            }
+            if (memory.Size < Metadata.SizeOf) {
+                throw new ArgumentOutOfRangeException(nameof(memory));
+            }
+            _memoryProperty = memory;
+
+            _maxAllocSize = ulong.Max(64, (~64UL) & (ulong.Min(maxBlockSize + 63, Mask48Bits)));
+            _maxLevel = int.MaxValue;
+            _maxLevel = GetLevel(_maxAllocSize);
+            _bucket = new int[GetLevel(_maxAllocSize) + 2];
+            _spareMemory = &((Metadata*)(ulong)(BasePtr + TotalSize))[-1];
+            _freeHandle = freeHandle ?? (static _ => { });
+            _metadataEnd = 0;
+
+            // init spare memory node
+
+            _spareMemory->Position = BasePtr;
+            _spareMemory->SizeForSpare = TotalSize - Metadata.SizeOf;
+            _spareMemory->NextLevel = 0;
+            _spareMemory->NextNear = 0;
+            _spareMemory->PreviousLevel = 0;
+            _spareMemory->PreviousNear = 0;
+        }
 
         internal TwoLayerSegregatedFitAllocator(
                  nuint byteSize,
@@ -55,55 +74,46 @@ namespace Nitload.Common.HighPerformance.Memory
                  void* externalPointer,
                  Action<nuint> freeHandle
         )
-        {
-            _totalSize = byteSize;
-            _basePtr = (Ptr64)(ulong)externalPointer;
-            _align = align;
-            _maxAllocSize = ulong.Max(64, (~64UL) & (ulong.Min(maxBlockSize + 63, Mask48Bits)));
-            _maxLevel = int.MaxValue;
-            _maxLevel = GetLevel(_maxAllocSize);
-            _bucket = new int[GetLevel(_maxAllocSize) + 2];
-            _spareMemory = &((Metadata*)(ulong)(_basePtr + _totalSize))[-1];
-            _freeHandle = freeHandle ?? (static_ => { });
-            _metadataEnd = 0;
-
-            // init spare memory node
-
-            _spareMemory->Position = _basePtr;
-            _spareMemory->SizeForSpare = _totalSize - Metadata.SizeOf;
-            _spareMemory->NextLevel = 0;
-            _spareMemory->NextNear = 0;
-            _spareMemory->PreviousLevel = 0;
-            _spareMemory->PreviousNear = 0;
-        }
+            : this(new UnmanagedMemoryProperty((nuint)externalPointer, (ulong)byteSize, align, -1),
+                   maxBlockSize, freeHandle is null ? null! : memory => freeHandle(memory.Address)) { }
 
         public TwoLayerSegregatedFitAllocator(
                nuint byteSize
         )
-            : this(byteSize, 16, 32U * 1024U * 1024U, NativeMemory.AlignedAlloc(byteSize, 16),
-                   ptr => NativeMemory.AlignedFree((void*)ptr)) { }
+            : this(new UnmanagedMemoryProperty((nuint)NativeMemory.AlignedAlloc(byteSize, 16),
+                                               byteSize, 16, -1),
+                 32U * 1024U * 1024U, static memory => NativeMemory.AlignedFree((void*)memory.Address)) { }
 
         public TwoLayerSegregatedFitAllocator(
                nuint byteSize,
                uint maxBlockSize
         )
-            : this(byteSize, 16, maxBlockSize, NativeMemory.AlignedAlloc(byteSize, 16),
-                   ptr => NativeMemory.AlignedFree((void*)ptr)) { }
+            : this(new UnmanagedMemoryProperty((nuint)NativeMemory.AlignedAlloc(byteSize, 16),
+                                               byteSize, 16, -1),
+                 maxBlockSize, static memory => NativeMemory.AlignedFree((void*)memory.Address)) { }
 
         public TwoLayerSegregatedFitAllocator(
                nuint byteSize,
                int align
         )
-            : this(byteSize, align, 32U * 1024U * 1024U, NativeMemory.AlignedAlloc(byteSize, 16),
-                   ptr => NativeMemory.AlignedFree((void*)ptr)) { }
+            : this(new UnmanagedMemoryProperty((nuint)NativeMemory.AlignedAlloc(byteSize, (nuint)align),
+                                               byteSize, align, -1),
+                 32U * 1024U * 1024U, static memory => NativeMemory.AlignedFree((void*)memory.Address)) { }
 
         public TwoLayerSegregatedFitAllocator(
                nuint byteSize,
                int align,
                nuint maxBlockSize
         )
-            : this(byteSize, align, maxBlockSize, NativeMemory.AlignedAlloc(byteSize, 16),
-                   ptr => NativeMemory.AlignedFree((void*)ptr)) { }
+            : this(new UnmanagedMemoryProperty((nuint)NativeMemory.AlignedAlloc(byteSize, (nuint)align),
+                                               byteSize, align, -1),
+                 maxBlockSize, static memory => NativeMemory.AlignedFree((void*)memory.Address)) { }
+
+        private int Align => _memoryProperty.Alignment;
+
+        private Ptr64 BasePtr => _memoryProperty.Address;
+
+        private  ulong TotalSize => _memoryProperty.Size;
 
         public void Dispose()
         {
@@ -118,7 +128,7 @@ namespace Nitload.Common.HighPerformance.Memory
             if (!disposedValue)
             {
                 if (disposing) {
-                    _freeHandle((nuint)_basePtr);
+                    _freeHandle(_memoryProperty);
                 }
 
                 disposedValue = true;
@@ -487,10 +497,10 @@ namespace Nitload.Common.HighPerformance.Memory
                 newEntry->PreviousNear = entryIdx;
             }
             entry->State = AllocationState.Alloc;
-            if (entry->Position - (ulong)_basePtr > _totalSize) {
+            if (entry->Position - (ulong)BasePtr > TotalSize) {
                 throw new OverflowException("Allocated memory address exceeds the maximum block size.");
             }
-            return new Handle(entry, _basePtr);
+            return new Handle(entry, BasePtr);
         }
 
         public void Collect()
@@ -655,12 +665,12 @@ namespace Nitload.Common.HighPerformance.Memory
                 newEntry->PreviousNear = entryIdx;
             }
             entry->State = AllocationState.Alloc;
-            if (entry->Position - (ulong)_basePtr > _totalSize)
+            if (entry->Position - (ulong)BasePtr > TotalSize)
             {
                 h = default;
                 throw new OverflowException("Allocated memory address exceeds the maximum block size.");
             }
-            h = new Handle(entry, _basePtr);
+            h = new Handle(entry, BasePtr);
             return true;
         }
 

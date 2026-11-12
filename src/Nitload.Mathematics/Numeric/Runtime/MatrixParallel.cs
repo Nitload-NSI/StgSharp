@@ -8,17 +8,21 @@
 using Nitload.Common.Collections;
 using Nitload.Common.HighPerformance.Memory;
 using Nitload.Common.HighPerformance.ProcessorAbstraction;
-using Nitload.Mathematics.Numeric.Runtime;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Nitload.Mathematics.Numeric
+using TLSF = Nitload.Common.HighPerformance.Memory.TwoLayerSegregatedFitAllocator;
+
+namespace Nitload.Mathematics.Numeric.Runtime
 {
     public static unsafe partial class MatrixParallel
     {
 
         private static bool _meaningful;
+
+        private static FrozenDictionary<int, TLSF> _taskCache = FrozenDictionary<int, TLSF>.Empty;
 
         // private static CapacityFixedStack<MatrixParallelThread> _retiredThreads;
 
@@ -26,7 +30,9 @@ namespace Nitload.Mathematics.Numeric
 
         public static bool IsParallelSupported { get; } = Environment.ProcessorCount > 6;
 
-        public static bool IsParallelMeaningful => IsParallelSupported && IsInitialized && _meaningful;
+        public static bool IsParallelMeaningful => IsParallelSupported &&
+                                                   IsInitialized &&
+                                                   _meaningful;
 
         public static int ContextCount { get; private set; }
 
@@ -39,12 +45,18 @@ namespace Nitload.Mathematics.Numeric
                 thread.Dispose();
             });
             _workRegion.Dispose();
+            foreach (TLSF allocator in _taskCache.Values) {
+                allocator.Dispose();
+            }
+            _taskCache = FrozenDictionary<int, TLSF>.Empty;
 
             ContextCount = 0;
             IsInitialized = false;
         }
 
-        internal static void Init(NumericModuleInitProfile p)
+        internal static void Init(
+                             NumericModuleInitProfile p
+        )
         {
             Dictionary<ulong, int> contextMap = [];
 
@@ -83,11 +95,17 @@ namespace Nitload.Mathematics.Numeric
                 () => new(), p.CacheSize, p.CacheSizeLayout
              );
 #pragma warning restore CA2000
+            Dictionary<int, TLSF> taskCache = [];
+
             manager.ForeachThread(thread => {
                 SIMDID simd = thread.Simd;
                 ulong mask = simd.Mask;
-                contextMap[mask] = contextMap.TryGetValue(mask, out int contextCount) ? (contextCount + 1) : 1;
-                globalSimd = (globalSimd.Mask != 0) ? (SIMDID)UniteSIMDID(globalSimd.Mask, simd.Mask) : simd;
+                contextMap[mask] = contextMap.TryGetValue(mask, out int contextCount) ?
+                                   (contextCount + 1) :
+                                   1;
+                globalSimd = (globalSimd.Mask != 0) ?
+                             (SIMDID)UniteSIMDID(globalSimd.Mask, simd.Mask) :
+                             simd;
             });
 
             // make global simd  context
@@ -99,50 +117,78 @@ namespace Nitload.Mathematics.Numeric
 
             manager.RetireByOrder(SimdComparer.Instance, p.RuntimeRole);
 
-            // retire threads
-            /*
-            if (ContextCount == 1)
+            try
             {
-                MatrixParallelThread[] threadArr = _numaWaveFront[0];
-                int retireCount = Math.Min(RESERVED_THREAD_COUNT, Math.Max(0, threadArr.Length));
-                for (int i = 1; i <= retireCount; i++) {
-                    RetireThread(threadArr[^i]);
-                }
-                _numaWaveFront[0] = threadArr[0..^retireCount];
-            } else
-            {
-                RetireWhenMultipleSIMDID(_numaWaveFront);
+                manager.ForeachNuma(numaId => {
+                    nuint taskSize = (nuint)Unsafe.SizeOf<MatrixParallelTask>();
+                    nuint byteSize = taskSize * 8192;
+                    void* address = Numa.Alloc(numaId, byteSize);
+                    if (address == null) {
+                        throw new OutOfMemoryException();
+                    }
+                    UnmanagedMemoryProperty memory = new((nuint)address, byteSize, 16, numaId);
+                    try
+                    {
+                        taskCache.Add(numaId, new TLSF(memory, taskSize * 2048,
+                            static memory => Numa.Free((void*)memory.Address, memory.BindedNuma,
+                                                       unchecked((nuint)memory.Size))));
+                    }
+                    catch
+                    {
+                        Numa.Free(address, numaId, byteSize);
+                        throw;
+                    }
+                });
+                _taskCache = taskCache.ToFrozenDictionary();
             }
-            /**/
+            catch
+            {
+                foreach (TLSF allocator in taskCache.Values) {
+                    allocator.Dispose();
+                }
+                manager.Dispose();
+                throw;
+            }
+            _workRegion = manager;
+
+            // retire threads
+                /*
+                if (ContextCount == 1)
+                {
+                    MatrixParallelThread[] threadArr = _numaWaveFront[0];
+                    int retireCount = Math.Min(RESERVED_THREAD_COUNT, Math.Max(0, threadArr.Length));
+                    for (int i = 1; i <= retireCount; i++) {
+                        RetireThread(threadArr[^i]);
+                    }
+                    _numaWaveFront[0] = threadArr[0..^retireCount];
+                } else
+                {
+                    RetireWhenMultipleSIMDID(_numaWaveFront);
+                }
+                /**/
             _meaningful = _workRegion.ActiveThreadCount > 1;
 
             // _awaitingLeaderHandle = new AwaitingQueue();
             IsInitialized = true;
         }
 
-        /*
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void RetireThread(
-                            MatrixParallelThread thread
-        )
-        {
-            thread.Pause();
-            thread.Dispose();
-            _retiredThreads.Push(thread);
-        }
-        /**/
-
         #region C invoke
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_load_intrinsic_function")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        private static partial void LoadIntrinsicFunction(IntrinsicContext* context, ulong id);
+        private static partial void LoadIntrinsicFunction(
+                                    IntrinsicContext* context,
+                                    ulong id
+        );
 
         [LibraryImport(Native.LibName, EntryPoint = "nfn_get_unite_simd")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
-        private static partial ulong UniteSIMDID(ulong left, ulong right);
+        private static partial ulong UniteSIMDID(
+                                     ulong left,
+                                     ulong right
+        );
 
     #endregion
     }

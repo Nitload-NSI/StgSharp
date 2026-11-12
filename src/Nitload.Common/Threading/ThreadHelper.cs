@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Nitload.Threading
+namespace Nitload.Common.Threading
 {
     public static partial class ThreadHelper
     {
