@@ -2,7 +2,6 @@
 
 #if NFN_IS_ARCH(NFN_ARCH_X86_64)
 
-#include "nfn_intrinsic.h"
 #include "nfn_intrinsic.std.h"
 #include "nfn_intrinsic.context.x86.h"
 
@@ -28,31 +27,31 @@ NFN_SK_PROC_DECL_STD(float, sse, , fma)
 
         /* Column 0 */
         bcol = _mm_load_ps((float *)&right->x[0]);
-        c0 = _mm_add_ps(c0, _mm_mul_ps(a0, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(0))));
-        c0 = _mm_add_ps(c0, _mm_mul_ps(a1, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(1))));
-        c0 = _mm_add_ps(c0, _mm_mul_ps(a2, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(2))));
-        c0 = _mm_add_ps(c0, _mm_mul_ps(a3, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(3))));
+        c0   = _mm_add_ps(c0, _mm_mul_ps(a0, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(0))));
+        c0   = _mm_add_ps(c0, _mm_mul_ps(a1, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(1))));
+        c0   = _mm_add_ps(c0, _mm_mul_ps(a2, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(2))));
+        c0   = _mm_add_ps(c0, _mm_mul_ps(a3, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(3))));
 
         /* Column 1 */
         bcol = _mm_load_ps((float *)&right->x[1]);
-        c1 = _mm_add_ps(c1, _mm_mul_ps(a0, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(0))));
-        c1 = _mm_add_ps(c1, _mm_mul_ps(a1, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(1))));
-        c1 = _mm_add_ps(c1, _mm_mul_ps(a2, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(2))));
-        c1 = _mm_add_ps(c1, _mm_mul_ps(a3, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(3))));
+        c1   = _mm_add_ps(c1, _mm_mul_ps(a0, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(0))));
+        c1   = _mm_add_ps(c1, _mm_mul_ps(a1, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(1))));
+        c1   = _mm_add_ps(c1, _mm_mul_ps(a2, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(2))));
+        c1   = _mm_add_ps(c1, _mm_mul_ps(a3, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(3))));
 
         /* Column 2 */
         bcol = _mm_load_ps((float *)&right->x[2]);
-        c2 = _mm_add_ps(c2, _mm_mul_ps(a0, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(0))));
-        c2 = _mm_add_ps(c2, _mm_mul_ps(a1, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(1))));
-        c2 = _mm_add_ps(c2, _mm_mul_ps(a2, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(2))));
-        c2 = _mm_add_ps(c2, _mm_mul_ps(a3, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(3))));
+        c2   = _mm_add_ps(c2, _mm_mul_ps(a0, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(0))));
+        c2   = _mm_add_ps(c2, _mm_mul_ps(a1, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(1))));
+        c2   = _mm_add_ps(c2, _mm_mul_ps(a2, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(2))));
+        c2   = _mm_add_ps(c2, _mm_mul_ps(a3, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(3))));
 
         /* Column 3 */
         bcol = _mm_load_ps((float *)&right->x[3]);
-        c3 = _mm_add_ps(c3, _mm_mul_ps(a0, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(0))));
-        c3 = _mm_add_ps(c3, _mm_mul_ps(a1, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(1))));
-        c3 = _mm_add_ps(c3, _mm_mul_ps(a2, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(2))));
-        c3 = _mm_add_ps(c3, _mm_mul_ps(a3, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(3))));
+        c3   = _mm_add_ps(c3, _mm_mul_ps(a0, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(0))));
+        c3   = _mm_add_ps(c3, _mm_mul_ps(a1, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(1))));
+        c3   = _mm_add_ps(c3, _mm_mul_ps(a2, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(2))));
+        c3   = _mm_add_ps(c3, _mm_mul_ps(a3, _mm_shuffle_ps(bcol, bcol, _FMA_SELECT(3))));
 
         _mm_store_ps((float *)&ans->x[0], c0);
         _mm_store_ps((float *)&ans->x[1], c1);
@@ -70,17 +69,17 @@ NFN_SK_PROC_DECL_STD(float, avx, , fma)
         register __m256 b23 = _mm256_load_ps((float *)&right->y[1]);
 
         register __m256 a0 = _mm256_broadcast_ps(&left->x[0]);
-        c01 = _mm256_add_ps(_mm256_mul_ps(a0, b01), c01);
-        c23 = _mm256_add_ps(_mm256_mul_ps(a0, b23), c23);
+        c01                = _mm256_add_ps(_mm256_mul_ps(a0, b01), c01);
+        c23                = _mm256_add_ps(_mm256_mul_ps(a0, b23), c23);
         register __m256 a1 = _mm256_broadcast_ps(&left->x[1]);
-        c01 = _mm256_add_ps(_mm256_mul_ps(a1, b01), c01);
-        c23 = _mm256_add_ps(_mm256_mul_ps(a1, b23), c23);
+        c01                = _mm256_add_ps(_mm256_mul_ps(a1, b01), c01);
+        c23                = _mm256_add_ps(_mm256_mul_ps(a1, b23), c23);
         register __m256 a2 = _mm256_broadcast_ps(&left->x[2]);
-        c01 = _mm256_add_ps(_mm256_mul_ps(a2, b01), c01);
-        c23 = _mm256_add_ps(_mm256_mul_ps(a2, b23), c23);
+        c01                = _mm256_add_ps(_mm256_mul_ps(a2, b01), c01);
+        c23                = _mm256_add_ps(_mm256_mul_ps(a2, b23), c23);
         register __m256 a3 = _mm256_broadcast_ps(&left->x[3]);
-        c01 = _mm256_add_ps(_mm256_mul_ps(a3, b01), c01);
-        c23 = _mm256_add_ps(_mm256_mul_ps(a3, b23), c23);
+        c01                = _mm256_add_ps(_mm256_mul_ps(a3, b01), c01);
+        c23                = _mm256_add_ps(_mm256_mul_ps(a3, b23), c23);
 
         _mm256_store_ps((float *)&ans->y[0], c01);
         _mm256_store_ps((float *)&ans->y[1], c23);
@@ -96,17 +95,17 @@ NFN_SK_PROC_DECL_STD(float, avx, _fma, fma)
         register __m256 b23 = _mm256_load_ps((float *)&right->y[1]);
 
         register __m256 a0 = _mm256_broadcast_ps(&left->x[0]);
-        c01 = _mm256_fmadd_ps(a0, b01, c01);
-        c23 = _mm256_fmadd_ps(a0, b23, c23);
+        c01                = _mm256_fmadd_ps(a0, b01, c01);
+        c23                = _mm256_fmadd_ps(a0, b23, c23);
         register __m256 a1 = _mm256_broadcast_ps(&left->x[1]);
-        c01 = _mm256_fmadd_ps(a1, b01, c01);
-        c23 = _mm256_fmadd_ps(a1, b23, c23);
+        c01                = _mm256_fmadd_ps(a1, b01, c01);
+        c23                = _mm256_fmadd_ps(a1, b23, c23);
         register __m256 a2 = _mm256_broadcast_ps(&left->x[2]);
-        c01 = _mm256_fmadd_ps(a2, b01, c01);
-        c23 = _mm256_fmadd_ps(a2, b23, c23);
+        c01                = _mm256_fmadd_ps(a2, b01, c01);
+        c23                = _mm256_fmadd_ps(a2, b23, c23);
         register __m256 a3 = _mm256_broadcast_ps(&left->x[3]);
-        c01 = _mm256_fmadd_ps(a3, b01, c01);
-        c23 = _mm256_fmadd_ps(a3, b23, c23);
+        c01                = _mm256_fmadd_ps(a3, b01, c01);
+        c23                = _mm256_fmadd_ps(a3, b23, c23);
 
         _mm256_store_ps((float *)&ans->y[0], c01);
         _mm256_store_ps((float *)&ans->y[1], c23);
@@ -121,16 +120,16 @@ NFN_SK_PROC_DECL_STD(float, 512, , fma)
         // k=0: broadcast ka_col0 到4个lane，permute_ps 取 kb(0,j)
         register __m512 ak;
         ak = _mm512_broadcast_f32x4(left->x[0]);
-        c = _mm512_fmadd_ps(ak, _mm512_permute_ps(b, _FMA_SELECT(0)), c);
+        c  = _mm512_fmadd_ps(ak, _mm512_permute_ps(b, _FMA_SELECT(0)), c);
         // k=1
         ak = _mm512_broadcast_f32x4(left->x[1]);
-        c = _mm512_fmadd_ps(ak, _mm512_permute_ps(b, _FMA_SELECT(1)), c);
+        c  = _mm512_fmadd_ps(ak, _mm512_permute_ps(b, _FMA_SELECT(1)), c);
         // k=2
         ak = _mm512_broadcast_f32x4(left->x[2]);
-        c = _mm512_fmadd_ps(ak, _mm512_permute_ps(b, _FMA_SELECT(2)), c);
+        c  = _mm512_fmadd_ps(ak, _mm512_permute_ps(b, _FMA_SELECT(2)), c);
         // k=3
         ak = _mm512_broadcast_f32x4(left->x[3]);
-        c = _mm512_fmadd_ps(ak, _mm512_permute_ps(b, _FMA_SELECT(3)), c);
+        c  = _mm512_fmadd_ps(ak, _mm512_permute_ps(b, _FMA_SELECT(3)), c);
         _mm512_store_ps((float *)ans, c);
 }
 
@@ -176,7 +175,7 @@ NFN_SK_PROC_DECL_STD(float, 512, , fma)
 NFN_SK_PROC_DECL_STD(double, sse, , fma)
 {
         __sk_param_std(double);
-        const double *left_values = &left->m[0][0];
+        const double *left_values  = &left->m[0][0];
         const double *right_values = &right->m[0][0];
 
         register __m128d c0_lo = ans->x[0];
@@ -269,31 +268,31 @@ NFN_SK_PROC_DECL_STD(double, avx, _fma, fma)
 
         /* Column 0 */
         bcol = _mm256_load_pd((double *)&right->y[0]);
-        c0 = _mm256_fmadd_pd(a0, _mm256_permute4x64_pd(bcol, _FMA_SELECT(0)), c0);
-        c0 = _mm256_fmadd_pd(a1, _mm256_permute4x64_pd(bcol, _FMA_SELECT(1)), c0);
-        c0 = _mm256_fmadd_pd(a2, _mm256_permute4x64_pd(bcol, _FMA_SELECT(2)), c0);
-        c0 = _mm256_fmadd_pd(a3, _mm256_permute4x64_pd(bcol, _FMA_SELECT(3)), c0);
+        c0   = _mm256_fmadd_pd(a0, _mm256_permute4x64_pd(bcol, _FMA_SELECT(0)), c0);
+        c0   = _mm256_fmadd_pd(a1, _mm256_permute4x64_pd(bcol, _FMA_SELECT(1)), c0);
+        c0   = _mm256_fmadd_pd(a2, _mm256_permute4x64_pd(bcol, _FMA_SELECT(2)), c0);
+        c0   = _mm256_fmadd_pd(a3, _mm256_permute4x64_pd(bcol, _FMA_SELECT(3)), c0);
 
         /* Column 1 */
         bcol = _mm256_load_pd((double *)&right->y[1]);
-        c1 = _mm256_fmadd_pd(a0, _mm256_permute4x64_pd(bcol, _FMA_SELECT(0)), c1);
-        c1 = _mm256_fmadd_pd(a1, _mm256_permute4x64_pd(bcol, _FMA_SELECT(1)), c1);
-        c1 = _mm256_fmadd_pd(a2, _mm256_permute4x64_pd(bcol, _FMA_SELECT(2)), c1);
-        c1 = _mm256_fmadd_pd(a3, _mm256_permute4x64_pd(bcol, _FMA_SELECT(3)), c1);
+        c1   = _mm256_fmadd_pd(a0, _mm256_permute4x64_pd(bcol, _FMA_SELECT(0)), c1);
+        c1   = _mm256_fmadd_pd(a1, _mm256_permute4x64_pd(bcol, _FMA_SELECT(1)), c1);
+        c1   = _mm256_fmadd_pd(a2, _mm256_permute4x64_pd(bcol, _FMA_SELECT(2)), c1);
+        c1   = _mm256_fmadd_pd(a3, _mm256_permute4x64_pd(bcol, _FMA_SELECT(3)), c1);
 
         /* Column 2 */
         bcol = _mm256_load_pd((double *)&right->y[2]);
-        c2 = _mm256_fmadd_pd(a0, _mm256_permute4x64_pd(bcol, _FMA_SELECT(0)), c2);
-        c2 = _mm256_fmadd_pd(a1, _mm256_permute4x64_pd(bcol, _FMA_SELECT(1)), c2);
-        c2 = _mm256_fmadd_pd(a2, _mm256_permute4x64_pd(bcol, _FMA_SELECT(2)), c2);
-        c2 = _mm256_fmadd_pd(a3, _mm256_permute4x64_pd(bcol, _FMA_SELECT(3)), c2);
+        c2   = _mm256_fmadd_pd(a0, _mm256_permute4x64_pd(bcol, _FMA_SELECT(0)), c2);
+        c2   = _mm256_fmadd_pd(a1, _mm256_permute4x64_pd(bcol, _FMA_SELECT(1)), c2);
+        c2   = _mm256_fmadd_pd(a2, _mm256_permute4x64_pd(bcol, _FMA_SELECT(2)), c2);
+        c2   = _mm256_fmadd_pd(a3, _mm256_permute4x64_pd(bcol, _FMA_SELECT(3)), c2);
 
         /* Column 3 */
         bcol = _mm256_load_pd((double *)&right->y[3]);
-        c3 = _mm256_fmadd_pd(a0, _mm256_permute4x64_pd(bcol, _FMA_SELECT(0)), c3);
-        c3 = _mm256_fmadd_pd(a1, _mm256_permute4x64_pd(bcol, _FMA_SELECT(1)), c3);
-        c3 = _mm256_fmadd_pd(a2, _mm256_permute4x64_pd(bcol, _FMA_SELECT(2)), c3);
-        c3 = _mm256_fmadd_pd(a3, _mm256_permute4x64_pd(bcol, _FMA_SELECT(3)), c3);
+        c3   = _mm256_fmadd_pd(a0, _mm256_permute4x64_pd(bcol, _FMA_SELECT(0)), c3);
+        c3   = _mm256_fmadd_pd(a1, _mm256_permute4x64_pd(bcol, _FMA_SELECT(1)), c3);
+        c3   = _mm256_fmadd_pd(a2, _mm256_permute4x64_pd(bcol, _FMA_SELECT(2)), c3);
+        c3   = _mm256_fmadd_pd(a3, _mm256_permute4x64_pd(bcol, _FMA_SELECT(3)), c3);
 
         _mm256_store_pd((double *)&ans->y[0], c0);
         _mm256_store_pd((double *)&ans->y[1], c1);
@@ -311,20 +310,20 @@ NFN_SK_PROC_DECL_STD(double, 512, , fma)
         register __m512d a23 = _mm512_load_pd((double *)&left->z[1]);
 
         register __m512d b0 = _mm512_broadcast_f64x4(right->y[0]);
-        c01 = _mm512_fmadd_pd(a01, b0, c01);
-        c23 = _mm512_fmadd_pd(a23, b0, c23);
+        c01                 = _mm512_fmadd_pd(a01, b0, c01);
+        c23                 = _mm512_fmadd_pd(a23, b0, c23);
 
         register __m512d b1 = _mm512_broadcast_f64x4(right->y[1]);
-        c01 = _mm512_fmadd_pd(a01, b1, c01);
-        c23 = _mm512_fmadd_pd(a23, b1, c23);
+        c01                 = _mm512_fmadd_pd(a01, b1, c01);
+        c23                 = _mm512_fmadd_pd(a23, b1, c23);
 
         register __m512d b2 = _mm512_broadcast_f64x4(right->y[2]);
-        c01 = _mm512_fmadd_pd(a01, b2, c01);
-        c23 = _mm512_fmadd_pd(a23, b2, c23);
+        c01                 = _mm512_fmadd_pd(a01, b2, c01);
+        c23                 = _mm512_fmadd_pd(a23, b2, c23);
 
         register __m512d b3 = _mm512_broadcast_f64x4(right->y[3]);
-        c01 = _mm512_fmadd_pd(a01, b3, c01);
-        c23 = _mm512_fmadd_pd(a23, b3, c23);
+        c01                 = _mm512_fmadd_pd(a01, b3, c01);
+        c23                 = _mm512_fmadd_pd(a23, b3, c23);
 
         _mm512_store_pd((double *)&ans->z[0], c01);
         _mm512_store_pd((double *)&ans->z[1], c23);

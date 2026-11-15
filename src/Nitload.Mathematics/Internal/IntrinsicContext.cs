@@ -28,6 +28,16 @@ namespace Nitload.Mathematics.Internal
 
     }
 
+    internal enum MatrixPackType : ushort
+    {
+
+        NoOp = 0,
+        FmaLeft = 1,
+        FmaRight = 2,
+        FmaAns = 3,
+
+    }
+
     [StructLayout(LayoutKind.Explicit, Size = 2)]
     public struct MatrixElementType
     {
@@ -84,13 +94,13 @@ namespace Nitload.Mathematics.Internal
     internal unsafe struct IntrinsicContext
     {
 
-        public delegate* unmanaged[Cdecl]<char*, int, int> city_hash_simplify;              // city_hash_simplify
-        public delegate* unmanaged[Cdecl]<int, ulong> factorial_simd;                       // factorial_simd
-        public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;                 // index_pair
-        public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> vec_f32_normalize_3;   // f32_normalize_3
-        public MatrixCacheIOIntrinsicArray mat_io;                                                          // mat[4] in native order
-        public MatrixMultiKernelIntrinsicArray mat_mk;                                              // mat[4] in native order
-        public MatrixSingleKernelIntrinsicArray mat_sk;                                              // mat[4] in native order
+        public delegate* unmanaged[Cdecl]<char*, int, int> city_hash_simplify;                      // city_hash_simplify
+        public delegate* unmanaged[Cdecl]<int, ulong> factorial_simd;                               // factorial_simd
+        // public delegate* unmanaged[Cdecl]<char*, int, int, int> index_pair;                         // index_pair
+        public delegate* unmanaged[Cdecl]<Vector4*, Vector4*, void> vec_f32_normalize_3;            // f32_normalize_3
+        public MatrixCacheIOIntrinsicArray mat_io;                                                  // how mat pack in mk op
+        public MatrixMultiKernelIntrinsicArray mat_mk;                                              // multi kernel compute
+        public MatrixSingleKernelIntrinsicArray mat_sk;                                             // single kernel compute
 
         public IntrinsicContext()
         {
@@ -126,7 +136,6 @@ namespace Nitload.Mathematics.Internal
     }
 
         #endregion
-
 
     #region mk
 

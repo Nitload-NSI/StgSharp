@@ -37,11 +37,13 @@
 
 #define MK_CACHE_PROC_NAME_STD(T_type, T_arch, T_feature, T_op) \
         T_type##_multi_kernel_cache_io_proc_##T_op##_##T_arch##_##T_feature
-#define MK_CACHE_PROC_STD(T_type, T_arch, T_feature, T_op) \
-        ((UNI_IO_PROC)MK_CACHE_PROC_NAME_STD(T_type, T_arch, T_feature, T_op))
+#define MK_CACHE_PROC_STD(T_type, T_arch, T_feature, T_op)                                         \
+        INTERNAL NOINLINE                        NFN_STD_TARGET_ATTR(                              \
+                T_arch, T_feature) void NFN_DECL MK_CACHE_PROC_NAME_STD(T_type, T_arch, T_feature, \
+                                                                        T_op)(                     \
+                nfn_L4_address_source * external_mem, nfn_L4_handle internal_mem)
 
 #pragma endregion
-
 
 #define _NFN_STD__PROBE_0 0
 #define _NFN_STD__PROBE_1 1
@@ -69,33 +71,33 @@
         _NFN_MK_EXPAND_BUFFER_SIZE(1);                                                          \
         _NFN_MK_EXPAND_BUFFER_SIZE(2);
 
-#define _NFN_MK_EXPAND_LEFT_RIGHT_ANS                                                          \
+#define _NFN_MK_EXPAND_LEFT_RIGHT_ANS                                                           \
         NFN_MAT_KERNEL_LOCAL const *left   = (NFN_MAT_KERNEL_LOCAL const *)task->buffer[0].ptr; \
         NFN_MAT_KERNEL_LOCAL const *right  = (NFN_MAT_KERNEL_LOCAL const *)task->buffer[1].ptr; \
         NFN_MAT_KERNEL_LOCAL *restrict ans = (NFN_MAT_KERNEL_LOCAL *)task->buffer[2].ptr;       \
-        _NFN_MK_EXPAND_BUFFER_SIZE(0);                                                         \
-        _NFN_MK_EXPAND_BUFFER_SIZE(1);                                                         \
+        _NFN_MK_EXPAND_BUFFER_SIZE(0);                                                          \
+        _NFN_MK_EXPAND_BUFFER_SIZE(1);                                                          \
         _NFN_MK_EXPAND_BUFFER_SIZE(2);
 
-#define _NFN_MK_EXPAND_RIGHT_ANS_SCALAR                                                        \
+#define _NFN_MK_EXPAND_RIGHT_ANS_SCALAR                                                         \
         NFN_MAT_KERNEL_LOCAL const *right  = (NFN_MAT_KERNEL_LOCAL const *)task->buffer[1].ptr; \
         NFN_MAT_KERNEL_LOCAL *restrict ans = (NFN_MAT_KERNEL_LOCAL *)task->buffer[2].ptr;       \
-        M128 scalar                        = task->scalar_pack;                                \
-        _NFN_MK_EXPAND_BUFFER_SIZE(1);                                                         \
+        M128 scalar                        = task->scalar_pack;                                 \
+        _NFN_MK_EXPAND_BUFFER_SIZE(1);                                                          \
         _NFN_MK_EXPAND_BUFFER_SIZE(2);
 
-#define _NFN_MK_EXPAND_LEFT_RIGHT_ANS_SCALAR                                                   \
+#define _NFN_MK_EXPAND_LEFT_RIGHT_ANS_SCALAR                                                    \
         NFN_MAT_KERNEL_LOCAL const *left   = (NFN_MAT_KERNEL_LOCAL const *)task->buffer[0].ptr; \
         NFN_MAT_KERNEL_LOCAL const *right  = (NFN_MAT_KERNEL_LOCAL const *)task->buffer[1].ptr; \
         NFN_MAT_KERNEL_LOCAL *restrict ans = (NFN_MAT_KERNEL_LOCAL *)task->buffer[2].ptr;       \
-        M128 scalar                        = task->scalar_pack;                                \
-        _NFN_MK_EXPAND_BUFFER_SIZE(0);                                                         \
-        _NFN_MK_EXPAND_BUFFER_SIZE(1);                                                         \
+        M128 scalar                        = task->scalar_pack;                                 \
+        _NFN_MK_EXPAND_BUFFER_SIZE(0);                                                          \
+        _NFN_MK_EXPAND_BUFFER_SIZE(1);                                                          \
         _NFN_MK_EXPAND_BUFFER_SIZE(2);
 
-#define _NFN_MK_EXPAND_ANS_SCALAR                                                        \
+#define _NFN_MK_EXPAND_ANS_SCALAR                                                         \
         NFN_MAT_KERNEL_LOCAL *restrict ans = (NFN_MAT_KERNEL_LOCAL *)task->buffer[2].ptr; \
-        M128 scalar                        = task->scalar_pack;                          \
+        M128 scalar                        = task->scalar_pack;                           \
         _NFN_MK_EXPAND_BUFFER_SIZE(2);
 
 #define _NFN_PARAM_STYLE(T) _NFN_MATPROC_##T

@@ -2,7 +2,6 @@
 
 #if NFN_IS_ARCH(NFN_ARCH_X86_64)
 
-#include "nfn_intrinsic.h"
 #include "nfn_intrinsic.context.x86.h"
 #include "nfn_intrinsic.std.h"
 

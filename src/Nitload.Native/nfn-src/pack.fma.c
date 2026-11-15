@@ -19,6 +19,8 @@
 * scalar pack carries column length and offset data:
 * [column length, empty, empty, empty]
 */
+
+
 NFN_MK_PROC_DECL_STD(float, sse, , fma_pack_left)
 {
         __mk_param_std(RIGHT_ANS_SCALAR, float);
