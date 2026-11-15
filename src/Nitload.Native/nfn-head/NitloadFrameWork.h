@@ -10,7 +10,7 @@
 
 #include <immintrin.h>
 #include <assert.h>
-#include <glfw_function.h>
+#include <nfn.glfw_function.h>
 
 #define byte char
 #define cs_char uint16_t

@@ -35,3 +35,4 @@ BenchmarkDotNet.Artifacts/
 /src/Nitload.Native/lib/*
 !/src/Nitload.Native/lib/**/
 !/src/Nitload.Native/lib/**/CMakeLists.txt
+/src/Nitload.*/Properties

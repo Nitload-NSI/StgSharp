@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // file="UnsafeCompute"
-// Project: StgSharp
+// Project: ['.] nFramework
 // Copyright (c) Nitload.
 // SPDX-License-Identifier: MIT
 // -----------------------------------------------------------------------------
@@ -30,16 +30,6 @@ namespace Nitload.Mathematics.Internal
         )
         {
             return NumericalModule.GlobalContext.city_hash_simplify(span + begin, length);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe int IndexOfCharPair(
-                                 char* source,
-                                 int pairValue,
-                                 int length
-        )
-        {
-            return NumericalModule.GlobalContext.index_pair(source, pairValue, length);
         }
 
     }

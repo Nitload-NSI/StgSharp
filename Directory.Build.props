@@ -4,9 +4,9 @@
   <!--  全局属性：所有 C# 项目共享                               -->
   <!-- ════════════════════════════════════════════════════════ -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <LangVersion>Preview</LangVersion>
+    <LangVersion>14.0</LangVersion>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
@@ -15,10 +15,6 @@
     <Configurations>Debug;Release;PerformanceDebug</Configurations>
     <NoWarn>1701;1702;0649;1591;0169</NoWarn>
 
-    <!-- 包信息 -->
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/Nitload-NSI/StgSharp</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Nitload-NSI/StgSharp.git</RepositoryUrl>
   </PropertyGroup>
 
   <!-- ════════════════════════════════════════════════════════ -->

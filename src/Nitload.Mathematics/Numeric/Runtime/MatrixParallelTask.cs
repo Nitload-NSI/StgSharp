@@ -66,7 +66,6 @@ namespace Nitload.Mathematics.Numeric.Runtime
 
         #endregion
 
-
         #region layout
 
         [FieldOffset(0)] public MatrixParallelSource Buffer0;
