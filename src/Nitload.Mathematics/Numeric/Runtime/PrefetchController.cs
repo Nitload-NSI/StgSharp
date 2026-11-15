@@ -37,7 +37,7 @@ namespace Nitload.Mathematics.Numeric.Runtime
         )
         {
             // for highest byte of source.description must being type code ranging 1-10, so negative value or say 1 at highest bit can be used as mark for "prefetch accomplishment"
-            if (source.Description < 0)
+            if ((source.Description & 0x80000000u) != 0)
             {
                 return;
             }
