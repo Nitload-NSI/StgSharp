@@ -1,0 +1,72 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="PerformanceDebug" />
+    <BuildType Name="Release" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="src/Nitload.Common/Nitload.Common.csproj">
+    <BuildDependency Project="src/Nitload.Native/Nitload.Native.vcxproj" />
+    <BuildType Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Debug|ARM64" Project="ARM64" />
+    <Platform Solution="Debug|x64" Project="x64" />
+    <Platform Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Release|ARM64" Project="ARM64" />
+    <Platform Solution="Release|x64" Project="x64" />
+    <Build Solution="PerformanceDebug|*" Project="false" />
+  </Project>
+  <Project Path="src/Nitload.Graphics/Nitload.Graphics.csproj">
+    <BuildType Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Debug|ARM64" Project="ARM64" />
+    <Platform Solution="Debug|x64" Project="x64" />
+    <Platform Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Release|ARM64" Project="ARM64" />
+    <Platform Solution="Release|x64" Project="x64" />
+    <Build Solution="PerformanceDebug|*" Project="false" />
+  </Project>
+  <Project Path="src/Nitload.Mathematics/Nitload.Mathematics.csproj">
+    <BuildType Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Debug|ARM64" Project="ARM64" />
+    <Platform Solution="Debug|x64" Project="x64" />
+    <Platform Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Release|ARM64" Project="ARM64" />
+    <Platform Solution="Release|x64" Project="x64" />
+    <Build Solution="PerformanceDebug|*" Project="false" />
+  </Project>
+  <Project Path="src/Nitload.Model/Nitload.Model.csproj">
+    <BuildType Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Debug|ARM64" Project="ARM64" />
+    <Platform Solution="Debug|x64" Project="x64" />
+    <Platform Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Release|ARM64" Project="ARM64" />
+    <Platform Solution="Release|x64" Project="x64" />
+    <Build Solution="PerformanceDebug|*" Project="false" />
+  </Project>
+  <Project Path="src/Nitload.Native/Nitload.Native.vcxproj">
+    <BuildType Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="PerformanceDebug|*" Project="?" />
+    <Build Solution="PerformanceDebug|*" Project="false" />
+  </Project>
+  <Project Path="src/Nitload.RegularAnalysis/Nitload.RegularAnalysis.csproj">
+    <BuildType Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Debug|ARM64" Project="ARM64" />
+    <Platform Solution="Debug|x64" Project="x64" />
+    <Platform Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Release|ARM64" Project="ARM64" />
+    <Platform Solution="Release|x64" Project="x64" />
+    <Build Solution="PerformanceDebug|*" Project="false" />
+  </Project>
+  <Project Path="src/Nitload.TerminalDialogue/Nitload.TerminalDialogue.csproj">
+    <BuildType Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Debug|ARM64" Project="ARM64" />
+    <Platform Solution="Debug|x64" Project="x64" />
+    <Platform Solution="PerformanceDebug|*" Project="?" />
+    <Platform Solution="Release|ARM64" Project="ARM64" />
+    <Platform Solution="Release|x64" Project="x64" />
+    <Build Solution="PerformanceDebug|*" Project="false" />
+  </Project>
+</Solution>

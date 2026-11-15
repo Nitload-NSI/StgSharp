@@ -1,3 +1,4 @@
+#include "nfn_intrinsic.std.h"
 #include "nfn_target.h"
 
 #if NFN_IS_ARCH(NFN_ARCH_X86_64)
@@ -26,6 +27,55 @@ NFN_MK_PROC_DECL_STD(float, sse, , fma_pack_left)
         __mk_param_std(RIGHT_ANS_SCALAR, float);
         // for SSE branch, no need for rounding, a direct copy is sufficient as long as the buffer is large enough to hold the packed data
         memcpy(ans, right + offset_1, sizeof(MAT_KERNEL(float)) * count_2);
+}
+
+NFN_IO_PROC_DECL_STD(float, sse, , fma_pack_left)
+{
+        // __io_param_std(RIGHT_ANS_SCALAR, float);
+        void* src_ptr = external_mem->ptr;
+        void* dst_ptr = internal_mem->ptr;
+        uint32_t size = external_mem->size;
+
+        memcpy(dst_ptr, src_ptr, size);
+}
+
+NFN_IO_PROC_DECL_STD(float, avx,  , fma_pack_left)
+{
+        MAT_KERNEL(float)* src_ptr = external_mem->ptr;
+        MAT_KERNEL(float)* dst_ptr = internal_mem->ptr;
+        uint32_t size = external_mem->size;
+        uint32_t count = size / sizeof(MAT_KERNEL(float));
+
+                size_t i = 0;
+        for (; i < (count & (~0x1)); i += 2) {
+                register __m256 ker_0_left = _mm256_load_ps((float *)&src_ptr[i].y[0]);
+                register __m256 ker_0_right = _mm256_load_ps((float *)&src_ptr[i].y[1]);
+                register __m256 ker_1_left = _mm256_load_ps((float *)&src_ptr[i].y[0]);
+                register __m256 ker_1_right = _mm256_load_ps((float *)&src_ptr[i].y[1]);
+                register __m256 col_0 = _mm256_unpacklo_ps(ker_0_left, ker_1_left);
+                register __m256 col_1 = _mm256_unpackhi_ps(ker_0_left, ker_1_left);
+                register __m256 col_2 = _mm256_unpacklo_ps(ker_0_right, ker_1_right);
+                register __m256 col_3 = _mm256_unpackhi_ps(ker_0_right, ker_1_right);
+
+                _mm256_store_ps((float *)&dst_ptr[i].y[0], col_0);
+                _mm256_store_ps((float *)&dst_ptr[i].y[1], col_1);
+                _mm256_store_ps((float *)&dst_ptr[i].y[2], col_2);
+                _mm256_store_ps((float *)&dst_ptr[i].y[3], col_3);
+        }
+        if (count & 0x1) {
+                register __m256 ker_0_left = _mm256_load_ps((float *)&src_ptr[i].y[0]);
+                register __m256 ker_0_right = _mm256_load_ps((float *)&src_ptr[i].y[1]);
+                register __m256 zero = _mm256_setzero_ps();
+                register __m256 col_0 = _mm256_unpacklo_ps(ker_0_left, zero);
+                register __m256 col_1 = _mm256_unpackhi_ps(ker_0_left, zero);
+                register __m256 col_2 = _mm256_unpacklo_ps(ker_0_right, zero);
+                register __m256 col_3 = _mm256_unpackhi_ps(ker_0_right, zero);
+
+                _mm256_store_ps((float *)&dst_ptr[i].y[0], col_0);
+                _mm256_store_ps((float *)&dst_ptr[i].y[1], col_1);
+                _mm256_store_ps((float *)&dst_ptr[i].y[2], col_2);
+                _mm256_store_ps((float *)&dst_ptr[i].y[3], col_3);
+        }
 }
 
 NFN_MK_PROC_DECL_STD(float, avx, , fma_pack_left)

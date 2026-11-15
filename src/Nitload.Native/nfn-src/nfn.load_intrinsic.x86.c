@@ -59,6 +59,10 @@ void load_intrinsic_sse(nfn_intrinsic *context, SIMDID id)
         context->mat_mk[F64].proc_array[Fma] = GET_MK_PROC_STD(double, sse, , fma);
         context->mat_mk[F64].proc_array[Pivot] = NULL;
 
+        context->mat_io[F32].proc_array[Fma_right] = GET_IO_PROC_STD(float, sse, , fma_pack_right);
+
+        context->mat_io[F64].proc_array[Fma_right] = GET_IO_PROC_STD(double, sse, , fma_pack_right);
+
         context->vec_f32_normalize_3 = f32_normalize;
 }
 
@@ -88,6 +92,10 @@ void load_intrinsic_avx(nfn_intrinsic *context, SIMDID id)
                                             GET_MK_PROC_STD(double, avx, , fma);
         context->mat_mk[F64].proc_array[Pivot] = NULL;
 
+        context->mat_io[F32].proc_array[Fma_right] = GET_IO_PROC_STD(float, avx, , fma_pack_right);
+
+        context->mat_io[F64].proc_array[Fma_right] = GET_IO_PROC_STD(double, avx, , fma_pack_right);
+
         context->vec_f32_normalize_3 = f32_normalize;
 }
 
@@ -111,6 +119,11 @@ void load_intrinsic_512(nfn_intrinsic *context, SIMDID id)
         context->mat_mk[F64].proc_array[Transpose] = NULL;
         context->mat_mk[F64].proc_array[Fma] = GET_MK_PROC_STD(double, 512, , fma);
         context->mat_mk[F64].proc_array[Pivot] = NULL;
+
+        context->mat_io[F32].proc_array[Fma_right] = GET_IO_PROC_STD(float, 512, , fma_pack_right);
+        
+        context->mat_io[F64].proc_array[Fma_right] = GET_IO_PROC_STD(double, 512, , fma_pack_right);
+
 
         context->vec_f32_normalize_3 = f32_normalize;
 }

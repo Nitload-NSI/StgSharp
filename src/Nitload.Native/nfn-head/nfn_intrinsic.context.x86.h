@@ -170,6 +170,8 @@ NFN_MK_PROC_DECL_STD(float, sse, , fma_pack_left);
 NFN_MK_PROC_DECL_STD(float, avx, , fma_pack_left);
 NFN_MK_PROC_DECL_STD(float, 512, , fma_pack_left);
 
+
+
 /*
 * pack right matrix data to L4 buffer
 * 
@@ -185,9 +187,21 @@ NFN_MK_PROC_DECL_STD(float, 512, , fma_pack_left);
 * scalar pack carries column length and offset data:
 * [column length, empty, empty, empty]
 */
-NFN_MK_PROC_DECL_STD(float, sse, , fma_pack_right);
-NFN_MK_PROC_DECL_STD(float, avx, , fma_pack_right);
-NFN_MK_PROC_DECL_STD(float, 512, , fma_pack_right);
+NFN_IO_PROC_DECL_STD(float, sse, ,fma_pack_right);
+NFN_IO_PROC_DECL_STD(float, avx, ,fma_pack_right);
+NFN_IO_PROC_DECL_STD(float, 512, ,fma_pack_right);
+
+NFN_IO_PROC_DECL_STD(float, sse, , fma_pack_left);
+NFN_IO_PROC_DECL_STD(float, avx, , fma_pack_left);
+NFN_IO_PROC_DECL_STD(float, 512, , fma_pack_left);
+
+NFN_IO_PROC_DECL_STD(double, sse, ,fma_pack_right);
+NFN_IO_PROC_DECL_STD(double, avx, ,fma_pack_right);
+NFN_IO_PROC_DECL_STD(double, 512, ,fma_pack_right);
+
+NFN_IO_PROC_DECL_STD(double, sse, , fma_pack_left);
+NFN_IO_PROC_DECL_STD(double, avx, , fma_pack_left);
+NFN_IO_PROC_DECL_STD(double, 512, , fma_pack_left);
 
 NFN_MK_PROC_DECL_STD(float, sse, , fma);
 NFN_MK_PROC_DECL_STD(float, avx, , fma);
@@ -197,10 +211,6 @@ NFN_MK_PROC_DECL_STD(float, 512, , fma);
 NFN_MK_PROC_DECL_STD(float, sse, , fma_unpack);
 NFN_MK_PROC_DECL_STD(float, avx, , fma_unpack);
 NFN_MK_PROC_DECL_STD(float, 512, , fma_unpack);
-
-NFN_MK_PROC_DECL_STD(double, sse, , fma_pack_left);
-NFN_MK_PROC_DECL_STD(double, avx, , fma_pack_left);
-NFN_MK_PROC_DECL_STD(double, 512, , fma_pack_left);
 
 NFN_MK_PROC_DECL_STD(double, sse, , fma);
 NFN_MK_PROC_DECL_STD(double, avx, , fma);

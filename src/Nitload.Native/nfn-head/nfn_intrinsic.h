@@ -186,7 +186,7 @@ typedef struct nfn_intrinsic {
         HASH                city_hash_simplify;
         FACTORIALROC        factorial_simd;
         VECTORNORMALIZEPROC vec_f32_normalize_3;
-        mat_io_intrinsic    mat_mk_cache_io[nfn_count_of_mat_scalar];
+        mat_io_intrinsic    mat_io[nfn_count_of_mat_scalar];
         mat_mk_intrinsic    mat_mk[nfn_count_of_mat_scalar];
         mat_sk_intrinsic    mat_sk[nfn_count_of_mat_scalar];
 
@@ -200,9 +200,7 @@ typedef enum mat_proc_index {
         Transpose    = 4,
         ClearPanel   = 5,
         Fma          = 6,
-        PackFmaLeft  = 7,
-        PackFmaRight = 8,
-        Pivot        = 9,
+        Pivot        = 7,
 } mat_proc_index;
 typedef enum mat_io_proc_index {
         No_op     = 0,

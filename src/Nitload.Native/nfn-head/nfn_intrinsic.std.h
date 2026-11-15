@@ -35,13 +35,15 @@
 
 #pragma region mk_cache_io_proc attributes
 
-#define MK_CACHE_PROC_NAME_STD(T_type, T_arch, T_feature, T_op) \
+#define IO_PROC_NAME_STD(T_type, T_arch, T_feature, T_op) \
         T_type##_multi_kernel_cache_io_proc_##T_op##_##T_arch##_##T_feature
-#define MK_CACHE_PROC_STD(T_type, T_arch, T_feature, T_op)                                         \
+#define GET_IO_PROC_STD(T_type, T_arch, T_feature, T_op) \
+        ((UNI_IO_PROC)IO_PROC_NAME_STD(T_type, T_arch, T_feature, T_op))
+#define NFN_IO_PROC_DECL_STD(T_type, T_arch, T_feature, T_op)                                            \
         INTERNAL NOINLINE                        NFN_STD_TARGET_ATTR(                              \
-                T_arch, T_feature) void NFN_DECL MK_CACHE_PROC_NAME_STD(T_type, T_arch, T_feature, \
+                T_arch, T_feature) void NFN_DECL IO_PROC_NAME_STD(T_type, T_arch, T_feature, \
                                                                         T_op)(                     \
-                nfn_L4_address_source * external_mem, nfn_L4_handle internal_mem)
+                nfn_L4_address_source * external_mem, nfn_L4_handle *internal_mem)
 
 #pragma endregion
 
